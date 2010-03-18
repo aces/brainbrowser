@@ -1,0 +1,8 @@
+require 'rubygems'
+require 'sinatra'
+require 'mniobj'
+
+get '/' do
+  
+  erb :index
+end

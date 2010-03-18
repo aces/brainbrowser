@@ -1,0 +1,247 @@
+ <html>  
+    <head>  
+       <meta http-equiv="content-type" content="text/html; charset=UTF-8">  
+       <title>MNI Object web viewer</title>  
+       <script type="text/javascript" src="http://o3d.googlecode.com/svn/trunk/samples/o3djs/base.js"></script>  
+       <script type="text/javascript">  
+          o3djs.require('o3djs.util');  
+          o3djs.require('o3djs.math');  
+          o3djs.require('o3djs.rendergraph');  
+   
+          // Events  
+          // Run the init() function once the page has finished loading.  
+          // Run the uninit() function when the page has is unloaded.  
+          window.onload = init;  
+          window.onunload = uninit;  
+   
+          // global variables  
+          var g_o3d;  
+          var g_math;  
+          var g_client;  
+          var g_pack;  
+          var g_clock = 0;  
+          var g_timeMult = 1;  
+          var g_brainTransform;
+          function createBrain(material) {  
+            var brainShape = g_pack.createObject('Shape');  
+            var brainPrimitive = g_pack.createObject('Primitive');  
+            var streamBank = g_pack.createObject('StreamBank');  
+   
+            brainPrimitive.material = material;  
+            brainPrimitive.owner = brainShape;  
+            brainPrimitive.streamBank = streamBank;  
+   
+            brainPrimitive.primitiveType = g_o3d.Primitive.TRIANGLELIST;  
+            brainPrimitive.numberPrimitives = <%= @object.polygons.size %>; // 12 triangles  
+            brainPrimitive.numberVertices = <%= @object.vertices.size %>;    // 8 vertices in total 
+   
+            var positionArray = [  
+	     <% @object.vertices.each do |vertex| %>
+	       <%= vertex.join(",")+"," %>
+	     <% end %>
+            ];  
+   
+            var indicesArray = [  
+	      <% @object.polygons.each do |polygon| %>
+	        <%= polygon.join(",")+"," %>
+              <% end %>
+            ];  
+   
+            var positionsBuffer = g_pack.createObject('VertexBuffer');  
+            var positionsField = positionsBuffer.createField('FloatField', 3);  
+            positionsBuffer.set(positionArray);  
+   
+            var indexBuffer = g_pack.createObject('IndexBuffer');  
+            indexBuffer.set(indicesArray);  
+   
+            streamBank.setVertexStream(  
+                g_o3d.Stream.POSITION, //  This stream stores vertex positions  
+                0,                     // First (and only) position stream  
+                positionsField,        // field: the field this stream uses.  
+                0);                    // start_index:  
+            // Associate the triangle indices Buffer with the primitive.  
+            brainPrimitive.indexBuffer = indexBuffer;  
+   
+            return brainShape;  
+          }  
+   
+          /** 
+           * This method gets called every time O3D renders a frame. 
+           * Here's where we update the brain's transform to make it spin. 
+           * @param {o3d.RenderEvent} renderEvent The render event object 
+           * that gives us the elapsed time since last time a frame was rendered. 
+           */  
+         function renderCallback(renderEvent) {  
+           g_clock += renderEvent.elapsedTime * g_timeMult;
+ // Rotate the brain around the Y axis.  
+            g_brainTransform.identity();  
+            g_brainTransform.rotateY(2.0 * g_clock);  
+          }  
+   
+          /** 
+           * Creates the client area. 
+           */  
+          function init() {  
+            o3djs.util.makeClients(initStep2,"LargeGeometry");  
+          }  
+   
+          /** 
+           * Initializes O3D. 
+           * @param {Array} clientElements Array of o3d object elements. 
+           */  
+          function initStep2(clientElements) {  
+            // Initializes global variables and libraries.  
+            var o3dElement = clientElements[0];  
+            g_client = o3dElement.client;  
+            g_o3d = o3dElement.o3d;  
+            g_math = o3djs.math;  
+   
+            // Initialize O3D sample libraries.  
+            o3djs.base.init(o3dElement);  
+   
+            // Create a pack to manage the objects created.  
+            g_pack = g_client.createPack();  
+   
+            // Create the render graph for a view.  
+            var viewInfo = o3djs.rendergraph.createBasicView(  
+                g_pack,  
+                g_client.root,  
+                g_client.renderGraphRoot);  
+   
+             // Set up a simple orthographic view.  
+   
+            viewInfo.drawContext.projection = g_math.matrix4.perspective(  
+                g_math.degToRad(30), // 30 degree fov.  
+                g_client.width / g_client.height,  
+                1,                  // Near plane.  
+                5000);              // Far plane.  
+   
+            // Set up our view transformation to look towards the world origin  
+            // where the brain is located.  
+            viewInfo.drawContext.view = g_math.matrix4.lookAt([0, 0, 500], // eye  
+                                                      [0, 0, 0],  // target  
+                                                      [0, 1, 0]); // up  
+   
+            // Create an Effect object and initialize it using the shaders  
+            // from the text area.  
+            var redEffect = g_pack.createObject('Effect');  
+            var shaderString = document.getElementById('effect').value;  
+            redEffect.loadFromFXString(shaderString);  
+   
+            // Create a Material for the mesh.  
+            var redMaterial = g_pack.createObject('Material');  
+   
+            // Set the material's drawList.  
+            redMaterial.drawList = viewInfo.performanceDrawList;  
+   
+            // Apply our effect to this material. The effect tells the 3D  
+            // hardware which shaders to use.  
+            redMaterial.effect = redEffect;  
+   
+            // Create the Shape for the brain mesh and assign its material.  
+            var brainShape = createBrain(redMaterial);  
+   
+            // Create a new transform and parent the Shape under it.  
+            g_brainTransform = g_pack.createObject('Transform'); 
+	    // Light position
+	    var light_pos_param = redEffect.getParam('light_pos');
+	    light_pos_param.value = [10, 100, 200];
+	      
+	    // Phong components of the light source
+	    var light_ambient_param = redEffect.getParam('light_ambient');
+	    var light_diffuse_param = redEffect.getParam('light_diffuse');
+	    var light_specular_param = redEffect.getParam('light_specular');
+	      
+	    
+	    // White ambient light
+	    light_ambient_param.value = [0.04, 0.04, 0.04, 1];
+	    // Reddish diffuse light
+	    light_diffuse_param.value = [0.8, 0, 0, 1];
+	    // White specular light
+	    light_specular_param.value = [0.5, 0.5, 0.5, 1];
+	      
+	    // Shininess of the material (for specular lighting)
+	    var shininess_param = redEffect.getParam('shininess');
+	    shininess_param.value = 30.0;
+
+
+
+            g_brainTransform.addShape(brainShape); 
+  
+            // Parent the brain's transform to the client root.  
+            g_brainTransform.parent = g_client.root;  
+   
+            // Generate the draw elements for the brain shape.  
+            brainShape.createDrawElements(g_pack, null);  
+   
+            // Set our render callback for animation.  
+            // This sets a function to be executed every time frame is rendered.  
+            g_client.setRenderCallback(renderCallback);  
+          }  
+   
+          /** 
+           * Removes any callbacks so they not called after the page has unloaded. 
+           */  
+          function uninit() {  
+            if (g_client) {  
+              g_client.cleanup();  
+            }  
+          }  
+   
+       </script>  
+    </head>  
+    <body>  
+       <h1>Nic's Brain 0.00000001a</h1>  
+       Behold the awesomeness of THE BRAIN!!!!
+       <br/>  
+   
+       <div id="o3d" style="width: 1024px; height: 768px;"></div>  
+       <div style="display:none">  
+          <!-- Start of effect -->  
+          <textarea id="effect">  
+            // World View Projection matrix that will transform the input  
+            // vertices to screen space.  
+            float4x4 worldViewProjection : WorldViewProjection;  
+   
+            // input parameters for our vertex shader  
+            struct VertexShaderInput {  
+              float4 position : POSITION;  
+            };  
+   
+            // input parameters for our pixel shader  
+            struct PixelShaderInput {  
+              float4 position : POSITION;  
+            };  
+   
+            /** 
+             * The vertex shader transforms the input vertices to screen space. 
+             */  
+            PixelShaderInput vertexShaderFunction(VertexShaderInput input) {  
+              PixelShaderInput output;  
+   
+              // Multiply the vertex positions by the worldViewProjection matrix  
+              // to transform them to screen space.  
+              output.position = mul(input.position, worldViewProjection);  
+              return output;  
+            }  
+   
+            /** 
+             * This pixel shader just returns the color red. 
+             */  
+	    
+	    float4 pixelShaderFunction(PixelShaderInput input) : COLOR {
+	     return float4(0,0,0,0);
+	    }
+
+   
+            // Here we tell our effect file *which* functions are  
+            // our vertex and pixel shaders.  
+   
+            // #o3d VertexShaderEntryPoint vertexShaderFunction  
+            // #o3d PixelShaderEntryPoint pixelShaderFunction  
+            // #o3d MatrixLoadOrder RowMajor  
+          </textarea>  
+          <!-- End of effect -->  
+     </div>  
+   </body>  
+ </html>  

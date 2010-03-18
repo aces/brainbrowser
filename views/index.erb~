@@ -1,0 +1,332 @@
+ <html>  
+    <head>  
+       <meta http-equiv="content-type" content="text/html; charset=UTF-8">  
+       <title>MNI Object web viewer</title>  
+       <script type="text/javascript" src="http://o3d.googlecode.com/svn/trunk/samples/o3djs/base.js"></script>  
+       <script type="text/javascript">  
+          o3djs.require('o3djs.util');  
+          o3djs.require('o3djs.math');  
+          o3djs.require('o3djs.rendergraph');  
+   
+          // Events  
+          // Run the init() function once the page has finished loading.  
+          // Run the uninit() function when the page has is unloaded.  
+          window.onload = init;  
+          window.onunload = uninit;  
+   
+          // global variables  
+          var g_o3d;  
+          var g_math;  
+          var g_client;  
+          var g_pack;  
+          var g_clock = 0;  
+          var g_timeMult = 1;  
+          var g_brainTransform;
+          function createBrain(material) {  
+            var brainShape = g_pack.createObject('Shape');  
+            var brainPrimitive = g_pack.createObject('Primitive');  
+            var streamBank = g_pack.createObject('StreamBank');  
+   
+            brainPrimitive.material = material;  
+            brainPrimitive.owner = brainShape;  
+            brainPrimitive.streamBank = streamBank;  
+   
+            brainPrimitive.primitiveType = g_o3d.Primitive.TRIANGLELIST;  
+            brainPrimitive.numberPrimitives = <%= @object.polygons.size %>; // 12 triangles  
+            brainPrimitive.numberVertices = <%= @object.vertices.size %>;    // 8 vertices in total 
+   
+            var positionArray = [  
+	     <% @object.vertices.each do |vertex| %>
+	       <%= vertex.join(",")+"," %>
+	     <% end %>
+            ];  
+   
+            var indicesArray = [  
+	      <% @object.polygons.each do |polygon| %>
+	        <%= polygon.join(",")+"," %>
+              <% end %>
+            ];  
+
+	    var normalArray = [
+	      <% @object.normal_vectors.each do |normal| %>
+	        <%= normal.join(",")+"," %>
+              <% end %>
+	    ];
+            var positionsBuffer = g_pack.createObject('VertexBuffer');  
+            var positionsField = positionsBuffer.createField('FloatField', 3);  
+            positionsBuffer.set(positionArray);  
+   
+            var indexBuffer = g_pack.createObject('IndexBuffer');  
+            indexBuffer.set(indicesArray);  
+   
+            streamBank.setVertexStream(  
+                g_o3d.Stream.POSITION, //  This stream stores vertex positions  
+                0,                     // First (and only) position stream  
+                positionsField,        // field: the field this stream uses.  
+                0);                    // start_index:  
+
+	      streamBank.setVertexStream(  
+                g_o3d.Stream.NORMAL, //  This stream stores vertex positions  
+                0,                     // First (and only) position stream  
+                normalARRAY,        // field: the field this stream uses.  
+                0);                    // start_index:  
+
+
+            // Associate the triangle indices Buffer with the primitive.  
+            brainPrimitive.indexBuffer = indexBuffer;  
+   
+            return brainShape;  
+          }  
+   
+          /** 
+           * This method gets called every time O3D renders a frame. 
+           * Here's where we update the brain's transform to make it spin. 
+           * @param {o3d.RenderEvent} renderEvent The render event object 
+           * that gives us the elapsed time since last time a frame was rendered. 
+           */  
+         function renderCallback(renderEvent) {  
+           g_clock += renderEvent.elapsedTime * g_timeMult;
+ // Rotate the brain around the Y axis.  
+            g_brainTransform.identity();  
+            g_brainTransform.rotateY(2.0 * g_clock);  
+          }  
+   
+          /** 
+           * Creates the client area. 
+           */  
+          function init() {  
+            o3djs.util.makeClients(initStep2,"LargeGeometry");  
+          }  
+   
+          /** 
+           * Initializes O3D. 
+           * @param {Array} clientElements Array of o3d object elements. 
+           */  
+          function initStep2(clientElements) {  
+            // Initializes global variables and libraries.  
+            var o3dElement = clientElements[0];  
+            g_client = o3dElement.client;  
+            g_o3d = o3dElement.o3d;  
+            g_math = o3djs.math;  
+   
+            // Initialize O3D sample libraries.  
+            o3djs.base.init(o3dElement);  
+   
+            // Create a pack to manage the objects created.  
+            g_pack = g_client.createPack();  
+   
+            // Create the render graph for a view.  
+            var viewInfo = o3djs.rendergraph.createBasicView(  
+                g_pack,  
+                g_client.root,  
+                g_client.renderGraphRoot);  
+   
+             // Set up a simple orthographic view.  
+   
+            viewInfo.drawContext.projection = g_math.matrix4.perspective(  
+                g_math.degToRad(30), // 30 degree fov.  
+                g_client.width / g_client.height,  
+                1,                  // Near plane.  
+                5000);              // Far plane.  
+   
+            // Set up our view transformation to look towards the world origin  
+            // where the brain is located.  
+            viewInfo.drawContext.view = g_math.matrix4.lookAt([0, 0, 500], // eye  
+                                                      [0, 0, 0],  // target  
+                                                      [0, 1, 0]); // up  
+   
+            // Create an Effect object and initialize it using the shaders  
+            // from the text area.  
+            var effect = g_pack.createObject('Effect');  
+            var shaderString = document.getElementById('shader').value;  
+            effect.loadFromFXString(shaderString);  
+   
+            // Create a MyMaterial for the mesh.  
+            var myMaterial = g_pack.createObject('Material');  
+   
+            // Set the myMaterial's drawList.  
+            myMaterial.drawList = viewInfo.performanceDrawList;  
+   
+            // Apply our effect to this myMaterial. The effect tells the 3D  
+            // hardware which shaders to use.  
+            myMaterial.effect = effect;  
+   
+	    effect.createUniformParameters(myMaterial);
+	      
+            // Create the Shape for the brain mesh and assign its myMaterial.  
+            var brainShape = createBrain(myMaterial);  
+   
+            // Create a new transform and parent the Shape under it.  
+            g_brainTransform = g_pack.createObject('Transform'); 
+	    // Light position
+	    var light_pos_param = myMaterial.getParam('light_pos');
+	    light_pos_param.value = [10, 100, 200];
+	      
+	    // Phong components of the light source
+	    var light_ambient_param = myMaterial.getParam('light_ambient');
+	    var light_diffuse_param = myMaterial.getParam('light_diffuse');
+	    var light_specular_param = myMaterial.getParam('light_specular');
+	      
+	    
+	    // White ambient light
+	    light_ambient_param.value = [0.04, 0.04, 0.04, 1];
+	    // Reddish diffuse light
+	    light_diffuse_param.value = [0.8, 0, 0, 1];
+	    // White specular light
+	    light_specular_param.value = [0.5, 0.5, 0.5, 1];
+	      
+	    // Shininess of the myMaterial (for specular lighting)
+	    var shininess_param = myMaterial.getParam('shininess');
+	    shininess_param.value = 30.0;
+
+
+
+            g_brainTransform.addShape(brainShape); 
+  
+            // Parent the brain's transform to the client root.  
+            g_brainTransform.parent = g_client.root;  
+   
+            // Generate the draw elements for the brain shape.  
+            brainShape.createDrawElements(g_pack, null);  
+   
+            // Set our render callback for animation.  
+            // This sets a function to be executed every time frame is rendered.  
+            g_client.setRenderCallback(renderCallback);  
+          }  
+   
+          /** 
+           * Removes any callbacks so they not called after the page has unloaded. 
+           */  
+          function uninit() {  
+            if (g_client) {  
+              g_client.cleanup();  
+            }  
+          }  
+   
+       </script>  
+    </head>  
+    <body>  
+       <h1>Nic's Brain 0.00000001a</h1>  
+       Behold the awesomeness of THE BRAIN!!!!
+       <br/>  
+   
+       <div id="o3d" style="width: 1024px; height: 768px;"></div>  
+       <div style="display:none">  
+          <!-- Start of effect -->  
+          <textarea id="shader" name="shader" cols="80" rows="20"
+ style="display: none;">
+// The 4x4 world view projection matrix.
+float4x4 worldViewProjection : WorldViewProjection;
+
+// positions of the light and camera
+float3 light_pos;
+float3 camera_pos;
+
+// phong lighting components of the light source
+float4 light_ambient;
+float4 light_diffuse;
+float4 light_specular;
+
+//  shininess of the material. (for specular lighting)
+float shininess;
+
+// input parameters for our vertex shader
+struct VertexShaderInput {
+  float4 postion : POSITION;
+  float3 normal : NORMAL;
+  float4 color : COLOR;
+};
+
+// input parameters for our pixel shader
+// also the output parameters for our vertex shader
+struct PixelShaderInput {
+  float4 postion : POSITION;
+  float3 lightVector : TEXCOORD0;
+  float3 normal : TEXCOORD1;
+  float3 viewPosition : TEXCOORD2;
+  float4 color : COLOR;
+};
+
+/**
+ * Vertex Shader - vertex shader for phong illumination
+ */
+PixelShaderInput vertexShaderFunction(VertexShaderInput input) {
+  /**
+   * We use the standard phong illumination equation here.
+   * We restrict (clamp) the dot products so that we
+   * don't get any negative values.
+   * All vectors are normalized for proper calculations.
+   *
+   * The output color is the summation of the
+   * ambient, diffuse, and specular contributions.
+   *
+   * Note that we have to transform each vertex and normal
+   * by the world view projection matrix first.
+   */
+  PixelShaderInput output;
+
+  output.postion = mul(input.postion, worldViewProjection);
+
+  /**
+   * lightVector - light vector
+   * normal - normal vector
+   * viewPosition - view vector (from camera)
+   */
+
+  // NOTE: In this case we do not need to multiply by any matrices since the
+  // WORLD transformation matrix is the identity. If you were moving the
+  // object such that the WORLD transform matrix was not the identity, you
+  // would need to multiply the normal by the WORLDINVERSETTRANSFORM matrix
+  // since the normal is in object space. Other values (light_pos, camera_pos)
+  // are already in world space.
+  float3 lightVector = light_pos - input.postion.xyz;
+  float3 normal = input.normal;
+  float3 viewPosition = camera_pos - input.postion.xyz;
+
+  output.lightVector = lightVector;
+  output.normal = normal;
+  output.viewPosition = viewPosition;
+  output.color = input.color;
+  return output;
+}
+
+/**
+ * Pixel Shader
+ */
+float4 pixelShaderFunction(PixelShaderInput input): COLOR {
+  float3 lightVector = normalize(input.lightVector);
+  float3 normal = normalize(input.normal);
+  float3 viewPosition = normalize(input.viewPosition);
+  float3 halfVector = normalize(lightVector + viewPosition);
+
+  // use lit function to calculate phong shading
+  // x component contains the ambient coefficient
+  // y component contains the diffuse coefficient:
+  //     max(dot(normal, lightVector),0)
+  // z component contains the specular coefficient:
+  //     dot(normal, lightVector) < 0 || dot(normal, halfVector) < 0 ?
+  //         0 : pow(dot(normal, halfVector), shininess)
+  // NOTE: This is actually Blinn-Phong shading, not Phong shading
+  // which would use the reflection vector instead of the half vector
+
+  float4 phong_coeff = lit(dot(normal, lightVector),
+                           dot(normal, halfVector), shininess);
+
+  float4 ambient = light_ambient * phong_coeff.x * input.color;
+  float4 diffuse = light_diffuse * phong_coeff.y * input.color;
+  float4 specular = light_specular * phong_coeff.z * input.color;
+
+  return ambient + diffuse + specular;
+}
+
+// Here we tell our effect file *which* functions are
+// our vertex and pixel shaders.
+
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+</textarea>  
+          <!-- End of effect -->  
+     </div>  
+   </body>  
+ </html>  

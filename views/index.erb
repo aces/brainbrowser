@@ -2,8 +2,11 @@
     <head>  
        <meta http-equiv="content-type" content="text/html; charset=UTF-8">  
        <title>MNI Object web viewer</title>  
+       <script type="text/javascript" src="/js/jquery.js" ></script>
        <script type="text/javascript" src="http://o3d.googlecode.com/svn/trunk/samples/o3djs/base.js"></script>  
        <script type="text/javascript">  
+	  jQuery.noConflict();
+	 
           o3djs.require('o3djs.util');  
           o3djs.require('o3djs.math');  
           o3djs.require('o3djs.rendergraph');  
@@ -11,9 +14,8 @@
           // Events  
           // Run the init() function once the page has finished loading.  
           // Run the uninit() function when the page has is unloaded.  
-          window.onload = init;  
-          window.onunload = uninit;  
-   
+          //window.onloa = init;  
+          window.onunload =  uninit;  
           // global variables  
           var g_o3d;  
           var g_math;  
@@ -34,31 +36,86 @@
             brainPrimitive.primitiveType = g_o3d.Primitive.TRIANGLELIST;  
             brainPrimitive.numberPrimitives = <%= @object.polygons.size %>; // 12 triangles  
             brainPrimitive.numberVertices = <%= @object.vertices.size %>;    // 8 vertices in total 
-   
-            var positionArray = [  
-	     <% @object.vertices.each do |vertex| %>
-	       <%= vertex.join(",")+"," %>
-	     <% end %>
-            ];  
-   
-            var indicesArray = [  
-	      <% @object.polygons.each do |polygon| %>
-	        <%= polygon.join(",")+"," %>
-              <% end %>
-            ];  
+	    
 
-	    var normalArray = [
-	      <% @object.normal_vectors.each do |normal| %>
-	        <%= normal.join(",")+"," %>
-              <% end %>
+            var indicesArray = [
+	     <% @object.polygons.each do |polygon| %>
+	       <%= polygon.join(",") + "," %>
+	     <% end %> 
 	    ];
-	      
-	    var colorArray = [
-	      <% @object.normal_vectors.each do %>
-	        1,1,1,1,
-	      <% end %>
-	    ];
-	      
+	    var normalArray =[];
+	    var data;
+
+
+            jQuery.ajax({
+                         type: 'GET',
+	                 url: '/model/vertices.json',
+	                 dataType: 'json',
+	                 success: function(model_data) {
+                                     data = model_data;
+                                   },
+	                 data: {},
+	                 async: false
+                         }
+            );
+	   var positionArray = data.vertices;
+	   //jQuery.ajax({
+             //            type: 'GET',
+	     //            url: '/model/polygons.json',
+	     //            dataType: 'json',
+	     //            success: function(model_data) {
+             //                        alert("SUCCESS!"); 
+             //                        data = model_data;
+             //                      },
+	     //            data: {},
+	     //            async: false
+             //            }
+            
+	   //);
+	   //for(i in data.polygons) {
+	   //  indicesArray.concat(i);
+	   //}
+	   
+	   jQuery.ajax({
+                         type: 'GET',
+	                 url: '/model/normal_vectors.json',
+	                 dataType: 'json',
+	                 success: function(model_data) {
+                                     data = model_data;
+                                   },
+	                 data: {},
+	                 async: false
+                         }
+            
+
+           );
+
+	   normalArray = data.normal_vectors;
+	   //var colorArray = [];
+	   //jQuery.ajax({
+           //              type: 'GET',
+	   //              url: '/model/colors.json',
+	   //              dataType: 'json',
+	   //              success: function(model_data) {
+           //                          alert("get colors SUCCESS!"); 
+           //                          data = model_data;
+           //                        },
+	   //              data: {},
+	   //              async: false
+           //              }
+            
+
+           //);
+	   //alert(data.colors);
+	   //for(c in data.colors) {
+	     //colorArray.concat(c);
+	   //} 
+	   var colorArray = [
+	     <% @object.vertices.size.times do %>
+	       1,1,1,1,
+	     <% end %>
+	     ];
+	   
             var positionsBuffer = g_pack.createObject('VertexBuffer');  
             var positionsField = positionsBuffer.createField('FloatField', 3);  
             positionsBuffer.set(positionArray);  
@@ -66,7 +123,7 @@
 	    var normalField = normalBuffer.createField('FloatField', 3);  
             normalBuffer.set(normalArray);  
 	    var colorBuffer = g_pack.createObject('VertexBuffer');  
-	    var colorField = colorBuffer.createField('FloatField', 3);  
+	    var colorField = colorBuffer.createField('FloatField', 4);  
             colorBuffer.set(colorArray);
 	       
 	      
@@ -92,12 +149,15 @@
                 colorField,        // field: the field this stream uses.
                 0);                    // start_index:  
 
+	      
+	      
+
 
             // Associate the triangle indices Buffer with the primitive.  
             brainPrimitive.indexBuffer = indexBuffer;  
    
             return brainShape;  
-          }  
+          }
    
           /** 
            * This method gets called every time O3D renders a frame. 
@@ -106,10 +166,12 @@
            * that gives us the elapsed time since last time a frame was rendered. 
            */  
          function renderCallback(renderEvent) {  
-           g_clock += renderEvent.elapsedTime * g_timeMult;
- // Rotate the brain around the Y axis.  
+            g_clock += renderEvent.elapsedTime * g_timeMult;
+            // Rotate the brain around the Y axis.  
             g_brainTransform.identity();  
-            g_brainTransform.rotateY(2.0 * g_clock);  
+            g_brainTransform.rotateY(0.5 * g_clock);  
+            g_brainTransform.rotateZ(0.5 * g_clock);  
+	    g_brainTransform.rotateX(0.5 * g_clock);   
           }  
    
           /** 
@@ -181,7 +243,7 @@
             g_brainTransform = g_pack.createObject('Transform'); 
 	    // Light position
 	    var light_pos_param = myMaterial.getParam('light_pos');
-	    light_pos_param.value = [10, 100, 200];
+	    light_pos_param.value = [0, 0, 500];
 	      
 	    // Phong components of the light source
 	    var light_ambient_param = myMaterial.getParam('light_ambient');
@@ -190,9 +252,9 @@
 	      
 	    
 	    // White ambient light
-	    light_ambient_param.value = [0.04, 0.04, 0.04, 1];
-	    // Reddish diffuse light
-	    light_diffuse_param.value = [0.8, 0, 0, 1];
+	    light_ambient_param.value = [0, 0, 0, 0];
+	    // BLUE!!!! diffuse light
+	    light_diffuse_param.value = [0.5, 0.5, 0.7, 1];
 	    // White specular light
 	    light_specular_param.value = [0.5, 0.5, 0.5, 1];
 	      
@@ -223,6 +285,11 @@
               g_client.cleanup();  
             }  
           }  
+			   
+      
+
+       jQuery(function () { init();});
+
    
        </script>  
     </head>  
@@ -230,7 +297,7 @@
        <h1>Nic's Brain 0.00000001a</h1>  
        Behold the awesomeness of THE BRAIN!!!!
        <br/>  
-   
+       <div id="vertices"></div>
        <div id="o3d" style="width: 1024px; height: 768px;"></div>  
        <div style="display:none">  
           <!-- Start of effect -->  

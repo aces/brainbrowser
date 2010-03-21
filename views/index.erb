@@ -111,9 +111,17 @@
 	     //colorArray.concat(c);
 	   //} 
 	   var colorArray = [
-	     <% @object.vertices.size.times do %>
+	     <% (@object.vertices.size/3).times do %>
+	       1,0,0,1,
+	     <% end %>
+	     <% (@object.vertices.size/3).times do %>
 	       1,1,1,1,
 	     <% end %>
+	     <% (@object.vertices.size/3).times do %>
+	       1,0,0,1,
+	     <% end %>
+
+
 	     ];
 	   
             var positionsBuffer = g_pack.createObject('VertexBuffer');  
@@ -169,9 +177,9 @@
             g_clock += renderEvent.elapsedTime * g_timeMult;
             // Rotate the brain around the Y axis.  
             g_brainTransform.identity();  
-            g_brainTransform.rotateY(0.5 * g_clock);  
-            g_brainTransform.rotateZ(0.5 * g_clock);  
-	    g_brainTransform.rotateX(0.5 * g_clock);   
+            //g_brainTransform.rotateY(0.5 * g_clock);  
+            //g_brainTransform.rotateZ(0.5 * g_clock);  
+	    //g_brainTransform.rotateX(0.5 * g_clock);   
           }  
    
           /** 
@@ -401,7 +409,7 @@ float4 pixelShaderFunction(PixelShaderInput input): COLOR {
                            dot(normal, halfVector), shininess);
 
   float4 ambient = light_ambient * phong_coeff.x * input.color;
-  float4 diffuse = light_diffuse * phong_coeff.y * input.color;
+  float4 diffuse =  phong_coeff.y * input.color;
   float4 specular = light_specular * phong_coeff.z * input.color;
 
   return ambient + diffuse + specular;

@@ -35,7 +35,7 @@ get '/model/polygons.json' do
 
 
 
-  {:polygons => object}.to_json
+  {:polygons => polygons}.to_json
 end
 
 
@@ -53,8 +53,8 @@ end
 get '/model/colors.json' do
   colors=[]
   object.vertices.each do 
-     [0,0,1,0].each do |n|
-       colors << n
+     [0.5,0.5,0.7,0].each do |c|
+       colors << c
      end
   end
   {:colors => colors}.to_json

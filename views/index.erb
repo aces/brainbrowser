@@ -5,7 +5,7 @@
        <script type="text/javascript" src="/js/jquery.js" ></script>
        <script type="text/javascript" src="http://o3d.googlecode.com/svn/trunk/samples/o3djs/base.js"></script>  
        <script type="text/javascript">  
-	  jQuery.noConflict();
+	  	jQuery.noConflict();
 	 
           o3djs.require('o3djs.util');  
           o3djs.require('o3djs.math');  
@@ -36,136 +36,104 @@
             brainPrimitive.primitiveType = g_o3d.Primitive.TRIANGLELIST;  
             brainPrimitive.numberPrimitives = <%= @object.polygons.size %>; // 12 triangles  
             brainPrimitive.numberVertices = <%= @object.vertices.size %>;    // 8 vertices in total 
-	    
-
-            var indicesArray = [
-	     <% @object.polygons.each do |polygon| %>
-	       <%= polygon.join(",") + "," %>
-	     <% end %> 
-	    ];
-	    var normalArray =[];
-	    var data;
+	
+			var indicesArray = [];
+			var normalArray =[];
+			var data;
 
 
-            jQuery.ajax({
-                         type: 'GET',
-	                 url: '/model/vertices.json',
-	                 dataType: 'json',
-	                 success: function(model_data) {
-                                     data = model_data;
-                                   },
-	                 data: {},
-	                 async: false
-                         }
-            );
-	   var positionArray = data.vertices;
-	   //jQuery.ajax({
-             //            type: 'GET',
-	     //            url: '/model/polygons.json',
-	     //            dataType: 'json',
-	     //            success: function(model_data) {
-             //                        alert("SUCCESS!"); 
-             //                        data = model_data;
-             //                      },
-	     //            data: {},
-	     //            async: false
-             //            }
-            
-	   //);
-	   //for(i in data.polygons) {
-	   //  indicesArray.concat(i);
-	   //}
-	   
-	   jQuery.ajax({
-                         type: 'GET',
-	                 url: '/model/normal_vectors.json',
-	                 dataType: 'json',
-	                 success: function(model_data) {
-                                     data = model_data;
-                                   },
-	                 data: {},
-	                 async: false
-                         }
-            
+			jQuery.ajax({
+				type: 'GET',
+				url: '/model/vertices.json',
+				dataType: 'json',
+				success: function(model_data) {
+					data = model_data;
+				},
+				data: {},
+				async: false
+			});
+			var positionArray = data.vertices;
+			
+			jQuery.ajax({
+				type: 'GET',
+				url: '/model/polygons.json',
+				dataType: 'json',
+				success: function(model_data) { 
+					data = model_data;
+				},
+				data: {},
+				async: false
+			});
+			var indicesArray = data.polygons;
+			
+			jQuery.ajax({
+				type: 'GET',
+				url: '/model/normal_vectors.json',
+				dataType: 'json',
+				success: function(model_data) {
+					data = model_data;
+				},
+				data: {},
+				async: false
+			});
+			normalArray = data.normal_vectors;
+			
 
-           );
+			var colorArray = [];
+			jQuery.ajax({
+				type: 'GET',
+				url: '/model/colors.json',
+				dataType: 'json',
+				success: function(model_data) { 
+					data = model_data;
+				},
+				data: {},
+				async: false
+			});
+			var colorArray = data.colors;	 
+			
+			
+			//Setting VertexBuffers for positions,normals,colors
+			var positionsBuffer = g_pack.createObject('VertexBuffer');  
+			var positionsField = positionsBuffer.createField('FloatField', 3);  
+			positionsBuffer.set(positionArray);  
+			var normalBuffer = g_pack.createObject('VertexBuffer');  
+			var normalField = normalBuffer.createField('FloatField', 3);  
+			normalBuffer.set(normalArray);  
+			var colorBuffer = g_pack.createObject('VertexBuffer');  
+			var colorField = colorBuffer.createField('FloatField', 4);  
+			colorBuffer.set(colorArray);
+			//Setting indexBuffer
+			var indexBuffer = g_pack.createObject('IndexBuffer');  
+			indexBuffer.set(indicesArray);  
 
-	   normalArray = data.normal_vectors;
-	   //var colorArray = [];
-	   //jQuery.ajax({
-           //              type: 'GET',
-	   //              url: '/model/colors.json',
-	   //              dataType: 'json',
-	   //              success: function(model_data) {
-           //                          alert("get colors SUCCESS!"); 
-           //                          data = model_data;
-           //                        },
-	   //              data: {},
-	   //              async: false
-           //              }
-            
+			streamBank.setVertexStream(  
+				g_o3d.Stream.POSITION, //  This stream stores vertex positions  
+				0,                     // First (and only) position stream  
+				positionsField,        // field: the field this stream uses.  
+				0);                    // start_index:  
 
-           //);
-	   //alert(data.colors);
-	   //for(c in data.colors) {
-	     //colorArray.concat(c);
-	   //} 
-	   var colorArray = [
-	     <% (@object.vertices.size/3).times do %>
-	       1,0,0,1,
-	     <% end %>
-	     <% (@object.vertices.size/3).times do %>
-	       1,1,1,1,
-	     <% end %>
-	     <% (@object.vertices.size/3).times do %>
-	       1,0,0,1,
-	     <% end %>
-
-
-	     ];
-	   
-            var positionsBuffer = g_pack.createObject('VertexBuffer');  
-            var positionsField = positionsBuffer.createField('FloatField', 3);  
-            positionsBuffer.set(positionArray);  
-	    var normalBuffer = g_pack.createObject('VertexBuffer');  
-	    var normalField = normalBuffer.createField('FloatField', 3);  
-            normalBuffer.set(normalArray);  
-	    var colorBuffer = g_pack.createObject('VertexBuffer');  
-	    var colorField = colorBuffer.createField('FloatField', 4);  
-            colorBuffer.set(colorArray);
-	       
-	      
-            var indexBuffer = g_pack.createObject('IndexBuffer');  
-            indexBuffer.set(indicesArray);  
-   
-            streamBank.setVertexStream(  
-                g_o3d.Stream.POSITION, //  This stream stores vertex positions  
-                0,                     // First (and only) position stream  
-                positionsField,        // field: the field this stream uses.  
-                0);                    // start_index:  
-
-	      streamBank.setVertexStream(  
-                g_o3d.Stream.NORMAL, //  This stream stores vertex positions  
-                0,                     // First (and only) position stream  
-                normalField,        // field: the field this stream uses.
-                0);                    // start_index:  
+		     streamBank.setVertexStream(  
+			    g_o3d.Stream.NORMAL, //  This stream stores vertex positions  
+			    0,                     // First (and only) position stream  
+				normalField,        // field: the field this stream uses.
+			    0);                    // start_index:  
 
 
-	      streamBank.setVertexStream(  
-                g_o3d.Stream.COLOR, //  This stream stores vertex positions  
-                0,                     // First (and only) position stream  
-                colorField,        // field: the field this stream uses.
-                0);                    // start_index:  
-
-	      
-	      
+			 streamBank.setVertexStream(  
+				g_o3d.Stream.COLOR, //  This stream stores vertex positions  
+				0,                     // First (and only) position stream  
+				colorField,        // field: the field this stream uses.
+				0);                    // start_index:  
 
 
-            // Associate the triangle indices Buffer with the primitive.  
-            brainPrimitive.indexBuffer = indexBuffer;  
-   
-            return brainShape;  
-          }
+
+
+				
+			    // Associate the triangle indices Buffer with the primitive.  
+		      brainPrimitive.indexBuffer = indexBuffer;  
+		      return brainShape;  
+		     }
    
           /** 
            * This method gets called every time O3D renders a frame. 
@@ -177,9 +145,9 @@
             g_clock += renderEvent.elapsedTime * g_timeMult;
             // Rotate the brain around the Y axis.  
             g_brainTransform.identity();  
-            //g_brainTransform.rotateY(0.5 * g_clock);  
-            //g_brainTransform.rotateZ(0.5 * g_clock);  
-	    //g_brainTransform.rotateX(0.5 * g_clock);   
+            g_brainTransform.rotateY(0.5 * g_clock);  
+            g_brainTransform.rotateZ(0.5 * g_clock);  
+	        g_brainTransform.rotateX(0.5 * g_clock);   
           }  
    
           /** 
@@ -222,7 +190,8 @@
    
             // Set up our view transformation to look towards the world origin  
             // where the brain is located.  
-            viewInfo.drawContext.view = g_math.matrix4.lookAt([0, 0, 500], // eye  
+            viewInfo.drawContext.view = g_math.matrix4.lookAt(
+													  [0, 0, 500], // eye  
                                                       [0, 0, 0],  // target  
                                                       [0, 1, 0]); // up  
    
@@ -242,16 +211,16 @@
             // hardware which shaders to use.  
             myMaterial.effect = effect;  
    
-	    effect.createUniformParameters(myMaterial);
+	        effect.createUniformParameters(myMaterial);
 	      
             // Create the Shape for the brain mesh and assign its myMaterial.  
             var brainShape = createBrain(myMaterial);  
    
             // Create a new transform and parent the Shape under it.  
             g_brainTransform = g_pack.createObject('Transform'); 
-	    // Light position
-	    var light_pos_param = myMaterial.getParam('light_pos');
-	    light_pos_param.value = [0, 0, 500];
+	       // Light position
+	       var light_pos_param = myMaterial.getParam('light_pos');
+	       light_pos_param.value = [0, 0, 500];
 	      
 	    // Phong components of the light source
 	    var light_ambient_param = myMaterial.getParam('light_ambient');
@@ -260,7 +229,7 @@
 	      
 	    
 	    // White ambient light
-	    light_ambient_param.value = [0, 0, 0, 0];
+	    light_ambient_param.value = [0.1, 0.1, 0.1, 1];
 	    // BLUE!!!! diffuse light
 	    light_diffuse_param.value = [0.5, 0.5, 0.7, 1];
 	    // White specular light
@@ -408,8 +377,8 @@ float4 pixelShaderFunction(PixelShaderInput input): COLOR {
   float4 phong_coeff = lit(dot(normal, lightVector),
                            dot(normal, halfVector), shininess);
 
-  float4 ambient = light_ambient * phong_coeff.x * input.color;
-  float4 diffuse =  phong_coeff.y * input.color;
+  float4 ambient  = light_ambient  * phong_coeff.x * input.color;
+  float4 diffuse  = light_diffuse  * phong_coeff.y * input.color;
   float4 specular = light_specular * phong_coeff.z * input.color;
 
   return ambient + diffuse + specular;

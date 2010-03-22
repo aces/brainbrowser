@@ -89,7 +89,7 @@ class MNIObject
     @polygon_indexes.each do |i|
       new = []
       (i-first).times do 
-        new << obj_stack.pop
+        new << obj_stack.pop.to_i
       end
       first = i
       

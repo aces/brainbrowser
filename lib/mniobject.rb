@@ -52,6 +52,25 @@ class MNIObject
 
   end
     
+  def closest_vertice(index,position)
+    polygon=@polygons[index.to_i]
+    vertex1=@vertices[polygon[0]]
+    vertex2=@vertices[polygon[1]]
+    vertex3=@vertices[polygon[2]]
+    
+    a=distance3(vertex1,position)
+    b=distance3(vertex2,position)
+    c=distance3(vertex3,position)
+    
+    if a < b
+      ((b<c)? polygon[1] : polygon[2])
+    else
+      ((a<c)? polygon[0] : polygon[2])
+    end
+  end
+
+ 
+
   private
 
   def parse_vertices(obj_stack,num_of_vert)
@@ -95,6 +114,15 @@ class MNIObject
       
       @polygons << new
     end
+  end
+
+
+
+
+  def distance3(a,b)
+    a=[a[0].to_f,a[1].to_f,a[2].to_f]
+    b=[b[0].to_f,b[1].to_f,b[2].to_f]
+    Math.sqrt((a[0]-b[0])**2+(a[1]-b[1])**2+(a[2]-b[2])**2)
   end
 
 end

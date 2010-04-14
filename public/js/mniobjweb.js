@@ -26,8 +26,10 @@ var g_pack;
 var g_clock = 0;
 var g_timeMult = 1;
 var g_brainTransform;
+var g_numberPrimitives;
+var g_numberVertices;
 var g_keyPressDelta = 0.1;
-var g_zoomFactor = 1.03;
+var g_zoomFactor = 1.10;
 var g_eyeView;
 var g_lightPosParam;
 var g_o3dElement;
@@ -40,10 +42,10 @@ var g_quaternions;
 var g_o3dWidth = -1;
 var g_o3dHeight = -1;
 var g_camera = {
-
   farPlane: 5000,
   nearPlane:0.1
 };
+var g_spectrum;
 //for Picking
 var g_debugLineGroup;
 var g_debugLine;
@@ -53,6 +55,9 @@ var g_pickInfoElem;
 var g_flashTimer = 0;
 var g_highlightMaterial;
 var g_highlightShape;
+var g_vertex;
+var g_positionVector;
+var g_primitiveIndex;
 //var g_debugHelper;
 
 
@@ -97,10 +102,11 @@ function updateCamera() {
 
 function updateProjection() {
 
-    // Create a perspective projection matrix.
+  // Create a perspective projection matrix.
   g_viewInfo.drawContext.projection = g_math.matrix4.perspective(
   g_math.degToRad(45), g_o3dWidth / g_o3dHeight, g_camera.nearPlane,
   g_camera.farPlane);
+
 }
 
 
@@ -135,12 +141,6 @@ function select(pickInfo) {
 
   }
 }
-
-
-
-
-
-
 //Picking a vertex
 function pickClick(e) {
   var worldRay = o3djs.picking.clientPositionToWorldRay(
@@ -170,44 +170,46 @@ function pickClick(e) {
     select(pickInfo);
 
     var primitiveIndex = pickInfo.rayIntersectionInfo.primitiveIndex;
+    g_primitiveIndex = primitiveIndex;
     var positionVector = pickInfo.rayIntersectionInfo.position;
+    g_positionVector = positionVector;
     var element = pickInfo.element;
 
 
 
-    var vertex = [];
+    var vertex;
     var colorArray = [];
     jQuery(g_pickInfoElem).html("LOADING MAP................");
-    jQuery.ajax({
-		type: 'GET',
-		url: '/model/colors.json.1',
-		dataType: 'json',
-		success: function(model_data) {
-		  vertex = model_data.vertex;
-		  colorArray = colorArray.concat(colorArray,model_data.colors);
+    var eof = false;
+    jQuery("#loading").html("map.json started");
+    while(!eof)
+      jQuery.ajax({
+	type: 'GET',
+	url: '/model/map.json',
+	dataType: 'json',
+	success: function(model_data) {
 
-		},
-		data: {index: primitiveIndex,
-		       position: positionVector
-			},
+	  eof=model_data.eof;
+	  vertex = model_data.vertex;
+	  colorArray = colorArray.concat(model_data.colors);
 
-		async: false
+
+	},
+	data: {index: primitiveIndex,
+	       position: positionVector,
+	       current_length: colorArray.length,
+	       data_setting: get_data_controls()
+	      },
+
+	async: false
 	      });
-    jQuery.ajax({
-		type: 'GET',
-		url: '/model/colors.json.2',
-		dataType: 'json',
-		success: function(model_data) {
-		  vertex = model_data.vertex;
-		  colorArray=colorArray.concat(colorArray,model_data.colors);
 
-		},
-		  data: {index: primitiveIndex,
-		         position: positionVector
-			},
-		async: false
-		  });
-
+    g_vertex = vertex;
+    if(!(colorArray.length > 0) ) {
+      jQuery(g_pickInfoElem).html("Failure to load color data!");
+      return -1;
+    }
+    jQuery("#loading").html("map.json done");
     jQuery(g_pickInfoElem).html("Vertex:"+ vertex + " Index of Primitive " + primitiveIndex + " Position Vector of point " + positionVector );
     var colorBuffer = g_pack.createObject('VertexBuffer');
     var colorField = colorBuffer.createField('FloatField', 4);
@@ -223,7 +225,7 @@ function pickClick(e) {
     g_client.render();
 
 
-        // Display the normal
+    // Display the normal
     // NOTE: Lookup the normal with this function is very SLOW!!
     // If you need performance, for a game or something, you should consider
     // other methods.
@@ -242,7 +244,7 @@ function pickClick(e) {
         // Get the world position of the collision.
     var worldPosition = pickInfo.worldIntersectionPosition;
 
-        // Add the normal to it to get a point in space above it with some
+    // Add the normal to it to get a point in space above it with some
     // multiplier to scale it.
     var normalSpot = g_math.addVector(
       worldPosition,
@@ -300,7 +302,14 @@ function keyPressedAction(keyPressed, delta) {
                          g_math.matrix4.rotationX(delta));
     actionTaken = true;
     break;
+  case '&':
+    ZoomInOut(g_zoomFactor);
+    break;
+  case '(':
+    ZoomInOut(1/g_zoomFactor);
+    break;
   }
+
   return actionTaken;
 }
 
@@ -333,11 +342,20 @@ function resetView() {
   g_brainTransform.identity();
 }
 
+//Sets the fillmode of the brain to wireframe or filled
+function set_fill_mode_wireframe() {
+  var brainMaterial = g_brainTransform.shapes[0].elements[0].material;
+  var g_state = g_pack.createObject('State');
+  brainMaterial.state = g_state;
+  g_state.getStateParam('FillMode').value = g_o3d.State.WIREFRAME;
+}
 
-
-
-
-
+function set_fill_mode_solid() {
+  var brainMaterial = g_brainTransform.shapes[0].elements[0].material;
+  var g_state = g_pack.createObject('State');
+  brainMaterial.state = g_state;
+  g_state.getStateParam('FillMode').value = g_o3d.State.SOLID;
+}
 
 function createBrain(material) {
   var brainShape = g_pack.createObject('Shape');
@@ -371,6 +389,7 @@ function createBrain(material) {
   positionArray = [];
 
   var indicesArray = [];
+
   jQuery.ajax({
 		type: 'GET',
 		url: '/model/polygons.json.1',
@@ -393,9 +412,10 @@ function createBrain(material) {
 	      });
 
 
-
-  brainPrimitive.numberPrimitives = (indicesArray.length/3.0);
-  brainPrimitive.numberVertices = (positionArray.length/3.0);
+  g_numberPrimitives = (indicesArray.length/3.0);
+  brainPrimitive.numberPrimitives = g_numberPrimitives;
+  g_numberVertices = (positionArray.length/3.0);
+  brainPrimitive.numberVertices = g_numberVertices;
   var indexBuffer = g_pack.createObject('IndexBuffer');
   indexBuffer.set(indicesArray);
   indicesArray = [];
@@ -425,27 +445,25 @@ function createBrain(material) {
 
 
   var colorArray = [];
-  jQuery.ajax({
-		type: 'GET',
-		url: '/model/colors.json.1',
-		dataType: 'json',
-		success: function(model_data) {
-		  colorArray = model_data.colors;
-		},
-		data: {},
-		async: false
-	      });
-  jQuery.ajax({
-		type: 'GET',
-		url: '/model/colors.json.2',
-		dataType: 'json',
-		success: function(model_data) {
-		  colorArray = colorArray.concat(model_data.colors);
-		},
-		data: {},
-		async: false
+  var eof = false;
+  while(!eof) {
+    jQuery.ajax({
+      type: 'GET',
+      url: '/model/colors.json',
+      dataType: 'json',
+      success: function(model_data) {
+	eof=model_data.eof;
+	colorArray = colorArray.concat(model_data.colors);
+
+
+      },
+      data: { current_length: colorArray.length
+	      },
+
+      async: false
 	      });
 
+      }
   var colorBuffer = g_pack.createObject('VertexBuffer');
   var colorField = colorBuffer.createField('FloatField', 4);
   colorBuffer.set(colorArray);
@@ -552,7 +570,6 @@ function initStep2(clientElements) {
   g_pickInfoElem = jQuery("#vertex_info");
   // Initialize O3D sample libraries.
   o3djs.base.init(o3dElement);
-
   // Create a pack to manage the objects created.
   g_pack = g_client.createPack();
 
@@ -571,7 +588,8 @@ function initStep2(clientElements) {
   var viewInfo = o3djs.rendergraph.createBasicView(
     g_pack,
     g_client.root,
-    g_client.renderGraphRoot);
+    g_client.renderGraphRoot,
+    [0,0,0,0]);
   g_viewInfo = viewInfo;
   // Set up a simple orthographic view.
   viewInfo.drawContext.projection = g_math.matrix4.perspective(
@@ -596,9 +614,6 @@ function initStep2(clientElements) {
 
   // Create a MyMaterial for the mesh.
   var myMaterial = g_pack.createObject('Material');
-  var g_state = g_pack.createObject('State');
-  //myMaterial.state = g_state;
-  //g_state.getStateParam('FillMode').value = g_o3d.State.FILLED;
 
 
 
@@ -674,8 +689,11 @@ function initStep2(clientElements) {
     if(!e.shiftKey || e.button == g_o3d.Event.BUTTON_RIGHT){
       stopDragging(e);
     }
-
   });
+
+//  o3djs.event.addEventListener(o3dElement,'keypress', function(e) {
+	//			 if(!e.keyChar)
+		//	       }
 }
 /**
  * Removes any callbacks so they not called after the page has unloaded.
@@ -710,12 +728,117 @@ function scrollMe(e) {
   g_client.render();
 }
 
+function fetch_map(request_data) {
+  var vertex = request_data['vertex'];
+  var colorArray = [];
+  jQuery(g_pickInfoElem).html("LOADING MAP................");
+  var eof = false;
+  while(!eof) {
+    request_data['current_length'] = colorArray.length;
+
+    jQuery.ajax({
+      type: 'GET',
+      url: '/model/map.json',
+      dataType: 'json',
+      success: function(model_data) {
+	eof=model_data.eof;
+	vertex = model_data.vertex;
+	colorArray = colorArray.concat(model_data.colors);
+      },
+      data: request_data,
+      async: false
+    });
+    }
+    g_vertex = vertex;
+    if(!(colorArray.length > 0) ) {
+      jQuery(g_pickInfoElem).html("Failure to load color data!");
+      return -1;
+    }else {
+          jQuery(g_pickInfoElem).html("Vertex:"+ g_vertex + " Index of Primitive " + g_primitiveIndex + " Position Vector of point " + g_positionVector );
+    }
+
+
+
+  return colorArray;
+}
+
+function update_colors(colorArray) {
+    var colorBuffer = g_pack.createObject('VertexBuffer');
+    var colorField = colorBuffer.createField('FloatField', 4);
+    colorBuffer.set(colorArray);
+    colorArray = [];
+    var brainShape = g_brainTransform.shapes[0];
+    var streamBank = brainShape.elements[0].streamBank;
+    streamBank.setVertexStream(
+      g_o3d.Stream.COLOR, //  This stream stores vertex positions
+      0,                     // First (and only) position stream
+      colorField,        // field: the field this stream uses.
+      0);                    // start_index:
+    g_client.render();
+
+}
+
+function get_data_controls() {
+  var data_type = jQuery("#data-type").val(); //CT,AREA or Volume
+  var data_sk = jQuery("#data-sk").val(); //Smoothing Kernel
+  var data_modality = jQuery("#data-modality").val();
+
+  return {type: data_type, sk: data_sk, modality: data_modality };
+}
+
+
+
+function data_control_change() {
+  if(g_vertex) {
+    var colors=fetch_map({vertex: g_vertex, data_setting: get_data_controls()});
+    if(colors != -1) {
+      update_colors(colors);
+    }
+  }
+
+}
+function set_spectrum(type) {
+  		     //get the spectrum of colors
+		     jQuery.ajax({
+		       type: 'GET',
+		       url: '/spectrum.json',
+		       dataType: 'json',
+		       success: update_spectrum,
+		       data: {spectrum: type}
+		       });
+}
+
+
+function update_spectrum(colors) {
+  var spectrum = jQuery("#spectrum");
+  spectrum.html('');
+  for(var i=0;i<colors.length;i++) {
+    var color = jQuery("<div></div>");
+    var rgb="rgb("+parseInt(parseFloat(colors[i][0])*255)+','+parseInt(parseFloat(colors[i][1])*255)+','+parseInt(parseFloat(colors[i][2])*255)+')';
+    color.css("background",rgb);
+    color.css("width" , parseInt(510/colors.length) + "px");
+    color.appendTo(spectrum);
+  }
+  g_spectrum =  colors;
+}
 
 jQuery(function () { init();
-
 		     window.onunload =  uninit;
 		     window.document.onkeypress = keyPressedCallback;
+		     jQuery('#fillmode').toggle(set_fill_mode_wireframe,set_fill_mode_solid);
+		     jQuery('.button').button();
+		     jQuery('.range_slider').slider({
+						      range: true,
+						      min: -10,
+						      max: 10,
+						      values: [-5,5],
+						      step: .10
+						    });
 
-		   });
+		     jQuery('.data_controls').change(data_control_change);
+		     jQuery("#spectrum").html("loading spectrum...");
+		     set_spectrum('gaolang');
+
+		     });
 
 

@@ -1,0 +1,35 @@
+body {
+    background: black;
+    color: green;
+}
+#controls {
+    width: 20%;
+    float: left;
+    padding-right: 5%;
+}
+.range_slider {
+    width: 200px;
+}
+
+#view-window {
+    width: 70%;
+    float: left;
+    height: 80%;
+}
+#instructions {
+    width: 100%;
+    float: left;
+    height: 20%;
+}
+
+#spectrum {
+    border: white solid 2px;
+    width:256px;
+    height: 20px;
+}
+
+#spectrum div{
+    height: 20px;
+    float:left;
+}
+    

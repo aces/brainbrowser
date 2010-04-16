@@ -32,4 +32,16 @@ body {
     height: 20px;
     float:left;
 }
-    
+#scale {
+    width: 256px;
+    height:20px;
+}
+#scale span.mark {
+ width: 2px;
+ float: left;
+ background: red;
+}    
+#scale span.empty{
+    width: 124px;
+    float:left;
+}

@@ -13,7 +13,7 @@ prefix = "/home/nkassis/dataStore/data1/gaolang_data/"
 
 
 class Cache
-  attr_accessor :colors,:map,:vertex
+  attr_accessor :colors,:map,:vertex,:max_value,:min_value
 end
 
 cache = Cache.new
@@ -77,35 +77,24 @@ end
 
 
 get '/model/polygons.json.1' do
+  inc = 50000
   polygons = []
-  half=object.polygons.size/2
-  object.polygons[0..half-1].each do |vector|
-    vector.each do |n|
-      polygons << n
+  current_size = params['current_size'].to_i
+  if(current_size < object.polygons.size*3) 
+    object.polygons[current_size/3,inc].each do |vector|
+      vector.each do |n|
+        polygons << n
+      end
     end
+  elsif(current_size == (object.polygons.size * 3)) 
+    eof = true
+  else
+    raise "current_size out of range"
   end
-  
-
-
-  {:polygons => polygons}.to_json
+  puts "POLYGONS: #{polygons.size} LAST: #{current_size}"
+  {:eof => eof, :polygons => polygons}.to_json
 end
-
-get '/model/polygons.json.2' do
-  polygons = []
-  half=object.polygons.size/2
-  size = object.polygons.size
-  object.polygons[half+1..size-1].each do |vector|
-    vector.each do |n|
-      polygons << n
-    end
-  end
   
-
-
-  {:polygons => polygons}.to_json
-end
-
-
 get '/model/normal_vectors.json' do
   normal_vectors = []
   object.normal_vectors.each do |vector|
@@ -118,67 +107,27 @@ get '/model/normal_vectors.json' do
 end
 
 get '/model/colors.json' do
-  unless cache.colors
-    cache.colors = []
-    object.vertices.size.times do 
-      [0.5,0.5,0.7,1].each do |c|
-        cache.colors << c
-      end
-    end
-  end
+  [0.5,0.5,0.7,1].to_json
+end
 
-  eof = false
-  last = params['current_length'].to_i
-  max = object.vertices.size*4
-  if ((max - last) >= 100000)
-      colors = cache.colors[last,100000]
-  elsif (0< (max - last)) and ((max-last) < 100000)
-    puts "LAST TIME"
-    colors = cache.colors[last..(max-1)]
-    eof = true
-  else
-    puts "END OF DATA !!!!!!"
-    colors = []
-  end
-  puts "SIZE OF COLOR ARRAY: #{colors.size}"
-  puts "MAX: #{max}"
-  puts "LAST: #{last}"   
-  
-  {:eof => eof, :colors => colors}.to_json
+get '/model/vertex.json' do
+  object.closest_vertice(params['index'],params['position']).to_json
 end
 
 get '/model/map.json' do 
   start_time = Time.now
   settings = params["data_setting"]
   last = (params['current_length'].to_i) 
-  max = object.vertices.size*4
-  colors = []
+  max = object.vertices
   eof = false
   
-  vertex = params['vertex'] || object.closest_vertice(params['index'],params['position'])
+  vertex = params['vertex'] 
   unless (cache.map and data.current_vertex == vertex and data.current_settings == settings)
-    values = data.parse_data(vertex,settings)
-    puts "VALUE SIZE: #{values.size}"
-    cache.map = []
-    cache.map = ColorMap.generate_color_map(values,:gaolang)
+    cache.map = data.parse_data(vertex,settings)
+    puts "VALUE SIZE: #{cache.map.size}"
+    #cache.max_value = cache.map.max
+    #cache.min_value = cache.map.min
   end
-  if ((max - last) >= 100000)
-      colors = cache.map[last,100000]
-  elsif (0< (max - last)) and ((max-last) < 100000)
-    puts "LAST TIME"
-    colors = cache.map[last..(max-1)]
-    eof = true
-  else
-    puts "END OF DATA !!!!!!"
-    colors = []
-  end
-  puts "SIZE OF COLOR ARRAY: #{colors.size}"
-  puts "MAX: #{max}"
-  puts "LAST: #{last}" 
-  
- 
-  puts "Time: #{Time.now - start_time}"
-  {:vertex => vertex,:eof =>  eof, :colors => colors}.to_json
-
+  #{:data => cache.map, :max => cache.max_value, :min => cache.min_value}.to_json
+  cache.map.to_json
 end
-    

@@ -75,24 +75,28 @@ get '/model/vertices.json' do
   {:vertices => vertices}.to_json
 end
 
+get '/model/polygons.length.json' do
+  [(object.polygons.size*3)].to_json
+end
 
-get '/model/polygons.json.1' do
-  inc = 50000
+get '/model/polygons.json' do
+  inc = 60000
   polygons = []
   current_size = params['current_size'].to_i
   if(current_size < object.polygons.size*3) 
-    object.polygons[current_size/3,inc].each do |vector|
+    object.polygons[current_size/3,inc/3].each do |vector|
       vector.each do |n|
-        polygons << n
+        polygons << n.to_i
       end
     end
-  elsif(current_size == (object.polygons.size * 3)) 
+  elsif(current_size > (object.polygons.size * 3)) 
     eof = true
+    polygons = []
   else
     raise "current_size out of range"
   end
   puts "POLYGONS: #{polygons.size} LAST: #{current_size}"
-  {:eof => eof, :polygons => polygons}.to_json
+  {:eof => eof, :polygons => polygons, :request => params['request']}.to_json
 end
   
 get '/model/normal_vectors.json' do

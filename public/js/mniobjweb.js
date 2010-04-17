@@ -19,11 +19,6 @@ o3djs.require('o3djs.picking');
 o3djs.require('o3djs.arcball');
 o3djs.require('o3djs.quaternions');
 o3djs.require('o3djs.scene');
-//o3djs.require('o3djs.debug');
-// Events
-// Run the init() function once the page has finished loading.
-// Run the uninit() function when the page has is unloaded.
-//window.onloa = init;
 
 // global variables
 var g_o3d;
@@ -71,6 +66,136 @@ var g_data_min; //Min of data
 var g_range_max; //Max of range bar
 var g_range_min; //Min of range bar
 //var g_debugHelper;
+
+var g_model_data = new Object();
+var loading;
+
+
+/**
+ * this function preloads the model data async and calls model_data_status() to check if model is completely loaded
+ */
+function preload_model(ClientElement)  {
+
+  //load vertices
+  jQuery.ajax({
+    type: 'GET',
+    url: '/model/vertices.json',
+    dataType: 'json',
+    success: function(model_data) {
+      g_model_data.positionArray = model_data.vertices;
+      g_model_data.positions_loaded = true;
+      g_model_data.data_status(ClientElement);
+      jQuery("<div>vertices loaded</div>").appendTo(loading);
+    },
+    data: {},
+    timeout: 100000
+  });
+
+  jQuery.ajax({
+    type: 'GET',
+    url: '/model/normal_vectors.json',
+    dataType: 'json',
+    success: function(model_data) {
+      g_model_data.normalArray = model_data.normal_vectors;
+      g_model_data.normal_vectors_loaded = true;
+      g_model_data.data_status(ClientElement);
+      jQuery("<div>normals loaded</div>").appendTo(loading);
+    },
+    data: {},
+    timeout: 100000
+  });
+
+  jQuery.ajax({
+    type: 'GET',
+    url: '/model/colors.json',
+    dataType: 'json',
+    success: function(data) {
+      g_model_data.base_color = data;
+      g_model_data.base_color_loaded = true;
+      g_model_data.data_status(ClientElement);
+      jQuery("<div>color loaded</div>").appendTo(loading);
+    },
+    timeout: 100000
+  });
+
+  g_model_data.load_indices(ClientElement);
+
+};
+
+g_model_data.load_indices = function(ClientElement) {
+  //this holds the array return from each request and will be concatenated
+  var  number_of_indices;
+  var number_of_requests;
+  var indicesSubArray = new Array();
+  //This function checks if all the indices are in indicesArray
+  var check_for_completion = function(number_of_indices) {
+    var sum=0;
+    var requests = number_of_indices/60000+1;
+    for( var i = 0; i<requests; i++) {
+      if(indicesSubArray[i]){
+        sum = sum + indicesSubArray[i].length;
+      }
+    }
+
+    if( sum  == number_of_indices){
+      //this line concatenates all the sub array
+      //into one large array and returns it to set g_model_data.indicesArray
+      jQuery("<div>indices loaded</div>").appendTo(loading);
+      var indicesArray = new Array();
+      indicesArray = indicesArray.concat.apply(indicesArray,indicesSubArray);
+      g_model_data.indicesArray = indicesArray;
+      g_model_data.indices_loaded = true;
+      g_model_data.data_status(ClientElement);
+
+      return;
+
+    }
+  };
+
+
+
+  var indices_loader = function (number_of_indices) {
+
+    for(var i=0; i<number_of_requests; i++) {
+      jQuery.ajax({
+	type: 'GET',
+	url: '/model/polygons.json',
+	dataType: 'json',
+	success: function(model_data) {
+	  var eof = model_data.eof;
+	  if(!eof) {
+	    indicesSubArray[parseInt(model_data.request)]=model_data.polygons;
+	  }
+	  check_for_completion(number_of_indices);
+	},
+	data: {request: i, current_size: 60000*i},
+	timeout: 100000
+      });
+    }
+  };
+
+  jQuery.ajax({
+    type: 'GET',
+    url: '/model/polygons.length.json',
+    dataType: 'json',
+    success: function (data) {
+      number_of_indices = parseInt(data[0]);
+      number_of_requests = parseInt(number_of_indices/60000+1);
+      indicesSubArray = Array();
+      indices_loader(number_of_indices);
+    },
+    async: false
+  });
+
+
+
+};
+
+g_model_data.data_status= function(ClientElement) {
+  if(g_model_data.positions_loaded && g_model_data.normal_vectors_loaded && g_model_data.indices_loaded && g_model_data.base_color_loaded){
+    initStep2(ClientElement);
+  }
+};
 
 
 function startDragging(e) {
@@ -308,7 +433,6 @@ function keyPressedAction(keyPressed, delta) {
 
   return actionTaken;
 }
-
 /**
  * Callback for the keypress event.
  * Invokes the action to be performed for the key pressed.
@@ -354,6 +478,7 @@ function set_fill_mode_solid() {
 }
 
 function createBrain(material) {
+
   var brainShape = g_pack.createObject('Shape');
   var brainPrimitive = g_pack.createObject('Primitive');
   var streamBank = g_pack.createObject('StreamBank');
@@ -367,98 +492,45 @@ function createBrain(material) {
   var state = g_pack.createObject('State');
 
 
-
-  var positionArray = [];
-  jQuery.ajax({
-		type: 'GET',
-		url: '/model/vertices.json',
-		dataType: 'json',
-		success: function(model_data) {
-		  positionArray = model_data.vertices;
-		},
-		data: {},
-		async: false,
-		timeout: 100000
-	      });
+  //create Position buffer (vertices) and set the number of vertices global variable
   var positionsBuffer = g_pack.createObject('VertexBuffer');
   var positionsField = positionsBuffer.createField('FloatField', 3);
-  positionsBuffer.set(positionArray);
-
-
-  var indicesArray = [];
-  var eof = false;
-  while(!eof) {
-    jQuery.ajax({
-		  type: 'GET',
-		  url: '/model/polygons.json.1',
-		  dataType: 'json',
-		  success: function(model_data) {
-		    eof = model_data.eof;
-		    if(!eof) {
-		      indicesArray = indicesArray.concat(model_data.polygons);
-		    }
-		  },
-		  data: {current_size: indicesArray.length},
-		  async: false,
-		  timeout: 100000
-		});
-  };
-  g_numberPrimitives = (indicesArray.length/3.0);
-  brainPrimitive.numberPrimitives = g_numberPrimitives;
-  g_numberVertices = (positionArray.length/3.0);
+  if(!g_model_data.positionArray) {
+    alert("PositionArray nil");
+  }
+  positionsBuffer.set(g_model_data.positionArray);
+  g_numberVertices = (g_model_data.positionArray.length/3.0);
   brainPrimitive.numberVertices = g_numberVertices;
+
+  //create indexBuffer and make sure number of primitive is set
+  if(!g_model_data.indicesArray) {
+    alert("Indices Array nil");
+  }
+  g_numberPrimitives = (g_model_data.indicesArray.length/3.0);
+  brainPrimitive.numberPrimitives = g_numberPrimitives;
   var indexBuffer = g_pack.createObject('IndexBuffer');
-  indexBuffer.set(indicesArray);
-  indicesArray = [];
+  indexBuffer.set(g_model_data.indicesArray);
 
 
 
-  var normalArray =[];
-  jQuery.ajax({
-		type: 'GET',
-		url: '/model/normal_vectors.json',
-		dataType: 'json',
-		success: function(model_data) {
-		  normalArray = model_data.normal_vectors;
-		},
-		data: {},
-		async: false,
-		timeout: 100000
-	      });
-
+  //Create normal buffer
   var normalBuffer = g_pack.createObject('VertexBuffer');
   var normalField = normalBuffer.createField('FloatField', 3);
-  normalBuffer.set(normalArray);
-  normalArray = [];
+  normalBuffer.set(g_model_data.normalArray);
 
 
 
+  //Create colorBuffer from base color of model
 
-  var colorArray = [];
-  var color;
-  jQuery.ajax({
-    type: 'GET',
-    url: '/model/colors.json',
-    dataType: 'json',
-    success: function(data) {
-      color = data;
-    },
-    async: false,
-    timeout: 100000
-  });
-  for(var i=0;i<positionArray.length;i++) {
-    colorArray.push.apply(colorArray,color);
+  var colorArray=[];
+  for(var i=0;i<g_numberVertices;i++) {
+    colorArray.push.apply(colorArray,g_model_data.base_color);
 
   }
   var colorBuffer = g_pack.createObject('VertexBuffer');
   var colorField = colorBuffer.createField('FloatField', 4);
   colorBuffer.set(colorArray);
   colorArray = [];
-
-
-
-
-
 
 
   streamBank.setVertexStream(
@@ -515,7 +587,7 @@ function renderCallback(renderEvent) {
  * Creates the client area.
  */
 function init() {
-  o3djs.util.makeClients(initStep2,"LargeGeometry");
+  o3djs.util.makeClients(preload_model,"LargeGeometry");
 }
 
 function setClientSize() {
@@ -724,13 +796,8 @@ function fetch_map(request_data) {
     dataType: 'json',
     success: function(data) {
       g_dataArray = data;
-      for(var i=0;i<g_dataArray.length;i++) {
-	g_dataArray[i]=parseFloat(g_dataArray[i]);
-      }
       g_data_min = g_dataArray.min();
       g_data_max = g_dataArray.max();
-
-
     },
     data: request_data,
     async: false,
@@ -863,6 +930,7 @@ function update_spectrum(colors) {
 }
 
 jQuery(function () {
+  loading = jQuery("#loading");
   init();
   window.onunload =  uninit;
   window.document.onkeypress = keyPressedCallback;

@@ -282,25 +282,56 @@ function select(pickInfo) {
 /**
  * Obtain the closest vertex after picking
  */
+// function get_vertex(index,position) {
+//   var vertex;
+//   jQuery.ajax({
+//       type: 'GET',
+//       url: '/model/vertex.json',
+//       dataType: 'json',
+//       success: function(data) {
+// 	vertex = data;
+//       },
+//       data: {
+// 	index: index,
+// 	position: position
+//       },
+//       async: false
+//     });
+
+//   return vertex;
+// }
+
+
 function get_vertex(index,position) {
-  var vertex;
-  jQuery.ajax({
-      type: 'GET',
-      url: '/model/vertex.json',
-      dataType: 'json',
-      success: function(data) {
-	vertex = data;
-      },
-      data: {
-	index: index,
-	position: position
-      },
-      async: false
-    });
 
-  return vertex;
+  var triangle = new Array();
+  var start_index = index*3;
+  for(var i=0; i<3; i++) {
+    triangle.push(g_model_data.indicesArray[start_index+i]);
+  }
+  var vertices = new Array();
+  for(var i=0; i<3; i++) {
+    var start_pos = triangle[i]*3;
+    vertices[i] = new Array();
+    for(var k=0;k<3;k++){
+      vertices[i][k] = g_model_data.positionArray[start_pos+k];
+    }
+  }
+  var distances = new Array();
+  for(var i=0; i<3; i++) {
+    distances.push(o3djs.math.distance(position,vertices[i]));
+  }
+  var closest = 0;
+  if(distances[1] < distances[0]) {
+    closest = 1;
+  }
+  if(distances[2] < distances[closest]) {
+    closest = 2;
+  }
+
+  return triangle[closest];
+
 }
-
 
 
 //Picking a vertex

@@ -48,6 +48,7 @@ var g_camera = {
   nearPlane:0.1
 };
 var g_spectrum;
+
 //for Picking
 var g_debugLineGroup;
 var g_debugLine;
@@ -65,8 +66,8 @@ var g_data_max; //Max of data
 var g_data_min; //Min of data
 var g_range_max; //Max of range bar
 var g_range_min; //Min of range bar
-//var g_debugHelper;
 
+//For the prelaoding of the model
 var g_model_data = new Object();
 var loading;
 
@@ -389,9 +390,6 @@ function pickClick(e) {
 
 
 }
-
-
-
 
 
 

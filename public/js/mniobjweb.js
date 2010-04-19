@@ -73,7 +73,7 @@ var loading;
 
 /**
  * this function preloads the model data async and calls model_data_status() to check if model is completely loaded
- */
+*/
 function preload_model(ClientElement)  {
 
   //load vertices
@@ -279,29 +279,6 @@ function select(pickInfo) {
   }
 }
 
-/**
- * Obtain the closest vertex after picking
- */
-// function get_vertex(index,position) {
-//   var vertex;
-//   jQuery.ajax({
-//       type: 'GET',
-//       url: '/model/vertex.json',
-//       dataType: 'json',
-//       success: function(data) {
-// 	vertex = data;
-//       },
-//       data: {
-// 	index: index,
-// 	position: position
-//       },
-//       async: false
-//     });
-
-//   return vertex;
-// }
-
-
 function get_vertex(index,position) {
 
   var triangle = new Array();
@@ -374,7 +351,6 @@ function pickClick(e) {
 
     jQuery(g_pickInfoElem).html("LOADING MAP................");
     var eof = false;
-    jQuery("#loading").html("map.json started");
     g_vertex = get_vertex(primitiveIndex,positionVector);
     update_map();
     // Display the normal
@@ -648,7 +624,7 @@ function setClientSize() {
  */
 function initStep2(clientElements) {
   // Initializes global variables and libraries.
-  var o3dElement = clientElements[0];
+ var o3dElement = clientElements[0];
   g_o3dElement = o3dElement;
   g_client = o3dElement.client;
   g_o3d = o3dElement.o3d;

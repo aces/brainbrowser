@@ -2,13 +2,13 @@
     <head>  
        <meta http-equiv="content-type" content="text/html; charset=UTF-8">  
        <title>MNI Object web viewer</title>  
-       <script type="text/javascript" src="/js/jquery.js" ></script>
-       <script type="text/javascript" src="/js/jquery.mousewheel.js"></script>
-       <script type="text/javascript" src="js/jquery-ui-1.8.custom.min.js"></script>
+       <script type="text/javascript" src="/js/jquery.js"></script>
+       <script type="text/javascript" src="/js/mniobj.js"></script>
+       <script type="text/javascript" src="/js/o3djs/base.js"></script> 
+       <script type="text/javascript" src="/js/macacc.js"></script>  
+       <script type="text/javascript" src="/js/jquery-ui-1.8.custom.min.js"></script>
        <link type="text/css" href="css/overcast/jquery-ui-1.8.custom.css" rel="Stylesheet" />
        <link type="text/css" href="css/mniobjweb.css" rel="Stylesheet" />
-       <script type="text/javascript" src="http://o3d.googlecode.com/svn/trunk/samples/o3djs/base.js"></script>  
-       <script type="text/javascript" src="/js/mniobjweb.js"></script>  
     </head>  
     <body>  
        <h1>cyberZBrainBrowser Ultra Premium Edition BETA!</h1>  
@@ -20,7 +20,7 @@
 	    <p>
 	    Left Click to move the model<br />
 	    Shift+left click to select a point on the model<br />
-	    Use W, S, A, D to rotate.</p>
+	    Use W, S, A, D to rotate.<br />
 	    Use the Scroll Wheel to zoom(not suported on mac) or up/down arrows
 	    </p>
 	  <h2>Controls</h2>
@@ -40,7 +40,7 @@
 	 <br />
 	 Smoothing Kernel:
 	 <select class="data_controls" id="data-sk">
-	   <option VALUE="0mm">0mm</optio>
+	   <option VALUE="0mm">0mm</option>
 	   <option VALUE="5mm">5mm</option>
 	   <option VALUE="10mm">10mm</option>
 	   <option VALUE="15mm">15mm</option>
@@ -71,7 +71,7 @@
 	     <span id="min_mark" class="mark"></span>
 	     <span id="scale_space" class="empty"> </span>
 	     <span id="mid_mark" class="mark"> </span>
-	     <spa id="scale_space" class="empty"> </span>
+	     <span id="scale_space" class="empty"> </span>
 	     <span id="max_mark" class="mark"> </span>
 	   </div>
 	 </div>
@@ -80,8 +80,6 @@
 	 <br />
 	 <a class="button" id="fillmode">Fill Mode</a>
 	 <br />
-	
-</form>
 
 <form name="default_form" action="#" method="get">
 <input type="button" value="Reset view" onclick="resetView()" />

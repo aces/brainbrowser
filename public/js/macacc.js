@@ -68,136 +68,26 @@ var g_range_max; //Max of range bar
 var g_range_min; //Min of range bar
 
 //For the prelaoding of the model
-var g_model_data = new Object();
+var g_model_data;
 var loading;
-
 
 /**
  * this function preloads the model data async and calls model_data_status() to check if model is completely loaded
 */
-function preload_model(ClientElement)  {
 
-  //load vertices
-  jQuery.ajax({
-    type: 'GET',
-    url: '/model/vertices.json',
-    dataType: 'json',
-    success: function(model_data) {
-      g_model_data.positionArray = model_data.vertices;
-      g_model_data.positions_loaded = true;
-      g_model_data.data_status(ClientElement);
-      jQuery("<div>vertices loaded</div>").appendTo(loading);
-    },
-    data: {},
-    timeout: 100000
-  });
-
-  jQuery.ajax({
-    type: 'GET',
-    url: '/model/normal_vectors.json',
-    dataType: 'json',
-    success: function(model_data) {
-      g_model_data.normalArray = model_data.normal_vectors;
-      g_model_data.normal_vectors_loaded = true;
-      g_model_data.data_status(ClientElement);
-      jQuery("<div>normals loaded</div>").appendTo(loading);
-    },
-    data: {},
-    timeout: 100000
-  });
-
-  jQuery.ajax({
-    type: 'GET',
-    url: '/model/colors.json',
-    dataType: 'json',
+function preload_model(ClientElements)  {
+  jQuery.ajax({ type: 'GET',
+    url: '/models/surf_reg_model_both.obj' ,
+    dataType: 'text',
     success: function(data) {
-      g_model_data.base_color = data;
-      g_model_data.base_color_loaded = true;
-      g_model_data.data_status(ClientElement);
-      jQuery("<div>color loaded</div>").appendTo(loading);
+      g_model_data = new MNIObject(data);
+      initStep2(ClientElements);
     },
+    data: {},
+    async: true,
     timeout: 100000
   });
-
-  g_model_data.load_indices(ClientElement);
-
 };
-
-g_model_data.load_indices = function(ClientElement) {
-  //this holds the array return from each request and will be concatenated
-  var  number_of_indices;
-  var number_of_requests;
-  var indicesSubArray = new Array();
-  //This function checks if all the indices are in indicesArray
-  var check_for_completion = function(number_of_indices) {
-    var sum=0;
-    var requests = number_of_indices/60000+1;
-    for( var i = 0; i<requests; i++) {
-      if(indicesSubArray[i]){
-        sum = sum + indicesSubArray[i].length;
-      }
-    }
-
-    if( sum  == number_of_indices){
-      //this line concatenates all the sub array
-      //into one large array and returns it to set g_model_data.indicesArray
-      jQuery("<div>indices loaded</div>").appendTo(loading);
-      var indicesArray = new Array();
-      indicesArray = indicesArray.concat.apply(indicesArray,indicesSubArray);
-      g_model_data.indicesArray = indicesArray;
-      g_model_data.indices_loaded = true;
-      g_model_data.data_status(ClientElement);
-
-      return;
-
-    }
-  };
-
-
-
-  var indices_loader = function (number_of_indices) {
-
-    for(var i=0; i<number_of_requests; i++) {
-      jQuery.ajax({
-	type: 'GET',
-	url: '/model/polygons.json',
-	dataType: 'json',
-	success: function(model_data) {
-	  var eof = model_data.eof;
-	  if(!eof) {
-	    indicesSubArray[parseInt(model_data.request)]=model_data.polygons;
-	  }
-	  check_for_completion(number_of_indices);
-	},
-	data: {request: i, current_size: 60000*i},
-	timeout: 100000
-      });
-    }
-  };
-
-  jQuery.ajax({
-    type: 'GET',
-    url: '/model/polygons.length.json',
-    dataType: 'json',
-    success: function (data) {
-      number_of_indices = parseInt(data[0]);
-      number_of_requests = parseInt(number_of_indices/60000+1);
-      indicesSubArray = Array();
-      indices_loader(number_of_indices);
-    },
-    async: false
-  });
-
-
-
-};
-
-g_model_data.data_status= function(ClientElement) {
-  if(g_model_data.positions_loaded && g_model_data.normal_vectors_loaded && g_model_data.indices_loaded && g_model_data.base_color_loaded){
-    initStep2(ClientElement);
-  }
-};
-
 
 function startDragging(e) {
 
@@ -285,7 +175,7 @@ function get_vertex(index,position) {
   var triangle = new Array();
   var start_index = index*3;
   for(var i=0; i<3; i++) {
-    triangle.push(g_model_data.indicesArray[start_index+i]);
+    triangle.push(g_model_data.indexArray[start_index+i]);
   }
   var vertices = new Array();
   for(var i=0; i<3; i++) {
@@ -508,13 +398,13 @@ function createBrain(material) {
   brainPrimitive.numberVertices = g_numberVertices;
 
   //create indexBuffer and make sure number of primitive is set
-  if(!g_model_data.indicesArray) {
-    alert("Indices Array nil");
+  if(!g_model_data.indexArray) {
+    alert("Index Array nil");
   }
-  g_numberPrimitives = (g_model_data.indicesArray.length/3.0);
+  g_numberPrimitives = g_model_data.numberPolygons;
   brainPrimitive.numberPrimitives = g_numberPrimitives;
   var indexBuffer = g_pack.createObject('IndexBuffer');
-  indexBuffer.set(g_model_data.indicesArray);
+  indexBuffer.set(g_model_data.indexArray);
 
 
 
@@ -528,15 +418,20 @@ function createBrain(material) {
   //Create colorBuffer from base color of model
 
   var colorArray=[];
-  for(var i=0;i<g_numberVertices;i++) {
-    colorArray.push.apply(colorArray,g_model_data.base_color);
-
+  if(g_model_data.colorArray.length == 4) {
+    for(var i=0;i<g_model_data.numberVertices;i++) {
+      colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
+    }
+  }
+  if(colorArray.length < g_model_data.positionArray.length) {
+    alert('Problem with the colors: ' + colorArray.length);
   }
   var colorBuffer = g_pack.createObject('VertexBuffer');
   var colorField = colorBuffer.createField('FloatField', 4);
   colorBuffer.set(colorArray);
   colorArray = [];
 
+  jQuery(loading).html("Buffers Loaded");
 
   streamBank.setVertexStream(
     g_o3d.Stream.POSITION, //  This stream stores vertex positions

@@ -200,30 +200,6 @@ o3djs.material.prepareMaterials = function(pack,
 };
 
 /**
- * Builds a standard effect for a given material.
- * If the material already has an effect, none is created.
- * @param {!o3d.Pack} pack Pack to manage created objects.
- * @param {!o3d.Material} material The material for which to create an
- *     effect.
- * @param {string} effectType Type of effect to create ('phong', 'lambert',
- *     'constant').
- *
- * @see o3djs.effect.attachStandardShader
- */
-o3djs.material.attachStandardEffectEx = function(pack,
-                                                 material,
-                                                 effectType) {
-  if (!material.effect) {
-    if (!o3djs.effect.attachStandardShader(pack,
-                                           material,
-                                           [0, 0, 0],
-                                           effectType)) {
-      throw 'Could not attach a standard effect';
-    }
-  }
-};
-
-/**
  * Builds a standard effect for a given material.  The position of the
  * default light is set to the view position.  If the material already has
  * an effect, none is created.
@@ -247,12 +223,13 @@ o3djs.material.attachStandardEffect = function(pack,
             o3djs.math.inverse(viewInfo.drawContext.view));
     if (!o3djs.effect.attachStandardShader(pack,
                                            material,
-                                           lightPos,  // TODO(gman): remove this
+                                           lightPos,
                                            effectType)) {
       throw 'Could not attach a standard effect';
     }
   }
 };
+
 
 /**
  * Prepares all the materials in the given pack by setting their
@@ -364,37 +341,6 @@ o3djs.material.createBasicMaterial = function(pack,
  * useful for debugging shapes and 2d UI elements.
  *
  * @param {!o3d.Pack} pack Pack to manage created objects.
- * @param {!o3d.DrawList} drawList The DrawList for the material.
- * @param {(!o3djs.math.Vector4|!o3d.Texture)} colorOrTexture Either a color in
- *     the format [r, g, b, a] or an O3D texture.
- * @return {!o3d.Material} The created material.
- */
-o3djs.material.createConstantMaterialEx = function(pack,
-                                                   drawList,
-                                                   colorOrTexture) {
-  var material = pack.createObject('Material');
-  material.drawList = drawList;
-
-  // If it has a length assume it's a color, otherwise assume it's a texture.
-  if (colorOrTexture.length) {
-    material.createParam('emissive', 'ParamFloat4').value = colorOrTexture;
-  } else {
-    var paramSampler = material.createParam('emissiveSampler', 'ParamSampler');
-    var sampler = pack.createObject('Sampler');
-    paramSampler.value = sampler;
-    sampler.texture = colorOrTexture;
-  }
-
-  o3djs.material.attachStandardEffectEx(pack, material, 'constant');
-
-  return material;
-};
-
-/**
- * This function creates a constant material. No lighting. It is especially
- * useful for debugging shapes and 2d UI elements.
- *
- * @param {!o3d.Pack} pack Pack to manage created objects.
  * @param {!o3djs.rendergraph.ViewInfo} viewInfo as returned from
  *     o3djs.rendergraph.createBasicView.
  * @param {(!o3djs.math.Vector4|!o3d.Texture)} colorOrTexture Either a color in
@@ -407,11 +353,23 @@ o3djs.material.createConstantMaterial = function(pack,
                                                  viewInfo,
                                                  colorOrTexture,
                                                  opt_transparent) {
-  return o3djs.material.createConstantMaterialEx(
-      pack,
-      opt_transparent ? viewInfo.zOrderedDrawList :
-                        viewInfo.performanceDrawList,
-      colorOrTexture)
+  var material = pack.createObject('Material');
+  material.drawList = opt_transparent ? viewInfo.zOrderedDrawList :
+                                        viewInfo.performanceDrawList;
+
+  // If it has a length assume it's a color, otherwise assume it's a texture.
+  if (colorOrTexture.length) {
+    material.createParam('emissive', 'ParamFloat4').value = colorOrTexture;
+  } else {
+    var paramSampler = material.createParam('emissiveSampler', 'ParamSampler');
+    var sampler = pack.createObject('Sampler');
+    paramSampler.value = sampler;
+    sampler.texture = colorOrTexture;
+  }
+
+  o3djs.material.attachStandardEffect(pack, material, viewInfo, 'constant');
+
+  return material;
 };
 
 /**

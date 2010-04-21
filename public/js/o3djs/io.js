@@ -633,18 +633,16 @@ o3djs.io.loadBitmaps = function(pack, url, callback, opt_generateMips) {
  *     texture is loaded. It will be passed the texture and an exception on
  *     error or null on success.
  * @param {boolean} opt_generateMips Generate Mips. Default = true.
- * @param {boolean} opt_flip Flip texture. Default = true.
  * @return {!o3djs.io.LoadInfo} A LoadInfo to track progress.
  * @see o3djs.io.loadBitmaps
  * @see o3djs.loader.createLoader
  */
-o3djs.io.loadTexture = function(
-    pack, url, callback, opt_generateMips, opt_flip) {
+o3djs.io.loadTexture = function(pack, url, callback, opt_generateMips) {
   function onLoaded(request, rawData, exception) {
     var texture = null;
     if (!exception) {
       texture = o3djs.texture.createTextureFromRawData(
-          pack, rawData, opt_generateMips, opt_flip);
+          pack, rawData, opt_generateMips);
       pack.removeObject(request);
     }
     callback(texture, exception);

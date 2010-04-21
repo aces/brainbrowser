@@ -29,7 +29,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-// A shout out to Terence J. Grant at tatewake.com for his tutorial on arcball
+// A shout out to Terrance J. Grant at tatewake.com for his tutorial on arcball
 // implementations.
 
 /**

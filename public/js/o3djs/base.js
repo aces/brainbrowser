@@ -533,12 +533,6 @@ o3djs.base = o3djs.base || {};
 o3djs.base.o3d = null;
 
 /**
- * Whether or not we need to use GLSL instead of HLSL.
- * @type {boolean}
- */
-o3djs.base.glsl = false;
-
-/**
  * Snapshots the current state of all provided namespaces. This state will be
  * used to initialize future V8 instances. It is automatically
  * called by o3djs.util.makeClients.
@@ -583,9 +577,6 @@ o3djs.base.initV8 = function(clientObject)  {
     // Make sure this points to the o3d namespace for this particular
     // instance of the plugin.
     o3djs.base.o3d = plugin.o3d;
-
-    // Save off if we need GLSL.
-    o3djs.base.glsl = plugin.client.clientInfo.glsl;
   };
 
   clientObject.eval(v8Init.toString())(o3djs.v8Initializer_,
@@ -625,8 +616,6 @@ o3djs.base.init = function(clientObject)  {
   // the properties of an NPObject.
   // Chrome bug: http://code.google.com/p/chromium/issues/detail?id=5743
   o3djs.base.o3d = o3djs.base.o3d || clientObject.o3d;
-  // Save off if we need GLSL.
-  o3djs.base.glsl = clientObject.client.clientInfo.glsl;
 };
 
 /**
@@ -803,4 +792,12 @@ o3djs.base.IsMSIE = function() {
   var ua = navigator.userAgent.toLowerCase();
   var msie = /msie/.test(ua) && !/opera/.test(ua);
   return msie;
+};
+/**
+ * Returns true if the user's browser is Chrome 1.0, that requires a workaround
+ * to create the plugin.
+ * @return {boolean} true if the user's browser is Chrome 1.0.
+ */
+o3djs.base.IsChrome10 = function() {
+  return navigator.userAgent.indexOf('Chrome/1.0') >= 0;
 };

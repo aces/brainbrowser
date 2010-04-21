@@ -89,6 +89,27 @@ o3djs.picking.createPickInfo = function(element,
 };
 
 /**
+ * Creates a new ShapeInfo.
+ * @param {!o3d.Shape} shape Shape to keep info about.
+ * @param {!o3djs.picking.TransformInfo} parent Parent transform of the shape.
+ * @return {!o3djs.picking.ShapeInfo} The new ShapeInfo.
+ */
+o3djs.picking.createShapeInfo = function(shape, parent) {
+  return new o3djs.picking.ShapeInfo(shape, parent);
+};
+
+/**
+ * Creates a new TransformInfo.
+ * @param {!o3d.Transform} transform Transform to keep info about.
+ * @param {o3djs.picking.TransformInfo} parent Parent transform of the
+ *     transform. Can be null.
+ * @return {!o3djs.picking.TransformInfo} The new TransformInfo.
+ */
+o3djs.picking.createTransformInfo = function(transform, parent) {
+  return new o3djs.picking.TransformInfo(transform, parent);
+};
+
+/**
  * Convert a pixel position relative to the top left corner of the client area
  * into the corresponding ray through the frustum in world space.
  * @param {number} clientXPosition x position relative to client area.
@@ -184,10 +205,9 @@ o3djs.picking.dprintBoundingBox = function(label,
  */
 o3djs.picking.dumpRayIntersectionInfo = function(label,
                                                  rayIntersectionInfo) {
-  o3djs.picking.dprint(
-      label + ' : valid = ' +
-      rayIntersectionInfo.valid + ' : intersected = ' +
-      rayIntersectionInfo.intersected);
+  o3djs.picking.dprint(label + ' : valid = ' +
+  rayIntersectionInfo.valid + ' : intersected = ' +
+  rayIntersectionInfo.intersected);
   if (rayIntersectionInfo.intersected) {
     o3djs.picking.dprint(
         ' : pos: ' +
@@ -238,16 +258,12 @@ o3djs.picking.PickInfo = function(element,
 };
 
 /**
- * Creates a new ShapeInfo. Used to store information about Shapes. Note, even
- * though Shapes can be instanced, ShapeInfos can not so if a Shape is instanced
- * there will be more than one ShapeInfo for it.
+ * Creates a new ShapeInfo. Used to store information about Shapes.
  * @constructor
  * @param {!o3d.Shape} shape Shape to keep info about.
  * @param {!o3djs.picking.TransformInfo} parent Parent transform of the shape.
- * @param {!o3djs.picking.PickManager} pickManager The PickManager this
- *     ShapeInfo belongs to.
  */
-o3djs.picking.ShapeInfo = function(shape, parent, pickManager) {
+o3djs.picking.ShapeInfo = function(shape, parent) {
   /**
    * The Shape for this ShapeInfo
    * @type {!o3d.Shape}
@@ -266,22 +282,8 @@ o3djs.picking.ShapeInfo = function(shape, parent, pickManager) {
    */
   this.boundingBox = null;
 
-  /**
-   * The PickManager this ShapeInfo belongs to.
-   * @type {!o3djs.picking.PickManager}
-   */
-  this.pickManager = pickManager;
-
   this.update();
 };
-
-/**
- * Returns whether or not this ShapeInfo is pickable.
- * @return {boolean} Whether or not this ShapeInfo is pickable.
- */
-o3djs.picking.ShapeInfo.prototype.isPickable = function() {
-  return true;
-}
 
 /**
  * Gets the BoundingBox of the Shape in this ShapeInfo.
@@ -312,42 +314,40 @@ o3djs.picking.ShapeInfo.prototype.update = function() {
  *     null if the ray did not intersect any triangles.
  */
 o3djs.picking.ShapeInfo.prototype.pick = function(worldRay) {
-  if (this.isPickable()) {
-    var worldMatrix = this.parent.transform.getUpdatedWorldMatrix()
-    var inverseWorldMatrix = o3djs.math.inverse(worldMatrix);
-    var relativeNear = o3djs.math.matrix4.transformPoint(
-        inverseWorldMatrix, worldRay.near);
-    var relativeFar = o3djs.math.matrix4.transformPoint(
-        inverseWorldMatrix, worldRay.far);
-    var rayIntersectionInfo =
-        this.boundingBox.intersectRay(relativeNear,
-                                      relativeFar);
+  var worldMatrix = this.parent.transform.getUpdatedWorldMatrix()
+  var inverseWorldMatrix = o3djs.math.inverse(worldMatrix);
+  var relativeNear = o3djs.math.matrix4.transformPoint(
+      inverseWorldMatrix, worldRay.near);
+  var relativeFar = o3djs.math.matrix4.transformPoint(
+      inverseWorldMatrix, worldRay.far);
+  var rayIntersectionInfo =
+      this.boundingBox.intersectRay(relativeNear,
+                                    relativeFar);
 
-    o3djs.picking.dumpRayIntersectionInfo('SHAPE(box): ' + this.shape.name,
-                                          rayIntersectionInfo);
+  o3djs.picking.dumpRayIntersectionInfo('SHAPE(box): ' + this.shape.name,
+                                        rayIntersectionInfo);
 
-    if (rayIntersectionInfo.intersected) {
-      var elements = this.shape.elements;
-      for (var e = 0; e < elements.length; e++) {
-        var element = elements[e];
-        rayIntersectionInfo = element.intersectRay(
-            0,
-            o3djs.base.o3d.State.CULL_CCW,
-            relativeNear,
-            relativeFar);
-        o3djs.picking.dumpRayIntersectionInfo(
-            'SHAPE(tris): ' + this.shape.name + ' : element ' + element.name,
-            rayIntersectionInfo);
+  if (rayIntersectionInfo.intersected) {
+    var elements = this.shape.elements;
+    for (var e = 0; e < elements.length; e++) {
+      var element = elements[e];
+      rayIntersectionInfo = element.intersectRay(
+          0,
+          o3djs.base.o3d.State.CULL_CCW,
+          relativeNear,
+          relativeFar);
+      o3djs.picking.dumpRayIntersectionInfo(
+          'SHAPE(tris): ' + this.shape.name + ' : element ' + element.name,
+          rayIntersectionInfo);
 
-        // TODO: get closest element not just first element.
-        if (rayIntersectionInfo.intersected) {
-          var worldIntersectionPosition = o3djs.math.matrix4.transformPoint(
-              worldMatrix, rayIntersectionInfo.position);
-          return o3djs.picking.createPickInfo(element,
-                                              this,
-                                              rayIntersectionInfo,
-                                              worldIntersectionPosition);
-        }
+      // TODO: get closest element not just first element.
+      if (rayIntersectionInfo.intersected) {
+        var worldIntersectionPosition = o3djs.math.matrix4.transformPoint(
+            worldMatrix, rayIntersectionInfo.position);
+        return o3djs.picking.createPickInfo(element,
+                                            this,
+                                            rayIntersectionInfo,
+                                            worldIntersectionPosition);
       }
     }
   }
@@ -356,10 +356,9 @@ o3djs.picking.ShapeInfo.prototype.pick = function(worldRay) {
 
 /**
  * Dumps info about a ShapeInfo
- * @param {string} opt_prefix optional prefix for indenting.
+ * @param {string} prefix optional prefix for indenting.
  */
-o3djs.picking.ShapeInfo.prototype.dump = function(opt_prefix) {
-  var prefix = opt_prefix || '';
+o3djs.picking.ShapeInfo.prototype.dump = function(prefix) {
   o3djs.picking.dprint(prefix + 'SHAPE: ' + this.shape.name + '\n');
   o3djs.picking.dprintPoint3('bb min',
                              this.boundingBox.minExtent,
@@ -375,55 +374,21 @@ o3djs.picking.ShapeInfo.prototype.dump = function(opt_prefix) {
  * @param {!o3d.Transform} transform Transform to keep info about.
  * @param {o3djs.picking.TransformInfo} parent Parent transformInfo of the
  *     transform. Can be null.
- * @param {!o3djs.picking.PickManager} pickManager The PickManager this
- *     ShapeInfo belongs to.
  */
-o3djs.picking.TransformInfo = function(transform, parent, pickManager) {
-  /**
-   * TransformInfos for children by client id.
-   * @type {!Object.<number, !o3djs.picking.TransformInfo>}
-   */
-  this.childTransformInfos = {};
-
-  /**
-   * ShapeInfos for shape of this transform by client id.
-   * @type {!Object.<number, !o3djs.picking.ShapeInfo>}
-   */
-  this.shapeInfos = {};
-
+o3djs.picking.TransformInfo = function(transform, parent) {
+  this.childTransformInfos = {};  // Object of TransformInfo by id
+  this.shapeInfos = {};  // Object of ShapeInfo by id
   /**
    * The transform of this transform info.
    * @type {!o3d.Transform}
    */
   this.transform = transform;
-
   /**
    * The parent of this transform info.
    * @type {o3djs.picking.TransformInfo}
    */
   this.parent = parent;
-
-  /**
-   * The bounding box of this transform info.
-   * @type {o3d.BoundingBox}
-   */
   this.boundingBox = null;
-
-  /**
-   * The PickManager this TransformInfo belongs to.
-   * @type {!o3djs.picking.PickManager}
-   */
-  this.pickManager = pickManager;
-
-  /**
-   * Whether or not this object is pickable when invisible.
-   * This is useful for collision geometry that is not visible.
-   * Of course it might argubly be better to store collision geometry
-   * in a separate graph from visible geometry but sometimes it's useful
-   * to have them in the same graph.
-   * @type {boolean}
-   */
-  this.pickableEvenIfInvisible = false;
 };
 
 /**
@@ -435,33 +400,18 @@ o3djs.picking.TransformInfo.prototype.getBoundingBox = function() {
 };
 
 /**
- * Returns whether or not this TransformInfo is pickable.
- *
- * If this TransformInfo is not pickable then all child shapes and
- * TransformInfos will be skipped during the picking process.
- *
- * @return {boolean} Whether or not this TransformInfo is pickable.
- */
-o3djs.picking.TransformInfo.prototype.isPickable = function() {
-  return this.transform.visible || this.pickableEvenIfInvisible;
-};
-
-/**
  * Updates the shape and child lists for this TransformInfo and recomputes its
  * BoundingBox.
  */
 o3djs.picking.TransformInfo.prototype.update = function() {
   var newChildTransformInfos = {};
   var newShapeInfos = {};
-  // We need to add new children and remove old ones so we walk the children
-  // and for each one we find, if it already has a TransformInfo or ShapeInfo we
-  // add it to our new lists, if not we create one and add it to our new lists.
   var children = this.transform.children;
   for (var c = 0; c < children.length; c++) {
     var child = children[c];
     var transformInfo = this.childTransformInfos[child.clientId];
     if (!transformInfo) {
-      transformInfo = this.pickManager.createTransformInfo(child, this);
+      transformInfo = o3djs.picking.createTransformInfo(child, this);
     } else {
       // clear the boundingBox so we'll regenerate it.
       transformInfo.boundingBox = null;
@@ -474,11 +424,11 @@ o3djs.picking.TransformInfo.prototype.update = function() {
     var shape = shapes[s];
     var shapeInfo = this.shapeInfos[shape.clientId];
     if (!shapeInfo) {
-      shapeInfo = this.pickManager.createShapeInfo(shape, this);
+      shapeInfo = o3djs.picking.createShapeInfo(shape, this);
     } else {
       // unless the vertices or elements change there is no need to
       // recompute this.
-      // shapeInfo.update();
+      // shape.update();
     }
     newShapeInfos[shape.clientId] = shapeInfo;
   }
@@ -488,43 +438,30 @@ o3djs.picking.TransformInfo.prototype.update = function() {
   // o3djs.picking.dprint(
   //   'num Shapes: ' + shapes.length + '\n');
 
-  // Now our new lists have the correct children so replace the old lists.
-  // and remove any old children from the PickManager.
-  for (var skey in this.childTransformInfos) {
-    var key = /** @type {number} */ (skey);
-    if (!newChildTransformInfos[key]) {
-      this.pickManager.removeTransformInfo(this.childTransformInfos[key]);
-    }
-  }
-
   this.childTransformInfos = newChildTransformInfos;
   this.shapeInfos = newShapeInfos;
 
   var boundingBox = null;
   for (var key in newShapeInfos) {
     var shapeInfo = newShapeInfos[key];
-    if (shapeInfo.isPickable()) {
-      var box = shapeInfo.getBoundingBox().mul(this.transform.localMatrix);
-      if (!boundingBox) {
-        boundingBox = box;
-      } else if (box) {
-        boundingBox = boundingBox.add(box);
-      }
+    var box = shapeInfo.getBoundingBox().mul(this.transform.localMatrix);
+    if (!boundingBox) {
+      boundingBox = box;
+    } else if (box) {
+      boundingBox = boundingBox.add(box);
     }
   }
 
   for (var key in newChildTransformInfos) {
     var transformInfo = newChildTransformInfos[key];
-    if (transformInfo.isPickable()) {
-      // Note: If there is no shape at the leaf on this branch
-      // there will be no bounding box.
-      var box = transformInfo.getBoundingBox();
-      if (box) {
-        if (!boundingBox) {
-          boundingBox = box.mul(this.transform.localMatrix);
-        } else {
-          boundingBox = boundingBox.add(box.mul(this.transform.localMatrix));
-        }
+    // Note: If there is no shape at the leaf on this branch
+    // there will be no bounding box.
+    var box = transformInfo.getBoundingBox();
+    if (box) {
+      if (!boundingBox) {
+        boundingBox = box.mul(this.transform.localMatrix);
+      } else {
+        boundingBox = boundingBox.add(box.mul(this.transform.localMatrix));
       }
     }
   }
@@ -542,7 +479,7 @@ o3djs.picking.TransformInfo.prototype.update = function() {
  *     null if the ray did not intersect any triangles.
  */
 o3djs.picking.TransformInfo.prototype.pick = function(worldRay) {
-  if (this.isPickable() && this.boundingBox) {
+  if (this.boundingBox) {
     var inverseWorldMatrix = o3djs.math.matrix4.identity();
     if (this.parent) {
       inverseWorldMatrix = o3djs.math.inverse(
@@ -560,8 +497,7 @@ o3djs.picking.TransformInfo.prototype.pick = function(worldRay) {
     if (rayIntersectionInfo.intersected) {
       var closestPickInfo = null;
       var minDistance = -1;
-      for (var skey in this.childTransformInfos) {
-        var key = /** @type {number} */ (skey);
+      for (var key in this.childTransformInfos) {
         var transformInfo = this.childTransformInfos[key];
         var pickInfo = transformInfo.pick(worldRay);
         if (pickInfo) {
@@ -576,8 +512,7 @@ o3djs.picking.TransformInfo.prototype.pick = function(worldRay) {
         }
       }
 
-      for (var skey in this.shapeInfos) {
-        var key = /** @type {number} */ (skey);
+      for (var key in this.shapeInfos) {
         var shapeInfo = this.shapeInfos[key];
         var pickInfo = shapeInfo.pick(worldRay);
         if (pickInfo) {
@@ -599,10 +534,10 @@ o3djs.picking.TransformInfo.prototype.pick = function(worldRay) {
 
 /**
  * Dumps info about a TransformInfo
- * @param {string} opt_prefix optional prefix for indenting.
+ * @param {string} prefix optional prefix for indenting.
  */
-o3djs.picking.TransformInfo.prototype.dump = function(opt_prefix) {
-  var prefix = opt_prefix || '';
+o3djs.picking.TransformInfo.prototype.dump = function(prefix) {
+  prefix = prefix || '';
 
   o3djs.picking.dprint(prefix + 'TRANSFORM: ' + this.transform.name +
                        '\n');
@@ -619,124 +554,17 @@ o3djs.picking.TransformInfo.prototype.dump = function(opt_prefix) {
   }
 
   o3djs.picking.dprint(prefix + '--Shapes--\n');
-  for (var skey in this.shapeInfos) {
-    var key = /** @type {number} */ (skey);
+  for (var key in this.shapeInfos) {
     var shapeInfo = this.shapeInfos[key];
     shapeInfo.dump(prefix + '    ');
   }
 
   o3djs.picking.dprint(prefix + '--Children--\n');
-  for (var skey in this.childTransformInfos) {
-    var key = /** @type {number} */ (skey);
+  for (var key in this.childTransformInfos) {
     var transformInfo = this.childTransformInfos[key];
     transformInfo.dump(prefix + '    ');
   }
 };
 
-/**
- * A PickManager manages picking of primitives from a transform graph.
- * @constructor
- * @param {!o3d.Transform} rootTransform The root of the transform graph this
- *     PickManager should manage.
- */
-o3djs.picking.PickManager = function(rootTransform) {
-  /**
-   * TransformInfos for transforms of this PickManager by client id.
-   * @type {!Object.<number, !o3djs.picking.TransformInfo>}
-   */
-  this.transformInfosByClientId = {};
 
-  /**
-   * The root transform for this PickManager.
-   * @type {!o3djs.picking.TransformInfo}
-   */
-  this.rootTransformInfo = this.createTransformInfo(rootTransform, null);
-};
-
-/**
- * Creates a new ShapeInfo.
- * @param {!o3d.Shape} shape Shape to keep info about.
- * @param {!o3djs.picking.TransformInfo} parent Parent transform of the shape.
- * @return {!o3djs.picking.ShapeInfo} The new ShapeInfo.
- */
-o3djs.picking.PickManager.prototype.createShapeInfo = function(shape, parent) {
-  return new o3djs.picking.ShapeInfo(shape, parent, this);
-};
-
-/**
- * Creates a new TransformInfo.
- * @param {!o3d.Transform} transform Transform to keep info about.
- * @param {o3djs.picking.TransformInfo} parent Parent transform of the
- *     transform. Can be null.
- * @return {!o3djs.picking.TransformInfo} The new TransformInfo.
- */
-o3djs.picking.PickManager.prototype.createTransformInfo =
-    function(transform, parent) {
-  var info = new o3djs.picking.TransformInfo(transform, parent, this);
-  this.addTransformInfo(info);
-  return info;
-};
-
-/**
- * Adds a transform info to this PickManager.
- * @param {!o3djs.picking.TransformInfo} transformInfo The TransformInfo to add.
- */
-o3djs.picking.PickManager.prototype.addTransformInfo = function(transformInfo) {
-  this.transformInfosByClientId[transformInfo.transform.clientId] =
-      transformInfo;
-};
-
-/**
- * Removes a transform info from this PickManager.
- * @param {!o3djs.picking.TransformInfo} transformInfo The TransformInfo to
- *     remove.
- */
-o3djs.picking.PickManager.prototype.removeTransformInfo =
-    function(transformInfo) {
-  delete this.transformInfosByClientId[transformInfo.transform.clientId];
-};
-
-/**
- * Gets a transform info from this PickManager by transform.
- * @param {!o3d.Transform} transform The Transform to get a TransformInfo for.
- * @return {o3djs.picking.TransformInfo} The TransformInfo for the transform or
- *      null if there isn't one.
- */
-o3djs.picking.PickManager.prototype.getTransformInfo = function(transform) {
-  return this.transformInfosByClientId[transform.clientId];
-};
-
-/**
- * Updates the picking info to match the transform graph in its current state.
- */
-o3djs.picking.PickManager.prototype.update = function() {
-  this.rootTransformInfo.update();
-};
-
-/**
- * Dumps info about a PickManager
- */
-o3djs.picking.PickManager.prototype.dump = function() {
-  this.rootTransformInfo.dump();
-};
-
-/**
- * Attempts to "pick" objects managed by this PickManager.
- * @param {!o3djs.picking.Ray} worldRay A ray in world space to pick against.
- * @return {o3djs.picking.PickInfo} Information about the picking.
- *     null if the ray did not intersect any triangles.
- */
-o3djs.picking.PickManager.prototype.pick = function(worldRay) {
-  return this.rootTransformInfo.pick(worldRay);
-};
-
-/**
- * Creates a PickManager.
- * @param {!o3d.Transform} rootTransform The root of the transform graph this
- *     PickManager should manage.
- * @return {!o3djs.picking.PickManager} The created PickManager.
- */
-o3djs.picking.createPickManager = function(rootTransform) {
-  return new o3djs.picking.PickManager(rootTransform);
-};
 

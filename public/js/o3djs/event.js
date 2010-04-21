@@ -132,7 +132,7 @@ o3djs.event.getKeyIdentifier = function(charCode, keyCode) {
  * @return {number} the numeric Unicode code point represented.
  */
 o3djs.event.keyIdentifierToChar = function(keyIdent) {
-  if (keyIdent && typeof(keyIdent) == 'string') {
+  if (keyIdent) {
     switch (keyIdent) {
       case 'Enter': return 13;
       case 'Left': return 37;
@@ -140,8 +140,8 @@ o3djs.event.keyIdentifierToChar = function(keyIdent) {
       case 'Up': return 38;
       case 'Down': return 40;
     }
-    if (keyIdent.indexOf('U+') == 0)
-      return parseInt(keyIdent.substr(2).toUpperCase(), 16);
+  if (keyIdent.indexOf('U+') == 0)
+    return parseInt(keyIdent.substr(2).toUpperCase(), 16);
   }
   return 0;
 };
@@ -157,7 +157,7 @@ o3djs.event.getEventKeyChar = function(event) {
     event = window.event;
   }
   var charCode = 0;
-  if (event.keyIdentifier) 
+  if (event.keyIdentifier)
     charCode = o3djs.event.keyIdentifierToChar(event.keyIdentifier);
   if (!charCode)
     charCode = (window.event) ? window.event.keyCode : event.charCode;

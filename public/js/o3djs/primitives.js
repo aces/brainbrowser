@@ -255,10 +255,10 @@ o3djs.primitives.createVertexStreamInfo = function(numComponents,
 };
 
 /**
- * VertexInfoBase. Used to store vertices and indices.
+ * VertexInfo. Used to store vertices and indices.
  * @constructor
  */
-o3djs.primitives.VertexInfoBase = function() {
+o3djs.primitives.VertexInfo = function() {
   this.streams = [];
   this.indices = [];
 };
@@ -272,7 +272,7 @@ o3djs.primitives.VertexInfoBase = function() {
  *     Defaults to zero.
  * @return {!o3djs.primitives.VertexStreamInfo} The new stream.
  */
-o3djs.primitives.VertexInfoBase.prototype.addStream = function(
+o3djs.primitives.VertexInfo.prototype.addStream = function(
     numComponents,
     semantic,
     opt_semanticIndex) {
@@ -293,7 +293,7 @@ o3djs.primitives.VertexInfoBase.prototype.addStream = function(
  * @return {o3djs.primitives.VertexStreamInfo} The stream or null if it
  *     is not present.
  */
-o3djs.primitives.VertexInfoBase.prototype.findStream = function(
+o3djs.primitives.VertexInfo.prototype.findStream = function(
     semantic,
     opt_semanticIndex) {
   opt_semanticIndex = opt_semanticIndex || 0;
@@ -313,7 +313,7 @@ o3djs.primitives.VertexInfoBase.prototype.findStream = function(
  * @param {number} opt_semanticIndex The semantic index of the stream.
  *     Defaults to zero.
  */
-o3djs.primitives.VertexInfoBase.prototype.removeStream = function(
+o3djs.primitives.VertexInfo.prototype.removeStream = function(
     semantic,
     opt_semanticIndex) {
   opt_semanticIndex = opt_semanticIndex || 0;
@@ -327,15 +327,62 @@ o3djs.primitives.VertexInfoBase.prototype.removeStream = function(
 };
 
 /**
+ * Returns the number of triangles represented by the VertexInfo.
+ * @return {number} The number of triangles represented by VertexInfo.
+ */
+o3djs.primitives.VertexInfo.prototype.numTriangles = function() {
+  return this.indices.length / 3;
+};
+
+/**
+ * Adds a triangle.
+ * @param {number} index1 The index of the first vertex of the triangle.
+ * @param {number} index2 The index of the second vertex of the triangle.
+ * @param {number} index3 The index of the third vertex of the triangle.
+ */
+o3djs.primitives.VertexInfo.prototype.addTriangle = function(
+    index1, index2, index3) {
+  this.indices.push(index1, index2, index3);
+};
+
+/**
+ * Gets the vertex indices of the triangle at the given triangle index.
+ * @param {number} triangleIndex The index of the triangle.
+ * @return {!Array.<number>} An array of three triangle indices.
+ */
+o3djs.primitives.VertexInfo.prototype.getTriangle = function(
+    triangleIndex) {
+  var indexIndex = triangleIndex * 3;
+  return [this.indices[indexIndex + 0],
+          this.indices[indexIndex + 1],
+          this.indices[indexIndex + 2]];
+};
+
+/**
+ * Sets the vertex indices of the triangle at the given triangle index.
+ * @param {number} triangleIndex The index of the triangle.
+ * @param {number} index1 The index of the first vertex of the triangle.
+ * @param {number} index2 The index of the second vertex of the triangle.
+ * @param {number} index3 The index of the third vertex of the triangle.
+ */
+o3djs.primitives.VertexInfo.prototype.setTriangle = function(
+    triangleIndex, index1, index2, index3) {
+  var indexIndex = triangleIndex * 3;
+  this.indices[indexIndex + 0] = index1;
+  this.indices[indexIndex + 1] = index2;
+  this.indices[indexIndex + 2] = index3;
+};
+
+/**
  * Appends all of the information in the passed VertexInfo on to the
  * end of this one. This is useful for putting multiple primitives'
  * vertices, appropriately transformed, into a single Shape. Both
  * VertexInfo objects must contain the same number of streams, with
  * the same semantics and number of components.
- * @param {!o3djs.primitives.VertexInfoBase} info The VertexInfo whose
+ * @param {!o3djs.primitives.VertexInfo} info The VertexInfo whose
  *     information should be appended to this one.
  */
-o3djs.primitives.VertexInfoBase.prototype.append = function(info) {
+o3djs.primitives.VertexInfo.prototype.append = function(info) {
   if (this.streams.length == 0 && info.streams.length != 0) {
     // Special case
     for (var i = 0; i < info.streams.length; i++) {
@@ -398,7 +445,7 @@ o3djs.primitives.VertexInfoBase.prototype.append = function(info) {
  * Validates that all the streams contain the same number of elements, that
  * all the indices are within range and that a position stream is present.
  */
-o3djs.primitives.VertexInfoBase.prototype.validate = function() {
+o3djs.primitives.VertexInfo.prototype.validate = function() {
   // Check the position stream is present.
   var positionStream = this.findStream(o3djs.base.o3d.Stream.POSITION);
   if (!positionStream)
@@ -423,82 +470,15 @@ o3djs.primitives.VertexInfoBase.prototype.validate = function() {
 };
 
 /**
- * Reorients the vertices, positions and normals, of this vertexInfo by the
- * given matrix. In other words, it multiplies each vertex by the given matrix
- * and each normal by the inverse-transpose of the given matrix.
- * @param {!o3djs.math.Matrix4} matrix Matrix by which to multiply.
- */
-o3djs.primitives.VertexInfoBase.prototype.reorient = function(matrix) {
-  var math = o3djs.math;
-  var matrixInverse = math.inverse(math.matrix4.getUpper3x3(matrix));
-
-  for (var s = 0; s < this.streams.length; ++s) {
-    var stream = this.streams[s];
-    if (stream.numComponents == 3) {
-      var numElements = stream.numElements();
-      switch (stream.semantic) {
-        case o3djs.base.o3d.Stream.POSITION:
-          for (var i = 0; i < numElements; ++i) {
-            stream.setElementVector(i,
-                math.matrix4.transformPoint(matrix,
-                    stream.getElementVector(i)));
-          }
-          break;
-        case o3djs.base.o3d.Stream.NORMAL:
-          for (var i = 0; i < numElements; ++i) {
-            stream.setElementVector(i,
-                math.matrix4.transformNormal(matrix,
-                    stream.getElementVector(i)));
-          }
-          break;
-        case o3djs.base.o3d.Stream.TANGENT:
-        case o3djs.base.o3d.Stream.BINORMAL:
-          for (var i = 0; i < numElements; ++i) {
-            stream.setElementVector(i,
-                math.matrix4.transformDirection(matrix,
-                    stream.getElementVector(i)));
-          }
-          break;
-      }
-    }
-  }
-};
-
-/**
- * Creates a shape from a VertexInfoBase
+ * Creates a shape from a VertexInfo
  * @param {!o3d.Pack} pack Pack to create objects in.
  * @param {!o3d.Material} material to use.
- * @param {!o3d.Primitive.PrimitiveType} primitiveType The type of primitive.
  * @return {!o3d.Shape} The created shape.
  */
-o3djs.primitives.VertexInfoBase.prototype.createShapeByType = function(
+o3djs.primitives.VertexInfo.prototype.createShape = function(
     pack,
-    material,
-    primitiveType) {
+    material) {
   this.validate();
-
-  var numIndices = this.indices.length;
-  var numPrimitives;
-  switch (primitiveType) {
-    case o3djs.base.o3d.Primitive.POINTLIST:
-      numPrimitives = numIndices / 1;
-      break;
-    case o3djs.base.o3d.Primitive.LINELIST:
-      numPrimitives = numIndices / 2;
-      break;
-    case o3djs.base.o3d.Primitive.LINESTRIP:
-      numPrimitives = numIndices - 1;
-      break;
-    case o3djs.base.o3d.Primitive.TRIANGLELIST:
-      numPrimitives = numIndices / 3;
-      break;
-    case o3djs.base.o3d.Primitive.TRIANGLESTRIP:
-    case o3djs.base.o3d.Primitive.TRIANGLEFAN:
-      numPrimitives = numIndices - 2;
-      break;
-    default:
-      throw 'unknown primitive type';
-  }
 
   var positionStream = this.findStream(o3djs.base.o3d.Stream.POSITION);
   var numVertices = positionStream.numElements();
@@ -510,8 +490,8 @@ o3djs.primitives.VertexInfoBase.prototype.createShapeByType = function(
   primitive.owner = shape;
   primitive.streamBank = streamBank;
   primitive.material = material;
-  primitive.numberPrimitives = numPrimitives;
-  primitive.primitiveType = primitiveType;
+  primitive.numberPrimitives = this.indices.length / 3;
+  primitive.primitiveType = o3djs.base.o3d.Primitive.TRIANGLELIST;
   primitive.numberVertices = numVertices;
   primitive.createDrawElement(pack, null);
 
@@ -527,12 +507,7 @@ o3djs.primitives.VertexInfoBase.prototype.createShapeByType = function(
       switch (semantic) {
         case o3djs.base.o3d.Stream.TANGENT:
         case o3djs.base.o3d.Stream.BINORMAL:
-          if (primitiveType == o3djs.base.o3d.Primitive.TRIANGLELIST) {
-            this.addTangentStreams(semanticIndex);
-          } else {
-            throw 'Can not create tangents and binormals for primitive type' +
-                primitiveType;
-          }
+          this.addTangentStreams(semanticIndex);
           break;
         case o3djs.base.o3d.Stream.COLOR:
           requiredStream = this.addStream(4, semantic, semanticIndex);
@@ -576,76 +551,45 @@ o3djs.primitives.VertexInfoBase.prototype.createShapeByType = function(
 };
 
 /**
- * A VertexInfo is a specialization of VertexInfoBase for triangle based
- * geometry.
- * @constructor
- * @extends {o3djs.primitives.VertexInfoBase}
+ * Reorients the vertices, positions and normals, of this vertexInfo by the
+ * given matrix. In other words, it multiplies each vertex by the given matrix
+ * and each normal by the inverse-transpose of the given matrix.
+ * @param {!o3djs.math.Matrix4} matrix Matrix by which to multiply.
  */
-o3djs.primitives.VertexInfo = function() {
-  o3djs.primitives.VertexInfoBase.call(this);
-}
+o3djs.primitives.VertexInfo.prototype.reorient = function(matrix) {
+  var math = o3djs.math;
+  var matrixInverse = math.inverse(math.matrix4.getUpper3x3(matrix));
 
-o3djs.base.inherit(o3djs.primitives.VertexInfo,
-                   o3djs.primitives.VertexInfoBase);
-
-/**
- * Returns the number of triangles represented by the VertexInfo.
- * @return {number} The number of triangles represented by VertexInfo.
- */
-o3djs.primitives.VertexInfo.prototype.numTriangles = function() {
-  return this.indices.length / 3;
-};
-
-/**
- * Adds a triangle.
- * @param {number} index1 The index of the first vertex of the triangle.
- * @param {number} index2 The index of the second vertex of the triangle.
- * @param {number} index3 The index of the third vertex of the triangle.
- */
-o3djs.primitives.VertexInfo.prototype.addTriangle = function(
-    index1, index2, index3) {
-  this.indices.push(index1, index2, index3);
-};
-
-/**
- * Gets the vertex indices of the triangle at the given triangle index.
- * @param {number} triangleIndex The index of the triangle.
- * @return {!Array.<number>} An array of three triangle indices.
- */
-o3djs.primitives.VertexInfo.prototype.getTriangle = function(
-    triangleIndex) {
-  var indexIndex = triangleIndex * 3;
-  return [this.indices[indexIndex + 0],
-          this.indices[indexIndex + 1],
-          this.indices[indexIndex + 2]];
-};
-
-/**
- * Sets the vertex indices of the triangle at the given triangle index.
- * @param {number} triangleIndex The index of the triangle.
- * @param {number} index1 The index of the first vertex of the triangle.
- * @param {number} index2 The index of the second vertex of the triangle.
- * @param {number} index3 The index of the third vertex of the triangle.
- */
-o3djs.primitives.VertexInfo.prototype.setTriangle = function(
-    triangleIndex, index1, index2, index3) {
-  var indexIndex = triangleIndex * 3;
-  this.indices[indexIndex + 0] = index1;
-  this.indices[indexIndex + 1] = index2;
-  this.indices[indexIndex + 2] = index3;
-};
-
-/**
- * Creates a shape from a VertexInfo
- * @param {!o3d.Pack} pack Pack to create objects in.
- * @param {!o3d.Material} material to use.
- * @return {!o3d.Shape} The created shape.
- */
-o3djs.primitives.VertexInfo.prototype.createShape = function(
-    pack,
-    material) {
-  return this.createShapeByType(
-      pack, material, o3djs.base.o3d.Primitive.TRIANGLELIST);
+  for (var s = 0; s < this.streams.length; ++s) {
+    var stream = this.streams[s];
+    if (stream.numComponents == 3) {
+      var numElements = stream.numElements();
+      switch (stream.semantic) {
+        case o3djs.base.o3d.Stream.POSITION:
+          for (var i = 0; i < numElements; ++i) {
+            stream.setElementVector(i,
+                math.matrix4.transformPoint(matrix,
+                    stream.getElementVector(i)));
+          }
+          break;
+        case o3djs.base.o3d.Stream.NORMAL:
+          for (var i = 0; i < numElements; ++i) {
+            stream.setElementVector(i,
+                math.matrix4.transformNormal(matrix,
+                    stream.getElementVector(i)));
+          }
+          break;
+        case o3djs.base.o3d.Stream.TANGENT:
+        case o3djs.base.o3d.Stream.BINORMAL:
+          for (var i = 0; i < numElements; ++i) {
+            stream.setElementVector(i,
+                math.matrix4.transformDirection(matrix,
+                    stream.getElementVector(i)));
+          }
+          break;
+      }
+    }
+  }
 };
 
 /**
@@ -1337,8 +1281,8 @@ o3djs.primitives.createTruncatedConeVertices = function(bottomRadius,
                                                         radialSubdivisions,
                                                         verticalSubdivisions,
                                                         opt_matrix) {
-  if (radialSubdivisions < 3) {
-    throw Error('radialSubdivisions must be 3 or greater');
+  if (radialSubdivisions < 1) {
+    throw Error('radialSubdivisions must be 1 or greater');
   }
 
   if (verticalSubdivisions < 1) {
@@ -1353,6 +1297,8 @@ o3djs.primitives.createTruncatedConeVertices = function(bottomRadius,
   var texCoordStream = vertexInfo.addStream(
       2, o3djs.base.o3d.Stream.TEXCOORD, 0);
 
+  var indices = [];
+  var vertices = [];
   var vertsAroundEdge = radialSubdivisions + 1;
 
   // The slant of the cone is constant across its surface
@@ -1371,7 +1317,7 @@ o3djs.primitives.createTruncatedConeVertices = function(bottomRadius,
     } else if (yy > verticalSubdivisions) {
       y = height;
       v = 1;
-      ringRadius = topRadius;
+      ringRadius = topRadius;      
     } else {
       ringRadius = bottomRadius +
         (topRadius - bottomRadius) * (yy / verticalSubdivisions);
@@ -1393,6 +1339,7 @@ o3djs.primitives.createTruncatedConeVertices = function(bottomRadius,
     }
   }
 
+  var trisAround = radialSubdivisions * 2;
   for (var yy = 0; yy < verticalSubdivisions + 4; ++yy) {
     for (var ii = 0; ii < radialSubdivisions; ++ii) {
       vertexInfo.addTriangle(vertsAroundEdge * (yy + 0) + 0 + ii,
@@ -1415,8 +1362,8 @@ o3djs.primitives.createTruncatedConeVertices = function(bottomRadius,
  * that it has different top and bottom radii. A truncated cone can
  * also be used to create cylinders, by setting the bottom and top
  * radii equal, and cones, by setting either the top or bottom radius
- * to 0. The truncated cone will be created centered about the origin,
- * with the y axis as its vertical axis. The created cone has
+ * to 0. The truncated cone will be created with the bottom face in
+ * the xz plane, and the y axis in the center. The created cone has
  * position, normal and uv streams.
  *
  * @param {!o3d.Pack} pack Pack in which to create the truncated cone.
@@ -1451,117 +1398,6 @@ o3djs.primitives.createTruncatedCone = function(pack,
 };
 
 /**
- * Creates vertices for a torus. The torus will be created centered about the
- * origin, with the y axis as its vertical axis. The created torus has
- * position, normal and uv streams.
- *
- * @param {number} torusRadius Distance from the center of the tube to
- *     the center of the torus.
- * @param {number} tubeRadius Radius of the tube.
- * @param {number} tubeLengthSubdivisions The number of subdivisions around the
- *     vertical axis of the torus, i.e. along the length of the tube.
- * @param {number} circleSubdivisions The number of subdivisions in the circle
- *     that is rotated about the vertical axis to create the torus.
- * @param {!o3djs.math.Matrix4} opt_matrix A matrix by which to multiply
- *     all the vertices.
- * @return {!o3djs.primitives.VertexInfo} The created torus vertices.
- */
-o3djs.primitives.createTorusVertices = function(torusRadius,
-                                                tubeRadius,
-                                                tubeLengthSubdivisions,
-                                                circleSubdivisions,
-                                                opt_matrix) {
-  if (tubeLengthSubdivisions < 3) {
-    throw Error('tubeLengthSubdivisions must be 3 or greater');
-  }
-
-  if (circleSubdivisions < 3) {
-    throw Error('circleSubdivisions must be 3 or greater');
-  }
-
-  var vertexInfo = o3djs.primitives.createVertexInfo();
-  var positionStream = vertexInfo.addStream(
-      3, o3djs.base.o3d.Stream.POSITION);
-  var normalStream = vertexInfo.addStream(
-      3, o3djs.base.o3d.Stream.NORMAL);
-  var texCoordStream = vertexInfo.addStream(
-      2, o3djs.base.o3d.Stream.TEXCOORD, 0);
-
-  for (var uu = 0; uu < tubeLengthSubdivisions; ++uu) {
-    var u = (uu / tubeLengthSubdivisions) * 2 * Math.PI;
-    for (var vv = 0; vv < circleSubdivisions; ++vv) {
-      var v = (vv / circleSubdivisions) * 2 * Math.PI;
-      var sinu = Math.sin(u);
-      var cosu = Math.cos(u);
-      var sinv = Math.sin(v);
-      var cosv = Math.cos(v);
-      positionStream.addElement((torusRadius + tubeRadius * cosv) * cosu,
-                                tubeRadius * sinv,
-                                (torusRadius + tubeRadius * cosv) * sinu);
-      normalStream.addElement(cosv * cosu,
-                              sinv,
-                              cosv * sinu);
-      texCoordStream.addElement(uu / tubeLengthSubdivisions,
-                                vv / circleSubdivisions);
-    }
-  }
-
-  for (var uu = 0; uu < tubeLengthSubdivisions; ++uu) {
-    for (var vv = 0; vv < circleSubdivisions; ++vv) {
-      // We want to wrap the indices around at the seams.
-      var uuPlusOne = (uu + 1) % tubeLengthSubdivisions;
-      var vvPlusOne = (vv + 1) % circleSubdivisions;
-      // The indices of four points forming a quad.
-      var a = circleSubdivisions * uu        + vv;
-      var b = circleSubdivisions * uuPlusOne + vv;
-      var c = circleSubdivisions * uu        + vvPlusOne;
-      var d = circleSubdivisions * uuPlusOne + vvPlusOne;
-      vertexInfo.addTriangle(a, d, b);
-      vertexInfo.addTriangle(a, c, d);
-    }
-  }
-
-  if (opt_matrix) {
-    vertexInfo.reorient(opt_matrix);
-  }
-  return vertexInfo;
-};
-
-/**
- * Creates a torus shape. The torus will be created centered about the
- * origin, with the y axis as its vertical axis. The created torus has
- * position, normal and uv streams.
- *
- * @param {!o3d.Pack} pack Pack in which to create the torus.
- * @param {!o3d.Material} material to use.
- * @param {number} torusRadius Distance from the center of the tube to
- *     the center of the torus.
- * @param {number} tubeRadius Radius of the tube.
- * @param {number} tubeLengthSubdivisions The number of subdivisions around the
- *     vertical axis of the torus, i.e. along the length of the tube.
- * @param {number} circleSubdivisions The number of subdivisions in the circle
- *     that is rotated about the vertical axis to create the torus.
- * @param {!o3djs.math.Matrix4} opt_matrix A matrix by which to multiply
- *     all the vertices.
- * @return {!o3d.Shape} The created torus.
- */
-o3djs.primitives.createTorus = function(pack,
-                                        material,
-                                        torusRadius,
-                                        tubeRadius,
-                                        tubeLengthSubdivisions,
-                                        circleSubdivisions,
-                                        opt_matrix) {
-  var vertexInfo = o3djs.primitives.createTorusVertices(
-      torusRadius,
-      tubeRadius,
-      tubeLengthSubdivisions,
-      circleSubdivisions,
-      opt_matrix);
-  return vertexInfo.createShape(pack, material);
-};
-
-/**
  * Creates wedge vertices, wedge being an extruded triangle. The wedge will be
  * created around the 3 2d points passed in and extruded along the z axis. The
  * created wedge has position, normal and uv streams.
@@ -1571,7 +1407,7 @@ o3djs.primitives.createTorus = function(pack,
  * @param {number} depth The depth to extrude the triangle.
  * @param {!o3djs.math.Matrix4} opt_matrix A matrix by which to multiply
  *     all the vertices.
- * @return {!o3djs.primitives.VertexInfo} The created wedge vertices.
+ * @return {!o3djs.primitives.VertexInfo} The created cylinder vertices.
  */
 o3djs.primitives.createWedgeVertices = function(inPoints, depth,
                                                 opt_matrix) {
@@ -1588,6 +1424,7 @@ o3djs.primitives.createWedgeVertices = function(inPoints, depth,
   var z1 = -depth * 0.5;
   var z2 = depth * 0.5;
   var face = [];
+  var indices = [];
   var points = [[inPoints[0][0], inPoints[0][1]],
                 [inPoints[1][0], inPoints[1][1]],
                 [inPoints[2][0], inPoints[2][1]]];
@@ -1669,14 +1506,14 @@ o3djs.primitives.createWedgeVertices = function(inPoints, depth,
   normalStream.addElement(face[2][0], face[2][1], face[2][2]);
   texCoordStream.addElement(1, 1);
 
-  vertexInfo.addTriangle(0, 2, 1);
-  vertexInfo.addTriangle(3, 4, 5);
-  vertexInfo.addTriangle(6, 7, 8);
-  vertexInfo.addTriangle(6, 8, 9);
-  vertexInfo.addTriangle(10, 11, 12);
-  vertexInfo.addTriangle(10, 12, 13);
-  vertexInfo.addTriangle(14, 15, 16);
-  vertexInfo.addTriangle(14, 16, 17);
+  var indices = [0, 2, 1,
+                 3, 4, 5,
+                 6, 7, 8,
+                 6, 8, 9,
+                 10, 11, 12,
+                 10, 12, 13,
+                 14, 15, 16,
+                 14, 16, 17];
 
   if (opt_matrix) {
     vertexInfo.reorient(opt_matrix);
@@ -1722,10 +1559,10 @@ o3djs.primitives.createWedge = function(pack,
  *
  * @param {!Array.<!Array.<number>>} points Array of 2d points in the format
  *     [[x1, y1], [x2, y2], [x3, y3],...] that describe a 2d polygon.
- * @param {number} depth The depth to extrude the polygon.
+ * @param {number} depth The depth to extrude the triangle.
  * @param {!o3djs.math.Matrix4} opt_matrix A matrix by which to multiply
  *     all the vertices.
- * @return {!o3djs.primitives.VertexInfo} The created prism vertices.
+ * @return {!o3djs.primitives.VertexInfo} The created cylinder vertices.
  */
 o3djs.primitives.createPrismVertices = function(points,
                                                 depth,
@@ -1853,10 +1690,10 @@ o3djs.primitives.createPrismVertices = function(points,
  * @param {!o3d.Material} material to use.
  * @param {!Array.<!Array.<number>>} points Array of 2d points in the format:
  *     [[x1, y1], [x2, y2], [x3, y3],...] that describe a 2d polygon.
- * @param {number} depth The depth to extrude the polygon.
+ * @param {number} depth The depth to extrude the triangle.
  * @param {!o3djs.math.Matrix4} opt_matrix A matrix by which to multiply
  *     all the vertices.
- * @return {!o3d.Shape} The created prism.
+ * @return {!o3d.Shape} The created wedge.
  */
 o3djs.primitives.createPrism = function(pack,
                                         material,

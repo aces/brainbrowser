@@ -214,8 +214,7 @@ o3djs.particles.FX_STRINGS = [
     '  float2 uv = input.uvLifeTimeFrameStart.xy;\n' +
     '  float lifeTime = input.uvLifeTimeFrameStart.z;\n' +
     '  float frameStart = input.uvLifeTimeFrameStart.w;\n' +
-    '  float3 position = mul(float4(input.positionStartTime.xyz, 1),\n' +
-    '                        world).xyz;\n' +
+    '  float3 position = input.positionStartTime.xyz;\n' +
     '  float startTime = input.positionStartTime.w;\n' +
     '  float3 velocity = mul(float4(input.velocityStartSize.xyz, 0),\n' +
     '                        world).xyz + worldVelocity;\n' +
@@ -253,7 +252,7 @@ o3djs.particles.FX_STRINGS = [
     '                         acceleration * localTime * localTime + \n' +
     '                         position;\n' +
     '\n' +
-    '  output.position = mul(float4(localPosition, 1), \n' +
+    '  output.position = mul(float4(localPosition + world[3].xyz, 1), \n' +
     '                        viewProjection);\n' +
     '  output.percentLife = percentLife;\n' +
     '  return output;\n' +

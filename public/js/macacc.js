@@ -70,7 +70,7 @@ var g_range_min; //Min of range bar
 //For the prelaoding of the model
 var g_model_data;
 var loading;
-
+var dataSet = new Dataset();
 /**
  * this function preloads the model data async and calls model_data_status() to check if model is completely loaded
 */
@@ -82,6 +82,9 @@ function preload_model(ClientElements)  {
     success: function(data) {
       g_model_data = new MNIObject(data);
       initStep2(ClientElements);
+    },
+    error: function(request,textStatus,e) {
+      alert("Failure: " +  textStatus);
     },
     data: {},
     async: true,
@@ -241,37 +244,9 @@ function pickClick(e) {
 
 
     jQuery(g_pickInfoElem).html("LOADING MAP................");
-    var eof = false;
     g_vertex = get_vertex(primitiveIndex,positionVector);
     update_map();
-    // Display the normal
-    // NOTE: Lookup the normal with this function is very SLOW!!
-    // If you need performance, for a game or something, you should consider
-    // other methods.
-    var normal = o3djs.element.getNormalForTriangle(
-      pickInfo.element,
-      pickInfo.rayIntersectionInfo.primitiveIndex);
 
-      // Convert the normal from local to world space.
-    normal = g_math.matrix4.transformNormal(
-      pickInfo.shapeInfo.parent.transform.worldMatrix,
-      normal);
-
-      // Remove the scale from the normal.
-    normal = g_math.normalize(normal);
-
-        // Get the world position of the collision.
-    var worldPosition = pickInfo.worldIntersectionPosition;
-
-    // Add the normal to it to get a point in space above it with some
-    // multiplier to scale it.
-    var normalSpot = g_math.addVector(
-      worldPosition,
-      g_math.mulVectorScalar(normal, NORMAL_SCALE_FACTOR));
-
-        // Move our debug line to show the normal
-    //g_debugLine.setVisible(true);
-    //g_debugLine.setEndPoints(worldPosition, normalSpot);
   } else {
 
 	//g_debugLine.setVisible(false);
@@ -768,7 +743,7 @@ function get_data_controls() {
   var data_sk = jQuery("#data-sk").val(); //Smoothing Kernel
   var data_modality = jQuery("#data-modality").val();
 
-  return {type: data_type, sk: data_sk, modality: data_modality };
+  return {modality: data_type, sk: data_sk, statistic: data_modality };
 }
 
 function update_color_map(min,max) {
@@ -778,9 +753,15 @@ function update_color_map(min,max) {
   }
 }
 
-function update_map() {
-  fetch_map({vertex: g_vertex, data_setting: get_data_controls()});
+function update_model(dataset) {
+  g_dataArray = dataset.data;
+  g_data_min = dataset.min;
+  g_data_max = dataset.max;
   update_color_map(g_data_min,g_data_max);
+}
+
+function update_map() {
+  dataSet.get_data(g_vertex,get_data_controls(),update_model);
 }
 
 function update_range(min,max) {

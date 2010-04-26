@@ -75,13 +75,13 @@ var dataSet = new Dataset();
  * this function preloads the model data async and calls model_data_status() to check if model is completely loaded
 */
 
-function preload_model(ClientElements)  {
+function preload_model()  {
   jQuery.ajax({ type: 'GET',
     url: '/models/surf_reg_model_both.obj' ,
     dataType: 'text',
     success: function(data) {
       g_model_data = new MNIObject(data);
-      initStep2(ClientElements);
+      init();
     },
     error: function(request,textStatus,e) {
       alert("Failure: " +  textStatus);
@@ -462,7 +462,7 @@ function renderCallback(renderEvent) {
  * Creates the client area.
  */
 function init() {
-  o3djs.util.makeClients(preload_model,"LargeGeometry");
+  o3djs.util.makeClients(initStep2,"LargeGeometry");
 }
 
 function setClientSize() {
@@ -661,36 +661,7 @@ function scrollMe(e) {
   g_client.render();
 }
 
-function fetch_map(request_data) {
-  var vertex = request_data['vertex'];
-  jQuery(g_pickInfoElem).html("LOADING MAP................");
-  g_dataArray=new Array();
-  jQuery.ajax({
-    type: 'GET',
-    url: '/model/map.json',
-    dataType: 'json',
-    success: function(data) {
-      g_dataArray = data;
-      g_data_min = g_dataArray.min();
-      g_data_max = g_dataArray.max();
-    },
-    data: request_data,
-    async: false,
-    timeout: 100000
 
-  });
-
-    if(!(g_dataArray.length > 0) ) {
-      jQuery(g_pickInfoElem).html("Failure to load map data!");
-      return -1;
-    }else {
-          jQuery(g_pickInfoElem).html("Vertex:"+ g_vertex + " Index of Primitive " + g_primitiveIndex + " Position Vector of point " + g_positionVector );
-    }
-
-
-
-  return g_dataArray;
-}
 
 /**
  *  This method generates the color map using the spectrum
@@ -762,6 +733,7 @@ function update_model(dataset) {
 
 function update_map() {
   dataSet.get_data(g_vertex,get_data_controls(),update_model);
+  jQuery(g_pickInfoElem).html("Vertex: " + g_vertex  );
 }
 
 function update_range(min,max) {
@@ -784,13 +756,35 @@ function data_control_change() {
     update_map();
   }
 }
+function parse_spectrum(data) {
+  data = data.replace(/\s+$/, '');
+  data = data.replace(/^\s+/, '');
+  var tmp = data.split(/\n/);
+  var colors = new Array();
+  for(var i=0;i<tmp.length;  i++) {
+    var tmp_color = tmp[i].split(/\s+/);
+    for(var k=0; k<3; k++) {
+      tmp_color[k]=parseFloat(tmp_color[k]);
+    }
+    tmp_color.push(1.0000);
+    colors.push(tmp_color);
+  }
+
+
+
+  return colors;
+}
+
 function set_spectrum(type) {
   		     //get the spectrum of colors
 		     jQuery.ajax({
 		       type: 'GET',
-		       url: '/spectrum.json',
-		       dataType: 'json',
-		       success: update_spectrum,
+		       url: '/assets/gaolang_spectrum.txt',
+		       dataType: 'text',
+		       success: function (data) {
+			 var colors = parse_spectrum(data);
+			 update_spectrum(colors);
+		       },
 		       data: {spectrum: type}
 		       });
 }
@@ -812,7 +806,7 @@ function update_spectrum(colors) {
 
 jQuery(function () {
   loading = jQuery("#loading");
-  init();
+  preload_model();
   window.onunload =  uninit;
   window.document.onkeypress = keyPressedCallback;
   jQuery('#fillmode').toggle(set_fill_mode_wireframe,set_fill_mode_solid);

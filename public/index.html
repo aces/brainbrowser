@@ -20,8 +20,10 @@
 	    <p>
 	    Left Click to move the model<br />
 	    Shift+left click to select a point on the model<br />
+	    ctrl+left click to see that value at a point on the model<br />
 	    Use W, S, A, D to rotate.<br />
 	    Use the Scroll Wheel to zoom(not suported on mac) or up/down arrows
+	    
 	    </p>
 	  <h2>Controls</h2>
 	 
@@ -60,7 +62,6 @@
 	 <br />
 	 Data Range:
 	 <div id="data-range">
-	   <div class="range_slider"></div>
 	   Min: <input class="range-box" id="data-range-min" type="text" name="range_min" size="5"><br />
 	   Max: <input class="range-box" id="data-range-max" type="text" name="range_max" size="5">
 	   <a class="button" id="range_change">Change Range</a>
@@ -75,7 +76,6 @@
 	     <span id="max_mark" class="mark"> </span>
 	   </div>
 	 </div>
-	 
 	 
 	 <br />
 	 <a class="button" id="fillmode">Fill Mode</a>
@@ -161,7 +161,9 @@ float4 pixelShaderFunction(PixelShaderInput input) : COLOR {
 </textarea>  
           <!-- End of effect -->  
      </div>  
-     <div id="vertex_info">Vertex: </div>  
+     <div id="info">
+     <div id="vertex_info">Viewing data for  vertex: </div>  
+     <div id="value">Value at vertex ---:</div>
      </div>
      <div id="loading"></div>
        

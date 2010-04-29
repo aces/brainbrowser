@@ -174,6 +174,58 @@ function select(pickInfo) {
   }
 }
 
+function valueAtPoint(e) {
+  if(!g_vertex) {
+    return;
+  }
+var worldRay = o3djs.picking.clientPositionToWorldRay(
+    e.x,
+    e.y,
+    g_viewInfo.drawContext,
+    g_client.width,
+    g_client.height);
+
+
+  // Update the entire tree in case anything moved.
+  // NOTE: This function is very SLOW!
+  // If you really want to use picking you should manually update only those
+  // transforms and shapes that moved, were added, or deleted by writing your
+  // own picking library. You should also make sure that you are only
+  // considering things that are pickable. By that I mean if you have a scene of
+  // a meadow with trees, grass, bushes, and animals and the only thing the user
+  // can pick is the animals then put the animals on their own sub branch of the
+  // transform graph and only pick against that subgraph.
+  // Even better, make a separate transform graph with only cubes on it to
+  // represent the animals and use that instead of the actual animals.
+  g_treeInfo.update();
+
+  var pickInfo = g_treeInfo.pick(worldRay);
+  if (pickInfo) {
+
+    select(pickInfo);
+
+    var primitiveIndex = pickInfo.rayIntersectionInfo.primitiveIndex;
+    g_primitiveIndex = primitiveIndex;
+    var positionVector = pickInfo.rayIntersectionInfo.position;
+    g_positionVector = positionVector;
+    var element = pickInfo.element;
+
+
+    var vertex = g_model_data.get_vertex(primitiveIndex,positionVector);
+    var value = g_dataArray[vertex];
+    jQuery("#value").html("Value at vertex "+ vertex + ": " + value);
+
+
+  } else {
+
+	//g_debugLine.setVisible(false);
+	jQuery("#value").html('--nothing--');
+      }
+
+
+}
+
+
 //Picking a vertex
 function pickClick(e) {
   var worldRay = o3djs.picking.clientPositionToWorldRay(
@@ -583,9 +635,13 @@ function initStep2(clientElements) {
     if(e.shiftKey && e.button == g_o3d.Event.BUTTON_LEFT) {
       pickClick(e);
     }
+    if(e.ctrlKey && e.button == g_o3d.Event.BUTTON_LEFT) {
+      valueAtPoint(e);
+    }
   });
   o3djs.event.addEventListener(o3dElement, 'mousemove', function (e) {
-      drag(e);
+
+    drag(e);
   });
   o3djs.event.addEventListener(o3dElement, 'mouseup', function (e) {
     if(!e.shiftKey || e.button == g_o3d.Event.BUTTON_RIGHT){
@@ -600,6 +656,8 @@ function initStep2(clientElements) {
 /**
  * Removes any callbacks so they not called after the page has unloaded.
  */
+
+
 function uninit() {
   if (g_client) {
     g_client.cleanup();
@@ -702,7 +760,7 @@ function update_model(dataset) {
 
 function update_map() {
   dataSet.get_data(g_vertex,get_data_controls(),update_model);
-  jQuery(g_pickInfoElem).html("Vertex: " + g_vertex  );
+  jQuery(g_pickInfoElem).html("Viewing data for vertex: " + g_vertex  );
 }
 
 function update_range(min,max) {

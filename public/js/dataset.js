@@ -11,8 +11,14 @@ function Dataset() {
    * ex : /data/ICBM152_MACACC_Area/ICBM152_20mm_MACACC/T_map/T_2567.txt
    */
   this.path = function(vertex,settings) {
-    var modality = "ICBM152_MACACC_" + settings.modality;
-    var sk =  "ICBM152_" + settings.sk +"_MACACC";
+
+    var sk =  "ICBM152_" + settings.sk;
+    if(settings.modality == 'CT') {
+      var modality = "ICBM152_"+settings.modality+"_MACACC_mean";
+    }else {
+      var modality = "ICBM152_"+settings.modality+"_MACACC_size";
+    }
+
     if(settings.statistic == 'T') {
       var statistic = "T_map/T_";
     } else if(settings.statistic == 'P1') {

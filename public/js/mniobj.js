@@ -1,4 +1,3 @@
-jQuery.noConflict();
 /*
  * This file defines MNIObj object.
  * Given a url, the constructor will fetch the file specified which should be an

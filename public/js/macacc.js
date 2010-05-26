@@ -334,7 +334,7 @@ jQuery(function () {
 
 
   window.onunload =  brainbrowser.uninit;
-  window.document.onkeypress = brainbrowser.keyPressedCallback;
-});
+
+  });
 
 

@@ -167,6 +167,7 @@ function BrainBrowser(url) {
 
     that.client.setRenderCallback(that.renderCallback);
     o3djs.event.addEventListener(o3dElement, 'wheel', that.scrollMe);
+    window.document.onkeypress = that.keyPressedCallback;
     o3djs.event.addEventListener(o3dElement, 'mousedown', function (e) {
       if(!e.shiftKey || e.button == that.o3d.Event.BUTTON_RIGHT){
 	that.startDragging(e);
@@ -328,6 +329,7 @@ function BrainBrowser(url) {
    * @return true if an action was taken.
    */
   that.keyPressedAction = function(keyPressed, delta) {
+
     var actionTaken = false;
     switch(keyPressed) {
     case '&':
@@ -347,7 +349,8 @@ function BrainBrowser(url) {
    * @param {event} keyPress event passed to us by javascript.
    */
    that.keyPressedCallback = function(event) {
-    event = event || window.event;
+
+     event = event || window.event;
 
     // Ignore accelerator key messages.
     if (event.metaKey)
@@ -357,7 +360,7 @@ function BrainBrowser(url) {
     // Just in case they have capslock on.
     keyChar = keyChar.toLowerCase();
 
-    if (keyPressedAction(keyChar, that.keyPressDelta)) {
+    if (that.keyPressedAction(keyChar, that.keyPressDelta)) {
       o3djs.event.cancel(event);
     }
    };

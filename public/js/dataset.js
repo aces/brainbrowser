@@ -23,7 +23,7 @@ function Dataset() {
       var statistic = "T_map/T_";
     } else if(settings.statistic == 'P1') {
       var statistic = "RTF_C_map/RTF_C_";
-    } else if(settings.statistic == 'P1') {
+    } else if(settings.statistic == 'P2') {
       var statistic = "RTF_V_map/RTF_V_";
     }
     return "/data/"+modality + "/" +sk+"/"+statistic+vertex+".txt";
@@ -62,6 +62,7 @@ function Dataset() {
       }
 
     });
+
   };
 
 };

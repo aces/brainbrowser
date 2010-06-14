@@ -1,4 +1,4 @@
-/* BrainBrowser.js
+/* BrainBrowser-webgl.js
  * This file defines the brainbrowser object used to initialize an O3D client and display a brain
  * model.
  *
@@ -7,6 +7,7 @@
  */
 
 //Required o3d librairies
+o3djs.require('o3djs.webgl');
 o3djs.require('o3djs.util');
 o3djs.require('o3djs.math');
 o3djs.require('o3djs.rendergraph');
@@ -24,7 +25,7 @@ function BrainBrowser(url) {
   var that = this;
 
   this.init = function() {
-    o3djs.util.makeClients(that.initStep2,"LargeGeometry");
+    o3djs.webgl.makeClients(that.initStep2,"LargeGeometry");
   };
 
 
@@ -36,8 +37,9 @@ function BrainBrowser(url) {
     // Initializes global variables and libraries.
     var o3dElement = clientElements[0];
     that.o3dElement = o3dElement;
-    that.client = o3dElement.client;
+    that.client = o3dElement.client
     that.o3d = o3dElement.o3d;
+    o3djs.base.o3d = that.o3d;
     that.math = o3djs.math;
     that.dragging = false;
     that.o3dWidth = -1;
@@ -89,7 +91,7 @@ function BrainBrowser(url) {
     //var shaderString = document.getElementById('shader').value;
     var shaderString;
     jQuery.ajax({ type: 'GET',
-      url: '/shaders/blinnphong.txt',
+      url: '/shaders/blinnphong-glsl.txt',
       dataType: 'text',
       success: function(data) {
 	shaderString = data;
@@ -167,7 +169,6 @@ function BrainBrowser(url) {
 
     that.client.setRenderCallback(that.renderCallback);
     o3djs.event.addEventListener(o3dElement, 'wheel', that.scrollMe);
-    window.document.onkeypress = that.keyPressedCallback;
     o3djs.event.addEventListener(o3dElement, 'mousedown', function (e) {
       if(!e.shiftKey || e.button == that.o3d.Event.BUTTON_RIGHT){
 	that.startDragging(e);
@@ -215,7 +216,7 @@ function BrainBrowser(url) {
     //this.brainTransform.rotateY(0.5 * this.clock);
     //this.brainTransform.rotateZ(0.5 * this.clock);
     // this.brainTransform.rotateX(0.5 * this.clock);
-    that.setClientSize();
+    //that.setClientSize();
 
   }
 
@@ -329,7 +330,6 @@ function BrainBrowser(url) {
    * @return true if an action was taken.
    */
   that.keyPressedAction = function(keyPressed, delta) {
-
     var actionTaken = false;
     switch(keyPressed) {
     case '&':
@@ -349,8 +349,7 @@ function BrainBrowser(url) {
    * @param {event} keyPress event passed to us by javascript.
    */
    that.keyPressedCallback = function(event) {
-
-     event = event || window.event;
+    event = event || window.event;
 
     // Ignore accelerator key messages.
     if (event.metaKey)
@@ -360,7 +359,7 @@ function BrainBrowser(url) {
     // Just in case they have capslock on.
     keyChar = keyChar.toLowerCase();
 
-    if (that.keyPressedAction(keyChar, that.keyPressDelta)) {
+    if (keyPressedAction(keyChar, that.keyPressDelta)) {
       o3djs.event.cancel(event);
     }
    };
@@ -492,29 +491,22 @@ function BrainBrowser(url) {
     return brainShape;
   };
 
-  that.preload_model = function(data) {
-    if(data.data == undefined) {
+  that.preload_model = function(url) {
 
-
-
-      jQuery.ajax({ type: 'GET',
-        url: url ,
-        dataType: 'text',
-        success: function(data) {
-	  that.model_data = new MNIObject(data);
-	  that.init();
-        },
-        error: function(request,textStatus,e) {
-	  alert("Failure: " +  textStatus);
-        },
-        data: {},
-        async: true,
-        timeout: 100000
-      });
-    }else {
-      that.model_data = new MNIObject(data.data);
-      that.init();
-    }
+    jQuery.ajax({ type: 'GET',
+      url: url ,
+      dataType: 'text',
+      success: function(data) {
+	that.model_data = new MNIObject(data);
+	that.init();
+      },
+      error: function(request,textStatus,e) {
+	alert("Failure: " +  textStatus);
+      },
+      data: {},
+      async: true,
+      timeout: 100000
+    });
   };
 
 

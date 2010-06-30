@@ -1,0 +1,221 @@
+// glslv profile log:
+// 55 lines, 0 errors.
+
+// glslf profile log:
+// 55 lines, 0 errors.
+
+// glslv output by Cg compiler
+// cgc version 2.1.0017, build date Feb 17 2009
+// command line args: -profile glslv
+//vendor NVIDIA Corporation
+//version 2.1.0.17
+//profile glslv
+//program vertexShaderFunction
+//semantic worldViewProjection : WORLDVIEWPROJECTION
+//semantic world : WORLD
+//semantic viewInverse : VIEWINVERSE
+//semantic worldInverseTranspose : WORLDINVERSETRANSPOSE
+//semantic lightWorldPos
+//semantic ambientIntensity
+//semantic lightIntensity
+//semantic emissive
+//semantic ambient
+//semantic colorMult
+//semantic diffuse
+//semantic specular
+//semantic shininess
+//var float4x4 worldViewProjection : WORLDVIEWPROJECTION : _ZZ2SworldViewProjection[0], 4 : -1 : 1
+//var float4x4 world : WORLD : _ZZ2Sworld[0], 4 : -1 : 1
+//var float4x4 viewInverse : VIEWINVERSE : , 4 : -1 : 0
+//var float4x4 worldInverseTranspose : WORLDINVERSETRANSPOSE : _ZZ2SworldInverseTranspose[0], 4 : -1 : 1
+//var float3 lightWorldPos :  :  : -1 : 0
+//var float4 ambientIntensity :  :  : -1 : 0
+//var float4 lightIntensity :  :  : -1 : 0
+//var float4 emissive :  :  : -1 : 0
+//var float4 ambient :  :  : -1 : 0
+//var float4 colorMult :  :  : -1 : 0
+//var float4 diffuse :  :  : -1 : 0
+//var float4 specular :  :  : -1 : 0
+//var float shininess :  :  : -1 : 0
+//var float4 input.position : $vin.POSITION : POSITION : 0 : 1
+//var float4 input.normal : $vin.ATTR8 : $_ZZ3SZaTMP19 : 0 : 1
+//var float4 input.color : $vin.COLOR : COLOR : 0 : 1
+//var float4 vertexShaderFunction.position : $vout.POSITION : POSITION : -1 : 1
+//var float3 vertexShaderFunction.normal : $vout.TEXCOORD1 : TEXCOORD1 : -1 : 1
+//var float3 vertexShaderFunction.worldPosition : $vout.TEXCOORD4 : TEXCOORD4 : -1 : 1
+//var float4 vertexShaderFunction.color : $vout.COLOR : COLOR : -1 : 1
+
+attribute vec4 position;
+vec4 _glPositionTemp;
+uniform vec4 dx_clipping;
+
+struct VertexShaderInput {
+    vec4 position;
+    vec4 normal;
+    vec4 color;
+};
+
+struct PixelShaderInput {
+    vec4 position;
+    vec3 normal;
+    vec3 worldPosition;
+    vec4 color;
+};
+
+PixelShaderInput _ZZ3Sret_0;
+vec4 _ZZ3SrZh0014;
+vec4 _ZZ3SrZh0016;
+vec4 _ZZ3SrZh0018;
+attribute vec4 normal;
+uniform mat4 worldViewProjection;
+uniform mat4 world;
+uniform mat4 worldInverseTranspose;
+
+ // main procedure, the original name was vertexShaderFunction
+void main()
+{
+
+
+    _ZZ3SrZh0014 = position.x*worldViewProjection[0];
+    _ZZ3SrZh0014 = _ZZ3SrZh0014 + position.y*worldViewProjection[1];
+    _ZZ3SrZh0014 = _ZZ3SrZh0014 + position.z*worldViewProjection[2];
+    _ZZ3SrZh0014 = _ZZ3SrZh0014 + position.w*worldViewProjection[3];
+    _ZZ3SrZh0016 = position.x*world[0];
+    _ZZ3SrZh0016 = _ZZ3SrZh0016 + position.y*world[1];
+    _ZZ3SrZh0016 = _ZZ3SrZh0016 + position.z*world[2];
+    _ZZ3SrZh0016 = _ZZ3SrZh0016 + position.w*world[3];
+    _ZZ3SrZh0018 = normal.x*worldInverseTranspose[0];
+    _ZZ3SrZh0018 = _ZZ3SrZh0018 + normal.y*worldInverseTranspose[1];
+    _ZZ3SrZh0018 = _ZZ3SrZh0018 + normal.z*worldInverseTranspose[2];
+    _ZZ3SrZh0018 = _ZZ3SrZh0018 + normal.w*worldInverseTranspose[3];
+    _ZZ3SrZh0018.xyz;
+    _ZZ3SrZh0016.xyz;
+    _ZZ3Sret_0.position = _ZZ3SrZh0014;
+    _ZZ3Sret_0.normal = _ZZ3SrZh0018.xyz;
+    _ZZ3Sret_0.worldPosition = _ZZ3SrZh0016.xyz;
+    _ZZ3Sret_0.color = gl_Color;
+    gl_FrontColor = gl_Color;
+    gl_TexCoord[1].xyz = _ZZ3SrZh0018.xyz;
+    gl_TexCoord[4].xyz = _ZZ3SrZh0016.xyz;
+    _glPositionTemp = _ZZ3SrZh0014; gl_Position = vec4(_glPositionTemp.x + _glPositionTemp.w * dx_clipping.x, dx_clipping.w * (_glPositionTemp.y + _glPositionTemp.w * dx_clipping.y), _glPositionTemp.z * 2.0 - _glPositionTemp.w, _glPositionTemp.w);
+    return;
+} // main end
+
+
+// #o3d SplitMarker
+// #o3d MatrixLoadOrder RowMajor
+
+// glslf output by Cg compiler
+// cgc version 2.1.0017, build date Feb 17 2009
+// command line args: -profile glslf
+//vendor NVIDIA Corporation
+//version 2.1.0.17
+//profile glslf
+//program pixelShaderFunction
+//semantic worldViewProjection : WORLDVIEWPROJECTION
+//semantic world : WORLD
+//semantic viewInverse : VIEWINVERSE
+//semantic worldInverseTranspose : WORLDINVERSETRANSPOSE
+//semantic lightWorldPos
+//semantic ambientIntensity
+//semantic lightIntensity
+//semantic emissive
+//semantic ambient
+//semantic colorMult
+//semantic diffuse
+//semantic specular
+//semantic shininess
+//var float4x4 worldViewProjection : WORLDVIEWPROJECTION : , 4 : -1 : 0
+//var float4x4 world : WORLD : , 4 : -1 : 0
+//var float4x4 viewInverse : VIEWINVERSE : _ZZ2SviewInverse[0], 4 : -1 : 1
+//var float4x4 worldInverseTranspose : WORLDINVERSETRANSPOSE : , 4 : -1 : 0
+//var float3 lightWorldPos :  : _ZZ2SlightWorldPos : -1 : 1
+//var float4 ambientIntensity :  : _ZZ2SambientIntensity : -1 : 1
+//var float4 lightIntensity :  : _ZZ2SlightIntensity : -1 : 1
+//var float4 emissive :  : _ZZ2Semissive : -1 : 1
+//var float4 ambient :  : _ZZ2Sambient : -1 : 1
+//var float4 colorMult :  : _ZZ2ScolorMult : -1 : 1
+//var float4 diffuse :  :  : -1 : 0
+//var float4 specular :  : _ZZ2Sspecular : -1 : 1
+//var float shininess :  : _ZZ2Sshininess : -1 : 1
+//var float3 input.normal : $vin.TEXCOORD1 : TEXCOORD1 : 0 : 1
+//var float3 input.worldPosition : $vin.TEXCOORD4 : TEXCOORD4 : 0 : 1
+//var float4 input.color : $vin.COLOR : COLOR : 0 : 1
+//var float4 pixelShaderFunction : $vout.COLOR : COLOR : -1 : 1
+
+
+
+struct VertexShaderInput {
+    vec4 normal;
+    vec4 color;
+};
+
+struct PixelShaderInput {
+    vec3 normal;
+    vec3 worldPosition;
+    vec4 color;
+};
+
+vec4 _ZZ3Sret_0;
+vec3 _ZZ3SZaTMP15;
+vec3 _ZZ3SvZh0016;
+float _ZZ3SxZh0020;
+vec3 _ZZ3SZaTMP21;
+float _ZZ3SxZh0026;
+vec3 _ZZ3SZaTMP27;
+vec3 _ZZ3SvZh0028;
+float _ZZ3SxZh0032;
+vec3 _ZZ3SZaTMP33;
+vec3 _ZZ3SvZh0034;
+float _ZZ3SxZh0038;
+vec4 _ZZ3StmpZh0044;
+float _ZZ3SndotlZh0044;
+float _ZZ3SndothZh0044;
+vec4 _ZZ3SZaTMP45;
+float _ZZ3SspecularZh0046;
+float _ZZ3SxZh0050;
+vec3 _ZZ3SZaTMP53;
+uniform mat4 viewInverse;
+uniform vec3 lightWorldPos;
+uniform vec4 ambientIntensity;
+uniform vec4 lightIntensity;
+uniform vec4 emissive;
+uniform vec4 ambient;
+uniform vec4 colorMult;
+uniform vec4 specular;
+uniform float shininess;
+
+ // main procedure, the original name was pixelShaderFunction
+void main()
+{
+
+    vec4 _ZZ4SoutColor;
+
+    _ZZ3SvZh0016 = lightWorldPos - gl_TexCoord[4].xyz;
+    _ZZ3SxZh0020 = dot(_ZZ3SvZh0016, _ZZ3SvZh0016);
+    _ZZ3SZaTMP15 = inversesqrt(_ZZ3SxZh0020)*_ZZ3SvZh0016;
+    _ZZ3SxZh0026 = dot(gl_TexCoord[1].xyz, gl_TexCoord[1].xyz);
+    _ZZ3SZaTMP21 = inversesqrt(_ZZ3SxZh0026)*gl_TexCoord[1].xyz;
+    _ZZ3SZaTMP53.x = viewInverse[3].x;
+    _ZZ3SZaTMP53.y = viewInverse[3].y;
+    _ZZ3SZaTMP53.z = viewInverse[3].z;
+    _ZZ3SvZh0028 = _ZZ3SZaTMP53 - gl_TexCoord[4].xyz;
+    _ZZ3SxZh0032 = dot(_ZZ3SvZh0028, _ZZ3SvZh0028);
+    _ZZ3SZaTMP27 = inversesqrt(_ZZ3SxZh0032)*_ZZ3SvZh0028;
+    _ZZ3SvZh0034 = _ZZ3SZaTMP15 + _ZZ3SZaTMP27;
+    _ZZ3SxZh0038 = dot(_ZZ3SvZh0034, _ZZ3SvZh0034);
+    _ZZ3SZaTMP33 = inversesqrt(_ZZ3SxZh0038)*_ZZ3SvZh0034;
+    _ZZ3SndotlZh0044 = dot(_ZZ3SZaTMP21, _ZZ3SZaTMP15);
+    _ZZ3SndothZh0044 = dot(_ZZ3SZaTMP21, _ZZ3SZaTMP33);
+    _ZZ3StmpZh0044 = vec4(_ZZ3SndotlZh0044, _ZZ3SndothZh0044, shininess, shininess);
+    _ZZ3SxZh0050 = max(0.00000000E+00, _ZZ3StmpZh0044.y);
+    _ZZ3SspecularZh0046 = _ZZ3StmpZh0044.x > 0.00000000E+00 ? pow(_ZZ3SxZh0050, _ZZ3StmpZh0044.z) : 0.00000000E+00;
+    _ZZ3SZaTMP45 = vec4(1.00000000E+00, max(0.00000000E+00, _ZZ3StmpZh0044.x), _ZZ3SspecularZh0046, 1.00000000E+00);
+    _ZZ4SoutColor = ambientIntensity*ambient*colorMult;
+    _ZZ4SoutColor = _ZZ4SoutColor + lightIntensity*((gl_Color*colorMult)*_ZZ3SZaTMP45.y + specular*_ZZ3SZaTMP45.z);
+    _ZZ4SoutColor = _ZZ4SoutColor + emissive;
+    _ZZ3Sret_0 = vec4(_ZZ4SoutColor.x, _ZZ4SoutColor.y, _ZZ4SoutColor.z, gl_Color.w*colorMult.w);
+    gl_FragColor = _ZZ3Sret_0;
+    return;
+} // main end
+

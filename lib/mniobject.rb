@@ -21,6 +21,7 @@ class MNIObject
 
 
   def parse(filename)
+    start_time = Time.now
     obj_file = open(filename,'r')
     line_array = obj_file.readlines {|line| line.gsub!(/\n/,"")}
     obj_stack = [] 
@@ -50,6 +51,7 @@ class MNIObject
     parse_polygon_indexes(obj_stack)
     parse_polygons(obj_stack)
 
+    puts "Parse Time: " + (Time.now - start_time).to_s
   end
     
   def closest_vertice(index,position)

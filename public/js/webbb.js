@@ -234,9 +234,9 @@ function update_model(dataset) {
   update_color_map(g_data_min,g_data_max);
 }
 
-function update_map() {
-  dataSet.get_data(g_vertex,get_data_controls(),update_model);
-  jQuery(g_pickInfoElem).html("Viewing data for vertex: " + g_vertex  );
+function update_map(data) {
+  dataSet.parse(data);
+  update_model(dataSet);
 }
 
 function update_range(min,max) {
@@ -313,6 +313,38 @@ function afterInit(){
     jQuery('#fillmode').toggle(brainbrowser.set_fill_mode_wireframe,brainbrowser.set_fill_mode_solid);
 }
 
+function objFile() {
+
+  var reader = new FileReader()
+  var files = this.files;
+  reader.file = files[0];
+
+  reader.onloadend = function() {
+    drawBrain(this.result);
+  };
+
+  reader.readAsText(files[0]);
+
+
+}
+
+function colorMapFile() {
+  var reader = new FileReader();
+  var files = this.files;
+  reader.file = files[0];
+  reader.onloadend = function() {
+    update_map(this.result);
+  };
+
+  reader.readAsText(files[0]);
+
+
+}
+
+
+function drawBrain(data) {
+  brainbrowser = new BrainBrowser({data : data});
+}
 
 jQuery(function () {
   g_pickInfoElem = jQuery("#vertex_info");
@@ -330,10 +362,15 @@ jQuery(function () {
   jQuery('.data_controls').change(data_control_change);
   jQuery("#spectrum").html("loading spectrum...");
   set_spectrum('gaolang');
-  brainbrowser = new BrainBrowser('/models/surf_reg_model_both.obj');
 
 
-  window.onunload =  brainbrowser.uninit;
+  jQuery('#obj').change(objFile);
+  jQuery('#color_map').change(colorMapFile);
+
+
+
+
+
 
   });
 

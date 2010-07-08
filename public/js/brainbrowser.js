@@ -28,13 +28,15 @@ function BrainBrowser(url) {
   };
 
   this.init = function() {
+    //Our models are too big to use regular geometry
     o3djs.util.makeClients(that.initStep2,"LargeGeometry");
   };
 
 
 
   /*
-   * Initialize the global variables of BrainBrowser, the brain model, apply material & shader
+   * Initialize the global variables of BrainBrowser,
+   * the brain model, apply material & shader
    */
    that.initStep2 = function(clientElements) {
     // Initializes global variables and libraries.
@@ -62,7 +64,7 @@ function BrainBrowser(url) {
 
     that.loading = jQuery("#o3d_loading");
 
-    // Initialize O3D sample libraries.
+    // Initialize O3D sample libraries. o3dElement is the o3d div in the page
     o3djs.base.init(o3dElement);
     // Create a pack to manage the objects created.
     that.pack = that.client.createPack();
@@ -362,7 +364,7 @@ function BrainBrowser(url) {
    * hemisphere: the name of the hemisphere clicked right or left or
    *             undefined if not a hemisphere
    *
-   * 
+   *
    *
    */
   function click(e,click_callback) {

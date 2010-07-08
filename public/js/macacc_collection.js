@@ -262,8 +262,14 @@ function MacaccObject(brainbrowser,path) {
 
   function update_model(dataset) {
     that.dataArray = dataset.data;
-    that.data_min = dataset.min;
-    that.data_max = dataset.max;
+    if(jQuery("#fix_range").attr("checked") == true) {
+      that.data_min = parseInt(jQuery("#data-range-min").val()) || dataset.min;
+      that.data_max = parseInt(jQuery("#data-range-max").val()) || dataset.min;
+    }else {
+      that.data_min = dataset.min;
+      that.data_max = dataset.max;
+    }
+
     update_color_map(that.data_min,that.data_max);
   }
 
@@ -273,9 +279,11 @@ function MacaccObject(brainbrowser,path) {
   }
 
   function update_range(min,max) {
-    jQuery("#data-range-min").val(min);
-    jQuery("#data-range-max").val(max);
-    update_scale(min,max);
+    if(!jQuery("#fix_range").attr("checked")){
+      jQuery("#data-range-min").val(min);
+      jQuery("#data-range-max").val(max);
+      update_scale(min,max);
+    }
   }
 
   function update_scale(min,max) {
@@ -347,7 +355,7 @@ function MacaccObject(brainbrowser,path) {
   brainbrowser.pickClick = pickClick; //associating pickClick for brainbrowser which handles events.
 
 
-  
+
 
 
 }

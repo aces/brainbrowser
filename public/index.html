@@ -5,9 +5,10 @@
        <script type="text/javascript" src="/js/jquery.js"></script>
        <script type="text/javascript" src="/js/mniobj.js"></script>
        <script type="text/javascript" src="/js/dataset.js"></script>
-       <script type="text/javascript" src="/js/o3djs/base.js"></script>
-       <script type="text/javascript" src="/js/brainbrowser.js"></script>   
-       <script type="text/javascript" src="/js/macacc.js"></script>  
+       <script type="text/javascript" src="/js/o3djs/base.js"></script> 
+       <script type="text/javascript" src="/js/brainbrowser.js"></script>
+       <script type="text/javascript" src="/js/macacc_collection.js"></script>  
+       <script tyep="text/javascript" src="/js/macacc.js"></script>
        <script type="text/javascript" src="/js/jquery-ui-1.8.custom.min.js"></script>
        <link type="text/css" href="css/overcast/jquery-ui-1.8.custom.css" rel="Stylesheet" />
        <link type="text/css" href="css/mniobjweb.css" rel="Stylesheet" />
@@ -80,6 +81,7 @@
 	 
 	 <br />
 	 <a class="button" id="fillmode">Fill Mode</a>
+	 <a class="button" id="rotateHemispheres">Rotate Hemisphere Y</a> 
 	 <br />
 
 <form name="default_form" action="#" method="get">
@@ -100,6 +102,68 @@
 
        <div id="view-window">
        <div id="o3d" ></div>  
+       <div style="display:none">  
+          <!-- Start of effect -->  
+          <textarea id="shader" name="shader" cols="80" rows="20"
+ style="display: none;">uniform float4x4 worldViewProjection : WORLDVIEWPROJECTION;
+uniform float4x4 world : WORLD;
+uniform float4x4 viewInverse : VIEWINVERSE;
+uniform float4x4 worldInverseTranspose : WORLDINVERSETRANSPOSE;
+uniform float3 lightWorldPos;
+uniform float4 ambientIntensity;
+uniform float4 lightIntensity;
+uniform float4 emissive;
+uniform float4 ambient;
+uniform float4 colorMult;
+uniform float4 diffuse;
+uniform float4 specular;
+uniform float shininess;
+
+struct VertexShaderInput {
+  float4 position : POSITION;
+  float4 normal : NORMAL;
+  float4 color : COLOR;
+};
+
+struct PixelShaderInput {
+  float4 position : POSITION;
+  float3 normal : TEXCOORD1;
+  float3 worldPosition : TEXCOORD4;
+  float4 color : COLOR;
+};
+
+PixelShaderInput vertexShaderFunction(VertexShaderInput input) {
+  PixelShaderInput output;
+  output.position = mul(input.position, worldViewProjection);
+  float3 worldPosition = mul(input.position, world).xyz;
+  output.normal = mul(input.normal, worldInverseTranspose).xyz;
+  output.worldPosition = worldPosition;
+  output.color = input.color;	    
+  return output;
+}
+
+float4 pixelShaderFunction(PixelShaderInput input) : COLOR { 
+  diffuse = input.color;
+  float3 surfaceToLight = normalize(lightWorldPos - input.worldPosition);
+  float3 worldNormal = normalize(input.normal);
+  float3 surfaceToView = normalize(viewInverse[3].xyz - input.worldPosition);
+  float3 halfVector = normalize(surfaceToLight + surfaceToView);
+  float4 litResult = lit(dot(worldNormal, surfaceToLight),
+                         dot(worldNormal, halfVector), shininess);
+  float4 outColor = ambientIntensity * ambient * colorMult;
+  outColor += lightIntensity * (diffuse * colorMult * litResult.y +
+      specular * litResult.z);
+  outColor += emissive;
+  return float4(outColor.rgb, diffuse.a * colorMult.a);
+}
+
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+
+</textarea>  
+          <!-- End of effect -->  
+     </div>  
      <div id="info">
      <div id="vertex_info">Viewing data for  vertex: </div>  
      <div id="value">Value at vertex ---:</div>

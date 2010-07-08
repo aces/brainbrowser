@@ -23,6 +23,10 @@ o3djs.require('o3djs.scene');
 function BrainBrowser(url) {
   var that = this;
 
+  this.setup = function(url) {
+    that.preload_model(url);
+  };
+
   this.init = function() {
     o3djs.util.makeClients(that.initStep2,"LargeGeometry");
   };
@@ -53,6 +57,8 @@ function BrainBrowser(url) {
       farPlane: 5000,
       nearPlane:0.1
     };
+
+
 
     that.loading = jQuery("#o3d_loading");
 
@@ -120,10 +126,30 @@ function BrainBrowser(url) {
     effect.createUniformParameters(myMaterial);
 
     // Create the Shape for the brain mesh and assign its myMaterial.
-    var brainShape = that.createBrain(myMaterial);
+     if(that.model_data.num_hemispheres == 2) {
+
+       var brainShape= {
+	 left: that.createBrain(myMaterial,that.model_data.left, "left"),
+	 right: that.createBrain(myMaterial, that.model_data.right, "right"),
+	 num_hemisphere: 2
+       };
+
+     } else {
+       var brainShape = that.createBrain(myMaterial, that.model_data);
+       num_hemisphere: 2
+     }
+
+
 
     // Create a new transform and parent the Shape under it.
-    that.brainTransform = that.pack.createObject('Transform');
+     that.brainTransform = that.pack.createObject('Transform');
+     if(that.model_data.num_hemispheres == 2) {
+       that.brainHemisphereTransforms = {};
+       that.brainHemisphereTransforms.left = that.pack.createObject('Transform');
+       that.brainHemisphereTransforms.right = that.pack.createObject('Transform');
+    }
+
+
     // Light position
     var light_pos_param = myMaterial.getParam('lightWorldPos');
     light_pos_param.value = that.eyeView;
@@ -142,7 +168,7 @@ function BrainBrowser(url) {
     light_ambientIntensity_param.value = [1, 1, 1, 1];
     light_lightIntensity_param.value = [0.8, 0.8, 0.8, 1];
     // BLUE!!!! diffuse light
-    light_diffuse_param.value = [0.5, 0.5, 0.7, 0];
+    light_diffuse_param.value = [0.5, 0.5, 0.5, 0];
     // White specular light
     light_specular_param.value = [0.5, 0.5, 0.5, 1];
     light_emissive_param.value = [0, 0, 0, 1];
@@ -153,13 +179,29 @@ function BrainBrowser(url) {
     shininess_param.value = 30.0;
 
 
-    that.brainTransform.addShape(brainShape);
-
     // Parent the brain's transform to the client root.
-    that.brainTransform.parent = that.client.root;
+     that.brainTransform.parent = that.client.root;
+
+    if(brainShape.num_hemisphere == 1 ) {
+
+      that.brainTransform.addShape(brainShape);
+      brainShape.createDrawElements(that.pack, null);
+    }else {
+      that.brainHemisphereTransforms.left.parent = that.brainTransform;
+      that.brainHemisphereTransforms.right.parent = that.brainTransform;
+      that.brainHemisphereTransforms.left.addShape(brainShape.left);
+      that.brainHemisphereTransforms.right.addShape(brainShape.right);
+      brainShape.left.createDrawElements(that.pack, null);
+      brainShape.right.createDrawElements(that.pack, null);
+
+    }
+
+
+
 
     // Generate the draw elements for the brain shape.
-    brainShape.createDrawElements(that.pack, null);
+
+
 
 
     that.aball = o3djs.arcball.create(100, 100);
@@ -169,18 +211,18 @@ function BrainBrowser(url) {
     o3djs.event.addEventListener(o3dElement, 'wheel', that.scrollMe);
     window.document.onkeypress = that.keyPressedCallback;
     o3djs.event.addEventListener(o3dElement, 'mousedown', function (e) {
-      if(!e.shiftKey || e.button == that.o3d.Event.BUTTON_RIGHT){
+      if(!e.shiftKey || (e.shiftKey && e.button == that.o3d.Event.BUTTON_RIGHT)){
 	that.startDragging(e);
       }
       if(e.shiftKey && e.button == that.o3d.Event.BUTTON_LEFT) {
-	if(pickClick){
-	  pickClick(e);
+	if(that.pickClick){
+	  that.pickClick(e);
 	}
 
       }
       if(e.ctrlKey && e.button == that.o3d.Event.BUTTON_LEFT) {
-	if(valueAtPoint) {
-	  valueAtPoint(e);
+	if(that.valueAtPoint) {
+	  that.valueAtPoint(e);
 	}
 
       }
@@ -195,9 +237,10 @@ function BrainBrowser(url) {
     });
 
      //This allows a programmer to define a function that runs after initialization
-     if(afterInit) {
-       afterInit();
+     if(that.afterInit) {
+       that.afterInit(that);
      }
+     that.updateInfo();
 
   };
 
@@ -208,22 +251,34 @@ function BrainBrowser(url) {
     }
   };
 
+
   this.renderCallback = function(renderEvent) {
     //this.clock += renderEvent.elapsedTime * this.timeMult;
     // Rotate the brain around the Y axis.
     //this.brainTransform.identity();
-    //this.brainTransform.rotateY(0.5 * this.clock);
     //this.brainTransform.rotateZ(0.5 * this.clock);
     // this.brainTransform.rotateX(0.5 * this.clock);
-    that.setClientSize();
 
-  }
-
+  that.setClientSize();
 
 
+  };
 
 
-  /**
+  /*
+   * This method rotates the hemispheres to make them more visible
+   */
+  this.rotateHemispheres = function () {
+    that.brainTransform.children[0].translate([10,0,0]);
+    that.brainTransform.children[1].translate(that.math.negativeVector([10,0,0]) );
+    that.brainTransform.children[0].rotateZ(that.math.degToRad(-90));
+    that.brainTransform.children[1].rotateZ(that.math.degToRad(90));
+  };
+
+
+
+
+  /*
    * Creates the client area.
    */
 
@@ -261,7 +316,6 @@ function BrainBrowser(url) {
 
   /**
    * Using the mouse wheel zoom in and out of the model.
-   * @param {event} e event.
    */
   that.scrollMe = function(e) {
     var zoom = (e.deltaY < 0) ? 1 / that.zoomFactor : that.zoomFactor ;
@@ -269,14 +323,107 @@ function BrainBrowser(url) {
     that.client.render();
   };
 
+  function select(pickInfo) {
+
+    unSelectAll();
+    if (pickInfo) {
+
+      that.selectedInfo = pickInfo;
+
+    }
+  }
+
+  this.updateInfo = function() {
+    if (!that.treeInfo) {
+      that.treeInfo = o3djs.picking.createTransformInfo(that.client.root,				   null);
+    }
+    that.treeInfo.update();
+  };
+
+  function unSelectAll() {
+
+    if (that.selectedInfo) {
+
+
+      that.highlightShape = null;
+      that.selectedInfo = null;
+    }
+  }
+
+
+  /*
+   * This method can be used to detect where the user clicked
+   * it takes a callback method which will receive the event and
+   * and info object containing the following:
+   *
+   * primitiveIndex: the index of the polygon clicked on the object
+   * positionVector: the x,y,z of the click
+   * element: the element (whitin the shape) that was clicked
+   * hemisphere: the name of the hemisphere clicked right or left or
+   *             undefined if not a hemisphere
+   *
+   * 
+   *
+   */
+  function click(e,click_callback) {
+    var worldRay = o3djs.picking.clientPositionToWorldRay(
+      e.x,
+      e.y,
+      that.viewInfo.drawContext,
+      that.client.width,
+      that.client.height);
+    unSelectAll();
+
+    // Update the entire tree in case anything moved.
+    // NOTE: This function is very SLOW!
+    // If you really want to use picking you should manually update only those
+    // transforms and shapes that moved, were added, or deleted by writing your
+    // own picking library. You should also make sure that you are only
+    // considering things that are pickable. By that I mean if you have a scene of
+    // a meadow with trees, grass, bushes, and animals and the only thing the user
+    // can pick is the animals then put the animals on their own sub branch of the
+    // transform graph and only pick against that subgraph.
+    // Even better, make a separate transform graph with only cubes on it to
+    // represent the animals and use that instead of the actual animals.
+    that.treeInfo.update();
+
+    var pickInfo = that.treeInfo.pick(worldRay);
+    if (pickInfo) {
+
+      select(pickInfo);
+      var info = {
+	primitiveIndex: pickInfo.rayIntersectionInfo.primitiveIndex,
+	positionVector: pickInfo.rayIntersectionInfo.position,
+	element: pickInfo.element,
+	hemisphere:pickInfo.element.owner.name
+      };
+	return click_callback(e,info);
+    } else {
+
+      //that.debugLine.setVisible(false);
+      jQuery(that.pickInfoElem).html('--nothing--');
+    }
+
+
+  }
+
+
 
 
   that.startDragging = function(e) {
-
+    if(e.shiftKey && that.model_data.num_hemispheres == 2) {
+      that.drag_hemisphere = click(e, function(event,info) {
+				     if(info.hemisphere == "left") {
+				       return 0;
+				     }else if(info.hemisphere == "right") {
+				       return 1;
+				     }else {
+				       return false;
+				     }
+				   });
+    }
     that.lastRot = that.thatRot;
-
     that.aball.click([e.x, e.y]);
-
     that.dragging = true;
   };
 
@@ -288,17 +435,32 @@ function BrainBrowser(url) {
       var rot_mat = that.quaternions.quaternionToRotation(rotationQuat);
       that.thatRot = that.math.matrix4.mul(that.lastRot, rot_mat);
 
-      var m = that.brainTransform.localMatrix;
-      that.math.matrix4.setUpper3x3(m, that.thatRot);
-      that.brainTransform.localMatrix = m;
+      if(that.drag_hemisphere === 0 || that.drag_hemisphere === 1) {
+
+	var m = that.brainTransform.children[that.drag_hemisphere].localMatrix;
+	that.math.matrix4.setUpper3x3(m, that.thatRot);
+	that.brainTransform.children[that.drag_hemisphere].localMatrix = m;
+
+      } else {
+	var m = that.brainTransform.localMatrix;
+	that.math.matrix4.setUpper3x3(m, that.thatRot);
+	that.brainTransform.localMatrix = m;
+
+      }
+
     }
   };
 
 
-  that.stopDragging = function(e) {
 
+  that.stopDragging = function(e) {
+    that.drag_hemisphere = false;
     that.dragging = false;
   };
+
+
+
+
 
 
   that.updateCamera = function() {
@@ -397,7 +559,9 @@ function BrainBrowser(url) {
   /*
    * Creates the brain shape with the material provide.
    */
-  that.createBrain = function(material) {
+  that.createBrain = function(material,model,name) {
+
+
 
     var brainShape = that.pack.createObject('Shape');
     var brainPrimitive = that.pack.createObject('Primitive');
@@ -406,6 +570,7 @@ function BrainBrowser(url) {
     brainPrimitive.material = material;
     brainPrimitive.owner = brainShape;
     brainPrimitive.streamBank = streamBank;
+    brainShape.name = name;
 
     brainPrimitive.primitiveType = that.o3d.Primitive.TRIANGLELIST;
 
@@ -415,40 +580,41 @@ function BrainBrowser(url) {
     //create Position buffer (vertices) and set the number of vertices global variable
     var positionsBuffer = that.pack.createObject('VertexBuffer');
     var positionsField = positionsBuffer.createField('FloatField', 3);
-    if(!that.model_data.positionArray) {
+    if(!model.positionArray) {
       alert("PositionArray nil");
+      return false;
     }
-    positionsBuffer.set(that.model_data.positionArray);
-    that.numberVertices = (that.model_data.positionArray.length/3.0);
+    positionsBuffer.set(model.positionArray);
+    that.numberVertices = (model.numberVertices);
     brainPrimitive.numberVertices = that.numberVertices;
 
     //create indexBuffer and make sure number of primitive is set
-    if(!that.model_data.indexArray) {
+    if(!model.indexArray) {
       alert("Index Array nil");
+      return false;
     }
-    that.numberPrimitives = that.model_data.numberPolygons;
-    brainPrimitive.numberPrimitives = that.numberPrimitives;
+    brainPrimitive.numberPrimitives = model.indexArray.length/3;
     var indexBuffer = that.pack.createObject('IndexBuffer');
-    indexBuffer.set(that.model_data.indexArray);
+    indexBuffer.set(model.indexArray);
 
 
 
     //Create normal buffer
     var normalBuffer = that.pack.createObject('VertexBuffer');
     var normalField = normalBuffer.createField('FloatField', 3);
-    normalBuffer.set(that.model_data.normalArray);
+    normalBuffer.set(model.normalArray);
 
 
 
     //Create colorBuffer from base color of model
 
     var colorArray=[];
-    if(that.model_data.colorArray.length == 4) {
+    if(model.colorArray.length == 4) {
       for(var i=0;i<that.model_data.numberVertices;i++) {
 	colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
       }
     }
-    if(colorArray.length < that.model_data.positionArray.length) {
+    if(colorArray.length < model.positionArray.length) {
       alert('Problem with the colors: ' + colorArray.length);
     }
     var colorBuffer = that.pack.createObject('VertexBuffer');
@@ -487,34 +653,25 @@ function BrainBrowser(url) {
     // Associate the triangle indices Buffer with the primitive.
     brainPrimitive.indexBuffer = indexBuffer;
 
-
-
     return brainShape;
   };
 
-  that.preload_model = function(data) {
-    if(data.data == undefined) {
+  that.preload_model = function(url) {
 
-
-
-      jQuery.ajax({ type: 'GET',
-        url: url ,
-        dataType: 'text',
-        success: function(data) {
-	  that.model_data = new MNIObject(data);
-	  that.init();
-        },
-        error: function(request,textStatus,e) {
-	  alert("Failure: " +  textStatus);
-        },
-        data: {},
-        async: true,
-        timeout: 100000
-      });
-    }else {
-      that.model_data = new MNIObject(data.data);
-      that.init();
-    }
+    jQuery.ajax({ type: 'GET',
+      url: url ,
+      dataType: 'text',
+      success: function(data) {
+	that.model_data = new MNIObject(data);
+	that.init();
+      },
+      error: function(request,textStatus,e) {
+	alert("Failure: " +  textStatus);
+      },
+      data: {},
+      async: true,
+      timeout: 100000
+    });
   };
 
 

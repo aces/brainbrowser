@@ -92,9 +92,8 @@ function BrainBrowser(url) {
       [0, 1, 0]); // up
 
     // Create an Effect object and initialize it using the shaders
-    // from the text area.
+    // from a file on the server through an ajax request.
     var effect = that.pack.createObject('Effect');
-    //var shaderString = document.getElementById('shader').value;
     var shaderString;
     jQuery.ajax({ type: 'GET',
       url: '/shaders/blinnphong.txt',
@@ -127,7 +126,10 @@ function BrainBrowser(url) {
 
     effect.createUniformParameters(myMaterial);
 
-    // Create the Shape for the brain mesh and assign its myMaterial.
+    /*
+     * Create the Shape for the brain mesh and assign its myMaterial.
+     * two shapes will be created if the brain model has two hemispheres
+     */
      if(that.model_data.num_hemispheres == 2) {
 
        var brainShape= {
@@ -266,19 +268,12 @@ function BrainBrowser(url) {
 
   };
 
-
-  /*
-   * This method rotates the hemispheres to make them more visible
-   */
-  this.rotateHemispheres = function () {
-    that.brainTransform.children[0].translate([10,0,0]);
-    that.brainTransform.children[1].translate(that.math.negativeVector([10,0,0]) );
-    that.brainTransform.children[0].rotateZ(that.math.degToRad(-90));
-    that.brainTransform.children[1].rotateZ(that.math.degToRad(90));
+  this.separateHemispheres = function(e) {
+    if(that.model_data.num_hemispheres == 2 ) {
+      this.brainTransform.children[0].translate([-1,0,0]);
+      this.brainTransform.children[1].translate([1,0,0]);
+    }
   };
-
-
-
 
   /*
    * Creates the client area.
@@ -493,14 +488,20 @@ function BrainBrowser(url) {
    * @return true if an action was taken.
    */
   that.keyPressedAction = function(keyPressed, delta) {
-
     var actionTaken = false;
     switch(keyPressed) {
     case '&':
       that.ZoomInOut(that.zoomFactor);
+      actionTaken = 'zoom_in';
       break;
     case '(':
       that.ZoomInOut(1/that.zoomFactor);
+      actionTaken = 'zoom_out';
+      break;
+
+    case ' ':
+      that.separateHemispheres();
+      actionTaken = 'separate';
       break;
     }
 
@@ -518,7 +519,7 @@ function BrainBrowser(url) {
 
     // Ignore accelerator key messages.
     if (event.metaKey)
-      return;
+      return true;
 
     var keyChar = String.fromCharCode(o3djs.event.getEventKeyChar(event));
     // Just in case they have capslock on.
@@ -526,16 +527,21 @@ function BrainBrowser(url) {
 
     if (that.keyPressedAction(keyChar, that.keyPressDelta)) {
       o3djs.event.cancel(event);
+      return false;
     }
+     return true;
    };
 
   /**
    * Resets the view of the scene by resetting its local matrix to the identity
    * matrix.
    */
-  function resetView() {
+  that.resetView = function() {
     that.brainTransform.identity();
-  }
+    that.brainTransform.children[0].identity();
+    that.brainTransform.children[1].identity();
+
+  };
 
 
 
@@ -543,10 +549,24 @@ function BrainBrowser(url) {
    * Sets the fillmode of the brain to wireframe or filled
    */
   that.set_fill_mode_wireframe= function() {
-    var brainMaterial = that.brainTransform.shapes[0].elements[0].material;
-    that.state = that.pack.createObject('State');
-    brainMaterial.state = that.state;
-    that.state.getStateParam('FillMode').value = that.o3d.State.WIREFRAME;
+    if(that.model_data.num_hemispheres == 2){
+
+      var brainMaterial = that.brainTransform.children[0].shapes[0].elements[0].material;
+      that.state = that.pack.createObject('State');
+      brainMaterial.state = that.state;
+      that.state.getStateParam('FillMode').value = that.o3d.State.WIREFRAME;
+
+      brainMaterial = that.brainTransform.children[1].shapes[0].elements[0].material;
+      that.state = that.pack.createObject('State');
+      brainMaterial.state = that.state;
+      that.state.getStateParam('FillMode').value = that.o3d.State.WIREFRAME;
+    } else {
+      var brainMaterial = that.brainTransform.shapes[0].elements[0].material;
+      that.state = that.pack.createObject('State');
+      brainMaterial.state = that.state;
+      that.state.getStateParam('FillMode').value = that.o3d.State.WIREFRAME;
+    }
+
   };
 
   that.set_fill_mode_solid = function() {

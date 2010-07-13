@@ -1,0 +1,103 @@
+<html>  
+    <head>  
+       <meta http-equiv="content-type" content="text/html; charset=UTF-8">  
+       <title>MNI Object web viewer</title>  
+       
+    </head>  
+    <body>  
+      <h1>GBRAIN: Web Brain Browser</h1>  
+       
+       <br/> 
+       <div id="controls">
+	    <h2>Instructions:</h2>
+	    <p>
+	    Left Click to move the model<br />
+	    Shift+left click to select a point on the model<br />
+	    ctrl+left click to see that value at a point on the model<br />
+	    Use W, S, A, D to rotate.<br />
+	    Use the Scroll Wheel to zoom(not suported on mac) or up/down arrows
+	    
+	    </p>
+	  <h2>Controls</h2>
+	 
+	 Model:
+	 <select class="controls" id="model">
+	   <option VALUE="normal">Normal</option>
+	   <option VALUE="inflated">Inflated</option>
+	 </select>
+	 <br />
+	 Modality
+	 <select class="data_controls" id="data-type">
+	   <option VALUE="CT">Cortical Thickness</option>
+	   <option VALUE="AREA">Area</option>
+	   <option VALUE="Volume">Volume</option>
+	 </select>
+	 <br />
+	 Smoothing Kernel:
+	 <select class="data_controls" id="data-sk">
+	   <option VALUE="0mm">0mm</option>
+	   <option VALUE="5mm">5mm</option>
+	   <option VALUE="10mm">10mm</option>
+	   <option VALUE="15mm">15mm</option>
+	   <option VALUE="20mm">20mm</option>
+	   <option VALUE="25mm">25mm</option>
+	   <option VALUE="30mm">30mm</option>
+	   <option VALUE="35mm">35mm</option>
+	   <option VALUE="40mm">40mm</option>
+	 </select>
+	 <br />
+	 Statistic
+	 <select class="data_controls" id="data-modality">
+	   <option VALUE="T">T</option>
+	   <option VALUE="P1">P1</option>
+	   <option VALUE="P2">P2</option>
+	 </select>
+	 <br />
+	 Data Range:
+	 <div id="data-range">
+	   Min: <input class="range-box" id="data-range-min" type="text" name="range_min" size="5"><br />
+	   Max: <input class="range-box" id="data-range-max" type="text" name="range_max" size="5">
+	   <a class="button" id="range_change">Change Range</a><br />
+	   <input type="checkbox" id="fix_range">Fix Range
+	 </div>
+	 <div>
+	   <div id="spectrum"></div>
+	   <div id="scale">
+	     <span id="min_mark" class="mark"></span>
+	     <span id="scale_space" class="empty"> </span>
+	     <span id="mid_mark" class="mark"> </span>
+	     <span id="scale_space" class="empty"> </span>
+	     <span id="max_mark" class="mark"> </span>
+	   </div>
+	 </div>
+	 
+	 <br />
+	 <a class="button" id="fillmode">Fill Mode</a>
+	 <a class="button" id="resetview">Reset View</a>
+	 <br />
+
+       </div>
+
+
+       <div id="view-window">
+       <div id="o3d" ></div>  
+
+     <div id="info">
+     <div id="vertex_info">Viewing data for  vertex: </div>  
+     <div id="value">Value at vertex ---:</div>
+     </div>
+     <div id="loading"></div>
+       
+<script type="text/javascript" src="/js/jquery.js"></script>
+       <script type="text/javascript" src="/js/mniobj.js"></script>
+       <script type="text/javascript" src="/js/dataset.js"></script>
+       <script type="text/javascript" src="/js/webgl/o3d-webgl/base.js"></script>
+       <script type="text/javascript" src="/js/webgl/o3djs/base.js"></script> 
+       <script type="text/javascript" src="/js/webgl/brainbrowser.js"></script>
+       <script type="text/javascript" src="/js/webgl/macacc_collection.js"></script>  
+       <script tyep="text/javascript" src="/js/macacc.js"></script>
+       <script type="text/javascript" src="/js/jquery-ui-1.8.custom.min.js"></script>
+       <link type="text/css" href="/css/overcast/jquery-ui-1.8.custom.css" rel="Stylesheet" />
+       <link type="text/css" href="/css/mniobjweb.css" rel="Stylesheet" />
+</body>  
+</html>  

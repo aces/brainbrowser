@@ -570,11 +570,26 @@ function BrainBrowser(url) {
   };
 
   that.set_fill_mode_solid = function() {
-    var brainMaterial = that.brainTransform.shapes[0].elements[0].material;
-    that.state = that.pack.createObject('State');
-    brainMaterial.state = that.state;
-    that.state.getStateParam('FillMode').value = that.o3d.State.SOLID;
+    if(that.model_data.num_hemispheres == 2){
+
+      var brainMaterial = that.brainTransform.children[0].shapes[0].elements[0].material;
+      that.state = that.pack.createObject('State');
+      brainMaterial.state = that.state;
+      that.state.getStateParam('FillMode').value = that.o3d.State.SOLID;
+
+      brainMaterial = that.brainTransform.children[1].shapes[0].elements[0].material;
+      that.state = that.pack.createObject('State');
+      brainMaterial.state = that.state;
+      that.state.getStateParam('FillMode').value = that.o3d.State.SOLID;
+    } else {
+      var brainMaterial = that.brainTransform.shapes[0].elements[0].material;
+      that.state = that.pack.createObject('State');
+      brainMaterial.state = that.state;
+      that.state.getStateParam('FillMode').value = that.o3d.State.SOLID;
+    }
+
   };
+
 
 
 

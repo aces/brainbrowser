@@ -72,9 +72,20 @@
 	 </div>
 	 
 	 <br />
-	 <a class="button" id="fillmode">Fill Mode</a>
-	 <a class="button" id="resetview">Reset View</a>
-	 <a class="button" id="screenshot" target="_blank">Screenshot</a>
+	 <a id="fillmode" class="button">Fill Mode</a><br />
+	 <a id="screenshot" class="button" target="_blank">Screenshot</a>
+	 <div id="views">
+	   Views:<br />
+	   <a class="button" id="resetview">Reset View</a><br />
+	   <span class="button_set">
+	     <a id="anteriorView">Anterior</a><a id="posteriorView">Posterior</a><br />
+	   </span>
+	   <span class="button_set">
+	     <a id="leftView">Left</a><a id="rightView">Right</a><br />
+	   </span>
+	   <a class="button" id="sagitalView">Inside split Sagital</a><br />
+	   <a class="button" id="exteriorSagital">Outside split Sagital</a>
+	 </div>
 	 <br />
 
        </div>
@@ -89,16 +100,17 @@
      </div>
      <div id="loading"></div>
        
-<script type="text/javascript" src="/js/jquery.js"></script>
-       <script type="text/javascript" src="/js/mniobj.js"></script>
-       <script type="text/javascript" src="/js/dataset.js"></script>
-       <script type="text/javascript" src="/js/webgl/o3d-webgl/base.js"></script>
-       <script type="text/javascript" src="/js/webgl/o3djs/base.js"></script> 
-       <script type="text/javascript" src="/js/webgl/brainbrowser.js"></script>
-       <script type="text/javascript" src="/js/webgl/macacc_collection.js"></script>  
-       <script tyep="text/javascript" src="/js/macacc.js"></script>
-       <script type="text/javascript" src="/js/jquery-ui-1.8.custom.min.js"></script>
-       <link type="text/css" href="/css/overcast/jquery-ui-1.8.custom.css" rel="Stylesheet" />
-       <link type="text/css" href="/css/mniobjweb.css" rel="Stylesheet" />
+     <script type="text/javascript" src="/js/jquery.js"></script>
+     <script type="text/javascript" src="/js/mniobj.js"></script>
+     <script type="text/javascript" src="/js/dataset.js"></script>
+     <script type="text/javascript" src="/js/webgl/o3d-webgl/base.js"></script>
+     <script type="text/javascript" src="/js/webgl/o3djs/base.js"></script> 
+     <script type="text/javascript" src="/js/webgl/brainbrowser.js"></script>
+     <script type="text/javascript" src="/js/webgl/macacc_collection.js"></script>  
+     <script tyep="text/javascript" src="/js/webgl/macacc.js"></script>
+     <script type="text/javascript" src="/js/jquery-ui-1.8.2.custom.min.js"></script>
+     <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.2.custom.css" rel="Stylesheet" />
+     <link type="text/css" href="/css/mniobjweb.css" rel="Stylesheet" />
+     
 </body>  
 </html>  

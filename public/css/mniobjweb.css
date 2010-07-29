@@ -45,3 +45,6 @@ body {
     width: 124px;
     float:left;
 }
+.ui-button-text {
+    font-size: 11px !important
+}

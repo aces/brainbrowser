@@ -1,0 +1,29 @@
+Sylvester Changelog
+-------------------
+
+
+Version 0.1.0 - 16 April 2007
+-----------------------------
+* Initial release
+* Includes Vector, Matrix, Line and Plane classes
+
+
+Version 0.1.1 - 13 May 2007
+---------------------------
+* Fixed bug in Matrix#augment where some columns got over-written
+* Added Vector#each and Plane#isPerpendicularTo
+* Modified all methods that accept vectors as arguments so they also accept plain arrays
+* Removed sanity checking of vector and matrix elements
+* Most methods rewritten for speed
+
+
+Version 0.1.2 - 18 June 2007
+----------------------------
+* Fixed bugs caused by variables being passed by reference, not by value
+* Changed Vector#angleFrom implementation to process faster
+* Allowed matrix methods to accept plain matrices if they have the correct nested format
+
+
+Version 0.1.3 - 5 July 2007
+---------------------------
+* Fixed variable referencing issue in Line#translate and Plane#translate

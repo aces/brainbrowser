@@ -275,6 +275,34 @@ function BrainBrowser(url) {
     }
   };
 
+
+  this.sagitalView = function(e) {
+
+    if(that.model_data.num_hemispheres == 2 ) {
+      that.resetView();
+      that.brainTransform.children[0].translate([-100,0,0]);
+      that.brainTransform.children[1].translate([100,0,0]);
+      that.brainTransform.children[0].rotateZ(that.math.degToRad(-90));
+      that.brainTransform.children[1].rotateZ(that.math.degToRad(90));
+      that.brainTransform.rotateX(that.math.degToRad(-90));
+    }
+  };
+
+  this.reverseSagitalView = function(e) {
+
+    if(that.model_data.num_hemispheres == 2 ) {
+      that.resetView();
+      that.brainTransform.children[0].translate([-100,0,0]);
+      that.brainTransform.children[1].translate([100,0,0]);
+      that.brainTransform.children[0].rotateZ(that.math.degToRad(-90));
+      that.brainTransform.children[1].rotateZ(that.math.degToRad(90));
+      that.brainTransform.rotateX(that.math.degToRad(90));
+      that.brainTransform.rotateY(that.math.degToRad(180));
+
+    }
+  };
+
+
   /*
    * Creates the client area.
    */
@@ -332,7 +360,7 @@ function BrainBrowser(url) {
 
   this.updateInfo = function() {
     if (!that.treeInfo) {
-      that.treeInfo = o3djs.picking.createTransformInfo(that.client.root,				   null);
+      that.treeInfo = o3djs.picking.createTransformInfo(that.client.root, null);
     }
     that.treeInfo.update();
   };

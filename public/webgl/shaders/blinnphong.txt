@@ -58,13 +58,13 @@ uniform vec4 lightIntensity;
 uniform vec4 emissive;
 uniform vec4 ambient;
 uniform vec4 colorMult;
-uniform vec4 diffuse;
 uniform vec4 specular;
 uniform float shininess;
 
 varying vec3 v_normal;
 varying vec3 v_worldPosition;
 varying vec4 v_color;
+
 
 vec4 lit(float l ,float h, float m) {
   return vec4(1.0,
@@ -74,7 +74,6 @@ vec4 lit(float l ,float h, float m) {
 }
 
 void main() {
-  diffuse = v_color;
   vec3 surfaceToLight = normalize(lightWorldPos - v_worldPosition);
   vec3 worldNormal = normalize(v_normal);
   vec3 surfaceToView = normalize(viewInverse[3].xyz - v_worldPosition);
@@ -83,10 +82,10 @@ void main() {
                          dot(worldNormal, halfVector), shininess);
 
   vec4 outColor = ambientIntensity * ambient * colorMult;
-  outColor += lightIntensity * (diffuse * colorMult * litResult.y +
+  outColor += lightIntensity * (v_color * colorMult * litResult.y +
       specular * litResult.z);
   outColor += emissive;
-  gl_FragColor = vec4(outColor.rgb, diffuse.a * colorMult.a);
+  gl_FragColor = vec4(outColor.rgb, v_color.a * colorMult.a);
 }
 
 // #o3d MatrixLoadOrder RowMajor

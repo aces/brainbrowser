@@ -234,7 +234,7 @@ o3djs.picking.PickInfo = function(element,
    * The worldIntersectionPosition world position of intersection.
    * @type {!o3djs.math.Vector3}
    */
-  this.worldIntersectionPosition = worldIntersectionPosition
+  this.worldIntersectionPosition = worldIntersectionPosition;
 };
 
 /**
@@ -313,7 +313,7 @@ o3djs.picking.ShapeInfo.prototype.update = function() {
  */
 o3djs.picking.ShapeInfo.prototype.pick = function(worldRay) {
   if (this.isPickable()) {
-    var worldMatrix = this.parent.transform.getUpdatedWorldMatrix()
+    var worldMatrix = this.parent.transform.getUpdatedWorldMatrix();
     var inverseWorldMatrix = o3djs.math.inverse(worldMatrix);
     var relativeNear = o3djs.math.matrix4.transformPoint(
         inverseWorldMatrix, worldRay.near);

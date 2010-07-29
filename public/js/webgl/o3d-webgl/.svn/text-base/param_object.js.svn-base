@@ -109,6 +109,7 @@ o3d.ParamObject.prototype.createParam =
   var param = new o3d.global.o3d[param_type_name];
   param.gl = this.gl;
   param.owner_ = this;
+  param.name = param_name;
   this.params_[param_name] = param;
   return this.filterResult_(this.params_[param_name]);
 };

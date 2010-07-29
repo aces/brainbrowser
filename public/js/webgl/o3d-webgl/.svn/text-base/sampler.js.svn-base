@@ -250,24 +250,37 @@ o3d.Sampler.prototype.convertMagFilter_ = function(o3d_filter) {
 
 
 /**
+ * A default Sampler that has no texture, thus uses the client's error texture.
+ *
+ * @type {!o3d.Sampler}
+ * @private
+ */
+o3d.Sampler.defaultSampler_ = new o3d.Sampler();
+o3d.Sampler.defaultSampler_.magFilter = o3d.Sampler.POINT;
+
+/**
  * Binds the texture for this sampler and sets texParameters according to the
  * states of the sampler.
  */
 o3d.Sampler.prototype.bindAndSetParameters_ = function() {
+  var currentTexture = null;
   if (this.texture) {
-    var mip_filter = this.mipFilter;
-    if (this.texture.levels == 1) {
-      mip_filter = o3d.Sampler.NONE;
-    }
-
-    this.texture.bindAndSetParameters_(
-      this.convertAddressMode_(this.addressModeU),
-      this.convertAddressMode_(this.addressModeV),
-      this.convertMinFilter_(this.minFilter, mip_filter),
-      this.convertMagFilter_(this.magFilter));
+    currentTexture = this.texture;
+  } else if (!this.gl.client.reportErrors_()) {
+    currentTexture = this.gl.client.error_texture_;
   } else {
-    this.gl.client.error_callback("Sampler used with no texture set.");
-    return;
+    currentTexture = this.gl.client.fallback_error_texture_;
+    this.gl.client.error_callback("Missing texture for sampler " + this.name);
   }
+
+  var mip_filter = this.mipFilter;
+  if (currentTexture.levels == 1) {
+    mip_filter = o3d.Sampler.NONE;
+  }
+  currentTexture.bindAndSetParameters_(
+    this.convertAddressMode_(this.addressModeU),
+    this.convertAddressMode_(this.addressModeV),
+    this.convertMinFilter_(this.minFilter, mip_filter),
+    this.convertMagFilter_(this.magFilter));
 }
 

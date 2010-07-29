@@ -617,16 +617,16 @@ o3djs.effect.buildCheckerShaderString = function() {
   var p = o3djs.effect;
   var varyingDecls = p.BEGIN_OUT_STRUCT +
     p.VARYING + p.FLOAT4 + ' ' +
-    p.VERTEX_VARYING_PREFIX + 'position' +
+    p.VARYING_DECLARATION_PREFIX + 'position' +
     p.semanticSuffix('POSITION') + ';\n' +
     p.VARYING + p.FLOAT2 + ' ' +
-    p.VERTEX_VARYING_PREFIX + 'texCoord' +
+    p.VARYING_DECLARATION_PREFIX + 'texCoord' +
     p.semanticSuffix('TEXCOORD0') + ';\n' +
     p.VARYING + p.FLOAT3 + ' ' +
-    p.VERTEX_VARYING_PREFIX + 'normal' +
+    p.VARYING_DECLARATION_PREFIX + 'normal' +
     p.semanticSuffix('TEXCOORD1') + ';\n' +
     p.VARYING + p.FLOAT3 + ' ' +
-    p.VERTEX_VARYING_PREFIX + 'worldPosition' +
+    p.VARYING_DECLARATION_PREFIX + 'worldPosition' +
     p.semanticSuffix('TEXCOORD2') + ';\n' +
     p.END_STRUCT;
 

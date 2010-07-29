@@ -337,7 +337,7 @@ o3d.inherit('ParamMatrix4', 'Param');
  */
 o3d.ParamParamArray = function() {
   o3d.Param.call(this);
-  this.value = [];
+  this.value = null;
 };
 o3d.inherit('ParamParamArray', 'Param');
 
@@ -834,6 +834,23 @@ o3d.ParamMatrix4.prototype.applyToLocation = function(gl, location) {
 };
 
 /**
+ * Called to specify the values of a uniform array.
+ * @param {WebGLContext} gl The current context.
+ * @param {!Array.<!WebGLUniformLocation>} locationArray An array of locations
+ *    to which to apply the values.
+ */
+o3d.ParamParamArray.prototype.applyToLocations = function(gl, locationArray) {
+  if (locationArray.length != this.value.length) {
+    gl.client.error_callback(
+        'Invalid uniform param array: incorrect number of elements.');
+  }
+  for (var i = 0; i < this.value.length; i++) {
+    // Cannot have a ParamArray of ParamArrays, so safe to call applyToLocation
+    this.value.getParam(i).applyToLocation(gl, locationArray[i]);
+  }
+};
+
+/**
  * A counter to ensure each texture sampler gets a unqiue id.
  * @private
  */
@@ -852,14 +869,30 @@ o3d.ParamSampler.prototype.applyToLocation = function(gl, location) {
 
   var value = null;
   var target = 0;
+  var sampler = null;
 
   if (this.value) {
-    this.value.bindAndSetParameters_();
-    gl.uniform1i(location, i);
-    o3d.Param.texture_index_++;
+    sampler = this.value;
+  } else {
+    o3d.Sampler.defaultSampler_.gl = gl;
+    sampler = o3d.Sampler.defaultSampler_;
+    if (gl.client.reportErrors_()) {
+      gl.client.error_callback("Missing Sampler for ParamSampler " + this.name);
+    }
   }
+
+  sampler.bindAndSetParameters_();
+  gl.uniform1i(location, i);
+  o3d.Param.texture_index_++;
 };
 
+/**
+ * A default ParamSampler to be used if client does not assign one.
+ *
+ * @type {!o3d.ParamSampler}
+ * @private
+ */
+o3d.ParamSampler.defaultParamSampler_ = new o3d.ParamSampler();
 
 /**
  * Object to compute all combinations of world/view/projection

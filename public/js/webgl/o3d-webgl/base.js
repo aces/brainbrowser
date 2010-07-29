@@ -234,6 +234,7 @@ o3d.include('object_base');
 o3d.include('named_object_base');
 o3d.include('named_object');
 o3d.include('param_object');
+o3d.include('param_array');
 o3d.include('param');
 o3d.include('event');
 o3d.include('raw_data');
@@ -268,5 +269,9 @@ o3d.include('shape');
 o3d.include('effect');
 o3d.include('material');
 o3d.include('archive_request');
+o3d.include('param_operation');
+o3d.include('function');
+o3d.include('counter');
+o3d.include('curve');
 
 

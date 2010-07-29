@@ -35,137 +35,31 @@ function MacaccObject(brainbrowser,path) {
   that.range_min; //Min of range bar
   that.spectrum;
 
-  this.updateInfo = function() {
-    if (!that.treeInfo) {
-      that.treeInfo = o3djs.picking.createPickManager(brainbrowser.client.root);
-    }
-    that.treeInfo.update();
-  };
 
 
-  function unSelectAll() {
+  //Gets the data related to a vertex in the image.
+  this.pickClick = function(e,info) {
 
-    if (that.selectedInfo) {
-
-
-      that.highlightShape = null;
-      that.selectedInfo = null;
-    }
-  }
-
-  function select(pickInfo) {
-
-    unSelectAll();
-    if (pickInfo) {
-
-      that.selectedInfo = pickInfo;
-
-    }
-  }
-
-  function valueAtPoint(e) {
-    if(!that.vertex) {
-      return;
-    }
-    var worldRay = o3djs.picking.clientPositionToWorldRay(
-      e.x,
-      e.y,
-     brainbrowser.viewInfo.drawContext,
-      brainbrowser.client.width,
-      brainbrowser.client.height);
-
-
-    // Update the entire tree in case anything moved.
-    // NOTE: This function is very SLOW!
-    // If you really want to use picking you should manually update only those
-    // transforms and shapes that moved, were added, or deleted by writing your
-    // own picking library. You should also make sure that you are only
-    // considering things that are pickable. By that I mean if you have a scene of
-    // a meadow with trees, grass, bushes, and animals and the only thing the user
-    // can pick is the animals then put the animals on their own sub branch of the
-    // transform graph and only pick against that subgraph.
-    // Even better, make a separate transform graph with only cubes on it to
-    // represent the animals and use that instead of the actual animals.
-    that.treeInfo.update();
-
-    var pickInfo = that.treeInfo.pick(worldRay);
-    if (pickInfo) {
-
-      select(pickInfo);
-
-      var primitiveIndex = pickInfo.rayIntersectionInfo.primitiveIndex;
-      that.primitiveIndex = primitiveIndex;
-      var positionVector = pickInfo.rayIntersectionInfo.position;
-      that.positionVector = positionVector;
-      var element = pickInfo.element;
-
-      var vertex = brainbrowser.model_data.get_vertex(primitiveIndex,positionVector);
-      var value = that.dataArray[vertex];
-      jQuery("#value").html("Value at vertex "+ vertex + ": " + value);
-
-
-    } else {
-
-      //that.debugLine.setVisible(false);
-      jQuery("#value").html('--nothing--');
-    }
-
-
-  }
-
-
-  //Picking a vertex
-  function pickClick(e) {
-    var worldRay = o3djs.picking.clientPositionToWorldRay(
-      e.x,
-      e.y,
-      brainbrowser.viewInfo.drawContext,
-      brainbrowser.client.width,
-      brainbrowser.client.height);
-    unSelectAll();
-
-    // Update the entire tree in case anything moved.
-    // NOTE: This function is very SLOW!
-    // If you really want to use picking you should manually update only those
-    // transforms and shapes that moved, were added, or deleted by writing your
-    // own picking library. You should also make sure that you are only
-    // considering things that are pickable. By that I mean if you have a scene of
-    // a meadow with trees, grass, bushes, and animals and the only thing the user
-    // can pick is the animals then put the animals on their own sub branch of the
-    // transform graph and only pick against that subgraph.
-    // Even better, make a separate transform graph with only cubes on it to
-    // represent the animals and use that instead of the actual animals.
-    that.treeInfo.update();
-
-    var pickInfo = that.treeInfo.pick(worldRay);
-    if (pickInfo) {
-
-      select(pickInfo);
-
-      var primitiveIndex = pickInfo.rayIntersectionInfo.primitiveIndex;
-      that.primitiveIndex = primitiveIndex;
-      var positionVector = pickInfo.rayIntersectionInfo.position;
-      that.positionVector = positionVector;
-      var element = pickInfo.element;
-
-      var hemisphere=element.owner.name;
-
-
-
-      jQuery(that.pickInfoElem).html("LOADING MAP................");
-      that.vertex = brainbrowser.model_data.get_vertex(primitiveIndex,positionVector,hemisphere);
+    jQuery(that.pickInfoElem).html("LOADING MAP................");
+    that.vertex = info.vertex;
+    if(that.vertex) {
       update_map();
-
-    } else {
-
-      //that.debugLine.setVisible(false);
+      jQuery(that.pickInfoElem).html('Vertex: ' + that.vertex);
+    }else {
       jQuery(that.pickInfoElem).html('--nothing--');
     }
 
 
   }
-
-
+  //Finds out what the value is at a certain point and displays it
+  this.valueAtPoint = function(e,info) {
+    var value = that.dataArray[info.vertex];
+    if(info.vertex && value){
+      jQuery("#value").html("Value at vertex "+ vertex + ": " + value);
+    }else {
+      jQuery("#value").html('--nothing--');
+    }
+  }
 
   /**
    *  This method generates the color map using the spectrum
@@ -350,9 +244,9 @@ function MacaccObject(brainbrowser,path) {
 
   }
   set_spectrum("spectral");
-  this.updateInfo();
-  brainbrowser.valueAtPoint = valueAtPoint;
-  brainbrowser.pickClick = pickClick; //associating pickClick for brainbrowser which handles events.
+  brainbrowser.updateInfo();
+  brainbrowser.valueAtPointCallback = this.valueAtPoint;
+  brainbrowser.clickCallback = this.pickClick; //associating pickClick for brainbrowser which handles events.
 
 
 

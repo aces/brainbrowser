@@ -180,10 +180,9 @@ o3d.Sampler.prototype.convertAddressMode_ = function(o3d_mode) {
       gl_mode = this.gl.CLAMP_TO_EDGE;
       break;
     case o3d.Sampler.BORDER:
-      gl_mode = this.gl.CLAMP_TO_BORDER;
-      break;
+      // This is not supported in WebGL.
     default:
-      this.gl.client.error_callback("Unknown Address mode");
+      this.gl.client.error_callback("Unknown/Unavailable Address mode");
       break;
   }
   return gl_mode;

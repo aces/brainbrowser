@@ -840,13 +840,14 @@ o3d.ParamMatrix4.prototype.applyToLocation = function(gl, location) {
  *    to which to apply the values.
  */
 o3d.ParamParamArray.prototype.applyToLocations = function(gl, locationArray) {
-  if (locationArray.length != this.value.length) {
+  var computedValue = this.value;
+  if (locationArray.length != computedValue.length) {
     gl.client.error_callback(
         'Invalid uniform param array: incorrect number of elements.');
   }
-  for (var i = 0; i < this.value.length; i++) {
+  for (var i = 0; i < computedValue.length; i++) {
     // Cannot have a ParamArray of ParamArrays, so safe to call applyToLocation
-    this.value.getParam(i).applyToLocation(gl, locationArray[i]);
+    computedValue.getParam(i).applyToLocation(gl, locationArray[i]);
   }
 };
 

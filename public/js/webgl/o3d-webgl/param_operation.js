@@ -147,7 +147,7 @@ o3d.inherit('ParamOp2FloatsToFloat2', 'ParamObject');
 
 /**
  * Called by o3d.Param*Output whenever its value gets read.
- * @return {Array<number>} 2-element array equal to [input0,input1]
+ * @return {!Array<number>} 2-element array equal to [input0,input1]
  */
 o3d.ParamOp2FloatsToFloat2.prototype.updateOutputs = function() {
   this.last_output_value_[0] = this.getParam("input0").value;
@@ -177,7 +177,7 @@ o3d.inherit('ParamOp3FloatsToFloat3', 'ParamObject');
 
 /**
  * Called by o3d.Param*Output whenever its value gets read.
- * @return {Array<number>} 3-element array equal to [input0,input1,input2]
+ * @return {!Array<number>} 3-element array equal to [input0,input1,input2]
  */
 o3d.ParamOp3FloatsToFloat3.prototype.updateOutputs = function() {
   this.last_output_value_[0] = this.getParam("input0").value;
@@ -208,7 +208,7 @@ o3d.inherit('ParamOp4FloatsToFloat4', 'ParamObject');
 
 /**
  * Called by o3d.Param*Output whenever its value gets read.
- * @return {Array<number>} 4-element array equal to
+ * @return {!Array<number>} 4-element array equal to
  *     [input0,input1,input2,input3]
  */
 o3d.ParamOp4FloatsToFloat4.prototype.updateOutputs = function() {
@@ -241,12 +241,13 @@ o3d.inherit('ParamOp16FloatsToMatrix4', 'ParamObject');
 
 /**
  * Called by o3d.Param*Output whenever its value gets read.
- * @return {Array<Array<number>>} 4x4 array equal to
+ * @return {!Array<!Array<number>>} 4x4 array equal to
  *     [[i0,i1,i2,i3],[i4,i5,i6,i7],[i8,i9,i10,i11],[i12,i13,i14,i15]]
  */
 o3d.ParamOp16FloatsToMatrix4.prototype.updateOutputs = function() {
   for (var i = 0; i < 16; i++) {
-    this.last_output_value_[i/4][i%4] = this.getParam("input"+i).value;
+    this.last_output_value_[Math.floor(i/4)][i%4] =
+        this.getParam("input"+i).value;
   }
   return this.last_output_value_;
 };
@@ -281,8 +282,6 @@ o3d.TRSToMatrix4 = function() {
   this.scaleZ = 1;
 
   this.last_output_value_ = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
-
-  this.createParam("output", "ParamMatrix4Output");
 };
 o3d.inherit('TRSToMatrix4', 'ParamObject');
 
@@ -299,7 +298,7 @@ o3d.inherit('TRSToMatrix4', 'ParamObject');
 
 /**
  * Called by o3d.Param*Output whenever its value gets read.
- * @return {matrix4} 4x4 array equal to Translate * Rotate * Scale.
+ * @return {!Array<!Array<number>>} Matrix4 equal to Translate * Rotate * Scale.
  */
 o3d.TRSToMatrix4.prototype.updateOutputs = function () {
   var ret = this.last_output_value_;
@@ -336,3 +335,36 @@ o3d.TRSToMatrix4.prototype.updateOutputs = function () {
                       1);
   return ret;
 };
+
+/**
+ * A Param operation that takes 16 floats to produce a 4-by-4 matrix.
+ * @constructor
+ * @extends {o3d.ParamObject}
+ */
+o3d.Matrix4Composition = function() {
+  o3d.ParamObject.call(this);
+  this.last_output_value_ = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]];
+};
+o3d.inherit('Matrix4Composition', 'ParamObject');
+
+o3d.ParamObject.setUpO3DParam_(
+    o3d.Matrix4Composition, "inputMatrix", "ParamMatrix4");
+
+o3d.ParamObject.setUpO3DParam_(
+    o3d.Matrix4Composition, "localMatrix", "ParamMatrix4");
+
+o3d.ParamObject.setUpO3DParam_(
+    o3d.Matrix4Composition, "outputMatrix", "ParamMatrix4Output");
+
+/**
+ * Called by o3d.Param*Output whenever its value gets read.
+ * @return {!Array<!Array<number>>} 4x4 array equal to
+ *     [[i0,i1,i2,i3],[i4,i5,i6,i7],[i8,i9,i10,i11],[i12,i13,i14,i15]]
+ */
+o3d.Matrix4Composition.prototype.updateOutputs = function() {
+  o3d.Transform.compose(this.inputMatrix, this.localMatrix,
+                        this.last_output_value_);
+  return this.last_output_value_;
+};
+
+

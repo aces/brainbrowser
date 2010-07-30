@@ -204,9 +204,9 @@ o3d.Effect.prototype.loadShaderFromString = function(shaderString, type) {
   var success = true;
 
   var shader = this.gl.createShader(type);
-  this.gl.shaderSource(shader, shaderString);
+  this.gl.shaderSource(
+      shader, "#ifdef GL_ES\nprecision highp float;\n#endif\n" + shaderString);
   this.gl.compileShader(shader);
-
   if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
     success = false;
     var log = this.gl.getShaderInfoLog(shader);

@@ -36,6 +36,8 @@
  */
 o3djs.provide('o3djs.gpu2d');
 
+o3djs.require('o3djs.base');
+
 /**
  * A module providing GPU-accelerated rendering of 2D vector graphics
  * in 3D.
@@ -477,11 +479,11 @@ o3djs.gpu2d.createColor = function(pack, red, green, blue, alpha) {
 //----------------------------------------------------------------------
 // Shaders and effects
 
-// TODO(kbr): antialiasing is not supported yet because the ddx
-// and ddy instructions are not part of the shader model 2.0. On
-// Windows we could easily upgrade to ps2.0a, but on Mac and Linux
-// there isn't an easy upgrade path from ARBVP1.0 and ARBFP1.0 which
-// incorporates these instructions.
+// TODO(kbr): antialiasing in the Cg backend is not supported yet
+// because the ddx and ddy instructions are not part of the shader
+// model 2.0. On Windows we could easily upgrade to ps2.0a, but on Mac
+// and Linux there isn't an easy upgrade path from ARBVP1.0 and
+// ARBFP1.0 which incorporates these instructions.
 //
 // The solution within O3D is to compute the gradients using the
 // closed-form solution in Loop and Blinn's SIGGRAPH '05 paper. This
@@ -500,64 +502,122 @@ o3djs.gpu2d.createColor = function(pack, red, green, blue, alpha) {
 o3djs.gpu2d.generateLoopBlinnShaderSource_ = function(antialias,
                                                       fillUniforms,
                                                       fillSource) {
-  var result = '' +
-    'uniform float4x4 worldViewProjection : WORLDVIEWPROJECTION;\n' +
-    fillUniforms +
-    '\n' +
-    'struct VertexShaderInput {\n' +
-    '  float2 position : POSITION;\n' +
-    '  float3 klm : TEXCOORD0;\n' +
-    '};\n' +
-    '\n' +
-    'struct PixelShaderInput {\n' +
-    '  float4 position : POSITION;\n' +
-    '  float3 klm : TEXCOORD0;\n' +
-    '};\n' +
-    '\n' +
-    'PixelShaderInput vertexShaderFunction(VertexShaderInput input) {\n' +
-    '  PixelShaderInput output;\n' +
-    '\n' +
-    '  output.position = mul(float4(input.position, 0, 1),\n' +
-    '                        worldViewProjection);\n' +
-    '  output.klm = input.klm;\n' +
-    '  return output;\n' +
-    '}\n' +
-    '\n' +
-    'float4 pixelShaderFunction(PixelShaderInput input) : COLOR {\n' +
-    '  float3 klm = input.klm;\n';
-  var alphaComputation;
-  if (antialias) {
-    alphaComputation = '' +
-      '  // Gradients\n' +
-      '  float3 px = ddx(input.klm);\n' +
-      '  float3 py = ddy(input.klm);\n' +
+  if (o3djs.base.glsl) {
+    var result = '' +
+      '// Vertex shader\n' +
+      'uniform mat4 worldViewProjection;\n' +
       '\n' +
-      '  // Chain rule\n' +
-      '  float k2 = klm.x * klm.x;\n' +
-      '  float c = k2 * klm.x - klm.y * klm.z;\n' +
-      '  float k23 = 3.0 * k2;\n' +
-      '  float cx = k23 * px.x - klm.z * px.y - klm.y * px.z;\n' +
-      '  float cy = k23 * py.x - klm.z * py.y - klm.y * py.z;\n' +
+      'attribute vec2 position;\n' +
+      'attribute vec3 texCoord0;\n' +
       '\n' +
-      '  // Signed distance\n' +
-      '  float sd = c / sqrt(cx * cx + cy * cy);\n' +
+      'varying vec3 klm;\n' +
       '\n' +
-      '  // Linear alpha\n' +
-      '  float alpha = clamp(0.5 - sd, 0.0, 1.0);\n';
+      'void main() {\n' +
+      '  // TODO(kbr): figure out why this multiplication needs to be\n' +
+      '  // transposed compared to the Cg version.\n' +
+      '  gl_Position = worldViewProjection * vec4(position, 0.0, 1.0);\n' +
+      '  klm = texCoord0;\n' +
+      '}\n' +
+      '// #o3d SplitMarker\n' +
+      '// Fragment shader\n' +
+      'varying vec3 klm;\n' +
+      fillUniforms +
+      'void main() {\n';
+    var alphaComputation;
+    if (antialias) {
+      alphaComputation = '' +
+        '  // Gradients\n' +
+        '  vec3 px = dFdx(klm);\n' +
+        '  vec3 py = dFdy(klm);\n' +
+        '\n' +
+        '  // Chain rule\n' +
+        '  float k2 = klm.x * klm.x;\n' +
+        '  float c = k2 * klm.x - klm.y * klm.z;\n' +
+        '  float k23 = 3.0 * k2;\n' +
+        '  float cx = k23 * px.x - klm.z * px.y - klm.y * px.z;\n' +
+        '  float cy = k23 * py.x - klm.z * py.y - klm.y * py.z;\n' +
+        '\n' +
+        '  // Signed distance\n' +
+        '  float sd = c / sqrt(cx * cx + cy * cy);\n' +
+        '\n' +
+        '  // Linear alpha\n' +
+        '  // TODO(kbr): figure out why this needs to be\n' +
+        '  // negated compared to Cg version, and also why\n' +
+        '  // we need an adjustment by +1.0 for it to look good.\n' +
+        '  // float alpha = clamp(0.5 - sd, 0.0, 1.0);\n' +
+        '  float alpha = clamp(sd + 0.5, 0.0, 1.0);\n';
+    } else {
+      alphaComputation = '' +
+        '  float t = klm.x * klm.x * klm.x - klm.y * klm.z;\n' +
+        '  float alpha = clamp(sign(t), 0.0, 1.0);\n';
+    }
+    return result + alphaComputation +
+      '\n' +
+      fillSource +
+      '}\n' +
+      '\n' +
+      '// #o3d MatrixLoadOrder RowMajor\n';
   } else {
-    alphaComputation = '' +
-      '  float t = klm.x * klm.x * klm.x - klm.y * klm.z;\n' +
-      '  float alpha = clamp(sign(t), 0.0, 1.0);\n';
-  }
+    antialias = false;  // See above why
+    var result = '' +
+      'uniform float4x4 worldViewProjection : WORLDVIEWPROJECTION;\n' +
+      fillUniforms +
+      '\n' +
+      'struct VertexShaderInput {\n' +
+      '  float2 position : POSITION;\n' +
+      '  float3 klm : TEXCOORD0;\n' +
+      '};\n' +
+      '\n' +
+      'struct PixelShaderInput {\n' +
+      '  float4 position : POSITION;\n' +
+      '  float3 klm : TEXCOORD0;\n' +
+      '};\n' +
+      '\n' +
+      'PixelShaderInput vertexShaderFunction(VertexShaderInput input) {\n' +
+      '  PixelShaderInput output;\n' +
+      '\n' +
+      '  output.position = mul(float4(input.position, 0, 1),\n' +
+      '                        worldViewProjection);\n' +
+      '  output.klm = input.klm;\n' +
+      '  return output;\n' +
+      '}\n' +
+      '\n' +
+      'float4 pixelShaderFunction(PixelShaderInput input) : COLOR {\n' +
+      '  float3 klm = input.klm;\n';
+    var alphaComputation;
+    if (antialias) {
+      alphaComputation = '' +
+        '  // Gradients\n' +
+        '  float3 px = ddx(input.klm);\n' +
+        '  float3 py = ddy(input.klm);\n' +
+        '\n' +
+        '  // Chain rule\n' +
+        '  float k2 = klm.x * klm.x;\n' +
+        '  float c = k2 * klm.x - klm.y * klm.z;\n' +
+        '  float k23 = 3.0 * k2;\n' +
+        '  float cx = k23 * px.x - klm.z * px.y - klm.y * px.z;\n' +
+        '  float cy = k23 * py.x - klm.z * py.y - klm.y * py.z;\n' +
+        '\n' +
+        '  // Signed distance\n' +
+        '  float sd = c / sqrt(cx * cx + cy * cy);\n' +
+        '\n' +
+        '  // Linear alpha\n' +
+        '  float alpha = clamp(0.5 - sd, 0.0, 1.0);\n';
+    } else {
+      alphaComputation = '' +
+        '  float t = klm.x * klm.x * klm.x - klm.y * klm.z;\n' +
+        '  float alpha = clamp(sign(t), 0.0, 1.0);\n';
+    }
 
-  return result + alphaComputation +
-    '\n' +
-    fillSource +
-    '}\n' +
-    '\n' +
-    '// #o3d VertexShaderEntryPoint vertexShaderFunction\n' +
-    '// #o3d PixelShaderEntryPoint pixelShaderFunction\n' +
-    '// #o3d MatrixLoadOrder RowMajor\n';
+    return result + alphaComputation +
+      '\n' +
+      fillSource +
+      '}\n' +
+      '\n' +
+      '// #o3d VertexShaderEntryPoint vertexShaderFunction\n' +
+      '// #o3d PixelShaderEntryPoint pixelShaderFunction\n' +
+      '// #o3d MatrixLoadOrder RowMajor\n';
+  }
 };
 
 /**
@@ -569,35 +629,59 @@ o3djs.gpu2d.generateLoopBlinnShaderSource_ = function(antialias,
  * @private
  */
 o3djs.gpu2d.generateSolidShaderSource_ = function(fillUniforms, fillSource) {
-  var result = '' +
-    'uniform float4x4 worldViewProjection : WORLDVIEWPROJECTION;\n' +
-    fillUniforms +
-    '\n' +
-    'struct VertexShaderInput {\n' +
-    '  float2 position : POSITION;\n' +
-    '};\n' +
-    '\n' +
-    'struct PixelShaderInput {\n' +
-    '  float4 position : POSITION;\n' +
-    '};\n' +
-    '\n' +
-    'PixelShaderInput vertexShaderFunction(VertexShaderInput input) {\n' +
-    '  PixelShaderInput output;\n' +
-    '\n' +
-    '  output.position = mul(float4(input.position, 0, 1),\n' +
-    '                        worldViewProjection);\n' +
-    '  return output;\n' +
-    '}\n' +
-    '\n' +
-    'float4 pixelShaderFunction(PixelShaderInput input) : COLOR {\n' +
-    '  float alpha = 1.0;\n' +
-    fillSource +
-    '}\n' +
-    '\n' +
-    '// #o3d VertexShaderEntryPoint vertexShaderFunction\n' +
-    '// #o3d PixelShaderEntryPoint pixelShaderFunction\n' +
-    '// #o3d MatrixLoadOrder RowMajor\n';
-  return result;
+  if (o3djs.base.glsl) {
+    var result = '' +
+      '// Vertex shader\n' +
+      'uniform mat4 worldViewProjection;\n' +
+      '\n' +
+      'attribute vec2 position;\n' +
+      '\n' +
+      'void main() {\n' +
+      '  // TODO(kbr): figure out why this multiplication needs to be\n' +
+      '  // transposed compared to the Cg version.\n' +
+      '  gl_Position = worldViewProjection * vec4(position, 0.0, 1.0);\n' +
+      '}\n' +
+      '// #o3d SplitMarker\n' +
+      '// Fragment shader\n' +
+      fillUniforms +
+      'void main() {\n' +
+      '  float alpha = 1.0;\n' +
+      fillSource +
+      '}\n' +
+      '\n' +
+      '// #o3d MatrixLoadOrder RowMajor\n';
+    return result;
+  } else {
+    var result = '' +
+      'uniform float4x4 worldViewProjection : WORLDVIEWPROJECTION;\n' +
+      fillUniforms +
+      '\n' +
+      'struct VertexShaderInput {\n' +
+      '  float2 position : POSITION;\n' +
+      '};\n' +
+      '\n' +
+      'struct PixelShaderInput {\n' +
+      '  float4 position : POSITION;\n' +
+      '};\n' +
+      '\n' +
+      'PixelShaderInput vertexShaderFunction(VertexShaderInput input) {\n' +
+      '  PixelShaderInput output;\n' +
+      '\n' +
+      '  output.position = mul(float4(input.position, 0, 1),\n' +
+      '                        worldViewProjection);\n' +
+      '  return output;\n' +
+      '}\n' +
+      '\n' +
+      'float4 pixelShaderFunction(PixelShaderInput input) : COLOR {\n' +
+      '  float alpha = 1.0;\n' +
+      fillSource +
+      '}\n' +
+      '\n' +
+      '// #o3d VertexShaderEntryPoint vertexShaderFunction\n' +
+      '// #o3d PixelShaderEntryPoint pixelShaderFunction\n' +
+      '// #o3d MatrixLoadOrder RowMajor\n';
+    return result;
+  }
 };
 
 /**
@@ -610,15 +694,28 @@ o3djs.gpu2d.FillTypes_ = {
 };
 
 /**
- * Shader code for the various fills, indexed by FillTypes_.
+ * Shader code for the various Cg fills, indexed by FillTypes_.
  * @type {!Array.<{uniforms: string, source: string}>}
  * @private
  */
-o3djs.gpu2d.FILL_CODE_ = [
+o3djs.gpu2d.FILL_CODE_CG_ = [
   { uniforms:
       'uniform float4 color;\n',
     source:
       'return float4(color.r, color.g, color.b, color.a * alpha);\n'
+  }
+];
+
+/**
+ * Shader code for the various fills, indexed by FillTypes_.
+ * @type {!Array.<{uniforms: string, source: string}>}
+ * @private
+ */
+o3djs.gpu2d.FILL_CODE_GLSL_ = [
+  { uniforms:
+      'uniform vec4 color;\n',
+    source:
+      'gl_FragColor = vec4(color.r, color.g, color.b, color.a * alpha);\n'
   }
 ];
 
@@ -660,14 +757,19 @@ o3djs.gpu2d.loadEffect_ = function(pack, fillType, interior) {
   if (!effect) {
     effect = pack.createObject('Effect');
     var result = false;
-    var sourceSnippets = o3djs.gpu2d.FILL_CODE_[fillType];
+    var sourceSnippets;
+    if (o3djs.base.glsl) {
+      sourceSnippets = o3djs.gpu2d.FILL_CODE_GLSL_[fillType];
+    } else {
+      sourceSnippets = o3djs.gpu2d.FILL_CODE_CG_[fillType];
+    }
     if (interior) {
       result = effect.loadFromFXString(
           o3djs.gpu2d.generateSolidShaderSource_(sourceSnippets.uniforms,
                                                  sourceSnippets.source));
     } else {
       result = effect.loadFromFXString(
-          o3djs.gpu2d.generateLoopBlinnShaderSource_(false,
+          o3djs.gpu2d.generateLoopBlinnShaderSource_(true,
                                                      sourceSnippets.uniforms,
                                                      sourceSnippets.source));
     }

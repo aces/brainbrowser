@@ -66,21 +66,21 @@ o3d.FunctionEval = function() {
    * @private
    * @type {o3d.ParamFloat}
    */
-  this.input_param_ = this.createParam("input", "ParamFloat");
+  this.input_param_ = this.getParam("input");
 
   /**
    * ParamFunction whose value is a o3d.Function or subclass.
    * @private
    * @type {o3d.ParamFunction}
    */
-  this.func_param_ = this.createParam("functionObject", "ParamFunction");
+  this.func_param_ = this.getParam("functionObject");
 
   /**
    * Read-only output value. Value is cached if input does not change.
    * @private
    * @type {o3d.ParamFloatOutput}
    */
-  this.output_param_ = this.createParam("output", "ParamFloatOutput");
+  this.output_param_ = this.getParam("output");
 
   /**
    * Context value to allow faster evaluation for adjacent input values.
@@ -109,40 +109,22 @@ o3d.inherit('FunctionEval', 'ParamObject');
 
 /**
  * Read-only output value. Value is cached if input does not change.
- * @private
- * @type {o3d.ParamFloatOutput}
+ * @type {number}
  */
-o3d.FunctionEval.prototype.__defineGetter__("output",
-    function() {
-      return this.output_param_.value;
-    });
+o3d.ParamObject.setUpO3DParam_(o3d.FunctionEval, "output", "ParamFloatOutput");
 
 /**
  * Read/write input value to the function.
- * @type {o3d.ParamFloat}
+ * @type {number}
  */
-o3d.FunctionEval.prototype.__defineGetter__("input",
-    function() {
-      return this.input_param_.value;
-    });
-o3d.FunctionEval.prototype.__defineSetter__("input",
-    function(newInput) {
-      this.input_param_.value = newInput;
-    });
+o3d.ParamObject.setUpO3DParam_(o3d.FunctionEval, "input", "ParamFloat");
 
 /**
  * o3d.Function object (or subclass) with evaluate function.
- * @private
  * @type {o3d.Function}
  */
-o3d.FunctionEval.prototype.__defineGetter__("functionObject",
-    function() {
-      return this.func_param_.value;
-    });
-o3d.FunctionEval.prototype.__defineSetter__("functionObject",
-    function(newFunc) {
-      this.func_param_.value = newFunc;
-    });
+o3d.ParamObject.setUpO3DParam_(o3d.FunctionEval, "functionObject",
+    "ParamFunction");
 
 /**
  * Called by o3d.Param*Output whenever its value gets read.

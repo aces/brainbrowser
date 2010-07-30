@@ -39,7 +39,7 @@
  *
  */
 
-o3djs.provide('o3djs.lineprimtives');
+o3djs.provide('o3djs.lineprimitives');
 
 o3djs.require('o3djs.math');
 o3djs.require('o3djs.primitives');

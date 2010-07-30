@@ -225,7 +225,8 @@ o3d.Texture.prototype.getGLTextureFormat_ = function() {
  */
 o3d.Texture.prototype.setFromCanvas_ =
     function(canvas, resize_to_pot, flip, generate_mips, face) {
-  this.gl.bindTexture(this.texture_target_, this.texture_);
+  var gl = this.gl;
+  gl.bindTexture(this.texture_target_, this.texture_);
 
   if (resize_to_pot && (!o3d.Texture.isPowerOfTwo_(canvas.width) ||
       !o3d.Texture.isPowerOfTwo_(canvas.height))) {
@@ -246,7 +247,10 @@ o3d.Texture.prototype.setFromCanvas_ =
     target = this.gl.TEXTURE_CUBE_MAP_POSITIVE_X + face;
   }
 
-  this.gl.texImage2D(target, 0 /*level*/, canvas, flip);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, flip);
+  gl.texImage2D(
+      target, 0 /*level*/, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
   this.texture_width_ = canvas.width;
   this.texture_height_ = canvas.height;
 
@@ -498,10 +502,12 @@ o3d.Texture2D.prototype.drawImage =
   context.drawImage(source_img.canvas_,
       0, 0, source_img.canvas_.width, source_img.canvas_.height);
 
-  this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture_);
+  var gl = this.gl;
+  gl.bindTexture(gl.TEXTURE_2D, this.texture_);
   // TODO(petersont): replace this with a call to texSubImage2D once
   // Firefox supports it.
-  this.gl.texImage2D(this.gl.TEXTURE_2D, 0, canvas);
+  gl.texImage2D(
+      gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
   // this.gl.texSubImage2D(this.gl.TEXTURE_2D, 0, 0, 0, canvas);
   this.texture_width_ = canvas.width;
   this.texture_height_ = canvas.height;

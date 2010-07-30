@@ -429,7 +429,7 @@ o3d.Curve.prototype.__defineSetter__("sampleRate", function(rate) {
         "attempt to set sample rate to " + rate +
         " which is lower than the minimum of " + o3d.Curve.kMinimumSampleRate);
   } else if (rate != this.sample_rate_) {
-    this.sample_rate_ = new_sample_rate;
+    this.sample_rate_ = rate;
     this.invalidateCache_();
   }
 });
@@ -526,7 +526,7 @@ o3d.Curve.prototype.addLinearKeys = function(values) {
     return;
   }
   for (var i = 0; i < values.length; i += kNumLinearKeyValues) {
-    var newKey = this.createKey("LinearKey");
+    var newKey = this.createKey("LinearCurveKey");
     newKey.input = values[i];
     newKey.output = values[i+1];
   }
@@ -555,7 +555,7 @@ o3d.Curve.prototype.addStepKeys = function(values) {
     return;
   }
   for (var i = 0; i < values.length; i += kNumStepKeyValues) {
-    var newKey = this.createKey("StepKey");
+    var newKey = this.createKey("StepCurveKey");
     newKey.input = values[i];
     newKey.output = values[i+1];
   }
@@ -585,7 +585,7 @@ o3d.Curve.prototype.addBezierKeys = function(values) {
     return;
   }
   for (var ii = 0; ii < values.length; ii += kNumBezierKeyValues) {
-    var newKey = this.createKey("BezierKey");
+    var newKey = this.createKey("BezierCurveKey");
     newKey.input = values[i];
     newKey.output = values[i+1];
     newKey.inTangent[0] = values[i+2];
@@ -725,7 +725,7 @@ o3d.Curve.prototype.getOutputInSpan_ = function(input, context) {
 
     // Find the current the keys that cover our input.
     while (start <= end) {
-      var mid = (start + end) / 2;
+      var mid = Math.floor((start + end)/2);
       if (input > keys[mid].input) {
         start = mid + 1;
       } else {

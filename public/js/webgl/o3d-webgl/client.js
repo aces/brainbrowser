@@ -299,6 +299,16 @@ o3d.Client.prototype.packs_ = [];
  */
 o3d.Client.prototype.counter_manager_ = null;
 
+/**
+ * Whether or not the client sets the alpha channel of all pixels to 1 in the
+ * final stage of rendering.
+ *
+ * By default, this is set to true to mimic the plugin's behavior. If
+ * a transparent canvas background is desirable, this should be set to false.
+ *
+ * @type {boolean}
+ */
+o3d.Client.prototype.normalizeClearColorAlpha = true;
 
 /**
  * Function that gets called when the client encounters an error.
@@ -472,9 +482,11 @@ o3d.Client.prototype.render = function() {
   // When o3d finally draws to the webpage, the alpha channel should be all 1's
   // So we clear with a color mask to set all alpha bytes to 1 before drawing.
   // Before we draw again, the color mask gets set back to all true (above).
-  this.gl.colorMask(false, false, false, true);
-  this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-  this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+  if (this.normalizeClearColorAlpha) {
+    this.gl.colorMask(false, false, false, true);
+    this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+  }
 };
 
 
@@ -842,7 +854,7 @@ o3d.Client.getAbsolutePosition_ = function(element) {
 o3d.Client.getLocalXY_ = function(eventInfo) {
   var event = eventInfo.event;
   var p = o3d.Client.getAbsolutePosition_(eventInfo.element);
-  return {x: event.x - p.x, y: event.y - p.y};
+  return {x: event.pageX - p.x, y: event.pageY - p.y};
 };
 
 

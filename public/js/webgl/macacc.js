@@ -26,15 +26,3 @@ jQuery(function () {
   jQuery(".button_set").buttonset();
 
 });
-
-
-
-
-
-
-
-
-
-
-
-

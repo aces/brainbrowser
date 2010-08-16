@@ -258,18 +258,16 @@ function BrainBrowser(url) {
   };
 
 
+  /*
+   * This function is ran on every render.
+   */
   this.renderCallback = function(renderEvent) {
-    //this.clock += renderEvent.elapsedTime * this.timeMult;
-    // Rotate the brain around the Y axis.
-    //this.brainTransform.identity();
-    //this.brainTransform.rotateZ(0.5 * this.clock);
-    // this.brainTransform.rotateX(0.5 * this.clock);
-
-  that.setClientSize();
-
-
+    that.setClientSize();
   };
 
+  /*
+   * Adds space between the hemispheres
+   */
   this.separateHemispheres = function(e) {
     if(that.model_data.num_hemispheres == 2 ) {
       this.brainTransform.children[0].translate([-1,0,0]);
@@ -277,6 +275,9 @@ function BrainBrowser(url) {
     }
   };
 
+  /*
+   * The following functions handle to preset views of the system.
+   */
   this.sagitalView = function(e) {
 
     if(that.model_data.num_hemispheres == 2 ) {
@@ -305,12 +306,14 @@ function BrainBrowser(url) {
 
   this.leftView = function(e) {
     that.resetView();
+    that.brainTransform.children[1].visible = false;
     that.brainTransform.rotateX(that.math.degToRad(-90));
     that.brainTransform.rotateZ(that.math.degToRad(90));
   };
 
   this.rightView = function(e) {
     that.resetView();
+    that.brainTransform.children[0].visible = false;
     that.brainTransform.rotateX(that.math.degToRad(-90));
     that.brainTransform.rotateZ(that.math.degToRad(-90));
   };
@@ -591,6 +594,8 @@ function BrainBrowser(url) {
    * matrix.
    */
   that.resetView = function() {
+    that.brainTransform.children[0].visible=true;
+    that.brainTransform.children[1].visible=true;
     that.brainTransform.identity();
     that.brainTransform.children[0].identity();
     that.brainTransform.children[1].identity();

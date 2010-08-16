@@ -17,7 +17,7 @@ jQuery(function () {
   jQuery('#sagitalView').click(brainbrowser.sagitalView);
     jQuery('#reverseSagitalView').click(brainbrowser.reverseSagitalView);
   jQuery(".button").button();
-
+  jQuery('#screenshot').click(function(event) {jQuery(this).attr("href",brainbrowser.client.toDataURL());});
 });
 
 

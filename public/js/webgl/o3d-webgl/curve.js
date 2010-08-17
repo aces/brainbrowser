@@ -584,7 +584,7 @@ o3d.Curve.prototype.addBezierKeys = function(values) {
         "addBezierKeys: expected multiple of 6 values got "+values.size());
     return;
   }
-  for (var ii = 0; ii < values.length; ii += kNumBezierKeyValues) {
+  for (var i = 0; i < values.length; i += kNumBezierKeyValues) {
     var newKey = this.createKey("BezierCurveKey");
     newKey.input = values[i];
     newKey.output = values[i+1];
@@ -616,6 +616,16 @@ o3d.Curve.prototype.isDiscontinuous = function() {
 };
 
 /**
+ * Comparator to allow sorting by keys by their input value.
+ * @param {o3d.CurveKey} a First input to compare.
+ * @param {o3d.CurveKey} b Second input to compare.
+ * @return {number} positive, zero, or negative (see Array.sort)
+ */
+o3d.Curve.compareInputs_ = function(a, b) {
+  return a.input - b.input;
+};
+
+/**
  * Sorts keys (if sorted_ is false) and updates discontinuous_
  * (if check_discontinuity_ is true).
  * Called automatically when necessary in evaluate and isDiscontinuous.
@@ -624,7 +634,7 @@ o3d.Curve.prototype.isDiscontinuous = function() {
 o3d.Curve.prototype.updateCurveInfo_ = function() {
   if (!this.sorted_) {
     // resort keys
-    this.keys.sort();
+    this.keys.sort(o3d.Curve.compareInputs_);
     this.sorted_ = true;
     this.invalidateCache_();
   }

@@ -1,105 +1,119 @@
 <html>  
-    <head>  
-       <meta http-equiv="content-type" content="text/html; charset=UTF-8">  
-       <title>MNI Object web viewer</title>  
-       
-    </head>  
-    <body>  
-       <span id="controls">
-	  <h2>Controls</h2>
-	 
-	 <div class="box">
-	   Model:
-	   <select class="controls" id="model">
-	     <option VALUE="normal">Normal</option>
-	     <option VALUE="inflated">Inflated</option>
-	   </select>
-	   <br />
-	   Modality
-	   <select class="data_controls" id="data-type">
-	     <option VALUE="CT">Cortical Thickness</option>
-	     <option VALUE="AREA">Area</option>
-	     <option VALUE="Volume">Volume</option>
-	   </select>
-	   <br />
-	   Smoothing Kernel:
-	   <select class="data_controls" id="data-sk">
-	     <option VALUE="0mm">0mm</option>
-	     <option VALUE="5mm">5mm</option>
-	     <option VALUE="10mm">10mm</option>
-	     <option VALUE="15mm">15mm</option>
-	     <option VALUE="20mm">20mm</option>
-	     <option VALUE="25mm">25mm</option>
-	     <option VALUE="30mm">30mm</option>
-	     <option VALUE="35mm">35mm</option>
-	     <option VALUE="40mm">40mm</option>
-	   </select>
-	   <br />
-	   Statistic
-	   <select class="data_controls" id="data-modality">
-	     <option VALUE="T">T</option>
-	     <option VALUE="P1">P1</option>
-	     <option VALUE="P2">P2</option>
-	   </select>
-	   <br />
-	 </div>
-	 <div class="box">
-	   Data Range:
-	   <div id="data-range">
-	     Min: <input class="range-box" id="data-range-min" type="text" name="range_min" size="5"><br />
-	     Max: <input class="range-box" id="data-range-max" type="text" name="range_max" size="5">
-	     <a class="button" id="range_change">Change Range</a><br />
-	     <input type="checkbox" id="fix_range">Fix Range
-	   </div>
-	   <div id="spectrum"></div>
-	   <div id="scale">
-	     <span id="min_mark" class="mark"></span>
-	     <span id="scale_space" class="empty"> </span>
-	     <span id="mid_mark" class="mark"> </span>
-	     <span id="scale_space" class="empty"> </span>
-	     <span id="max_mark" class="mark"> </span>
-	   </div>
-	 </div>
+  <head>  
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">  
+    <title>MNI Object web viewer</title>  
+    
+  </head>  
+  <body>  
 
-	 <br />
-	 <a id="fillmode" class="button">Fill Mode</a><br />
-	 <a id="screenshot" class="button" target="_blank">Screenshot</a>
-	 <div id="views">
-	   Views:<br />
-	   <a class="button" id="resetview">Reset View</a><br />
-	   <span class="button_set">
-	     <a id="anteriorView">Anterior</a><a id="posteriorView">Posterior</a><br />
-	   </span>
-	   <span class="button_set">
-	     <a id="leftView">Left</a><a id="rightView">Right</a><br />
-	   </span>
-	   <a class="button" id="sagitalView">Inside split Sagital</a><br />
-	   <a class="button" id="exteriorSagital">Outside split Sagital</a>
-	 </div>
-	 <br />
-	 <div id="info">
-	   <div id="vertex_info">Viewing data for  vertex: </div>  
-	   <div id="value">Value at vertex ---:</div>
-	 </div>
+    <div id="controls">
+      
+      <div id="surface_choice" class="box full_box">
+	Surface Choice: <br />
+	<select class="controls" id="model">
+	  <option VALUE="normal">Normal</option>
+	  <option VALUE="inflated">Inflated</option>
+	</select>
+	<br />
+      </div>
+      <div id="scale_space" class="box full_box">
+	Scale Space: <br />
+	<select class="data_controls" id="data-sk">
+	  <option VALUE="0mm">0mm</option>
+	  <option VALUE="5mm">5mm</option>
+	  <option VALUE="10mm">10mm</option>
+	  <option VALUE="15mm">15mm</option>
+	  <option VALUE="20mm">20mm</option>
+	  <option VALUE="25mm">25mm</option>
+	  <option VALUE="30mm">30mm</option>
+	  <option VALUE="35mm">35mm</option>
+	  <option VALUE="40mm">40mm</option>
+	</select>
+	<br />
+      </div>
+      <div class="combo_box full_box">
+	<div id="modality_choice" class="box half_box">
+	  Modality: <br /> 
+	  <input type="radio" class="data_controls" name="modality" VALUE="CT" checked="true">CT</input><br />
+	  <input type="radio" class="data_controls" name="modality" VALUE="AREA">AREA</input><br />
+	  <input type="radio" class="data_controls" name="modality" VALUE="VOL">VOL</input><br />
 
-    </span>
+	  <br />
+	</div>
 
 
-     <span id="view-window">
-       <div id="o3d" ></div>  
-       <div id="loading"></div>
-     </span>
-     <script type="text/javascript" src="/js/jquery.js"></script>
-     <script type="text/javascript" src="/js/mniobj.js"></script>
-     <script type="text/javascript" src="/js/dataset.js"></script>
-     <script type="text/javascript" src="/js/webgl/o3d-webgl/base.js"></script>
-     <script type="text/javascript" src="/js/webgl/o3djs/base.js"></script> 
-     <script type="text/javascript" src="/js/webgl/brainbrowser.js"></script>
-     <script type="text/javascript" src="/js/webgl/macacc_collection.js"></script>  
-     <script tyep="text/javascript" src="/js/webgl/macacc.js"></script>
-     <script type="text/javascript" src="/js/jquery-ui-1.8.2.custom.min.js"></script>
-     <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.2.custom.css" rel="Stylesheet" />
-     <link type="text/css" href="/css/mniobjweb.css" rel="Stylesheet" />
-     
-</body>  
+	<div id="statistic_choice" class="box half_box">
+	  Statistic: <br />	
+	  
+	  <input type="radio" class="data_controls" name="statistic"  VALUE="T" checked="true">T</input><br />
+	  <input type="radio" class="data_controls" name="statistic"  VALUE="P1">P1</input><br />
+	  <input type="radio" class="data_controls" name="statistic"  VALUE="P2">P2</input><br />
+	  
+	  <br />
+	</div>
+      </div>
+      <div id="data range" class="box full_box">
+	Data Range:
+	<div id="data-range">
+	  Min: <input class="range-box" id="data-range-min" type="text" name="range_min" size="5" ></input><br />
+	  Max: <input class="range-box" id="data-range-max" type="text" name="range_max" size="5" ></input>
+	  <input type="checkbox" id="fix_range">Fix Range</input><br />
+	  <a class="button" id="range_change">Change Range</a>
+	</div>
+	<div id="spectrum"></div>
+      </div>
+
+      <div id="views" class="box full_box" >
+	Views:<br />
+	<div id="hem_views_1" class="half_box">
+	  <input id="left_hem_visible" class="view_button" type="checkbox" checked="true">Left </input>
+	  <br />
+	  <input id="hem_superior" class="view_button" type="radio" name="hem_view" value="superior" checked="true">Superior</input>
+
+	  <br />
+	  <input id="hem_medial" class="view_button" type="radio" name="hem_view" value="medial">Medial</input>
+
+	  <br />
+	  <input id="hem_anterior" class="view_button" type="radio" name="hem_view" value="anterior">Anterior</input>
+	  
+	</div>
+	<div id="hem_views_2" class="half_box">
+	  <input id="right_hem_visible" class="view_button" type="checkbox" checked="true">Right</input><br />
+	  <input id="hem_inferior" class="view_button" type="radio" name="hem_view" value="inferior">Inferior</input>	     
+	  <br />
+	  <input id="hem_lateral" class="view_button" type="radio" name="hem_view" value="lateral">Lateral</input>
+	  <br />
+	  <input id="hem_posterior" class="view_button" type="radio" name="hem_view" value="posterior">Posterior</input>
+	</div>
+	<p>
+	  <a class="button" id="resetview">Reset View</a>
+	</p>
+	
+      </div>
+
+      <br />
+      <a id="fillmode" class="button">Fill Mode</a><br />
+      <a id="screenshot" class="button" target="_blank">Screenshot</a>
+      
+
+      
+    </div>
+
+    <div Id="view-window">
+      <div id="o3d"></div>  
+      <div id="loading"></div>
+    </div>
+    <script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/mniobj.js"></script>
+    <script type="text/javascript" src="/js/dataset.js"></script>
+    <script type="text/javascript" src="/js/webgl/o3d-webgl/base.js"></script>
+    <script type="text/javascript" src="/js/webgl/o3djs/base.js"></script> 
+    <script type="text/javascript" src="/js/webgl/brainbrowser.js"></script>
+    <script type="text/javascript" src="/js/webgl/macacc_collection.js"></script>  
+    <script tyep="text/javascript" src="/js/webgl/macacc.js"></script>
+    <script type="text/javascript" src="/js/jquery-ui-1.8.2.custom.min.js"></script>
+    <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.2.custom.css" rel="Stylesheet" />
+    <link type="text/css" href="/css/mniobjweb.css" rel="Stylesheet" />
+
+  </body>  
 </html>  

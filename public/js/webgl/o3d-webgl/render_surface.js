@@ -33,7 +33,7 @@
 /**
  * A RenderSurfaceBase is the base for RenderSurface and
  * RenderDepthStencilSurface.
- * 
+ *
  * @param {number} width The width of this RenderSurface.
  * @param {number} height The height of this RenderSurface.
  * @param {o3d.Texture} texture The texture of this RenderSurface.

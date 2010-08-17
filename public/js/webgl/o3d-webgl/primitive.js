@@ -78,7 +78,6 @@ o3d.Primitive = function(opt_streamBank) {
 
   /**
    * The index of the first vertex to render.
-   * Default = 0.
    *
    * @type {number}
    */
@@ -129,7 +128,16 @@ o3d.Primitive.prototype.render = function() {
            semantic_index < streams.length;
            ++semantic_index) {
         var gl_index = semantic + semantic_index - 1;
-        var stream = streams[semantic_index];
+        var stream_param = streams[semantic_index];
+
+        while (!stream_param.owner_.updateStreams &&
+               stream_param.inputConnection) {
+          stream_param = stream_param.inputConnection;
+        }
+        if (stream_param.owner_.updateStreams) {
+          stream_param.owner_.updateStreams();  // Triggers updating.
+        }
+        var stream = streams[semantic_index].stream;
         var field = stream.field;
         var buffer = field.buffer;
 
@@ -237,6 +245,21 @@ o3d.Primitive.prototype.render = function() {
 
 
 /**
+ * Given n, gets index number n in the index buffer if there is an index buffer
+ * otherwise returns n.
+ * @param {number} n The number of the entry in the index buffer.
+ * @return {return} The index.
+ * @private
+ */
+o3d.Primitive.prototype.getIndex_ = function(n) {
+  if (this.indexBuffer) {
+    return this.indexBuffer.array_[n]
+  }
+  return n;
+};
+
+
+/**
  * Generates an index buffer for a wireframe outline of a triangle-based
  * primitive.
  * @private
@@ -244,23 +267,25 @@ o3d.Primitive.prototype.render = function() {
 o3d.Primitive.prototype.computeWireframeIndices_ = function() {
   this.wireframeIndexBuffer_ = new o3d.IndexBuffer;
   this.wireframeIndexBuffer_.gl = this.gl;
-  var indices = this.indexBuffer.array_;
 
-  // The current index in wireframeIndices.
-  var j = 0;
+  var numTriangles = this.numberPrimitives;
+  var numLines = (this.primitiveType == o3d.Primitive.TRIANGLELIST) ?
+    (3 * numTriangles) : (2 * numTriangles + 1);
 
+  this.wireframeIndexBuffer_.resize(2 * numLines);
+
+  var j = 0;  // The current index in wireframeIndices.
   switch (this.primitiveType) {
     default:
     case o3d.Primitive.TRIANGLELIST: {
-      this.wireframeIndexBuffer_.resize(2 * indices.length);
       var wireframeIndices = this.wireframeIndexBuffer_.array_;
       this.wireframeIndexBuffer_.lock();
       // Iterate through triangles.
-      for (var i = 0; i < indices.length / 3; ++i) {
+      for (var i = 0; i < numTriangles; ++i) {
         // Indices the vertices of the triangle a, b, c.
-        var a = indices[3 * i];
-        var b = indices[3 * i + 1];
-        var c = indices[3 * i + 2];
+        var a = this.getIndex_(3 * i);
+        var b = this.getIndex_(3 * i + 1);
+        var c = this.getIndex_(3 * i + 2);
         wireframeIndices[j++] = a;
         wireframeIndices[j++] = b;
         wireframeIndices[j++] = b;
@@ -273,44 +298,42 @@ o3d.Primitive.prototype.computeWireframeIndices_ = function() {
     break;
 
     case o3d.Primitive.TRIANGLEFAN: {
-      this.wireframeIndexBuffer_.resize(Math.max(0, 4 * indices.length - 4));
       var wireframeIndices = this.wireframeIndexBuffer_.array_;
       this.wireframeIndexBuffer_.lock();
       // The first two points make a line.
       var z;
-      if (indices.length > 1) {
-        z = indices[0];
+      if (numTriangles > 0) {
+        z = this.getIndex_(0);
         wireframeIndices[j++] = z;
-        wireframeIndices[j++] = indices[1];
+        wireframeIndices[j++] = this.getIndex_(1);
       }
       // Each additional point forms a new triangle by adding two lines.
-      for (var i = 2; i < indices.length; ++i) {
-        var a = indices[i];
+      for (var i = 2; i < numTriangles + 2; ++i) {
+        var a = this.getIndex_(i);
         wireframeIndices[j++] = z;
         wireframeIndices[j++] = a;
         wireframeIndices[j++] = a;
-        wireframeIndices[j++] = indices[i - 1];
+        wireframeIndices[j++] = this.getIndex_(i - 1);
       }
       this.wireframeIndexBuffer_.unlock();
     }
     break;
 
     case o3d.Primitive.TRIANGLESTRIP: {
-      this.wireframeIndexBuffer_.resize(Math.max(0, 4 * indices.length - 4));
       var wireframeIndices = this.wireframeIndexBuffer_.array_;
       this.wireframeIndexBuffer_.lock();
       // The frist two points make a line.
       var a;
       var b;
-      if (indices.length > 1) {
-        a = indices[0];
-        b = indices[1];
+      if (numTriangles > 0) {
+        a = this.getIndex_(0);
+        b = this.getIndex_(1);
         wireframeIndices[j++] = a;
         wireframeIndices[j++] = b;
       }
       // Each additional point forms a new triangle by adding two lines.
-      for (var i = 2; i < indices.length; ++i) {
-        var c = indices[i];
+      for (var i = 2; i < numTriangles + 2; ++i) {
+        var c = this.getIndex_(i);
         wireframeIndices[j++] = b;
         wireframeIndices[j++] = c;
         wireframeIndices[j++] = c;
@@ -324,6 +347,44 @@ o3d.Primitive.prototype.computeWireframeIndices_ = function() {
   }
 };
 
+/**
+ * Returns the three indices of the n-th triangle of this primitive. If the
+ * primitive has no index buffer, then the buffer is assumed to be [0 ... n-1].
+ * These indices can then be used to reference the vertex buffer and get the
+ * triangle vertices' positions.
+ *
+ * @param {number} n The number of the triangle we want. Zero-indexed.
+ * @return {!Array.<Number>} Array containing three indices that correspond to
+ *    the n-th triangle of this primitive.
+ * @private
+ */
+o3d.Primitive.prototype.computeTriangleIndices_ = function(n) {
+  var indices;
+  switch (this.primitiveType) {
+    case o3d.Primitive.TRIANGLESTRIP:
+      if (n % 2 == 0) {
+        indices = [n, n + 1, n + 2];
+      } else {
+        indices = [n + 1, n, n + 2];
+      }
+      break;
+    case o3d.Primitive.TRIANGLEFAN:
+      indices = [0, n + 1, n + 2];
+      break;
+    case o3d.Primitive.TRIANGLELIST:
+    default:
+      indices = [3 * n, 3 * n + 1, 3 * n + 2];
+      break;
+  }
+  if (this.indexBuffer) {
+    var buffer = this.indexBuffer.array_;
+    return [buffer[indices[0]],
+            buffer[indices[1]],
+            buffer[indices[2]]];
+  } else {
+    return indices;
+  }
+};
 
 /**
  * Computes the intersection of a ray in the coordinate system of
@@ -344,8 +405,8 @@ o3d.Primitive.prototype.intersectRay =
 
   var streamBank = this.streamBank;
   var indexBuffer = this.indexBuffer;
-  var stream =
-    this.streamBank.vertex_streams_[o3d.Stream.POSITION][position_stream_index];
+  var positionStreams = this.streamBank.vertex_streams_[o3d.Stream.POSITION];
+  var stream = positionStreams[position_stream_index].stream;
 
   var field = stream.field;
   var buffer = field.buffer;
@@ -383,15 +444,27 @@ o3d.Primitive.prototype.intersectRay =
   // from the start the point with this variable.
   var min_distance = 0;
 
-  // Iterate through the indices three at a time.  Each triple of indices
-  // defines a triangle.  For each triangle, we test for intersection with
+  // Iterate through the indices and examine triples of indices that each
+  // define a triangle.  For each triangle, we test for intersection with
   // the ray.  We need to find the closest one to start, so we have to
   // check them all.
-  var a = indexBuffer.array_;
-  for (var i = 0; i < a.length / 3; ++i) {
-    // Indices of the triangle.
-    var t = 3 * i;
-    var indices = [a[t], a[t + 1], a[t + 2]];
+
+  var numIndices = indexBuffer ? indexBuffer.array_.length : numPoints;
+  switch (this.primitiveType) {
+    case o3d.Primitive.TRIANGLESTRIP:
+      numTriangles = numIndices - 2;
+      break;
+    case o3d.Primitive.TRIANGLEFAN:
+      numTriangles = numIndices - 2;
+      break;
+    case o3d.Primitive.TRIANGLELIST:
+    default:
+      numTriangles = numIndices / 3;
+      break;
+  }
+
+  for (var i = 0; i < numTriangles; ++i) {
+    var indices = this.computeTriangleIndices_(i);
 
     // Check if the current triangle is too far to one side of the ray
     // to intersect at all.  (This is what the orthogonal vectors are for)
@@ -452,7 +525,7 @@ o3d.Primitive.prototype.intersectRay =
         (m00 * m12 - m02 * m10) * y +
         (m00 * m11 - m01 * m10) * z) / d;
 
-    if (v0 > 0 && v1 > 0 && v2 > 0) {
+    if (v0 >= 0 && v1 >= 0 && v2 >= 0 && (v0 + v1 + v2 > 0)) {
       // Rescale by the one-norm to find the intersection of the transformed.
       // ray with the unit triangle.
       var one_norm = v0 + v1 + v2;

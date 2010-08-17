@@ -42,7 +42,7 @@ o3d.inherit('NamedObject', 'NamedObjectBase');
 
 /**
  * The object's name.
- * 
+ *
  * Setting this has no meaning to O3D, but is useful for debugging and for
  * the functions Client.getObjects, Pack.getObject,
  * RenderNode.getRenderNodesByNameInTree and

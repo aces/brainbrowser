@@ -35,7 +35,7 @@
  * It contains two 4-by-4 matrix params, view and
  * projection. These correspond to the viewing and projection transformation
  * matrices.
- * 
+ *
  * @param {!o3d.Matrix4} opt_view The view matrix for this DrawContext.
  * @param {!o3d.Matrix4} opt_projection The projection matrix
  *     for this DrawContext.

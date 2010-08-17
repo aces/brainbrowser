@@ -34,7 +34,7 @@
  * A DrawElement causes an Element to be Drawn with a particular material.
  * You can override other Effect parameters by adding corresponding params to
  * the DrawElement.
- * 
+ *
  * @param {!o3d.Material} opt_material The material used to render this element.
  * @constructor
  */

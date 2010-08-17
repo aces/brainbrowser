@@ -263,6 +263,7 @@ o3d.include('element');
 o3d.include('field');
 o3d.include('buffer');
 o3d.include('stream');
+o3d.include('vertex_source');
 o3d.include('stream_bank');
 o3d.include('primitive');
 o3d.include('shape');
@@ -273,5 +274,6 @@ o3d.include('param_operation');
 o3d.include('function');
 o3d.include('counter');
 o3d.include('curve');
+o3d.include('skin');
 
 

@@ -443,6 +443,15 @@ o3d.inherit('ParamTransform', 'Param');
 
 
 /**
+ * @constructor
+ */
+o3d.ParamVertexBufferStream = function() {
+  o3d.Param.call(this);
+  this.stream = null;
+};
+o3d.inherit('ParamVertexBufferStream', 'Param');
+
+/**
  * Base class for the types of matrix4 params that compute their own
  * value when asked (ProjectionParamMatrix4 etc).
  * @constructor

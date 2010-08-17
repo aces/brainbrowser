@@ -36,7 +36,7 @@
  * The parameters needed on a Material will vary depending its Effect.
  * Note that a material MUST have its drawList set in order for objects using it
  * to render.
- * 
+ *
  * @param {!o3d.State} opt_state The State used by this material.
  * @param {!o3d.Effect} opt_effect The Effect used by this material.
  * @param {!o3d.DrawList} opt_draw_list The the DrawList used by this material.

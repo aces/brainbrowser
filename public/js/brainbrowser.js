@@ -257,16 +257,20 @@ function BrainBrowser(url) {
 
 
   this.renderCallback = function(renderEvent) {
-    //this.clock += renderEvent.elapsedTime * this.timeMult;
-    // Rotate the brain around the Y axis.
-    //this.brainTransform.identity();
-    //this.brainTransform.rotateZ(0.5 * this.clock);
-    // this.brainTransform.rotateX(0.5 * this.clock);
+    that.setClientSize();
+  };
 
-  that.setClientSize();
-
+  /**
+   * Resets the view of the scene by resetting its local matrix to the identity
+   * matrix.
+   */
+  that.resetView = function() {
+    that.brainTransform.identity();
+    that.brainTransform.children[0].identity();
+    that.brainTransform.children[1].identity();
 
   };
+
 
   this.separateHemispheres = function(e) {
     if(that.model_data.num_hemispheres == 2 ) {
@@ -560,16 +564,6 @@ function BrainBrowser(url) {
      return true;
    };
 
-  /**
-   * Resets the view of the scene by resetting its local matrix to the identity
-   * matrix.
-   */
-  that.resetView = function() {
-    that.brainTransform.identity();
-    that.brainTransform.children[0].identity();
-    that.brainTransform.children[1].identity();
-
-  };
 
 
 

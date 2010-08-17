@@ -138,11 +138,12 @@ function MacaccObject(brainbrowser,path) {
   }
 
   function get_data_controls() {
-    var data_type = jQuery("#data-type").val(); //CT,AREA or Volume
+    var data_modality = jQuery("[name=modality]:checked").val(); //CT,AREA or Volume
     var data_sk = jQuery("#data-sk").val(); //Smoothing Kernel
-    var data_modality = jQuery("#data-modality").val();
+    var data_statistic = jQuery("[name=statistic]:checked").val();
 
-    return {modality: data_type, sk: data_sk, statistic: data_modality };
+
+    return {modality: data_modality, sk: data_sk, statistic: data_statistic };
   }
 
   function update_color_map(min,max) {

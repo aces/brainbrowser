@@ -33,7 +33,7 @@
 /**
  * A ClearBuffer is a render node that clears the color buffer, zbuffer and/or
  * stencil buffer of the current render target.
- * 
+ *
  * @constructor
  */
 o3d.ClearBuffer = function() {

@@ -597,13 +597,16 @@ o3djs.effect.buildBumpInputCoords = function(bumpSampler) {
 o3djs.effect.buildBumpOutputCoords = function(bumpSampler) {
   var p = o3djs.effect;
   return bumpSampler ?
-      ('  ' + p.FLOAT3 + ' tangent' +
+      ('  ' + p.VARYING + p.FLOAT3 + ' ' +
+         p.VARYING_DECLARATION_PREFIX + 'tangent' +
           p.semanticSuffix(
               'TEXCOORD' + p.interpolant_++) + ';\n' +
-       '  ' + p.FLOAT3 + ' binormal' +
-          p.semanticSuffix('TEXCOORD' +
-              p.interpolant_++) + ';\n' +
-       '  ' + p.FLOAT2 + ' bumpUV' +
+       '  ' + p.VARYING + p.FLOAT3 + ' ' +
+          p.VARYING_DECLARATION_PREFIX + 'binormal' +
+          p.semanticSuffix(
+              'TEXCOORD' + p.interpolant_++) + ';\n' +
+       '  ' + p.VARYING + p.FLOAT2 + ' ' +
+          p.VARYING_DECLARATION_PREFIX + 'bumpUV' +
           p.semanticSuffix(
               'TEXCOORD' + p.interpolant_++) + ';\n') : '';
 };
@@ -1172,11 +1175,9 @@ o3djs.effect.buildStandardShaderString = function(material,
 
   /**
    * Builds the normal map part of the vertex shader.
-   * @param {boolean} opt_bumpSampler Whether there is a bump
-   *     sampler. Default = false.
    * @return {string} The code for normal mapping in the vertex shader.
    */
-  var bumpVertexShaderCode = function(opt_bumpSampler) {
+  var bumpVertexShaderCode = function() {
     return bumpSampler ?
         ('  ' + p.VERTEX_VARYING_PREFIX + 'binormal = ' +
          p.mul(p.FLOAT4 + '(' +
@@ -1193,21 +1194,27 @@ o3djs.effect.buildStandardShaderString = function(material,
    * @return {string} The code for normal computation in the pixel shader.
    */
   var getNormalShaderCode = function() {
-    return bumpSampler ?
-        (p.MATRIX3 + ' tangentToWorld = ' + p.MATRIX3 +
-            '(' + p.ATTRIBUTE_PREFIX + 'tangent,\n' +
+    if (bumpSampler) {
+      var type = getSamplerType(bumpSampler);
+      var tex2D = p.TEXTURE + type;
+      return (
+         p.MATRIX3 + ' tangentToWorld = ' + p.MATRIX3 +
+            '(' + p.PIXEL_VARYING_PREFIX + 'tangent,\n' +
          '                                   ' +
-         p.ATTRIBUTE_PREFIX + 'binormal,\n' +
+         p.PIXEL_VARYING_PREFIX + 'binormal,\n' +
          '                                   ' +
-         p.ATTRIBUTE_PREFIX + 'normal);\n' +
-         p.FLOAT3 + ' tangentNormal = tex2D(bumpSampler, ' +
-         p.ATTRIBUTE_PREFIX + 'bumpUV.xy).xyz -\n' +
+         p.PIXEL_VARYING_PREFIX + 'normal);\n' +
+         p.FLOAT3 + ' tangentNormal = ' + tex2D + '(bumpSampler, ' +
+         p.PIXEL_VARYING_PREFIX + 'bumpUV.xy).xyz -\n' +
          '                       ' + p.FLOAT3 +
          '(0.5, 0.5, 0.5);\n' + p.FLOAT3 + ' normal = ' +
          p.mul('tangentNormal', 'tangentToWorld') + ';\n' +
          'normal = normalize(' + p.PIXEL_VARYING_PREFIX +
-         'normal);\n') : '  ' + p.FLOAT3 + ' normal = normalize(' +
+         'normal);\n');
+    } else {
+      return '  ' + p.FLOAT3 + ' normal = normalize(' +
          p.PIXEL_VARYING_PREFIX + 'normal);\n';
+    }
   };
 
   /**

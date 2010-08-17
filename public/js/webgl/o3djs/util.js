@@ -263,6 +263,7 @@ o3djs.util.getBoundingBoxOfTree = function(treeRoot) {
  */
 o3djs.util.getPowerOfTwoSize = function(size) {
   var powerOfTwo = 1;
+  size = size - 1;
   while (size) {
     size = size >> 1;
     powerOfTwo = powerOfTwo << 1;

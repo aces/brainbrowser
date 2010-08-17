@@ -35,23 +35,23 @@
  * to be loaded.  Its use parallels that of XMLHttpRequest; you create one, call
  * open, set the onreadystatechange callback, and call send.
  * Note that unlike XMLHttpRequests, FileRequests cannot be reused.
- * 
+ *
  * For RawData loads, on success the RawData will be stored in the data field
  * on the FileRequest itself. It is only valid until the FileRequest is freed by
  * calling pack.removeObject(request).
- * 
+ *
  * var request = pack.createFileRequest("RAWDATA");
  * request.open("GET", url, true);
  * request.onreadystatechange = function() {
  *   if (request.done) {
  *     if (request.success) {
  *       var rawData = request.data;
- *       
+ *
  *       ...
  *     } else {
  *       dump('Load of rawdata returned failure.');
  *     }
- *     
+ *
  *     pack.removeObject(request);
  *   }
  * };

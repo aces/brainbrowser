@@ -206,7 +206,8 @@ o3d.Texture.prototype.getGLTextureFormat_ = function() {
     case o3d.Texture.DXT1:
     case o3d.Texture.DXT3:
     case o3d.Texture.DXT5:
-      notImplemented();
+    default:
+      o3d.notImplemented();
       return 0;
   }
 }
@@ -265,44 +266,18 @@ o3d.Texture.prototype.setFromCanvas_ =
 /**
  * Sets the values of the data stored in the texture.
  *
- * It is not recommend that you call this for large textures but it is useful
- * for making simple ramps or noise textures for shaders.
- *
- * NOTE: the number of values must equal the size of the texture * the number
- *  of elements. In other words, for a XRGB8 texture there must be
- *  width * height * 3 values. For an ARGB8, ABGR16F or ABGR32F texture there
- *  must be width * height * 4 values. For an R32F texture there must be
- *  width * height values.
- *
- * NOTE: the order of channels is R G B for XRGB8 textures and R G B A
- * for ARGB8, ABGR16F and ABGR32F textures so for example for XRGB8 textures
- *
- * [1, 0, 0] = a red pixel
- * [0, 0, 1] = a blue pixel
- *
- * For ARGB8, ABGR16F, ABGR32F textures
- *
- * [1, 0, 0, 0] = a red pixel with zero alpha
- * [1, 0, 0, 1] = a red pixel with one alpha
- * [0, 0, 1, 1] = a blue pixel with one alpha
- *
+ * @param {number} target The target to bind this texture to.
  * @param {number} level the mip level to update.
  * @param {number} values Values to be stored in the buffer.
+ * @private
  */
-o3d.Texture.prototype.set =
-    function(level, values) {
-  var target = this.texture_target_;
-  if (target == this.gl.TEXTURE_CUBE_MAP) {
-    target = this.gl.TEXTURE_CUBE_MAP_POSITIVE_X + face;
-  }
-
+o3d.Texture.prototype.setValues_ = function(target, level, values) {
   var pixels = new WebGLUnsignedByteArray(values.length);
   for (var i = 0; i < values.length; ++i) {
     pixels[i] = Math.min(255, Math.max(0, values[i] * 256.0));
   }
 
   var format = this.getGLTextureFormat_();
-
   this.gl.bindTexture(target, this.texture_);
   this.gl.texSubImage2D(
       target, level, 0, 0, this.texture_width_, this.texture_height_,
@@ -405,6 +380,40 @@ o3d.Texture2D.prototype.getRenderSurface =
 
 
 /**
+ * Sets the values of the data stored in the texture.
+ *
+ * It is not recommend that you call this for large textures but it is useful
+ * for making simple ramps or noise textures for shaders.
+ *
+ * NOTE: the number of values must equal the size of the texture * the number
+ *  of elements. In other words, for a XRGB8 texture there must be
+ *  width * height * 3 values. For an ARGB8, ABGR16F or ABGR32F texture there
+ *  must be width * height * 4 values. For an R32F texture there must be
+ *  width * height values.
+ *
+ * NOTE: the order of channels is R G B for XRGB8 textures and R G B A
+ * for ARGB8, ABGR16F and ABGR32F textures so for example for XRGB8 textures
+ *
+ * [1, 0, 0] = a red pixel
+ * [0, 0, 1] = a blue pixel
+ *
+ * For ARGB8, ABGR16F, ABGR32F textures
+ *
+ * [1, 0, 0, 0] = a red pixel with zero alpha
+ * [1, 0, 0, 1] = a red pixel with one alpha
+ * [0, 0, 1, 1] = a blue pixel with one alpha
+ *
+ * @param {number} level the mip level to update.
+ * @param {values} values Values to be stored in the buffer.
+ */
+o3d.Texture2D.prototype.set =
+    function(level, values) {
+  var target = this.texture_target_;
+  this.setValues_(target, level, values);
+};
+
+
+/**
  * Sets a rectangular area of values in a texture.
  *
  * Does clipping. In other words if you pass in a 10x10 pixel array
@@ -425,7 +434,59 @@ o3d.Texture2D.prototype.getRenderSurface =
  */
 o3d.Texture2D.prototype.setRect =
     function(level, destination_x, destination_y, source_width, values) {
-  o3d.notImplemented();
+  var format = this.getGLTextureFormat_();
+  var numChannels = (format == this.gl.RGB ? 3 : 4);
+  var source_height = (values.length / numChannels) / source_width;
+  var target = this.texture_target_;
+
+  // If completely clipped off, do nothing and return.
+  if (destination_x > this.width || destination_y > this.height ||
+      destination_x + source_width < 0 || destination_y + source_height < 0) {
+    return;
+  }
+
+  // Size of the unclipped, remaining rectangle.
+  var size_x = source_width;
+  if (destination_x < 0) {
+    size_x += destination_x;
+  }
+  if (destination_x + source_width > this.width) {
+    size_x -= (destination_x + source_width) - this.width;
+  }
+
+  var size_y = source_height;
+  if (destination_y < 0) {
+    size_y += destination_y;
+  }
+  if (destination_y + source_height > this.height) {
+    size_y -= (destination_y + source_height) - this.height;
+  }
+
+  // The upper left corner of the rectangle that is not clipped and will be
+  // copied into the texture.
+  var start_x = (destination_x < 0) ? Math.abs(destination_x) : 0;
+  var start_y = (destination_y < 0) ? Math.abs(destination_y) : 0;
+
+  var keptPixels = new WebGLUnsignedByteArray(size_x * size_y * numChannels);
+  var count = 0;
+  for (var y = 0; y < size_y; ++y) {
+    for (var x = 0; x < size_x; ++x) {
+      var t = (((start_y + y) * source_width) + (start_x + x)) * numChannels;
+      keptPixels[count++] = Math.min(255, Math.max(0, values[t] * 256.0));
+      keptPixels[count++] = Math.min(255, Math.max(0, values[t + 1] * 256.0));
+      keptPixels[count++] = Math.min(255, Math.max(0, values[t + 2] * 256.0));
+      keptPixels[count++] = Math.min(255, Math.max(0, values[t + 3] * 256.0));
+    }
+  }
+
+  // The (x, y) at which to begin drawing the rectangle on the original texture,
+  // measured from the *BOTTOM* left hand corner.
+  var where_x = Math.max(destination_x, 0);
+  var where_y = this.height - (Math.max(destination_y, 0) + size_y);
+
+  this.gl.bindTexture(target, this.texture_);
+  this.gl.texSubImage2D(target, level, where_x, where_y, size_x, size_y,
+      format, this.gl.UNSIGNED_BYTE, keptPixels);
 };
 
 
@@ -594,6 +655,7 @@ o3d.TextureCUBE.prototype.init_ =
   this.texture_target_ = this.gl.TEXTURE_CUBE_MAP;
   this.texture_width_ = edgeLength;
   this.texture_height_ = edgeLength;
+  this.format = format;
 
   this.gl.bindTexture(this.gl.TEXTURE_CUBE_MAP, this.texture_);
   // TODO(petersont): remove this allocation once Firefox supports
@@ -641,7 +703,9 @@ o3d.TextureCUBE.prototype.getRenderSurface =
  */
 o3d.TextureCUBE.prototype.set =
     function(face, level, values) {
-  o3d.notImplemented();
+  var target = this.gl.TEXTURE_CUBE_MAP_POSITIVE_X + face;
+  this.setValues_(target, level, values);
+  this.faces_set_[face] = true;
 };
 
 

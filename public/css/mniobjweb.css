@@ -1,21 +1,19 @@
 body {
-    background: white;
+    background: #B3B3B3;
+    font: arial 1em;
     color: black;
 }
+
 #controls {
-    width: 15%;
-    float: left;
-    display: inline;
-}
-.range_slider {
-    width: 200px;
+    width: 20%;
+    float:left;
+
 }
 
 #view-window {
-    width: 85%;
     float: left;
+    width: 79%;
     height: 100%;
-    display: inline;
 }
 #instructions {
     width: 100%;
@@ -47,12 +45,31 @@ body {
     float:left;
 }
 .box {
-    margin-top: 5px;
-    margin-right: 5px;
+    margin: 5px;
     border-style: solid;
-    border-width: 1px;
-    border-color: gray;
+    border-width: 2px;
+    border-color: #42429D;
 }
+
+
+
+.half_box {
+    width: 50%;
+    display: table-cell;
+}
+.combo_box {
+    margin-top: 5px;
+    display: table;
+}
+
+.full_box {
+    width: 100%;
+}
+
 .ui-button-text {
     font-size: 11px !important
+}
+
+select {
+    width: 75%;
 }

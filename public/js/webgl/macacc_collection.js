@@ -164,7 +164,8 @@ function MacaccObject(brainbrowser,path) {
       that.data_min = dataset.min;
       that.data_max = dataset.max;
     }
-
+    jQuery("#range-slider").slider("option", "min", dataset.min);
+    jQuery("#range-slider").slider("option", "max", dataset.max);
     update_color_map(that.data_min,that.data_max);
   }
 
@@ -177,7 +178,9 @@ function MacaccObject(brainbrowser,path) {
     if(!jQuery("#fix_range").attr("checked")){
       jQuery("#data-range-min").val(min);
       jQuery("#data-range-max").val(max);
-      update_scale(min,max);
+      jQuery("#range-slider").slider("values", 0, min);
+      jQuery("#range-slider").slider("values", 1, max);
+
     }
   }
 

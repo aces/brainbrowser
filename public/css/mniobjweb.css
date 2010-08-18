@@ -14,6 +14,7 @@ body {
     float: left;
     width: 79%;
     height: 100%;
+    margin-left: 1%;
 }
 #instructions {
     width: 100%;
@@ -45,7 +46,7 @@ body {
     float:left;
 }
 .box {
-    margin: 5px;
+
     border-style: solid;
     border-width: 2px;
     border-color: #42429D;
@@ -58,7 +59,6 @@ body {
     display: table-cell;
 }
 .combo_box {
-    margin-top: 5px;
     display: table;
 }
 
@@ -68,6 +68,11 @@ body {
 
 .ui-button-text {
     font-size: 11px !important
+}
+
+#range-slider {
+    width: 75%;
+    margin: auto;
 }
 
 select {

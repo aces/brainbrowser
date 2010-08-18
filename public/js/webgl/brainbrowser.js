@@ -338,10 +338,10 @@ function BrainBrowser(url) {
   /*
    * The following functions handle to preset views of the system.
    */
-  this.sagitalView = function(e) {
+  this.medialView = function(e) {
 
     if(that.model_data.num_hemispheres == 2 ) {
-      that.resetView();
+
       that.brainTransform.children[0].translate([-100,0,0]);
       that.brainTransform.children[1].translate([100,0,0]);
       that.brainTransform.children[0].rotateZ(that.math.degToRad(-90));
@@ -350,10 +350,10 @@ function BrainBrowser(url) {
     }
   };
 
-  this.reverseSagitalView = function(e) {
+  this.lateralView = function(e) {
 
     if(that.model_data.num_hemispheres == 2 ) {
-      that.resetView();
+
       that.brainTransform.children[0].translate([-100,0,0]);
       that.brainTransform.children[1].translate([100,0,0]);
       that.brainTransform.children[0].rotateZ(that.math.degToRad(-90));
@@ -370,18 +370,6 @@ function BrainBrowser(url) {
 
   this.inferiorView = function() {
     that.brainTransform.rotateY(that.math.degToRad(180));
-  };
-
-  this.medialView = function() {
-    that.brainTransform.rotateX(that.math.degToRad(-90));
-    that.brainTransform.rotateZ(that.math.degToRad(90));
-  };
-
-  this.lateralView = function() {
-    that.brainTransform.children[0].translate([-100,0,0]);
-    that.brainTransform.children[1].translate([100,0,0]);
-    that.brainTransform.children[0].rotateZ(that.math.degToRad(180));
-    that.brainTransform.children[1].rotateZ(that.math.degToRad(180));
   };
 
   this.anteriorView = function(e) {

@@ -158,8 +158,8 @@ function MacaccObject(brainbrowser,path) {
   function update_model(dataset) {
     that.dataArray = dataset.data;
     if(jQuery("#fix_range").attr("checked") == true) {
-      that.data_min = parseInt(jQuery("#data-range-min").val()) || dataset.min;
-      that.data_max = parseInt(jQuery("#data-range-max").val()) || dataset.min;
+      that.data_min = parseFloat(jQuery("#data-range-min").val()) || dataset.min;
+      that.data_max = parseFloat(jQuery("#data-range-max").val()) || dataset.min;
     }else {
       that.data_min = dataset.min;
       that.data_max = dataset.max;

@@ -34,7 +34,7 @@ function MacaccObject(brainbrowser,path) {
   that.range_max; //Max of range bar
   that.range_min; //Min of range bar
   that.spectrum;
-
+  that.coordinates = jQuery("#coordinates");
 
 
   //Gets the data related to a vertex in the image.
@@ -45,12 +45,26 @@ function MacaccObject(brainbrowser,path) {
     if(that.vertex) {
       update_map();
       jQuery(that.pickInfoElem).html('Vertex: ' + that.vertex);
+      jQuery(that.coordinates).children("#x-coord").val(info.position_vector[0]);
+      jQuery(that.coordinates).children("#y-coord").val(info.position_vector[1]);
+      jQuery(that.coordinates).children("#z-coord").val(info.position_vector[2]);
     }else {
       jQuery(that.pickInfoElem).html('--nothing--');
     }
 
 
-  }
+  };
+
+  this.flipXCoordinate = function() {
+    if(that.vertex > that.dataArray.length/2) {
+      that.vertex -= that.dataArray.length/2;
+    }else {
+      that.vertex += that.dataArray.length/2;
+    }
+    update_map();
+
+  };
+
   //Finds out what the value is at a certain point and displays it
   this.valueAtPoint = function(e,info) {
     var value = that.dataArray[info.vertex];
@@ -59,7 +73,7 @@ function MacaccObject(brainbrowser,path) {
     }else {
       jQuery("#value").html('--nothing--');
     }
-  }
+  };
 
   /**
    *  This method generates the color map using the spectrum

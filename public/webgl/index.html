@@ -33,7 +33,7 @@
       </div>
       <div class="combo_box full_box">
 	<div id="modality_choice" class="box half_box">
-	  Modality: <br /> 
+	  Modality: <br /> 	
 	  <input type="radio" class="data_controls" name="modality" VALUE="CT" checked="true">CT</input><br />
 	  <input type="radio" class="data_controls" name="modality" VALUE="AREA">AREA</input><br />
 	  <input type="radio" class="data_controls" name="modality" VALUE="VOL">VOL</input><br />
@@ -51,19 +51,6 @@
 	  
 	  <br />
 	</div>
-      </div>
-      <div id="data range" class="box full_box">
-	Thresholding:
-	<div id="data-range">
-	  Min: <input class="range-box" id="data-range-min" type="text" name="range_min" size="5" ></input><br />
-	  <p>
-	    <div id="range-slider" ></div>
-	  </p>
-	  Max: <input class="range-box" id="data-range-max" type="text" name="range_max" size="5" ></input>
-	  <input type="checkbox" id="fix_range">Fix Range</input><br />
-	  <a class="button" id="range_change">Change Range</a>
-	</div>
-	<div id="spectrum"></div>
       </div>
       <div class="combo_box full_box">
 	<div id="views" class="box half_box" >
@@ -94,26 +81,47 @@
 	  
 	</div>
 
-      <div id="coordinates" class="box half_box">
-	Coordinates: <br />
-	<p>
-	  <input id="x-coord" type="text" size="5"></input><input id="x-coord-flip" type="submit" value="X"></input><br />
-	  <input id="y-coord" type="text" size="5"></input> Y<br />
-	  <input id="z-coord" type="text" size="5"></input> Z
-	</p>
+	<div id="coordinates" class="box half_box">
+	  Coordinates: <br />
+	  <p>
+	    <input id="x-coord" type="text" size="5"></input><input id="x-coord-flip" type="submit" value="X"></input><br />
+	    <input id="y-coord" type="text" size="5"></input> Y<br />
+	    <input id="z-coord" type="text" size="5"></input> Z<br />
+	    <input id="v-coord" type="text" size="5"></input> V
+	  </p>
+	</div>
       </div>
-      
-      
+
+      <div class="combo_box full_box">
+	<div id="data range" class="box three_quater_box">
+	  Thresholding:
+	  <div id="data-range">
+	    Min: <input class="range-box" id="data-range-min" type="text" name="range_min" size="5" ></input><br />
+	    <p>
+	      <div id="range-slider" ></div>
+	    </p>
+	    Max: <input class="range-box" id="data-range-max" type="text" name="range_max" size="5" ></input>
+	    <input type="checkbox" id="fix_range">Fix Range</input><br />
+	    <a class="button" id="range_change">Change Range</a>
+	  </div>
+	</div>
+
+	<div id="pointer_settings" class="box quater_box">
+	  <input type="radio" class="pointer_control" name="pointer" VALUE="rotate" checked="true">Rotate</input><br />
+	  <input type="radio" class="pointer_control" name="pointer" VALUE="select">Select</input><br />
+	  <input type="radio" class="pointer_control" name="pointer" VALUE="check">Check</input><br />
+	  <input id="aal_atlas" type="radio" class="pointer_control" name="pointer" VALUE="AAL_atlas">AAL atlas</input><br />
+	</div>	
       </div>
-      
     </div>
+    
     <div Id="view-window">
       <div id="o3d"></div>  
       <div id="loading"></div>
     </div>
-    <script type="text/javascript" src="/js/jquery.js"></script>
-    <script type="text/javascript" src="/js/mniobj.js"></script>
-    <script type="text/javascript" src="/js/dataset.js"></script>
+    <script type="text/javascript" src="/webgl/js/jquery.js"></script>
+    <script type="text/javascript" src="/webgl/js/mniobj.js"></script>
+    <script type="text/javascript" src="/webgl/js/dataset.js"></script>
     <script type="text/javascript" src="/webgl/js/o3d-webgl/base.js"></script>
     <script type="text/javascript" src="/webgl/js/o3djs/base.js"></script> 
     <script type="text/javascript" src="/webgl/js/brainbrowser.js"></script>

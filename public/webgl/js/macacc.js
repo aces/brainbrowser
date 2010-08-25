@@ -53,7 +53,13 @@ jQuery(function () {
     macacc.pickInfoElem=jQuery("#vertex_info");
     jQuery("#x-coord-flip").click(macacc.flipXCoordinate); //flip x from one hemisphere to the other.
 
-    jQuery('#screenshot').click(function(event) {jQuery(this).attr("href",bb.client.toDataURL());});
+    jQuery("[name=pointer]").change(function(e) {
+      if(jQuery("[name=pointer]:checked").val() == "AAL_atlas") {
+	macacc.show_atlas();
+      }
+    });
+
+    jQuery('#screenshot').click(function(event) {jQuery(this).attr("href",bb.client.toDataUR());});
 
   };
   brainbrowser.setup('/models/surf_reg_model_both.obj');

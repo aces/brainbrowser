@@ -214,21 +214,23 @@ function BrainBrowser(url) {
     that.client.setRenderCallback(that.renderCallback);
     o3djs.event.addEventListener(o3dElement, 'wheel', that.scrollMe);
     window.document.onkeypress = that.keyPressedCallback;
-     o3djs.event.addEventListener(o3dElement, 'mousedown', function (e) {
-      if(e.shiftKey && e.button == that.o3d.Event.BUTTON_LEFT && !e.ctrlKey) {
-	if(that.clickCallback){
+    o3djs.event.addEventListener(o3dElement, 'mousedown', function (e) {
+
+      var pointer_setting=jQuery('[name=pointer]:checked').val();
+
+      if(pointer_setting=="rotate" ){
+	that.startDragging(e);
+      }else if(e.shiftkey || pointer_setting == "select") {;
+
+	if(that.clickCallback) {
 	  click(e,that.clickCallback);
 	}
 
-      }else if(e.ctrlKey && e.button == that.o3d.Event.BUTTON_LEFT && !e.shiftKey) {
+      }else if((e.ctrlKey && e.button == that.o3d.Event.BUTTON_LEFT) || pointer_setting == "check") {
 	if(that.valueAtPointCallback) {
 	  that.click(e,that.valueAtPointCallback);
 	}
-
-      }else if(e.button == that.o3d.Event.BUTTON_LEFT){
-	that.startDragging(e);
       }
-
 
 
     });
@@ -322,7 +324,7 @@ function BrainBrowser(url) {
     }else {
       that.rightHemisphereVisible(false);
     }
-
+    that.thatRot = that.math.matrix4.mul(that.brainTransform.localMatrix, that.math.matrix4.identity());
   };
 
   this.leftHemisphereVisible = function(state)  {
@@ -482,6 +484,7 @@ function BrainBrowser(url) {
    *
    */
   function click(e,click_callback) {
+
     var worldRay = o3djs.picking.clientPositionToWorldRay(
       e.x,
       e.y,
@@ -551,6 +554,7 @@ function BrainBrowser(url) {
       var rotationQuat = that.aball.drag([e.x, e.y]);
       var rot_mat = that.quaternions.quaternionToRotation(rotationQuat);
       that.thatRot = that.math.matrix4.mul(that.lastRot, rot_mat);
+
 
       if(that.drag_hemisphere === 0 || that.drag_hemisphere === 1) {
 

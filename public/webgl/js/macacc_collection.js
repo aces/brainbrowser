@@ -44,10 +44,11 @@ function MacaccObject(brainbrowser,path) {
     that.vertex = info.vertex;
     if(that.vertex) {
       update_map();
-      jQuery(that.pickInfoElem).html('Vertex: ' + that.vertex);
-      jQuery(that.coordinates).children("#x-coord").val(info.position_vector[0]);
-      jQuery(that.coordinates).children("#y-coord").val(info.position_vector[1]);
-      jQuery(that.coordinates).children("#z-coord").val(info.position_vector[2]);
+      jQuery("#x-coord").val(info.position_vector[0]);
+      jQuery("#y-coord").val(info.position_vector[1]);
+      jQuery("#z-coord").val(info.position_vector[2]);
+      jQuery("#v-coord").val(info.vertex);
+
     }else {
       jQuery(that.pickInfoElem).html('--nothing--');
     }
@@ -74,6 +75,8 @@ function MacaccObject(brainbrowser,path) {
       jQuery("#value").html('--nothing--');
     }
   };
+
+
 
   /**
    *  This method generates the color map using the spectrum
@@ -195,6 +198,11 @@ function MacaccObject(brainbrowser,path) {
     that.dataSet.get_data(that.vertex,get_data_controls(),update_model);
     jQuery(that.pickInfoElem).html("Viewing data for vertex: " + that.vertex  );
   }
+
+  this.show_atlas = function() {
+    that.dataSet.get_data("aal_atlas",get_data_controls(),update_model);
+    jQuery(that.pickInfoElem).html("Viewing data for vertex: " + that.vertex  );
+  };
 
   function update_range(min,max) {
     if(!jQuery("#fix_range").attr("checked")){

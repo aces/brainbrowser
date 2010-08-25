@@ -289,12 +289,10 @@ o3djs.serialization.Deserializer = function(pack, json) {
 
     'o3d.Skin': function(deserializer, object, json) {
       if ('custom' in json) {
-        if ('binaryRange' in json.custom) {
-          var rawData = deserializer.archiveInfo.getFileByURI('skins.bin');
-          object.set(rawData,
-                     json.custom.binaryRange[0],
-                     json.custom.binaryRange[1] - json.custom.binaryRange[0]);
-        }
+        var rawData = deserializer.archiveInfo.getFileByURI('skins.bin');
+        object.set(rawData,
+                   json.custom.binaryRange[0],
+                   json.custom.binaryRange[1] - json.custom.binaryRange[0]);
       }
     },
 

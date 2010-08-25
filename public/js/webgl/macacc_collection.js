@@ -138,12 +138,11 @@ function MacaccObject(brainbrowser,path) {
   }
 
   function get_data_controls() {
-    var data_modality = jQuery("[name=modality]:checked").val(); //CT,AREA or Volume
+    var data_type = jQuery("#data-type").val(); //CT,AREA or Volume
     var data_sk = jQuery("#data-sk").val(); //Smoothing Kernel
-    var data_statistic = jQuery("[name=statistic]:checked").val();
+    var data_modality = jQuery("#data-modality").val();
 
-
-    return {modality: data_modality, sk: data_sk, statistic: data_statistic };
+    return {modality: data_type, sk: data_sk, statistic: data_modality };
   }
 
   function update_color_map(min,max) {
@@ -158,22 +157,13 @@ function MacaccObject(brainbrowser,path) {
   function update_model(dataset) {
     that.dataArray = dataset.data;
     if(jQuery("#fix_range").attr("checked") == true) {
-      if(!(that.data_min = parseFloat(jQuery("#data-range-min").val()))) {
-	if(!that.data_min === 0 ) {
-	  that.data_min = dataset.min;
-	}
-      }
-      if(!(that.data_max = parseFloat(jQuery("#data-range-max").val()))) {
-	if(!that.data_max === 0 ) {
-	  that.data_max = dataset.max;
-	}
-      }
+      that.data_min = parseInt(jQuery("#data-range-min").val()) || dataset.min;
+      that.data_max = parseInt(jQuery("#data-range-max").val()) || dataset.min;
     }else {
       that.data_min = dataset.min;
       that.data_max = dataset.max;
     }
-    jQuery("#range-slider").slider("option", "min", dataset.min);
-    jQuery("#range-slider").slider("option", "max", dataset.max);
+
     update_color_map(that.data_min,that.data_max);
   }
 
@@ -186,9 +176,7 @@ function MacaccObject(brainbrowser,path) {
     if(!jQuery("#fix_range").attr("checked")){
       jQuery("#data-range-min").val(min);
       jQuery("#data-range-max").val(max);
-      jQuery("#range-slider").slider("values", 0, min);
-      jQuery("#range-slider").slider("values", 1, max);
-
+      update_scale(min,max);
     }
   }
 

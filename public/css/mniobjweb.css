@@ -1,6 +1,6 @@
 body {
     background: #B3B3B3;
-    font: arial 1em;
+    font: arial, 0.8em;
     color: black;
 }
 
@@ -65,6 +65,16 @@ body {
 .full_box {
     width: 100%;
 }
+.quater_box {
+    width: 30%;
+    display: table-cell;
+}
+
+.three_quater_box {
+    width:70%
+    display: table-cell;
+}
+
 
 .ui-button-text {
     font-size: 11px !important

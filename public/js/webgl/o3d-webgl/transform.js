@@ -626,31 +626,6 @@ o3d.Transform.transformPoint = function(m, v) {
 
 
 /**
- * Takes a 4-by-4 matrix and a vector with 4 entries,
- * interprets the vector as a point, transforms that point by the matrix, and
- * returns the result as a vector with 4 entries.
- * @param {!o3djs.math.Matrix4} m The matrix.
- * @param {!o3djs.math.Vector4} v The vector.
- * @return {!o3djs.math.Vector4} The transformed vector.
- */
-o3d.Transform.multiplyVector = function(m, v) {
-  var v0 = v[0];
-  var v1 = v[1];
-  var v2 = v[2];
-  var v3 = v[3];
-  var m0 = m[0];
-  var m1 = m[1];
-  var m2 = m[2];
-  var m3 = m[3];
-
-  return [(v0 * m0[0] + v1 * m1[0] + v2 * m2[0] + v3 * m3[0]),
-          (v0 * m0[1] + v1 * m1[1] + v2 * m2[1] + v3 * m3[1]),
-          (v0 * m0[2] + v1 * m1[2] + v2 * m2[2] + v3 * m3[2]),
-          (v0 * m0[3] + v1 * m1[3] + v2 * m2[3] + v3 * m3[3])];
-};
-
-
-/**
  * Takes a 4-by-4 matrix and a vector with 3 entries,
  * interprets the vector as a point, transforms that point by the matrix,
  * returning the z-component of the result only.
@@ -832,12 +807,8 @@ o3d.Transform.prototype.rotateZYX =
  */
 o3d.Transform.prototype.axisRotate =
     function(axis, angle) {
-  o3d.Transform.axisRotateMatrix(this.localMatrix, axis, angle);
-};
+  var m = this.localMatrix;
 
-o3d.Transform.axisRotateMatrix =
-    function(m, axis, angle, opt_target) {
-  opt_target = opt_target || m;
   var x = axis[0];
   var y = axis[1];
   var z = axis[2];
@@ -884,25 +855,23 @@ o3d.Transform.axisRotateMatrix =
   var m32 = m3[2];
   var m33 = m3[3];
 
-  opt_target[0].splice(0, 4,
+  m0.splice(0, 4,
       r00 * m00 + r01 * m10 + r02 * m20,
       r00 * m01 + r01 * m11 + r02 * m21,
       r00 * m02 + r01 * m12 + r02 * m22,
       r00 * m03 + r01 * m13 + r02 * m23);
 
-  opt_target[1].splice(0, 4,
+  m1.splice(0, 4,
       r10 * m00 + r11 * m10 + r12 * m20,
       r10 * m01 + r11 * m11 + r12 * m21,
       r10 * m02 + r11 * m12 + r12 * m22,
       r10 * m03 + r11 * m13 + r12 * m23);
 
-  opt_target[2].splice(0, 4,
+  m2.splice(0, 4,
       r20 * m00 + r21 * m10 + r22 * m20,
       r20 * m01 + r21 * m11 + r22 * m21,
       r20 * m02 + r21 * m12 + r22 * m22,
       r20 * m03 + r21 * m13 + r22 * m23);
-
-  opt_target[3].splice(0, 4, m30, m31, m32, m33);
 };
 
 

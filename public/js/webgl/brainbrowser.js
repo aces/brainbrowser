@@ -258,90 +258,29 @@ function BrainBrowser(url) {
   };
 
 
-  /*
-   * This function is ran on every render.
-   */
   this.renderCallback = function(renderEvent) {
-    that.setClientSize();
-  };
+    //this.clock += renderEvent.elapsedTime * this.timeMult;
+    // Rotate the brain around the Y axis.
+    //this.brainTransform.identity();
+    //this.brainTransform.rotateZ(0.5 * this.clock);
+    // this.brainTransform.rotateX(0.5 * this.clock);
 
-  /**
-   * Resets the view of the scene by resetting its local matrix to the identity
-   * matrix.
-   */
-  that.resetView = function() {
-    that.brainTransform.children[0].visible=true;
-    that.brainTransform.children[1].visible=true;
-    that.brainTransform.identity();
-    that.brainTransform.children[0].identity();
-    that.brainTransform.children[1].identity();
+  that.setClientSize();
+
 
   };
 
-
-
-
-  this.setupView = function(e) {
-    that.resetView();
-    var params=that.getViewParams(); //Must be defined by calling app
-    switch(params.view) {
-      case 'superior':
-	that.superiorView();
-	break;
-      case 'medial':
-	that.medialView();
-	break;
-      case 'anterior':
-	that.anteriorView();
-	break;
-      case 'inferior':
-	that.inferiorView();
-	break;
-      case 'lateral':
-	that.lateralView();
-	break;
-      case 'posterior':
-	that.posteriorView();
-	break;
-      default:
-	that.superiorView();
-	break;
-
+  this.separateHemispheres = function(e) {
+    if(that.model_data.num_hemispheres == 2 ) {
+      this.brainTransform.children[0].translate([-1,0,0]);
+      this.brainTransform.children[1].translate([1,0,0]);
     }
-
-    /*
-     * Decides if the hemispheres need to be shown
-     */
-    if(params.left  == true) {
-      that.leftHemisphereVisible(true);
-    }else {
-      that.leftHemisphereVisible(false);
-    }
-    if(params.right == true ) {
-      that.rightHemisphereVisible(true);
-    }else {
-      that.rightHemisphereVisible(false);
-    }
-
   };
 
-  this.leftHemisphereVisible = function(state)  {
-    that.brainTransform.children[0].visible = state;
-  };
-
-  this.rightHemisphereVisible = function(state)  {
-    that.brainTransform.children[1].visible = state;
-  };
-
-
-
-  /*
-   * The following functions handle to preset views of the system.
-   */
-  this.medialView = function(e) {
+  this.sagitalView = function(e) {
 
     if(that.model_data.num_hemispheres == 2 ) {
-
+      that.resetView();
       that.brainTransform.children[0].translate([-100,0,0]);
       that.brainTransform.children[1].translate([100,0,0]);
       that.brainTransform.children[0].rotateZ(that.math.degToRad(-90));
@@ -350,10 +289,10 @@ function BrainBrowser(url) {
     }
   };
 
-  this.lateralView = function(e) {
+  this.reverseSagitalView = function(e) {
 
     if(that.model_data.num_hemispheres == 2 ) {
-
+      that.resetView();
       that.brainTransform.children[0].translate([-100,0,0]);
       that.brainTransform.children[1].translate([100,0,0]);
       that.brainTransform.children[0].rotateZ(that.math.degToRad(-90));
@@ -364,12 +303,16 @@ function BrainBrowser(url) {
     }
   };
 
-  this.superiorView = function() {
-    //nothing should be already done with reset view, placeholder
+  this.leftView = function(e) {
+    that.resetView();
+    that.brainTransform.rotateX(that.math.degToRad(-90));
+    that.brainTransform.rotateZ(that.math.degToRad(90));
   };
 
-  this.inferiorView = function() {
-    that.brainTransform.rotateY(that.math.degToRad(180));
+  this.rightView = function(e) {
+    that.resetView();
+    that.brainTransform.rotateX(that.math.degToRad(-90));
+    that.brainTransform.rotateZ(that.math.degToRad(-90));
   };
 
   this.anteriorView = function(e) {
@@ -383,21 +326,10 @@ function BrainBrowser(url) {
     that.brainTransform.rotateX(that.math.degToRad(-90));
   };
 
-
-  /*
-   * Adds space between the hemispheres
-   */
-  this.separateHemispheres = function(e) {
-    if(that.model_data.num_hemispheres == 2 ) {
-      this.brainTransform.children[0].translate([-1,0,0]);
-      this.brainTransform.children[1].translate([1,0,0]);
-    }
-  };
-
-
   /*
    * Creates the client area.
    */
+
   this.setClientSize= function() {
 
     var newWidth  = parseInt(that.client.width);
@@ -654,6 +586,16 @@ function BrainBrowser(url) {
      return true;
    };
 
+  /**
+   * Resets the view of the scene by resetting its local matrix to the identity
+   * matrix.
+   */
+  that.resetView = function() {
+    that.brainTransform.identity();
+    that.brainTransform.children[0].identity();
+    that.brainTransform.children[1].identity();
+
+  };
 
 
 

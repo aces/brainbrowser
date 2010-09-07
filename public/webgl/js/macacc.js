@@ -45,8 +45,8 @@ jQuery(function () {
       jQuery("#range-slider").slider('values', 0, jQuery(this).val());
     });
 
-    jQuery("#data-range-min").change(function(e) {
-      jQuery("#range-slider").slider('values', 0, jQuery(this).val());
+    jQuery("#data-range-max").change(function(e) {
+      jQuery("#range-slider").slider('values', 1, jQuery(this).val());
     });
 
     jQuery('.data_controls').change(macacc.data_control_change);

@@ -76,7 +76,7 @@ function BrainBrowser(url) {
       that.pack,
       that.client.root,
       that.client.renderGraphRoot,
-      [0,0,0,0]);
+      [0.5,0.5,0.5,1]);
     that.viewInfo = viewInfo;
     // Set up a simple orthographic view.
     viewInfo.drawContext.projection = that.math.matrix4.perspective(

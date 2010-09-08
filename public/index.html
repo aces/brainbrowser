@@ -1,169 +1,135 @@
 <html>  
-    <head>  
-       <meta http-equiv="content-type" content="text/html; charset=UTF-8">  
-       <title>MNI Object web viewer</title>  
-       <script type="text/javascript" src="/js/jquery.js"></script>
-       <script type="text/javascript" src="/js/mniobj.js"></script>
-       <script type="text/javascript" src="/js/dataset.js"></script>
-       <script type="text/javascript" src="/js/o3djs/base.js"></script> 
-       <script type="text/javascript" src="/js/brainbrowser.js"></script>
-       <script type="text/javascript" src="/js/macacc_collection.js"></script>  
-       <script tyep="text/javascript" src="/js/macacc.js"></script>
-       <script type="text/javascript" src="/js/jquery-ui-1.8.custom.min.js"></script>
-       <link type="text/css" href="css/overcast/jquery-ui-1.8.custom.css" rel="Stylesheet" />
-       <link type="text/css" href="css/mniobjweb.css" rel="Stylesheet" />
-    </head>  
-    <body>  
-      <h1>GBRAIN: Web Brain Browser</h1>  
-       
-       <br/> 
-       <div id="controls">
-	    <h2>Instructions:</h2>
-	    <p>
-	    Left Click to move the model<br />
-	    Shift+left click to select a point on the model<br />
-	    ctrl+left click to see that value at a point on the model<br />
-	    Use W, S, A, D to rotate.<br />
-	    Use the Scroll Wheel to zoom(not suported on mac) or up/down arrows
+  <head>  
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">  
+    <title>MNI Object web viewer</title>  
+    
+  </head>  
+  <body>  
+
+    <div id="controls">
+      
+      <div id="surface_choice" class="box full_box">
+	Surface Choice: <br />
+	<select class="controls" id="model">
+	  <option VALUE="normal">Normal</option>
+	  <option VALUE="inflated">Inflated</option>
+	</select>
+	<br />
+      </div>
+      <div id="scale_space" class="box full_box">
+	Scale Space: <br />
+	<select class="data_controls" id="data-sk">
+	  <option VALUE="0mm" >0mm</option>
+	  <option VALUE="5mm">5mm</option>
+	  <option VALUE="10mm">10mm</option>
+	  <option VALUE="15mm">15mm</option>
+	  <option VALUE="20mm">20mm</option>
+	  <option VALUE="25mm" selected="selected">25mm</option>
+	  <option VALUE="30mm">30mm</option>
+	  <option VALUE="35mm">35mm</option>
+	  <option VALUE="40mm">40mm</option>
+	</select>
+	<br />
+      </div>
+      <div class="combo_box full_box">
+	<div id="modality_choice" class="box half_box">
+	  Modality: <br /> 	
+	  <input type="radio" class="data_controls" name="modality" VALUE="CT" checked="true">CT</input><br />
+	  <input type="radio" class="data_controls" name="modality" VALUE="AREA">AREA</input><br />
+	  <input type="radio" class="data_controls" name="modality" VALUE="VOL">VOL</input><br />
+
+	  <br />
+	</div>
+
+
+	<div id="statistic_choice" class="box half_box">
+	  Statistic: <br />	
+	  
+	  <input type="radio" class="data_controls" name="statistic"  VALUE="T" checked="true">T</input><br />
+	  <input type="radio" class="data_controls" name="statistic"  VALUE="P1">P1</input><br />
+	  <input type="radio" class="data_controls" name="statistic"  VALUE="P2">P2</input><br />
+	  
+	  <br />
+	</div>
+      </div>
+      <div class="combo_box full_box">
+	<div id="views" class="box half_box" >
+	  Views:<br />
+	  <div id="hem_views_1" class="half_box">
+	    <input id="left_hem_visible" class="view_button" type="checkbox" checked="true">Left </input>
+	    <br />
+	    <input id="hem_superior" class="view_button" type="radio" name="hem_view" value="superior" checked="true">Superior</input>
 	    
+	    <br />
+	    <input id="hem_medial" class="view_button" type="radio" name="hem_view" value="medial">Medial</input>
+	    
+	    <br />
+	    <input id="hem_anterior" class="view_button" type="radio" name="hem_view" value="anterior">Anterior</input>
+	    
+	  </div>
+	  <div id="hem_views_2" class="half_box">
+	    <input id="right_hem_visible" class="view_button" type="checkbox" checked="true">Right</input><br />
+	    <input id="hem_inferior" class="view_button" type="radio" name="hem_view" value="inferior">Inferior</input>	     
+	    <br />
+	    <input id="hem_lateral" class="view_button" type="radio" name="hem_view" value="lateral">Lateral</input>
+	    <br />
+	    <input id="hem_posterior" class="view_button" type="radio" name="hem_view" value="posterior">Posterior</input>
+	  </div>
+	  <p>
+	    <a class="button" id="resetview">Reset View</a>
+	  </p>
+	  
+	</div>
+
+	<div id="coordinates" class="box half_box">
+	  Coordinates: <br />
+	  <p>
+	    <input id="x-coord" type="text" size="5"></input><input id="x-coord-flip" type="submit" value="X"></input><br />
+	    <input id="y-coord" type="text" size="5"></input> Y<br />
+	    <input id="z-coord" type="text" size="5"></input> Z<br />
+	    <input id="v-coord" type="text" size="5"></input> V
+	  </p>
+	</div>
+      </div>
+
+      <div class="combo_box full_box">
+	<div id="data range" class="box three_quater_box">
+	  Thresholding:
+	  <div id="data-range">
+	    Min: <input class="range-box" id="data-range-min" type="text" name="range_min" size="5" ></input><br />
+	    <p>
+	      <div id="range-slider" ></div>
 	    </p>
-	  <h2>Controls</h2>
-	 
-	 Model:
-	 <select class="controls" id="model">
-	   <option VALUE="normal">Normal</option>
-	   <option VALUE="inflated">Inflated</option>
-	 </select>
-	 <br />
-	 Modality
-	 <select class="data_controls" id="data-type">
-	   <option VALUE="CT">Cortical Thickness</option>
-	   <option VALUE="AREA">Area</option>
-	   <option VALUE="Volume">Volume</option>
-	 </select>
-	 <br />
-	 Smoothing Kernel:
-	 <select class="data_controls" id="data-sk">
-	   <option VALUE="0mm">0mm</option>
-	   <option VALUE="5mm">5mm</option>
-	   <option VALUE="10mm">10mm</option>
-	   <option VALUE="15mm">15mm</option>
-	   <option VALUE="20mm">20mm</option>
-	   <option VALUE="25mm">25mm</option>
-	   <option VALUE="30mm">30mm</option>
-	   <option VALUE="35mm">35mm</option>
-	   <option VALUE="40mm">40mm</option>
-	 </select>
-	 <br />
-	 Statistic
-	 <select class="data_controls" id="data-modality">
-	   <option VALUE="T">T</option>
-	   <option VALUE="P1">P1</option>
-	   <option VALUE="P2">P2</option>
-	 </select>
-	 <br />
-	 Data Range:
-	 <div id="data-range">
-	   Min: <input class="range-box" id="data-range-min" type="text" name="range_min" size="5"><br />
-	   Max: <input class="range-box" id="data-range-max" type="text" name="range_max" size="5">
-	   <a class="button" id="range_change">Change Range</a><br />
-	   <input type="checkbox" id="fix_range">Fix Range
-	 </div>
-	 <div>
-	   <div id="spectrum"></div>
-	   <div id="scale">
-	     <span id="min_mark" class="mark"></span>
-	     <span id="scale_space" class="empty"> </span>
-	     <span id="mid_mark" class="mark"> </span>
-	     <span id="scale_space" class="empty"> </span>
-	     <span id="max_mark" class="mark"> </span>
-	   </div>
-	 </div>
-	 
-	 <br />
-	 <a class="button" id="fillmode">Fill Mode</a>
-	 <a class="button" id="resetview">Reset</a><br />
-	 <a class="button" id="screenshot">Screenshot</a>
-	 <div id="views">
-	   Views:<br />
-	   <a class="button" id="sagitalView">Sagital</a><br />
-	   <a class="button" id="reverseSagitalView">Reverse Sagital</a>
-	 </div>
-	 <br />
+	    Max: <input class="range-box" id="data-range-max" type="text" name="range_max" size="5" ></input>
+	    <input type="checkbox" id="fix_range">Fix Range</input><br />
+	    <a class="button" id="range_change">Change Range</a>
+	  </div>
+	</div>
 
-       </div>
+	<div id="pointer_settings" class="box quater_box">
+	  <input type="radio" class="pointer_control" name="pointer" VALUE="rotate" checked="true">Rotate</input><br />
+	  <input type="radio" class="pointer_control" name="pointer" VALUE="select">Select</input><br />
+	  <input type="radio" class="pointer_control" name="pointer" VALUE="check">Check</input><br />
+	  <input id="aal_atlas" type="radio" class="pointer_control" name="pointer" VALUE="AAL_atlas">AAL atlas</input><br />
+	</div>	
+      </div>
+    </div>
+    
+    <div Id="view-window">
+      <div id="o3d"></div>  
+      <div id="loading"></div>
+    </div>
+    <script type="text/javascript" src="/webgl/js/jquery.js"></script>
+    <script type="text/javascript" src="/webgl/js/mniobj.js"></script>
+    <script type="text/javascript" src="/webgl/js/dataset.js"></script>
+    <script type="text/javascript" src="/webgl/js/o3d-webgl/base.js"></script>
+    <script type="text/javascript" src="/webgl/js/o3djs/base.js"></script> 
+    <script type="text/javascript" src="/webgl/js/brainbrowser.js"></script>
+    <script type="text/javascript" src="/webgl/js/macacc_collection.js"></script>  
+    <script tyep="text/javascript" src="/webgl/js/macacc.js"></script>
+    <script type="text/javascript" src="/webgl/js/jquery-ui-1.8.2.custom.min.js"></script>
+    <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.2.custom.css" rel="Stylesheet" />
+    <link type="text/css" href="/css/mniobjweb.css" rel="Stylesheet" />
 
-
-       <div id="view-window">
-       <div id="o3d" ></div>  
-       <div style="display:none">  
-          <!-- Start of effect -->  
-          <textarea id="shader" name="shader" cols="80" rows="20"
- style="display: none;">uniform float4x4 worldViewProjection : WORLDVIEWPROJECTION;
-uniform float4x4 world : WORLD;
-uniform float4x4 viewInverse : VIEWINVERSE;
-uniform float4x4 worldInverseTranspose : WORLDINVERSETRANSPOSE;
-uniform float3 lightWorldPos;
-uniform float4 ambientIntensity;
-uniform float4 lightIntensity;
-uniform float4 emissive;
-uniform float4 ambient;
-uniform float4 colorMult;
-uniform float4 diffuse;
-uniform float4 specular;
-uniform float shininess;
-
-struct VertexShaderInput {
-  float4 position : POSITION;
-  float4 normal : NORMAL;
-  float4 color : COLOR;
-};
-
-struct PixelShaderInput {
-  float4 position : POSITION;
-  float3 normal : TEXCOORD1;
-  float3 worldPosition : TEXCOORD4;
-  float4 color : COLOR;
-};
-
-PixelShaderInput vertexShaderFunction(VertexShaderInput input) {
-  PixelShaderInput output;
-  output.position = mul(input.position, worldViewProjection);
-  float3 worldPosition = mul(input.position, world).xyz;
-  output.normal = mul(input.normal, worldInverseTranspose).xyz;
-  output.worldPosition = worldPosition;
-  output.color = input.color;	    
-  return output;
-}
-
-float4 pixelShaderFunction(PixelShaderInput input) : COLOR { 
-  diffuse = input.color;
-  float3 surfaceToLight = normalize(lightWorldPos - input.worldPosition);
-  float3 worldNormal = normalize(input.normal);
-  float3 surfaceToView = normalize(viewInverse[3].xyz - input.worldPosition);
-  float3 halfVector = normalize(surfaceToLight + surfaceToView);
-  float4 litResult = lit(dot(worldNormal, surfaceToLight),
-                         dot(worldNormal, halfVector), shininess);
-  float4 outColor = ambientIntensity * ambient * colorMult;
-  outColor += lightIntensity * (diffuse * colorMult * litResult.y +
-      specular * litResult.z);
-  outColor += emissive;
-  return float4(outColor.rgb, diffuse.a * colorMult.a);
-}
-
-// #o3d VertexShaderEntryPoint vertexShaderFunction
-// #o3d PixelShaderEntryPoint pixelShaderFunction
-// #o3d MatrixLoadOrder RowMajor
-
-</textarea>  
-          <!-- End of effect -->  
-     </div>  
-     <div id="info">
-     <div id="vertex_info">Viewing data for  vertex: </div>  
-     <div id="value">Value at vertex ---:</div>
-     </div>
-     <div id="loading"></div>
-       
-
-</body>  
+  </body>  
 </html>  

@@ -1,4 +1,5 @@
-<html>  
+<!doctype html>
+<html lang="en">  
   <head>  
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">  
     <title>MNI Object web viewer</title>  
@@ -46,8 +47,8 @@
 	  Statistic: <br />	
 	  
 	  <input type="radio" class="data_controls" name="statistic"  VALUE="T" checked="true">T</input><br />
-	  <input type="radio" class="data_controls" name="statistic"  VALUE="P1">P1</input><br />
-	  <input type="radio" class="data_controls" name="statistic"  VALUE="P2">P2</input><br />
+	  <input type="radio" class="data_controls" name="statistic"  VALUE="P1">RFT_P(Vertex)</input><br />
+	  <input type="radio" class="data_controls" name="statistic"  VALUE="P2">RFT_P(Cluster)</input><br />
 	  
 	  <br />
 	</div>
@@ -102,23 +103,26 @@
 	    </p>
 	    Max: <input class="range-box" id="data-range-max" type="text" name="range_max" size="5" ></input>
 	    <input type="checkbox" id="fix_range">Fix Range</input><br />
-	    <a class="button" id="range_change">Change Range</a>
 	  </div>
 	</div>
 
 	<div id="pointer_settings" class="box quater_box">
 	  <input type="radio" class="pointer_control" name="pointer" VALUE="rotate" checked="true">Rotate</input><br />
 	  <input type="radio" class="pointer_control" name="pointer" VALUE="select">Select</input><br />
-	  <input type="radio" class="pointer_control" name="pointer" VALUE="check">Check</input><br />
 	  <input id="aal_atlas" type="radio" class="pointer_control" name="pointer" VALUE="AAL_atlas">AAL atlas</input><br />
 	</div>	
       </div>
     </div>
     
+    <!-- The webgl window and loading messages if any -->
     <div Id="view-window">
       <div id="o3d"></div>  
       <div id="loading"></div>
     </div>
+
+    <!-- all the scripts and css -->
+    <link type="text/css" href="/webgl/css/ui-darkness/jquery-ui-1.8.2.custom.css" rel="Stylesheet" />
+    <link type="text/css" href="/webgl/css/mniobjweb.css" rel="Stylesheet" />
     <script type="text/javascript" src="/webgl/js/jquery.js"></script>
     <script type="text/javascript" src="/webgl/js/mniobj.js"></script>
     <script type="text/javascript" src="/webgl/js/dataset.js"></script>
@@ -128,8 +132,6 @@
     <script type="text/javascript" src="/webgl/js/macacc_collection.js"></script>  
     <script tyep="text/javascript" src="/webgl/js/macacc.js"></script>
     <script type="text/javascript" src="/webgl/js/jquery-ui-1.8.2.custom.min.js"></script>
-    <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.2.custom.css" rel="Stylesheet" />
-    <link type="text/css" href="/css/mniobjweb.css" rel="Stylesheet" />
 
   </body>  
 </html>  

@@ -35,10 +35,17 @@ function MacaccObject(brainbrowser,path) {
   that.range_min; //Min of range bar
   that.spectrum;
   that.coordinates = jQuery("#coordinates");
-
+  that.selectPoint = null;
 
   //Gets the data related to a vertex in the image.
   this.pickClick = function(e,info) {
+    //Puts a point at the right vertex.
+    //if(that.selectPoint != null) {
+      //that.point.moveTo(info.vertex.position_vector);
+    //}else {
+      //that.point = brainbrowser.createPoint(info.vertex.position_vector);
+    //}
+
 
     jQuery(that.pickInfoElem).html("LOADING MAP................");
     that.vertex = info.vertex;

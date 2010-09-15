@@ -202,8 +202,9 @@ function MNIObject(string) {
     if(distances[2] < distances[closest]) {
       closest = 2;
     }
-
-    return triangle[closest] + offset;
+    var vertex = triangle[closest] + offset;
+    var position_vector = vertices[closest];
+    return {vertex: vertex, position_vector: position_vector};
 
 
   };

@@ -213,14 +213,16 @@ function BrainBrowser(url) {
 
     that.client.setRenderCallback(that.renderCallback);
     o3djs.event.addEventListener(o3dElement, 'wheel', that.scrollMe);
-    window.document.onkeypress = that.keyPressedCallback;
+
+
+    jQuery("body").keydown(that.keyPressedCallback);
     o3djs.event.addEventListener(o3dElement, 'mousedown', function (e) {
 
       var pointer_setting=jQuery('[name=pointer]:checked').val();
 
-      if(pointer_setting=="rotate" ){
+      if(pointer_setting=="rotate" && !e.shiftKey ){
 	that.startDragging(e);
-      }else if(e.shiftkey || pointer_setting == "select") {;
+      }else if(e.shiftKey || pointer_setting == "select") {;
 
 	if(that.clickCallback) {
 	  click(e,that.clickCallback);
@@ -511,14 +513,15 @@ function BrainBrowser(url) {
 
       select(pickInfo);
       var primitive_index = pickInfo.rayIntersectionInfo.primitiveIndex;
-      var position_vector = pickInfo.rayIntersectionInfo.position;
+      var position = pickInfo.rayIntersectionInfo.position;
       var hemisphere      = pickInfo.element.owner.name;
+      var vertex_info = that.model_data.get_vertex(primitive_index,position,hemisphere);
       var info = {
 	primitive_index: primitive_index,
-	position_vector: position_vector,
+	position_vector: vertex_info.position_vector,
 	element: pickInfo.element,
 	hemisphere: hemisphere,
-	vertex:  that.model_data.get_vertex(primitive_index,position_vector,hemisphere)
+	vertex: vertex_info.vertex
       };
 	return click_callback(e,info);
     } else {
@@ -632,7 +635,7 @@ function BrainBrowser(url) {
     }
 
     return actionTaken;
-  }
+  };
 
   /**
    * Callback for the keypress event.
@@ -641,20 +644,21 @@ function BrainBrowser(url) {
    */
    that.keyPressedCallback = function(event) {
 
-     event = event || window.event;
-
-    // Ignore accelerator key messages.
-    if (event.metaKey)
-      return true;
-
-    var keyChar = String.fromCharCode(o3djs.event.getEventKeyChar(event));
-    // Just in case they have capslock on.
-    keyChar = keyChar.toLowerCase();
-
-    if (that.keyPressedAction(keyChar, that.keyPressDelta)) {
-      o3djs.event.cancel(event);
+    switch(event.which) {
+    case 38:
+      that.ZoomInOut(that.zoomFactor);
       return false;
-    }
+      break;
+    case 40:
+      that.ZoomInOut(1/that.zoomFactor);
+      return false;
+      break;
+
+    case 32:
+      that.separateHemispheres();
+      return false;
+      break;
+    };
      return true;
    };
 

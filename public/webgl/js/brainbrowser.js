@@ -93,6 +93,36 @@ function BrainBrowser(url) {
       [0, 0, 0],  // target
       [0, 1, 0]); // up
 
+    that.aball = o3djs.arcball.create(100, 100);
+
+    that.client.setRenderCallback(that.renderCallback);
+    o3djs.event.addEventListener(o3dElement, 'wheel', that.scrollMe);
+    //This allows a programmer to define a function that runs after initialization
+     if(that.afterInit) {
+       that.afterInit(that);
+     }
+     that.updateInfo();
+
+     jQuery('#screenshot').click(function(event) {jQuery(this).attr("href",bb.client.toDataURL());});
+  };
+
+
+
+  this.uninit = function() {
+    if (this.client) {
+      this.client.cleanup();
+    }
+  };
+
+
+  /*
+   * This function is ran on every render.
+   */
+  this.renderCallback = function(renderEvent) {
+    that.setClientSize();
+  };
+
+  that.createBrain = function(model_data) {
     // Create an Effect object and initialize it using the shaders
     // from a file on the server through an ajax request.
     var effect = that.pack.createObject('Effect');
@@ -120,7 +150,7 @@ function BrainBrowser(url) {
 
 
     // Set the material's drawList.
-    myMaterial.drawList = viewInfo.performanceDrawList;
+    myMaterial.drawList = that.viewInfo.performanceDrawList;
 
     // Apply our effect to that myMaterial. The effect tells the 3D
     // hardware which shaders to use.
@@ -132,24 +162,24 @@ function BrainBrowser(url) {
      * Create the Shape for the brain mesh and assign its material.
      * two shapes will be created if the brain model has two hemispheres
      */
-     if(that.model_data.num_hemispheres == 2) {
+     if(model_data.num_hemispheres == 2) {
 
        var brainShape= {
-	 left: that.createBrain(myMaterial,that.model_data.left, "left"),
-	 right: that.createBrain(myMaterial, that.model_data.right, "right"),
+	 left: that.createHemisphere(myMaterial,model_data.left, "left"),
+	 right: that.createHemisphere(myMaterial, model_data.right, "right"),
 	 num_hemisphere: 2
        };
 
      } else {
-       var brainShape = that.createBrain(myMaterial, that.model_data);
-       num_hemisphere: 2
+       var brainShape = that.createHemisphere(myMaterial, model_data);
+       brainShape.num_hemisphere= 1;
      }
 
 
 
     // Create a new transform and parent the Shape under it.
      that.brainTransform = that.pack.createObject('Transform');
-     if(that.model_data.num_hemispheres == 2) {
+     if(model_data.num_hemispheres == 2) {
        that.brainHemisphereTransforms = {};
        that.brainHemisphereTransforms.left = that.pack.createObject('Transform');
        that.brainHemisphereTransforms.right = that.pack.createObject('Transform');
@@ -199,75 +229,107 @@ function BrainBrowser(url) {
       brainShape.right.createDrawElements(that.pack, null);
 
     }
-
-
-
-
-    // Generate the draw elements for the brain shape.
-
-
-
-
-    that.aball = o3djs.arcball.create(100, 100);
-
-
-    that.client.setRenderCallback(that.renderCallback);
-    o3djs.event.addEventListener(o3dElement, 'wheel', that.scrollMe);
-
-
-    jQuery("body").keydown(that.keyPressedCallback);
-    o3djs.event.addEventListener(o3dElement, 'mousedown', function (e) {
-
-      var pointer_setting=jQuery('[name=pointer]:checked').val();
-
-      if(pointer_setting=="rotate" && !e.shiftKey ){
-	that.startDragging(e);
-      }else if(e.shiftKey || pointer_setting == "select") {;
-
-	if(that.clickCallback) {
-	  click(e,that.clickCallback);
-	}
-
-      }else if((e.ctrlKey && e.button == that.o3d.Event.BUTTON_LEFT) || pointer_setting == "check") {
-	if(that.valueAtPointCallback) {
-	  that.click(e,that.valueAtPointCallback);
-	}
-      }
-
-
-    });
-    o3djs.event.addEventListener(o3dElement, 'mousemove', function (e) {
-      that.drag(e);
-    });
-    o3djs.event.addEventListener(o3dElement, 'mouseup', function (e) {
-      if(!e.shiftKey || e.button == that.o3d.Event.BUTTON_RIGHT){
-	that.stopDragging(e);
-      }
-    });
-
-     //This allows a programmer to define a function that runs after initialization
-     if(that.afterInit) {
-       that.afterInit(that);
-     }
-     that.updateInfo();
-
-     jQuery('#screenshot').click(function(event) {jQuery(this).attr("href",bb.client.toDataURL());});
+    that.model_data = model_data;
   };
-
-
-  this.uninit = function() {
-    if (this.client) {
-      this.client.cleanup();
-    }
-  };
-
 
   /*
-   * This function is ran on every render.
+   * Creates the hemisphere shape with the material provide.
    */
-  this.renderCallback = function(renderEvent) {
-    that.setClientSize();
+  that.createHemisphere = function(material,model,name) {
+    //model = unIndexModel(model);
+    var hemShape = that.pack.createObject('Shape');
+    var hemPrimitive = that.pack.createObject('Primitive');
+    var streamBank = that.pack.createObject('StreamBank');
+
+    hemPrimitive.material = material;
+    hemPrimitive.owner = hemShape;
+    hemPrimitive.streamBank = streamBank;
+    hemShape.name = name;
+
+    hemPrimitive.primitiveType = that.o3d.Primitive.TRIANGLE_LIST;
+
+    var state = that.pack.createObject('State');
+
+    //create Position buffer (vertices) and set the number of vertices global variable
+    var positionsBuffer = that.pack.createObject('VertexBuffer');
+    var positionsField = positionsBuffer.createField('FloatField', 3);
+    if(!model.positionArray) {
+      alert("PositionArray nil");
+      return false;
+    }
+    positionsBuffer.set(model.positionArray);
+    //positionsBuffer.set(newPositionArray);
+    that.numberVertices = model.numberVertices;
+    var numberVertices = (model.positionArray.length/3);
+    hemPrimitive.numberVertices = that.numberVertices;
+
+    //create indexBuffer and make sure number of primitive is set
+    if(!model.indexArray) {
+      alert("Index Array nil");
+      return false;
+    }
+    hemPrimitive.numberPrimitives = model.indexArray.length/3;
+    var indexBuffer = that.pack.createObject('IndexBuffer');
+    indexBuffer.set(model.indexArray);
+    hemPrimitive.indexBuffer = indexBuffer;
+
+
+    //Create normal buffer
+    var normalBuffer = that.pack.createObject('VertexBuffer');
+    var normalField = normalBuffer.createField('FloatField', 3);
+    normalBuffer.set(model.normalArray);
+    //normalBuffer.set(newNormalArray);
+
+
+
+    //Create colorBuffer from base color of model
+
+    var colorArray=[];
+    if(model.colorArray.length == 4) {
+      for(var i=0;i<numberVertices;i++) {
+	colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
+      }
+    }
+    if(colorArray.length < model.positionArray.length) {
+      alert('Problem with the colors: ' + colorArray.length);
+    }
+    var colorBuffer = that.pack.createObject('VertexBuffer');
+    var colorField = colorBuffer.createField('FloatField', 4);
+    colorBuffer.set(colorArray);
+    colorArray = [];
+
+    if(that.loading){
+      jQuery(that.loading).html("Buffers Loaded");
+    }
+
+
+    streamBank.setVertexStream(
+      that.o3d.Stream.POSITION, //  That stream stores vertex positions
+      0,                     // First (and only) position stream
+      positionsField,        // field: the field that stream uses.
+      0);                    // start_index:
+
+    streamBank.setVertexStream(
+      that.o3d.Stream.NORMAL,
+      0,
+      normalField,
+      0);
+
+
+    streamBank.setVertexStream(
+      that.o3d.Stream.COLOR,
+      0,
+      colorField,
+      0);
+
+    return hemShape;
+
   };
+
+
+
+
+
 
   /**
    * Resets the view of the scene by resetting its local matrix to the identity
@@ -485,7 +547,7 @@ function BrainBrowser(url) {
    *
    *
    */
-  function click(e,click_callback) {
+  this.click = function(e,click_callback) {
 
     var worldRay = o3djs.picking.clientPositionToWorldRay(
       e.x,
@@ -710,146 +772,12 @@ function BrainBrowser(url) {
 
   };
 
-  //Removes the indexing of the model
-  //Requires a reordering of the vertices to make polygons next to each other.
-  //returns the new model (avoiding side effects ;0p)
-  function unIndexModel(model) {
-    var newPositionArray = [];
-    var newNormalArray = [];
-    var newColorArray = model.colorArray;
-
-    var numberOfIndices = model.indexArray.length;
-
-    var fix_colors = false;
-    if((model.colorArray.length/4) === (model.positionArray.length/3)) {
-      fix_colors = true;
-      newColorArray = [];
-    }
-    for(var i=0; i < numberOfIndices; i++) {
-      for(var j=0; j<3; j++) {
-
-	newPositionArray.push(model.positionArray[model.indexArray[i]*3 + j]);
-	newNormalArray.push(model.normalArray[model.indexArray[i]*3 + j]);
-      }
-
-      if(fix_colors) {
-	for(var k=0; j<4; j++){
-	  newColorArray.push(model.colorArray[model.indexArray[i]*4 + j]);
-	}
-      }
-    }
-    return {
-      positionArray: newPositionArray,
-      normalArray: newNormalArray,
-      colorArray: newColorArray
-    };
-  }
-
-
-
-
-  /*
-   * Creates the brain shape with the material provide.
-   */
-  that.createBrain = function(material,model,name) {
-    //model = unIndexModel(model);
-    var brainShape = that.pack.createObject('Shape');
-    var brainPrimitive = that.pack.createObject('Primitive');
-    var streamBank = that.pack.createObject('StreamBank');
-
-    brainPrimitive.material = material;
-    brainPrimitive.owner = brainShape;
-    brainPrimitive.streamBank = streamBank;
-    brainShape.name = name;
-
-    brainPrimitive.primitiveType = that.o3d.Primitive.TRIANGLE_LIST;
-
-    var state = that.pack.createObject('State');
-
-    //create Position buffer (vertices) and set the number of vertices global variable
-    var positionsBuffer = that.pack.createObject('VertexBuffer');
-    var positionsField = positionsBuffer.createField('FloatField', 3);
-    if(!model.positionArray) {
-      alert("PositionArray nil");
-      return false;
-    }
-    positionsBuffer.set(model.positionArray);
-    //positionsBuffer.set(newPositionArray);
-    that.numberVertices = model.numberVertices;
-    var numberVertices = (model.positionArray.length/3);
-    brainPrimitive.numberVertices = that.numberVertices;
-
-    //create indexBuffer and make sure number of primitive is set
-    if(!model.indexArray) {
-      alert("Index Array nil");
-      return false;
-    }
-    brainPrimitive.numberPrimitives = model.indexArray.length/3;
-    var indexBuffer = that.pack.createObject('IndexBuffer');
-    indexBuffer.set(model.indexArray);
-    brainPrimitive.indexBuffer = indexBuffer;
-
-
-    //Create normal buffer
-    var normalBuffer = that.pack.createObject('VertexBuffer');
-    var normalField = normalBuffer.createField('FloatField', 3);
-    normalBuffer.set(model.normalArray);
-    //normalBuffer.set(newNormalArray);
-
-
-
-    //Create colorBuffer from base color of model
-
-    var colorArray=[];
-    if(model.colorArray.length == 4) {
-      for(var i=0;i<numberVertices;i++) {
-	colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
-      }
-    }
-    if(colorArray.length < model.positionArray.length) {
-      alert('Problem with the colors: ' + colorArray.length);
-    }
-    var colorBuffer = that.pack.createObject('VertexBuffer');
-    var colorField = colorBuffer.createField('FloatField', 4);
-    colorBuffer.set(colorArray);
-    colorArray = [];
-
-    if(that.loading){
-      jQuery(that.loading).html("Buffers Loaded");
-    }
-
-
-    streamBank.setVertexStream(
-      that.o3d.Stream.POSITION, //  That stream stores vertex positions
-      0,                     // First (and only) position stream
-      positionsField,        // field: the field that stream uses.
-      0);                    // start_index:
-
-    streamBank.setVertexStream(
-      that.o3d.Stream.NORMAL,
-      0,
-      normalField,
-      0);
-
-
-    streamBank.setVertexStream(
-      that.o3d.Stream.COLOR,
-      0,
-      colorField,
-      0);
-
-    return brainShape;
-
-  };
-
-  that.preload_model = function(url) {
-
+  that.loadObjFromUrl = function(url) {
     jQuery.ajax({ type: 'GET',
       url: url ,
       dataType: 'text',
       success: function(data) {
-	that.model_data = new MNIObject(data);
-	that.init();
+	that.createBrain(new MNIObject(data));
       },
       error: function(request,textStatus,e) {
 	alert("Failure: " +  textStatus);
@@ -861,9 +789,20 @@ function BrainBrowser(url) {
   };
 
 
-  if(url) {
-    that.preload_model(url);
-  }
+  that.loadObjFromFile = function(file_input) {
+    var reader = new FileReader();
+    var files = file_input.files;
+    reader.file = files[0];
+
+    reader.onloadend = function(e) {
+      that.createBrain(new MNIObject(e.target.result));
+    };
+
+    reader.readAsText(files[0]);
+
+  };
+
+  that.init();
 
 
 }

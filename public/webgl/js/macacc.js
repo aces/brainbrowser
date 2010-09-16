@@ -13,9 +13,8 @@ jQuery(function () {
   };
 
   brainbrowser.afterInit = function(bb) {
+    bb.loadObjFromUrl('/models/surf_reg_model_both.obj');
     var macacc = new MacaccObject(bb,"/data/gaolang_data/");
-
-
     jQuery('#fillmode').toggle(bb.set_fill_mode_wireframe,bb.set_fill_mode_solid);
     jQuery("#range-slider").slider({
 				     range: true,
@@ -60,20 +59,53 @@ jQuery(function () {
     });
 
     jQuery('#screenshot').click(function(event) {jQuery(this).attr("href",bb.client.toDataUR());});
+    //Add event handlers
+    jQuery("body").keydown(bb.keyPressedCallback);
+    o3djs.event.addEventListener(bb.o3dElement, 'mousedown', function (e) {
+
+      var pointer_setting=jQuery('[name=pointer]:checked').val();
+
+      if(pointer_setting=="rotate" && !e.shiftKey ){
+	bb.startDragging(e);
+      }else if(e.shiftKey || pointer_setting == "select") {;
+
+	if(bb.clickCallback) {
+	  bb.click(e,bb.clickCallback);
+	}
+
+      }else if((e.ctrlKey && e.button == bb.o3d.Event.BUTTON_LEFT) || pointer_setting == "check") {
+	if(that.valueAtPointCallback) {
+	  bb.click(e,that.valueAtPointCallback);
+	}
+      }
+
+
+    });
+    o3djs.event.addEventListener(bb.o3dElement, 'mousemove', function (e) {
+      bb.drag(e);
+    });
+    o3djs.event.addEventListener(bb.o3dElement, 'mouseup', function (e) {
+      if(!e.shiftKey || e.button == bb.o3d.Event.BUTTON_RIGHT){
+	bb.stopDragging(e);
+      }
+    });
 
   };
-  brainbrowser.setup('/models/surf_reg_model_both.obj');
   jQuery('#resetview').click(brainbrowser.setupView);
-
-
-
   jQuery('.view_button').change(brainbrowser.setupView);
   jQuery('[name=hem_view]').change(brainbrowser.setupView);
   jQuery(".button").button();
   jQuery(".button_set").buttonset();
 
+
+
+
+
   //document.onselectstart = function() {return false;} // ie
   //document.onmousedown = function() {return false;} // mozilla
+
+
+
 
 
 });

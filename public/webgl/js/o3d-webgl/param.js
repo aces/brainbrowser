@@ -39,49 +39,49 @@
  * @constructor
  */
 o3d.Param = function(param_type_name) {
-  o3d.Param.prototype.output_connections = [];
+  /**
+   * If true, this param will make sure its input param is up to date when
+   * using it as a source. Default = true.
+   *
+   * This is for helping with Param cycles.
+   *
+   * If paramA gets its value from paramB and paramB gets its value from
+   * paramA:
+   * If you go paramA.value, paramB will evaluate then copy to paramA.
+   * If you go paramB.value, paramA will evaluate then copy to paramB.
+   * If you set paramB.updateInput = false, then:
+   * If you go paramA.value, paramB will evaluate then copy to paramA.
+   * If you go paramB.value, paramB just copy paramA. paramA will NOT evaluate
+   * when paramB asks for its value.
+   */
+  this.updateInput = true;
+
+  /**
+   * @type {o3d.Param}
+   */
+  this.inputConnection = null;
+
+  /**
+   * @type {Array.<!o3d.Param>}
+   */
   this.outputConnections = [];
+
+  /**
+   * The ParamObject that has this param as a param.
+   * @type {o3d.ParamObject}
+   * @private
+   */
+  o3d.Param.prototype.owner_ = null;
+
+  /**
+   * Private variable to store the value of the param.
+   * @type {*}
+   * @private
+   */
+  this.value_ = null;
 }
 o3d.inherit('Param', 'NamedObject');
 
-
-/**
- * If true, this param will make sure its input param is up to date when
- * using it as a source. Default = true.
- *
- * This is for helping with Param cycles.
- *
- * If paramA gets its value from paramB and paramB gets its value from
- * paramA:
- * If you go paramA.value, paramB will evaluate then copy to paramA.
- * If you go paramB.value, paramA will evaluate then copy to paramB.
- * If you set paramB.updateInput = false, then:
- * If you go paramA.value, paramB will evaluate then copy to paramA.
- * If you go paramB.value, paramB just copy paramA. paramA will NOT evaluate
- * when paramB asks for its value.
- */
-o3d.Param.prototype.update_input = true;
-
-/**
- * @type {o3d.Param}
- */
-o3d.Param.prototype.inputConnection = null;
-
-/**
- * @type {Array.<!o3d.Param>}
- */
-o3d.Param.prototype.outputConnections = [];
-
-
-/**
- * @type {o3d.ParamObject}
- */
-o3d.Param.prototype.owner_ = null;
-
-/**
- * @type {Object} The value of the parameter.
- */
-o3d.Param.prototype.value_ = null;
 
 o3d.Param.prototype.__defineSetter__('value',
     function(v) {
@@ -267,7 +267,7 @@ o3d.inherit('ParamFloat', 'Param');
  */
 o3d.ParamFloat2 = function() {
   o3d.Param.call(this);
-  this.value = [0.0, 0.0];
+  this.value = o3d.Transform.makeVector2_(0.0, 0.0);
 };
 o3d.inherit('ParamFloat2', 'Param');
 
@@ -277,7 +277,7 @@ o3d.inherit('ParamFloat2', 'Param');
  */
 o3d.ParamFloat3 = function() {
   o3d.Param.call(this);
-  this.value = [0.0, 0.0, 0.0];
+  this.value = o3d.Transform.makeVector3_(0.0, 0.0, 0.0);
 };
 o3d.inherit('ParamFloat3', 'Param');
 
@@ -287,7 +287,7 @@ o3d.inherit('ParamFloat3', 'Param');
  */
 o3d.ParamFloat4 = function() {
   o3d.Param.call(this);
-  this.value = [0.0, 0.0, 0.0, 0.0];
+  this.value = o3d.Transform.makeVector4_(0.0, 0.0, 0.0, 0.0);
 };
 o3d.inherit('ParamFloat4', 'Param');
 
@@ -327,17 +327,18 @@ o3d.inherit('ParamMaterial', 'Param');
  */
 o3d.ParamMatrix4 = function() {
   o3d.Param.call(this);
-  this.value = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]];
+  this.value = o3d.Transform.makeMatrix4_(1, 0, 0, 0,
+                                          0, 1, 0, 0,
+                                          0, 0, 1, 0,
+                                          0, 0, 0, 1);
 };
 o3d.inherit('ParamMatrix4', 'Param');
-
 
 /**
  * @constructor
  */
 o3d.ParamParamArray = function() {
   o3d.Param.call(this);
-  this.value = null;
 };
 o3d.inherit('ParamParamArray', 'Param');
 
@@ -483,7 +484,9 @@ o3d.CompositionParamMatrix4 = function() {
   o3d.ParamMatrix4.call(this);
   this.matrix_names_ = [];
 };
+
 o3d.inherit('CompositionParamMatrix4', 'ParamMatrix4');
+
 
 /**
  * The array of names of matrix params for the matrices that are to be
@@ -508,15 +511,15 @@ o3d.CompositionParamMatrix4.prototype.transpose_ = false;
 o3d.CompositionParamMatrix4.prototype.__defineGetter__('value',
     // TODO(petersont): Cache the result if it hasn't changed.
     function() {
-      var product = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]];
+      var product = o3d.Transform.makeIdentityMatrix4_();
       for (var i = 0; i < this.matrix_names_.length; ++i) {
-        o3d.Transform.compose(product, o3d.Param.SAS[this.matrix_names_[i]]);
+        o3d.Transform.compose_(product, o3d.Param.SAS[this.matrix_names_[i]]);
       }
       if (this.inverse_) {
-        o3d.Transform.inverse(product);
+        o3d.Transform.inverse_(product);
       }
       if (this.transpose_) {
-        o3d.Transform.transpose(product);
+        o3d.Transform.transpose_(product);
       }
       return product;
     }
@@ -786,7 +789,6 @@ o3d.WorldViewProjectionTransposeParamMatrix4 = function() {
 o3d.inherit('WorldViewProjectionTransposeParamMatrix4',
     'CompositionParamMatrix4');
 
-
 /**
  * @constructor
  */
@@ -862,7 +864,7 @@ o3d.ParamFloat4.prototype.applyToLocation = function(gl, location) {
 o3d.ParamMatrix4.prototype.applyToLocation = function(gl, location) {
   gl.uniformMatrix4fv(location,
                       false,
-                      o3d.Transform.flattenMatrix4(this.value));
+                      this.value);
 };
 
 /**
@@ -893,8 +895,12 @@ o3d.Param.texture_index_ = 0;
  * Called to specify the value of a uniform variable.
  * @param {WebGLContext} gl The current context.
  * @param {WebGLUniformLocation} location The location to which to apply.
+ * @param {boolean} opt_isCube Optional boolean indicating whether the Sampler
+ *     connects to a samplerCube type uniform.  If set to true, and there is an
+ *     error, we use the error cube map.
  */
-o3d.ParamSampler.prototype.applyToLocation = function(gl, location) {
+o3d.ParamSampler.prototype.applyToLocation =
+    function(gl, location, opt_isCube) {
   // When before the effect object assigns values to parameters,
   // it sets this variable to 0.
   var i = o3d.Param.texture_index_;
@@ -914,7 +920,7 @@ o3d.ParamSampler.prototype.applyToLocation = function(gl, location) {
     }
   }
 
-  sampler.bindAndSetParameters_();
+  sampler.bindAndSetParameters_(opt_isCube);
   gl.uniform1i(location, i);
   o3d.Param.texture_index_++;
 };

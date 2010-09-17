@@ -5,14 +5,14 @@ body {
 }
 
 #controls {
-    width: 20%;
+    width: 25%;
     float:left;
 
 }
 
 #view-window {
     float: left;
-    width: 79%;
+    width: 74%;
     height: 100%;
     margin-left: 1%;
 }

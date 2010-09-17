@@ -49,8 +49,7 @@ o3d.DrawContext = function(opt_view, opt_projection) {
    * take vertices from world space to view space.
    * @type {o3d.Matrix4}
    */
-  this.view = opt_view ||
-      [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]];
+  this.view = opt_view || o3d.Transform.makeIdentityMatrix4_();
 
   /**
    * The projection matrix represents the projection transformation,
@@ -58,8 +57,7 @@ o3d.DrawContext = function(opt_view, opt_projection) {
    * matrix is usually an orthographic or perspective transformation.
    * @type {o3d.Matrix4}
    */
-  this.projection = opt_projection ||
-      [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]];
+  this.projection = opt_projection || o3d.Transform.makeIdentityMatrix4_();
 };
 o3d.inherit('DrawContext', 'ParamObject');
 

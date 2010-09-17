@@ -41,6 +41,17 @@ o3d.ParamObject = function() {
 };
 o3d.inherit('ParamObject', 'NamedObject');
 
+o3d.ParamObject.prototype.__defineGetter__('params',
+    function() {
+      var paramList = [];
+      for (name in this.params_) {
+        paramList.push(this.params_[name]);
+      }
+      return paramList;
+    });
+
+o3d.ParamObject.prototype.__defineSetter__('params', function() {});
+
 o3d.ParamObject.O3D_PREFIX_ = 'o3d.';
 
 /**

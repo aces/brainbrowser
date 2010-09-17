@@ -77,6 +77,17 @@ o3d.global = this;
 o3d.basePath = '';
 
 /**
+ * Some javascripts don't support __defineGetter__ or __defineSetter__
+ * so we define some here so at least we don't get compile errors.
+ * We expect the initialzation code will check and complain. This stubs
+ * are just here to make sure we can actually get to the initialization code.
+ */
+if (!Object.prototype.__defineSetter__) {
+  Object.prototype.__defineSetter__ = function() {}
+  Object.prototype.__defineGetter__ = function() {}
+}
+
+/**
  * Tries to detect the base path of the base.js script that
  * bootstraps the o3d libraries.
  * @private
@@ -235,6 +246,7 @@ o3d.include('named_object_base');
 o3d.include('named_object');
 o3d.include('param_object');
 o3d.include('param_array');
+o3d.include('transform');
 o3d.include('param');
 o3d.include('event');
 o3d.include('raw_data');
@@ -255,7 +267,6 @@ o3d.include('state');
 o3d.include('draw_context');
 o3d.include('ray_intersection_info');
 o3d.include('sampler');
-o3d.include('transform');
 o3d.include('pack');
 o3d.include('bounding_box');
 o3d.include('draw_element');

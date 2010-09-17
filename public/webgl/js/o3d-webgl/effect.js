@@ -229,7 +229,7 @@ o3d.Effect.prototype.loadVertexShaderFromString =
     function(shaderString) {
   var success =
       this.loadShaderFromString(shaderString, this.gl.VERTEX_SHADER);
-  this.vertexShaderLoaded_ = true;
+  this.vertexShaderLoaded_ = success;
   o3d.Effect.prototype.bindAttributesAndLinkIfReady();
   return success;
 };
@@ -244,7 +244,7 @@ o3d.Effect.prototype.loadPixelShaderFromString =
     function(shaderString) {
   var success =
       this.loadShaderFromString(shaderString, this.gl.FRAGMENT_SHADER);
-  this.fragmentShaderLoaded_ = true;
+  this.fragmentShaderLoaded_ = success;
   this.bindAttributesAndLinkIfReady();
   return success;
 };
@@ -409,6 +409,7 @@ o3d.Effect.reverseSemanticMap_ = [];
   }
 })();
 
+
 /**
  * For each of the effect's uniform parameters, creates corresponding
  * parameters on the given ParamObject. Skips SAS Parameters.
@@ -534,47 +535,45 @@ o3d.Effect.prototype.getStreamInfo = function() {
  * @private
  */
 o3d.Effect.prototype.searchForParams_ = function(object_list) {
-  var filled_map = {};
-  for (var name in this.uniforms_) {
-    filled_map[name] = false;
+  var unfilledMap = {};
+  for (var uniformName in this.uniforms_) {
+    unfilledMap[uniformName] = true;
   }
   this.gl.useProgram(this.program_);
   o3d.Param.texture_index_ = 0;
-  for (var i = 0; i < object_list.length; ++i) {
+  var object_list_length = object_list.length;
+  for (var i = 0; i < object_list_length; ++i) {
     var obj = object_list[i];
     for (var name in this.uniforms_) {
-      var uniformInfo = this.uniforms_[name];
-      if (filled_map[name]) {
-        continue;
-      }
-      var param = obj.getParam(name);
-      if (param) {
-        if (uniformInfo.kind == o3d.Effect.ARRAY) {
-          param.applyToLocations(this.gl, uniformInfo.locations);
-        } else {
-          param.applyToLocation(this.gl, uniformInfo.location);
+      if (unfilledMap[name]) {
+        var uniformInfo = this.uniforms_[name];
+        var param = obj.getParam(name);
+        if (param) {
+          if (uniformInfo.kind == o3d.Effect.ARRAY) {
+            param.applyToLocations(this.gl, uniformInfo.locations);
+          } else {
+            param.applyToLocation(this.gl, uniformInfo.location);
+          }
+          delete unfilledMap[name];
         }
-        filled_map[name] = true;
       }
     }
   }
 
   this.updateHelperConstants_(this.gl.displayInfo.width,
                               this.gl.displayInfo.height);
-  filled_map[o3d.Effect.HELPER_CONSTANT_NAME] = true;
-  for (var name in this.uniforms_) {
-    if (!filled_map[name]) {
-      if (this.uniforms_[name].info.type == this.gl.SAMPLER_2D) {
-        if (this.gl.client.reportErrors_()) {
-          this.gl.client.error_callback("Missing ParamSampler");
-        }
-        var defaultParamSampler = o3d.ParamSampler.defaultParamSampler_;
-        defaultParamSampler.gl = this.gl;
-        defaultParamSampler.applyToLocation(this.gl,
-            this.uniforms_[name].location);
-      } else {
-        throw ('Uniform param not filled: "'+ name + '"');
+  delete unfilledMap[o3d.Effect.HELPER_CONSTANT_NAME];
+  for (var name in unfilledMap) {
+    if (this.uniforms_[name].info.type == this.gl.SAMPLER_2D) {
+      if (this.gl.client.reportErrors_()) {
+        this.gl.client.error_callback("Missing ParamSampler");
       }
+      var defaultParamSampler = o3d.ParamSampler.defaultParamSampler_;
+      defaultParamSampler.gl = this.gl;
+      defaultParamSampler.applyToLocation(this.gl,
+          this.uniforms_[name].location);
+    } else {
+      throw ('Uniform param not filled: "'+ name + '"');
     }
   }
 };

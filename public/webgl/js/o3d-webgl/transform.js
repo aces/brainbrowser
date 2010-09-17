@@ -58,13 +58,13 @@ o3d.Transform =
    * Default = Identity.
    */
   this.localMatrix = opt_localMatrix ||
-      [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]];
+      o3d.Transform.makeIdentityMatrix4_();
 
   /**
    * World (model) matrix as it was last computed.
    */
   this.worldMatrix = opt_worldMatrix ||
-      [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]];
+      o3d.Transform.makeIdentityMatrix4_();
 
   /**
    * Sets the parent of the transform by re-parenting the transform under
@@ -230,11 +230,11 @@ o3d.Transform.prototype.getUpdatedWorldMatrix =
   var parentWorldMatrix;
   if (!this.parent) {
     parentWorldMatrix =
-        [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]];
+        o3d.Transform.makeIdentityMatrix4_();
   } else {
     parentWorldMatrix = this.parent.getUpdatedWorldMatrix();
   }
-  o3d.Transform.compose(parentWorldMatrix, this.localMatrix, this.worldMatrix);
+  o3d.Transform.compose_(parentWorldMatrix, this.localMatrix, this.worldMatrix);
   return this.worldMatrix;
 };
 
@@ -275,7 +275,16 @@ o3d.Transform.prototype.removeShape =
  */
 o3d.Transform.prototype.createDrawElements =
     function(pack, material) {
-  o3d.notImplemented();
+  var children = this.children;
+  var shapes = this.shapes;
+
+  for (var i = 0; i < shapes.length; ++i) {
+    shapes[i].createDrawElements(pack, material);
+  }
+
+  for (var i = 0; i < children.length; ++i) {
+    children[i].createDrawElements(pack, material);
+  }
 };
 
 
@@ -286,235 +295,9 @@ o3d.Transform.prototype.identity = function() {
   var m = this.localMatrix;
   for (var i = 0; i < 4; ++i) {
     for (var j = 0; j < 4; ++j) {
-      m[i][j] = i==j ? 1 : 0;
+      m[i * 4 + j] = i == j ? 1 : 0;
     }
   }
-};
-
-
-/*
- * Utility function to copose a matrix with another matrix.
- * Precomposes b with a, changing a, or if the target matrix if
- * one is provided.
- *
- * @param {!Array.<!Array.<number>>} a
- * @param {!Array.<!Array.<number>>} b
- * @param {!Array.<!Array.<number>>} opt_target
- */
-o3d.Transform.compose = function(a, b, opt_target) {
-  var t = opt_target || a;
-  var a0 = a[0];
-  var a1 = a[1];
-  var a2 = a[2];
-  var a3 = a[3];
-  var b0 = b[0];
-  var b1 = b[1];
-  var b2 = b[2];
-  var b3 = b[3];
-  var a00 = a0[0];
-  var a01 = a0[1];
-  var a02 = a0[2];
-  var a03 = a0[3];
-  var a10 = a1[0];
-  var a11 = a1[1];
-  var a12 = a1[2];
-  var a13 = a1[3];
-  var a20 = a2[0];
-  var a21 = a2[1];
-  var a22 = a2[2];
-  var a23 = a2[3];
-  var a30 = a3[0];
-  var a31 = a3[1];
-  var a32 = a3[2];
-  var a33 = a3[3];
-  var b00 = b0[0];
-  var b01 = b0[1];
-  var b02 = b0[2];
-  var b03 = b0[3];
-  var b10 = b1[0];
-  var b11 = b1[1];
-  var b12 = b1[2];
-  var b13 = b1[3];
-  var b20 = b2[0];
-  var b21 = b2[1];
-  var b22 = b2[2];
-  var b23 = b2[3];
-  var b30 = b3[0];
-  var b31 = b3[1];
-  var b32 = b3[2];
-  var b33 = b3[3];
-  t[0].splice(0, 4, a00 * b00 + a10 * b01 + a20 * b02 + a30 * b03,
-                    a01 * b00 + a11 * b01 + a21 * b02 + a31 * b03,
-                    a02 * b00 + a12 * b01 + a22 * b02 + a32 * b03,
-                    a03 * b00 + a13 * b01 + a23 * b02 + a33 * b03);
-  t[1].splice(0, 4, a00 * b10 + a10 * b11 + a20 * b12 + a30 * b13,
-                    a01 * b10 + a11 * b11 + a21 * b12 + a31 * b13,
-                    a02 * b10 + a12 * b11 + a22 * b12 + a32 * b13,
-                    a03 * b10 + a13 * b11 + a23 * b12 + a33 * b13);
-  t[2].splice(0, 4, a00 * b20 + a10 * b21 + a20 * b22 + a30 * b23,
-                    a01 * b20 + a11 * b21 + a21 * b22 + a31 * b23,
-                    a02 * b20 + a12 * b21 + a22 * b22 + a32 * b23,
-                    a03 * b20 + a13 * b21 + a23 * b22 + a33 * b23);
-  t[3].splice(0, 4, a00 * b30 + a10 * b31 + a20 * b32 + a30 * b33,
-                    a01 * b30 + a11 * b31 + a21 * b32 + a31 * b33,
-                    a02 * b30 + a12 * b31 + a22 * b32 + a32 * b33,
-                    a03 * b30 + a13 * b31 + a23 * b32 + a33 * b33);
-};
-
-
-/**
- * Tests whether two matrices are either equal in the sense that they
- * refer to the same memory, or equal in the sense that they have equal
- * entries.
- *
- * @param {!Array.<!Array.<number>>} a A matrix.
- * @param {!Array.<!Array.<number>>} b Another matrix.
- * @return {boolean} Whether they are equal.
- */
-o3d.Transform.matricesEqual = function(a, b) {
-  if (a==b) {
-    return true;
-  }
-  for (var i = 0; i < 4; ++i) {
-    for (var j = 0; j < 4; ++j) {
-      if (a[i][j] != b[i][j]) {
-        return false;
-      }
-    }
-  }
-  return true;
-};
-
-
-/**
- * Computes the transpose of the matrix a in place if no target is provided.
- * Or if a target is provided, turns the target into the transpose of a.
- *
- * @param {!Array.<!Array.<number>>} m A matrix.
- * @param {Array.<!Array.<number>>} opt_target
- *     The matrix to become the transpose of m.
- */
-o3d.Transform.transpose = function(m, opt_target) {
-  var t = opt_target || m;
-  var m0 = m[0];
-  var m1 = m[1];
-  var m2 = m[2];
-  var m3 = m[3];
-  var m00 = m0[0];
-  var m01 = m0[1];
-  var m02 = m0[2];
-  var m03 = m0[3];
-  var m10 = m1[0];
-  var m11 = m1[1];
-  var m12 = m1[2];
-  var m13 = m1[3];
-  var m20 = m2[0];
-  var m21 = m2[1];
-  var m22 = m2[2];
-  var m23 = m2[3];
-  var m30 = m3[0];
-  var m31 = m3[1];
-  var m32 = m3[2];
-  var m33 = m3[3];
-  t[0].splice(0, 4, m00, m10, m20, m30);
-  t[1].splice(0, 4, m01, m11, m21, m31);
-  t[2].splice(0, 4, m02, m12, m22, m32);
-  t[3].splice(0, 4, m03, m13, m23, m33);
-};
-
-
-/**
- * Computes the inverse of the matrix a in place if no target is provided.
- * Or if a target is provided, turns the target into the transpose of a.
- *
- * @param {!Array.<!Array.<number>>} m A matrix.
- * @param {Array.<!Array.<number>>} opt_target The matrix to become the
- *     inverse of a.
- */
-o3d.Transform.inverse = function(m, opt_target) {
-  var t = opt_target || m;
-  var m0 = m[0];
-  var m1 = m[1];
-  var m2 = m[2];
-  var m3 = m[3];
-  var m00 = m0[0];
-  var m01 = m0[1];
-  var m02 = m0[2];
-  var m03 = m0[3];
-  var m10 = m1[0];
-  var m11 = m1[1];
-  var m12 = m1[2];
-  var m13 = m1[3];
-  var m20 = m2[0];
-  var m21 = m2[1];
-  var m22 = m2[2];
-  var m23 = m2[3];
-  var m30 = m3[0];
-  var m31 = m3[1];
-  var m32 = m3[2];
-  var m33 = m3[3];
-
-  var tmp_0 = m22 * m33;
-  var tmp_1 = m32 * m23;
-  var tmp_2 = m12 * m33;
-  var tmp_3 = m32 * m13;
-  var tmp_4 = m12 * m23;
-  var tmp_5 = m22 * m13;
-  var tmp_6 = m02 * m33;
-  var tmp_7 = m32 * m03;
-  var tmp_8 = m02 * m23;
-  var tmp_9 = m22 * m03;
-  var tmp_10 = m02 * m13;
-  var tmp_11 = m12 * m03;
-  var tmp_12 = m20 * m31;
-  var tmp_13 = m30 * m21;
-  var tmp_14 = m10 * m31;
-  var tmp_15 = m30 * m11;
-  var tmp_16 = m10 * m21;
-  var tmp_17 = m20 * m11;
-  var tmp_18 = m00 * m31;
-  var tmp_19 = m30 * m01;
-  var tmp_20 = m00 * m21;
-  var tmp_21 = m20 * m01;
-  var tmp_22 = m00 * m11;
-  var tmp_23 = m10 * m01;
-
-  var t0 = (tmp_0 * m11 + tmp_3 * m21 + tmp_4 * m31) -
-      (tmp_1 * m11 + tmp_2 * m21 + tmp_5 * m31);
-  var t1 = (tmp_1 * m01 + tmp_6 * m21 + tmp_9 * m31) -
-      (tmp_0 * m01 + tmp_7 * m21 + tmp_8 * m31);
-  var t2 = (tmp_2 * m01 + tmp_7 * m11 + tmp_10 * m31) -
-      (tmp_3 * m01 + tmp_6 * m11 + tmp_11 * m31);
-  var t3 = (tmp_5 * m01 + tmp_8 * m11 + tmp_11 * m21) -
-      (tmp_4 * m01 + tmp_9 * m11 + tmp_10 * m21);
-
-  var d = 1.0 / (m00 * t0 + m10 * t1 + m20 * t2 + m30 * t3);
-
-  t[0].splice(0, 4, d * t0, d * t1, d * t2, d * t3);
-  t[1].splice(0, 4, d * ((tmp_1 * m10 + tmp_2 * m20 + tmp_5 * m30) -
-          (tmp_0 * m10 + tmp_3 * m20 + tmp_4 * m30)),
-       d * ((tmp_0 * m00 + tmp_7 * m20 + tmp_8 * m30) -
-          (tmp_1 * m00 + tmp_6 * m20 + tmp_9 * m30)),
-       d * ((tmp_3 * m00 + tmp_6 * m10 + tmp_11 * m30) -
-          (tmp_2 * m00 + tmp_7 * m10 + tmp_10 * m30)),
-       d * ((tmp_4 * m00 + tmp_9 * m10 + tmp_10 * m20) -
-          (tmp_5 * m00 + tmp_8 * m10 + tmp_11 * m20)));
-  t[2].splice(0, 4, d * ((tmp_12 * m13 + tmp_15 * m23 + tmp_16 * m33) -
-          (tmp_13 * m13 + tmp_14 * m23 + tmp_17 * m33)),
-       d * ((tmp_13 * m03 + tmp_18 * m23 + tmp_21 * m33) -
-          (tmp_12 * m03 + tmp_19 * m23 + tmp_20 * m33)),
-       d * ((tmp_14 * m03 + tmp_19 * m13 + tmp_22 * m33) -
-          (tmp_15 * m03 + tmp_18 * m13 + tmp_23 * m33)),
-       d * ((tmp_17 * m03 + tmp_20 * m13 + tmp_23 * m23) -
-          (tmp_16 * m03 + tmp_21 * m13 + tmp_22 * m23)));
-  t[3].splice(0, 4, d * ((tmp_14 * m22 + tmp_17 * m32 + tmp_13 * m12) -
-          (tmp_16 * m32 + tmp_12 * m12 + tmp_15 * m22)),
-       d * ((tmp_20 * m32 + tmp_12 * m02 + tmp_19 * m22) -
-          (tmp_18 * m22 + tmp_21 * m32 + tmp_13 * m02)),
-       d * ((tmp_18 * m12 + tmp_23 * m32 + tmp_15 * m02) -
-          (tmp_22 * m32 + tmp_14 * m02 + tmp_19 * m12)),
-       d * ((tmp_22 * m22 + tmp_16 * m02 + tmp_21 * m12) -
-          (tmp_20 * m12 + tmp_23 * m22 + tmp_17 * m02)));
 };
 
 
@@ -536,31 +319,28 @@ o3d.Transform.prototype.translate =
   var v0 = v[0];
   var v1 = v[1];
   var v2 = v[2];
-  var m0 = m[0];
-  var m1 = m[1];
-  var m2 = m[2];
-  var m3 = m[3];
-  var m00 = m0[0];
-  var m01 = m0[1];
-  var m02 = m0[2];
-  var m03 = m0[3];
-  var m10 = m1[0];
-  var m11 = m1[1];
-  var m12 = m1[2];
-  var m13 = m1[3];
-  var m20 = m2[0];
-  var m21 = m2[1];
-  var m22 = m2[2];
-  var m23 = m2[3];
-  var m30 = m3[0];
-  var m31 = m3[1];
-  var m32 = m3[2];
-  var m33 = m3[3];
 
-  m3.splice(0, 4, m00 * v0 + m10 * v1 + m20 * v2 + m30,
-                  m01 * v0 + m11 * v1 + m21 * v2 + m31,
-                  m02 * v0 + m12 * v1 + m22 * v2 + m32,
-                  m03 * v0 + m13 * v1 + m23 * v2 + m33);
+  var m00 = m[0];
+  var m01 = m[1];
+  var m02 = m[2];
+  var m03 = m[3];
+  var m10 = m[4];
+  var m11 = m[5];
+  var m12 = m[6];
+  var m13 = m[7];
+  var m20 = m[8];
+  var m21 = m[9];
+  var m22 = m[10];
+  var m23 = m[11];
+  var m30 = m[12];
+  var m31 = m[13];
+  var m32 = m[14];
+  var m33 = m[15];
+
+  m[12] = m00 * v0 + m10 * v1 + m20 * v2 + m30,
+  m[13] = m01 * v0 + m11 * v1 + m21 * v2 + m31,
+  m[14] = m02 * v0 + m12 * v1 + m22 * v2 + m32,
+  m[15] = m03 * v0 + m13 * v1 + m23 * v2 + m33;
 };
 
 
@@ -575,100 +355,26 @@ o3d.Transform.prototype.rotateX =
     function(angle) {
   var m = this.localMatrix;
 
-  var m0 = m[0];
-  var m1 = m[1];
-  var m2 = m[2];
-  var m3 = m[3];
-  var m10 = m1[0];
-  var m11 = m1[1];
-  var m12 = m1[2];
-  var m13 = m1[3];
-  var m20 = m2[0];
-  var m21 = m2[1];
-  var m22 = m2[2];
-  var m23 = m2[3];
+  var m10 = m[4];
+  var m11 = m[5];
+  var m12 = m[6];
+  var m13 = m[7];
+  var m20 = m[8];
+  var m21 = m[9];
+  var m22 = m[10];
+  var m23 = m[11];
+
   var c = Math.cos(angle);
   var s = Math.sin(angle);
 
-  m1.splice(0, 4, c * m10 + s * m20,
-                  c * m11 + s * m21,
-                  c * m12 + s * m22,
-                  c * m13 + s * m23);
-  m2.splice(0, 4, c * m20 - s * m10,
-                  c * m21 - s * m11,
-                  c * m22 - s * m12,
-                  c * m23 - s * m13);
-};
-
-
-/**
- * Takes a 4-by-4 matrix and a vector with 3 entries,
- * interprets the vector as a point, transforms that point by the matrix, and
- * returns the result as a vector with 3 entries.
- * @param {!o3djs.math.Matrix4} m The matrix.
- * @param {!o3djs.math.Vector3} v The point.
- * @return {!o3djs.math.Vector3} The transformed point.
- */
-o3d.Transform.transformPoint = function(m, v) {
-  var v0 = v[0];
-  var v1 = v[1];
-  var v2 = v[2];
-  var m0 = m[0];
-  var m1 = m[1];
-  var m2 = m[2];
-  var m3 = m[3];
-
-  var d = v0 * m0[3] + v1 * m1[3] + v2 * m2[3] + m3[3];
-  return [(v0 * m0[0] + v1 * m1[0] + v2 * m2[0] + m3[0]) / d,
-          (v0 * m0[1] + v1 * m1[1] + v2 * m2[1] + m3[1]) / d,
-          (v0 * m0[2] + v1 * m1[2] + v2 * m2[2] + m3[2]) / d];
-};
-
-
-/**
- * Takes a 4-by-4 matrix and a vector with 4 entries,
- * interprets the vector as a point, transforms that point by the matrix, and
- * returns the result as a vector with 4 entries.
- * @param {!o3djs.math.Matrix4} m The matrix.
- * @param {!o3djs.math.Vector4} v The vector.
- * @return {!o3djs.math.Vector4} The transformed vector.
- */
-o3d.Transform.multiplyVector = function(m, v) {
-  var v0 = v[0];
-  var v1 = v[1];
-  var v2 = v[2];
-  var v3 = v[3];
-  var m0 = m[0];
-  var m1 = m[1];
-  var m2 = m[2];
-  var m3 = m[3];
-
-  return [(v0 * m0[0] + v1 * m1[0] + v2 * m2[0] + v3 * m3[0]),
-          (v0 * m0[1] + v1 * m1[1] + v2 * m2[1] + v3 * m3[1]),
-          (v0 * m0[2] + v1 * m1[2] + v2 * m2[2] + v3 * m3[2]),
-          (v0 * m0[3] + v1 * m1[3] + v2 * m2[3] + v3 * m3[3])];
-};
-
-
-/**
- * Takes a 4-by-4 matrix and a vector with 3 entries,
- * interprets the vector as a point, transforms that point by the matrix,
- * returning the z-component of the result only.
- * @param {!o3djs.math.Matrix4} m The matrix.
- * @param {!o3djs.math.Vector3} v The point.
- * @return {number} The z coordinate of the transformed point.
- */
-o3d.Transform.transformPointZOnly = function(m, v) {
-  var v0 = v[0];
-  var v1 = v[1];
-  var v2 = v[2];
-  var m0 = m[0];
-  var m1 = m[1];
-  var m2 = m[2];
-  var m3 = m[3];
-
-  return (v0 * m0[2] + v1 * m1[2] + v2 * m2[2] + m3[2]) /
-      (v0 * m0[3] + v1 * m1[3] + v2 * m2[3] + m3[3]);
+  m[4] = c * m10 + s * m20;
+  m[5] = c * m11 + s * m21;
+  m[6] = c * m12 + s * m22;
+  m[7] = c * m13 + s * m23;
+  m[8] = c * m20 - s * m10;
+  m[9] = c * m21 - s * m11;
+  m[10] = c * m22 - s * m12;
+  m[11] = c * m23 - s * m13;
 };
 
 
@@ -683,29 +389,25 @@ o3d.Transform.prototype.rotateY =
     function(angle) {
   var m = this.localMatrix;
 
-  var m0 = m[0];
-  var m1 = m[1];
-  var m2 = m[2];
-  var m3 = m[3];
-  var m00 = m0[0];
-  var m01 = m0[1];
-  var m02 = m0[2];
-  var m03 = m0[3];
-  var m20 = m2[0];
-  var m21 = m2[1];
-  var m22 = m2[2];
-  var m23 = m2[3];
+  var m00 = m[0];
+  var m01 = m[1];
+  var m02 = m[2];
+  var m03 = m[3];
+  var m20 = m[8];
+  var m21 = m[9];
+  var m22 = m[10];
+  var m23 = m[11];
   var c = Math.cos(angle);
   var s = Math.sin(angle);
 
-  m0.splice(0, 4, c * m00 - s * m20,
-                  c * m01 - s * m21,
-                  c * m02 - s * m22,
-                  c * m03 - s * m23);
-  m2.splice(0, 4, c * m20 + s * m00,
-                  c * m21 + s * m01,
-                  c * m22 + s * m02,
-                  c * m23 + s * m03);
+  m[0] = c * m00 - s * m20;
+  m[1] = c * m01 - s * m21;
+  m[2] = c * m02 - s * m22;
+  m[3] = c * m03 - s * m23;
+  m[8] = c * m20 + s * m00;
+  m[9] = c * m21 + s * m01;
+  m[10] = c * m22 + s * m02;
+  m[11] = c * m23 + s * m03;
 };
 
 
@@ -720,29 +422,25 @@ o3d.Transform.prototype.rotateZ =
     function(angle) {
   var m = this.localMatrix;
 
-  var m0 = m[0];
-  var m1 = m[1];
-  var m2 = m[2];
-  var m3 = m[3];
-  var m00 = m0[0];
-  var m01 = m0[1];
-  var m02 = m0[2];
-  var m03 = m0[3];
-  var m10 = m1[0];
-  var m11 = m1[1];
-  var m12 = m1[2];
-  var m13 = m1[3];
+  var m00 = m[0];
+  var m01 = m[1];
+  var m02 = m[2];
+  var m03 = m[3];
+  var m10 = m[4];
+  var m11 = m[5];
+  var m12 = m[6];
+  var m13 = m[7];
   var c = Math.cos(angle);
   var s = Math.sin(angle);
 
-  m0.splice(0, 4, c * m00 + s * m10,
-                  c * m01 + s * m11,
-                  c * m02 + s * m12,
-                  c * m03 + s * m13);
-  m1.splice(0, 4, c * m10 - s * m00,
-                  c * m11 - s * m01,
-                  c * m12 - s * m02,
-                  c * m13 - s * m03);
+  m[0] = c * m00 + s * m10;
+  m[1] = c * m01 + s * m11;
+  m[2] = c * m02 + s * m12;
+  m[3] = c * m03 + s * m13;
+  m[4] = c * m10 - s * m00;
+  m[5] = c * m11 - s * m01;
+  m[6] = c * m12 - s * m02;
+  m[7] = c * m13 - s * m03;
 };
 
 
@@ -779,45 +477,37 @@ o3d.Transform.prototype.rotateZYX =
   var r21 = sinZSinY * cosX - cosZ * sinX;
   var r22 = cosY * cosX;
 
-  var m0 = m[0];
-  var m1 = m[1];
-  var m2 = m[2];
-  var m3 = m[3];
+  var m00 = m[0];
+  var m01 = m[1];
+  var m02 = m[2];
+  var m03 = m[3];
+  var m10 = m[4];
+  var m11 = m[5];
+  var m12 = m[6];
+  var m13 = m[7];
+  var m20 = m[8];
+  var m21 = m[9];
+  var m22 = m[10];
+  var m23 = m[11];
+  var m30 = m[12];
+  var m31 = m[13];
+  var m32 = m[14];
+  var m33 = m[15];
 
-  var m00 = m0[0];
-  var m01 = m0[1];
-  var m02 = m0[2];
-  var m03 = m0[3];
-  var m10 = m1[0];
-  var m11 = m1[1];
-  var m12 = m1[2];
-  var m13 = m1[3];
-  var m20 = m2[0];
-  var m21 = m2[1];
-  var m22 = m2[2];
-  var m23 = m2[3];
-  var m30 = m3[0];
-  var m31 = m3[1];
-  var m32 = m3[2];
-  var m33 = m3[3];
+  m[0] = r00 * m00 + r01 * m10 + r02 * m20;
+  m[1] = r00 * m01 + r01 * m11 + r02 * m21;
+  m[2] = r00 * m02 + r01 * m12 + r02 * m22;
+  m[3] =  r00 * m03 + r01 * m13 + r02 * m23;
 
-  m0.splice(0, 4,
-      r00 * m00 + r01 * m10 + r02 * m20,
-      r00 * m01 + r01 * m11 + r02 * m21,
-      r00 * m02 + r01 * m12 + r02 * m22,
-      r00 * m03 + r01 * m13 + r02 * m23);
+  m[4] = r10 * m00 + r11 * m10 + r12 * m20;
+  m[5] =  r10 * m01 + r11 * m11 + r12 * m21;
+  m[6] = r10 * m02 + r11 * m12 + r12 * m22;
+  m[7] = r10 * m03 + r11 * m13 + r12 * m23;
 
-  m1.splice(0, 4,
-      r10 * m00 + r11 * m10 + r12 * m20,
-      r10 * m01 + r11 * m11 + r12 * m21,
-      r10 * m02 + r11 * m12 + r12 * m22,
-      r10 * m03 + r11 * m13 + r12 * m23);
-
-  m2.splice(0, 4,
-      r20 * m00 + r21 * m10 + r22 * m20,
-      r20 * m01 + r21 * m11 + r22 * m21,
-      r20 * m02 + r21 * m12 + r22 * m22,
-      r20 * m03 + r21 * m13 + r22 * m23);
+  m[8] = r20 * m00 + r21 * m10 + r22 * m20;
+  m[9] = r20 * m01 + r21 * m11 + r22 * m21;
+  m[10] = r20 * m02 + r21 * m12 + r22 * m22;
+  m[11] = r20 * m03 + r21 * m13 + r22 * m23;
 };
 
 
@@ -862,47 +552,36 @@ o3d.Transform.axisRotateMatrix =
   var r21 = y * z * oneMinusCosine - x * s;
   var r22 = zz + (1 - zz) * c;
 
-  var m0 = m[0];
-  var m1 = m[1];
-  var m2 = m[2];
-  var m3 = m[3];
+  var m00 = m[0];
+  var m01 = m[1];
+  var m02 = m[2];
+  var m03 = m[3];
+  var m10 = m[4];
+  var m11 = m[5];
+  var m12 = m[6];
+  var m13 = m[7];
+  var m20 = m[8];
+  var m21 = m[9];
+  var m22 = m[10];
+  var m23 = m[11];
+  var m30 = m[12];
+  var m31 = m[13];
+  var m32 = m[14];
+  var m33 = m[15];
 
-  var m00 = m0[0];
-  var m01 = m0[1];
-  var m02 = m0[2];
-  var m03 = m0[3];
-  var m10 = m1[0];
-  var m11 = m1[1];
-  var m12 = m1[2];
-  var m13 = m1[3];
-  var m20 = m2[0];
-  var m21 = m2[1];
-  var m22 = m2[2];
-  var m23 = m2[3];
-  var m30 = m3[0];
-  var m31 = m3[1];
-  var m32 = m3[2];
-  var m33 = m3[3];
+  m[0] = r00 * m00 + r01 * m10 + r02 * m20;
+  m[1] = r00 * m01 + r01 * m11 + r02 * m21;
+  m[2] = r00 * m02 + r01 * m12 + r02 * m22;
+  m[3] =  r00 * m03 + r01 * m13 + r02 * m23;
+  m[4] = r10 * m00 + r11 * m10 + r12 * m20;
+  m[5] =  r10 * m01 + r11 * m11 + r12 * m21;
+  m[6] = r10 * m02 + r11 * m12 + r12 * m22;
+  m[7] = r10 * m03 + r11 * m13 + r12 * m23;
 
-  opt_target[0].splice(0, 4,
-      r00 * m00 + r01 * m10 + r02 * m20,
-      r00 * m01 + r01 * m11 + r02 * m21,
-      r00 * m02 + r01 * m12 + r02 * m22,
-      r00 * m03 + r01 * m13 + r02 * m23);
-
-  opt_target[1].splice(0, 4,
-      r10 * m00 + r11 * m10 + r12 * m20,
-      r10 * m01 + r11 * m11 + r12 * m21,
-      r10 * m02 + r11 * m12 + r12 * m22,
-      r10 * m03 + r11 * m13 + r12 * m23);
-
-  opt_target[2].splice(0, 4,
-      r20 * m00 + r21 * m10 + r22 * m20,
-      r20 * m01 + r21 * m11 + r22 * m21,
-      r20 * m02 + r21 * m12 + r22 * m22,
-      r20 * m03 + r21 * m13 + r22 * m23);
-
-  opt_target[3].splice(0, 4, m30, m31, m32, m33);
+  m[8] = r20 * m00 + r21 * m10 + r22 * m20;
+  m[9] = r20 * m01 + r21 * m11 + r22 * m21;
+  m[10] = r20 * m02 + r21 * m12 + r22 * m22;
+  m[11] = r20 * m03 + r21 * m13 + r22 * m23;
 };
 
 
@@ -941,17 +620,17 @@ o3d.Transform.prototype.quaternionRotate =
 
   var d = qWqW + qXqX + qYqY + qZqZ;
 
-  o3d.Transform.compose(this.localMatrix, [
-    [(qWqW + qXqX - qYqY - qZqZ) / d,
+  o3d.Transform.compose_(this.localMatrix, o3d.Transform.makeMatrix4_(
+    (qWqW + qXqX - qYqY - qZqZ) / d,
      2 * (qWqZ + qXqY) / d,
-     2 * (qXqZ - qWqY) / d, 0],
-    [2 * (qXqY - qWqZ) / d,
+     2 * (qXqZ - qWqY) / d, 0,
+    2 * (qXqY - qWqZ) / d,
      (qWqW - qXqX + qYqY - qZqZ) / d,
-     2 * (qWqX + qYqZ) / d, 0],
-    [2 * (qWqY + qXqZ) / d,
+     2 * (qWqX + qYqZ) / d, 0,
+    2 * (qWqY + qXqZ) / d,
      2 * (qYqZ - qWqX) / d,
-     (qWqW - qXqX - qYqY + qZqZ) / d, 0],
-    [0, 0, 0, 1]]);
+     (qWqW - qXqX - qYqY + qZqZ) / d, 0,
+    0, 0, 0, 1));
 };
 
 
@@ -975,32 +654,18 @@ o3d.Transform.prototype.scale =
   var v1 = v[1];
   var v2 = v[2];
 
-  var m0 = m[0];
-  var m1 = m[1];
-  var m2 = m[2];
-  var m3 = m[3];
-
-  m0.splice(0, 4, v0 * m0[0], v0 * m0[1], v0 * m0[2], v0 * m0[3]);
-  m1.splice(0, 4, v1 * m1[0], v1 * m1[1], v1 * m1[2], v1 * m1[3]);
-  m2.splice(0, 4, v2 * m2[0], v2 * m2[1], v2 * m2[2], v2 * m2[3]);
-};
-
-
-/**
- * Utility function to flatten an o3djs-style matrix
- * (which is an array of arrays) into one array of entries.
- * @param {Array.<Array.<number> >} m The o3djs-style matrix.
- * @return {Array.<number>} The flattened matrix.
- */
-o3d.Transform.flattenMatrix4 = function(m) {
-  var m0 = m[0];
-  var m1 = m[1];
-  var m2 = m[2];
-  var m3 = m[3];
-  return [m0[0], m0[1], m0[2], m0[3],
-          m1[0], m1[1], m1[2], m1[3],
-          m2[0], m2[1], m2[2], m2[3],
-          m3[0], m3[1], m3[2], m3[3]];
+  m[0] = v0 * m[0];
+  m[1] = v0 * m[1];
+  m[2] = v0 * m[2];
+  m[3] = v0 * m[3];
+  m[4] = v1 * m[4];
+  m[5] = v1 * m[5];
+  m[6] = v1 * m[6];
+  m[7] = v1 * m[7];
+  m[8] = v2 * m[8];
+  m[9] = v2 * m[9];
+  m[10] = v2 * m[10];
+  m[11] = v2 * m[11];
 };
 
 
@@ -1013,16 +678,14 @@ o3d.Transform.flattenMatrix4 = function(m) {
  */
 o3d.Transform.prototype.traverse =
     function(drawListInfos, opt_parentWorldMatrix) {
-
   this.gl.client.render_stats_['transformsProcessed']++;
   if (drawListInfos.length == 0 || !this.visible) {
     return;
   }
   opt_parentWorldMatrix =
-      opt_parentWorldMatrix ||
-          [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]];
+      opt_parentWorldMatrix || o3d.Transform.makeIdentityMatrix4_();
 
-  o3d.Transform.compose(
+  o3d.Transform.compose_(
       opt_parentWorldMatrix, this.localMatrix, this.worldMatrix);
 
   var remainingDrawListInfos = [];
@@ -1032,10 +695,10 @@ o3d.Transform.prototype.traverse =
       for (var i = 0; i < drawListInfos.length; ++i) {
         var drawListInfo = drawListInfos[i];
 
-        var worldViewProjection = [[], [], [], []];
-        o3d.Transform.compose(drawListInfo.context.view,
+        var worldViewProjection = o3d.Transform.makeNullMatrix4_();
+        o3d.Transform.compose_(drawListInfo.context.view,
             this.worldMatrix, worldViewProjection);
-        o3d.Transform.compose(drawListInfo.context.projection,
+        o3d.Transform.compose_(drawListInfo.context.projection,
             worldViewProjection, worldViewProjection);
 
         if (this.boundingBox.inFrustum(worldViewProjection)) {
@@ -1065,3 +728,643 @@ o3d.Transform.prototype.traverse =
 };
 
 
+/**
+ * Tells the o3d-webgl subsection if it should use native javascript
+ * arrays or if it should switch to the newer Float32Array, which help the
+ * interpreter, once created, but can require a lot of gc work to allocate
+ * and deallocate.
+ * @type {boolean}
+ */
+o3d.Transform.useFloat32Array_  = false;
+
+
+/**
+ * This defines the type of any given Matrix4
+ * @type {!Array.<number>|!Float32Array}
+ */
+o3d.Transform.Matrix4 = goog.typedef;
+
+
+/**
+ * This returns an identity 4x4 matrix with
+ * the diagonal as 1's and everything else 0
+ * @return {!o3d.Transform.Matrix4}
+ * @private
+ */
+o3d.Transform.makeIdentityMatrix4_ = null;
+
+
+/**
+ * This returns a 4x4 matrix with all values set to zero
+ * @return {!o3d.Transform.Matrix4} the vector made up of the elements
+ * @private
+ */
+o3d.Transform.makeNullMatrix4_ = null;
+
+
+/**
+ * This returns a length 2 vector with values set to the passed in arguments
+ * @param {number} a the x element in the vector
+ * @param {number} b the y element in the vector
+ * @return {!Float32Array} the vector made up of the elements
+ * @private
+ */
+o3d.Transform.makeVector2_ = null;
+
+
+/**
+ * This returns a length 3 vector with values set to the passed in arguments
+ * @param {number} a the x element in the vector
+ * @param {number} b the y element in the vector
+ * @param {number} c the z element in the vector
+ * @return {!Float32Array} the vector made up of the elements
+ * @private
+ */
+o3d.Transform.makeVector3_ = null;
+
+
+/**
+ * This returns a length 4 vector with values set to the passed in arguments
+ * @param {number} a the x element in the vector
+ * @param {number} b the y element in the vector
+ * @param {number} c the z element in the vector
+ * @param {number} d the w element in the vector
+ * @return {!Float32Array} the vector made up of the elements
+ * @private
+ */
+o3d.Transform.makeVector4_ = null;
+
+
+/**
+ * This returns a 4x4 matrix in row major order
+ * with values set to the passed in arguments
+ * @param {number} a [0][0] element
+ * @param {number} b [0][1] element
+ * @param {number} c [0][2] element
+ * @param {number} d [0][3] element
+ * @param {number} e [1][0] element
+ * @param {number} f [1][1] element
+ * @param {number} g [1][2] element
+ * @param {number} h [1][3] element
+ * @param {number} i [2][0] element
+ * @param {number} j [2][1] element
+ * @param {number} k [2][2] element
+ * @param {number} l [2][3] element
+ * @param {number} m [3][0] element
+ * @param {number} n [3][1] element
+ * @param {number} o [3][2] element
+ * @param {number} p [3][3] element
+ * @return {!o3d.Transform.Matrix4}
+ */
+o3d.Transform.makeMatrix4_ = null;
+
+
+// If Float32Array isn't defined we might as well not bother including the
+// Float32Array functions.
+if (window.Float32Array != undefined) {
+  /**
+   * A namespace to hold Float32Array-specialized functions.
+   * @namespace
+   * @private
+   */
+  o3d.Transform.Float32Array_ = {};
+
+
+  /**
+   * This defines the type of any given Matrix4 in the Float32Array namespace
+   * @type {function}
+   * @private
+   */
+  o3d.Transform.Float32Array_.Matrix4 = Float32Array;
+
+
+  /**
+   * This returns an identity 4x4 matrix with
+   * the diagonal as 1's and everything else 0
+   * @return {!o3d.Transform.Matrix4}
+   * @private
+   */
+  o3d.Transform.Float32Array_.makeIdentityMatrix4_ = function() {
+      var r = new Float32Array(16);
+      r[0] = 1;
+      r[5] = 1;
+      r[10] = 1;
+      r[15] = 1;
+      return r;
+  };
+
+
+  /**
+   * This returns a 4x4 matrix with all values set to zero
+   * @return {!o3d.Transform.Matrix4} the vector made up of the elements
+   * @private
+   */
+  o3d.Transform.Float32Array_.makeNullMatrix4_ = function() {
+    return new Float32Array(16);
+  };
+
+
+  /**
+   * This returns a length 2 vector with values set to the passed in arguments
+   * @param {number} a the x element in the vector
+   * @param {number} b the y element in the vector
+   * @return {!Float32Array} the vector made up of the elements
+   * @private
+   */
+  o3d.Transform.Float32Array_.makeVector2_ = function(a, b) {
+    var f=new Float32Array(2);
+    f[0] = a;
+    f[1] = b;
+    return f;
+  };
+
+
+  /**
+   * This returns a length 3 vector with values set to the passed in arguments
+   * @param {number} a the x element in the vector
+   * @param {number} b the y element in the vector
+   * @param {number} c the z element in the vector
+   * @return {!Float32Array} the vector made up of the elements
+   * @private
+   */
+  o3d.Transform.Float32Array_.makeVector3_ = function(a, b, c) {
+    var f=new Float32Array(3);
+      f[0] = a;
+      f[1] = b;
+      f[2] = c;
+      return f;
+  };
+
+
+  /**
+   * This returns a length 4 vector with values set to the passed in arguments
+   * @param {number} a the x element in the vector
+   * @param {number} b the y element in the vector
+   * @param {number} c the z element in the vector
+   * @param {number} d the w element in the vector
+   * @return {!Float32Array} the vector made up of the elements
+   * @private
+   */
+  o3d.Transform.Float32Array_.makeVector4_ = function(a, b, c, d) {
+      var f = new Float32Array(4);
+      f[0] = a;
+      f[1] = b;
+      f[2] = c;
+      f[3] = d;
+      return f;
+  };
+
+
+  /**
+   * This returns a 4x4 matrix in row major order
+   * with values set to the passed in arguments
+   * @param {number} a [0][0] element
+   * @param {number} a [0][0] element
+   * @param {number} b [0][1] element
+   * @param {number} c [0][2] element
+   * @param {number} d [0][3] element
+   * @param {number} e [1][0] element
+   * @param {number} f [1][1] element
+   * @param {number} g [1][2] element
+   * @param {number} h [1][3] element
+   * @param {number} i [2][0] element
+   * @param {number} j [2][1] element
+   * @param {number} k [2][2] element
+   * @param {number} l [2][3] element
+   * @param {number} m [3][0] element
+   * @param {number} n [3][1] element
+   * @param {number} o [3][2] element
+   * @param {number} p [3][3] element
+   * @return {!o3d.Transform.Matrix4}
+   */
+  o3d.Transform.Float32Array_.makeMatrix4_ =
+      function(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p) {
+    var m = new Float32Array(16);
+    m[0] = a;
+    m[1] = b;
+    m[2] = c;
+    m[3] = d;
+    m[4] = e;
+    m[5] = f;
+    m[6] = g;
+    m[7] = h;
+    m[8] = i;
+    m[9] = j;
+    m[10] = k;
+    m[11] = l;
+    m[12] = m;
+    m[13] = n;
+    m[14] = o;
+    m[15] = p;
+    return m;
+  };
+} else {
+  // If Float32Array doesn't exist, we cannot use that library.
+  o3d.Transform.useFloat32Array_ = false;
+}
+
+
+/**
+ * A namespace for Array specialized Transform functions that depend
+ * on what the matrix type of choice is
+ * @namespace
+ * @private
+ */
+o3d.Transform.Array_ = {};
+
+/**
+ * This returns a length 3 vector with values set to the passed in arguments
+ * @param {number} a the x element in the vector
+ * @param {number} b the y element in the vector
+ * @return {!Array} the vector made up of the elements
+ * @private
+ */
+o3d.Transform.Array_.makeVector2_ = function(a, b) {
+  return [a,b];
+};
+
+/**
+ * This returns a length 3 vector with values set to the passed in arguments
+ * @param {number} a the x element in the vector
+ * @param {number} b the y element in the vector
+ * @param {number} c the z element in the vector
+ * @return {!Array} the vector made up of the elements
+ * @private
+ */
+o3d.Transform.Array_.makeVector3_ = function(a, b, c) {
+  return [a, b, c];
+};
+
+/**
+ * This returns a length 4 vector with values set to the passed in arguments
+ * @param {number} a the x element in the vector
+ * @param {number} b the y element in the vector
+ * @param {number} c the z element in the vector
+ * @param {number} d the w element in the vector
+ * @return {!Array} the vector made up of the elements
+ * @private
+ */
+o3d.Transform.Array_.makeVector4_ = function(a, b, c, d) {
+  return [a, b, c, d];
+};
+
+/**
+ * This returns a 4x4 matrix in row major order
+ * with values set to the passed in arguments
+ * @param {number} a [0][0] element
+ * @param {number} b [0][1] element
+ * @param {number} c [0][2] element
+ * @param {number} d [0][3] element
+ * @param {number} e [1][0] element
+ * @param {number} f [1][1] element
+ * @param {number} g [1][2] element
+ * @param {number} h [1][3] element
+ * @param {number} i [2][0] element
+ * @param {number} j [2][1] element
+ * @param {number} k [2][2] element
+ * @param {number} l [2][3] element
+ * @param {number} m [3][0] element
+ * @param {number} n [3][1] element
+ * @param {number} o [3][2] element
+ * @param {number} p [3][3] element
+ * @return {!o3d.Transform.Matrix4}
+ * @private
+ */
+o3d.Transform.Array_.makeMatrix4_ =
+    function(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p) {
+ return [a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p];
+};
+
+o3d.Transform.Array_.Matrix4_ = Array;
+
+/**
+ * This returns an identity 4x4 matrix with
+ * the diagonal as 1's and everything else 0
+ * @return {!o3d.Transform.Matrix4}
+ */
+o3d.Transform.Array_.makeIdentityMatrix4_ = function() {
+  return [1, 0, 0, 0,
+          0, 1, 0, 0,
+          0, 0, 1, 0,
+          0, 0, 0, 1];
+};
+
+
+/**
+ * This returns an identity 4x4 matrix with all values as 0
+ * @return {!o3d.Transform.Matrix4}
+ */
+o3d.Transform.Array_.makeNullMatrix4_ = function() {
+  return [0, 0, 0, 0,
+          0, 0, 0, 0,
+          0, 0, 0, 0,
+          0, 0, 0, 0];
+};
+
+
+if (o3d.Transform.useFloat32Array_) {
+  for (var i in o3d.Transform.Float32Array_) {
+    o3d.Transform[i] = o3d.Transform.Float32Array_[i];
+  }
+} else {
+  for (var i in o3d.Transform.Array_) {
+    o3d.Transform[i] = o3d.Transform.Array_[i];
+  }
+}
+
+
+/*
+ * Utility function to copose a matrix with another matrix.
+ * Precomposes b with a, changing a, or if the target matrix if
+ * one is provided.
+ *
+ * @param {!Array.<!Array.<number>>} a
+ * @param {!Array.<!Array.<number>>} b
+ * @param {!Array.<!Array.<number>>} opt_target
+ * @private
+ */
+o3d.Transform.compose_ = function(a, b, opt_target) {
+  var t = opt_target || a;
+
+  var a00 = a[0];
+  var a01 = a[1];
+  var a02 = a[2];
+  var a03 = a[3];
+  var a10 = a[4];
+  var a11 = a[5];
+  var a12 = a[6];
+  var a13 = a[7];
+  var a20 = a[8];
+  var a21 = a[9];
+  var a22 = a[10];
+  var a23 = a[11];
+  var a30 = a[12];
+  var a31 = a[13];
+  var a32 = a[14];
+  var a33 = a[15];
+  var b00 = b[0];
+  var b01 = b[1];
+  var b02 = b[2];
+  var b03 = b[3];
+  var b10 = b[4];
+  var b11 = b[5];
+  var b12 = b[6];
+  var b13 = b[7];
+  var b20 = b[8];
+  var b21 = b[9];
+  var b22 = b[10];
+  var b23 = b[11];
+  var b30 = b[12];
+  var b31 = b[13];
+  var b32 = b[14];
+  var b33 = b[15];
+  t[0] = a00 * b00 + a10 * b01 + a20 * b02 + a30 * b03;
+  t[1] = a01 * b00 + a11 * b01 + a21 * b02 + a31 * b03;
+  t[2] = a02 * b00 + a12 * b01 + a22 * b02 + a32 * b03;
+  t[3] = a03 * b00 + a13 * b01 + a23 * b02 + a33 * b03;
+  t[4] = a00 * b10 + a10 * b11 + a20 * b12 + a30 * b13;
+  t[5] = a01 * b10 + a11 * b11 + a21 * b12 + a31 * b13;
+  t[6] = a02 * b10 + a12 * b11 + a22 * b12 + a32 * b13;
+  t[7] = a03 * b10 + a13 * b11 + a23 * b12 + a33 * b13;
+  t[8] = a00 * b20 + a10 * b21 + a20 * b22 + a30 * b23;
+  t[9] = a01 * b20 + a11 * b21 + a21 * b22 + a31 * b23;
+  t[10] = a02 * b20 + a12 * b21 + a22 * b22 + a32 * b23;
+  t[11] = a03 * b20 + a13 * b21 + a23 * b22 + a33 * b23;
+  t[12] = a00 * b30 + a10 * b31 + a20 * b32 + a30 * b33;
+  t[13] = a01 * b30 + a11 * b31 + a21 * b32 + a31 * b33;
+  t[14] = a02 * b30 + a12 * b31 + a22 * b32 + a32 * b33;
+  t[15] = a03 * b30 + a13 * b31 + a23 * b32 + a33 * b33;
+};
+
+
+/**
+ * Tests whether two matrices are either equal in the sense that they
+ * refer to the same memory, or equal in the sense that they have equal
+ * entries.
+ *
+ * @param {!Array.<!Array.<number>>} a A matrix.
+ * @param {!Array.<!Array.<number>>} b Another matrix.
+ * @return {boolean} Whether they are equal.
+ * @private
+ */
+o3d.Transform.matricesEqual_ = function(a, b) {
+  if (a==b) {
+    return true;
+  }
+  for (var i = 0; i < 16; ++i) {
+      if (a[i] != b[i]) {
+        return false;
+      }
+  }
+
+  return true;
+};
+
+
+/**
+ * Computes the transpose of the matrix a in place if no target is provided.
+ * Or if a target is provided, turns the target into the transpose of a.
+ *
+ * @param {!Array.<!Array.<number>>} m A matrix.
+ * @param {Array.<!Array.<number>>} opt_target
+ *     The matrix to become the transpose of m.
+ * @private
+ */
+o3d.Transform.transpose_ = function(m, opt_target) {
+  var t = opt_target || m;
+
+  var m00 = m[0];
+  var m01 = m[1];
+  var m02 = m[2];
+  var m03 = m[3];
+  var m10 = m[4];
+  var m11 = m[5];
+  var m12 = m[6];
+  var m13 = m[7];
+  var m20 = m[8];
+  var m21 = m[9];
+  var m22 = m[10];
+  var m23 = m[11];
+  var m30 = m[12];
+  var m31 = m[13];
+  var m32 = m[14];
+  var m33 = m[15];
+  t[0] = m00;
+  t[1] = m10;
+  t[2] = m20;
+  t[3] = m30;
+
+  t[4] = m01;
+  t[5] = m11;
+  t[6] = m21;
+  t[7] = m31;
+
+  t[8] = m02;
+  t[9] = m12;
+  t[10] = m22;
+  t[11] = m32;
+
+  t[12] = m03;
+  t[13] = m13;
+  t[14] = m23;
+  t[15] = m33;
+};
+
+
+/**
+ * Computes the inverse of the matrix a in place if no target is provided.
+ * Or if a target is provided, turns the target into the transpose of a.
+ *
+ * @param {!Array.<!Array.<number>>} m A matrix.
+ * @param {Array.<!Array.<number>>} opt_target The matrix to become the
+ *     inverse of a.
+ */
+o3d.Transform.inverse_ = function(m, opt_target) {
+  var t = opt_target || m;
+
+  var m00 = m[0];
+  var m01 = m[1];
+  var m02 = m[2];
+  var m03 = m[3];
+  var m10 = m[4];
+  var m11 = m[5];
+  var m12 = m[6];
+  var m13 = m[7];
+  var m20 = m[8];
+  var m21 = m[9];
+  var m22 = m[10];
+  var m23 = m[11];
+  var m30 = m[12];
+  var m31 = m[13];
+  var m32 = m[14];
+  var m33 = m[15];
+
+  var tmp_0 = m22 * m33;
+  var tmp_1 = m32 * m23;
+  var tmp_2 = m12 * m33;
+  var tmp_3 = m32 * m13;
+  var tmp_4 = m12 * m23;
+  var tmp_5 = m22 * m13;
+  var tmp_6 = m02 * m33;
+  var tmp_7 = m32 * m03;
+  var tmp_8 = m02 * m23;
+  var tmp_9 = m22 * m03;
+  var tmp_10 = m02 * m13;
+  var tmp_11 = m12 * m03;
+  var tmp_12 = m20 * m31;
+  var tmp_13 = m30 * m21;
+  var tmp_14 = m10 * m31;
+  var tmp_15 = m30 * m11;
+  var tmp_16 = m10 * m21;
+  var tmp_17 = m20 * m11;
+  var tmp_18 = m00 * m31;
+  var tmp_19 = m30 * m01;
+  var tmp_20 = m00 * m21;
+  var tmp_21 = m20 * m01;
+  var tmp_22 = m00 * m11;
+  var tmp_23 = m10 * m01;
+
+  var t0 = (tmp_0 * m11 + tmp_3 * m21 + tmp_4 * m31) -
+      (tmp_1 * m11 + tmp_2 * m21 + tmp_5 * m31);
+  var t1 = (tmp_1 * m01 + tmp_6 * m21 + tmp_9 * m31) -
+      (tmp_0 * m01 + tmp_7 * m21 + tmp_8 * m31);
+  var t2 = (tmp_2 * m01 + tmp_7 * m11 + tmp_10 * m31) -
+      (tmp_3 * m01 + tmp_6 * m11 + tmp_11 * m31);
+  var t3 = (tmp_5 * m01 + tmp_8 * m11 + tmp_11 * m21) -
+      (tmp_4 * m01 + tmp_9 * m11 + tmp_10 * m21);
+
+  var d = 1.0 / (m00 * t0 + m10 * t1 + m20 * t2 + m30 * t3);
+
+  t[0] = d * t0;
+  t[1] = d * t1;
+  t[2] = d * t2;
+  t[3] = d * t3;
+  t[4] = d * ((tmp_1 * m10 + tmp_2 * m20 + tmp_5 * m30) -
+          (tmp_0 * m10 + tmp_3 * m20 + tmp_4 * m30));
+  t[5] = d * ((tmp_0 * m00 + tmp_7 * m20 + tmp_8 * m30) -
+          (tmp_1 * m00 + tmp_6 * m20 + tmp_9 * m30));
+  t[6] = d * ((tmp_3 * m00 + tmp_6 * m10 + tmp_11 * m30) -
+          (tmp_2 * m00 + tmp_7 * m10 + tmp_10 * m30));
+  t[7] = d * ((tmp_4 * m00 + tmp_9 * m10 + tmp_10 * m20) -
+          (tmp_5 * m00 + tmp_8 * m10 + tmp_11 * m20));
+  t[8] = d * ((tmp_12 * m13 + tmp_15 * m23 + tmp_16 * m33) -
+          (tmp_13 * m13 + tmp_14 * m23 + tmp_17 * m33));
+  t[9] = d * ((tmp_13 * m03 + tmp_18 * m23 + tmp_21 * m33) -
+          (tmp_12 * m03 + tmp_19 * m23 + tmp_20 * m33));
+  t[10] = d * ((tmp_14 * m03 + tmp_19 * m13 + tmp_22 * m33) -
+          (tmp_15 * m03 + tmp_18 * m13 + tmp_23 * m33));
+  t[11] = d * ((tmp_17 * m03 + tmp_20 * m13 + tmp_23 * m23) -
+          (tmp_16 * m03 + tmp_21 * m13 + tmp_22 * m23));
+  t[12] = d * ((tmp_14 * m22 + tmp_17 * m32 + tmp_13 * m12) -
+          (tmp_16 * m32 + tmp_12 * m12 + tmp_15 * m22));
+  t[13] = d * ((tmp_20 * m32 + tmp_12 * m02 + tmp_19 * m22) -
+          (tmp_18 * m22 + tmp_21 * m32 + tmp_13 * m02));
+  t[14] = d * ((tmp_18 * m12 + tmp_23 * m32 + tmp_15 * m02) -
+          (tmp_22 * m32 + tmp_14 * m02 + tmp_19 * m12));
+  t[15] = d * ((tmp_22 * m22 + tmp_16 * m02 + tmp_21 * m12) -
+          (tmp_20 * m12 + tmp_23 * m22 + tmp_17 * m02));
+};
+
+
+/**
+ * Takes a 4-by-4 matrix and a vector with 3 entries,
+ * interprets the vector as a point, transforms that point by the matrix, and
+ * returns the result as a vector with 3 entries.
+ * @param {!o3djs.math.Matrix4} m The matrix.
+ * @param {!o3djs.math.Vector3} v The point.
+ * @return {!o3djs.math.Vector3} The transformed point.
+ * @private
+ */
+o3d.Transform.transformPoint_ = function(m, v) {
+  var v0 = v[0];
+  var v1 = v[1];
+  var v2 = v[2];
+
+  var d = v0 * m[3] + v1 * m[7] + v2 * m[11] + m[15];
+  return o3d.Transform.makeVector3_(
+      (v0 * m[0] + v1 * m[4] + v2 * m[8] + m[12]) / d,
+      (v0 * m[1] + v1 * m[5] + v2 * m[9] + m[13]) / d,
+      (v0 * m[2] + v1 * m[6] + v2 * m[10] + m[14]) / d);
+};
+
+
+/**
+ * Takes a 4-by-4 matrix and a vector with 4 entries,
+ * interprets the vector as a point, transforms that point by the matrix, and
+ * returns the result as a vector with 4 entries.
+ * @param {!o3djs.math.Matrix4} m The matrix.
+ * @param {!o3djs.math.Vector4} v The vector.
+ * @return {!o3djs.math.Vector4} The transformed vector.
+ * @private
+ */
+o3d.Transform.multiplyVector_ = function(m, v) {
+  var v0 = v[0];
+  var v1 = v[1];
+  var v2 = v[2];
+  var v3 = v[3];
+
+  return o3d.Transform.makeVector4_(
+      (v0 * m[0] + v1 * m[4] + v2 * m[8] + v3 * m[12]),
+      (v0 * m[1] + v1 * m[5] + v2 * m[9] + v3 * m[13]),
+      (v0 * m[2] + v1 * m[6] + v2 * m[10] + v3 * m[14]),
+      (v0 * m[3] + v1 * m[7] + v2 * m[11] + v3 * m[15]));
+};
+
+
+/**
+ * Takes a 4-by-4 matrix and a vector with 3 entries,
+ * interprets the vector as a point, transforms that point by the matrix,
+ * returning the z-component of the result only.
+ * @param {!o3djs.math.Matrix4} m The matrix.
+ * @param {!o3djs.math.Vector3} v The point.
+ * @return {number} The z coordinate of the transformed point.
+ * @private
+ */
+o3d.Transform.transformPointZOnly_ = function(m, v) {
+  var v0 = v[0];
+  var v1 = v[1];
+  var v2 = v[2];
+
+  return (v0 * m[2] + v1 * m[6] + v2 * m[10] + m[14]) /
+      (v0 * m[3] + v1 * m[7] + v2 * m[11] + m[15]);
+};

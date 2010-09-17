@@ -38,6 +38,7 @@
 
 o3djs.provide('o3djs.serialization');
 
+o3djs.require('o3djs.math');
 o3djs.require('o3djs.error');
 o3djs.require('o3djs.texture');
 
@@ -447,7 +448,10 @@ o3djs.serialization.Deserializer.prototype.deserializeValue = function(
       for (var i = 0; i != valueAsObject.length; ++i) {
         valueAsObject[i] = this.deserializeValue(valueAsObject[i]);
       }
-      return valueAsObject;
+      if (o3djs.math.usePluginMath_) {
+        return valueAsObject;
+      }
+      return o3djs.serialization.fixMatrices(valueAsObject);
     }
 
     var refId = valueAsObject['ref'];
@@ -743,6 +747,50 @@ o3djs.serialization.createDeserializer = function(pack, json) {
 o3djs.serialization.deserialize = function(pack, json) {
   var deserializer = o3djs.serialization.createDeserializer(pack, json);
   deserializer.run();
+};
+
+/**
+ * This function looks at a given data type, determines if it is an old style
+ * matrix that is a 2d doubly nested array.  If so, it flattens the matrix in
+ * place so that it may be handled by the code.
+ * @param {object} parsed a potential array that will be repaired
+ */
+o3djs.serialization.fixMatrices = function(parsed) {
+  function isMatrix(m) {
+    var len = m && m.length;
+    if (len && len <= 4) {
+      for (var i = 0; i < len; ++i) {
+        var mi = m[i];
+        var mlen = mi.length;
+        if (mlen != len) {
+          return false;
+        }
+        for(var j = 0; j < len; ++j) {
+          if (Number(mi[j]) == NaN){
+            return false;
+          }
+        }
+      }
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  function flatten(m) {
+    var len = m.length;
+    var retval = new o3djs.math.makeMatrix4(len * len);
+    for (var i = 0; i < len; ++i) {
+      for (var j = 0; j < len; ++j) {
+        retval[i * len + j] = m[i][j];
+      }
+    }
+    return retval;
+  }
+  if (isMatrix(parsed)) {
+    return flatten(parsed);
+  }
+  return parsed;
 };
 
 /**

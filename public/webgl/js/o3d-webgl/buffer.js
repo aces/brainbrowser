@@ -63,10 +63,13 @@ o3d.Buffer.prototype.totalComponents = 0;
 o3d.Buffer.prototype.gl_buffer_ = 0;
 
 /**
- * Type of the array element.
- * @type {!Float32Array}
+ * Function to create an array for the buffer.
+ * @param {number} numElements
+ * @return {!Float32Array}
  */
-o3d.Buffer.prototype.ArrayType = Float32Array;
+o3d.Buffer.prototype.createArray = function(numElements) {
+  return new Float32Array(numElements);
+};
 
 o3d.Buffer.prototype.__defineGetter__('numElements',
     function() {
@@ -108,7 +111,7 @@ o3d.Buffer.prototype.resize = function(numElements) {
   this.gl_buffer_ = this.gl.createBuffer();
   // Callers (in particular the deserializer) occasionally call this
   // with floating-point numbers.
-  this.array_ = new this.ArrayType(Math.floor(numElements));
+  this.array_ = this.createArray(Math.floor(numElements));
 };
 
 /**
@@ -320,8 +323,9 @@ o3d.inherit('IndexBuffer', 'Buffer');
  * Type of the array element.
  * @type {!Uint16Array}
  */
-o3d.IndexBuffer.prototype.ArrayType = Uint16Array;
-
+o3d.IndexBuffer.prototype.createArray = function(numElements) {
+  return new Uint16Array(numElements);
+};
 
 /**
  * Delivers the buffer to the graphics hardware when read/write is finished.

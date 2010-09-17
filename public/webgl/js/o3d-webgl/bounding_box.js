@@ -129,7 +129,7 @@ o3d.BoundingBox.prototype.mul =
   var new_corners = [];
 
   for (var i = 0; i < corners.length; ++i) {
-    new_corners.push(o3d.Transform.transformPoint(matrix, corners[i]));
+    new_corners.push(o3d.Transform.transformPoint_(matrix, corners[i]));
   }
 
   return o3d.BoundingBox.fitBoxToPoints_(new_corners);
@@ -283,7 +283,7 @@ o3d.BoundingBox.prototype.inFrustum =
   var bb_test = 0x3f;
   for (var i = 0; i < corners.length; ++i) {
     var corner = corners[i];
-    var p = o3d.Transform.transformPoint(matrix, corner);
+    var p = o3d.Transform.transformPoint_(matrix, corner);
     bb_test &= (((p[0] > 1.0) << 0) |
                 ((p[0] < -1.0) << 1) |
                 ((p[1] > 1.0) << 2) |

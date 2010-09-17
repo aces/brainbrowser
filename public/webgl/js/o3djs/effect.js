@@ -65,6 +65,7 @@ o3djs.effect.TWO_COLOR_CHECKER_EFFECT_NAME =
  * @namespace
  */
 o3djs.effect.o3d = {
+  LANGUAGE: 'o3d',
   FLOAT2: 'float2',
   FLOAT3: 'float3',
   FLOAT4: 'float4',
@@ -78,6 +79,7 @@ o3djs.effect.o3d = {
   VERTEX_VARYING_PREFIX: 'output.',
   PIXEL_VARYING_PREFIX: 'input.',
   TEXTURE: 'tex',
+  SAMPLER: 'sampler',
   BEGIN_IN_STRUCT: 'struct InVertex {\n',
   BEGIN_OUT_STRUCT: 'struct OutVertex {\n',
   END_STRUCT: '};\n'
@@ -92,6 +94,7 @@ o3djs.effect.o3d = {
  * @namespace
  */
 o3djs.effect.glsl = {
+    LANGUAGE: 'glsl',
     FLOAT2: 'vec2',
     FLOAT3: 'vec3',
     FLOAT4: 'vec4',
@@ -105,6 +108,7 @@ o3djs.effect.glsl = {
     VERTEX_VARYING_PREFIX: 'v_',
     PIXEL_VARYING_PREFIX: 'v_',
     TEXTURE: 'texture',
+    SAMPLER: 'sampler2D',
     BEGIN_IN_STRUCT: '',
     BEGIN_OUT_STRUCT: '',
     END_STRUCT: '',
@@ -383,7 +387,19 @@ o3djs.effect.setLanguage = function(language) {
 
   o3djs.effect.TWO_COLOR_CHECKER_FXSTRING =
       o3djs.effect.buildCheckerShaderString();
-}
+};
+
+/**
+ * Gets the language set in the function setLanguage.  Returns a string, either
+ * 'glsl' or 'o3d'.
+ */
+o3djs.effect.getLanguage = function() {
+  var language_namespace = o3djs.effect.o3d;
+  if (language_namespace == o3djs.effect.glsl) {
+    return 'glsl';
+  }
+  return 'o3d';
+};
 
 
 /**
@@ -604,16 +620,13 @@ o3djs.effect.buildBumpInputCoords = function(bumpSampler) {
 o3djs.effect.buildBumpOutputCoords = function(bumpSampler) {
   var p = o3djs.effect;
   return bumpSampler ?
-      ('  ' + p.VARYING + p.FLOAT3 + ' ' +
-         p.VARYING_DECLARATION_PREFIX + 'tangent' +
+      ('  ' + p.FLOAT3 + ' tangent' +
           p.semanticSuffix(
               'TEXCOORD' + p.interpolant_++) + ';\n' +
-       '  ' + p.VARYING + p.FLOAT3 + ' ' +
-          p.VARYING_DECLARATION_PREFIX + 'binormal' +
-          p.semanticSuffix(
-              'TEXCOORD' + p.interpolant_++) + ';\n' +
-       '  ' + p.VARYING + p.FLOAT2 + ' ' +
-          p.VARYING_DECLARATION_PREFIX + 'bumpUV' +
+       '  ' + p.FLOAT3 + ' binormal' +
+          p.semanticSuffix('TEXCOORD' +
+              p.interpolant_++) + ';\n' +
+       '  ' + p.FLOAT2 + ' bumpUV' +
           p.semanticSuffix(
               'TEXCOORD' + p.interpolant_++) + ';\n') : '';
 };
@@ -641,7 +654,7 @@ o3djs.effect.buildCheckerShaderString = function() {
     p.END_STRUCT;
 
   return 'uniform ' + p.MATRIX4 + ' worldViewProjection' +
-  p.semanticSuffix('WORLDVIEWPROJECTION') + ';\n' +
+    p.semanticSuffix('WORLDVIEWPROJECTION') + ';\n' +
     'uniform ' + p.MATRIX4 + ' worldInverseTranspose' +
     p.semanticSuffix('WORLDINVERSETRANSPOSE') + ';\n' +
     'uniform ' + p.MATRIX4 + ' world' +
@@ -701,7 +714,8 @@ o3djs.effect.buildCheckerShaderString = function() {
     ' outColor = directionalIntensity * check;\n' +
     p.endPixelShaderMain(
         p.FLOAT4 + '(outColor.rgb, check.a)') +
-    '\n' + p.entryPoints() +
+    '\n' +
+    p.entryPoints() +
     p.matrixLoadOrder();
 };
 
@@ -1249,9 +1263,11 @@ o3djs.effect.buildStandardShaderString = function(material,
 
   /**
    * Builds the normal map part of the vertex shader.
+   * @param {boolean} opt_bumpSampler Whether there is a bump
+   *     sampler. Default = false.
    * @return {string} The code for normal mapping in the vertex shader.
    */
-  var bumpVertexShaderCode = function() {
+  var bumpVertexShaderCode = function(opt_bumpSampler) {
     return bumpSampler ?
         ('  ' + p.VERTEX_VARYING_PREFIX + 'binormal = ' +
          p.mul(p.FLOAT4 + '(' +
@@ -1268,27 +1284,21 @@ o3djs.effect.buildStandardShaderString = function(material,
    * @return {string} The code for normal computation in the pixel shader.
    */
   var getNormalShaderCode = function() {
-    if (bumpSampler) {
-      var type = getSamplerType(bumpSampler);
-      var tex2D = p.TEXTURE + type;
-      return (
-         p.MATRIX3 + ' tangentToWorld = ' + p.MATRIX3 +
-            '(' + p.PIXEL_VARYING_PREFIX + 'tangent,\n' +
+    return bumpSampler ?
+        (p.MATRIX3 + ' tangentToWorld = ' + p.MATRIX3 +
+            '(' + p.ATTRIBUTE_PREFIX + 'tangent,\n' +
          '                                   ' +
-         p.PIXEL_VARYING_PREFIX + 'binormal,\n' +
+         p.ATTRIBUTE_PREFIX + 'binormal,\n' +
          '                                   ' +
-         p.PIXEL_VARYING_PREFIX + 'normal);\n' +
-         p.FLOAT3 + ' tangentNormal = ' + tex2D + '(bumpSampler, ' +
-         p.PIXEL_VARYING_PREFIX + 'bumpUV.xy).xyz -\n' +
+         p.ATTRIBUTE_PREFIX + 'normal);\n' +
+         p.FLOAT3 + ' tangentNormal = ' + p.TEXTURE + '2D' + '(bumpSampler, ' +
+         p.ATTRIBUTE_PREFIX + 'bumpUV.xy).xyz -\n' +
          '                       ' + p.FLOAT3 +
          '(0.5, 0.5, 0.5);\n' + p.FLOAT3 + ' normal = ' +
          p.mul('tangentNormal', 'tangentToWorld') + ';\n' +
          'normal = normalize(' + p.PIXEL_VARYING_PREFIX +
-         'normal);\n');
-    } else {
-      return '  ' + p.FLOAT3 + ' normal = normalize(' +
+         'normal);\n') : '  ' + p.FLOAT3 + ' normal = normalize(' +
          p.PIXEL_VARYING_PREFIX + 'normal);\n';
-    }
   };
 
   /**

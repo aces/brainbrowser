@@ -449,12 +449,14 @@ o3d.Client.RENDERMODE_ON_DEMAND = 1;
 o3d.Client.prototype.renderMode = o3d.Client.RENDERMODE_CONTINUOUS;
 
 
-
 /**
  * Forces a render of the current scene if the current render mode is
  * RENDERMODE_ON_DEMAND.
  */
 o3d.Client.prototype.render = function() {
+  if (!this.gl) {
+    return;
+  }
   // Synthesize a render event.
   var render_event = new o3d.RenderEvent;
   this.counter_manager_.advanceRenderFrameCounters();
@@ -514,7 +516,6 @@ o3d.Client.prototype.render_stats = {}
  */
 o3d.Client.prototype.renderTree =
     function(render_node) {
-
   this.render_stats_ = {
     drawElementsCulled: 0,
     drawElementsProcessed: 0,
@@ -648,13 +649,15 @@ o3d.Client.prototype.initWithCanvas = function(canvas) {
   if (!canvas || !canvas.getContext) {
     return false;
   }
-  try {
-    gl = canvas.getContext("experimental-webgl", standard_attributes)
-  } catch(e) { }
-  if (!gl) {
+
+  var names = ["webgl", "experimental-webgl", "moz-webgl"];
+  for (var ii = 0; ii < names.length; ++ii) {
     try {
-      gl = canvas.getContext("moz-webgl")
+      gl = canvas.getContext(names[ii], standard_attributes);
     } catch(e) { }
+    if (gl) {
+      break;
+    }
   }
 
   if (!gl) {
@@ -673,10 +676,18 @@ o3d.Client.prototype.initWithCanvas = function(canvas) {
                     height: canvas.height};
   o3d.State.createDefaultState_(gl).push_();
 
-  // Create the default error texture.
-  var defaultTexture = new o3d.Texture2D();
-  defaultTexture.gl = this.gl;
-  defaultTexture.init_(8, 8, o3d.Texture.ARGB8, 1, false);
+  this.initErrorTextures_();
+
+  return true;
+}
+
+
+/**
+ * Creates the yellow-and-red 8x8 error textures.
+ * @private
+ */
+o3d.Client.prototype.initErrorTextures_ = function() {
+  // First create the yellow-and-red pattern.
   var r = [1, 0, 0, 1];
   var Y = [1, 1, 0, 1];
   var error = [r, r, r, r, r, r, r, r,
@@ -693,12 +704,29 @@ o3d.Client.prototype.initWithCanvas = function(canvas) {
       pixels[i * 4 + j] = error[i][j];
     }
   }
+
+  // Create the default error cube map using the same data.
+  var defaultTextureCube = new o3d.TextureCUBE();
+
+  defaultTextureCube.gl = this.gl;
+  defaultTextureCube.init_(8, o3d.Texture.ARGB8, 1, false, true);
+
+  for (var i = 0; i < 6; ++i) {
+    defaultTextureCube.set(i, 0, pixels);
+  }
+  defaultTextureCube.name = 'DefaultTextureCube';
+  this.error_texture_cube_ = defaultTextureCube;
+  this.fallback_error_texture_cube_ = defaultTextureCube;
+
+  // Create the default error texture.
+  var defaultTexture = new o3d.Texture2D();
+  defaultTexture.gl = this.gl;
+  defaultTexture.init_(8, 8, o3d.Texture.ARGB8, 1, false);
+
   defaultTexture.set(0, pixels);
   defaultTexture.name = 'DefaultTexture';
-  this.fallback_error_texture_ = defaultTexture;
   this.error_texture_ = defaultTexture;
-
-  return true;
+  this.fallback_error_texture_ = defaultTexture;
 };
 
 
@@ -968,6 +996,21 @@ o3d.Client.prototype.setErrorTexture =
 
 
 /**
+ * Sets the cubemap texture to use when a Texture or Sampler is missing while
+ * rendering. The default is a red texture with a yellow no symbol.
+ * <span style="color:yellow; background-color: red;">&Oslash;.
+ * If you set it to null you'll get an error if you try to render something
+ * that is missing a needed Texture, Sampler or ParamSampler.
+ *
+ * @param {o3d.Texture} texture Texture to use for missing textures or null.
+ */
+o3d.Client.prototype.setErrorTextureCube =
+    function(texture) {
+  this.error_texture_cube_map_ = texture;
+};
+
+
+/**
  * Sets a callback for when the client ticks. The client processes some things
  * like animation timers at up to 100hz.  This callback will get called before
  * each of those process ticks.
@@ -1177,20 +1220,39 @@ o3d.Client.prototype.cursor = null;
 /**
  * The current error texture.
  *
- * @type {o3d.Texture}
+ * @type {o3d.Texture2D}
  * @private
  */
 o3d.Client.prototype.error_texture_ = null;
 
 
 /**
+ * The current error cube texture.
+ *
+ * @type {o3d.TextureCUBE}
+ * @private
+ */
+o3d.Client.prototype.error_texture_cube_ = null;
+
+
+/**
  * The fallback error texture. Should only be initialized once per client and
  * is read-only.
  *
- * @type {!o3d.Texture}
+ * @type {!o3d.Texture2D}
  * @private
  */
 o3d.Client.prototype.fallback_error_texture_ = null;
+
+
+/**
+ * The fallback error texture. Should only be initialized once per client and
+ * is read-only.
+ *
+ * @type {!o3d.TextureCUBE}
+ * @private
+ */
+o3d.Client.prototype.fallback_error_texture_cube_ = null;
 
 
 /**

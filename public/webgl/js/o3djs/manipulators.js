@@ -244,8 +244,10 @@ o3djs.manipulators.Line_.prototype.closestPointToRay = function(startPoint,
   // value of u' is less than zero.
   var rayDirection = o3djs.math.subVector(endPoint, startPoint);
   var ddrd = o3djs.math.dot(this.direction_, rayDirection);
-  var A = [[-o3djs.math.lengthSquared(this.direction_), ddrd],
-           [ddrd, -o3djs.math.lengthSquared(rayDirection)]];
+  var A = o3djs.math.makeMatrix2(-o3djs.math.lengthSquared(this.direction_),
+                                 ddrd,
+                                 ddrd,
+                                 -o3djs.math.lengthSquared(rayDirection));
   var det = o3djs.math.det2(A);
   if (Math.abs(det) < o3djs.manipulators.EPSILON) {
     return null;

@@ -155,10 +155,10 @@ o3d.Shape.prototype.writeToDrawLists =
           var view = context.view;
           var projection = context.projection;
 
-          var worldViewProjection = [[], [], [], []];
-          var viewProjection = [[], [], [], []];
-          o3d.Transform.compose(projection, view, viewProjection);
-          o3d.Transform.compose(viewProjection, world, worldViewProjection);
+          var worldViewProjection = o3d.Transform.makeIdentityMatrix4_();
+          var viewProjection = o3d.Transform.makeIdentityMatrix4_();
+          o3d.Transform.compose_(projection, view, viewProjection);
+          o3d.Transform.compose_(viewProjection, world, worldViewProjection);
 
           if (element.cull && element.boundingBox) {
             if (!element.boundingBox.inFrustum(worldViewProjection)) {

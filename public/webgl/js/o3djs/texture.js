@@ -212,7 +212,6 @@ o3djs.texture.createTextureFromBitmaps = function(
     pack,
     bitmaps,
     opt_generateMips) {
-
   if (bitmaps.length == 0) {
     throw 'no bitmaps';
   }
@@ -288,8 +287,7 @@ o3djs.texture.createCubeTextureFrom6Bitmaps = function(
       edgeLength, bitmaps[0].format, numMips, false);
   for (var ii = 0; ii < 6; ++ii) {
     var bitmap = bitmaps[ii];
-    texture.drawImage(bitmap, 0, 0, 0, bitmap.width, bitmap.height,
-                      ii, 0, 0, edgeLength, edgeLength);
+    texture.setFromBitmap(/** @type{o3d.TextureCUBE.CubeFace} */ (ii), bitmap);
   }
   texture.generateMips(0, numMips - 1);
   return texture;

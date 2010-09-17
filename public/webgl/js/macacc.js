@@ -30,7 +30,7 @@ jQuery(function () {
 				     //stop: macacc.range_change
 
 				   });
-    jQuery('#range_change').click(macacc.range_change);
+
 
 
     jQuery(".range-box").keypress(function(e) {
@@ -59,8 +59,6 @@ jQuery(function () {
     });
 
     jQuery('#screenshot').click(function(event) {jQuery(this).attr("href",bb.client.toDataUR());});
-    //Add event handlers
-    jQuery("body").keydown(bb.keyPressedCallback);
     o3djs.event.addEventListener(bb.o3dElement, 'mousedown', function (e) {
 
       var pointer_setting=jQuery('[name=pointer]:checked').val();

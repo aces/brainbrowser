@@ -20,6 +20,42 @@ o3djs.require('o3djs.scene');
 
 
 
+// //Some quick utilities (should be move to a special js file) BEHOLD THEIR AWESOMENESS
+Array.prototype.min = function() {
+  var increment = 50000;
+  if(this.length > increment){
+    var reduced_array = [];
+    for(var i=0;i<this.length;i+=increment) {
+      reduced_array.push(Math.min.apply(Math, this.slice(i,i+increment-1)));
+    }
+  }else {
+    return Math.min.apply(Math, this);
+  }
+  return reduced_array.min();
+};
+
+//spacing between function for more awesome look. (I agree - Tarek)
+
+Array.prototype.max = function(array) {
+  var increment = 50000;
+  if(this.length > increment){
+    var reduced_array = [];
+    for(var i=0;i<this.length;i+=increment) {
+      reduced_array.push(Math.max.apply(Math, this.slice(i,i+increment-1)));
+    }
+  }else {
+    return Math.max.apply(Math, this);
+  }
+  return reduced_array.max();
+};
+
+
+// Array.prototype.min = function(array) {
+//   return Math.min.apply(Math, this);
+// };
+// Array.prototype.max = function(array) {
+//   return Math.max.apply(Math, this);
+// };
 
 
 function BrainBrowser(url) {
@@ -96,8 +132,15 @@ function BrainBrowser(url) {
     that.aball = o3djs.arcball.create(100, 100);
 
     that.client.setRenderCallback(that.renderCallback);
+
+    //Add event handlers
+    jQuery("body").keydown(that.keyPressedCallback);
     o3djs.event.addEventListener(o3dElement, 'wheel', that.scrollMe);
-    //This allows a programmer to define a function that runs after initialization
+
+     that.loadSpectrumFromUrl('/assets/spectral_spectrum.txt');
+
+
+     //This allows a programmer to define a function that runs after initialization
      if(that.afterInit) {
        that.afterInit(that);
      }
@@ -122,7 +165,8 @@ function BrainBrowser(url) {
     that.setClientSize();
   };
 
-  that.createBrain = function(model_data) {
+  this.createBrain = function(model_data) {
+    that.model_data= model_data;
     // Create an Effect object and initialize it using the shaders
     // from a file on the server through an ajax request.
     var effect = that.pack.createObject('Effect');
@@ -178,12 +222,40 @@ function BrainBrowser(url) {
 
 
     // Create a new transform and parent the Shape under it.
-     that.brainTransform = that.pack.createObject('Transform');
-     if(model_data.num_hemispheres == 2) {
-       that.brainHemisphereTransforms = {};
-       that.brainHemisphereTransforms.left = that.pack.createObject('Transform');
-       that.brainHemisphereTransforms.right = that.pack.createObject('Transform');
+    if(that.brainTransform == null) {
+
+      that.brainTransform = that.pack.createObject('Transform');
+      if(model_data.num_hemispheres == 2) {
+	that.brainHemisphereTransforms = {};
+	that.brainHemisphereTransforms.left = that.pack.createObject('Transform');
+	that.brainHemisphereTransforms.right = that.pack.createObject('Transform');
+      }
+    }else {
+      that.brainTransform.removeShape(that.brainTransform.shapes[0]);
+
+      if(that.brainTransform.children[0] != null) {
+	that.brainTransform.children[0].removeShape(that.brainTransform.children[0].shapes[0]);
+      }
+
+      if(that.brainTransform.children[1] !=null ) {
+	that.brainTransform.children[1].removeShape(
+	  that.brainTransform.children[1].shapes[0]);
+      }
+    };
+
+    if(model_data.num_hemispheres != 2) {
+      that.brainTransform.removeParam(that.brainTransform.children[0]);
+      that.brainTransform.removeParam(that.brainTransform.children[1]);
     }
+
+    if(model_data.num_hemispheres == 2 && that.brainHemisphereTransforms == null) {
+    	that.brainHemisphereTransforms = {};
+	that.brainHemisphereTransforms.left = that.pack.createObject('Transform');
+	that.brainHemisphereTransforms.right = that.pack.createObject('Transform');
+    }
+
+
+
 
 
     // Light position
@@ -706,22 +778,28 @@ function BrainBrowser(url) {
    */
    that.keyPressedCallback = function(event) {
 
-    switch(event.which) {
+   var action_taken = false;
+   switch(event.which) {
     case 38:
-      that.ZoomInOut(that.zoomFactor);
-      return false;
-      break;
+     that.ZoomInOut(that.zoomFactor);
+     action_taken = "ZoomIn";
+     break;
     case 40:
-      that.ZoomInOut(1/that.zoomFactor);
-      return false;
-      break;
+     that.ZoomInOut(1/that.zoomFactor);
+     action_taken = "ZoomOut";
+     break;
 
     case 32:
-      that.separateHemispheres();
-      return false;
-      break;
+     that.separateHemispheres();
+     action_taken = "Seperate";
+     break;
     };
-     return true;
+     if(action_taken){
+       return false;
+     }else {
+       return true;
+     }
+
    };
 
 
@@ -799,6 +877,136 @@ function BrainBrowser(url) {
     };
 
     reader.readAsText(files[0]);
+
+  };
+
+  that.loadSpectrumFromUrl  = function(url) {
+    //get the spectrum of colors
+    jQuery.ajax({
+		  type: 'GET',
+		  url: url,
+		  dataType: 'text',
+		  success: function (data) {
+		    var spectrum = new Spectrum(data);
+		    that.spectrum = spectrum;
+		    if(that.data) {
+		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
+		    }
+
+		  }
+		});
+
+  };
+
+
+  that.loadSpectrumFromFile = function(file_input){
+    var reader = new FileReader();
+    var files = file_input.files;
+    reader.file = files[0];
+
+    reader.onloadend = function(e) {
+      that.spectrum = new Spectrum(e.target.result);
+      if(that.data) {
+	that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
+      }
+    };
+    reader.readAsText(files[0]);
+  };
+
+  that.loadDataFromFile = function(file_input) {
+    var reader = new FileReader();
+    var files = file_input.files;
+    reader.file = files[0];
+
+    reader.onloadend = function(e) {
+      that.data = new MNIData(e.target.result);
+      if(that.fixRange == false || that.fixRange == null) {
+	that.rangeMin = that.data.min;
+	that.rangeMax = that.data.max;
+	if(that.afterLoadData !=null) {
+	  that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
+	}
+      }
+
+
+      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
+    };
+    reader.readAsText(files[0]);
+  };
+
+  /*
+   * This updates the colors of the brain model
+   */
+  that.updateColors = function(data,min,max,spectrum) {
+    if(that.data == null) {
+      return 0;
+    }
+
+
+    var color_array = data.createColorArray(min,max,spectrum);
+    if(that.model_data.num_hemispheres == 1) {
+      var color_buffer = that.pack.createObject('VertexBuffer');
+      var color_field = color_buffer.createField('FloatField', 4);
+      color_buffer.set(color_array);
+      var brain_shape = that.brainTransform.shapes[0];
+      var stream_bank = brain_shape.elements[0].streamBank;
+      stream_bank.setVertexStream(
+	that.o3d.Stream.COLOR, //  This stream stores vertex positions
+	0,                     // First (and only) position stream
+	color_field,        // field: the field this stream uses.
+	0);                    // start_index:
+
+
+    } else {
+      var left_color_array = color_array.slice(0, color_array.length/2);
+      var right_color_array = color_array.slice(color_array.length/2, color_array.length);
+
+      var left_color_buffer = that.pack.createObject('VertexBuffer');
+      var left_color_field = left_color_buffer.createField('FloatField', 4);
+      left_color_buffer.set(left_color_array);
+      var left_brain_shape = that.brainTransform.children[0].shapes[0];
+      var left_stream_bank = left_brain_shape.elements[0].streamBank;
+      left_stream_bank.setVertexStream(
+	that.o3d.Stream.COLOR, //  This stream stores vertex positions
+	0,                     // First (and only) position stream
+	left_color_field,        // field: the field this stream uses.
+	0);                    // start_index:
+
+
+
+      var right_color_buffer = that.pack.createObject('VertexBuffer');
+      var right_color_field = right_color_buffer.createField('FloatField', 4);
+      right_color_buffer.set(right_color_array);
+      var right_brain_shape = that.brainTransform.children[1].shapes[0];
+      var right_stream_bank = right_brain_shape.elements[0].streamBank;
+      right_stream_bank.setVertexStream(
+	that.o3d.Stream.COLOR, //  This stream stores vertex positions
+	0,                     // First (and only) position stream
+	right_color_field,        // field: the field this stream uses.
+	0);                    // start_index:
+	that.client.render();
+    };
+    return 1;
+  };
+
+
+  that.rangeChange = function(min,max) {
+    that.rangeMin = min;
+    that.rangeMax = max;
+
+    that.updateColors(that.data,that.rangeMin, that.rangeMax, that.spectrum);
+
+    /*
+     * This callback allows users to
+     * do things like update ui elemets
+     * when brainbrowser change it internally
+     *
+     */
+
+    if(that.afterRangeChange != null) {
+      that.afterRangeChange(min,max);
+    }
+
 
   };
 

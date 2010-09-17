@@ -258,10 +258,10 @@ o3djs.debug.DebugLine.prototype.update_ = function() {
     perp2 = math.cross(perp1, direction);
   }
   this.transform_.localMatrix =
-      [perp2.concat(0),
-       direction.concat(0),
-       perp1.concat(0),
-       this.start_.concat(1)];
+      o3djs.math.makeMatrix4(perp2[0], perp2[1], perp2[2], 0,
+                             direction[0], direction[1], direction[2], 0,
+                             perp1[0], perp1[1], perp1[2], 0,
+                             this.start_[0], this.start_[1], this.start_[2], 1);
   this.transform_.scale(1, math.length(vector), 1);
 };
 
@@ -517,16 +517,18 @@ o3djs.debug.DebugHelper = function(pack, viewInfo) {
     // Create the axis shape.
     for (var ii = 0; ii < O3D_DEBUG_AXIS_INFO_.length; ++ii) {
       var info = O3D_DEBUG_AXIS_INFO_[ii];
-      var cubeShape = o3djs.primitives.createCube(pack,
-                                                  material,
-                                                  1,
-                                                  [[1, 0, 0, 0],
-                                                   [0, 1, 0, 0],
-                                                   [0, 0, 1, 0],
-                                                   [info.offset[0] * 0.5,
-                                                    info.offset[1] * 0.5,
-                                                    info.offset[2] * 0.5,
-                                                    1]]);
+      var cubeShape = o3djs.primitives.createCube(
+          pack,
+          material,
+          1,
+          o3djs.math.makeMatrix4(1, 0, 0, 0,
+                                 0, 1, 0, 0,
+                                 0, 0, 1, 0,
+                                 info.offset[0] * 0.5,
+                                 info.offset[1] * 0.5,
+                                 info.offset[2] * 0.5,
+                                 1));
+
       var cube = cubeShape.elements[0];
       cube.owner = this.axisShape_;
       pack.removeObject(cubeShape);

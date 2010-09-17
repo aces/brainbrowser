@@ -147,7 +147,7 @@ o3d.inherit('ParamOp2FloatsToFloat2', 'ParamObject');
 
 /**
  * Called by o3d.Param*Output whenever its value gets read.
- * @return {!Array.<number>} 2-element array equal to [input0,input1]
+ * @return {!Array.<number>} 2-element array equal to [input0, input1]
  */
 o3d.ParamOp2FloatsToFloat2.prototype.updateOutputs = function() {
   this.last_output_value_[0] = this.getParam("input0").value;
@@ -226,8 +226,7 @@ o3d.ParamOp4FloatsToFloat4.prototype.updateOutputs = function() {
  */
 o3d.ParamOp16FloatsToMatrix4 = function() {
   o3d.ParamObject.call(this);
-  this.last_output_value_ =
-      [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]];
+  this.last_output_value_ = o3d.Transform.makeIdentityMatrix4_();
 };
 o3d.inherit('ParamOp16FloatsToMatrix4', 'ParamObject');
 
@@ -242,12 +241,12 @@ o3d.inherit('ParamOp16FloatsToMatrix4', 'ParamObject');
 
 /**
  * Called by o3d.Param*Output whenever its value gets read.
- * @return {!Array.<!Array.<number>>} 4x4 array equal to
- *     [[i0,i1,i2,i3],[i4,i5,i6,i7],[i8,i9,i10,i11],[i12,i13,i14,i15]]
+ * @return {!Array<!Array<number>>} 4x4 array equal to
+ *     [i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11,i12,i13,i14,i15]
  */
 o3d.ParamOp16FloatsToMatrix4.prototype.updateOutputs = function() {
   for (var i = 0; i < 16; i++) {
-    this.last_output_value_[Math.floor(i/4)][i%4] =
+    this.last_output_value_[i] =
         this.getParam("input"+i).value;
   }
   return this.last_output_value_;
@@ -282,8 +281,7 @@ o3d.TRSToMatrix4 = function() {
   this.scaleY = 1;
   this.scaleZ = 1;
 
-  this.last_output_value_ =
-      [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]];
+  this.last_output_value_ = o3d.Transform.makeIdentityMatrix4_();
 };
 o3d.inherit('TRSToMatrix4', 'ParamObject');
 
@@ -320,22 +318,22 @@ o3d.TRSToMatrix4.prototype.updateOutputs = function () {
   var cosZSinY = cosZ * sinY;
   var sinZSinY = sinZ * sinY;
 
-  ret[0].splice(0, 4, cosZ * cosY * sX,
-                      sinZ * cosY * sX,
-                      -sinY * sX,
-                      0);
-  ret[1].splice(0, 4, (cosZSinY * sinX - sinZ * cosX) * sY,
-                      (sinZSinY * sinX + cosZ * cosX) * sY,
-                      cosY * sinX * sY,
-                      0);
-  ret[2].splice(0, 4, (cosZSinY * cosX + sinZ * sinX) * sZ,
-                      (sinZSinY * cosX - cosZ * sinX) * sZ,
-                      cosY * cosX * sZ,
-                      0);
-  ret[3].splice(0, 4, this.translateX,
-                      this.translateY,
-                      this.translateZ,
-                      1);
+  ret[0] = cosZ * cosY * sX;
+  ret[1] = sinZ * cosY * sX;
+  ret[2] = -sinY * sX;
+  ret[3] = 0;
+  ret[4] = (cosZSinY * sinX - sinZ * cosX) * sY;
+  ret[5] = (sinZSinY * sinX + cosZ * cosX) * sY;
+  ret[6] = cosY * sinX * sY,
+  ret[7] = 0;
+  ret[8] = (cosZSinY * cosX + sinZ * sinX) * sZ;
+  ret[9] = (sinZSinY * cosX - cosZ * sinX) * sZ;
+  ret[10] = cosY * cosX * sZ;
+  ret[11] = 0;
+  ret[12] = this.translateX;
+  ret[13] = this.translateY;
+  ret[14] = this.translateZ;
+  ret[15] = 1;
   return ret;
 };
 
@@ -347,8 +345,7 @@ o3d.TRSToMatrix4.prototype.updateOutputs = function () {
  */
 o3d.Matrix4Composition = function() {
   o3d.ParamObject.call(this);
-  this.last_output_value_ =
-      [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]];
+  this.last_output_value_ = o3d.Transform.makeIdentityMatrix4_();
 };
 o3d.inherit('Matrix4Composition', 'ParamObject');
 
@@ -363,13 +360,13 @@ o3d.ParamObject.setUpO3DParam_(
 
 /**
  * Called by o3d.Param*Output whenever its value gets read.
- * @return {!Array.<!Array.<number>>} 4x4 array equal to
- *     inputMatrix * localMatrix
+ * @return {!Array<!Array<number>>} 4x4 array equal to
+ *     inputMatrix * localMatrix.
  */
 o3d.Matrix4Composition.prototype.updateOutputs = function() {
   var input = this.getParam("inputMatrix").value;
   var local = this.getParam("localMatrix").value;
-  o3d.Transform.compose(input, local, this.last_output_value_);
+  o3d.Transform.compose_(input, local, this.last_output_value_);
   return this.last_output_value_;
 };
 
@@ -408,7 +405,7 @@ o3d.Matrix4AxisRotation.prototype.updateOutputs = function() {
   var input = this.getParam("inputMatrix").value;
   var axis = this.getParam("axis").value;
   var angle = this.getParam("angle").value;
-  o3d.Transform.axisRotateMatrix(input, axis, angle, this.last_output_value_);
+  o3d.Transform.axisRotateMatrix_(input, axis, angle, this.last_output_value_);
   return this.last_output_value_;
 };
 

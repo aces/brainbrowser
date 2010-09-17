@@ -307,14 +307,14 @@ o3d.SkinEval = function() {
    * The base matrix to subtract from the matrices before skinning.
    * @type {!Array<!Array<number>>}
    */
-  this.base = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]];
+  this.base = o3d.Transform.makeIdentityMatrix4_();
 
   /**
    * Temporary storage for matrix ops.
    * @type {!Array<!Array<number>>}
    * @private
    */
-  this.temp_matrix_ = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]];
+  this.temp_matrix_ = o3d.Transform.makeIdentityMatrix4_();
 
   /**
    * Array of matrices representing each bone.
@@ -325,7 +325,7 @@ o3d.SkinEval = function() {
 
   /**
    * Float32 array containing all matrices in 3x4 format.
-   * @type {Float32Array}
+   * @type {o3d.ParamArray}
    * @private
    */
   this.bone_array_ = null;
@@ -412,6 +412,9 @@ o3d.SkinEval.getMaxNumBones = function(obj) {
   // The value must be at least 128. See glUniform.
   var gl = obj.gl;
   var maxVertexUniformVectors = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
+  if (!maxVertexUniformVectors) {
+    maxVertexUniformVectors = 128;
+  }
   return Math.floor((maxVertexUniformVectors - 32) / 3);
 };
 
@@ -463,30 +466,9 @@ o3d.SkinEval.prototype.streamWasBound_ = function(
  * @private
  */
 o3d.SkinEval.prototype.multiplyAdd_ = function(input, weight, output) {
-  var a0 = input[0];
-  var a1 = input[1];
-  var a2 = input[2];
-  var a3 = input[3];
-  var b0 = output[0];
-  var b1 = output[1];
-  var b2 = output[2];
-  var b3 = output[3];
-  b0[0] += a0[0] * weight;
-  b0[1] += a0[1] * weight;
-  b0[2] += a0[2] * weight;
-  b0[3] += a0[3] * weight;
-  b1[0] += a1[0] * weight;
-  b1[1] += a1[1] * weight;
-  b1[2] += a1[2] * weight;
-  b1[3] += a1[3] * weight;
-  b2[0] += a2[0] * weight;
-  b2[1] += a2[1] * weight;
-  b2[2] += a2[2] * weight;
-  b2[3] += a2[3] * weight;
-  b3[0] += a3[0] * weight;
-  b3[1] += a3[1] * weight;
-  b3[2] += a3[2] * weight;
-  b3[3] += a3[3] * weight;
+  for (var i = 0; i < 16; ++i) {
+    output[i] += input[i] * weight;
+  }
 };
 
 /**
@@ -637,11 +619,11 @@ o3d.SkinEval.prototype.doSkinning_ = function() {
 
       // combine the matrixes for this vertex.
       var accumulated_matrix =
-          [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]];
+          o3d.Transform.makeNullMatrix4_();
       this.multiplyAdd_(this.bones_[this_matrix_index],
           this_weight, accumulated_matrix);
       var num_influences = influences.length;
-      for (jj = 2; jj < num_influences; jj+=2) {
+      for (jj = 2; jj < num_influences; jj += 2) {
         var influence_matrix_index = influences[jj];
         var influence_weight = influences[jj + 1];
         this.multiplyAdd_(this.bones_[influence_matrix_index],
@@ -707,7 +689,7 @@ o3d.SkinEval.prototype.updateBones_ = function() {
 
   // Get the inverse of our base to remove from the bones.
   var inverse_base = this.temp_matrix_;
-  o3d.Transform.inverse(this.base, inverse_base);
+  o3d.Transform.inverse_(this.base, inverse_base);
 
   for (var ii = 0; ii < param_array.length; ++ii) {
     var param = param_array.getParam(ii); // ParamMatrix4
@@ -718,10 +700,10 @@ o3d.SkinEval.prototype.updateBones_ = function() {
           + " is not a ParamMatrix4");
       return;
     }
-    this.bones_[ii] = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]];
-    o3d.Transform.compose(param.value, inverse_bind_pose_array[ii],
+    this.bones_[ii] = o3d.Transform.makeIdentityMatrix4_();
+    o3d.Transform.compose_(param.value, inverse_bind_pose_array[ii],
                           this.bones_[ii]);
-    o3d.Transform.compose(inverse_base, this.bones_[ii], this.bones_[ii]);
+    o3d.Transform.compose_(inverse_base, this.bones_[ii], this.bones_[ii]);
   }
 };
 
@@ -777,20 +759,20 @@ o3d.SkinEval.prototype.updateOutputs = function(param) {
     for (ii = 0; ii < this.bones_.length; ++ii) {
       var bone = this.bones_[ii];
       row = boneArray.getParam(ii*3);
-      row.value[0] = bone[0][0];
-      row.value[1] = bone[1][0];
-      row.value[2] = bone[2][0];
-      row.value[3] = bone[3][0];
+      row.value[0] = bone[0];
+      row.value[1] = bone[4];
+      row.value[2] = bone[8];
+      row.value[3] = bone[12];
       row = boneArray.getParam(ii*3 + 1);
-      row.value[0] = bone[0][1];
-      row.value[1] = bone[1][1];
-      row.value[2] = bone[2][1];
-      row.value[3] = bone[3][1];
+      row.value[0] = bone[1];
+      row.value[1] = bone[5];
+      row.value[2] = bone[9];
+      row.value[3] = bone[13];
       row = boneArray.getParam(ii*3 + 2);
-      row.value[0] = bone[0][2];
-      row.value[1] = bone[1][2];
-      row.value[2] = bone[2][2];
-      row.value[3] = bone[3][2];
+      row.value[0] = bone[2];
+      row.value[1] = bone[6];
+      row.value[2] = bone[10];
+      row.value[3] = bone[14];
     }
   }
   return boneArray;
@@ -884,7 +866,7 @@ o3d.SkinEval.StreamInfo.prototype.uninit = function() {
 o3d.SkinEval.StreamInfo.prototype.computeFloat3AsVector3 = function(matrix) {
   var ii = this.index_;
   var vec = [this.values_[ii], this.values_[ii + 1], this.values_[ii + 2], 0];
-  this.result_ = o3d.Transform.multiplyVector(matrix, vec);
+  this.result_ = o3d.Transform.multiplyVector_(matrix, vec);
   this.index_ = ii + this.stride_;
 };
 
@@ -898,10 +880,10 @@ o3d.SkinEval.StreamInfo.prototype.computeFloat3AsVector3 = function(matrix) {
 o3d.SkinEval.StreamInfo.prototype.computeFloat3AsPoint3 = function(matrix) {
   var ii = this.index_;
   // TODO: The C++ code just dropped element 3 of the return Vector4, while
-  // o3d.Transform.transformPoint divides by the last value to make it 1.
+  // o3d.Transform.transformPoint_ divides by the last value to make it 1.
   // Which is the right one to use?
   var point = [this.values_[ii], this.values_[ii + 1], this.values_[ii + 2], 1];
-  this.result_ = o3d.Transform.multiplyVector(matrix, point);
+  this.result_ = o3d.Transform.multiplyVector_(matrix, point);
   this.index_ = ii + this.stride_;
 };
 
@@ -916,7 +898,7 @@ o3d.SkinEval.StreamInfo.prototype.computeFloat4AsVector4 = function(matrix) {
   var ii = this.index_;
   var vec = [this.values_[ii], this.values_[ii + 1], this.values_[ii + 2],
              this.values_[ii + 3]];
-  this.result_ = o3d.Transform.multiplyVector(matrix, vec);
+  this.result_ = o3d.Transform.multiplyVector_(matrix, vec);
   this.index_ = ii + this.stride_;
 };
 

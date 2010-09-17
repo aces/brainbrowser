@@ -426,17 +426,17 @@ o3djs.quaternions.quaternionToRotation = function(q) {
 
   var d = qWqW + qXqX + qYqY + qZqZ;
 
-  return [
-    [(qWqW + qXqX - qYqY - qZqZ) / d,
+  return o3djs.math.makeMatrix4(
+    (qWqW + qXqX - qYqY - qZqZ) / d,
      2 * (qWqZ + qXqY) / d,
-     2 * (qXqZ - qWqY) / d, 0],
-    [2 * (qXqY - qWqZ) / d,
+     2 * (qXqZ - qWqY) / d, 0,
+    2 * (qXqY - qWqZ) / d,
      (qWqW - qXqX + qYqY - qZqZ) / d,
-     2 * (qWqX + qYqZ) / d, 0],
-    [2 * (qWqY + qXqZ) / d,
+     2 * (qWqX + qYqZ) / d, 0,
+    2 * (qWqY + qXqZ) / d,
      2 * (qYqZ - qWqX) / d,
-     (qWqW - qXqX - qYqY + qZqZ) / d, 0],
-    [0, 0, 0, 1]];
+     (qWqW - qXqX - qYqY + qZqZ) / d, 0,
+    0, 0, 0, 1);
 };
 
 /**
@@ -453,10 +453,16 @@ o3djs.quaternions.rotationToQuaternion = function(m) {
   var w;
 
   var q = [];
-
-  var m0 = m[0];
-  var m1 = m[1];
-  var m2 = m[2];
+  var m0,m1,m2;
+  if (m.length==9) {
+    m0 = [m[0], m[1], m[2]];
+    m1 = [m[3], m[4], m[5]];
+    m2 = [m[6], m[7], m[8]];            
+  }else {
+    m0 = [m[0], m[1], m[2]];
+    m1 = [m[4], m[5], m[6]];
+    m2 = [m[8], m[9], m[10]];      
+  }
 
   var m00 = m0[0];
   var m11 = m1[1];

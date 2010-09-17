@@ -1,10 +1,4 @@
-//Some quick utilities (should be move to a special js file)
-Array.prototype.min = function(array) {
-  return Math.min.apply(Math, this);
-};
-Array.prototype.max = function(array) {
-  return Math.max.apply(Math, this);
-};
+
 var g_spectrum;
 
 //for Picking

@@ -39,6 +39,7 @@
 
 o3djs.provide('o3djs.particles');
 
+o3djs.require('o3djs.effect');
 o3djs.require('o3djs.math');
 
 /**
@@ -484,17 +485,16 @@ o3djs.particles.FX_STRINGS_GLSL = [
     '\n' +
     '// #o3d MatrixLoadOrder RowMajor\n'}];
 
+
 /**
- * Sets the shader language used.  Passing 'glsl' will cause all generated
- * shader code to be in glsl.  Passing anything else will result in the
- * default o3d hlsl/cg based shader language.
- * @param {string} language Shader language to use.
+ * Sets the current shaders language to be in accordance with effect.js.
  */
-o3djs.particles.setLanguage = function(language) {
+o3djs.particles.useCorrectShaders_ = function() {
   o3djs.particles.FX_STRINGS = o3djs.particles.FX_STRINGS_CG;
-  if (language == 'glsl')
+  if (o3djs.effect.LANGUAGE == 'glsl') {
     o3djs.particles.FX_STRINGS = o3djs.particles.FX_STRINGS_GLSL;
-}
+  }
+};
 
 
 /**
@@ -560,6 +560,7 @@ o3djs.particles.ParticleSystem = function(pack,
   var o3d = o3djs.base.o3d;
   var particleStates = [];
   var effects = [];
+  o3djs.particles.useCorrectShaders_();
   for (var ee = 0; ee < o3djs.particles.FX_STRINGS.length; ++ee) {
     var info = o3djs.particles.FX_STRINGS[ee];
     var effect = pack.createObject('Effect');
@@ -1507,6 +1508,3 @@ o3djs.particles.Trail.prototype.birthParticles = function(position) {
 };
 
 
-// For compatability with o3d code, the default language is o3d shading
-// language.
-o3djs.particles.setLanguage('o3d');

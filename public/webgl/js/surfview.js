@@ -1,4 +1,5 @@
 function SurfView() {
+  var that = this;
   var brainbrowser = new BrainBrowser();
   brainbrowser.getViewParams = function() {
     return {
@@ -8,13 +9,43 @@ function SurfView() {
     };
 
   };
+
+
+  //Setups the view events and handlers
+  jQuery('#resetview').click(brainbrowser.setupView);
+  jQuery('.view_button').change(brainbrowser.setupView);
+  jQuery('[name=hem_view]').change(brainbrowser.setupView);
+
+
+
+  this.updateCoordinates = function(position,vertex,value) {
+      jQuery("#x-coord").val(position[0]);
+      jQuery("#y-coord").val(position[1]);
+      jQuery("#z-coord").val(position[2]);
+      jQuery("#v-coord").val(vertex);
+      jQuery("#value-coord").val(value);
+  };
+
+
   brainbrowser.afterInit = function(bb) {
 
     //Add event handlers
     jQuery("body").keydown(bb.keyPressedCallback);
 
     o3djs.event.addEventListener(bb.o3dElement, 'mousedown', function (e) {
-	bb.startDragging(e);
+
+      if(e.shiftKey) {
+	bb.click(e,function(e,info) {
+	  if(brainbrowser.data){
+	    that.updateCoordinates(info.position_vector,
+	    info.vertex,
+	    brainbrowser.data.values[info.vertex]);
+	   }
+	 });
+	return false;
+      }else {
+        bb.startDragging(e);
+      }
     });
 
     o3djs.event.addEventListener(bb.o3dElement, 'mousemove', function (e) {

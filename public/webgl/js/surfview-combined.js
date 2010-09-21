@@ -1,4 +1,318 @@
-/* BrainBrowser.js
+/*
+ * This file defines MNIObj object.
+ * Given a url, the constructor will fetch the file specified which should be an
+ * MNI .obj file. It will then pars this file and return an object with the properties
+ * needed to display the file.
+ *
+ */
+function MNIObject(string) {
+
+  var stack;
+
+
+
+  this.parse = function (string) {
+    this.num_hemispheres = 1; //setting it to one here by default,
+                              //it will be set to two later if there are two hemispheres
+    //replacing all new lines with spaces (obj files can be structure with or without them)
+    //get all the fields as seperate strings.
+    string = string.replace(/\s+$/, '');
+    string = string.replace(/^\s+/, '');
+    stack = string.split(/\s+/).reverse();
+    this.objectClass = stack.pop();
+    if( this.objectClass === 'P') {
+      this.parse_polygon_class();
+    }else {
+      throw new Error("This object class is not supported currently");
+    }
+
+    //If there is two hemispheres, might need to be a better test one day
+    if(this.positionArray.length > 80000*3){
+      this.split_hemispheres();
+    }
+
+
+
+  };
+
+
+  this.parse_polygon_class = function() {
+    //surface properties of the polygons
+    this.surfaceProperties = {
+      ambient: parseFloat(stack.pop()),
+      diffuse: parseFloat(stack.pop()),
+      specular_reflectance: parseFloat(stack.pop()),
+      specular_scattering: parseFloat(stack.pop()),
+      transparency: parseFloat(stack.pop())
+    };
+    //number of vertices
+    this.numberVertices = parseFloat(stack.pop());
+    //vertices
+    //alert("Number of vertices: " + this.numberVertices);
+    this.positionArray = new Array();
+    for(var v=0; v < this.numberVertices; v++) {
+      for(var i=0; i<3;i++) {
+	this.positionArray.push(parseFloat(stack.pop()));
+      }
+    }
+    //alert("Position Array length: "+this.positionArray.length + " First vertex: " + this.positionArray[0] + " Last vertex: " + this.positionArray[this.positionArray.length - 1]);
+
+
+    //Normals for each vertex
+    this.normalArray = new Array();
+    for(var n=0; n < this.numberVertices; n++){
+      for(var i=0; i<3; i++) {
+        this.normalArray.push(parseFloat(stack.pop()));
+      }
+    }
+    //alert("normal Array length: "+this.normalArray.length + " first normal: " + this.normalArray[0] + " Last normal: " + this.normalArray[this.positionArray.length - 1]);
+    this.numberPolygons = parseInt(stack.pop());
+    //alert("Number of polygons: "+  this.numberPolygons);
+    //alert(this.positionArray.length);
+    this.colorFlag = parseInt(stack.pop());
+    //alert('ColorFlag: ' + this.colorFlag);
+    this.colorArray = new Array();
+    if(this.colorFlag === 0) {
+      for(var i=0; i<4; i++){
+	this.colorArray.push(parseFloat(stack.pop()));
+      }
+    }else if(this.colorFlag === 1) {
+      for(var c=0;c < this.numberPolygons; c++){
+	for(var i=0; i<4; i++){
+	  this.colorArray.push(parseFloat(stack.pop()));
+	}
+      }
+    }else if(this.colorFlag === 2) {
+      for(var c=0;c < this.numberVertices; c++){
+	for(var i=0; i<4; i++){
+	  this.colorArray.push(parseFloat(stack.pop()));
+	}
+      }
+    }else {
+      throw new Error("colorFlag not valid in this file");
+    }
+    //alert("ColorArray: " + this.colorArray);
+    //Polygons end indices
+    var endIndicesArray = new Array();
+    for(var p=0;p<this.numberPolygons;p++){
+      endIndicesArray.push(parseInt(stack.pop()));
+    }
+
+    //alert(endIndicesArray[endIndicesArray.length-1]);
+    //Polygon indices
+    this.indexArray = new Array();
+    var numberIndex = stack.length;
+    //alert("Stack length " + stack.length + " END: " + stack[0] + "END-1 : " + stack[1]);
+    for(var i=0; i<numberIndex;i++) {
+      this.indexArray.push(parseInt(stack.pop()));
+    }
+    //alert("index Array length: "+this.indexArray.length + " first index: " + this.indexArray[0] + " Last index: " + this.indexArray[this.indexArray.length - 1]);
+  };
+
+
+  /*
+   * Splits the model into two hemispheres
+   * Making it easier to move the parts around (rotate the hemispheres 90 degrees,...)
+   *
+   */
+  this.split_hemispheres = function() {
+
+    this.left = {};
+    this.right = {};
+
+    var num_vertices = this.positionArray.length;
+    this.left.positionArray = this.positionArray.slice(0,num_vertices/2);			this.right.positionArray = this.positionArray.slice(num_vertices/2, num_vertices);
+
+    var num_indices = this.indexArray.length;
+    this.left.indexArray = this.indexArray.slice(0,num_indices/2);
+    this.right.indexArray = this.indexArray.slice(num_indices/2, num_indices);
+
+    for(var i = 0; i < this.right.indexArray.length; i++) {
+      this.right.indexArray[i] = this.right.indexArray[i]- 2 - num_indices/3/2/2;
+    }
+    var num_normals = this.normalArray.length;
+    this.left.normalArray = this.normalArray.slice(0,num_normals/2);
+    this.right.normalArray = this.normalArray.slice(num_normals/2, num_normals);
+
+
+    this.left.colorFlag = this.colorFlag;
+    this.right.colorFlag = this.colorFlag;
+
+
+    if(this.colorFlag == 0 || this.colorFlag == 1) {
+
+      this.left.colorArray = this.colorArray;
+      this.right.colorArray = this.colorArray;
+
+    }else {
+      var num_colors = this.colorArray.length;
+      this.left.colorArray = this.colorArray.slice(0,num_colors/2);
+      this.right.colorArray = this.colorArray.slice(num_colors/2+1,-1);
+    };
+
+    this.left.numberVertices = this.numberVertices/2;
+    this.right.numberVertices = this.numberVertices/2;
+
+    this.left.numberPolygons = this.numberPolygons/2;
+    this.right.numberPolygons = this.numberPolygons/2;
+
+    this.num_hemispheres = 2;
+
+  };
+
+
+  this.get_vertex = function(index,position,hemisphere) {
+
+    if(this.num_hemispheres > 1 ) {
+      var model = this[hemisphere];
+      var offset = 0;
+      if(hemisphere == "right") {
+	offset = 2 + model.indexArray.length/3/2; //Since the index is offset when splitting the hemispheres, we have to make it right again to find the correct one.
+      }
+
+    }else {
+      var model = this;
+      var offset = 0;
+    }
+
+
+
+
+    var triangle = new Array();
+    var start_index = index*3;
+    for(var i=0; i<3; i++) {
+      triangle.push(model.indexArray[start_index+i]);
+    }
+    var vertices = new Array();
+    for(var i=0; i<3; i++) {
+      var start_pos = triangle[i]*3;
+      vertices[i] = new Array();
+      for(var k=0;k<3;k++){
+	vertices[i][k] = model.positionArray[start_pos+k];
+      }
+    }
+    var distances = new Array();
+    for(var i=0; i<3; i++) {
+      distances.push(o3djs.math.distance(position,vertices[i]));
+    }
+    var closest = 0;
+    if(distances[1] < distances[0]) {
+      closest = 1;
+    }
+    if(distances[2] < distances[closest]) {
+      closest = 2;
+    }
+    var vertex = triangle[closest] + offset;
+    var position_vector = vertices[closest];
+    return {vertex: vertex, position_vector: position_vector};
+
+
+  };
+
+  if(string){
+    this.parse(string);
+  };
+
+
+};function Spectrum(data) {
+  var that = this;
+
+
+  /*
+   * Creates an canvas with the spectrum of colors
+   * from low(left) to high(right) values
+   */
+  that.createSpectrumCanvas = function(colors)  {
+    if(colors == null ) {
+      colors = that.colors;
+    }
+    that.canvas = document.createElement("canvas");
+
+    jQuery(that.canvas).attr("width",colors.length);
+    jQuery(that.canvas).attr("height",20);
+
+    var context = that.canvas.getContext("2d");
+    for(var i = 0; i < colors.length; i++) {
+      context.fillStyle = "rgb("+parseInt(parseFloat(colors[i][0])*255)+','+parseInt(parseFloat(colors[i][1])*255)+','+parseInt(parseFloat(colors[i][2])*255)+')';
+      context.fillRect(i,0,1,50);
+    };
+
+
+    return that.canvas;
+  };
+
+
+
+  /*
+   * Parse the spectrum data from a string
+   */
+  function parseSpectrum(data) {
+    data = data.replace(/\s+$/, '');
+    data = data.replace(/^\s+/, '');
+    var tmp = data.split(/\n/);
+    var colors = new Array();
+    for(var i=0;i<tmp.length;  i++) {
+      var tmp_color = tmp[i].split(/\s+/);
+      for(var k=0; k<3; k++) {
+	tmp_color[k]=parseFloat(tmp_color[k]);
+      }
+      tmp_color.push(1.0000);
+      colors.push(tmp_color);
+    }
+    that.colors = colors;
+    return colors;
+  }
+
+  if(data) {
+    parseSpectrum(data);
+  }
+
+}
+function MNIData(data) {
+  var that = this;
+  that.parse = function(string) {
+    string = string.replace(/\s+$/, '');
+    string = string.replace(/^\s+/, '');
+    that.values = string.split(/\s+/);
+    for(var i = 0; i < that.values.length; i++) {
+      that.values[i] = parseFloat(that.values[i]);
+    }
+    that.min = that.values.min();
+    that.max = that.values.max();
+
+  };
+
+  that.createColorArray = function(min,max,spectrum) {
+    var spectrum = spectrum.colors;
+    var colorArray = [];
+
+    //calculate a slice of the data per color
+    var increment = ((max-min)+(max-min)/spectrum.length)/spectrum.length;
+
+    //for each value, assign a color
+    for(var i=0; i<that.values.length; i++) {
+      if(that.values[i]<= min ) {
+	var color_index = 0;
+      }else if(that.values[i]> max){
+	var color_index = spectrum.length-1;
+      }else {
+	var color_index = parseInt((that.values[i]-min)/increment);
+      }
+
+      //This inserts the RGBA values (R,G,B,A) independently
+      colorArray.push.apply(colorArray,spectrum[color_index]);
+    }
+
+    return colorArray;
+  };
+
+  if(data) {
+    that.parse(data);
+  }
+
+
+
+}/* BrainBrowser.js
  * This file defines the brainbrowser object used to initialize an O3D client and display a brain
  * model.
  *
@@ -421,31 +735,29 @@ function BrainBrowser(url) {
 
   this.setupView = function(e) {
     that.resetView();
-    if(that.model_data && that.model_data.num_hemispheres == 2) {
-      var params=that.getViewParams(); //Must be defined by calling app
-      switch(params.view) {
-        case 'superior':
-	  that.superiorView();
-	  break;
-	case 'medial':
-	  that.medialView();
-	  break;
-        case 'anterior':
-	  that.anteriorView();
-	  break;
-        case 'inferior':
-	  that.inferiorView();
-	  break;
-        case 'lateral':
-	  that.lateralView();
-	  break;
-        case 'posterior':
-	  that.posteriorView();
-	  break;
-        default:
-	  that.superiorView();
-	  break;
-      }
+    var params=that.getViewParams(); //Must be defined by calling app
+    switch(params.view) {
+      case 'superior':
+	that.superiorView();
+	break;
+      case 'medial':
+	that.medialView();
+	break;
+      case 'anterior':
+	that.anteriorView();
+	break;
+      case 'inferior':
+	that.inferiorView();
+	break;
+      case 'lateral':
+	that.lateralView();
+	break;
+      case 'posterior':
+	that.posteriorView();
+	break;
+      default:
+	that.superiorView();
+	break;
 
     }
 
@@ -1028,4 +1340,103 @@ function BrainBrowser(url) {
   that.init();
 
 
-}
+}function SurfView() {
+  var brainbrowser = new BrainBrowser();
+  brainbrowser.getViewParams = function() {
+    return {
+      view: jQuery('[name=hem_view]:checked').val(),
+      left: jQuery('#left_hem_visible').attr("checked"),
+      right: jQuery('#right_hem_visible').attr("checked")
+    };
+
+  };
+  brainbrowser.afterInit = function(bb) {
+
+    //Add event handlers
+    jQuery("body").keydown(bb.keyPressedCallback);
+
+    o3djs.event.addEventListener(bb.o3dElement, 'mousedown', function (e) {
+	bb.startDragging(e);
+    });
+
+    o3djs.event.addEventListener(bb.o3dElement, 'mousemove', function (e) {
+      bb.drag(e);
+    });
+
+    o3djs.event.addEventListener(bb.o3dElement, 'mouseup', function (e) {
+      if(!e.shiftKey || e.button == bb.o3d.Event.BUTTON_RIGHT){
+	bb.stopDragging(e);
+      }
+    });
+
+    jQuery("#objfile").change(function() {
+      bb.loadObjFromFile(document.getElementById("objfile"));
+    });
+
+    jQuery("#datafile").change(function() {
+    bb.loadDataFromFile(document.getElementById("datafile"));
+    });
+
+
+    /********************************************************
+     * This section implements the range change events
+     * It takes care of updating the UI elements related to
+     * the threshold range
+     * It also defines the BrainBrowser::afterRangeChange
+     * callback which is called in the BrainBrowser::rangeChange
+     * Method.
+     ********************************************************/
+
+     //Create a range slider for the thresholds
+    jQuery("#range-slider").slider({
+      range: true,
+      min: -50,
+      max: 50,
+      value: [-10, 10],
+      slide: function(event, ui) {
+	var min = parseFloat(ui.values[0]);
+	var max = parseFloat(ui.values[1]);
+	bb.rangeChange(min,max);
+      },
+      step: 0.1
+    });
+
+    bb.afterRangeChange = function(min,max) {
+      jQuery("#data-range-min").val(min);
+      jQuery("#data-range-max").val(max);
+    };
+
+    bb.afterLoadData = function(min,max,data) {
+      bb.afterRangeChange(min,max);
+      jQuery("#range-slider").slider('values', 0, parseFloat(min));
+      jQuery("#range-slider").slider('values', 1, parseFloat(max));
+    };
+
+    jQuery("#fix_range").click(function(event,ui) {
+
+      bb.fixRange= jQuery("#fix_range").attr("checked");
+	alert("fixRange " + bb.fixRange);
+    });
+
+    jQuery(".range-box").keypress(function(e) {
+      if(e.keyCode == '13'){
+	bb.rangeChange(parseFloat(jQuery("#data-range-min").val()),parseFloat(jQuery("#data-range-max").val()));
+      }
+    });
+
+    jQuery("#data-range-min").change(function(e) {
+      jQuery("#range-slider").slider('values', 0, parseFloat(jQuery(this).val()));
+    });
+
+    jQuery("#data-range-max").change(function(e) {
+      jQuery("#range-slider").slider('values', 1, parseFloat(jQuery(this).val()));
+    });
+
+  };
+
+};
+$(function() {
+    jQuery(".button").button();
+    var surfview = new SurfView();
+  }
+);

@@ -1,0 +1,5 @@
+#!/bin/sh
+cd public/webgl/js
+cat mniobj.js spectrum.js data.js brainbrowser.js surfview.js > /tmp/surface-combined.js
+yui-compressor /tmp/surface-combined.js -o surfview-combined.min.js
+rm /tmp/surface-combined.js

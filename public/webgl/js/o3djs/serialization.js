@@ -753,7 +753,7 @@ o3djs.serialization.deserialize = function(pack, json) {
  * This function looks at a given data type, determines if it is an old style
  * matrix that is a 2d doubly nested array.  If so, it flattens the matrix in
  * place so that it may be handled by the code.
- * @param {object} parsed a potential array that will be repaired
+ * @param {Object} parsed a potential array that will be repaired
  */
 o3djs.serialization.fixMatrices = function(parsed) {
   function isMatrix(m) {

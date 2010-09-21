@@ -110,6 +110,100 @@ if ((typeof o3d != 'undefined') && o3d && o3d.Transform &&
 
 o3djs.provide("o3djs.flat_math");
 
+
+/**
+ * A module for math for o3djs.math.
+ * @namespace
+ */
+o3djs.math = o3djs.math || {};
+
+/**
+ * Functions which deal with 4-by-4 transformation matrices are kept in their
+ * own namespsace.
+ * @namespace
+ */
+o3djs.math.matrix4 = o3djs.math.matrix4 || {};
+
+/**
+ * Functions that are specifically row major are kept in their own namespace.
+ * @namespace
+ */
+o3djs.math.rowMajor = o3djs.math.rowMajor || {};
+
+/**
+ * Functions that are specifically column major are kept in their own namespace.
+ * @namespace
+ */
+o3djs.math.columnMajor = o3djs.math.columnMajor || {};
+
+/**
+ * Functions that do error checking are stored in their own namespace.
+ * @namespace
+ */
+o3djs.math.errorCheck = o3djs.math.errorCheck || {};
+
+/**
+ * Functions that do no error checking and have a separate version that does in
+ * o3djs.math.errorCheck are stored in their own namespace.
+ * @namespace
+ */
+o3djs.math.errorCheckFree = o3djs.math.errorCheckFree || {};
+
+/**
+ * An Array of 2 floats
+ * @type {(!Array.<number>|!o3d.Float2)}
+ */
+o3djs.math.Vector2 = goog.typedef;
+
+/**
+ * An Array of 3 floats
+ * @type {(!Array.<number>|!o3d.Float3)}
+ */
+o3djs.math.Vector3 = goog.typedef;
+
+/**
+ * An Array of 4 floats
+ * @type {(!Array.<number>|!o3d.Float4)}
+ */
+o3djs.math.Vector4 = goog.typedef;
+
+/**
+ * An Array of floats.
+ * @type {!Array.<number>}
+ */
+o3djs.math.Vector = goog.typedef;
+
+/**
+ * A 1x1 Matrix of floats
+ * @type {!Array.<!Array.<number>>}
+ */
+o3djs.math.Matrix1 = goog.typedef;
+
+/**
+ * A 2x2 Matrix of floats
+ * @type {!Array.<!Array.<number>>}
+ */
+o3djs.math.Matrix2 = goog.typedef;
+
+/**
+ * A 3x3 Matrix of floats
+ * @type {!Array.<!Array.<number>>}
+ */
+o3djs.math.Matrix3 = goog.typedef;
+
+/**
+ * A 4x4 Matrix of floats
+ * @type {(!Array.<!Array.<number>>|!o3d.Matrix4)}
+ */
+o3djs.math.Matrix4 = goog.typedef;
+
+/**
+ * A arbitrary size Matrix of floats
+ * @type {(!Array.<!Array.<number>>|!o3d.Matrix4)}
+ */
+o3djs.math.Matrix = goog.typedef;
+
+
 /**
  * A module for math functions where a matrix is represented as a flat
  * (1-dimensional) array.
@@ -165,44 +259,44 @@ o3djs.flat_math.errorCheckFree = o3djs.flat_math.errorCheckFree || {};
 
 /**
  * An Float32Array of 2 floats
- * @type {(!Float32Array.<number>|!o3d.Float2)}
+ * @type {!Array.<number>}
  */
 o3djs.flat_math.Vector2 = goog.typedef;
 
 /**
  * An Float32Array of 3 floats
- * @type {(!Float32Array.<number>|!o3d.Float3)}
+ * @type {!Array.<number>}
  */
 o3djs.flat_math.Vector3 = goog.typedef;
 
 /**
  * An Float32Array of 4 floats
- * @type {(!Float32Array.<number>|!o3d.Float4)}
+ * @type {!Array.<number>}
  */
 o3djs.flat_math.Vector4 = goog.typedef;
 
 
 /**
  * A 1x1 Matrix of floats
- * @type {!Array.<number>}
+ * @type {(!Array.<number>|Float32Array)}
  */
 o3djs.flat_math.Matrix1 = goog.typedef;
 
 /**
  * A 2x2 Matrix of floats
- * @type {!Array.<number>}
+ * @type {(!Array.<number>|Float32Array)}
  */
 o3djs.flat_math.Matrix2 = goog.typedef;
 
 /**
  * A 3x3 Matrix of floats
- * @type {!Array.<number>}
+ * @type {(!Array.<number>|Float32Array)}
  */
 o3djs.flat_math.Matrix3 = goog.typedef;
 
 /**
  * A 4x4 Matrix of floats
- * @type {(!Array.<number>|!o3d.Matrix4)}
+ * @type {(!Array.<number>|Float32Array)}
  */
 o3djs.flat_math.Matrix4 = goog.typedef;
 
@@ -210,38 +304,40 @@ o3djs.flat_math.useFloat32Array_ = false;
 
 /**
  * A arbitrary size Matrix of floats
- * @type {(!Array.<number>|!o3d.Matrix4)}
+ * @type {(!Array.<number>|Float32Array|o3djs.flat_math.Matrix1|
+ *     o3djs.flat_math.Matrix2|o3djs.flat_math.Matrix3|o3djs.flat_math.Matrix4)}
  */
 o3djs.flat_math.Matrix = goog.typedef;
 
 /**
  * A arbitrary size Matrix of floats
- * @type {(!Array.<number>)}
+ * @type {!Array.<number>}
  */
 o3djs.flat_math.Vector = goog.typedef;
 
 
 /**
- * Namespace for Float32Array specific math functions
+ * Namespace for Float32Array specific math functions.
+ * @namespace
  */
 o3djs.flat_math.Float32Array = {};
 
 /**
  * A arbitrary size Matrix of floats
- * @type {(!Array.<number>|!o3d.Matrix4)}
+ * @constructor
  */
-o3djs.flat_math.Float32Array.Matrix =
-    (use_plugin_math ? goog.typedef : Float32Array);
+o3djs.flat_math.Float32Array.Matrix = Float32Array;
+
 /**
- * An Float32Array of floats.
- * @type {!Array.<number>}
+ * A Float32Array.
+ * @constructor
  */
-o3djs.flat_math.Float32Array.Vector =
-    (use_plugin_math ? goog.typedef : Float32Array);
+o3djs.flat_math.Float32Array.Vector = Float32Array;
 
 /**
  * If 16 arguments, this returns a 4x4 matrix
  * with values set to the passed in arguments
+ * If 9 arguments returns a 3x3 matrix, if 4 arguments returns a 2x2 matrix.
  * @param {number} a [0][0] element
  * @param {number} b [0][1] element
  * @param {number} c [0][2] element
@@ -258,23 +354,6 @@ o3djs.flat_math.Float32Array.Vector =
  * @param {number} n [3][1] element
  * @param {number} o [3][2] element
  * @param {number} p [3][3] element
- *
- * If 9 arguments returns a 3x3 matrix
- * @param {number} a [0][0] element
- * @param {number} b [0][1] element
- * @param {number} c [0][2] element
- * @param {number} d [1][0] element
- * @param {number} e [1][1] element
- * @param {number} f [1][2] element
- * @param {number} g [2][0] element
- * @param {number} h [2][1] element
- * @param {number} i [2][2] element
-
- * If 4 arguments returns a 2x2 matrix
- * @param {number} a [0][0] element
- * @param {number} b [0][1] element
- * @param {number} c [1][0] element
- * @param {number} d [1][1] element
  * @returns {!o3djs.flat_math.Matrix}
  */
 o3djs.flat_math.Float32Array.makeMatrix = function(
@@ -424,19 +503,20 @@ o3djs.flat_math.Array={};
 
 /**
  * A arbitrary size Matrix of floats
- * @type {(!Array.<!Array.<number>>|!o3d.Matrix4)}
+ * @constructor
  */
-o3djs.flat_math.Array.Matrix = (use_plugin_math ? goog.typedef: Array);
+o3djs.flat_math.Array.Matrix = Array;
 
 /**
  * An Float32Array of floats.
- * @type {!Float32Array.<number>}
+ * @constructor
  */
-o3djs.flat_math.Array.Vector = (use_plugin_math ? goog.typedef: Array);
+o3djs.flat_math.Array.Vector = Array;
 
 /**
- * If 16 arguments, this returns a 4x4 matrix
- * with values set to the passed in arguments
+ * If 16 arguments, this returns a 4x4 matrix with values set to the passed
+ * in arguments.  If 9 arguments returns a 3x3 matrix, if 4 arguments returns
+ * a 2x2 matrix
  * @param {number} a [0][0] element
  * @param {number} b [0][1] element
  * @param {number} c [0][2] element
@@ -453,24 +533,6 @@ o3djs.flat_math.Array.Vector = (use_plugin_math ? goog.typedef: Array);
  * @param {number} n [3][1] element
  * @param {number} o [3][2] element
  * @param {number} p [3][3] element
- *
- * If 9 arguments returns a 3x3 matrix
- * @param {number} a [0][0] element
- * @param {number} b [0][1] element
- * @param {number} c [0][2] element
- * @param {number} d [1][0] element
- * @param {number} e [1][1] element
- * @param {number} f [1][2] element
- * @param {number} g [2][0] element
- * @param {number} h [2][1] element
- * @param {number} i [2][2] element
-
- * If 4 arguments returns a 2x2 matrix
- * @param {number} a [0][0] element
- * @param {number} b [0][1] element
- * @param {number} c [1][0] element
- * @param {number} d [1][1] element
- * @returns {!o3djs.flat_math.Matrix}
  */
 o3djs.flat_math.Array.makeMatrix = function(
     a, b, c, d,
@@ -547,23 +609,32 @@ o3djs.flat_math.Array.makeMatrix4 = function(
   return [a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p];
 };
 
+
+/**
+ * Helper function to copy functions from one namespace into another.
+ * @param {Object} source The source namespace.
+ * @param {Object} target The target namespace.
+ */
+o3djs.copyFunctions_ = function(source, target) {
+  for (var i in source) {
+    var value = source[i];
+    // If it's a function, copy it.
+    if (value.call) {
+      target[i] = value;
+    }
+  }
+};
+
+
 if (o3djs.flat_math.useFloat32Array_) {
-    o3djs.flat_math.Matrix = o3djs.flat_math.Float32Array.Matrix;
-    o3djs.flat_math.Vector = o3djs.flat_math.Float32Array.Vector;
-    for (var i in o3djs.flat_math.Float32Array) {
-        if (o3djs.flat_math.Float32Array[i].call)
-            o3djs.flat_math[i]=o3djs.flat_math.Float32Array[i];
-    }
+  o3djs.flat_math.Matrix = o3djs.flat_math.Float32Array.Matrix;
+  o3djs.flat_math.Vector = o3djs.flat_math.Float32Array.Vector;
+  o3djs.copyFunctions_(o3djs.flat_math.Float32Array, o3djs.flat_math);
 } else {
-    o3djs.flat_math.Matrix = o3djs.flat_math.Array.Matrix;
-    o3djs.flat_math.Vector = o3djs.flat_math.Array.Vector;
-    for (var i in o3djs.flat_math.Array) {
-        if (o3djs.flat_math.Array[i].call)
-            o3djs.flat_math[i]=o3djs.flat_math.Array[i];
-    }
+  o3djs.flat_math.Matrix = o3djs.flat_math.Array.Matrix;
+  o3djs.flat_math.Vector = o3djs.flat_math.Array.Vector;
+  o3djs.copyFunctions_(o3djs.flat_math.Array, o3djs.flat_math);
 }
-
-
 
 
 /**
@@ -1170,7 +1241,7 @@ o3djs.flat_math.rowMajor.mulVectorMatrix = function(v, m) {
  * matrix entries are accessed in [column*4+row] fashion.
  * @param {!o3djs.flat_math.Vector} v The vector.
  * @param {!o3djs.flat_math.Matrix} m The matrix.
- * @param {!o3djs.flat_math.Vector} r The product of v and m as a row vector.
+ * @return {!o3djs.flat_math.Vector} The product of v and m as a row vector.
  */
 o3djs.flat_math.rowMajor.mulMatrixVector4 = function(m, v) {
   var r = new o3djs.flat_math.Vector(4);
@@ -1189,7 +1260,7 @@ o3djs.flat_math.rowMajor.mulMatrixVector4 = function(m, v) {
  * matrix entries are accessed in [column*3+row] fashion.
  * @param {!o3djs.flat_math.Vector} v The vector.
  * @param {!o3djs.flat_math.Matrix} m The matrix.
- * @param {!o3djs.flat_math.Vector} r The product of v and m as a row vector.
+ * @return {!o3djs.flat_math.Vector} The product of v and m as a row vector.
  */
 o3djs.flat_math.rowMajor.mulMatrixVector3 = function(m, v) {
   var r = new o3djs.flat_math.Vector(3);
@@ -1207,7 +1278,7 @@ o3djs.flat_math.rowMajor.mulMatrixVector3 = function(m, v) {
  * matrix entries are accessed in [column*2+row] fashion.
  * @param {!o3djs.flat_math.Vector} v The vector.
  * @param {!o3djs.flat_math.Matrix} m The matrix.
- * @param {!o3djs.flat_math.Vector} r The product of v and m as a row vector.
+ * @return {!o3djs.flat_math.Vector} The product of v and m as a row vector.
  */
 o3djs.flat_math.rowMajor.mulMatrixVector2 = function(m, v) {
   var r = new o3djs.flat_math.Vector(2);
@@ -1555,9 +1626,8 @@ o3djs.flat_math.columnMajor.mulMatrixMatrix4 = function(a, b) {
 o3djs.flat_math.mulMatrixMatrix4 = null;
 
 /**
- * Multiplies two matrices; assumes that the sizes of the matrices are
- * appropriately compatible; assumes matrix entries are accessed in
- * [row][column] fashion.
+ * Multiplies two matrices; assumes the matrices are square of size 2, 3 or 4;
+ * assumes matrix entries are accessed in row-major fashion.
  * @param {!o3djs.flat_math.Matrix} a The matrix on the left.
  * @param {!o3djs.flat_math.Matrix} b The matrix on the right.
  * @return {!o3djs.flat_math.Matrix} The matrix product of a and b.
@@ -1565,16 +1635,46 @@ o3djs.flat_math.mulMatrixMatrix4 = null;
 o3djs.flat_math.rowMajor.mulMatrixMatrix = function(a, b) {
   switch(a.length) {
     case 4:
-      return o3djs.flat_math.rowMajor.mulMatrixMatrix2(a,b);
+      return o3djs.flat_math.rowMajor.mulMatrixMatrix2(a, b);
     case 9:
-      return o3djs.flat_math.rowMajor.mulMatrixMatrix3(a,b);
+      return o3djs.flat_math.rowMajor.mulMatrixMatrix3(a, b);
     case 16:
-      return o3djs.flat_math.rowMajor.mulMatrixMatrix4(a,b);
+      return o3djs.flat_math.rowMajor.mulMatrixMatrix4(a, b);
     default:
       throw "Unable to handle irregular matrices or matrices of dim > 4 or < 2";
   }
-  };
+};
 
+
+/**
+ * Multiplies two matrices; assumes the matrices are square of size 2, 3 or 4;
+ * assumes matrix entries are accessed in column-major fashion.
+ * @param {!o3djs.flat_math.Matrix} a The matrix on the left.
+ * @param {!o3djs.flat_math.Matrix} b The matrix on the right.
+ * @return {!o3djs.flat_math.Matrix} The matrix product of a and b.
+ */
+o3djs.flat_math.columnMajor.mulMatrixMatrix = function(a, b) {
+  switch(a.length) {
+    case 4:
+      return o3djs.flat_math.columnMajor.mulMatrixMatrix2(a, b);
+    case 9:
+      return o3djs.flat_math.columnMajor.mulMatrixMatrix3(a, b);
+    case 16:
+      return o3djs.flat_math.columnMajor.mulMatrixMatrix4(a, b);
+    default:
+      throw "Unable to handle irregular matrices or matrices of dim > 4 or < 2";
+  }
+};
+
+
+/**
+ * Multiplies two matrices; assumes that the sizes of the matrices are
+ * appropriately compatible; assumes matrix entries are accessed in
+ * [column][row] fashion.
+ * @param {!o3djs.flat_math.Matrix} a The matrix on the left.
+ * @param {!o3djs.flat_math.Matrix} b The matrix on the right.
+ * @return {!o3djs.flat_math.Matrix} The matrix product of a and b.
+ */
 o3djs.flat_math.rowMajor.generalizedMulMatrixMatrix= function(a, b) {
   var r = [];
   var aRows = a.length;
@@ -1591,27 +1691,6 @@ o3djs.flat_math.rowMajor.generalizedMulMatrixMatrix= function(a, b) {
     r[i] = v;
   }
   return r;
-};
-
-/**
- * Multiplies two matrices; assumes that the sizes of the matrices are
- * appropriately compatible; assumes matrix entries are accessed in
- * [row][column] fashion.
- * @param {!o3djs.flat_math.Matrix} a The matrix on the left.
- * @param {!o3djs.flat_math.Matrix} b The matrix on the right.
- * @return {!o3djs.flat_math.Matrix} The matrix product of a and b.
- */
-o3djs.flat_math.columnMajor.mulMatrixMatrix = function(a, b) {
-  switch(a.length) {
-    case 4:
-      return o3djs.flat_math.columnMajor.mulMatrixMatrix2(a,b);
-    case 9:
-      return o3djs.flat_math.columnMajor.mulMatrixMatrix3(a,b);
-    case 16:
-      return o3djs.flat_math.columnMajor.mulMatrixMatrix4(a,b);
-    default:
-      throw "Unable to handle irregular matrices or matrices of dim > 4 or < 2";
-  }
 };
 
 /**
@@ -2626,6 +2705,11 @@ o3djs.flat_math.matrix4.translate = function(m, v) {
   var m32 = m[14];
   var m33 = m[15];
 
+  var v0 = v[0];
+  var v1 = v[1];
+  var v2 = v[2];
+  var v3 = v[3];
+
   m[12] = m00 * v0 + m10 * v1 + m20 * v2 + m30;
   m[13] = m01 * v0 + m11 * v1 + m21 * v2 + m31;
   m[14] = m02 * v0 + m12 * v1 + m22 * v2 + m32;
@@ -3068,8 +3152,8 @@ o3djs.flat_math.installRowMajorFunctions();
 o3djs.flat_math.installErrorCheckFunctions();
 
 if (!use_plugin_math) {
-  for (var i in o3djs.flat_math) {
-    o3djs.math[i] = o3djs.flat_math[i];
+  for (var f in o3djs.flat_math) {
+    o3djs.math[f] = o3djs.flat_math[f];
   }
 
   /**

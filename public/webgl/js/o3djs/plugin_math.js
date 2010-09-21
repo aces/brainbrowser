@@ -99,7 +99,8 @@
  *
  */
 
-o3djs.provide('o3djs.math');
+o3djs.provide('o3djs.math', true);
+
 
 /**
  * A module for math for o3djs.math.
@@ -120,92 +121,6 @@ o3djs.math.randomSeed_ = 0;
  * @type {number}
  */
 o3djs.math.RANDOM_RANGE_ = Math.pow(2, 32);
-
-/**
- * Functions which deal with 4-by-4 transformation matrices are kept in their
- * own namespsace.
- * @namespace
- */
-o3djs.math.matrix4 = o3djs.math.matrix4 || {};
-
-/**
- * Functions that are specifically row major are kept in their own namespace.
- * @namespace
- */
-o3djs.math.rowMajor = o3djs.math.rowMajor || {};
-
-/**
- * Functions that are specifically column major are kept in their own namespace.
- * @namespace
- */
-o3djs.math.columnMajor = o3djs.math.columnMajor || {};
-
-/**
- * Functions that do error checking are stored in their own namespace.
- * @namespace
- */
-o3djs.math.errorCheck = o3djs.math.errorCheck || {};
-
-/**
- * Functions that do no error checking and have a separate version that does in
- * o3djs.math.errorCheck are stored in their own namespace.
- * @namespace
- */
-o3djs.math.errorCheckFree = o3djs.math.errorCheckFree || {};
-
-/**
- * An Array of 2 floats
- * @type {(!Array.<number>|!o3d.Float2)}
- */
-o3djs.math.Vector2 = goog.typedef;
-
-/**
- * An Array of 3 floats
- * @type {(!Array.<number>|!o3d.Float3)}
- */
-o3djs.math.Vector3 = goog.typedef;
-
-/**
- * An Array of 4 floats
- * @type {(!Array.<number>|!o3d.Float4)}
- */
-o3djs.math.Vector4 = goog.typedef;
-
-/**
- * An Array of floats.
- * @type {!Array.<number>}
- */
-o3djs.math.Vector = goog.typedef;
-
-/**
- * A 1x1 Matrix of floats
- * @type {!Array.<!Array.<number>>}
- */
-o3djs.math.Matrix1 = goog.typedef;
-
-/**
- * A 2x2 Matrix of floats
- * @type {!Array.<!Array.<number>>}
- */
-o3djs.math.Matrix2 = goog.typedef;
-
-/**
- * A 3x3 Matrix of floats
- * @type {!Array.<!Array.<number>>}
- */
-o3djs.math.Matrix3 = goog.typedef;
-
-/**
- * A 4x4 Matrix of floats
- * @type {(!Array.<!Array.<number>>|!o3d.Matrix4)}
- */
-o3djs.math.Matrix4 = goog.typedef;
-
-/**
- * A arbitrary size Matrix of floats
- * @type {(!Array.<!Array.<number>>|!o3d.Matrix4)}
- */
-o3djs.math.Matrix = goog.typedef;
 
 
 o3djs.math.makeMatrix = function(a,b,c,d,

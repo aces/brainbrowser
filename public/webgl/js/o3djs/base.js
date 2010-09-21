@@ -91,13 +91,16 @@ o3djs.provided_ = [];
  * Creates object stubs for a namespace. When present in a file,
  * o3djs.provide also indicates that the file defines the indicated
  * object.
- * @param {string} name name of the object that this file defines.
+ * @param {string} name Name of the object that this file defines.
+ * @param {boolean} opt_replace Whether to replace existing namespace.
  */
-o3djs.provide = function(name) {
+o3djs.provide = function(name, opt_replace) {
   // Ensure that the same namespace isn't provided twice.
-  if (o3djs.getObjectByName(name) &&
-      !o3djs.implicitNamespaces_[name]) {
-    throw 'Namespace "' + name + '" already declared.';
+  if (!opt_replace) {
+    if (o3djs.getObjectByName(name) &&
+        !o3djs.implicitNamespaces_[name]) {
+      throw 'Namespace "' + name + '" already declared.';
+    }
   }
 
   var namespace = name;

@@ -12,6 +12,14 @@ jQuery(function () {
 
   };
 
+  brainbrowser.afterLoadSpectrum = function (spectrum) {
+    var canvas = spectrum.createSpectrumCanvas();
+    jQuery(canvas).appendTo(jQuery("#spectrum"));
+  };
+
+  brainbrowser.after
+
+
   brainbrowser.afterInit = function(bb) {
     bb.loadObjFromUrl('/models/surf_reg_model_both.obj');
     var macacc = new MacaccObject(bb,"/data/gaolang_data/");

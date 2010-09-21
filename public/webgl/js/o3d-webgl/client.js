@@ -653,7 +653,7 @@ o3d.Client.prototype.initWithCanvas = function(canvas) {
   var names = ["webgl", "experimental-webgl", "moz-webgl"];
   for (var ii = 0; ii < names.length; ++ii) {
     try {
-      gl = canvas.getContext(names[ii], standard_attributes);
+      gl = canvas.getContext(names[ii], standard_attributes)
     } catch(e) { }
     if (gl) {
       break;

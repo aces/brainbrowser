@@ -85,8 +85,8 @@
 	</div>
       </div>
 
-      <div class="combo_box full_box">
-	<div id="data range" class="box three_quater_box">
+
+      <div id="data range" class="box full_box">
 	  <h4>Thresholding</h4>
 	  <div id="data-range">
 	    Min: <input class="range-box" id="data-range-min" type="text" name="range_min" size="5" ><br />
@@ -96,15 +96,20 @@
 	    Max: <input class="range-box" id="data-range-max" type="text" name="range_max" size="5" >
 	    <input type="checkbox" id="fix_range">Fix Range<br />
 	  </div>
-	</div>
-
-	<div id="pointer_settings" class="box quater_box">
-	  <h4>Pointer</h4>
-	  <input type="radio" class="pointer_control" name="pointer" VALUE="rotate" checked="true">Rotate<br />
-	  <input type="radio" class="pointer_control" name="pointer" VALUE="select">Select<br />
-	  <input id="aal_atlas" type="radio" class="pointer_control" name="pointer" VALUE="AAL_atlas">AAL atlas<br />
-	</div>	
       </div>
+      <div class="combo_box full_box">
+	   <div id="spectrum_bar" class="three_quater_box box">
+	     <div id="spectrum"></div>
+	   </div>
+	   <div id="pointer_settings" class="box quater_box">
+	     <h4>Pointer</h4>
+	     <input type="radio" class="pointer_control" name="pointer" VALUE="rotate" checked="true">Rotate<br />
+	     <input type="radio" class="pointer_control" name="pointer" VALUE="select">Select<br />
+	     <input id="aal_atlas" type="radio" class="pointer_control" name="pointer" VALUE="AAL_atlas">AAL atlas<br />
+	</div>	
+    </div>
+
+
       <a href="/surfview.html">BrainView Online</a>
     </div>
     

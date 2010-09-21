@@ -94,6 +94,7 @@ function SurfView() {
 
 };
 $(function() {
+    jQuery(".button").button();
     var surfview = new SurfView();
   }
 );

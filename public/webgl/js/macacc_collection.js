@@ -33,15 +33,6 @@ function MacaccObject(brainbrowser,path) {
 
   //Gets the data related to a vertex in the image.
   this.pickClick = function(e,info) {
-    //Puts a point at the right vertex.
-    //if(that.selectPoint != null) {
-      //that.point.moveTo(info.vertex.position_vector);
-    //}else {
-      //that.point = brainbrowser.createPoint(info.vertex.position_vector);
-    //}
-
-
-    jQuery(that.pickInfoElem).html("LOADING MAP................");
     that.vertex = info.vertex;
     if(that.vertex) {
       update_map();
@@ -211,7 +202,6 @@ function MacaccObject(brainbrowser,path) {
       jQuery("#data-range-max").val(max);
       jQuery("#range-slider").slider("values", 0, min);
       jQuery("#range-slider").slider("values", 1, max);
-
     }
   }
 
@@ -258,30 +248,18 @@ function MacaccObject(brainbrowser,path) {
 		  dataType: 'text',
 		  success: function (data) {
 		    var colors = parse_spectrum(data);
-		    update_spectrum(colors);
+		    that.spectrum = colors;
 		  },
 		  data: {spectrum: type}
 		});
   }
 
 
-  function update_spectrum(colors) {
-    var spectrum = jQuery("#spectrum");
-    spectrum.html('');
-    for(var i=0;i<colors.length;i++) {
-      var color = jQuery("<div></div>");
-      var rgb="rgb("+parseInt(parseFloat(colors[i][0])*255)+','+parseInt(parseFloat(colors[i][1])*255)+','+parseInt(parseFloat(colors[i][2])*255)+')';
-      color.css("background",rgb);
-      color.css("width" , parseInt(256/colors.length) + "px");
-      color.appendTo(spectrum);
-    }
-    that.spectrum =  colors;
-
-  }
   set_spectrum("spectral");
   brainbrowser.updateInfo();
   brainbrowser.valueAtPointCallback = this.valueAtPoint;
   brainbrowser.clickCallback = this.pickClick; //associating pickClick for brainbrowser which handles events.
+
 
 
 

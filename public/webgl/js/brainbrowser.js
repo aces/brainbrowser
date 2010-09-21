@@ -889,6 +889,12 @@ function BrainBrowser(url) {
 		  success: function (data) {
 		    var spectrum = new Spectrum(data);
 		    that.spectrum = spectrum;
+
+
+		    if(that.afterLoadSpectrum != null) {
+		      that.afterLoadSpectrum(spectrum);
+		    }
+
 		    if(that.data) {
 		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
 		    }
@@ -908,6 +914,9 @@ function BrainBrowser(url) {
       that.spectrum = new Spectrum(e.target.result);
       if(that.data) {
 	that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
+      }
+      if(that.afterLoadSpectrum != null) {
+	that.afterLoadSpectrum(that.spectrum);
       }
     };
     reader.readAsText(files[0]);
@@ -986,6 +995,10 @@ function BrainBrowser(url) {
 	0);                    // start_index:
 	that.client.render();
     };
+    if(that.afterUpdateColors !=null ) {
+      that.afterUpdateColors(data,min,max,spectrum);
+    }
+
     return 1;
   };
 

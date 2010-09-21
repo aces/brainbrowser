@@ -6,20 +6,24 @@ function Spectrum(data) {
    * Creates an canvas with the spectrum of colors
    * from low(left) to high(right) values
    */
-  function createSpectrumImage(colors)  {
+  that.createSpectrumCanvas = function(colors)  {
+    if(colors == null ) {
+      colors = that.colors;
+    }
     that.canvas = document.createElement("canvas");
-    jQuery(canvas).attr("width",colors.length);
-    jQuery(canvas).attr("height",20);
 
-    var context = canvas.getContext("2d");
+    jQuery(that.canvas).attr("width",colors.length);
+    jQuery(that.canvas).attr("height",20);
+
+    var context = that.canvas.getContext("2d");
     for(var i = 0; i < colors.length; i++) {
       context.fillStyle = "rgb("+parseInt(parseFloat(colors[i][0])*255)+','+parseInt(parseFloat(colors[i][1])*255)+','+parseInt(parseFloat(colors[i][2])*255)+')';
       context.fillRect(i,0,1,50);
     };
 
 
-    return canvas;
-  }
+    return that.canvas;
+  };
 
 
 

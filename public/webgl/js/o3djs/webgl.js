@@ -74,7 +74,6 @@ o3djs.webgl.makeClients = function(callback,
         features = o3d_features;
       } else {
         features = '';
-
       }
     }
     var objElem = o3djs.webgl.createClient(element, features, opt_debug);

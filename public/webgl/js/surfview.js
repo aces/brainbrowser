@@ -45,18 +45,22 @@ function SurfView() {
 	return false;
       }else {
         bb.startDragging(e);
+	return false;
       }
     });
 
     o3djs.event.addEventListener(bb.o3dElement, 'mousemove', function (e) {
       bb.drag(e);
+      return false;
     });
 
     o3djs.event.addEventListener(bb.o3dElement, 'mouseup', function (e) {
       if(!e.shiftKey || e.button == bb.o3d.Event.BUTTON_RIGHT){
 	bb.stopDragging(e);
-      }
-    });
+	return false;
+	  }
+	return true;
+				 });
 
     jQuery("#objfile").change(function() {
       bb.loadObjFromFile(document.getElementById("objfile"));
@@ -125,6 +129,14 @@ function SurfView() {
 
 };
 $(function() {
+    document.getElementById("view-window").onselectstart = function() {
+      return false;
+    };
+
+    document.getElementById("view-window").onmousedown = function() {
+      return false;
+    };
+
     jQuery(".button").button();
     var surfview = new SurfView();
   }

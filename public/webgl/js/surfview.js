@@ -11,6 +11,14 @@ function SurfView() {
   };
 
 
+
+  brainbrowser.afterLoadSpectrum = function (spectrum) {
+  var canvas = spectrum.createSpectrumCanvas();
+  jQuery("<div id=\"spectrum\" class=\"box full_box\"></div>").html(canvas).appendTo("#controls");
+  };
+
+
+
   //Setups the view events and handlers
   jQuery('#resetview').click(brainbrowser.setupView);
   jQuery('.view_button').change(brainbrowser.setupView);
@@ -42,32 +50,27 @@ function SurfView() {
 	    brainbrowser.data.values[info.vertex]);
 	   }
 	 });
-	return false;
       }else {
         bb.startDragging(e);
-	return false;
       }
     });
 
     o3djs.event.addEventListener(bb.o3dElement, 'mousemove', function (e) {
       bb.drag(e);
-      return false;
     });
 
     o3djs.event.addEventListener(bb.o3dElement, 'mouseup', function (e) {
       if(!e.shiftKey || e.button == bb.o3d.Event.BUTTON_RIGHT){
 	bb.stopDragging(e);
-	return false;
-	  }
-	return true;
-				 });
+      }
+    });
 
     jQuery("#objfile").change(function() {
       bb.loadObjFromFile(document.getElementById("objfile"));
     });
 
     jQuery("#datafile").change(function() {
-    bb.loadDataFromFile(document.getElementById("datafile"));
+      bb.loadDataFromFile(document.getElementById("datafile"));
     });
 
 
@@ -80,7 +83,7 @@ function SurfView() {
      * Method.
      ********************************************************/
 
-     //Create a range slider for the thresholds
+    //Create a range slider for the thresholds
     jQuery("#range-slider").slider({
       range: true,
       min: -50,

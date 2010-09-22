@@ -17,7 +17,6 @@ jQuery(function () {
     jQuery(canvas).appendTo(jQuery("#spectrum"));
   };
 
-  brainbrowser.after
 
 
   brainbrowser.afterInit = function(bb) {
@@ -34,7 +33,7 @@ jQuery(function () {
 				       jQuery("#data-range-max").val(ui.values[1]);
 				       macacc.range_change();
 				     },
-				     step: 0.1,
+				     step: 0.1
 				     //stop: macacc.range_change
 
 				   });

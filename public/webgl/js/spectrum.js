@@ -12,7 +12,8 @@ function Spectrum(data) {
     }
     that.canvas = document.createElement("canvas");
 
-    jQuery(that.canvas).attr("width",colors.length);
+    jQuery(that.canvas).attr("width",colors.length
+			    );
     jQuery(that.canvas).attr("height",20);
 
     var context = that.canvas.getContext("2d");

@@ -59,12 +59,13 @@ o3djs.pack = o3djs.pack || {};
  *     o3djs.rendergraph.createView.
  * @param {!o3d.Pack} opt_effectPack Pack to create effects in. If this is
  *     not specifed the pack to prepare above will be used.
+ * @param {Object} opt_options Extra options for effect.getStandardShader
  *
  * @see o3djs.material.prepareMaterials
  * @see o3djs.shape.prepareShapes
  */
-o3djs.pack.preparePack = function(pack, viewInfo, opt_effectPack) {
-  o3djs.material.prepareMaterials(pack, viewInfo, opt_effectPack);
+o3djs.pack.preparePack = function(pack, viewInfo, opt_effectPack, opt_options) {
+  o3djs.material.prepareMaterials(pack, viewInfo, opt_effectPack, opt_options);
   o3djs.shape.prepareShapes(pack);
 };
 

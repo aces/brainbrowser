@@ -172,7 +172,7 @@ function BrainBrowser(url) {
     var effect = that.pack.createObject('Effect');
     var shaderString;
     jQuery.ajax({ type: 'GET',
-      url: '/webgl/shaders/blinnphong.txt',
+      url: '/shaders/blinnphong.txt',
       dataType: 'text',
       success: function(data) {
 	shaderString = data;

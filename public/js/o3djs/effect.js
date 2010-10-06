@@ -466,7 +466,7 @@ o3djs.effect.buildVaryingDecls =
         p.semanticSuffix('TEXCOORD' +
            p.interpolant_++ + '') + ';\n' +
         p.VARYING + p.FLOAT3 + ' ' +
-        p.VARYING_DECLARATION_PREFIX + 'surfaceToLight' +
+        p.VARYING_DECLARATION_PREFIX + 'surfacePosition' +
         p.semanticSuffix(
             'TEXCOORD' + p.interpolant_++ + '') + ';\n';
   }
@@ -836,12 +836,24 @@ o3djs.effect.createEffectFromFile = function(pack, url) {
  *
  * @param {!o3d.Material} material Material for which to build the shader.
  * @param {string} effectType Type of effect to create ('phong', 'lambert',
- *     'constant').
+ *     'constant', 'blinn').
+ * @param {Object} opt_options Parameters to customize shader code generation.
+       See o3djs.effect.getStandardShader for details on the possible values.
  * @return {{description: string, shader: string}} A description and the shader
  *     string.
  */
 o3djs.effect.buildStandardShaderString = function(material,
-                                                  effectType) {
+                                                  effectType,
+                                                  opt_options) {
+  if (!opt_options) {
+    opt_options = {};
+  }
+  var numLights = 0;
+  var currentLightWorldPos = 'lightWorldPos';
+  if (opt_options.lights) {
+    numLights = opt_options.lights;
+    currentLightWorldPos = 'lightWorldPosList[i]';
+  }
   var p = o3djs.effect;
   var bumpSampler = material.getParam('bumpSampler');
   var bumpUVInterpolant;
@@ -901,9 +913,9 @@ o3djs.effect.buildStandardShaderString = function(material,
    * @return {string} The effect code for the common shader uniforms.
    */
   var buildCommonVertexUniforms = function() {
+    //var size = numLights ? '['+numLights+']' : '';
     return 'uniform ' + p.MATRIX4 + ' worldViewProjection' +
-        p.semanticSuffix('WORLDVIEWPROJECTION') + ';\n' +
-        'uniform ' + p.FLOAT3 + ' lightWorldPos;\n';
+        p.semanticSuffix('WORLDVIEWPROJECTION') + ';\n';
   };
 
   /**
@@ -911,7 +923,13 @@ o3djs.effect.buildStandardShaderString = function(material,
    * @return {string} The effect code for the common shader uniforms.
    */
   var buildCommonPixelUniforms = function() {
-    return 'uniform ' + p.FLOAT4 + ' lightColor;\n';
+    if (numLights > 0) {
+      return 'uniform ' + p.FLOAT4 + ' lightColorList[' + numLights + '];\n' +
+          'uniform ' + p.FLOAT3 + ' lightWorldPosList[' + numLights + '];\n';
+    } else {
+      return 'uniform ' + p.FLOAT4 + ' lightColor;\n' +
+          'uniform ' + p.FLOAT3 + ' lightWorldPos' + ';\n';
+    }
   };
 
   /**
@@ -991,6 +1009,37 @@ o3djs.effect.buildStandardShaderString = function(material,
   };
 
   /**
+   * Begins a section of code which is to be run once for each light.
+   * @return {string} The effect code for the for loop, or the empty string if
+   *                  not using multiple lights.
+   */
+  var beginLightLoop = function() {
+    if (numLights) {
+      return '  ' + p.FLOAT4 + ' lightColorDiffuse = ' + p.FLOAT4 + '(0);\n' +
+          '  for (int i = 0; i < ' + numLights + '; i++) {\n';
+    } else {
+      return '';
+    }
+  };
+
+  /**
+   * Ends the block of code which is to be run for each light. Adds the current
+   * light's color times (diffuseExpression) into lightColorDiffuse.
+   * @param {string} diffuseExpression Expression to multiply by light color.
+   * @return {string} The effect code to set lightColorDiffuse.
+   */
+  var endLightLoop = function(diffuseExpression) {
+    if (numLights) {
+      return '    lightColorDiffuse += ' +
+          'lightColorList[i] * ( ' + diffuseExpression + ');\n' +
+          '  }\n';
+    } else {
+      return '  ' + p.FLOAT4 + ' lightColorDiffuse = ' +
+          'lightColor * (' + diffuseExpression + ');';
+    }
+  };
+
+  /**
    * Builds vertex and fragment shader string for the Constant lighting type.
    * @param {!o3d.Material} material The material for which to build
    *     shaders.
@@ -1034,7 +1083,7 @@ o3djs.effect.buildStandardShaderString = function(material,
            p.buildUVPassthroughs(material) +
            positionVertexShaderCode() +
            normalVertexShaderCode() +
-           surfaceToLightVertexShaderCode() +
+           surfacePositionVertexShaderCode() +
            bumpVertexShaderCode() +
            p.endVertexShaderMain() +
            p.pixelShaderHeader(material, true, false) +
@@ -1050,14 +1099,16 @@ o3djs.effect.buildStandardShaderString = function(material,
            getColorParam(material, 'ambient') +
            getColorParam(material, 'diffuse') +
            getNormalShaderCode() +
-           '  ' + p.FLOAT3 + ' surfaceToLight = normalize(' +
-           p.PIXEL_VARYING_PREFIX + 'surfaceToLight);\n' +
-           '  ' + p.FLOAT4 +
-           ' litR = lit(dot(normal, surfaceToLight), 0.0, 0.0);\n' +
+           beginLightLoop() +
+           '    ' + p.FLOAT3 + ' surfaceToLight = normalize(' +
+           currentLightWorldPos + ' - ' +
+           p.PIXEL_VARYING_PREFIX + 'surfacePosition);\n' +
+           '    ' + p.FLOAT4 +
+           '    litR = lit(dot(normal, surfaceToLight), 0.0, 0.0);\n' +
+           endLightLoop('ambient * diffuse + diffuse * litR.y') +
            p.endPixelShaderMain(p.FLOAT4 +
            '((emissive +\n' +
-           '      lightColor *' +
-           ' (ambient * diffuse + diffuse * litR.y)).rgb,\n' +
+           '      lightColorDiffuse).rgb,\n' +
            '          diffuse.a)') +
            p.entryPoints() +
            p.matrixLoadOrder();
@@ -1082,7 +1133,7 @@ o3djs.effect.buildStandardShaderString = function(material,
         p.buildUVPassthroughs(material) +
         positionVertexShaderCode() +
         normalVertexShaderCode() +
-        surfaceToLightVertexShaderCode() +
+        surfacePositionVertexShaderCode() +
         surfaceToViewVertexShaderCode() +
         bumpVertexShaderCode() +
         p.endVertexShaderMain() +
@@ -1103,22 +1154,21 @@ o3djs.effect.buildStandardShaderString = function(material,
         getColorParam(material, 'diffuse') +
         getColorParam(material, 'specular') +
         getNormalShaderCode() +
-        '  ' + p.FLOAT3 + ' surfaceToLight = normalize(' +
-        p.PIXEL_VARYING_PREFIX + 'surfaceToLight);\n' +
         '  ' + p.FLOAT3 + ' surfaceToView = normalize(' +
         p.PIXEL_VARYING_PREFIX + 'surfaceToView);\n' +
-        '  ' + p.FLOAT3 +
-        ' halfVector = normalize(surfaceToLight + ' +
-        p.PIXEL_VARYING_PREFIX + 'surfaceToView);\n' +
-        '  ' + p.FLOAT4 +
+        beginLightLoop() +
+        '    ' + p.FLOAT3 + ' surfaceToLight = normalize(' +
+        currentLightWorldPos + ' - ' +
+        p.PIXEL_VARYING_PREFIX + 'surfacePosition);\n' +
+        '    ' + p.FLOAT3 +
+        ' halfVector = normalize(surfaceToLight + surfaceToView);\n' +
+        '    ' + p.FLOAT4 +
         ' litR = lit(dot(normal, surfaceToLight), \n' +
         '                    dot(normal, halfVector), shininess);\n' +
+        endLightLoop('ambient * diffuse + diffuse * litR.y\n' +
+        '                  + specular * litR.z * specularFactor') +
         p.endPixelShaderMain( p.FLOAT4 +
-        '((emissive +\n' +
-        '  lightColor *' +
-        ' (ambient * diffuse + diffuse * litR.y +\n' +
-        '                        + specular * litR.z *' +
-        ' specularFactor)).rgb,\n' +
+        '((emissive + lightColorDiffuse).rgb,\n' +
         '      diffuse.a)') +
         p.entryPoints() +
         p.matrixLoadOrder();
@@ -1141,7 +1191,7 @@ o3djs.effect.buildStandardShaderString = function(material,
         p.buildUVPassthroughs(material) +
         positionVertexShaderCode() +
         normalVertexShaderCode() +
-        surfaceToLightVertexShaderCode() +
+        surfacePositionVertexShaderCode() +
         surfaceToViewVertexShaderCode() +
         bumpVertexShaderCode() +
         p.endVertexShaderMain() +
@@ -1162,20 +1212,21 @@ o3djs.effect.buildStandardShaderString = function(material,
         getColorParam(material, 'diffuse') +
         getColorParam(material, 'specular') +
         getNormalShaderCode() +
-        '  ' + p.FLOAT3 + ' surfaceToLight = normalize(' +
-        p.PIXEL_VARYING_PREFIX + 'surfaceToLight);\n' +
         '  ' + p.FLOAT3 + ' surfaceToView = normalize(' +
         p.PIXEL_VARYING_PREFIX + 'surfaceToView);\n' +
-        '  ' + p.FLOAT3 +
+        beginLightLoop() +
+        '    ' + p.FLOAT3 + ' surfaceToLight = normalize(' +
+        currentLightWorldPos + ' - ' +
+        p.PIXEL_VARYING_PREFIX + 'surfacePosition);\n' +
+        '    ' + p.FLOAT3 +
         ' halfVector = normalize(surfaceToLight + surfaceToView);\n' +
-        '  ' + p.FLOAT4 +
+        '    ' + p.FLOAT4 +
         ' litR = lit(dot(normal, surfaceToLight), \n' +
         '                    dot(normal, halfVector), shininess);\n' +
+        endLightLoop('ambient * diffuse + diffuse * litR.y +\n' +
+        '                  + specular * litR.z * specularFactor') +
         p.endPixelShaderMain(p.FLOAT4 +
-        '((emissive +\n' +
-        '  lightColor * (ambient * diffuse + diffuse * litR.y +\n' +
-        '                        + specular * litR.z *' +
-        ' specularFactor)).rgb,\n' +
+        '((emissive + lightColorDiffuse).rgb,\n' +
         '      diffuse.a)') +
         p.entryPoints() +
         p.matrixLoadOrder();
@@ -1240,13 +1291,14 @@ o3djs.effect.buildStandardShaderString = function(material,
   };
 
   /**
-   * Builds the surface to light code for the vertex shader.
+   * Builds the surface position code for the vertex shader. To support
+   * multiple lights, the dot product with each light should then be
+   * computed in the fragment shader.
    * @return {string} The code for the vertex shader.
    */
-  var surfaceToLightVertexShaderCode = function() {
+  var surfacePositionVertexShaderCode = function() {
     return '  ' + p.VERTEX_VARYING_PREFIX +
-        'surfaceToLight = lightWorldPos - \n' +
-           '                          ' +
+        'surfacePosition =  \n' +
            p.mul(p.ATTRIBUTE_PREFIX + 'position',
               'world') + '.xyz;\n';
   };
@@ -1346,14 +1398,19 @@ o3djs.effect.buildStandardShaderString = function(material,
  * @param {!o3d.Pack} pack Pack in which to create the new Effect.
  * @param {!o3d.Material} material Material for which to build the shader.
  * @param {string} effectType Type of effect to create ('phong', 'lambert',
- *     'constant').
+ *     'constant', 'blinn').
+ * @param {{lights: number}} opt_options Extra options.
+ *     If 'lights' is non-zero, creates an array of light params; otherwise
+ *     only a single light is supported.
  * @return {o3d.Effect} The created effect.
  */
 o3djs.effect.getStandardShader = function(pack,
                                           material,
-                                          effectType) {
+                                          effectType,
+                                          opt_options) {
   var record = o3djs.effect.buildStandardShaderString(material,
-                                                      effectType);
+                                                      effectType,
+                                                      opt_options);
   var effects = pack.getObjectsByClassName('o3d.Effect');
   for (var ii = 0; ii < effects.length; ++ii) {
     if (effects[ii].name == record.description &&
@@ -1383,16 +1440,19 @@ o3djs.effect.getStandardShader = function(pack,
  * @param {!o3d.Material} material Material for which to build the shader.
  * @param {!o3djs.math.Vector3} lightPos Position of the default light.
  * @param {string} effectType Type of effect to create ('phong', 'lambert',
- *     'constant').
+ *     'constant', 'blinn').
+ * @param {Object} opt_options Extra options for effect.getStandardShader
  * @return {boolean} True on success.
  */
 o3djs.effect.attachStandardShader = function(pack,
                                              material,
                                              lightPos,
-                                             effectType) {
+                                             effectType,
+                                             opt_options) {
   var effect = o3djs.effect.getStandardShader(pack,
                                               material,
-                                              effectType);
+                                              effectType,
+                                              opt_options);
   if (effect) {
     material.effect = effect;
     effect.createUniformParameters(material);

@@ -113,13 +113,15 @@ o3djs.material.hasNonOneAlpha_ = function(material, name) {
  * @param {!o3d.Material} material to prepare.
  * @param {string} opt_effectType type of effect to create ('phong',
  *     'lambert', 'constant').
+ * @param {Object} opt_options Extra options for effect.getStandardShader
  *
  * @see o3djs.material.attachStandardEffect
  */
 o3djs.material.prepareMaterial = function(pack,
                                           viewInfo,
                                           material,
-                                          opt_effectType) {
+                                          opt_effectType,
+                                          opt_options) {
   // Assume we want the performance list
   var drawList = viewInfo.performanceDrawList;
   // First check if we have a tag telling us that it is or is not
@@ -146,7 +148,8 @@ o3djs.material.prepareMaterial = function(pack,
       o3djs.material.attachStandardEffect(pack,
                                           material,
                                           viewInfo,
-                                          opt_effectType);
+                                          opt_effectType,
+                                          opt_options);
       // For collada common profile stuff guess what drawList to use. Note: We
       // can only do this for collada common profile stuff because we supply
       // the shaders and therefore now the inputs and how they are used.
@@ -185,17 +188,20 @@ o3djs.material.prepareMaterial = function(pack,
  *     o3djs.rendergraph.createView.
  * @param {!o3d.Pack} opt_effectPack Pack to create effects in. If this
  *     is not specifed the pack to prepare above will be used.
+ * @param {Object} opt_options Extra options for effect.getStandardShader
  *
  * @see o3djs.material.prepareMaterial
  */
 o3djs.material.prepareMaterials = function(pack,
                                            viewInfo,
-                                           opt_effectPack) {
+                                           opt_effectPack,
+                                           opt_options) {
   var materials = pack.getObjectsByClassName('o3d.Material');
   for (var mm = 0; mm < materials.length; mm++) {
     o3djs.material.prepareMaterial(opt_effectPack || pack,
                                    viewInfo,
-                                   materials[mm]);
+                                   materials[mm],
+                                   opt_options);
   }
 };
 
@@ -207,17 +213,20 @@ o3djs.material.prepareMaterials = function(pack,
  *     effect.
  * @param {string} effectType Type of effect to create ('phong', 'lambert',
  *     'constant').
+ * @param {Object} opt_options Extra options for effect.getStandardShader
  *
  * @see o3djs.effect.attachStandardShader
  */
 o3djs.material.attachStandardEffectEx = function(pack,
                                                  material,
-                                                 effectType) {
+                                                 effectType,
+                                                 opt_options) {
   if (!material.effect) {
     if (!o3djs.effect.attachStandardShader(pack,
                                            material,
                                            [0, 0, 0],
-                                           effectType)) {
+                                           effectType,
+                                           opt_options)) {
       throw 'Could not attach a standard effect';
     }
   }
@@ -234,13 +243,15 @@ o3djs.material.attachStandardEffectEx = function(pack,
  *     o3djs.rendergraph.createView.
  * @param {string} effectType Type of effect to create ('phong', 'lambert',
  *     'constant').
+ * @param {Object} opt_options Extra options for effect.getStandardShader
  *
  * @see o3djs.effect.attachStandardShader
  */
 o3djs.material.attachStandardEffect = function(pack,
                                                material,
                                                viewInfo,
-                                               effectType) {
+                                               effectType,
+                                               opt_options) {
   if (!material.effect) {
     var lightPos =
         o3djs.math.matrix4.getTranslation(
@@ -248,7 +259,8 @@ o3djs.material.attachStandardEffect = function(pack,
     if (!o3djs.effect.attachStandardShader(pack,
                                            material,
                                            lightPos,  // TODO(gman): remove this
-                                           effectType)) {
+                                           effectType,
+                                           opt_options)) {
       throw 'Could not attach a standard effect';
     }
   }

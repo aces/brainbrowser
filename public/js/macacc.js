@@ -13,8 +13,9 @@ jQuery(function () {
   };
 
   brainbrowser.afterLoadSpectrum = function (spectrum) {
-    var canvas = spectrum.createSpectrumCanvas();
-    jQuery(canvas).appendTo(jQuery("#spectrum"));
+    var canvas = spectrum.createSpectrumCanvasWithScale(0,100,null);
+    jQuery("#spectrum").html(jQuery(canvas));
+    brainbrowser.spectrumObj = spectrum;
   };
 
 
@@ -22,6 +23,12 @@ jQuery(function () {
   brainbrowser.afterInit = function(bb) {
     bb.loadObjFromUrl('/models/surf_reg_model_both.obj');
     var macacc = new MacaccObject(bb,"/data/gaolang_data/");
+    macacc.afterRangeChange= function(min,max) {
+      var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null);
+      jQuery("#spectrum").html(jQuery(canvas));
+    };
+
+
     jQuery('#fillmode').toggle(bb.set_fill_mode_wireframe,bb.set_fill_mode_solid);
     jQuery("#range-slider").slider({
 				     range: true,

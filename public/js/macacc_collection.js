@@ -202,6 +202,12 @@ function MacaccObject(brainbrowser,path) {
       jQuery("#data-range-max").val(max);
       jQuery("#range-slider").slider("values", 0, min);
       jQuery("#range-slider").slider("values", 1, max);
+
+
+    if(that.afterRangeChange != undefined) {
+      that.afterRangeChange(min,max);
+    }
+
     }
   }
 
@@ -212,6 +218,10 @@ function MacaccObject(brainbrowser,path) {
     var min=parseFloat(jQuery("#data-range-min").val());
     var max=parseFloat(jQuery("#data-range-max").val());
     update_color_map(min,max);
+
+    if(that.afterRangeChange != undefined) {
+      that.afterRangeChange(min,max);
+    }
   };
 
 

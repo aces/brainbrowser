@@ -47,11 +47,11 @@ function Spectrum(data) {
 
     context.fillStyle = "rgba(0,0,0,1)";
     context.fillRect(0.5,20,1,10);
-    context.fillText(min, 0.5, 40 );
+    context.fillText(min.toPrecision(3), 0.5, 40 );
     context.fillRect(canvas.width/2.0,20,1,10);
-    context.fillText((min+max/2.0).toFixed(2), canvas.width/2.0, 40 );
+    context.fillText((min+max/2.0).toPrecision(3), canvas.width/2.0, 40 );
     context.fillRect(canvas.width-0.5,20,1,10);
-    context.fillText(max, canvas.width-20, 40 );
+    context.fillText(max.toPrecision(3), canvas.width-20, 40 );
 
     return canvas;
   };

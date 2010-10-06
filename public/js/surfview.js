@@ -13,8 +13,9 @@ function SurfView() {
 
 
   brainbrowser.afterLoadSpectrum = function (spectrum) {
-  var canvas = spectrum.createSpectrumCanvas();
-  jQuery("<div id=\"spectrum\" class=\"box full_box\"></div>").html(canvas).appendTo("#controls");
+    var canvas = spectrum.createSpectrumCanvasWithScale(0,100,null);
+    jQuery("<div id=\"spectrum\" class=\"box full_box\"></div>").html(canvas).appendTo("#controls");
+    brainbrowser.spectrumObj = spectrum;
   };
 
 
@@ -100,6 +101,8 @@ function SurfView() {
     bb.afterRangeChange = function(min,max) {
       jQuery("#data-range-min").val(min);
       jQuery("#data-range-max").val(max);
+      var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null);
+      jQuery("#spectrum").html(jQuery(canvas));
     };
 
     bb.afterLoadData = function(min,max,data) {

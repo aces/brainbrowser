@@ -1,6 +1,7 @@
 body {
     background: white;
-    font: arial, 0.8em;
+    font: arial;
+    font-size: 12px;
     color: black;
  
 }
@@ -8,6 +9,7 @@ body {
 h4 {
     margin-top: 0;
     margin-bottom: 0;
+    font-size: 14px;
 }
 
 #controls {
@@ -59,7 +61,6 @@ h4 {
     width:65%;
     float:left;
 }
-
 
 .ui-button-text {
     font-size: 11px !important

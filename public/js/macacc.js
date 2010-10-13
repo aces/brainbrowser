@@ -19,6 +19,12 @@ jQuery(function () {
   };
 
 
+  brainbrowser.afterCreateBrain = function() {
+    if(macacc.current_dataset != undefined) {
+      update_model(that.current_dataset);
+    }
+  };
+
 
   brainbrowser.afterInit = function(bb) {
     bb.loadObjFromUrl('/models/surf_reg_model_both.obj');
@@ -71,6 +77,8 @@ jQuery(function () {
 	macacc.show_atlas();
       }
     });
+
+    jQuery("#model").change(macacc.change_model);
 
     jQuery('#screenshot').click(function(event) {jQuery(this).attr("href",bb.client.toDataUR());});
     o3djs.event.addEventListener(bb.o3dElement, 'mousedown', function (e) {

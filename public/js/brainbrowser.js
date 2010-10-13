@@ -302,6 +302,11 @@ function BrainBrowser(url) {
 
     }
     that.model_data = model_data;
+
+    if(that.afterCreateBrain != undefined) {
+      that.afterCreateBrain(that.model_data);
+    }
+
   };
 
   /*

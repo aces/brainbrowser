@@ -82,10 +82,9 @@ jQuery(function () {
 
     jQuery('#screenshot').click(function(event) {jQuery(this).attr("href",bb.client.toDataUR());});
     o3djs.event.addEventListener(bb.o3dElement, 'mousedown', function (e) {
-
       var pointer_setting=jQuery('[name=pointer]:checked').val();
 
-      if(pointer_setting=="rotate" && !e.shiftKey ){
+      if(pointer_setting=="rotate" && !e.shiftKey  && !e.ctrlKey){
 	bb.startDragging(e);
       }else if(e.shiftKey || pointer_setting == "select") {;
 
@@ -93,7 +92,7 @@ jQuery(function () {
 	  bb.click(e,bb.clickCallback);
 	}
 
-      }else if((e.ctrlKey && e.button == bb.o3d.Event.BUTTON_LEFT) || pointer_setting == "check") {
+      }else if(e.ctrlKey || pointer_setting == "check") {
 	if(bb.valueAtPointCallback) {
 	  bb.click(e,bb.valueAtPointCallback);
 	}

@@ -357,10 +357,6 @@ function BrainBrowser(url) {
     normalBuffer.set(model.normalArray);
     //normalBuffer.set(newNormalArray);
 
-
-
-    //Create colorBuffer from base color of model
-
     var colorArray=[];
     if(model.colorArray.length == 4) {
       for(var i=0;i<numberVertices;i++) {

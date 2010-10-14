@@ -174,7 +174,7 @@ function MacaccObject(brainbrowser,path) {
 
   function update_model(dataset) {
     that.dataArray = dataset.data;
-    that.current_dataset = dataset;
+    brainbrowser.current_dataset = dataset;
     if(jQuery("#fix_range").attr("checked") == true) {
       if(!(that.data_min = parseFloat(jQuery("#data-range-min").val()))) {
 	if(!that.data_min === 0 ) {

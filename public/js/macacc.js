@@ -19,16 +19,19 @@ jQuery(function () {
   };
 
 
-  brainbrowser.afterCreateBrain = function() {
-    if(brainbrowser.current_dataset != undefined) {
-      update_model(brainbrowser.current_dataset);
-    }
-  };
 
 
   brainbrowser.afterInit = function(bb) {
+
     bb.loadObjFromUrl('/models/surf_reg_model_both.obj');
     var macacc = new MacaccObject(bb,"/data/gaolang_data/");
+    brainbrowser.afterCreateBrain = function() {
+      if(bb.current_dataset != undefined) {
+	macacc.update_model(bb.current_dataset);
+      }
+    };
+
+
     macacc.afterRangeChange= function(min,max) {
       var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null);
       jQuery("#spectrum").html(jQuery(canvas));

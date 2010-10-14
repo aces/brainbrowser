@@ -20,8 +20,8 @@ jQuery(function () {
 
 
   brainbrowser.afterCreateBrain = function() {
-    if(macacc.current_dataset != undefined) {
-      update_model(that.current_dataset);
+    if(brainbrowser.current_dataset != undefined) {
+      update_model(brainbrowser.current_dataset);
     }
   };
 
@@ -94,8 +94,8 @@ jQuery(function () {
 	}
 
       }else if((e.ctrlKey && e.button == bb.o3d.Event.BUTTON_LEFT) || pointer_setting == "check") {
-	if(that.valueAtPointCallback) {
-	  bb.click(e,that.valueAtPointCallback);
+	if(bb.valueAtPointCallback) {
+	  bb.click(e,bb.valueAtPointCallback);
 	}
       }
 

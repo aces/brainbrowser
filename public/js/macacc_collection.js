@@ -69,9 +69,11 @@ function MacaccObject(brainbrowser,path) {
   this.valueAtPoint = function(e,info) {
     var value = that.dataArray[info.vertex];
     if(info.vertex && value){
-      jQuery("#value").html("Value at vertex "+ vertex + ": " + value);
-    }else {
-      jQuery("#value").html('--nothing--');
+      jQuery("#x-coord").val(info.position_vector[0]);
+      jQuery("#y-coord").val(info.position_vector[1]);
+      jQuery("#z-coord").val(info.position_vector[2]);
+      jQuery("#v-coord").val(info.vertex);
+      jQuery("#value-coord").val(value);
     }
   };
 
@@ -169,6 +171,7 @@ function MacaccObject(brainbrowser,path) {
     }
   }
 
+
   function update_model(dataset) {
     that.dataArray = dataset.data;
     that.current_dataset = dataset;
@@ -191,6 +194,8 @@ function MacaccObject(brainbrowser,path) {
     jQuery("#range-slider").slider("option", "max", dataset.max);
     update_color_map(that.data_min,that.data_max);
   }
+
+  that.update_model = update_model;
 
   function update_map() {
     that.dataSet.get_data(that.vertex,get_data_controls(),update_model);

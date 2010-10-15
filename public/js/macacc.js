@@ -118,7 +118,13 @@ jQuery(function () {
   jQuery('[name=hem_view]').change(brainbrowser.setupView);
   jQuery(".button").button();
   jQuery(".button_set").buttonset();
-
+	 jQuery("#flip_range").toggle('click',function() {
+				 alert("Flipped");
+				 jQuery("#flip_range").sibblings("label").html("flipped");
+			       },
+			       function() {
+				 jQuery("#flip_range").sibblings("label").html("flip");
+			       });
 
 
 

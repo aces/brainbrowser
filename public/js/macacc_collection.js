@@ -89,7 +89,7 @@ function MacaccObject(brainbrowser,path) {
    *  This method generates the color map using the spectrum
    *
    */
-  function generate_colors(values,min,max) {
+  function generate_colors(values,min,max,flip) {
 
     var colorArray = new Array();
 
@@ -105,7 +105,13 @@ function MacaccObject(brainbrowser,path) {
 	var color_index = parseInt((values[i]-min)/increment);
       }
       //This inserts the RGBA values (R,G,B,A) independently
-      colorArray.push.apply(colorArray,that.spectrum[color_index]);
+      if(flip) {
+        colorArray.push.apply(colorArray,that.spectrum[that.spectrum.length-color_index]);
+      }else {
+	colorArray.push.apply(colorArray,that.spectrum[color_index]);
+      }
+
+
     }
     update_range(min,max);
     return colorArray;
@@ -192,13 +198,20 @@ function MacaccObject(brainbrowser,path) {
 	  that.data_max = dataset.max;
 	}
       }
-    }else {
+    }else if(get_data_controls().statistic == "T") {
       that.data_min = dataset.min;
       that.data_max = dataset.max;
     }
-    jQuery("#range-slider").slider("option", "min", dataset.min);
-    jQuery("#range-slider").slider("option", "max", dataset.max);
-    update_color_map(that.data_min,that.data_max);
+    if(get_data_controls().statistic == "T") {
+      jQuery("#range-slider").slider("option", "min", dataset.min);
+      jQuery("#range-slider").slider("option", "max", dataset.max);
+      update_color_map(that.data_min,that.data_max);
+    }else {
+      jQuery("#range-slider").slider("option", "min", "0");
+      jQuery("#range-slider").slider("option", "max", "1");
+      update_color_map(0,1);
+    }
+
   }
 
   that.update_model = update_model;

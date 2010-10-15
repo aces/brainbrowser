@@ -13,7 +13,7 @@ jQuery(function () {
   };
 
   brainbrowser.afterLoadSpectrum = function (spectrum) {
-    var canvas = spectrum.createSpectrumCanvasWithScale(0,100,null);
+    var canvas = spectrum.createSpectrumCanvasWithScale(0,100,null,false);
     jQuery("#spectrum").html(jQuery(canvas));
     brainbrowser.spectrumObj = spectrum;
   };
@@ -33,7 +33,13 @@ jQuery(function () {
 
 
     macacc.afterRangeChange= function(min,max) {
-      var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null);
+      if(macacc.flipRange == true) {
+	var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null,true);
+      }
+      else {
+	var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null,false);
+      }
+
       jQuery("#spectrum").html(jQuery(canvas));
     };
 
@@ -112,19 +118,21 @@ jQuery(function () {
       }
     });
 
+    jQuery("#flip_range").change(function(e) {
+      if(jQuery(e.target).attr("checked") == true) {
+	macacc.update_model(brainbrowser.current_dataset);
+      }else {
+	macacc.update_model(brainbrowser.current_dataset);
+      }
+    });
+
+
   };
   jQuery('#resetview').click(brainbrowser.setupView);
   jQuery('.view_button').change(brainbrowser.setupView);
   jQuery('[name=hem_view]').change(brainbrowser.setupView);
   jQuery(".button").button();
   jQuery(".button_set").buttonset();
-	 jQuery("#flip_range").toggle('click',function() {
-				 alert("Flipped");
-				 jQuery("#flip_range").sibblings("label").html("flipped");
-			       },
-			       function() {
-				 jQuery("#flip_range").sibblings("label").html("flip");
-			       });
 
 
 

@@ -8,18 +8,32 @@ function Spectrum(data) {
    * Creates an canvas with the spectrum of colors
    * from low(left) to high(right) values
    */
-  function createCanvas(colors,color_height,full_height) {
+  function createCanvas(colors,color_height,full_height,flip) {
     var canvas = document.createElement("canvas");
 
     jQuery(canvas).attr("width",colors.length);
     jQuery(canvas).attr("height",full_height);
 
     var context = canvas.getContext("2d");
-    for(var i = 0; i < colors.length; i++) {
-      context.fillStyle = "rgb("+parseInt(parseFloat(colors[i][0])*255)+','+parseInt(parseFloat(colors[i][1])*255)+','+parseInt(parseFloat(colors[i][2])*255)+')';
-      context.fillRect(i,0,1,color_height);
-    };
+    if(flip) {
+      for(var i = 0; i < colors.length; i++) {
+	var color_index = colors.length-1-i;
+	context.fillStyle = "rgb("
+			      +parseInt(parseFloat(colors[color_index][0])*255)+','
+			      +parseInt(parseFloat(colors[color_index][1])*255)+','
+			      +parseInt(parseFloat(colors[color_index][2])*255)+')';
+	context.fillRect(i,0,1,color_height);
+      };
 
+    }else{
+      for(var i = 0; i < colors.length; i++) {
+	  context.fillStyle = "rgb("+parseInt(parseFloat(colors[i][0])*255)+','+parseInt(parseFloat(colors[i][1])*255)+','+parseInt(parseFloat(colors[i][2])*255)+')';
+	  context.fillRect(i,0,1,color_height);
+	};
+
+
+
+    }
     return canvas;
 
   }
@@ -31,18 +45,18 @@ function Spectrum(data) {
       colors = that.colors;
     }
 
-    var canvas = createCanvas(colors,20,20);
+    var canvas = createCanvas(colors,20,20,false);
 
     return canvas;
   };
 
 
-  that.createSpectrumCanvasWithScale = function(min,max,colors) {
+  that.createSpectrumCanvasWithScale = function(min,max,colors,flip) {
 
     if(colors == null) {
       colors = that.colors;
     }
-    var canvas = createCanvas(colors,20,40);
+    var canvas = createCanvas(colors,20,40,flip);
     var context = canvas.getContext("2d");
 
     context.fillStyle = "rgba(0,0,0,1)";

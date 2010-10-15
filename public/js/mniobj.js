@@ -161,6 +161,15 @@ function MNIObject(string) {
   };
 
 
+  this.getVertexInfo = function(vertex) {
+    var position_vector = [
+      this.positionArray[vertex*3],
+      this.positionArray[vertex*3+1],
+      this.positionArray[vertex*3+2]
+    ];
+    return { vertex: vertex, position_vector: position_vector};
+  };
+
   this.get_vertex = function(index,position,hemisphere) {
 
     if(this.num_hemispheres > 1 ) {

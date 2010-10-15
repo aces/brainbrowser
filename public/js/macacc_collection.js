@@ -31,7 +31,7 @@ function MacaccObject(brainbrowser,path) {
   that.coordinates = jQuery("#coordinates");
   that.selectPoint = null;
 
-  function set_vertex_values(info,value) {
+  function setVertexCoord(info,value) {
       jQuery("#x-coord").val(info.position_vector[0]);
       jQuery("#y-coord").val(info.position_vector[1]);
       jQuery("#z-coord").val(info.position_vector[2]);
@@ -45,12 +45,7 @@ function MacaccObject(brainbrowser,path) {
     that.vertex = info.vertex;
     if(that.vertex) {
       update_map();
-      jQuery("#x-coord").val(info.position_vector[0]);
-      jQuery("#y-coord").val(info.position_vector[1]);
-      jQuery("#z-coord").val(info.position_vector[2]);
-      jQuery("#v-coord").val(info.vertex);
-      jQuery("#value-coord").val(0);
-
+      setVertexCoord(info,0);
     }else {
       jQuery(that.pickInfoElem).html('--nothing--');
     }
@@ -71,6 +66,7 @@ function MacaccObject(brainbrowser,path) {
     }else {
       that.vertex += that.dataArray.length/2;
     }
+    setVertexCoord(brainbrowser.getInfoForVertex(that.vertex),0);
     update_map();
 
   };

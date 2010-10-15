@@ -667,7 +667,16 @@ function BrainBrowser(url) {
       jQuery(that.pickInfoElem).html('--nothing--');
     }
 
+    return false;
+  };
 
+
+  //Returns the position and info about a vertex
+  //currently a wrapper for model.getVertexInfo
+  //Should theoretically return the same infor as click and
+  //click should use this to build that info object
+  that.getInfoForVertex = function(vertex) {
+    return  that.model_data.getVertexInfo(vertex);
   };
 
   that.startDragging = function(e) {

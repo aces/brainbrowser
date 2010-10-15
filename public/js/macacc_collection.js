@@ -40,6 +40,7 @@ function MacaccObject(brainbrowser,path) {
       jQuery("#y-coord").val(info.position_vector[1]);
       jQuery("#z-coord").val(info.position_vector[2]);
       jQuery("#v-coord").val(info.vertex);
+      jQuery("#value-coord").val(0);
 
     }else {
       jQuery(that.pickInfoElem).html('--nothing--');

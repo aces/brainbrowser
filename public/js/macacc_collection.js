@@ -31,6 +31,15 @@ function MacaccObject(brainbrowser,path) {
   that.coordinates = jQuery("#coordinates");
   that.selectPoint = null;
 
+  function set_vertex_values(info,value) {
+      jQuery("#x-coord").val(info.position_vector[0]);
+      jQuery("#y-coord").val(info.position_vector[1]);
+      jQuery("#z-coord").val(info.position_vector[2]);
+      jQuery("#v-coord").val(info.vertex);
+      jQuery("#value-coord").val(value);
+  }
+
+
   //Gets the data related to a vertex in the image.
   this.pickClick = function(e,info) {
     that.vertex = info.vertex;

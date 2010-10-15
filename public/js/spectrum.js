@@ -46,10 +46,25 @@ function Spectrum(data) {
     var context = canvas.getContext("2d");
 
     context.fillStyle = "rgba(0,0,0,1)";
+
+    //min mark
     context.fillRect(0.5,20,1,10);
     context.fillText(min.toPrecision(3), 0.5, 40 );
+
+    //quater mark
+    context.fillRect(canvas.width/4.0,20,1,10);
+    context.fillText(((min+max)/4.0).toPrecision(3), canvas.width/4.0, 40 );
+
+     //middle mark
     context.fillRect(canvas.width/2.0,20,1,10);
-    context.fillText((min+max/2.0).toPrecision(3), canvas.width/2.0, 40 );
+    context.fillText(((min+max)/2.0).toPrecision(3), canvas.width/2.0, 40 );
+
+    //3quater mark
+    context.fillRect(3*(canvas.width/4.0),20,1,10);
+    context.fillText((3*((min+max)/4.0)).toPrecision(3), 3*(canvas.width/4.0), 40 );
+
+
+    //max mark
     context.fillRect(canvas.width-0.5,20,1,10);
     context.fillText(max.toPrecision(3), canvas.width-20, 40 );
 

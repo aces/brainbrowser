@@ -202,6 +202,7 @@ function MacaccObject(brainbrowser,path) {
       that.data_min = dataset.min;
       that.data_max = dataset.max;
     }
+
     var flip = jQuery("#flip_range").attr("checked");
     if(get_data_controls().statistic == "T") {
       that.flipRange = flip;
@@ -237,11 +238,11 @@ function MacaccObject(brainbrowser,path) {
       jQuery("#range-slider").slider("values", 1, max);
 
 
+    }
     if(that.afterRangeChange != undefined) {
       that.afterRangeChange(min,max);
     }
 
-    }
   }
 
   function update_scale(min,max) {

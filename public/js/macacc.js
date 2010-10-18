@@ -49,11 +49,13 @@ jQuery(function () {
 				     range: true,
 				     min: -100,
 				     max: 200,
-				     value: [-10, 10],
+				     value: [1.5, 10],
 				     slide: function(event, ui) {
 				       jQuery("#data-range-min").val(ui.values[0]);
 				       jQuery("#data-range-max").val(ui.values[1]);
-				       macacc.range_change();
+				       if(bb.current_dataset) {
+					 macacc.range_change();
+				       }
 				     },
 				     step: 0.1
 				     //stop: macacc.range_change
@@ -71,10 +73,12 @@ jQuery(function () {
 
     jQuery("#data-range-min").change(function(e) {
       jQuery("#range-slider").slider('values', 0, jQuery(this).val());
+      macacc.afterRangeChange(parseFloat(jQuery("#data-range-min").val()),parseFloat(jQuery("#data-range-max").val()));
     });
 
     jQuery("#data-range-max").change(function(e) {
       jQuery("#range-slider").slider('values', 1, jQuery(this).val());
+      macacc.afterRangeChange(parseFloat(jQuery("#data-range-min").val()),parseFloat(jQuery("#data-range-max").val()));
     });
 
     jQuery('.data_controls').change(macacc.data_control_change);
@@ -133,15 +137,6 @@ jQuery(function () {
   jQuery('[name=hem_view]').change(brainbrowser.setupView);
   jQuery(".button").button();
   jQuery(".button_set").buttonset();
-
-
-
-
-  //document.onselectstart = function() {return false;} // ie
-  //document.onmousedown = function() {return false;} // mozilla
-
-
-
 
 
 });

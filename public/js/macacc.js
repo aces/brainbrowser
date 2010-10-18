@@ -47,9 +47,9 @@ jQuery(function () {
     jQuery('#fillmode').toggle(bb.set_fill_mode_wireframe,bb.set_fill_mode_solid);
     jQuery("#range-slider").slider({
 				     range: true,
-				     min: -100,
-				     max: 200,
-				     value: [1.5, 10],
+				     min: -10,
+				     max: 20,
+				     values: [1.5, 10],
 				     slide: function(event, ui) {
 				       jQuery("#data-range-min").val(ui.values[0]);
 				       jQuery("#data-range-max").val(ui.values[1]);

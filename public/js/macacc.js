@@ -48,7 +48,7 @@ jQuery(function () {
     jQuery("#range-slider").slider({
 				     range: true,
 				     min: -10,
-				     max: 20,
+				     max: 15,
 				     values: [1.5, 10],
 				     slide: function(event, ui) {
 				       jQuery("#data-range-min").val(ui.values[0]);

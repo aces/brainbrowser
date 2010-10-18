@@ -206,8 +206,8 @@ function MacaccObject(brainbrowser,path) {
     var flip = jQuery("#flip_range").attr("checked");
     if(get_data_controls().statistic == "T") {
       that.flipRange = flip;
-      jQuery("#range-slider").slider("option", "min", dataset.min);
-      jQuery("#range-slider").slider("option", "max", dataset.max);
+      //jQuery("#range-slider").slider("option", "min", dataset.min);
+      //jQuery("#range-slider").slider("option", "max", dataset.max);
       update_color_map(that.data_min,that.data_max,flip);
     }else {
       that.flipRange = !flip;

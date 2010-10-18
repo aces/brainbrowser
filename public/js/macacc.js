@@ -13,7 +13,7 @@ jQuery(function () {
   };
 
   brainbrowser.afterLoadSpectrum = function (spectrum) {
-    var canvas = spectrum.createSpectrumCanvasWithScale(0,100,null,false);
+    var canvas = spectrum.createSpectrumCanvasWithScale(1.5,10,null,false);
     jQuery("#spectrum").html(jQuery(canvas));
     brainbrowser.spectrumObj = spectrum;
   };
@@ -129,10 +129,20 @@ jQuery(function () {
 	macacc.update_model(brainbrowser.current_dataset);
       }
     });
+    jQuery("#flip_correlation").click(function(e) {
+      var min = -1*parseFloat(jQuery("#data-range-max").val());
+      var max = -1*parseFloat(jQuery("#data-range-min").val());
+      jQuery("#data-range-min").val(min).change();
+      jQuery("#data-range-max").val(max).change();
 
+      jQuery("#flip_range").attr("checked",!jQuery("#flip_range").attr("checked")).change();
+
+
+    });
 
   };
   jQuery('#resetview').click(brainbrowser.setupView);
+
   jQuery('.view_button').change(brainbrowser.setupView);
   jQuery('[name=hem_view]').change(brainbrowser.setupView);
   jQuery(".button").button();

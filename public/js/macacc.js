@@ -99,22 +99,36 @@ jQuery(function () {
 
       if(pointer_setting=="rotate" && !e.shiftKey  && !e.ctrlKey){
 	bb.startDragging(e);
-      }else if(e.shiftKey || pointer_setting == "select") {;
+      }if(e.ctrlKey) {
+	if(bb.valueAtPointCallback) {
+	  bb.click(e,bb.valueAtPointCallback);
+	}
+      }if(e.shiftKey) {
 
 	if(bb.clickCallback) {
 	  bb.click(e,bb.clickCallback);
 	}
 
-      }else if(e.ctrlKey || pointer_setting == "check") {
-	if(bb.valueAtPointCallback) {
-	  bb.click(e,bb.valueAtPointCallback);
-	}
       }
 
 
     });
     o3djs.event.addEventListener(bb.o3dElement, 'mousemove', function (e) {
-      bb.drag(e);
+      var pointer_setting=jQuery('[name=pointer]:checked').val();
+      if( pointer_setting == "check") {
+	if(bb.valueAtPointCallback) {
+	  bb.click(e,bb.valueAtPointCallback);
+	}
+      }else if(pointer_setting == "select") {
+
+	if(bb.clickCallback) {
+	  bb.click(e,bb.clickCallback);
+	}
+      }else
+      {
+        bb.drag(e);
+      }
+
     });
     o3djs.event.addEventListener(bb.o3dElement, 'mouseup', function (e) {
       if(!e.shiftKey || e.button == bb.o3d.Event.BUTTON_RIGHT){

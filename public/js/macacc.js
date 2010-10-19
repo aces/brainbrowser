@@ -115,7 +115,7 @@ jQuery(function () {
     });
     o3djs.event.addEventListener(bb.o3dElement, 'mousemove', function (e) {
       var pointer_setting=jQuery('[name=pointer]:checked').val();
-      if( pointer_setting == "check" && e.ctrlKey) {
+      if( pointer_setting == "check" && e.shiftKey) {
 	if(bb.valueAtPointCallback) {
 	  bb.click(e,bb.valueAtPointCallback);
 	}

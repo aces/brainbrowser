@@ -856,43 +856,53 @@ function BrainBrowser(url) {
 
   };
 
-  that.loadObjFromUrl = function(url) {
+  function loadFromUrl(url,sync,callback) {
     jQuery.ajax({ type: 'GET',
       url: url ,
       dataType: 'text',
       success: function(data) {
-	that.createBrain(new MNIObject(data));
+	callback(data);
       },
       error: function(request,textStatus,e) {
 	alert("Failure: " +  textStatus);
       },
       data: {},
-      async: true,
+      async: sync,
       timeout: 100000
     });
-  };
 
+  }
 
-  that.loadObjFromFile = function(file_input) {
+  function loadFromTextFile(file_input,callback) {
     var reader = new FileReader();
     var files = file_input.files;
     reader.file = files[0];
 
     reader.onloadend = function(e) {
-      that.createBrain(new MNIObject(e.target.result));
+      callback(e.target.result);
     };
 
     reader.readAsText(files[0]);
 
+  }
+
+
+  that.loadObjFromUrl = function(url) {
+    loadFromUrl(url, false,function(data) {
+		  that.createBrain(new MNIObj(data));
+		});
+  };
+
+
+  that.loadObjFromFile = function(file_input) {
+    loadFromTextFile(file_input, function(result) {
+		       that.createBrain(new MNIObject(result));
+		     });
   };
 
   that.loadSpectrumFromUrl  = function(url) {
     //get the spectrum of colors
-    jQuery.ajax({
-		  type: 'GET',
-		  url: url,
-		  dataType: 'text',
-		  success: function (data) {
+    loadFromUrl(url,true,function (data) {
 		    var spectrum = new Spectrum(data);
 		    that.spectrum = spectrum;
 
@@ -905,9 +915,7 @@ function BrainBrowser(url) {
 		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
 		    }
 
-		  }
 		});
-
   };
 
 

@@ -7,8 +7,8 @@ server = http.createServer(function(req,res) {
 
 });
 
-server.listen(8124);
-
+server.listen(8124)
+;
 var socket = io.listen(server);
 socket.on('connection', function(client){
   // new client is here!

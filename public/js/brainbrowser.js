@@ -889,7 +889,7 @@ function BrainBrowser(url) {
 
   that.loadObjFromUrl = function(url) {
     loadFromUrl(url, false,function(data) {
-		  that.createBrain(new MNIObj(data));
+		  that.createBrain(new MNIObject(data));
 		});
   };
 

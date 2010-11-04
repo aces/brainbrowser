@@ -1,4 +1,4 @@
-function MNIData(data) {
+function Data(data) {
   var that = this;
   that.parse = function(string) {
     string = string.replace(/\s+$/, '');
@@ -12,13 +12,12 @@ function MNIData(data) {
 
   };
 
-  that.createColorArray = function(min,max,spectrum) {
+  that.createColorArray = function(min,max,spectrum,flip) {
     var spectrum = spectrum.colors;
-    var colorArray = [];
+    var colorArray = new Array();
 
     //calculate a slice of the data per color
     var increment = ((max-min)+(max-min)/spectrum.length)/spectrum.length;
-
     //for each value, assign a color
     for(var i=0; i<that.values.length; i++) {
       if(that.values[i]<= min ) {
@@ -28,13 +27,21 @@ function MNIData(data) {
       }else {
 	var color_index = parseInt((that.values[i]-min)/increment);
       }
-
       //This inserts the RGBA values (R,G,B,A) independently
-      colorArray.push.apply(colorArray,spectrum[color_index]);
-    }
+      if(flip) {
+        colorArray.push.apply(colorArray,spectrum[spectrum.length-1-color_index]);
+      }else {
+	colorArray.push.apply(colorArray,spectrum[color_index]);
+      }
 
+
+    }
     return colorArray;
+
+
   };
+
+
 
   if(data) {
     that.parse(data);

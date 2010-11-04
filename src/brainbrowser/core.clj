@@ -7,7 +7,9 @@
 (defn ws-event-handler [channel]
   (do
     (println "WebSocket event received"))
-  (receive-all channel (fn [msg] (enqueue channel "hello!"))))
+  (receive-all channel (fn [msg]
+			 (do (println msg))
+			 (enqueue channel "hello!"))))
 
 (defn http-event-handler [channel request] 
   (do

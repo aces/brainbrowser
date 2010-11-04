@@ -920,29 +920,27 @@ function BrainBrowser(url) {
 
 
   that.loadSpectrumFromFile = function(file_input){
-    var reader = new FileReader();
-    var files = file_input.files;
-    reader.file = files[0];
+    loadFromTextFile(file_input,function (data) {
+		    var spectrum = new Spectrum(data);
+		    that.spectrum = spectrum;
 
-    reader.onloadend = function(e) {
-      that.spectrum = new Spectrum(e.target.result);
-      if(that.data) {
-	that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
-      }
-      if(that.afterLoadSpectrum != null) {
-	that.afterLoadSpectrum(that.spectrum);
-      }
-    };
-    reader.readAsText(files[0]);
+
+		    if(that.afterLoadSpectrum != null) {
+		      that.afterLoadSpectrum(spectrum);
+		    }
+
+		    if(that.data) {
+		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
+		    }
+
+		});
+      
   };
 
   that.loadDataFromFile = function(file_input) {
-    var reader = new FileReader();
-    var files = file_input.files;
-    reader.file = files[0];
-
-    reader.onloadend = function(e) {
-      that.data = new MNIData(e.target.result);
+      
+    loadFromTextFile(file_input, function(e) {
+      that.data = new Data(e.target.result);
       if(that.fixRange == false || that.fixRange == null) {
 	that.rangeMin = that.data.min;
 	that.rangeMax = that.data.max;
@@ -951,22 +949,16 @@ function BrainBrowser(url) {
 	}
       }
 
-
       that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
-    };
-    reader.readAsText(files[0]);
+    });
   };
 
   /*
    * This updates the colors of the brain model
    */
-  that.updateColors = function(data,min,max,spectrum) {
-    if(that.data == null) {
-      return 0;
-    }
+  that.updateColors = function(data,min,max,spectrum,flip) {
 
-
-    var color_array = data.createColorArray(min,max,spectrum);
+    var color_array = data.createColorArray(min,max,spectrum,flip);
     if(that.model_data.num_hemispheres == 1) {
       var color_buffer = that.pack.createObject('VertexBuffer');
       var color_field = color_buffer.createField('FloatField', 4);
@@ -1037,6 +1029,7 @@ function BrainBrowser(url) {
 
   };
 
+    
   that.init();
 
 

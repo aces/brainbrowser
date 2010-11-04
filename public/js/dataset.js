@@ -28,19 +28,7 @@ function Dataset() {
     }
     return "/data/"+modality + "/" +sk+"/"+statistic+vertex+".txt";
   };
-
-  /*
-   * Parses the text from the ajax request into an array of values
-   */
-  this.parse = function(data) {
-    var string = data;
-    string = string.replace(/\s+$/, '');
-    string = string.replace(/^\s+/, '');
-    this.data = string.split(/\s+/);
-    this.min = this.data.min();
-    this.max = this.data.max();
-  };
-
+  
   /*
    * Issues a request to the server for the data, sends it to parse and then calls
    * the callback
@@ -58,7 +46,7 @@ function Dataset() {
       url: path,
       dataType: 'text',
       success: function(data) {
-	that.parse(data);
+	that.current_data = new Data(data);
 	callback(that);
       },
       error: function () {

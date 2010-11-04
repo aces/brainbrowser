@@ -84,40 +84,6 @@ function MacaccObject(brainbrowser,path) {
   };
 
 
-
-  /**
-   *  This method generates the color map using the spectrum
-   *
-   */
-  function generate_colors(values,min,max,flip) {
-
-    var colorArray = new Array();
-
-    //calculate a slice of the data per color
-    var increment = ((max-min)+(max-min)/that.spectrum.length)/that.spectrum.length;
-    //for each value, assign a color
-    for(var i=0; i<values.length; i++) {
-      if(values[i]<= min ) {
-	var color_index = 0;
-      }else if(values[i]> max){
-	var color_index = that.spectrum.length-1;
-      }else {
-	var color_index = parseInt((values[i]-min)/increment);
-      }
-      //This inserts the RGBA values (R,G,B,A) independently
-      if(flip) {
-        colorArray.push.apply(colorArray,that.spectrum[that.spectrum.length-1-color_index]);
-      }else {
-	colorArray.push.apply(colorArray,that.spectrum[color_index]);
-      }
-
-
-    }
-    update_range(min,max);
-    return colorArray;
-  }
-
-
   /**
    * This method applies the colors to the model
    */
@@ -177,30 +143,27 @@ function MacaccObject(brainbrowser,path) {
   }
 
   function update_color_map(min,max,flip) {
-    var colors = generate_colors(that.dataArray,min,max,flip);
-    if(colors != -1) {
-      update_colors(colors);
-    }
+      brainbrowser.updateColors(that.dataSet.current_data,min,max,brainbrowser.spectrum,flip);
   }
 
 
   function update_model(dataset) {
-    that.dataArray = dataset.data;
+    that.dataArray = dataset.current_data.values;
     brainbrowser.current_dataset = dataset;
     if(jQuery("#fix_range").attr("checked") == true) {
       if(!(that.data_min = parseFloat(jQuery("#data-range-min").val()))) {
 	if(!that.data_min === 0 ) {
-	  that.data_min = dataset.min;
+	  that.data_min = dataset.current_data.min;
 	}
       }
       if(!(that.data_max = parseFloat(jQuery("#data-range-max").val()))) {
 	if(!that.data_max === 0 ) {
-	  that.data_max = dataset.max;
+	  that.data_max = dataset.current_data.max;
 	}
       }
     }else if(get_data_controls().statistic == "T") {
-      that.data_min = dataset.min;
-      that.data_max = dataset.max;
+      that.data_min = dataset.current_data.min;
+      that.data_max = dataset.current_data.max;
     }
 
     var flip = jQuery("#flip_range").attr("checked");
@@ -208,7 +171,7 @@ function MacaccObject(brainbrowser,path) {
       that.flipRange = flip;
       //jQuery("#range-slider").slider("option", "min", dataset.min);
       //jQuery("#range-slider").slider("option", "max", dataset.max);
-      update_color_map(that.data_min,that.data_max,flip);
+      update_color_map(that.data_min, that.data_max,flip);
     }else {
       that.flipRange = !flip;
       jQuery("#range-slider").slider("option", "min", "0");
@@ -265,41 +228,8 @@ function MacaccObject(brainbrowser,path) {
     }
   };
 
-  function parse_spectrum(data) {
-    data = data.replace(/\s+$/, '');
-    data = data.replace(/^\s+/, '');
-    var tmp = data.split(/\n/);
-    var colors = new Array();
-    for(var i=0;i<tmp.length;  i++) {
-      var tmp_color = tmp[i].split(/\s+/);
-      for(var k=0; k<3; k++) {
-	tmp_color[k]=parseFloat(tmp_color[k]);
-      }
-      tmp_color.push(1.0000);
-      colors.push(tmp_color);
-    }
 
-
-
-    return colors;
-  }
-
-  function set_spectrum(type) {
-    //get the spectrum of colors
-    jQuery.ajax({
-		  type: 'GET',
-		  url: '/assets/spectral_spectrum.txt',
-		  dataType: 'text',
-		  success: function (data) {
-		    var colors = parse_spectrum(data);
-		    that.spectrum = colors;
-		  },
-		  data: {spectrum: type}
-		});
-  }
-
-
-  set_spectrum("spectral");
+  brainbrowser.loadSpectrumFromUrl("/assets/spectral_spectrum.txt");
   brainbrowser.updateInfo();
   brainbrowser.valueAtPointCallback = this.valueAtPoint;
   brainbrowser.clickCallback = this.pickClick; //associating pickClick for brainbrowser which handles events.

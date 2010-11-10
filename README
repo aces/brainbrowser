@@ -1,2 +1,11 @@
 BrainBrowser 3D
 
+Components
+----------
+  1.BrainBrowser Javascript librairies
+  2.WebSocket Server in clojure
+  3.Ruby code to parse minc files and obj files
+  4.BrainLoaf Minc viewer code (will be merged with brainbrowser)
+
+
+

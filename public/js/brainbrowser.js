@@ -165,42 +165,35 @@ function BrainBrowser(url) {
     that.setClientSize();
   };
 
-  this.createBrain = function(model_data) {
-    that.model_data= model_data;
+  this.createMaterial = function(url) {
     // Create an Effect object and initialize it using the shaders
     // from a file on the server through an ajax request.
     var effect = that.pack.createObject('Effect');
-    var shaderString;
-    jQuery.ajax({ type: 'GET',
-      url: '/shaders/blinnphong.txt',
-      dataType: 'text',
-      success: function(data) {
-	shaderString = data;
-      },
-      error: function(request,textStatus,e) {
-	alert("Failure: " +  textStatus);
-      },
-      data: {},
-      async: false,
-      timeout: 10000
-    });
-
+    var shaderString = that.loadCombinedShaderFromUrl(url);
 
     effect.loadFromFXString(shaderString);
 
     // Create a material for the mesh.
-    var myMaterial = that.pack.createObject('Material');
+    var material = that.pack.createObject('Material');
 
 
 
     // Set the material's drawList.
-    myMaterial.drawList = that.viewInfo.performanceDrawList;
+    material.drawList = that.viewInfo.performanceDrawList;
 
     // Apply our effect to that myMaterial. The effect tells the 3D
     // hardware which shaders to use.
-    myMaterial.effect = effect;
+    material.effect = effect;
 
-    effect.createUniformParameters(myMaterial);
+    effect.createUniformParameters(material);
+    
+    return material;
+  };
+
+  this.createBrain = function(model_data) {
+    that.model_data= model_data;
+
+    var myMaterial = that.createMaterial("/shaders/blinnphong.txt");
 
     /*
      * Create the Shape for the brain mesh and assign its material.
@@ -399,6 +392,39 @@ function BrainBrowser(url) {
 
   };
 
+
+  that.createPinPoint = function(vertex) {
+        
+    var pinPointTransform = that.pack.createObject('Transform');
+    
+    var material = that.createMaterial("/shaders/pinpoint.txt");
+
+    var pinPoint = that.pack.createObject("Shape");
+    var pinPointPrimitive = that.pack.createObject("Primitive");
+    pinPointPrimitive.primitiveType =  that.o3d.Primitive.POINTLIST;
+    var streamBank = that.pack.createObject("StreamBank");
+
+    pinPointPrimitive.material = material;
+    pinPointPrimitive.owner = pinPoint;
+    pinPointPrimitive.streamBank = streamBank;
+
+    
+    var positionArray = this.model_data.getVertexInfo(vertex)["position_vector"];
+    
+    var positionsBuffer = that.pack.createObject('VertexBuffer');
+    var positionsField = positionsBuffer.createField('FloatField', 3);
+    positionsBuffer.set(positionArray);
+    streamBank.setVertexStream(
+      that.o3d.Stream.POSITION,
+      0,
+      positionsField,
+      0
+    );
+    
+    pinPointTransform.addShape(pinPoint);
+    pinPoint.createDrawElements(that.pack, null);
+    return pinPointTransform;
+  };
 
 
 
@@ -953,6 +979,16 @@ function BrainBrowser(url) {
     });
   };
 
+
+  that.loadCombinedShaderFromUrl = function(url){
+    var shaderString;
+    loadFromUrl(url,false,function(data){
+      shaderString = data;		  
+    });
+    return shaderString;
+  };
+
+
   /*
    * This updates the colors of the brain model
    */
@@ -993,7 +1029,7 @@ function BrainBrowser(url) {
       var right_color_field = right_color_buffer.createField('FloatField', 4);
       right_color_buffer.set(right_color_array);
       var right_brain_shape = that.brainTransform.children[1].shapes[0];
-      var right_stream_bank = right_brain_shape.elements[0].streamBank;
+      var right_stream_bank = right_brain_sahghpe.elements[0].streamBank;
       right_stream_bank.setVertexStream(
 	that.o3d.Stream.COLOR, //  This stream stores vertex positions
 	0,                     // First (and only) position stream

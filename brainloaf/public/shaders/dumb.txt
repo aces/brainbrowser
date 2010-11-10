@@ -1,0 +1,39 @@
+uniform mat4 world;
+uniform mat4 view;
+uniform mat4 projection;
+
+
+attribute vec4 position;
+attribute vec4 color;
+varying vec4 v_color;
+
+
+void main() {
+  gl_PointSize = 1.0;
+  gl_Position = projection * view * world * position;
+  v_color = color;
+}
+
+// #o3d SplitMarker
+
+
+#ifdef GL_ES
+precision highp float;
+#endif    
+
+varying vec4 v_color;
+
+void main() {
+     if(v_color[1] < 0.60) {
+       discard;
+     }else if(v_color[1] < 0.70 && v_color[1] > 0.60) {
+      gl_FragColor = vec4(1.0,0.0,0.0,0.1);
+    }else if(v_color[1] < 0.80 && v_color[1] > 0.70) {
+      gl_FragColor = vec4(0.0,1.0,0.0,0.5);
+    }
+    
+ else {
+      gl_FragColor = v_color;
+    }
+}
+

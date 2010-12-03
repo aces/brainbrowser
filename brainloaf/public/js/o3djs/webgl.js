@@ -221,8 +221,8 @@ o3djs.webgl.createClient = function(element, opt_features, opt_debug) {
   function returnFalse() {
     return false;
   }
-  document.onselectstart = returnFalse;
-  document.onmousedown = returnFalse;
+  //document.onselectstart = returnFalse;
+  //document.onmousedown = returnFalse;
 
   canvas.client = client;
   canvas.o3d = o3d;

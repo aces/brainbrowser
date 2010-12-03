@@ -5,12 +5,22 @@
   <body>
     <h1>BrainLoaf 3D</h1>
     <div id="loadstatus"></div>
+    <input id="isovalue" type="text" value="0.60">
+    <div id="3D" width="60%">
     <div id="o3d" width="100%" heighdt="100%"></div>
-
+    </div>
+    <div id="2D" width="35%">
+      <canvas id="xaxis"></canvas>
+      <canvas id="yaxis"></canvas>
+      <canvas id="zaxis"></canvas>
+    </div>
+    
     <!-- Scripts -->
     <script type="text/javascript" src="/js/jquery-1.4.2.min.js"></script>
     <script type="text/javascript" src="/js/o3djs/base.js"></script> 
     <script type="text/javascript" src="/js/o3d-webgl/base.js"></script>
+    <script type="text/javascript" src="/js/color.js"></script>
+    <script type="text/javascript" src="/js/minc.js"></script>
     <script type="text/javascript" src="/js/mindframe.js"></script>
     <script type="text/javascript" src="/js/brainloaf.js"></script>
   </body>

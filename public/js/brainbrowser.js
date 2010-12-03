@@ -1029,7 +1029,7 @@ function BrainBrowser(url) {
       var right_color_field = right_color_buffer.createField('FloatField', 4);
       right_color_buffer.set(right_color_array);
       var right_brain_shape = that.brainTransform.children[1].shapes[0];
-      var right_stream_bank = right_brain_sahghpe.elements[0].streamBank;
+      var right_stream_bank = right_brain_shape.elements[0].streamBank;
       right_stream_bank.setVertexStream(
 	that.o3d.Stream.COLOR, //  This stream stores vertex positions
 	0,                     // First (and only) position stream

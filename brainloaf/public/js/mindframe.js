@@ -38,7 +38,7 @@ Array.prototype.max = function(array) {
 
 function MindFrame() {
   var that = this;
-
+  this.worker = new Worker("/js/mindframe_worker.js");
   this.init = function() {
     o3djs.webgl.makeClients(initStep2);
   };
@@ -203,6 +203,58 @@ function MindFrame() {
     return positionArray;
   };
 
+  this.getSliceFromVolumeValues = function(valueArray,params,axis,number) {
+
+    var x0=params.order[0];
+    var x1=params.order[1];
+    var x2=params.order[2];
+
+    //We don't know the order of the axis
+    var x0_length =  parseInt(params[x0].space_length);
+    var x1_length =  parseInt(params[x1].space_length);
+    var x2_length =  parseInt(params[x2].space_length);
+
+    if(axis == x0) {
+      var slice_start = number*x1_length*x2_length;
+      var slice_end = number*x1_length*x2_length+x1_length*x2_length;
+      var slice = new Uint16Array(valueArray.slice(slice_start,slice_end));    
+      slice.height = x1_length;
+      slice.width = x2_length;
+      
+    }else if(axis == x1) {
+      var slice_start = number*x2_length;
+      var slice = new Uint16Array(new Array(x0_length*x2_length));      
+      for(var i = 0; x < x0_length; x++) {
+	for(var k=0; k< x2_length; x++) {
+	  Uint16Array[i*x2_length + k] = valueArray[i*x1_length*x2_length+slice_start+k];
+	}
+      }
+      slice.height = x0_length;
+      slice.width = x2_length;
+
+    }else {
+      var slice = new Uint16Array(new Array(x0_length*x1_length));      
+      var offset = number;      
+      for(var i = 0; x < x0_length; x++){
+	for(var k = 0; k < x1_length; x++) {
+	  Uint16Array[i*x2_length + k] = valueArray[i*x1_length*x2_length+k*x2_length+offset];
+	}
+      }
+      slice.height = x0_length;
+      slice.width = x1_length;
+      
+    }
+
+    
+    
+      
+  };
+
+
+
+
+
+
   /*
    * Creates a shape from a model and material.
    * Ex: mni obj file, Volume from minc file
@@ -324,8 +376,11 @@ function MindFrame() {
     // Apply our effect to that myMaterial. The effect tells the 3D
     // hardware which shaders to use.
     material.effect = effect;
+
+    effect.createUniformParameters(material);
+
     if(callback !=null) {
-      callback(material);
+      material = callback(material);
     }
 
     return material;
@@ -375,36 +430,6 @@ function MindFrame() {
 
     });
     return spectrum;
-  };
-
-  /*
-   * This create a color map for each value in the values array
-   * This can be slow and memory intensive for large arrays
-   */
-  this.createColorMap = function(spectrum,values,min,max) {
-    
-    var colorArray = new Float32Array(new Array(values.length*4));
-
-    //calculate a slice of the data per color
-    var increment = ((max-min)+(max-min)/spectrum.length)/spectrum.length;
-    //for each value, assign a color
-    for(var i=0; i<values.length; i++) {
-      if(values[i]<= min ) {
-	var color_index = 0;
-      }else if(values[i]> max){
-	var color_index = spectrum.length-1;
-      }else {
-	var color_index = parseInt((values[i]-min)/increment);
-      }
-      //This inserts the RGBA values (R,G,B,A) independently
-      colorArray[i*4+0]=spectrum[color_index][0];
-      colorArray[i*4+1]=spectrum[color_index][1];      
-      colorArray[i*4+2]=spectrum[color_index][2];
-      colorArray[i*4+3]=1;
-    }
-    return colorArray;
-
-
   };
 
   /*

@@ -32,7 +32,7 @@ get '/data/:filename/content' do
 
   #The magic happens here somewhere
   @minc.data_string.each { |part| gzip << part}
-
+  #The magic is done happening
   gzip.close
 
 
@@ -58,8 +58,13 @@ get '/data/:filename/params' do
     else
       raise Sinatra::NotFound
     end
+    puts @minc.params
     @minc.params.to_json
   end
+end
+
+get '/braincanvas' do
+  erb :braincanvas
 end
 
 

@@ -3,9 +3,9 @@
    * This create a color map for each value in the values array
    * This can be slow and memory intensive for large arrays
    */
-function createColorMap(spectrum,values,min,max) {
-  
-  var colorArray = new Float32Array(new Array(values.length*4));
+function createColorMap(spectrum,canvaspixelarray,values,min,max) {
+
+  var spectrum = spectrum.colors;
   
   //calculate a slice of the data per color
   var increment = ((max-min)+(max-min)/spectrum.length)/spectrum.length;
@@ -19,12 +19,12 @@ function createColorMap(spectrum,values,min,max) {
       var color_index = parseInt((values[i]-min)/increment);
     }
     //This inserts the RGBA values (R,G,B,A) independently
-    colorArray[i*4+0]=spectrum[color_index][0];
-    colorArray[i*4+1]=spectrum[color_index][1];      
-    colorArray[i*4+2]=spectrum[color_index][2];
-    colorArray[i*4+3]=1;
+    canvaspixelarray[i*4+0]=255*spectrum[color_index][0];
+    canvaspixelarray[i*4+1]=255*spectrum[color_index][1];      
+    canvaspixelarray[i*4+2]=255*spectrum[color_index][2];
+    canvaspixelarray[i*4+3]=255;
   }
-  return colorArray;
+  return canvaspixelarray;
   
   
 };

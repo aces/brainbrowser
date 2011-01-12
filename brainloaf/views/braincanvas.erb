@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<head>
+  <title>2D Minc Viewer</title>
+</head>
+<body>
+  <canvas id="viewport"></canvas>
+  <div id="mincinfo"></div>
+  <script type="text/javascript" src="/js/jquery-1.4.2.min.js"></script>
+  <script type="text/javascript" src="/js/utils.js"></script>
+  <script type="text/javascript" src="/js/minc.js"></script>
+  <script type="text/javascript" src="/js/color.js"></script>
+  <script type="text/javascript" src="/js/spectrum.js"></script>
+  <script type="text/javascript" src="/js/loader.js"></script>
+  <script type="text/javascript" src="/js/braincanvas.js"></script>
+  <script type="text/javascript">
+    bc = new BrainCanvas(document.getElementById('viewport'));
+    bc.openFile('/data/test.mnc');
+  </script>
+</body>      

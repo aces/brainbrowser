@@ -5,10 +5,10 @@ var g_spectrum;
 
 
 
-function MacaccObject(brainbrowser,path) {
+function MacaccObject(brainbrowser,path,dont_build_path) {
   var that = this;
   this.brainbrowser = brainbrowser;
-  this.dataSet = new Dataset(path);
+  this.dataSet = new Dataset(path,dont_build_path);
 
 
   that.debugLineGroup;

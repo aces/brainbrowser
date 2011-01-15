@@ -87,5 +87,3 @@ void main() {
   outColor += emissive;
   gl_FragColor = vec4(outColor.rgb, v_color.a * colorMult.a);
 }
-
-// #o3d MatrixLoadOrder RowMajor

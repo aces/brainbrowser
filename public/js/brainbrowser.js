@@ -964,15 +964,32 @@ function BrainBrowser(url) {
   };
 
   that.loadDataFromFile = function(file_input) {
-      
-    loadFromTextFile(file_input, function(e) {
-      that.data = new Data(e.target.result);
+    alert(file_input.value);
+    loadFromTextFile(file_input, function(text) {
+      that.data = new Data(text);
+	
       if(that.fixRange == false || that.fixRange == null) {
 	that.rangeMin = that.data.min;
 	that.rangeMax = that.data.max;
 	if(that.afterLoadData !=null) {
 	  that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
 	}
+      }
+
+      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
+    });
+  };
+
+
+  that.loadDataFromUrl = function(file_input) {
+    loadFromUrl(file_input, true, function(text) {
+      that.data = new Data(text);
+      if(that.fixRange == false || that.fixRange == null) {
+	that.rangeMin = that.data.min;
+	that.rangeMax = that.data.max;
+	//if(that.afterLoadData != undefined) {
+	  //that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
+	//}
       }
 
       that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);

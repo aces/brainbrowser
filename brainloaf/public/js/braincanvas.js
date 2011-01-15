@@ -4,7 +4,7 @@ function BrainCanvas(canvas) {
   
   var loader = new Loader();
   
-  var spectrum = loader.loadSpectrumFromUrl("/spectrum/spectral.txt");
+  var spectrum = loader.loadSpectrumFromUrl("/spectrum/gray_scale.txt");
  
 
   this.init = function() {
@@ -35,15 +35,15 @@ function BrainCanvas(canvas) {
 			  "<br> xspace.length: " + minc.xspace.length + " yspace.length: " + minc.yspace.length + " zspace.length: " + minc.zspace.length);
     var xslice = minc.slice('xspace',100);
     var xslice_image_data = context.createImageData(minc.xspace.length,minc.xspace.height);
-    xslice_image_data.data = createColorMap(spectrum,xslice_image_data.data,xslice,10000,minc.max);
+    xslice_image_data.data = createColorMap(spectrum,xslice_image_data.data,xslice,minc.min,minc.max);
     context.putImageData(xslice_image_data,0,0);
     var yslice = minc.slice('yspace',50);
     var yslice_image_data = context.createImageData(minc.yspace.length,minc.yspace.height);
-    yslice_image_data.data = createColorMap(spectrum,yslice_image_data.data,yslice,10000,minc.max);
+    yslice_image_data.data = createColorMap(spectrum,yslice_image_data.data,yslice,minc.min,minc.max);
     context.putImageData(yslice_image_data,0,minc.xspace.height);
     var zslice = minc.slice('zspace',50);
     var zslice_image_data = context.createImageData(minc.zspace.length,minc.zspace.height);
-    zslice_image_data.data = createColorMap(spectrum,zslice_image_data.data,zslice,10000,minc.max);
+    zslice_image_data.data = createColorMap(spectrum,zslice_image_data.data,zslice,minc.min,minc.max);
     context.putImageData(zslice_image_data,0,minc.xspace.height+minc.yspace.height);
 
 

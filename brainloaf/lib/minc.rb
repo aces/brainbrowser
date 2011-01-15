@@ -23,15 +23,16 @@ class Minc
   
   attr_reader :data, :data_string, :params
   def raw_data
-    @raw_data = IO.popen("minctoraw -short -normalize #{@filename}").readlines.join #The raw binary data, in short integer
+    @raw_data = IO.popen("minctoraw -byte -unsigned -normalize #{@filename}").readlines.join #The raw binary data, in short integer
   end
 
   def data
-    @data = self.raw_data.unpack('n*') #Unpack is used here to convert 4 byte(char) to a short unsigned integer
+    @data = self.raw_data.unpack('C*') #Unpack is used here to convert 4 byte(char) to a short unsigned integer
   end
   
   def data_string
     @data_string = self.data.join(" ") #making a space delimited array of the data (useful to send to server)
+    #File.open('data/junk.txt').readlines.join(" ");
   end
 
 

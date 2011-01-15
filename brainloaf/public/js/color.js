@@ -4,11 +4,13 @@
    * This can be slow and memory intensive for large arrays
    */
 function createColorMap(spectrum,canvaspixelarray,values,min,max) {
+  
 
   var spectrum = spectrum.colors;
-  
+
   //calculate a slice of the data per color
   var increment = ((max-min)+(max-min)/spectrum.length)/spectrum.length;
+  alert("min:" + min +"  "+ values.min() + " " + "Max : " + max + " "+ values.max()+ "inc : " + increment + " spectrum.length" +spectrum.length);
   //for each value, assign a color
   for(var i=0; i<values.length; i++) {
     if(values[i]<= min ) {

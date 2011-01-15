@@ -105,7 +105,7 @@ function Spectrum(data) {
     return colors;
   }
 
-  if(data) {
+  if(data != undefined) {
     parseSpectrum(data);
   }
 

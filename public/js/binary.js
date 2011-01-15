@@ -4,6 +4,6 @@
  */
 
 function readByteFromBinary(string) {
-  var code =result.charCodeAt(0);
+  var code = string.charCodeAt(0);
   var byteString = code.toString(16);
 }

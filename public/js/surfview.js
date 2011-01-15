@@ -1,6 +1,7 @@
 function SurfView() {
   var that = this;
   var brainbrowser = new BrainBrowser();
+  this.brainbrowser = brainbrowser;
   brainbrowser.getViewParams = function() {
     return {
       view: jQuery('[name=hem_view]:checked').val(),
@@ -66,13 +67,6 @@ function SurfView() {
       }
     });
 
-    jQuery("#objfile").change(function() {
-      bb.loadObjFromFile(document.getElementById("objfile"));
-    });
-
-    jQuery("#datafile").change(function() {
-      bb.loadDataFromFile(document.getElementById("datafile"));
-    });
 
 
     /********************************************************
@@ -134,16 +128,3 @@ function SurfView() {
   };
 
 };
-$(function() {
-    document.getElementById("view-window").onselectstart = function() {
-      return false;
-    };
-
-    document.getElementById("view-window").onmousedown = function() {
-      return false;
-    };
-
-    jQuery(".button").button();
-    var surfview = new SurfView();
-  }
-);

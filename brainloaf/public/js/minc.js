@@ -19,14 +19,14 @@ function Minc(filename,extraArgs,callback) {
 	       that[that.order[0]].length=that[that.order[2]].space_length;
 	       that[that.order[1]].height=that[that.order[0]].space_length;
 	       that[that.order[1]].length=that[that.order[2]].space_length;
-	       that[that.order[2]].height=that[that.order[0]].space_length;
-	       that[that.order[2]].length=that[that.order[1]].space_length;
+	       that[that.order[2]].height=that[that.order[1]].space_length;
+	       that[that.order[2]].length=that[that.order[0]].space_length;
 	      
 	       //calculate the offsets for each element of a slice
 	       that[that.order[0]].offset=that[that.order[1]].space_length*that[that.order[2]].space_length;
 	       that[that.order[1]].offset=that[that.order[0]].space_length;
 	       that[that.order[2]].offset=that[that.order[0]].space_length;
-
+	       that[that.order[0]].slice_length = that[that.order[0]].height*that[that.order[0]].length;
 	       
 
 	     },
@@ -68,11 +68,11 @@ function Minc(filename,extraArgs,callback) {
     for(var i = 0; i < data_length ; i++) {
       data[i]=parseInt(data[i]);
     }
+    that.min = data.min();
+    that.max = data.max();
+
     data = new Uint16Array(data);
-    //Why waste time, 16bit values ;p
     that.data = data;
-    that.min =  0;
-    that.max = 255;
     callback(this,extraArgs);
   };
 
@@ -82,39 +82,51 @@ function Minc(filename,extraArgs,callback) {
       return false;
     }
     if(that.order[0] == axis) {
-      var height = that[axis].height;
       var slice_length = that[axis].height*that[axis].length;
       var row_length = that[axis].length;
       var element_offset = 1; //that[axis].element_offset;
-      var row_offset = 1; //that[axis].row_offset;
+      var row_offset = row_length; //that[axis].row_offset;
       var slice_offset = slice_length;//that[axis].slice_offset;
-      var slice = new Array(slice_length);
+      var slice = new Uint16Array(slice_length);
+      
+      for(var i=0; i< slice_length; i++) {
+	slice[i]=this.data[slice_offset*number+i];
+      }
+      
     } else if(that.order[1] == axis ) {
+
       var height = that[axis].height;
       var slice_length = that[axis].height*that[axis].length;
       var row_length = that[axis].length;
-      var element_offset = 1; //that[axis].element_offset;
-      var row_offset = 1; //that[axis].row_offset;
-      var slice_offset = slice_length;//that[axis].slice_offset;
-      var slice = new Array(slice_length);
+      var element_offset = 1; 
+      var row_offset = that[that.order[0]].slice_length;
+      var slice_offset = row_length; 
+      var slice = new Uint16Array(slice_length);
 
+      for(var j=0; j<height; j++)
+	for(var k=0; k< row_length; k++){
+	  slice[j*(row_length)+k] = that.data[number*slice_offset+row_offset*j+k];    
+	}
+      
     }else {
       var height = that[axis].height;
       var slice_length = that[axis].height*that[axis].length;
       var row_length = that[axis].length;
-      var element_offset = 1; //that[axis].element_offset;
-      var row_offset = 1; //that[axis].row_offset;
-      var slice_offset = slice_length;//that[axis].slice_offset;
-      var slice = new Array(slice_length);
+      var element_offset = that[that.order[0]].slice_length; //that[axis].element_offset;
+      var row_offset= that[that.order[0]].length; //that[axis].row_offset;
+      var slice_offset = 1;//that[axis].slice_offset;
+      var slice = new Uint16Array(slice_length);
+
+      for(var j=0; j<height; j++)
+	for(var k=0; k< row_length; k++){
+	  slice[j*(row_length)+k] = that.data[number+that[that.order[0]].length*j+k*that[that.order[0]].slice_length];    
+	}
+
+      
+
     }
     
 
-    
-
-
-    for(var i=0; i < slice_length; i++){
-      slice[i] = that.data[slice_length*number+i];
-    };
     return slice;
  };
 

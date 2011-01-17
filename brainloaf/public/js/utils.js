@@ -23,3 +23,4 @@ Array.prototype.max = function(array) {
   }
   return reduced_array.max();
 };
+

@@ -23,7 +23,7 @@ function BrainCanvas(canvas) {
   this.initCanvas = function(width,heigth) {
    canvas.width = width;
    canvas.height = heigth;
-   context.fillColor = "#000000";
+   context.fillColor = "#0000ff";
    context.fillRect(0,0,width,heigth);
    
   };
@@ -37,11 +37,11 @@ function BrainCanvas(canvas) {
     var xslice_image_data = context.createImageData(minc.xspace.length,minc.xspace.height);
     xslice_image_data.data = createColorMap(spectrum,xslice_image_data.data,xslice,minc.min,minc.max);
     context.putImageData(xslice_image_data,0,0);
-    var yslice = minc.slice('yspace',50);
+    var yslice = minc.slice('yspace',150);
     var yslice_image_data = context.createImageData(minc.yspace.length,minc.yspace.height);
     yslice_image_data.data = createColorMap(spectrum,yslice_image_data.data,yslice,minc.min,minc.max);
     context.putImageData(yslice_image_data,0,minc.xspace.height);
-    var zslice = minc.slice('zspace',50);
+    var zslice = minc.slice('zspace',100);
     var zslice_image_data = context.createImageData(minc.zspace.length,minc.zspace.height);
     zslice_image_data.data = createColorMap(spectrum,zslice_image_data.data,zslice,minc.min,minc.max);
     context.putImageData(zslice_image_data,0,minc.xspace.height+minc.yspace.height);

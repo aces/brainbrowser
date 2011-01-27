@@ -3,58 +3,10 @@ function BrainLoaf(filename) {
   that.mindframe = new MindFrame();
 
   this.init = function(filename) {
-    var params = that.loadParams(filename); //this is a sync fetch
+    this.minc = new Minc(filename,null, that.setup);
     //Load the data(async) and once ready and parsed
     //run the setup.
     that.setup(params);
-  };
-
-  //Loads the file display parameters
-  this.loadParams = function(filename) {
-    var params = {};
-    $.ajax({
-	     url: filename+'/params',
-	     async: false, //this shouldn't take long
-	     dataType: 'json',
-	     success: function(data){
-	       params = data;
-	     },
-	     error: function(request, textStatus) {
-	       throw {
-		 request: request,
-		 textStatus: textStatus
-	       };
-	     }
-
-	   });
-    return params;
-  };
-
-  //loads the data and calls parseData on it once it's loaded
-  this.loadData = function(that,mindframe,filename,callback,extraArgs) {
-     $.ajax( {
-     	      url: filename+'/content',
-     	      async: true,
-     	      dataType: 'text',
-     	      success: function(data) {
-		mindframe.worker.addEventListener('message', function(e) {
-	          alert("done");
-	          callback(mindframe,e.data,extraArgs);
-						  }, false);
-
-		mindframe.worker.postMessage({'cmd': 'parseMinc','string': data});
-     	      },
-     	      error: function(request,textStatus) {
-     	       throw {
-     		 request: request,
-     		 textStatus: textStatus
-     	       };
-
-     	      }
-     	    });
-
-
-
   };
 
   that.materialArgsSetup = function(material) {

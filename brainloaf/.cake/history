@@ -1,0 +1,37 @@
+(use 'gloss.core)
+(use 'gloss)
+(use 'gloss.core)
+(defcodec minc (repeated :byte))
+minc
+(.exec (Runtime/getRuntime) (str "mincextract -normalize -byte " "data/test.mnc"))
+(->>(.exec (Runtime/getRuntime) (str "mincextract -normalize -byte " "data/test.mnc")) .getInputStream)
+(encode-all minc (->>(.exec (Runtime/getRuntime) (str "mincextract -normalize -byte " "data/test.mnc")) .getInputStream))
+encode-all
+encode
+encode-all
+minc
+(use 'gloss)
+(use 'gloss.byte )
+(use 'gloss.data.byte )
+(use 'gloss.data.bytes )
+encode
+(use 'gloss.io )
+(encode-all minc (->>(.exec (Runtime/getRuntime) (str "mincextract -normalize -byte " "data/test.mnc")) .getInputStream))
+(encode-all minc (->>(.exec (Runtime/getRuntime) (str "mincextract -normalize -byte " "data/test.mnc")) .getInputStream clojure.java.io/reader line-seq))
+(encode-all minc (->>(.exec (Runtime/getRuntime) (str "mincextract -normalize -byte " "data/test.mnc")) .getInputStream clojure.java.io/reader line-seq (map (fn [byte] (byte)))))
+
+
+
+
+
+(doc line-seq )
+)
+(encode-all minc (->>(.exec (Runtime/getRuntime) (str "mincextract -normalize -byte " "data/test.mnc")) .getInputStream))
+(->>(.exec (Runtime/getRuntime) (str "mincextract -normalize -byte " "data/test.mnc")) .getInputStream))
+(->>(.exec (Runtime/getRuntime) (str "mincextract -normalize -byte " "data/test.mnc")) .getInputStream)
+(->> (.exec (Runtime/getRuntime) (str "mincextract -normalize -byte " "data/test.mnc")) .getInputStream .read))
+(->> (.exec (Runtime/getRuntime) (str "mincextract -normalize -byte " "data/test.mnc")) .getInputStream .read)
+(->> (.exec (Runtime/getRuntime) (str "mincextract -normalize -byte " "data/test.mnc")) .getInputStream .read )
+(->> (.exec (Runtime/getRuntime) (str "mincextract -normalize -byte " "data/test.mnc")) .getInputStream .available )
+(->> (.exec (Runtime/getRuntime) (str "mincextract -normalize -byte " "data/test.mnc")) .getInputStream .read () )
+(->> (.exec (Runtime/getRuntime) (str "mincextract -normalize -byte " "data/test.mnc")) .getInputStream (.read ()) )

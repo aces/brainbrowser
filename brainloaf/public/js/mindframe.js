@@ -153,6 +153,22 @@ function MindFrame() {
 
   /*
    * Creates a 3D hypercube of points
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
    */
   this.create3DVolume = function(params){
 

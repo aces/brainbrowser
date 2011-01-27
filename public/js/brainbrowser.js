@@ -609,7 +609,7 @@ function BrainBrowser(url) {
   function select(pickInfo) {
 
     unSelectAll();
-    if (pickInfo) {
+      if (pickInfo) {
 
       that.selectedInfo = pickInfo;
 
@@ -964,20 +964,41 @@ function BrainBrowser(url) {
   };
 
   that.loadDataFromFile = function(file_input) {
-    alert(file_input.value);
-    loadFromTextFile(file_input, function(text) {
-      that.data = new Data(text);
-	
-      if(that.fixRange == false || that.fixRange == null) {
-	that.rangeMin = that.data.min;
-	that.rangeMax = that.data.max;
-	if(that.afterLoadData !=null) {
-	  that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
-	}
-      }
-
-      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
-    });
+    var filename = file_input.files[0].name;
+    alert(filename);
+    var onfinish = function(text) {
+			 that.data = new Data(text);
+			 
+			 if(that.fixRange == false || that.fixRange == null) {
+			   that.rangeMin = that.data.min;
+			   that.rangeMax = that.data.max;
+			   if(that.afterLoadData !=null) {
+			     that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
+			   }
+			 }
+			 
+			 that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
+		      };
+    
+    if(filename.match(/.*.mnc/)) {
+      alert("MINC");
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/upload/minc', false);
+      var form = document.getElementById('datafile-form');
+      var data = new FormData(form);
+         
+      xhr.send(data);
+      var text_data = xhr.response;
+      
+      alert(text_data.length);
+      
+      onfinish(text_data);
+      
+      
+	 
+    }else {
+      loadFromTextFile(file_input, onsucess);
+    }
   };
 
 

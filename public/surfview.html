@@ -13,7 +13,10 @@
       <div id="surface_choice" class="box full_box">
 	<h4>Files</h4>
 	Surface: <input type="file" id="objfile"><br />
-	Data: <input type="file" id="datafile">
+
+	<form id="datafile-form" method="POST"  action="/upload/minc" enctype="multipart/form-data">
+	  Data: <input type="file" name="datafile" id="datafile">
+	</form>
       </div>
       
       <div class="combo_box full_box">
@@ -75,7 +78,7 @@
 
     <!-- all the scripts and css -->
     <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.2.custom.css" rel="Stylesheet" />
-    <link type="text/css" href="/css/mniobjweb2.css" rel="Stylesheet" />
+    <link type="text/css" href="/css/brainbrowser.css" rel="Stylesheet" />
     <script type="text/javascript" src="/js/jquery.js"></script>
     <script type="text/javascript" src="/js/o3d-webgl/base.js"></script>
     <script type="text/javascript" src="/js/o3djs/base.js"></script> 

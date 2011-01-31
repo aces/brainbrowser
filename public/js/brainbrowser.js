@@ -965,7 +965,6 @@ function BrainBrowser(url) {
 
   that.loadDataFromFile = function(file_input) {
     var filename = file_input.files[0].name;
-    alert(filename);
     var onfinish = function(text) {
 			 that.data = new Data(text);
 			 
@@ -981,23 +980,22 @@ function BrainBrowser(url) {
 		      };
     
     if(filename.match(/.*.mnc/)) {
-      alert("MINC");
       var xhr = new XMLHttpRequest();
-      xhr.open('POST', '/upload/minc', false);
+      xhr.open('POST', '/minc/volume_object_evaluate', false);
       var form = document.getElementById('datafile-form');
       var data = new FormData(form);
          
       xhr.send(data);
       var text_data = xhr.response;
       
-      alert(text_data.length);
+
       
       onfinish(text_data);
       
       
 	 
     }else {
-      loadFromTextFile(file_input, onsucess);
+      loadFromTextFile(file_input, onfinish);
     }
   };
 

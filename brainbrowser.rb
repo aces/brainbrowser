@@ -12,27 +12,24 @@ not_found do
 end
 
 
-post '/upload/minc' do
-  file = params["datafile"][:filename]
-  tempfile = params["datafile"][:tempfile].path
+post '/minc/volume_object_evaluate' do
+  datafile = params["datafile"][:tempfile].path
+  objfile = params["objfile"][:tempfile].path
   outfile = "tmp/xyz#{rand 100000000000000000000}.txt"
-  puts "File #{file}"
-  puts "tempfile #{tempfile}"
   
-  if file.nil? 
-    puts "FILE IS NIL"
+  
+  if !(datafile && objfile)
+    raise "No datafile or obfile"
   end
 
-  if tempfile.nil?
-    puts "TEMPFILE NIL"
-  end
+  puts "volume_object_evaluate #{datafile}  #{objfile} #{outfile}"
 
-  puts params["datafile"][:tempfile].path;
-  puts "volume_object_evaluate #{tempfile}  public/models/surf_reg_model_both.obj #{outfile}"
-
-  `volume_object_evaluate #{tempfile}  public/models/surf_reg_model_both.obj #{outfile}`
-
-  open(outfile).readlines.join("\n");
+  `volume_object_evaluate #{datafile}  #{objfile} #{outfile}`
+  
+  data = open(outfile).readlines.join("\n");
+  `rm #{outfile}`
+  data
+  
   
 end
 

@@ -42,20 +42,36 @@ function Minc(filename,extraArgs,callback) {
 
   };
   this.load_data = function (filename,callback,extraArgs){  
-    $.ajax( {
-     	      url: filename+'/content',
-     	      async: true,
-     	      dataType: 'text',
-     	      success: function(data) {
-		that.parseData(data,callback,extraArgs);
-	      },
-     	      error: function(request,textStatus) {
-     		throw {
-     		 request: request,
-     		 textStatus: textStatus
-     	       };
+    var request = new XMLHttpRequest();
+    
+    request.open('GET', filename+'/content',true);
+    request.responseType = 'arraybuffer';
+    request.onreadystatechange = function() {
+      if(request.readyState == 4)
+	if(request.status == 200) {
+	  that.data = new Uint8Array(request.response);
+	  that.min = 0;
+	  that.max = 255;
+	  callback(that,extraArgs);
+		
+	}
+      
+    };
+    request.send(null);
+    // $.ajax( {
+    //  	      url: filename+'/content',
+    //  	      async: true,
+    //  	      dataType: 'text',
+    //  	      success: function(data) {
+    // 		that.parseData(data,callback,extraArgs);
+    // 	      },
+    //  	      error: function(request,textStatus) {
+    //  		throw {
+    //  		 request: request,
+    //  		 textStatus: textStatus
+    //  	       };
 
-	      }});
+    // 	      }});
 
   };
   //Parses the data and returns an array

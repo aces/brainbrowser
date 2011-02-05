@@ -23,7 +23,7 @@ class Minc
   
   attr_reader :data, :data_string, :params
   def raw_data
-    @raw_data = IO.popen("minctoraw -short -unsigned -normalize #{@filename}").readlines.join #The raw binary data, in short integer
+    @raw_data = IO.popen("minctoraw -byte -unsigned -normalize #{@filename}").readlines.join #The raw binary data, in short integer
   end
 
   def data

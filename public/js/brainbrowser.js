@@ -989,7 +989,7 @@ function BrainBrowser(url) {
       var text_data = xhr.response;
       
 
-      
+      w
       onfinish(text_data);
       
       

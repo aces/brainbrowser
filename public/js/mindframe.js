@@ -38,7 +38,7 @@ Array.prototype.max = function(array) {
 
 function MindFrame() {
   var that = this;
-
+  this.worker = new Worker("/js/mindframe_worker.js");
   this.init = function() {
     o3djs.webgl.makeClients(initStep2);
   };
@@ -137,7 +137,7 @@ function MindFrame() {
     }
   };
 
-  this.updateProjection = function() {
+  that.updateProjection = function() {
 
     // Create a perspective projection matrix.
     that.viewInfo.drawContext.projection = that.math.matrix4.perspective(
@@ -153,6 +153,22 @@ function MindFrame() {
 
   /*
    * Creates a 3D hypercube of points
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
    */
   this.create3DVolume = function(params){
 
@@ -168,7 +184,7 @@ function MindFrame() {
     var x2_length =  parseInt(params[x2].space_length);
 
     //create array of undefined values
-    var positionArray = new Array(x0_length*x1_length*x2_length*3);
+    var positionArray = new Float32Array(new Array(x0_length*x1_length*x2_length*3));
 
     var x0_start = parseFloat(params[x0].start);
     var x1_start = parseFloat(params[x1].start);
@@ -202,6 +218,58 @@ function MindFrame() {
 
     return positionArray;
   };
+
+  this.getSliceFromVolumeValues = function(valueArray,params,axis,number) {
+
+    var x0=params.order[0];
+    var x1=params.order[1];
+    var x2=params.order[2];
+
+    //We don't know the order of the axis
+    var x0_length =  parseInt(params[x0].space_length);
+    var x1_length =  parseInt(params[x1].space_length);
+    var x2_length =  parseInt(params[x2].space_length);
+
+    if(axis == x0) {
+      var slice_start = number*x1_length*x2_length;
+      var slice_end = number*x1_length*x2_length+x1_length*x2_length;
+      var slice = new Uint16Array(valueArray.slice(slice_start,slice_end));    
+      slice.height = x1_length;
+      slice.width = x2_length;
+      
+    }else if(axis == x1) {
+      var slice_start = number*x2_length;
+      var slice = new Uint16Array(new Array(x0_length*x2_length));      
+      for(var i = 0; x < x0_length; x++) {
+	for(var k=0; k< x2_length; x++) {
+	  Uint16Array[i*x2_length + k] = valueArray[i*x1_length*x2_length+slice_start+k];
+	}
+      }
+      slice.height = x0_length;
+      slice.width = x2_length;
+
+    }else {
+      var slice = new Uint16Array(new Array(x0_length*x1_length));      
+      var offset = number;      
+      for(var i = 0; x < x0_length; x++){
+	for(var k = 0; k < x1_length; x++) {
+	  Uint16Array[i*x2_length + k] = valueArray[i*x1_length*x2_length+k*x2_length+offset];
+	}
+      }
+      slice.height = x0_length;
+      slice.width = x1_length;
+      
+    }
+
+    
+    
+      
+  };
+
+
+
+
+
 
   /*
    * Creates a shape from a model and material.
@@ -256,7 +324,6 @@ function MindFrame() {
     //if(type == that.o3d.Primitive.POINTLIST) {
       primitive.numberPrimitives = positionArray.length/3;
     //}
-
     positionArray = [];
     //Create normal buffer OPTIONAL
     if(normalArray != null) {
@@ -322,14 +389,14 @@ function MindFrame() {
     // Set the material's drawList.
     material.drawList = that.viewInfo.performanceDrawList;
 
-    // Apply our effect to that material. The effect tells the 3D
+    // Apply our effect to that myMaterial. The effect tells the 3D
     // hardware which shaders to use.
     material.effect = effect;
 
     effect.createUniformParameters(material);
 
     if(callback !=null) {
-      callback(material);
+      material = callback(material);
     }
 
     return material;
@@ -338,12 +405,37 @@ function MindFrame() {
 
   this.loadSpectrum = function(url) {
     var spectrum;
+
+    /*
+     * small function to parse the text
+     * sent by the server
+     */
+    function parseSpectrum(data) {
+      data = data.replace(/\s+$/, '');
+      data = data.replace(/^\s+/, '');
+      var tmp = data.split(/\n/);
+      var colors = new Array();
+      for(var i=0;i<tmp.length;  i++) {
+	var tmp_color = tmp[i].split(/\s+/);
+	for(var k=0; k<3; k++) {
+	  tmp_color[k]=parseFloat(tmp_color[k]);
+	}
+	if(tmp_color[3] == '') {
+	  tmp_color[3]=1.0000;
+	}
+	colors.push(tmp_color);
+      }
+
+      return colors;
+
+    }
+
     $.ajax({
       url: url,
       async: false, //this shouldn't take long
       dataType: 'text',
       success: function(data){
-	spectrum = new Spectrum(data);
+	spectrum = parseSpectrum(data);
       },
       error: function(request, textStatus) {
 	throw {
@@ -354,33 +446,6 @@ function MindFrame() {
 
     });
     return spectrum;
-  };
-
-  /*
-   * This create a color map for each value in the values array
-   * This can be slow and memory intensive for large arrays
-   */
-  this.createColorMap = function(spectrum,values,min,max) {
-
-    var colorArray = new Array();
-
-    //calculate a slice of the data per color
-    var increment = ((max-min)+(max-min)/spectrum.length)/spectrum.length;
-    //for each value, assign a color
-    for(var i=0; i<values.length; i++) {
-      if(values[i]<= min ) {
-	var color_index = 0;
-      }else if(values[i]> max){
-	var color_index = spectrum.length-1;
-      }else {
-	var color_index = parseInt((values[i]-min)/increment);
-      }
-      //This inserts the RGBA values (R,G,B,A) independently
-      colorArray.push.apply(colorArray,spectrum[color_index]);
-    }
-    return colorArray;
-
-
   };
 
   /*

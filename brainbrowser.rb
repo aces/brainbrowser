@@ -11,7 +11,16 @@ not_found do
   "Document not found" 
 end
 
+get '/' do
+  redirect '/index.html'
+end
 
+
+
+
+#Runs volume object evaluate on a minc file provided by the user.
+#The file is uploaded then run through the tool, and the output is
+#sent back to the user. Also, deletes the output file
 post '/minc/volume_object_evaluate' do
   datafile = params["datafile"][:tempfile].path
   objfile = params["objfile"][:tempfile].path
@@ -33,6 +42,8 @@ post '/minc/volume_object_evaluate' do
   
 end
 
+
+#Extracts the content of a minc file
 get '/data/:filename/content' do
   if !(params[:filename] == @filename)
     filename = "data/#{params[:filename]}"
@@ -45,24 +56,12 @@ get '/data/:filename/content' do
     end
   end
   
-  io = StringIO.new
-  gzip = Zlib::GzipWriter.new(io)
-  gzip.mtime = Time.now
+  headers  'content-type' => "text/plain"
 
-  #The magic happens here somewhere
-  @minc.data_string.each { |part| gzip << part}
-  #The magic is done happening
-  gzip.close
-
-
-  headers 'Content-encoding' => 'gzip', 'content-type' => "text/plain;charset=utf-8"
-
-
-
-
-  io.string
+  @minc.raw_data
 end
 
+#gets a few important params from a minc file
 get '/data/:filename/params' do
   if params[:filename] == @filename
     return @minc.params
@@ -82,11 +81,22 @@ get '/data/:filename/params' do
   end
 end
 
+#2d mri browser
 get '/braincanvas' do
   erb :braincanvas
 end
 
+#3d mri browser
+get '/braincloud' do
+  erb :braincloud
+end
 
+
+#Checks if a file is accessible and if 
+#the path is safe. Won't allow symlinks
+#or using ..
+#If you think of something else that should be disabled
+#add it here. 
 def file_accessible?(filename, &block)
 
   if  !filename.include?('..') &&

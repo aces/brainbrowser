@@ -9,7 +9,8 @@ function Loader() {
 	callback(data);
       },
       error: function(request,textStatus,e) {
-	alert("Failure: " +  textStatus);
+	alert("Failure: " + "load data");
+	
       },
       data: {},
       async: sync,

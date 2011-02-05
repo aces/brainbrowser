@@ -1,4 +1,4 @@
-$LOAD_PATH.reverse!.push(File.dirname(__FILE__)+"/lib").reverse!
+$LOAD_PATH.insert(0,(File.dirname(__FILE__)+"/lib"))
 require 'rubygems'
 require 'sinatra'
 require 'minc'

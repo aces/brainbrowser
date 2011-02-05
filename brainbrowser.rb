@@ -1,6 +1,7 @@
+$LOAD_PATH.reverse!.push(File.dirname(__FILE__)+"/lib").reverse!
 require 'rubygems'
 require 'sinatra'
-require 'lib/minc'
+require 'minc'
 require 'json'
 require 'zlib'
 
@@ -14,8 +15,6 @@ end
 get '/' do
   redirect '/index.html'
 end
-
-
 
 
 #Runs volume object evaluate on a minc file provided by the user.

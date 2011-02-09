@@ -1,9 +1,9 @@
 #!/bin/bash
 cd public/js
-cat mniobj.js spectrum.js data.js brainbrowser.js surfview.js > /tmp/surface-combined.js
+cat utils.js mniobj.js spectrum.js data.js brainbrowser.js surfview.js > /tmp/surface-combined.js
 yui-compressor /tmp/surface-combined.js -o surfview-combined.min.js
 rm /tmp/surface-combined.js
-cat mniobj.js spectrum.js data.js dataset.js brainbrowser.js macacc_collection.js macacc.js > /tmp/macacc-combined.js
+cat utils.js mniobj.js spectrum.js data.js dataset.js brainbrowser.js macacc_collection.js macacc.js > /tmp/macacc-combined.js
 yui-compressor /tmp/macacc-combined.js -o macacc-combined.min.js
 rm /tmp/macacc-combined.js
 cp *.min.js ../../surface-viewer/js/

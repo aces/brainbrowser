@@ -58,21 +58,6 @@ function Minc(filename,extraArgs,callback) {
       
     };
     request.send(null);
-    // $.ajax( {
-    //  	      url: filename+'/content',
-    //  	      async: true,
-    //  	      dataType: 'text',
-    //  	      success: function(data) {
-    // 		that.parseData(data,callback,extraArgs);
-    // 	      },
-    //  	      error: function(request,textStatus) {
-    //  		throw {
-    //  		 request: request,
-    //  		 textStatus: textStatus
-    //  	       };
-
-    // 	      }});
-
   };
   //Parses the data and returns an array
   this.parseData = function(data_string,callback,extraArgs) {

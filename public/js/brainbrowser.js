@@ -19,45 +19,6 @@ o3djs.require('o3djs.quaternions');
 o3djs.require('o3djs.scene');
 
 
-
-// //Some quick utilities (should be move to a special js file) BEHOLD THEIR AWESOMENESS
-Array.prototype.min = function() {
-  var increment = 50000;
-  if(this.length > increment){
-    var reduced_array = [];
-    for(var i=0;i<this.length;i+=increment) {
-      reduced_array.push(Math.min.apply(Math, this.slice(i,i+increment-1)));
-    }
-  }else {
-    return Math.min.apply(Math, this);
-  }
-  return reduced_array.min();
-};
-
-//spacing between function for more awesome look. (I agree - Tarek)
-
-Array.prototype.max = function(array) {
-  var increment = 50000;
-  if(this.length > increment){
-    var reduced_array = [];
-    for(var i=0;i<this.length;i+=increment) {
-      reduced_array.push(Math.max.apply(Math, this.slice(i,i+increment-1)));
-    }
-  }else {
-    return Math.max.apply(Math, this);
-  }
-  return reduced_array.max();
-};
-
-
-// Array.prototype.min = function(array) {
-//   return Math.min.apply(Math, this);
-// };
-// Array.prototype.max = function(array) {
-//   return Math.max.apply(Math, this);
-// };
-
-
 function BrainBrowser(url) {
   var that = this;
 

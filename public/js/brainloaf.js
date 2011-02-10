@@ -6,7 +6,7 @@ function BrainLoaf(filename) {
     this.minc = new Minc(filename,null, that.setup);
     //Load the data(async) and once ready and parsed
     //run the setup.
-    that.setup(params);
+    that.setup();
   };
 
   that.materialArgsSetup = function(material) {
@@ -18,7 +18,7 @@ function BrainLoaf(filename) {
 
 
   //Create the volume/transform/color map
-  this.setup = function(params) {
+  this.setup = function() {
     //Creating the volume to display after init
 
     var brainloaf=that;
@@ -45,7 +45,7 @@ function BrainLoaf(filename) {
 
 
 
-      var positionArray = that.create3DVolume(params); //positionArray
+      var positionArray = that.create3DVolume(that.minc); //positionArray
 
       var shape = that.createShape(that.o3d.Primitive.POINTLIST,
 				   positionArray,

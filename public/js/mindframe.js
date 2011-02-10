@@ -38,7 +38,6 @@ Array.prototype.max = function(array) {
 
 function MindFrame() {
   var that = this;
-  this.worker = new Worker("/js/mindframe_worker.js");
   this.init = function() {
     o3djs.webgl.makeClients(initStep2);
   };

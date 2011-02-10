@@ -4,9 +4,6 @@ function BrainLoaf(filename) {
 
   this.init = function(filename) {
     this.minc = new Minc(filename,null, that.setup);
-    //Load the data(async) and once ready and parsed
-    //run the setup.
-    that.setup();
   };
 
   that.materialArgsSetup = function(material) {
@@ -18,9 +15,9 @@ function BrainLoaf(filename) {
 
 
   //Create the volume/transform/color map
-  this.setup = function() {
+  this.setup = function(minc,extraArgs) {
     //Creating the volume to display after init
-
+    that.minc = minc;
     var brainloaf=that;
     that.mindframe.afterInit = function(that) {
 
@@ -45,7 +42,7 @@ function BrainLoaf(filename) {
 
 
 
-      var positionArray = that.create3DVolume(that.minc); //positionArray
+      var positionArray = that.create3DVolume(brainloaf.minc); //positionArray
 
       var shape = that.createShape(that.o3d.Primitive.POINTLIST,
 				   positionArray,
@@ -57,7 +54,7 @@ function BrainLoaf(filename) {
 				   'volume'); //name
       that.mainTransform.visible = false;
 
-      brainloaf.loadData(brainloaf,that,filename,brainloaf.applyColors,shape);
+      brainloaf.applyColors(that,brainloaf.minc.data,shape);
     };
 
 
@@ -65,38 +62,25 @@ function BrainLoaf(filename) {
   };
 
   that.applyColors =function(mindframe,data,shape) {
-
-    var spectrum = mindframe.loadSpectrum('/spectrum/gray_scale.txt');
-
-
-        that.worker.addEventListener('message', 
-    function(e) {
-
-      var streamBank = shape.elements[0].streamBank;
-      var colorBuffer = mindframe.pack.createObject('VertexBuffer');
-      var colorField = colorBuffer.createField('FloatField', 4);
-      colorBuffer.set(colorArray);
-      
-      streamBank.setVertexStream(
-	mindframe.o3d.Stream.COLOR,
-	0,
-	colorField,
-	0);
-      
-      mindframe.mainTransform.visible = true;
-      mindframe.client.render();
-      alert("done with colors ColorArray length: " + colorArray.length + " value 5000: " + colorArray[6524] + "dataMinVal = " + data.minVal + " dataMaxVal:" +  data.maxVal );
-      
-      that.shape = shape;
-      that.colorArray = colorArray;
-    },false);
-
-    var colorArray = mindframe.worker.postMessage({'cmd': 'createColorMap',
-						   'spectrum': spectrum, //spectrum
-						   'values': data.values, //values
-						   'min':50000, //min (precomputed)
-						   'max':data.max}); //max (precomputed)
-
+    var loader = new Loader();
+    var spectrum = loader.loadSpectrumFromUrl("/spectrum/gray_scale.txt");
+    var colorArray = createColorMap(spectrum,[],data,0,255);
+    var streamBank = shape.elements[0].streamBank;
+    var colorBuffer = mindframe.pack.createObject('VertexBuffer');
+    var colorField = colorBuffer.createField('FloatField', 4);
+    colorBuffer.set(colorArray);
+    
+    streamBank.setVertexStream(
+      mindframe.o3d.Stream.COLOR,
+      0,
+      colorField,
+      0);
+    
+    mindframe.mainTransform.visible = true;
+    mindframe.client.render();
+    that.shape = shape;
+    that.colorArray = colorArray;
+    
   };
   
   

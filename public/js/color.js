@@ -21,10 +21,10 @@ function createColorMap(spectrum,canvaspixelarray,values,min,max) {
       var color_index = parseInt((values[i]-min)/increment);
     }
     //This inserts the RGBA values (R,G,B,A) independently
-    canvaspixelarray[i*4+0]=255*spectrum[color_index][0];
-    canvaspixelarray[i*4+1]=255*spectrum[color_index][1];      
-    canvaspixelarray[i*4+2]=255*spectrum[color_index][2];
-    canvaspixelarray[i*4+3]=255;
+    canvaspixelarray[i*4+0]=spectrum[color_index][0];
+    canvaspixelarray[i*4+1]=spectrum[color_index][1];      
+    canvaspixelarray[i*4+2]=spectrum[color_index][2];
+    canvaspixelarray[i*4+3]=1.0;
   }
   return canvaspixelarray;
   

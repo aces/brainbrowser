@@ -49,7 +49,12 @@ function Minc(filename,extraArgs,callback) {
     request.onreadystatechange = function() {
       if(request.readyState == 4)
 	if(request.status == 200) {
-	  that.data = new Uint8Array(request.response);
+	  if(request.mozResponseArrayBuffer != undefined) {
+	    that.data = new Uint8Array(request.mozResponseArrayBuffer);	    
+	  }else {
+	    that.data = new Uint8Array(request.response);
+	  }
+
 	  that.min = 0;
 	  that.max = 255;
 	  callback(that,extraArgs);

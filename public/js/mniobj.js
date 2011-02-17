@@ -25,7 +25,6 @@ function MNIObject(string) {
       that.numberVertices = parseInt(stack.pop());
       parsePositionArray();
       parseNormalArray();
-      alert(that.normalArray[that.numberVertices -1]);
       that.nitems = parseInt(stack.pop());
     }else if (that.objectClass == 'L') {
       parseSurfProp();
@@ -38,14 +37,14 @@ function MNIObject(string) {
     parseColorArray();
     parseEndIndices();
     parseIndexArray();    
+ 
+    // alert("objectClass: " + that.objectClass + " indexArray: " 
+    // 	  + that.indexArray.length + " normalArray: "
 
-    alert("objectClass: " + that.objectClass + " indexArray: " 
-    	  + that.indexArray.length + " normalArray: "
-
-    	  + that.positionArray.length  + " nitems: " 
-    	  + that.nitems  + " colorArray: " 
-    	  + that.colorArray.length + " endindices: " 
-    	  + that.endIndicesArray.length);
+    // 	  + that.positionArray.length  + " nitems: " 
+    // 	  + that.nitems  + " colorArray: " 
+    // 	  + that.colorArray.length + " endindices: " 
+    // 	  + that.endIndicesArray.length);
 
     //If there is two hemispheres, might need to be a better test one day
     if(that.objectClass == 'P') {
@@ -132,12 +131,12 @@ function MNIObject(string) {
   function parseIndexArray() {
     that.indexArray = new Array();
     var numberIndex = stack.length;
-    alert("Stack length " + stack.length + " END: " + stack[0] + "END-1 : " + stack[1]);
+    //alert("Stack length " + stack.length + " END: " + stack[0] + "END-1 : " + stack[1]);
     for(var i=0; i<numberIndex;i++) {
       that.indexArray.push(parseInt(stack.pop()));
     }
     
-    alert(" "+ that.indexArray[0] + " " +  " "+ that.indexArray[that.indexArray.length -1] + " " );
+    //alert(" "+ that.indexArray[0] + " " +  " "+ that.indexArray[that.indexArray.length -1] + " " );
 
   }
 

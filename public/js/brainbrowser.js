@@ -426,13 +426,64 @@ function BrainBrowser(url) {
     linePrimitive.material.state = state;
     //positionsBuffer.set(newPositionArray);
     //create Position buffer (vertices) and set the number of vertices global variable
+    
+    
+    
+    var indexArray  = new Array();
+     for(var i = 0; i < model.nitems; i ++){
+       if(i == 0){
+     	var start = 0;
+       }else {
+	 var start = model.endIndicesArray[i-1];
+       }
+       indexArray.push(model.indexArray[start]);
+       for(var k = start+1; k < model.endIndicesArray[i]-1; k++) {
+     	indexArray.push(model.indexArray[k]);
+     	indexArray.push(model.indexArray[k]);
+       }
+       indexArray.push(model.indexArray[model.endIndicesArray[i]-1]);
+    
+     }
+    var indexBuffer = that.pack.createObject('IndexBuffer');
+    linePrimitive.numberPrimitives = indexArray.length/2;
+    linePrimitive.numberVertices = indexArray.length;
+    that.indexArray = indexArray;
+    //indexBuffer.set(indexArray);
+    //linePrimitive.indexBuffer = indexBuffer;
+    var positionArray = new Float32Array(indexArray.length*3);
+    for(var j = 0; j < indexArray.length; j++) {
+      positionArray[j*3] = model.positionArray[indexArray[j]*3];
+      positionArray[j*3+1] = model.positionArray[indexArray[j]*3+1];
+      positionArray[j*3+2] = model.positionArray[indexArray[j]*3+2];
+    }
+
+    var colorArray=[];
+    if(model.colorArray.length == 4) {
+      for(var i=0;i<numberVertices;i++) {
+	colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
+      }
+    }else {
+      colorArray = new Float32Array(indexArray.length*4);
+      for(var j = 0; j < indexArray.length; j++) {
+	colorArray[j*4] = model.colorArray[indexArray[j]*4];
+	colorArray[j*4+1] = model.colorArray[indexArray[j]*4+1];
+	colorArray[j*4+2] = model.colorArray[indexArray[j]*4+2];
+	colorArray[j*4+3] = model.colorArray[indexArray[j]*4+3];
+      }
+    }
+
+    
+
+
+
     var positionsBuffer = that.pack.createObject('VertexBuffer');
     var positionsField = positionsBuffer.createField('FloatField', 3);
     
     
     
-    positionsBuffer.set(model.positionArray);
+    positionsBuffer.set(positionArray);
     
+
     streamBank.setVertexStream(
       that.o3d.Stream.POSITION, //  That stream stores vertex positions
       0,                     // First (and only) position stream
@@ -440,14 +491,6 @@ function BrainBrowser(url) {
       0);                    // start_index:
     
     
-    var colorArray=[];
-    if(model.colorArray.length == 4) {
-      for(var i=0;i<numberVertices;i++) {
-	colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
-      }
-    }else {
-      colorArray = model.colorArray;
-    }
     if(colorArray.length < model.positionArray.length) {
       alert('Problem with the colors: ' + colorArray.length);
     }
@@ -464,30 +507,6 @@ function BrainBrowser(url) {
       colorField,
       0);
     
-    
-    var indexArray  = new Array();
-     for(var i = 0; i < model.nitems; i ++){
-       if(i == 0){
-     	var start = 0;
-       }else {
-	 var start = model.endIndicesArray[i-1];
-       }
-       indexArray.push(model.indexArray[start]);
-       for(var k = start; k < model.endIndicesArray[i]; k++) {
-     	indexArray.push(model.indexArray[k]);
-     	indexArray.push(model.indexArray[k]);
-       }
-    
-    
-     }
-    var indexBuffer = that.pack.createObject('IndexBuffer');
-    linePrimitive.numberPrimitives = model.indexArray.length-1;
-    alert("nitems: " + model.nitems);
-    linePrimitive.numberVertices = model.numberVertices;
-      
-    indexBuffer.set(indexArray);
-    linePrimitive.indexBuffer = indexBuffer;
-  
       
     if(that.loading){
       jQuery(that.loading).html("Buffers Loaded");

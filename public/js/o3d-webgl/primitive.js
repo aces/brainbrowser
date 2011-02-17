@@ -205,8 +205,7 @@ o3d.Primitive.prototype.render = function() {
     glMode = this.gl.POINTS;
   } else if (this.gl.fillMode_ == o3d.State.WIREFRAME) {
     // If the fill mode is lines, and the primitive type is some kind of
-    // triangle, then we need to reorder indices to draw the right thing.
-
+    // triangle, then we need to reorder indices to draw the right 
     if (this.primitiveType == o3d.Primitive.TRIANGLELIST ||
         this.primitiveType == o3d.Primitive.TRIANGLEFAN ||
         this.primitiveType == o3d.Primitive.TRIANGLESTRIP) {

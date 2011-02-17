@@ -151,6 +151,15 @@ function BrainBrowser(url) {
     return material;
   };
 
+
+  that.displayObjectFile = function(obj) {
+    if(obj.objectClass == 'P') {
+      that.createBrain(obj);
+    }else if(obj.objectClass == 'L') {
+      that.createLineObject(obj);
+    }
+  };
+
   this.createBrain = function(model_data) {
     that.model_data= model_data;
 
@@ -263,6 +272,33 @@ function BrainBrowser(url) {
 
   };
 
+  that.createLineObject = function(model_data) {
+    that.model_data= model_data;
+
+    var myMaterial = that.createMaterial("/shaders/line.txt");
+
+    /*
+     * Create the Shape for the  mesh and assign its material.
+     * two shapes will be created if the  model has two hemispheres
+     */
+    var shape = that.createLineShape(myMaterial, model_data);
+
+
+    if(that.brainTransform == undefined ){
+      that.brainTransform = that.pack.createObject('Transform');
+    }
+
+    // Parent the 's transform to the client root.
+    that.brainTransform.parent = that.client.root;
+    that.brainTransform.addShape(shape);
+    shape.createDrawElements(that.pack, null);
+    that.model_data = model_data;
+    if(that.afterCreate != undefined) {
+      that.afterCreate(that.model_data);
+    }
+  };
+
+
   /*
    * Creates the hemisphere shape with the material provide.
    */
@@ -277,7 +313,7 @@ function BrainBrowser(url) {
     hemPrimitive.streamBank = streamBank;
     hemShape.name = name;
 
-    hemPrimitive.primitiveType = that.o3d.Primitive.TRIANGLE_LIST;
+    hemPrimitive.primitiveType = that.o3d.Primitive.TRIANGLELIST;
 
     var state = that.pack.createObject('State');
 
@@ -316,6 +352,8 @@ function BrainBrowser(url) {
       for(var i=0;i<numberVertices;i++) {
 	colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
       }
+    }else {
+      colorArray = model.colorArray;
     }
     if(colorArray.length < model.positionArray.length) {
       alert('Problem with the colors: ' + colorArray.length);
@@ -352,6 +390,118 @@ function BrainBrowser(url) {
     return hemShape;
 
   };
+
+  
+  /*
+   * Creates the hemisphere shape with the material provide.
+   */
+  that.createLineShape = function(material,model,name) {
+    //model = unIndexModel(model);
+    var lineShape = that.pack.createObject('Shape');
+    var streamBank = that.pack.createObject('StreamBank');
+    lineShape.name = name;
+    
+    if(!model.positionArray) {
+      alert("PositionArray nil");
+      return false;
+    }
+    
+    
+    
+    
+    
+    
+    that.numberVertices = model.numberVertices; 
+    
+    
+    
+    
+    var linePrimitive = that.pack.createObject('Primitive');      
+    
+    linePrimitive.material = material;
+    linePrimitive.owner = lineShape;
+    linePrimitive.streamBank = streamBank;
+    linePrimitive.primitiveType = that.o3d.Primitive.LINELIST;
+    var state = that.pack.createObject('State'); 
+    linePrimitive.material.state = state;
+    //positionsBuffer.set(newPositionArray);
+    //create Position buffer (vertices) and set the number of vertices global variable
+    var positionsBuffer = that.pack.createObject('VertexBuffer');
+    var positionsField = positionsBuffer.createField('FloatField', 3);
+    
+    
+    
+    positionsBuffer.set(model.positionArray);
+    
+    streamBank.setVertexStream(
+      that.o3d.Stream.POSITION, //  That stream stores vertex positions
+      0,                     // First (and only) position stream
+      positionsField,        // field: the field that stream uses.
+      0);                    // start_index:
+    
+    
+    var colorArray=[];
+    if(model.colorArray.length == 4) {
+      for(var i=0;i<numberVertices;i++) {
+	colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
+      }
+    }else {
+      colorArray = model.colorArray;
+    }
+    if(colorArray.length < model.positionArray.length) {
+      alert('Problem with the colors: ' + colorArray.length);
+    }
+    var colorBuffer = that.pack.createObject('VertexBuffer');
+    var colorField = colorBuffer.createField('FloatField', 4);
+      colorBuffer.set(colorArray);
+    colorArray = [];
+    
+    
+    
+    streamBank.setVertexStream(
+      that.o3d.Stream.COLOR,
+      0,
+      colorField,
+      0);
+    
+    
+    var indexArray  = new Array();
+     for(var i = 0; i < model.nitems; i ++){
+       if(i == 0){
+     	var start = 0;
+       }else {
+	 var start = model.endIndicesArray[i-1];
+       }
+       indexArray.push(model.indexArray[start]);
+       for(var k = start; k < model.endIndicesArray[i]; k++) {
+     	indexArray.push(model.indexArray[k]);
+     	indexArray.push(model.indexArray[k]);
+       }
+    
+    
+     }
+    var indexBuffer = that.pack.createObject('IndexBuffer');
+    linePrimitive.numberPrimitives = model.indexArray.length-1;
+    alert("nitems: " + model.nitems);
+    linePrimitive.numberVertices = model.numberVertices;
+      
+    indexBuffer.set(indexArray);
+    linePrimitive.indexBuffer = indexBuffer;
+  
+      
+    if(that.loading){
+      jQuery(that.loading).html("Buffers Loaded");
+    }
+    
+    
+      
+    
+    
+    that.pack.gl.lineWidth(1.0);
+    return lineShape;
+
+  };
+
 
 
   that.createPinPoint = function(vertex) {
@@ -883,7 +1033,7 @@ function BrainBrowser(url) {
 
   that.loadObjFromFile = function(file_input) {
     loadFromTextFile(file_input, function(result) {
-		       that.createBrain(new MNIObject(result));
+		       that.displayObjectFile(new MNIObject(result));
 		     });
   };
 

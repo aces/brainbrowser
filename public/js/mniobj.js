@@ -9,106 +9,137 @@ function MNIObject(string) {
 
   var stack;
 
-
+  var that = this;
 
   this.parse = function (string) {
-    this.num_hemispheres = 1; //setting it to one here by default,
+    that.num_hemispheres = 1; //setting it to one here by default,
                               //it will be set to two later if there are two hemispheres
     //replacing all new lines with spaces (obj files can be structure with or without them)
     //get all the fields as seperate strings.
     string = string.replace(/\s+$/, '');
     string = string.replace(/^\s+/, '');
     stack = string.split(/\s+/).reverse();
-    this.objectClass = stack.pop();
-    if( this.objectClass === 'P') {
-      this.parse_polygon_class();
-    }else {
-      throw new Error("This object class is not supported currently");
+    that.objectClass = stack.pop();
+    if( that.objectClass == 'P') {
+      parseSurfProp();
+      that.numberVertices = parseInt(stack.pop());
+      parsePositionArray();
+      parseNormalArray();
+      alert(that.normalArray[that.numberVertices -1]);
+      that.nitems = parseInt(stack.pop());
+    }else if (that.objectClass == 'L') {
+      parseSurfProp();
+      that.numberVertices = parseInt(stack.pop());
+      parsePositionArray();
+      that.nitems = parseInt(stack.pop());
+    }else { 
+      throw new Error("That object class is not supported currently");
     }
+    parseColorArray();
+    parseEndIndices();
+    parseIndexArray();    
+
+    alert("objectClass: " + that.objectClass + " indexArray: " 
+    	  + that.indexArray.length + " normalArray: "
+
+    	  + that.positionArray.length  + " nitems: " 
+    	  + that.nitems  + " colorArray: " 
+    	  + that.colorArray.length + " endindices: " 
+    	  + that.endIndicesArray.length);
 
     //If there is two hemispheres, might need to be a better test one day
-    if(this.positionArray.length > 80000*3){
-      this.split_hemispheres();
+    if(that.objectClass == 'P') {
+      if(that.positionArray.length > 80000*3){
+	that.split_hemispheres();
+      }
+      
     }
-
-
+    
+    
+    
 
   };
 
+  function parseSurfProp() {
+    if(that.objectClass == 'P') {
+      that.surfaceProperties = {
+	ambient: parseFloat(stack.pop()),
+	diffuse: parseFloat(stack.pop()),
+	specular_reflectance: parseFloat(stack.pop()),
+	specular_scattering: parseFloat(stack.pop()),
+	transparency: parseFloat(stack.pop())
+      };
+    }else if(that.objectClass == 'L') {
+      that.surfaceProperties = {
+	width: stack.pop()
+      };
+    }
+  }
 
-  this.parse_polygon_class = function() {
-    //surface properties of the polygons
-    this.surfaceProperties = {
-      ambient: parseFloat(stack.pop()),
-      diffuse: parseFloat(stack.pop()),
-      specular_reflectance: parseFloat(stack.pop()),
-      specular_scattering: parseFloat(stack.pop()),
-      transparency: parseFloat(stack.pop())
-    };
-    //number of vertices
-    this.numberVertices = parseFloat(stack.pop());
-    //vertices
-    //alert("Number of vertices: " + this.numberVertices);
-    this.positionArray = new Array();
-    for(var v=0; v < this.numberVertices; v++) {
+  function parsePositionArray() {
+    that.positionArray = new Array();
+    for(var v=0; v < that.numberVertices; v++) {
       for(var i=0; i<3;i++) {
-	this.positionArray.push(parseFloat(stack.pop()));
+	that.positionArray.push(parseFloat(stack.pop()));
       }
     }
-    //alert("Position Array length: "+this.positionArray.length + " First vertex: " + this.positionArray[0] + " Last vertex: " + this.positionArray[this.positionArray.length - 1]);
+  }
 
 
+  function parseNormalArray() {
     //Normals for each vertex
-    this.normalArray = new Array();
-    for(var n=0; n < this.numberVertices; n++){
+    that.normalArray = new Array();
+    for(var n=0; n < that.numberVertices; n++){
       for(var i=0; i<3; i++) {
-        this.normalArray.push(parseFloat(stack.pop()));
+        that.normalArray.push(parseFloat(stack.pop()));
       }
     }
-    //alert("normal Array length: "+this.normalArray.length + " first normal: " + this.normalArray[0] + " Last normal: " + this.normalArray[this.positionArray.length - 1]);
-    this.numberPolygons = parseInt(stack.pop());
-    //alert("Number of polygons: "+  this.numberPolygons);
-    //alert(this.positionArray.length);
-    this.colorFlag = parseInt(stack.pop());
-    //alert('ColorFlag: ' + this.colorFlag);
-    this.colorArray = new Array();
-    if(this.colorFlag === 0) {
+  }
+
+  function parseColorArray() {
+    that.colorFlag = parseInt(stack.pop());
+    //alert('ColorFlag: ' + that.colorFlag);
+    that.colorArray = new Array();
+    if(that.colorFlag === 0) {
       for(var i=0; i<4; i++){
-	this.colorArray.push(parseFloat(stack.pop()));
+	that.colorArray.push(parseFloat(stack.pop()));
       }
-    }else if(this.colorFlag === 1) {
-      for(var c=0;c < this.numberPolygons; c++){
+    }else if(that.colorFlag === 1) {
+      for(var c=0;c < that.numberPolygons; c++){
 	for(var i=0; i<4; i++){
-	  this.colorArray.push(parseFloat(stack.pop()));
+	  that.colorArray.push(parseFloat(stack.pop()));
 	}
       }
-    }else if(this.colorFlag === 2) {
-      for(var c=0;c < this.numberVertices; c++){
+    }else if(that.colorFlag === 2) {
+      for(var c=0;c < that.numberVertices; c++){
 	for(var i=0; i<4; i++){
-	  this.colorArray.push(parseFloat(stack.pop()));
+	  that.colorArray.push(parseFloat(stack.pop()));
 	}
       }
     }else {
-      throw new Error("colorFlag not valid in this file");
+      throw new Error("colorFlag not valid in that file");
     }
-    //alert("ColorArray: " + this.colorArray);
-    //Polygons end indices
-    var endIndicesArray = new Array();
-    for(var p=0;p<this.numberPolygons;p++){
-      endIndicesArray.push(parseInt(stack.pop()));
+  }
+
+  function parseEndIndices() {
+    that.endIndicesArray = new Array();
+    for(var p=0; p < that.nitems;p++){
+      that.endIndicesArray.push(parseInt(stack.pop()));
     }
 
-    //alert(endIndicesArray[endIndicesArray.length-1]);
-    //Polygon indices
-    this.indexArray = new Array();
+  }
+
+  function parseIndexArray() {
+    that.indexArray = new Array();
     var numberIndex = stack.length;
-    //alert("Stack length " + stack.length + " END: " + stack[0] + "END-1 : " + stack[1]);
+    alert("Stack length " + stack.length + " END: " + stack[0] + "END-1 : " + stack[1]);
     for(var i=0; i<numberIndex;i++) {
-      this.indexArray.push(parseInt(stack.pop()));
+      that.indexArray.push(parseInt(stack.pop()));
     }
-    //alert("index Array length: "+this.indexArray.length + " first index: " + this.indexArray[0] + " Last index: " + this.indexArray[this.indexArray.length - 1]);
-  };
+    
+    alert(" "+ that.indexArray[0] + " " +  " "+ that.indexArray[that.indexArray.length -1] + " " );
 
+  }
 
   /*
    * Splits the model into two hemispheres

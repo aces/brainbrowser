@@ -1,6 +1,7 @@
+var brainbrowser;
 function SurfView() {
   var that = this;
-  var brainbrowser = new BrainBrowser();
+  brainbrowser = new BrainBrowser();
   this.brainbrowser = brainbrowser;
   brainbrowser.getViewParams = function() {
     return {

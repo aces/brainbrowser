@@ -13,7 +13,7 @@ function initMacacc(path_prefix,dont_build_path) {
   };
 
   brainbrowser.afterLoadSpectrum = function (spectrum) {
-    var canvas = spectrum.createSpectrumCanvasWithScale(1.5,10,null,false);
+    var canvas = spectrum.createSpectrumCanvasWithScale(0,5,null,false);
     jQuery("#spectrum").html(jQuery(canvas));
     brainbrowser.spectrumObj = spectrum;
   };
@@ -49,7 +49,7 @@ function initMacacc(path_prefix,dont_build_path) {
 				     range: true,
 				     min: -10,
 				     max: 15,
-				     values: [1.5, 10],
+				     values: [0, 5],
 				     slide: function(event, ui) {
 				       jQuery("#data-range-min").val(ui.values[0]);
 				       jQuery("#data-range-max").val(ui.values[1]);

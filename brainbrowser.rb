@@ -47,6 +47,42 @@ post '/minc/volume_object_evaluate' do
 end
 
 
+#Runs volume object evaluate on a minc (after nii2mnc conversion) file provided by the user.
+#The file is uploaded then run through the tool, and the output is
+#sent back to the user. Also, deletes the output file
+post '/nii/volume_object_evaluate' do
+  datafile = params["datafile"][:tempfile].path
+  objfile = params["objfile"][:tempfile].path
+  tmpnii = "tmp/xyz#{rand 100000000000000000000}.nii"
+  tmpmnc = "tmp/xyz#{rand 100000000000000000000}.mnc"
+  outfile = "tmp/xyz#{rand 100000000000000000000}.txt"
+
+  
+
+  if !(datafile && objfile)
+    raise "No datafile or obfile"
+  end
+  
+  puts "volume_object_evaluate #{datafile}  #{objfile} #{outfile}"
+  
+  `mv #{datafile} #{tmpnii}`
+  
+  #file conversion
+  `nii2mnc #{tmpnii} #{tmpmnc}` 
+  #eval
+  `volume_object_evaluate #{tmpmnc}  #{objfile} #{outfile}`
+  
+  data = open(outfile).readlines.join("\n");
+  `rm #{tmpnii}`
+  `rm #{tmpmnc}`
+  `rm #{outfile}`
+  data
+  
+  
+end
+
+
+
 #Extracts the content of a minc file
 get '/data/:filename/content' do
   if !(params[:filename] == @filename)

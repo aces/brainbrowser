@@ -1122,7 +1122,20 @@ function BrainBrowser(url) {
       onfinish(text_data);
       
       
-	 
+      
+    }else if(filename.match(/.*.nii/)) {
+      
+      
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/nii/volume_object_evaluate', false);
+      var form = document.getElementById('datafile-form');
+      var data = new FormData(form);
+      
+      xhr.send(data);
+      var text_data = xhr.response;
+      
+      
+      onfinish(text_data);
     }else {
       loadFromTextFile(file_input, onfinish);
     }

@@ -16,7 +16,7 @@ class Minc
         :space_length => IO.popen("mincinfo -dimlength zspace #{filename}"){ |fh| fh.readlines.join.to_i}
       },
 
-      :order => IO.popen("mincinfo -attval image:dimorder #{filename}").readlines.join.strip.split(',')
+      :order => IO.popen("mincinfo -attval image:dimorder #{filename}") {|fh| fh.readlines.join.strip.split(',')}
     }
     @filename = filename
   end

@@ -4,16 +4,16 @@ class Minc
     #Gets the attributes in the minc file that we need
     @params = {
       :xspace => {
-        :start        => IO.popen("mincinfo -attval xspace:start #{filename}").readlines.join.to_f,
-        :space_length => IO.popen("mincinfo -dimlength xspace #{filename}").readlines.join.to_i
+        :start        => IO.popen("mincinfo -attval xspace:start #{filename}") { |fh| fh.readlines.join.to_f } ,
+        :space_length => IO.popen("mincinfo -dimlength xspace #{filename}"){ |fh| fh.readlines.join.to_i}
       },
       :yspace => {
-        :start        => IO.popen("mincinfo -attval yspace:start #{filename}").readlines.join.to_f,
-        :space_length => IO.popen("mincinfo -dimlength yspace #{filename}").readlines.join.to_i
+        :start        => IO.popen("mincinfo -attval yspace:start #{filename}"){|fh| fh.readlines.join.to_f},
+        :space_length => IO.popen("mincinfo -dimlength yspace #{filename}"){ |fh| fh.readlines.join.to_i}
       },
       :zspace => {
-        :start        => IO.popen("mincinfo -attval zspace:start #{filename}").readlines.join.to_f,
-        :space_length => IO.popen("mincinfo -dimlength zspace #{filename}").readlines.join.to_i
+        :start        => IO.popen("mincinfo -attval zspace:start #{filename}"){|fh| fh.readlines.join.to_f},
+        :space_length => IO.popen("mincinfo -dimlength zspace #{filename}"){ |fh| fh.readlines.join.to_i}
       },
 
       :order => IO.popen("mincinfo -attval image:dimorder #{filename}").readlines.join.strip.split(',')
@@ -23,7 +23,7 @@ class Minc
   
   attr_reader :data, :data_string, :params
   def raw_data
-    @raw_data = IO.popen("minctoraw -byte -unsigned -normalize #{@filename}").readlines.join #The raw binary data, in short integer
+    @raw_data = IO.popen("minctoraw -byte -unsigned -normalize #{@filename}"){ |fh| fh.readlines.join } #The raw binary data, in short integer
   end
 
   def data

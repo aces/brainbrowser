@@ -37,10 +37,10 @@ post '/minc/volume_object_evaluate' do
 
   puts "volume_object_evaluate #{datafile}  #{objfile} #{outfile}"
 
-  `volume_object_evaluate #{datafile}  #{objfile} #{outfile}`
+  system("volume_object_evaluate #{datafile}  #{objfile} #{outfile}")
   
-  data = open(outfile).readlines.join("\n");
-  `rm #{outfile}`
+  data = open(outfile) { |fh| fh.readlines.join("\n") }
+  system("rm #{outfile}")
   data
   
   
@@ -65,17 +65,17 @@ post '/nii/volume_object_evaluate' do
   
   puts "volume_object_evaluate #{datafile}  #{objfile} #{outfile}"
   
-  `mv #{datafile} #{tmpnii}`
+  system("mv #{datafile} #{tmpnii}")
   
   #file conversion
-  `nii2mnc #{tmpnii} #{tmpmnc}` 
+  system("nii2mnc #{tmpnii} #{tmpmnc}")
   #eval
-  `volume_object_evaluate #{tmpmnc}  #{objfile} #{outfile}`
+  system("volume_object_evaluate #{tmpmnc}  #{objfile} #{outfile}")
   
-  data = open(outfile).readlines.join("\n");
-  `rm #{tmpnii}`
-  `rm #{tmpmnc}`
-  `rm #{outfile}`
+  data = open(outfile) {|fh| fh.readlines.join("\n")};
+  system("rm #{tmpnii}")
+  system("rm #{tmpmnc}")
+  system("rm #{outfile}")
   data
   
   

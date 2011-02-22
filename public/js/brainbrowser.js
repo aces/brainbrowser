@@ -1111,7 +1111,7 @@ function BrainBrowser(url) {
     
     if(filename.match(/.*.mnc/)) {
       var xhr = new XMLHttpRequest();
-      xhr.open('POST', '/minc/volume_object_evaluate', false);
+      xhr.open('POST', '/minc/volume_object_evaluate', true);
       var form = document.getElementById('datafile-form');
       var data = new FormData(form);
          
@@ -1127,7 +1127,7 @@ function BrainBrowser(url) {
       
       
       var xhr = new XMLHttpRequest();
-      xhr.open('POST', '/nii/volume_object_evaluate', false);
+      xhr.open('POST', '/nii/volume_object_evaluate', true);
       var form = document.getElementById('datafile-form');
       var data = new FormData(form);
       

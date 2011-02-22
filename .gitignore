@@ -6,3 +6,4 @@ public/data
 .svn
 data
 classes/*
+*.log

@@ -7,3 +7,6 @@ public/data
 data
 classes/*
 *.log
+tmp/*
+config.yml
+rackup.ru

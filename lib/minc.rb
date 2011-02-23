@@ -1,6 +1,12 @@
 require 'rubygems'
 class Minc
   def initialize(filename)
+    order = IO.popen("mincinfo -attval image:dimorder #{filename}") {|fh| fh.readlines.join.strip.split(',')}
+
+    
+    
+    
+    
     #Gets the attributes in the minc file that we need
     @params = {
       :xspace => {
@@ -16,8 +22,16 @@ class Minc
         :space_length => IO.popen("mincinfo -dimlength zspace #{filename}"){ |fh| fh.readlines.join.to_i}
       },
 
-      :order => IO.popen("mincinfo -attval image:dimorder #{filename}") {|fh| fh.readlines.join.strip.split(',')}
+      :order => order
     }
+    
+    if order.length == 4 
+      @params[:time] = { 
+        :start        => IO.popen("mincinfo -attval time:start #{filename}") { |fh| fh.readlines.join.to_f } ,
+        :space_length => IO.popen("mincinfo -dimlength time #{filename}"){ |fh| fh.readlines.join.to_i}
+      }
+    end
+    
     @filename = filename
   end
   

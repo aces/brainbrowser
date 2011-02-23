@@ -10,6 +10,10 @@ function Minc(filename,extraArgs,callback) {
 	     async: false,
 	     success: function(data){
 	       that.order = data.order;
+	       if(that.order.length == 4) {
+		 that.order = that.order.slice(1,that.order.length);
+		 that.time = data.time;
+	       }
 	       that.xspace = data.xspace;
 	       that.yspace = data.yspace;
 	       that.zspace = data.zspace;
@@ -27,7 +31,7 @@ function Minc(filename,extraArgs,callback) {
 	       that[that.order[1]].offset=that[that.order[0]].space_length;
 	       that[that.order[2]].offset=that[that.order[0]].space_length;
 	       that[that.order[0]].slice_length = that[that.order[0]].height*that[that.order[0]].length;
-	       
+
 
 	     },
 	     error: function(request, textStatus) {
@@ -83,10 +87,19 @@ function Minc(filename,extraArgs,callback) {
   };
 
 
-  this.slice = function(axis,number) {
+  this.slice = function(axis,number,time) {
     if(that.order == undefined ) {
       return false;
     }
+    if(that.time) {
+      if(!time) {
+	time = 0;
+      }
+      var time_offset = time*that[that.order[0]].height*that[that.order[0]].length*that[that.order[0]].space_length;
+    }else {
+      var time_offset = 0;
+    }
+
     if(that.order[0] == axis) {
       var slice_length = that[axis].height*that[axis].length;
       var row_length = that[axis].length;
@@ -96,7 +109,7 @@ function Minc(filename,extraArgs,callback) {
       var slice = new Uint16Array(slice_length);
       
       for(var i=0; i< slice_length; i++) {
-	slice[i]=this.data[slice_offset*number+i];
+	slice[i]=this.data[time_offset+ slice_offset*number+i];
       }
       
     } else if(that.order[1] == axis ) {
@@ -111,7 +124,7 @@ function Minc(filename,extraArgs,callback) {
 
       for(var j=0; j<height; j++)
 	for(var k=0; k< row_length; k++){
-	  slice[j*(row_length)+k] = that.data[number*slice_offset+row_offset*j+k];    
+	  slice[j*(row_length)+k] = that.data[time_offset+number*slice_offset+row_offset*j+k];    
 	}
       
     }else {
@@ -125,7 +138,7 @@ function Minc(filename,extraArgs,callback) {
 
       for(var j=0; j<height; j++)
 	for(var k=0; k< row_length; k++){
-	  slice[j*(row_length)+k] = that.data[number+that[that.order[0]].length*j+k*that[that.order[0]].slice_length];    
+	  slice[j*(row_length)+k] = that.data[time_offset+number+that[that.order[0]].length*j+k*that[that.order[0]].slice_length];    
 	}
 
       

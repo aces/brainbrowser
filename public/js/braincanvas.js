@@ -22,8 +22,8 @@ function BrainCanvas(canvas) {
   };
  
   
-  this.update_space = function(axis, number, minc) {
-    var slice = minc.slice(axis,number);
+  this.update_space = function(axis, number, minc,time) {
+    var slice = minc.slice(axis,number,time);
     var slice_image_data = context.createImageData(minc[axis].length,minc[axis].height);
     slice_image_data.data = createColorMap(spectrum,slice_image_data.data,slice,minc.min,minc.max,true);
 
@@ -35,38 +35,45 @@ function BrainCanvas(canvas) {
     context.fillRect(x-2,y-2,4,4);
   };
 
-  this.updateXSpace = function(number,minc) {
+  this.updateXSpace = function(number,minc,time) {
     that.x_slice_number = number;
-    var xslice_image_data = that.update_space("xspace", number,minc);
+    var xslice_image_data = that.update_space("xspace", number,minc,time);
     context.putImageData(xslice_image_data,0,0);  
 
   };
 
-  this.updateYSpace = function(number,minc) {
+  this.updateYSpace = function(number,minc,time) {
     that.y_slice_number = number;
-    var yslice_image_data = that.update_space("yspace", number,minc);
+    var yslice_image_data = that.update_space("yspace", number,minc,time);
 
     context.putImageData(yslice_image_data,0,minc.xspace.height);   
     
   };
   
-  this.updateZSpace = function(number,minc) {
+  this.updateZSpace = function(number,minc,time) {
     that.z_slice_number = number;
-    var zslice_image_data = that.update_space("zspace", number,minc);
+    var zslice_image_data = that.update_space("zspace", number,minc,time);
     context.putImageData(zslice_image_data,0,minc.xspace.height+minc.yspace.height);    
 
   };
 
-  this.updateSlices = function(event){
-    var slice_numbers = that.getSliceNumbersFromPosition(getCursorPosition(event));
-
+  this.updateSlices = function(event,time){
+    if(event) {
+      var slice_numbers = that.getSliceNumbersFromPosition(getCursorPosition(event));      
+    }else {
+      var slice_numbers = {
+	x: that.x_slice_number,
+	y: that.y_slice_number,
+	z: that.z_slice_number
+      }      
+    }
     //clear canvas
     that.initCanvas(canvas.width, canvas.height);    
 
     //insert slices
-    that.updateXSpace(slice_numbers.x,that.current_minc);
-    that.updateYSpace(slice_numbers.y,that.current_minc);    
-    that.updateZSpace(slice_numbers.z,that.current_minc);
+    that.updateXSpace(slice_numbers.x,that.current_minc,time);
+    that.updateYSpace(slice_numbers.y,that.current_minc,time);    
+    that.updateZSpace(slice_numbers.z,that.current_minc,time);
 
 
     //draw x or square whatever 
@@ -123,6 +130,7 @@ function BrainCanvas(canvas) {
   
 
   this.getSliceNumbersFromPosition = function(position){
+    that.position = position;
     if(position.y < that.current_minc.xspace.height) {
       return {
 	x: that.x_slice_number,
@@ -164,6 +172,20 @@ function BrainCanvas(canvas) {
     };
   };
 
+  this.showTime = function() {
+    var div = $(canvas).parent();
+    $("<input type='text' name='time' value=\"0\" size=4>").appendTo(div);
+    $("<div id=\"time-slider\" width=\""+canvas.width+"\" + height=\"10\"></div>").slider({
+						  value: 0,
+						  min: 0,
+						  max: that.current_minc.time.space_length,
+						  step: 1,
+	                                          slide: function(event,ui) {
+					           that.updateSlices(null,ui.value);	    
+						  }
+						}).appendTo(div);
+  };
+
   this.openFile =function(filename) {
     this.current_minc = new Minc(filename, null,function(minc,extraArgs){
 				   var height = minc.xspace.height+minc.yspace.height+minc.zspace.height;
@@ -172,6 +194,9 @@ function BrainCanvas(canvas) {
 				   that.initCanvas(length,height);
 				   that.showMinc(minc);
 				   that.addListeners();
+				   if(minc.time) {
+				     that.showTime();
+				   }
 				   ;});
   };
 

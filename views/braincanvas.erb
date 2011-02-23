@@ -3,6 +3,12 @@
   <title>2D Minc Viewer</title>
 </head>
 <body>
+  <div id="minc1" style="float: left">
+  <canvas id="viewport1"></canvas>
+  <div id="mincinfo"></div>
+  </div>
+
+
   <div id="minc2" style="float: left">
   <canvas id="viewport2"></canvas>
   <div id="mincinfo"></div>
@@ -13,9 +19,9 @@
   <div id="mincinfo"></div>
   </div>
 
-
-
+    <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.2.custom.css" rel="Stylesheet" />
   <script type="text/javascript" src="/js/jquery.js"></script>
+  <script type="text/javascript" src="/js/jquery-ui-1.8.2.custom.min.js"></script>
   <script type="text/javascript" src="/js/utils.js"></script>
   <script type="text/javascript" src="/js/minc.js"></script>
   <script type="text/javascript" src="/js/color.js"></script>
@@ -23,6 +29,8 @@
   <script type="text/javascript" src="/js/loader.js"></script>
   <script type="text/javascript" src="/js/braincanvas.js"></script>
   <script type="text/javascript">
+    bc1 = new BrainCanvas(document.getElementById('viewport1'));
+    bc1.openFile('/data/test_fmri.mnc');
     bc2 = new BrainCanvas(document.getElementById('viewport2'));
     bc2.openFile('/data/kassis_nicolas_20100528_135207_2_mri-v2.mnc');
     bc3 = new BrainCanvas(document.getElementById('viewport3'));

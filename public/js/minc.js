@@ -20,12 +20,17 @@ function Minc(filename,extraArgs,callback) {
 
 	       //figure out height and length of each slices in each direction
 	       that[that.order[0]].height=that[that.order[1]].space_length;
+	       that[that.order[0]].height.space=that.order[1];
 	       that[that.order[0]].length=that[that.order[2]].space_length;
+	       that[that.order[0]].length.space = that.order[2];
 	       that[that.order[1]].height=that[that.order[0]].space_length;
+	       that[that.order[0]].height.space=that.order[0];
 	       that[that.order[1]].length=that[that.order[2]].space_length;
+	       that[that.order[0]].length.space = that.order[2];
 	       that[that.order[2]].height=that[that.order[1]].space_length;
+	       that[that.order[0]].height.space=that.order[1];
 	       that[that.order[2]].length=that[that.order[0]].space_length;
-	      
+	       that[that.order[0]].length.space = that.order[0];
 	       //calculate the offsets for each element of a slice
 	       that[that.order[0]].offset=that[that.order[1]].space_length*that[that.order[2]].space_length;
 	       that[that.order[1]].offset=that[that.order[0]].space_length;

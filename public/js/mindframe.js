@@ -166,6 +166,11 @@ function MindFrame() {
     var x1_length =  parseInt(params[x1].space_length);
     var x2_length =  parseInt(params[x2].space_length);
 
+    //steps for each point
+    var x0_step = parseFloat(params[x0].step);
+    var x1_step = parseFloat(params[x1].step);    
+    var x2_step = parseFloat(params[x2].step);
+
     //create array of undefined values
     var positionArray = new Float32Array(new Array(x0_length*x1_length*x2_length*3));
 
@@ -191,9 +196,9 @@ function MindFrame() {
     for(var i = 0; i< x0_length; i++) {
       for(var k = 0; k < x1_length; k++ ) {
 	for(var j = 0; j < x2_length; j++ ) {
-	  positionArray[z]   = x0_first + i;
-	  positionArray[z+1] = x1_first + j;
-	  positionArray[z+2] = x2_first + k;
+	  positionArray[z]   = x0_first + i*x0_step;
+	  positionArray[z+1] = x1_first + j*x1_step;
+	  positionArray[z+2] = x2_first + k*x2_step;
 	  z+=3;
 	}
       }

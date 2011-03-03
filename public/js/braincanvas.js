@@ -8,7 +8,9 @@ function BrainCanvas(canvas) {
     y: [0,0],
     z: [0,0]
   };
-  
+  //Holds the slice numbers 
+  that.slices = {};
+
   var spectrum = loader.loadSpectrumFromUrl("/spectrum/spectral.txt");
    
   this.initCanvas = function(width,heigth) {
@@ -36,14 +38,14 @@ function BrainCanvas(canvas) {
   };
 
   this.updateXSpace = function(number,minc,time) {
-    that.x_slice_number = number;
+    that.slices.xspace = number;
     var xslice_image_data = that.update_space("xspace", number,minc,time);
     context.putImageData(xslice_image_data,0,0);  
 
   };
 
   this.updateYSpace = function(number,minc,time) {
-    that.y_slice_number = number;
+    that.slices.yspace = number;
     var yslice_image_data = that.update_space("yspace", number,minc,time);
 
     context.putImageData(yslice_image_data,0,minc.xspace.height);   
@@ -51,7 +53,7 @@ function BrainCanvas(canvas) {
   };
   
   this.updateZSpace = function(number,minc,time) {
-    that.z_slice_number = number;
+    that.slices.zspace = number;
     var zslice_image_data = that.update_space("zspace", number,minc,time);
     context.putImageData(zslice_image_data,0,minc.xspace.height+minc.yspace.height);    
 
@@ -62,10 +64,10 @@ function BrainCanvas(canvas) {
       var slice_numbers = that.getSliceNumbersFromPosition(getCursorPosition(event));      
     }else {
       var slice_numbers = {
-	x: that.x_slice_number,
-	y: that.y_slice_number,
-	z: that.z_slice_number
-      }      
+	x: that.slices.xspace,
+	y: that.slices.yspace,
+	z: that.slices.zspace
+      };
     }
     //clear canvas
     that.initCanvas(canvas.width, canvas.height);    
@@ -77,9 +79,9 @@ function BrainCanvas(canvas) {
 
 
     //draw x or square whatever 
-    drawCrosshair(that.y_slice_number,that.z_slice_number);
-    drawCrosshair(that.x_slice_number,that.z_slice_number+that.current_minc.xspace.height);
-    drawCrosshair(that.y_slice_number,that.x_slice_number+that.current_minc.xspace.height+that.current_minc.yspace.height);    
+    drawCrosshair(that.slices.yspace,that.slices.zspace);
+    drawCrosshair(that.slices.xspace,that.slices.zspace+that.current_minc.xspace.height);
+    drawCrosshair(that.slices.yspace,that.slices.xspace+that.current_minc.xspace.height+that.current_minc.yspace.height);    
 
   };
 
@@ -90,16 +92,16 @@ function BrainCanvas(canvas) {
 			  "<br> xspace.length: " + minc.xspace.length + " yspace.length: " + minc.yspace.length + " zspace.length: " + minc.zspace.length);
     
 
-    that.x_slice_number = 100;
-    that.y_slice_number = 100;
-    that.z_slice_number = 100;
-    that.updateXSpace(that.x_slice_number,minc);
-    that.updateYSpace(that.y_slice_number,minc);
-    that.updateZSpace(that.z_slice_number,minc);
+    that.slices.xspace = 100;
+    that.slices.yspace = 100;
+    that.slices.zspace = 100;
+    that.updateXSpace(that.slices.xspace,minc);
+    that.updateYSpace(that.slices.yspace,minc);
+    that.updateZSpace(that.slices.zspace,minc);
 
-    drawCrosshair(that.y_slice_number,that.x_slice_number);
-    drawCrosshair(that.x_slice_number,that.z_slice_number+that.current_minc.xspace.height);
-    drawCrosshair(that.y_slice_number,that.x_slice_number+that.current_minc.xspace.height+that.current_minc.yspace.height);    
+    drawCrosshair(that.slices.yspace,that.slices.xspace);
+    drawCrosshair(that.slices.xspace,that.slices.zspace+that.current_minc.xspace.height);
+    drawCrosshair(that.slices.yspace,that.slices.xspace+that.current_minc.xspace.height+that.current_minc.yspace.height);    
    //alert("Typeof xlsice: " + typeof xslice + " Lenght of xslice: " + xslice.length + " xslice max: " + minc.max + " xslice.min: " + minc.min + " xslice[5000]: " + xslice[5000] + " xslice[20000]: " + xslice[20000] + " xslice_image_data.data[10000*4]: "   + " " + xslice_image_data.data[2] );
     
     //var yslice = Minc.slice('yspace',1);
@@ -133,21 +135,21 @@ function BrainCanvas(canvas) {
     that.position = position;
     if(position.y < that.current_minc.xspace.height) {
       return {
-	x: that.x_slice_number,
+	x: that.slices.xspace,
 	y: position.x,
 	z: position.y
       };
     }else if(position.y < that.current_minc.xspace.height + that.current_minc.yspace.height){
       return {
 	x: position.x,
-	y: that.y_slice_number,
+	y: that.slices.yspace,
 	z: position.y -  that.current_minc.xspace.height
       };
     }else {
       return {
 	x: position.y - that.current_minc.xspace.height - that.current_minc.yspace.height,
 	y: position.x,
-	z: that.z_slice_number
+	z: that.slices.zspace
       };
     };
   };

@@ -10,3 +10,5 @@ classes/*
 tmp/*
 config.yml
 rackup.ru
+braincanvas.erb
+braincloud.erb

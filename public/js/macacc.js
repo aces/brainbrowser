@@ -44,7 +44,14 @@ function initMacacc(path_prefix,dont_build_path) {
     };
 
 
-    jQuery('#fillmode').toggle(bb.set_fill_mode_wireframe,bb.set_fill_mode_solid);
+    jQuery('#meshmode').change(function(e) {
+				   if(jQuery(e.target).attr("checked") == true) {
+				     bb.set_fill_mode_wireframe();
+				   }else {
+				     bb.set_fill_mode_solid();
+				   }
+				 });
+
     jQuery("#range-slider").slider({
 				     range: true,
 				     min: -10,

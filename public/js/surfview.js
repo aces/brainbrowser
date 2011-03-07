@@ -105,6 +105,15 @@ function SurfView() {
       jQuery("#range-slider").slider('values', 0, parseFloat(min));
       jQuery("#range-slider").slider('values', 1, parseFloat(max));
     };
+    jQuery('#meshmode').change(function(e) {
+				 if(jQuery(e.target).attr("checked") == true) {
+				   bb.set_fill_mode_wireframe();
+				 }else {
+				   bb.set_fill_mode_solid();
+				 }
+			       });
+
+
 
     jQuery("#fix_range").click(function(event,ui) {
 

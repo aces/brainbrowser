@@ -25,8 +25,14 @@ function BrainCanvas(canvas) {
  
   
   this.update_space = function(axis, number, minc,time) {
-    var slice = minc.slice(axis,number,time);
-    var slice_image_data = context.createImageData(minc[axis].length,minc[axis].height);
+    var slice = minc.getScaledSlice(axis,number,time,null);
+
+    //get the area of canvas to insert image into
+    //Make sure that area uses the step of the axises
+    var slice_image_data = context.createImageData(
+      minc[axis].length*Math.abs(minc[minc[axis].length_space].step),
+      minc[axis].height*Math.abs(minc[minc[axis].height_space].step));
+    
     slice_image_data.data = createColorMap(spectrum,slice_image_data.data,slice,minc.min,minc.max,true);
 
     return slice_image_data;
@@ -79,9 +85,12 @@ function BrainCanvas(canvas) {
 
 
     //draw x or square whatever 
-    drawCrosshair(that.slices.yspace,that.slices.zspace);
-    drawCrosshair(that.slices.xspace,that.slices.zspace+that.current_minc.xspace.height);
-    drawCrosshair(that.slices.yspace,that.slices.xspace+that.current_minc.xspace.height+that.current_minc.yspace.height);    
+    drawCrosshair(that.slices[that.current_minc.xspace.length_space],
+		  that.slices[that.current_minc.xspace.height_space]);
+    drawCrosshair(that.slices[that.current_minc.yspace.length_space],
+		  that.slices[that.current_minc.yspace.height_space]+that.current_minc.xspace.height);
+    drawCrosshair(that.slices[that.current_minc.zspace.length_space],
+		  that.slices[that.current_minc.zspace.height_space]+that.current_minc.xspace.height+that.current_minc.yspace.height);    
 
   };
 
@@ -89,7 +98,7 @@ function BrainCanvas(canvas) {
     $(canvas).siblings("#mincinfo").append("Minc Information: <br>"+
 			  "order: "+ minc.order +
 			  "<br>xspace.height: " + minc.xspace.height + " yspace.height: " + minc.yspace.height + " zspace.height: " + minc.zspace.height + 
-			  "<br> xspace.length: " + minc.xspace.length + " yspace.length: " + minc.yspace.length + " zspace.length: " + minc.zspace.length);
+			  "<br> xspace.length: " + minc.xspace.length + " yspace.length: " + minc.yspace.length + " zspace.length: " + minc.zspace.length + "xspace step: " + minc.xspace.step + "yspace step: " + minc.yspace.step + "zspace step: " + minc.zspace.step);
     
 
     that.slices.xspace = 100;
@@ -134,24 +143,49 @@ function BrainCanvas(canvas) {
   this.getSliceNumbersFromPosition = function(position){
     that.position = position;
     if(position.y < that.current_minc.xspace.height) {
-      return {
-	x: that.slices.xspace,
-	y: position.x,
-	z: position.y
+      var slices = {
+	x: that.slices.xspace
       };
+      if(that.current_minc.xspace.height_space == "yspace") {
+	slices.y = position.y;
+	slices.z = position.x;
+      }else {
+        slices.y = position.x;
+	slices.z = position.y;
+   	
+      }
+
     }else if(position.y < that.current_minc.xspace.height + that.current_minc.yspace.height){
-      return {
-	x: position.x,
-	y: that.slices.yspace,
-	z: position.y -  that.current_minc.xspace.height
+      var slices = {
+	y: that.slices.yspace
       };
+      
+      if(that.current_minc.yspace.height_space == "zspace"){
+	
+	slices.x = position.x;
+	slices.z = position.y -  that.current_minc.xspace.height;
+      } else {	
+        slices.z = position.x;
+	slices.x = position.y -  that.current_minc.xspace.height;
+      }
+
     }else {
-      return {
-	x: position.y - that.current_minc.xspace.height - that.current_minc.yspace.height,
-	y: position.x,
-	z: that.slices.zspace
-      };
-    };
+      var slices = 
+	{
+	  z: that.slices.zspace
+	};
+      if(that.current_minc.yspace.height_space == "xspace"){
+	slices.x =  position.y - that.current_minc.xspace.height - that.current_minc.yspace.height;
+	slices.y = position.x;	
+      }else {
+	slices.y =  position.y - that.current_minc.xspace.height - that.current_minc.yspace.height;
+	slices.x = position.x;		
+      }
+      
+    }
+    
+  return slices;  
+
   };
 
   
@@ -190,8 +224,8 @@ function BrainCanvas(canvas) {
 
   this.openFile =function(filename) {
     this.current_minc = new Minc(filename, null,function(minc,extraArgs){
-				   var height = minc.xspace.height+minc.yspace.height+minc.zspace.height;
-				   var length = Math.max(minc.xspace.length,minc.yspace.length,minc.zspace.length);
+				   var height = minc.xspace.height*Math.abs(minc.xspace.step)+minc.yspace.height*Math.abs(minc.yspace.step)+minc.yspace.height*Math.abs(minc.zspace.step);
+				   var length = Math.max(minc.xspace.length*Math.abs(minc.xspace.step),minc.yspace.length*Math.abs(minc.yspace.step),minc.zspace.length*Math.abs(minc.zspace.step));
 				   
 				   that.initCanvas(length,height);
 				   that.showMinc(minc);

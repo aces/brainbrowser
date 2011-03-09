@@ -233,6 +233,9 @@ function BrainBrowser(url) {
     var light_emissive_param = myMaterial.getParam('emissive');
     var light_colorMult_param = myMaterial.getParam('colorMult');
 
+    //bool to state if we are displaying wireframe models or not, if true it turns off the lighting 
+    var wires = myMaterial.getParam('wires');
+    wires.value = false;
     // White ambient light
     light_ambient_param.value = [0.04, 0.04, 0.04, 1];
     light_ambientIntensity_param.value = [1, 1, 1, 1];
@@ -350,7 +353,7 @@ function BrainBrowser(url) {
     var colorArray=[];
     if(model.colorArray.length == 4) {
       for(var i=0;i<numberVertices;i++) {
-	colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
+	colorArray.push.apply(colorArray,model.colorArray);
       }
     }else {
       colorArray = model.colorArray;
@@ -982,14 +985,24 @@ function BrainBrowser(url) {
       var brainMaterial = that.brainTransform.children[0].shapes[0].elements[0].material;
       that.state = that.pack.createObject('State');
       brainMaterial.state = that.state;
+
+      var wires = brainMaterial.getParam('wires');
+      wires.value = true;
+
       that.state.getStateParam('FillMode').value = that.o3d.State.WIREFRAME;
       brainMaterial = that.brainTransform.children[1].shapes[0].elements[0].material;
       brainMaterial.state = that.state;
+      wires = brainMaterial.getParam('wires');
+      wires.value = true;
+
     } else {
       var brainMaterial = that.brainTransform.shapes[0].elements[0].material;
       that.state = that.pack.createObject('State');
       brainMaterial.state = that.state;
       that.state.getStateParam('FillMode').value = that.o3d.State.WIREFRAME;
+      var wires = brainMaterial.getParam('wires');
+      wires.value = true;
+      
     }
     that.client.render();
   };
@@ -1000,14 +1013,23 @@ function BrainBrowser(url) {
       var brainMaterial = that.brainTransform.children[0].shapes[0].elements[0].material;
       that.state1 = that.pack.createObject('State');
       brainMaterial.state = that.state1;
+      var wires = brainMaterial.getParam('wires');
+      wires.value = false;
+
       that.state.getStateParam('FillMode').value = that.o3d.State.SOLID;
       brainMaterial = that.brainTransform.children[1].shapes[0].elements[0].material;
       brainMaterial.state = that.state;
+      var wires = brainMaterial.getParam('wires');
+      wires.value = false;
+
     } else {
       var brainMaterial = that.brainTransform.shapes[0].elements[0].material;
       that.state = that.pack.createObject('State');
       brainMaterial.state = that.state;
       that.state.getStateParam('FillMode').value = that.o3d.State.SOLID;
+      var wires = brainMaterial.getParam('wires');
+      wires.value = false;
+
     }
 
   };

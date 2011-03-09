@@ -17,20 +17,32 @@ function Minc(filename,extraArgs,callback) {
 	       that.xspace = data.xspace;
 	       that.yspace = data.yspace;
 	       that.zspace = data.zspace;
+	       
+	       if(that.xspace.step == 0) {
+		 that.xspace.step = 1;
+	       }
+	       
+	       if(that.yspace.step == 0) {
+		 that.yspace.step = 1;
+	       }
+
+	       if(that.zspace.step == 0) {
+		 that.zspace.step = 1;
+	       }
 
 	       //figure out height and length of each slices in each direction
 	       that[that.order[0]].height=that[that.order[1]].space_length;
-	       that[that.order[0]].height.space=that.order[1];
+	       that[that.order[0]].height_space=that.order[1];
 	       that[that.order[0]].length=that[that.order[2]].space_length;
-	       that[that.order[0]].length.space = that.order[2];
+	       that[that.order[0]].length_space = that.order[2];
 	       that[that.order[1]].height=that[that.order[0]].space_length;
-	       that[that.order[0]].height.space=that.order[0];
+	       that[that.order[1]].height_space=that.order[0];
 	       that[that.order[1]].length=that[that.order[2]].space_length;
-	       that[that.order[0]].length.space = that.order[2];
+	       that[that.order[1]].length_space = that.order[2];
 	       that[that.order[2]].height=that[that.order[1]].space_length;
-	       that[that.order[0]].height.space=that.order[1];
+	       that[that.order[2]].height_space=that.order[1];
 	       that[that.order[2]].length=that[that.order[0]].space_length;
-	       that[that.order[0]].length.space = that.order[0];
+	       that[that.order[2]].length_space = that.order[0];
 	       //calculate the offsets for each element of a slice
 	       that[that.order[0]].offset=that[that.order[1]].space_length*that[that.order[2]].space_length;
 	       that[that.order[1]].offset=that[that.order[0]].space_length;
@@ -90,8 +102,7 @@ function Minc(filename,extraArgs,callback) {
     that.data = data;
     callback(this,extraArgs);
   };
-
-
+ 
   this.slice = function(axis,number,time) {
     if(that.order == undefined ) {
       return false;
@@ -153,6 +164,25 @@ function Minc(filename,extraArgs,callback) {
 
     return slice;
  };
+
+  
+  this.getScaledSlice = function(axis,number,time,factor) {
+    if(factor == null) {
+      factor = Math.abs(that[axis].step);
+    }
+    var original_slice= that.slice(axis,number,time);
+    var new_array = new Uint16Array(original_slice.length *factor);
+    for(var i = 0; i < that[axis].height; i++) {
+      for(var j=0; j < factor; j++ )
+	for(var k=0; k< that[axis].length; k++){
+	  for(var l=0; l < factor; l++) { 
+	    new_array[i*that[axis].length+j*that[axis].length+k+l] = original_slice[i*that[axis].length+k];
+	  };
+	}
+    }
+    //alert("New array length: " + new_array.length + " old:" + original_slice.length);
+    return new_array;
+  };
 
 
   if(filename != null && callback != null) {

@@ -4,45 +4,52 @@
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">  
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>MACACC Dataset viewer</title>      
-    <link type="text/css" href="/css/brainbrowser-main.css" rel="Stylesheet" />
     <link type="text/css" href="/css/custom-theme/jquery-ui-1.8.10.custom.css" rel="Stylesheet" />    
+    <link type="text/css" href="/css/brainbrowser-main.css" rel="Stylesheet" />
   </head>  
   <body>
     <div id="main">
       <div id="header">
-	<h1>BrainBrowser</h1>
+	<h1><a href="/">BrainBrowser</a></h1>
       </div>
       <div id="content">
 	<div id="menu" class="tabs">
 	  <ul>
-	    <li><a href="#about">About</a></li>
 	    <li><a href="#viewers">Viewers</a></li>
+	    <li><a href="#about">About</a></li>
+	    <li><a href="#news">News</a></li>
 	    </ul>
 	  <div id="about" class="tab">
 	    <p>
-	      BrainBrowser is an online visualization tool for brain imaging. It allows researchers to explore datasets of various types such as the precalculated  MACACC(Mapping anatomical correlations across cerebral cortex) or data provided by the user in obj, text, minc, nifty format using the surface viewer. 
+	      BrainBrowser is web-based, 3D visualization tool for neuroimaging. Using web-standard technologies, such as WebGL and HTML5, it allows for real time manipulation and analysis of 3D neuroimaging data whether it be precalculated maps, such as the MACACC data set (Mapping anatomical correlations across cerebral cortex), or models provided by the user in one of the many currently supported formats (Minc, Nifty, object files, plain text).
 	    </p>
 	    <p>
-	      Brainbrowser is integrated into the CBRAIN platform for a completely web based research workflow. The combination of CBRAIN and BrainBrowser eliminates the pain of having to wrestle with command line processing tools, transfering datasets manually to High Performance computing centers and local storage of results to use with difficult to install desktop visualization tools. All this within one interface. For more information on CBRAIN visit the CBRAIN <a href="http://cbrain.mcgill.ca">website</a>
+	      Brainbrowser is a central visualization component of the CBRAIN platform. CBRAIN is the CANARIE-funded, integrated computational platform for brain imaging research. It combines the networking capabilities of the CANet4 network with the processing power of High Performance Computing centres across Canada and Europe and cutting-edge visualization tools such as BrainBrowser, and makes them available through an intuitive, graphical, web browser-based interface.
+	    </p>
+	    
 	    <p>
-	      Go to the <a href="#viewers" class="tablink" data-tabs="menu" data-tab="viewers">Viewers</a> tab to view the different viewer options and start using BrainBrowser right now.
+	      Go to the <a href="#viewers" class="tablink" data-tabs="menu" data-tab="viewers">Viewers</a> tab to view the different viewer options and start using BrainBrowser right now!
 	    </p>	    
 	    
 	    
 	  </div>
 	  <div id="viewers" class="tab">
-	    <p>
+	    
+	    <p> Check out the <a href="#about" class="tablink" data-tabs="menu" data-tab="about">About</a> page for information on the Brainbrowser project </p>
+	    </p><p>
 	      Select An application to start playing:
 	    </p>
-	    <span class="sidebyside-icon"><a href="/surfview.html" ><img src="/img/surfview.png" width=150px height=100px alt="surfview"><br /><span class="button">Surface Viewer</span></a></span>
-	    <span class="sidebyside-icon"><a href="/macacc.html"><img src="/img/macacc.png" width=150px height=100px alt="macacc"><br /><span class="button">Macacc Dataset</a></span>
+            <p class="icons">
+<span class="sidebyside-icon"><a href="/surfview.html" ><img src="/img/surfview.png" width=225px height=150px alt="surfview"><br /><span class="button">Surface Viewer</span></a></span>
+	      <span class="sidebyside-icon"><a href="/macacc.html"><img src="/img/macacc.png" width=225px height=150px alt="macacc"><br /><span class="button">Macacc Dataset</a></span>
+	    </p>
 	    </span>
-	    
+	  </div>
+	  <div id="news" class="tab">
 	  </div>
       </div>
       <div id="footer">
 	
-	<a href="http://cbrain.mcgill.ca">CBrain Project</a>
 	<a href="http://www.mcgill.ca"><img src="/img/mcgill.png" alt="McGill University"></a>
 	<a href="http://www.canarie.ca"><img src="/img/canarie.png"></a>
 

@@ -5,6 +5,18 @@ body {
     background: #21201E;
 }
 
+#header a:link {
+    color:  #F7F7F7;
+    text-decoration: none;
+}
+
+#header  a:visited {
+    color:  #F7F7F7;
+    text-decoration: none;
+ 
+}
+
+
 a:link {
     color: #1040CA;
 }
@@ -12,12 +24,14 @@ a:visited {
     color: #1312CA;
 }
 
+
 #main {
     width: 1024px;
     padding: 0px;
     height: 700px;
     margin: auto;
 }
+
 
 #header {
     width: 100%;
@@ -39,19 +53,24 @@ a:visited {
 
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
+    
 }
 
 #footer {
     text-align: center;
     background: #F7F7F7;
     padding: 10px;
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
+}
 
+.icons {
+    text-align: center;
 }
 
 .tabs {
     height: 100%;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+
 }
 
 .notop-margin {
@@ -61,4 +80,6 @@ a:visited {
 .sidebyside-icon {
     margin:10px;
     float: left;
+    text-align: center;
+    
 }

@@ -24,6 +24,10 @@ a:visited {
     color: #1312CA;
 }
 
+a img {
+    border:none;
+}
+
 
 #main {
     width: 1024px;
@@ -81,5 +85,7 @@ a:visited {
     margin:10px;
     float: left;
     text-align: center;
-    
+}
+.sidebyside-icon a {
+    text-decoration: none;
 }

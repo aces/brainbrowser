@@ -6,41 +6,44 @@
     <title>MACACC Dataset viewer</title>      
   </head>  
   <body>
-    <div id="header">
-      <h1>BrainBrowser</h1>
-    </div>
     <div id="main">
-      <div id="about">
-	<p>
-	  <h2>About:</h2>
+      <div id="header">
+	<h1>BrainBrowser</h1>
+      </div>
+      <div id="content">
+	<div id="about">
+	  <h2 class="notop-margin">About:</h2>
 	  An online visualization toolkit for Neuroimaging Research. BrainBrowser provides multiple tools to view data in 2D and 3D. 
-	</p>
+	  
+	  <div id="apps">
+	    <p>
+	      <h2>Applications</h2>
+	      Select An application to start playing:
+	    </p>
+	    <span id="surfview" class="sidebyside-icon">
+	      <a href="/surfview.html">Surface Viewer</a>
+	    </span>
+	    <span id="macacc" class="sidebyside-icon">
+	      <a href="/macacc.html">Macacc Data Set</a>
+	    </span>
+	    
+	  </div>
+	  
+	</div>
       </div>
-      <div id="apps">
-	<p>
-	<h2>Applications</h2>
-	Select An application to start playing:
-	</p>
-	<span id="macacc" class="sidebyside-icon">
-	  <a href="/macacc.html">Macacc Data Set</a>
-	</span>
-	<span id="surfview" class="sidebyside-icon">
-	  <a href="/surfview.html">Surface Viewer</a>
-	</span>
-	<span id="mribrowser" class="sidebyside-icon">
-	  <a href="/mribrowser.html">MRI Browser(In Development)</a>
-	</span>
-      </div>
-    </div>
-    <div id="footer">
+      <div id="footer">
       <span id="cbrain" class="sidebyside-icon">
 	<a href="http://cbrain.mcgill.ca">CBrain Project</a>
       </span>
+      <span id="Mcgill">
+	<a href="http://www.mcgill.ca"><img src="/img/mcgill.png" alt="McGill University"></a>
+      </span>
       <span id="canarie" class="sidebyside-icon">
-	<a href="http://www.canarie.ca">Canarie</a>
+	<a href="http://www.canarie.ca"><img src="/img/canarie.png"></a>
       </span>
     </div>
-    <link type="text/css" href="/css/brainbrowser.css" rel="Stylesheet" />
+    </div>
+    <link type="text/css" href="/css/brainbrowser-main.css" rel="Stylesheet" />
     <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.2.custom.css" rel="Stylesheet" />
   </body>
 </html>

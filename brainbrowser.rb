@@ -5,11 +5,6 @@ require 'minc'
 require 'json'
 require 'zlib'
 
-
-use Rack::Auth::Basic, "Restricted Area" do |username, password|
-  [username, password] == ['macacc', 'br41ns']
-end
-
 set :public, File.dirname(__FILE__) + '/public'
 
 
@@ -18,7 +13,7 @@ not_found do
 end
 
 get '/' do
-  redirect '/macacc.html'
+  redirect '/index.html'
 end
 
 

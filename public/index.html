@@ -4,6 +4,8 @@
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">  
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>MACACC Dataset viewer</title>      
+    <link type="text/css" href="/css/brainbrowser-main.css" rel="Stylesheet" />
+    <link type="text/css" href="/css/custom-theme/jquery-ui-1.8.10.custom.css" rel="Stylesheet" />    
   </head>  
   <body>
     <div id="main">
@@ -11,35 +13,52 @@
 	<h1>BrainBrowser</h1>
       </div>
       <div id="content">
-	<div id="about">
-	  <h2 class="notop-margin">About:</h2>
-	  An online visualization toolkit for Neuroimaging Research. BrainBrowser provides multiple tools to view data in 2D and 3D. 
-	  
-	  <div id="apps">
+	<div id="menu" class="tabs">
+	  <ul>
+	    <li><a href="#about">About</a></li>
+	    <li><a href="#viewers">Viewers</a></li>
+	    </ul>
+	  <div id="about" class="tab">
 	    <p>
-	      <h2>Applications</h2>
-	      Select An application to start playing:
+	      BrainBrowser is an online visualization tool for brain imaging. It allows researchers to explore datasets of various types such as the precalculated  MACACC(Mapping anatomical correlations across cerebral cortex) or data provided by the user in obj, text, minc, nifty format using the surface viewer. 
 	    </p>
-	    <div id="surfview" class="sidebyside-icon">
-	      <a href="/surfview.html"><img src="/img/surfview.png" width=150px height=100px alt="surfview"><br />Surface Viewer</a>	 
-	    </div>
-	    <div id="macacc" class="sidebyside-icon">
-	      <a href="/macacc.html"><img src="/img/macacc.png" width=150px height=100px alt="macacc"><br />Macacc Data Set</a>
-	    </div>
+	    <p>
+	      Brainbrowser is integrated into the CBRAIN platform for a completely web based research workflow. The combination of CBRAIN and BrainBrowser eliminates the pain of having to wrestle with command line processing tools, transfering datasets manually to High Performance computing centers and local storage of results to use with difficult to install desktop visualization tools. All this within one interface. For more information on CBRAIN visit the CBRAIN <a href="http://cbrain.mcgill.ca">website</a>
+	    <p>
+	      Go to the <a href="#viewers" class="tablink" data-tabs="menu" data-tab="viewers">Viewers</a> tab to view the different viewer options and start using BrainBrowser right now.
+	    </p>	    
+	    
 	    
 	  </div>
-	  
-	</div>
+	  <div id="viewers" class="tab">
+	    <p>
+	      Select An application to start playing:
+	    </p>
+	    <span class="sidebyside-icon"><a href="/surfview.html" ><img src="/img/surfview.png" width=150px height=100px alt="surfview"><br /><span class="button">Surface Viewer</span></a></span>
+	    <span class="sidebyside-icon"><a href="/macacc.html"><img src="/img/macacc.png" width=150px height=100px alt="macacc"><br /><span class="button">Macacc Dataset</a></span>
+	    </span>
+	    
+	  </div>
       </div>
       <div id="footer">
-
+	
 	<a href="http://cbrain.mcgill.ca">CBrain Project</a>
 	<a href="http://www.mcgill.ca"><img src="/img/mcgill.png" alt="McGill University"></a>
 	<a href="http://www.canarie.ca"><img src="/img/canarie.png"></a>
 
     </div>
     </div>
-    <link type="text/css" href="/css/brainbrowser-main.css" rel="Stylesheet" />
-    <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.2.custom.css" rel="Stylesheet" />
+    <script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/jquery-ui.js"></script>
+    <script type="text/javascript">
+      $(".button").button();
+      $(".tabs").tabs();
+      $(".tablink").click(function(e) {
+        var tabs_object = $(e.target).attr('data-tabs');
+        var tab = $(e.target).attr('data-tab');
+        $("#"+tabs_object).tabs("select", tab);
+        return false;
+      });
+    </script>
   </body>
 </html>

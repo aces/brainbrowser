@@ -37,7 +37,6 @@ a:visited {
     background: white;
     margin:auto;
 
-    padding: 10px;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
 }
@@ -49,6 +48,10 @@ a:visited {
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
 
+}
+
+.tabs {
+    height: 100%;
 }
 
 .notop-margin {

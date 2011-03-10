@@ -56,5 +56,6 @@ a:visited {
 }
 
 .sidebyside-icon {
-    margin:auto;
+    margin:10px;
+    float: left;
 }

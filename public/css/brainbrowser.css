@@ -66,6 +66,14 @@ h4 {
     font-size: 11px !important
 }
 
+a:link {
+    color: orange;
+}
+a:visited {
+    color: orange;
+}
+
+
 #range-slider {
     width: 75%;
     margin: auto;

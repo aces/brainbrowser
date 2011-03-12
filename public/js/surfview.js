@@ -134,6 +134,27 @@ function SurfView() {
     jQuery("#data-range-max").change(function(e) {
       jQuery("#range-slider").slider('values', 1, parseFloat(jQuery(this).val()));
     });
+    
+    $("#examples").click(function(e) {
+			   var name = $(e.target).attr('data-example-name');
+			   switch(name) {
+			   case	'basic':
+			     bb.loadObjFromUrl('/models/surf_reg_model_both.obj');
+			     break;
+			   case 'punkdti':
+			     bb.loadObjFromUrl('/models/dti.obj');
+			     bb.loadObjFromUrl('/models/left_color.obj');
+			     break;
+			   case 'realct':
+			     bb.loadObjFromUrl('/models/realct.obj');    
+			     bb.loadDataFromUrl('/models/realct.txt');   
+			     break;
+			     
+			   }
+			   return false; 
+
+			 });
+
 
   };
 

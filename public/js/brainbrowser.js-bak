@@ -131,17 +131,17 @@ function BrainBrowser(url) {
     // from a file on the server through an ajax request.
     var effect = that.pack.createObject('Effect');
     var shaderString = that.loadCombinedShaderFromUrl(url);
-
+    
     effect.loadFromFXString(shaderString);
-
+    
     // Create a material for the mesh.
     var material = that.pack.createObject('Material');
-
-
+    
+    
 
     // Set the material's drawList.
     material.drawList = that.viewInfo.performanceDrawList;
-
+    
     // Apply our effect to that myMaterial. The effect tells the 3D
     // hardware which shaders to use.
     material.effect = effect;
@@ -150,47 +150,45 @@ function BrainBrowser(url) {
     
     return material;
   };
-
-
+  
+  
   that.displayObjectFile = function(obj) {
-    if(obj.objectClass == 'P' && obj.numberVertices == 81924) {
+    if(obj.objectClass == 'P' && obj.brainSurface) {
       that.createBrain(obj);
     }else if(obj.objectClass == 'P') {
       that.createPolygonObject(obj);
     }else if(obj.objectClass == 'L') {
       that.createLineObject(obj);
-    }else {
-      alert("Object file not supported");
     }
   };
-
+  
   this.createBrain = function(model_data) {
     that.model_data= model_data;
-
+    
     var myMaterial = that.createMaterial("/shaders/blinnphong.txt");
-
+    
     /*
      * Create the Shape for the brain mesh and assign its material.
      * two shapes will be created if the brain model has two hemispheres
      */
-     if(model_data.num_hemispheres == 2) {
+    if(model_data.num_hemispheres == 2) {
 
-       var brainShape= {
-	 left: that.createHemisphere(myMaterial,model_data.left, "left"),
-	 right: that.createHemisphere(myMaterial, model_data.right, "right"),
-	 num_hemisphere: 2
-       };
-
+      var brainShape= {
+	left: that.createHemisphere(myMaterial,model_data.left, "left"),
+	right: that.createHemisphere(myMaterial, model_data.right, "right"),
+	num_hemisphere: 2
+      };
+      
      } else {
        var brainShape = that.createHemisphere(myMaterial, model_data);
        brainShape.num_hemisphere= 1;
      }
-
-
-
+    
+    
+    
     // Create a new transform and parent the Shape under it.
     if(that.brainTransform == null) {
-
+      
       that.brainTransform = that.pack.createObject('Transform');
       if(model_data.num_hemispheres == 2) {
 	that.brainHemisphereTransforms = {};
@@ -199,32 +197,29 @@ function BrainBrowser(url) {
       }
     }else {
       that.brainTransform.removeShape(that.brainTransform.shapes[0]);
-
+      
       if(that.brainTransform.children[0] != null) {
 	that.brainTransform.children[0].removeShape(that.brainTransform.children[0].shapes[0]);
       }
-
+      
       if(that.brainTransform.children[1] !=null ) {
 	that.brainTransform.children[1].removeShape(
 	  that.brainTransform.children[1].shapes[0]);
       }
     };
-
+    
     if(model_data.num_hemispheres != 2) {
       that.brainTransform.removeParam(that.brainTransform.children[0]);
       that.brainTransform.removeParam(that.brainTransform.children[1]);
     }
 
     if(model_data.num_hemispheres == 2 && that.brainHemisphereTransforms == null) {
-    	that.brainHemisphereTransforms = {};
-	that.brainHemisphereTransforms.left = that.pack.createObject('Transform');
-	that.brainHemisphereTransforms.right = that.pack.createObject('Transform');
+      that.brainHemisphereTransforms = {};
+      that.brainHemisphereTransforms.left = that.pack.createObject('Transform');
+      that.brainHemisphereTransforms.right = that.pack.createObject('Transform');
     }
-
-
-
-
-
+    
+    
     // Light position
     var light_pos_param = myMaterial.getParam('lightWorldPos');
     light_pos_param.value = that.eyeView;
@@ -236,7 +231,7 @@ function BrainBrowser(url) {
     var light_specular_param = myMaterial.getParam('specular');
     var light_emissive_param = myMaterial.getParam('emissive');
     var light_colorMult_param = myMaterial.getParam('colorMult');
-
+    
     //bool to state if we are displaying wireframe models or not, if true it turns off the lighting 
     var wires = myMaterial.getParam('wires');
     wires.value = false;
@@ -249,17 +244,17 @@ function BrainBrowser(url) {
     light_specular_param.value = [0.5, 0.5, 0.5, 1];
     light_emissive_param.value = [0, 0, 0, 1];
     light_colorMult_param.value = [1, 1, 1, 1];
-
+    
     // Shininess of the myMaterial (for specular lighting)
     var shininess_param = myMaterial.getParam('shininess');
     shininess_param.value = 30.0;
-
-
+    
+    
     // Parent the brain's transform to the client root.
-     that.brainTransform.parent = that.client.root;
-
+    that.brainTransform.parent = that.client.root;
+    
     if(brainShape.num_hemisphere == 1 ) {
-
+      
       that.brainTransform.addShape(brainShape);
       brainShape.createDrawElements(that.pack, null);
     }else {
@@ -269,52 +264,25 @@ function BrainBrowser(url) {
       that.brainHemisphereTransforms.right.addShape(brainShape.right);
       brainShape.left.createDrawElements(that.pack, null);
       brainShape.right.createDrawElements(that.pack, null);
-
+      
     }
     that.model_data = model_data;
 
     if(that.afterCreateBrain != undefined) {
       that.afterCreateBrain(that.model_data);
     }
-
+    
   };
-
-  that.createLineObject = function(model_data) {
-    that.model_data= model_data;
-
-    var myMaterial = that.createMaterial("/shaders/line.txt");
-
-    /*
-     * Create the Shape for the  mesh and assign its material.
-     * two shapes will be created if the  model has two hemispheres
-     */
-    var shape = that.createLineShape(myMaterial, model_data);
-
-
-    if(that.brainTransform == undefined ){
-      that.brainTransform = that.pack.createObject('Transform');
-    }
-
-    // Parent the 's transform to the client root.
-    that.brainTransform.parent = that.client.root;
-    that.brainTransform.addShape(shape);
-    shape.createDrawElements(that.pack, null);
-    that.model_data = model_data;
-    if(that.afterCreate != undefined) {
-      that.afterCreate(that.model_data);
-    }
-  };
-
-
   that.createPolygonObject = function(model_data) {
     that.model_data= model_data;
+    
 
-    var myMaterial = that.createMaterial("/shaders/blinnphong.txt");
-
+    var myMaterial = that.createMaterial("/shaders/blinnphong.txt");    
+    
     // Light position
     var light_pos_param = myMaterial.getParam('lightWorldPos');
     light_pos_param.value = that.eyeView;
-
+    
     // Phong components of the light source
     var light_ambient_param = myMaterial.getParam('ambient');
     var light_ambientIntensity_param = myMaterial.getParam('ambientIntensity');
@@ -322,7 +290,7 @@ function BrainBrowser(url) {
     var light_specular_param = myMaterial.getParam('specular');
     var light_emissive_param = myMaterial.getParam('emissive');
     var light_colorMult_param = myMaterial.getParam('colorMult');
-
+    
     //bool to state if we are displaying wireframe models or not, if true it turns off the lighting 
     var wires = myMaterial.getParam('wires');
     wires.value = false;
@@ -330,32 +298,27 @@ function BrainBrowser(url) {
     light_ambient_param.value = [0.04, 0.04, 0.04, 1];
     light_ambientIntensity_param.value = [1, 1, 1, 1];
     light_lightIntensity_param.value = [0.8, 0.8, 0.8, 1];
-
+    
     // White specular light
     light_specular_param.value = [0.5, 0.5, 0.5, 1];
     light_emissive_param.value = [0, 0, 0, 1];
     light_colorMult_param.value = [1, 1, 1, 1];
-
+    
     // Shininess of the myMaterial (for specular lighting)
     var shininess_param = myMaterial.getParam('shininess');
     shininess_param.value = 30.0;
-
-
-
+    
     /*
      * Create the Shape for the  mesh and assign its material.
      * two shapes will be created if the  model has two hemispheres
      */
     var shape = that.createPolygonShape(myMaterial, model_data);
-
-
+    
+    
     if(that.brainTransform == undefined ){
       that.brainTransform = that.pack.createObject('Transform');
     }
-
-
-
-
+    
     // Parent the 's transform to the client root.
     that.brainTransform.parent = that.client.root;
     that.brainTransform.addShape(shape);
@@ -364,27 +327,57 @@ function BrainBrowser(url) {
     if(that.afterCreate != undefined) {
       that.afterCreate(that.model_data);
     }
+
   };
-
-
+  
+  
+  
+  that.createLineObject = function(model_data) {
+    that.model_data= model_data;
+    
+    var myMaterial = that.createMaterial("/shaders/line.txt");
+    
+    /*
+     * Create the Shape for the  mesh and assign its material.
+     * two shapes will be created if the  model has two hemispheres
+     */
+    var shape = that.createLineShape(myMaterial, model_data);
+    
+    
+    if(that.brainTransform == undefined ){
+      that.brainTransform = that.pack.createObject('Transform');
+    }
+    
+    // Parent the 's transform to the client root.
+    that.brainTransform.parent = that.client.root;
+    that.brainTransform.addShape(shape);
+    shape.createDrawElements(that.pack, null);
+    that.model_data = model_data;
+    if(that.afterCreate != undefined) {
+      that.afterCreate(that.model_data);
+    }
+    alert("Done Creating Linees");
+  };
+  
+  
   /*
    * Creates the hemisphere shape with the material provide.
    */
   that.createHemisphere = function(material,model,name) {
-    //model = unIndexModel(model);
+    
     var hemShape = that.pack.createObject('Shape');
     var hemPrimitive = that.pack.createObject('Primitive');
     var streamBank = that.pack.createObject('StreamBank');
-
+    
     hemPrimitive.material = material;
     hemPrimitive.owner = hemShape;
     hemPrimitive.streamBank = streamBank;
     hemShape.name = name;
-
+    
     hemPrimitive.primitiveType = that.o3d.Primitive.TRIANGLELIST;
-
+    
     var state = that.pack.createObject('State');
-
+    
     //create Position buffer (vertices) and set the number of vertices global variable
     var positionsBuffer = that.pack.createObject('VertexBuffer');
     var positionsField = positionsBuffer.createField('FloatField', 3);
@@ -397,7 +390,7 @@ function BrainBrowser(url) {
     that.numberVertices = model.numberVertices;
     var numberVertices = (model.positionArray.length/3);
     hemPrimitive.numberVertices = that.numberVertices;
-
+    
     //create indexBuffer and make sure number of primitive is set
     if(!model.indexArray) {
       alert("Index Array nil");
@@ -407,14 +400,14 @@ function BrainBrowser(url) {
     var indexBuffer = that.pack.createObject('IndexBuffer');
     indexBuffer.set(model.indexArray);
     hemPrimitive.indexBuffer = indexBuffer;
-
+    
 
     //Create normal buffer
     var normalBuffer = that.pack.createObject('VertexBuffer');
     var normalField = normalBuffer.createField('FloatField', 3);
     normalBuffer.set(model.normalArray);
     //normalBuffer.set(newNormalArray);
-
+    
     var colorArray=[];
     if(model.colorArray.length == 4) {
       for(var i=0;i<numberVertices;i++) {
@@ -430,12 +423,12 @@ function BrainBrowser(url) {
     var colorField = colorBuffer.createField('FloatField', 4);
     colorBuffer.set(colorArray);
     colorArray = [];
-
+    
     if(that.loading){
       jQuery(that.loading).html("Buffers Loaded");
     }
-
-
+    
+    
     streamBank.setVertexStream(
       that.o3d.Stream.POSITION, //  That stream stores vertex positions
       0,                     // First (and only) position stream
@@ -447,18 +440,18 @@ function BrainBrowser(url) {
       0,
       normalField,
       0);
-
-
+    
+    
     streamBank.setVertexStream(
       that.o3d.Stream.COLOR,
       0,
       colorField,
       0);
-
+    
     return hemShape;
-
+    
   };
-
+  
   
   /*
    * Creates the hemisphere shape with the material provide.
@@ -474,15 +467,7 @@ function BrainBrowser(url) {
       return false;
     }
     
-    
-    
-    
-    
-    
     that.numberVertices = model.numberVertices; 
-    
-    
-    
     
     var linePrimitive = that.pack.createObject('Primitive');      
     
@@ -495,6 +480,80 @@ function BrainBrowser(url) {
     //positionsBuffer.set(newPositionArray);
     //create Position buffer (vertices) and set the number of vertices global variable
     
+    
+    
+    var indexArray  = new Array();
+    for(var i = 0; i < model.nitems; i ++){
+      if(i == 0){
+     	var start = 0;
+      }else {
+	var start = model.endIndicesArray[i-1];
+      }
+      indexArray.push(model.indexArray[start]);
+      for(var k = start+1; k < model.endIndicesArray[i]-1; k++) {
+     	indexArray.push(model.indexArray[k]);
+     	indexArray.push(model.indexArray[k]);
+      }
+      indexArray.push(model.indexArray[model.endIndicesArray[i]-1]);
+      
+    }
+    var indexBuffer = that.pack.createObject('IndexBuffer');
+    linePrimitive.numberPrimitives = indexArray.length/2;
+    linePrimitive.numberVertices = indexArray.length;
+    that.indexArray = indexArray;
+    //indexBuffer.set(indexArray);
+    //linePrimitive.indexBuffer = indexBuffer;
+    var positionArray = new Float32Array(indexArray.length*3);
+    for(var j = 0; j < indexArray.length; j++) {
+      positionArray[j*3] = model.positionArray[indexArray[j]*3];
+      positionArray[j*3+1] = model.positionArray[indexArray[j]*3+1];
+      positionArray[j*3+2] = model.positionArray[indexArray[j]*3+2];
+    }
+    
+    var colorArray=[];
+    if(model.colorArray.length == 4) {
+      for(var i=0;i<numberVertices;i++) {
+	colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
+      }
+    }else {
+      colorArray = new Float32Array(indexArray.length*4);
+      for(var j = 0; j < indexArray.length; j++) {
+	colorArray[j*4] = model.colorArray[indexArray[j]*4];
+	colorArray[j*4+1] = model.colorArray[indexArray[j]*4+1];
+	colorArray[j*4+2] = model.colorArray[indexArray[j]*4+2];
+	colorArray[j*4+3] = model.colorArray[indexArray[j]*4+3];
+      }
+    }
+    
+    return lineShape;
+  };
+  
+  that.createPolygonShape = function(material,model,name) {
+    //model = unIndexModel(model);
+    var polygonShape = that.pack.createObject('Shape');
+    var streamBank = that.pack.createObject('StreamBank');
+      polygonShape.name = name;
+    
+    if(!model.positionArray) {
+      alert("PositionArray nil");
+      return false;
+      }
+    
+    that.numberVertices = model.numberVertices; 
+    
+    
+    
+    
+    var polygonPrimitive = that.pack.createObject('Primitive');      
+    
+    polygonPrimitive.material = material;
+    polygonPrimitive.owner = polygonShape;
+    polygonPrimitive.streamBank = streamBank;
+    polygonPrimitive.primitiveType = that.o3d.Primitive.TRIANGLELIST;
+    var state = that.pack.createObject('State'); 
+    polygonPrimitive.material.state = state;
+    //positionsBuffer.set(newPositionArray);
+    //create Position buffer (vertices) and set the number of vertices global variable
     
     
     var indexArray  = new Array();
@@ -513,11 +572,11 @@ function BrainBrowser(url) {
     
      }
     var indexBuffer = that.pack.createObject('IndexBuffer');
-    linePrimitive.numberPrimitives = indexArray.length/2;
-    linePrimitive.numberVertices = indexArray.length;
+    polygonPrimitive.numberPrimitives = indexArray.length/2;
+    polygonPrimitive.numberVertices = indexArray.length;
     that.indexArray = indexArray;
     //indexBuffer.set(indexArray);
-    //linePrimitive.indexBuffer = indexBuffer;
+    //polygonPrimitive.indexBuffer = indexBuffer;
     var positionArray = new Float32Array(indexArray.length*3);
     for(var j = 0; j < indexArray.length; j++) {
       positionArray[j*3] = model.positionArray[indexArray[j]*3];
@@ -527,8 +586,8 @@ function BrainBrowser(url) {
 
     var colorArray=[];
     if(model.colorArray.length == 4) {
-      for(var i=0;i<numberVertices;i++) {
-	colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
+      for(var i=0;i<polygonPrimitive.numberVertices;i++) {
+	colorArray.push.apply(colorArray,model.colorArray);
       }
     }else {
       colorArray = new Float32Array(indexArray.length*4);
@@ -581,140 +640,9 @@ function BrainBrowser(url) {
     }
     
     
-      
-    
-    
-    that.pack.gl.lineWidth(1.0);
-    return lineShape;
-
-  };
-
-
-
-  /*
-   * Creates the hemisphere shape with the material provide.
-   */
-  that.createPolygonShape = function(material,model,name) {
-    //model = unIndexModel(model);
-    var polygonShape = that.pack.createObject('Shape');
-    var streamBank = that.pack.createObject('StreamBank');
-    polygonShape.name = name;
-    
-    if(!model.positionArray) {
-      alert("PositionArray nil");
-      return false;
-    }
-       
-    that.numberVertices = model.numberVertices; 
-    
-    var polygonPrimitive = that.pack.createObject('Primitive');      
-    
-    polygonPrimitive.material = material;
-    polygonPrimitive.owner = polygonShape;
-    polygonPrimitive.streamBank = streamBank;
-    polygonPrimitive.primitiveType = that.o3d.Primitive.TRIANGLELIST;
-    var state = that.pack.createObject('State'); 
-    polygonPrimitive.material.state = state;
-    //positionsBuffer.set(newPositionArray);
-    //create Position buffer (vertices) and set the number of vertices global variable
-    
-    
-    
-    var indexArray  = model.indexArray;
-    //var indexBuffer = that.pack.createObject('IndexBuffer');
-    polygonPrimitive.numberPrimitives = indexArray.length/3;
-    polygonPrimitive.numberVertices = indexArray.length;
-    that.indexArray = indexArray;
-    //indexBuffer.set(indexArray);
-    //polygonPrimitive.indexBuffer = indexBuffer;
-    var positionArray = new Float32Array(indexArray.length*3);
-    var normalArray = new Float32Array(indexArray.length*3);
-    for(var j = 0; j < indexArray.length; j++) {
-      positionArray[j*3] = model.positionArray[indexArray[j]*3];
-      positionArray[j*3+1] = model.positionArray[indexArray[j]*3+1];
-      positionArray[j*3+2] = model.positionArray[indexArray[j]*3+2];
-      normalArray[j*3] = model.normalArray[indexArray[j]*3];
-      normalArray[j*3+1] = model.normalArray[indexArray[j]*3+1];
-      normalArray[j*3+2] = model.normalArray[indexArray[j]*3+2];
-      
-    }
-
-    alert("positionArray.lenght" + positionArray.length + " normalArray.length" + normalArray.length);
-    var colorArray=[];
-    if(model.colorArray.length == 4) {
-      for(var i=0;i<polygonPrimitive.numberVertices;i++) {
-	colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
-      }
-    }else {
-      colorArray = new Float32Array(indexArray.length*4);
-      for(var j = 0; j < indexArray.length; j++) {
-	colorArray[j*4] = model.colorArray[indexArray[j]*4];
-	colorArray[j*4+1] = model.colorArray[indexArray[j]*4+1];
-	colorArray[j*4+2] = model.colorArray[indexArray[j]*4+2];
-	colorArray[j*4+3] = model.colorArray[indexArray[j]*4+3];
-      }
-    }
-
-
-
-    //Create normal buffer
-    var normalBuffer = that.pack.createObject('VertexBuffer');
-    var normalField = normalBuffer.createField('FloatField', 3);
-    normalBuffer.set(normalArray);
-    //normalBuffer.set(newNormalArray);
-
-    streamBank.setVertexStream(
-      that.o3d.Stream.NORMAL,
-      0,
-      normalField,
-      0);
-    
-
-
-
-    var positionsBuffer = that.pack.createObject('VertexBuffer');
-    var positionsField = positionsBuffer.createField('FloatField', 3);
-    
-    
-    
-    positionsBuffer.set(positionArray);
-    
-
-    streamBank.setVertexStream(
-      that.o3d.Stream.POSITION, //  That stream stores vertex positions
-      0,                     // First (and only) position stream
-      positionsField,        // field: the field that stream uses.
-      0);                    // start_index:
-    
-    
-    if(colorArray.length < model.positionArray.length) {
-      alert('Problem with the colors: ' + colorArray.length);
-    }
-    var colorBuffer = that.pack.createObject('VertexBuffer');
-    var colorField = colorBuffer.createField('FloatField', 4);
-    colorBuffer.set(colorArray);
-    colorArray = [];
-    
-    
-    
-    streamBank.setVertexStream(
-      that.o3d.Stream.COLOR,
-      0,
-      colorField,
-      0);
-    
-      
-    if(that.loading){
-      jQuery(that.loading).html("Buffers Loaded");
-    }
-    
-    
-
     return polygonShape;
 
   };
-
-
 
 
 
@@ -1234,7 +1162,7 @@ function BrainBrowser(url) {
 	callback(data);
       },
       error: function(request,textStatus,e) {
-	alert("Failure: " +  textStatus);
+	alert("Failure: LoadfromURL "  +  textStatus);
       },
       data: {},
       async: sync,

@@ -70,6 +70,13 @@
 	  <input type="checkbox" id="fix_range">Fix Range<br />
 	</div>
       </div>
+      <div id="examples" class="box full_box">
+	<h3>Examples</h3>
+	<ul>
+	  <li><a href="#" class="example" data-example-name="basic">Basic Surface</a></li>
+	  <li><a href="#" span class="example" data-example-name="punkdti">DTI and Left Hemisphere</a></li>
+	  <li><a href="#" class="example" data-example-name="realct">Real brain with map of Corthical Thickness</a></li>
+      </div>
 </div>
     <!-- The webgl window and loading messages if any -->
     <div Id="view-window">
@@ -106,6 +113,7 @@
       jQuery("#datafile").change(function() {
         surfview.brainbrowser.loadDataFromFile(document.getElementById("datafile"));
       });
+
 
     });
     </script>

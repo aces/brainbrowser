@@ -47,15 +47,13 @@ function MNIObject(string) {
     // 	  + that.endIndicesArray.length);
 
     //If there is two hemispheres, might need to be a better test one day
-    if(that.objectClass == 'P') {
-      if(that.positionArray.length > 80000*3){
+    if(that.objectClass == 'P' ) {
+      if(that.positionArray.length ==  81924*3){
+	that.brainSurface = true;
 	that.split_hemispheres();
       }
       
     }
-    
-    
-    
 
   };
 

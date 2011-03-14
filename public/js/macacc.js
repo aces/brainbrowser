@@ -172,10 +172,10 @@ function initMacacc(path_prefix,dont_build_path) {
 
   jQuery("#secondWindow").click(function(e){
 				    brainbrowser.secondWindow=window.open('/macacc.html','secondWindow');
-				    
 				});
   //UNSAFEOADJFIAJDNFGIJ
   window.addEventListener('message', function(e){
+   
     var vertex = parseInt(e.data);
     var position_vector = [
      brainbrowser.model_data.positionArray[vertex*3],
@@ -185,7 +185,13 @@ function initMacacc(path_prefix,dont_build_path) {
     
     macacc.pickClick(e,{
 		       position_vector: position_vector,
-		       vertex: vertex
+		       vertex: vertex,
+		       stop: true
+		       
 		     });
-  },false);
+    
+    },false);
+  if(window.opener !=null)  {
+    brainbrowser.secondWindow = window.opener;
+  }
 };

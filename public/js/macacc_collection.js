@@ -46,7 +46,7 @@ function MacaccObject(brainbrowser,path,dont_build_path) {
     if(that.vertex) {
       update_map();
       setVertexCoord(info,0);
-      if(brainbrowser.secondWindow != undefined) {
+      if(brainbrowser.secondWindow != undefined && info["stop"] != true) {
 	brainbrowser.secondWindow.postMessage(that.vertex,"*");
       }
     }else {

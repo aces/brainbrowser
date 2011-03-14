@@ -168,4 +168,14 @@ function initMacacc(path_prefix,dont_build_path) {
   jQuery('[name=hem_view]').change(brainbrowser.setupView);
   jQuery(".button").button();
   jQuery(".button_set").buttonset();
+
+  jQuery("#secondWindow").click(function(e){
+				    brainbrowser.secondWindow= window.open('/macacc.html','secondWindow');
+				    
+				});
+
+  window.onMessage = function(e){
+      alert("MEssage: " + e.data);
+				
+  };
 };

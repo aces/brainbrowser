@@ -1,0 +1,20 @@
+<h2>Surface and Object file formats</h2>
+<h3>Description</h3>
+  The surfaceviewer mainly uses the MNI Object file format to describe the geometry and color of the surfaces. For a detailed explanation of the format consult this <a href="http://www.bic.mni.mcgill.ca/users/mishkin/mni_obj_format.pdf">document by Robert D. Vincent</a>
+
+<h3>Examples</h3>
+
+
+<h2>Text Data files</h2>
+<h3>Description</h3>
+The data file format defines the values of the point at each vertex in order that they appear in the Object file. 
+
+<h3>Examples</h3>	
+
+
+<h2>MINC or NIFTI data file</h3>
+MINC or NIFTI files can be used as datafiles. These files are sent to the server and are projected on the surface using a tool called "volume_object_evalute" part of the MINC toolkit. This map is then set to the browser in the format of the text data file. 
+
+<h3>Disclaimer:</h3>
+For security the data (Only for MINC and NIFTY data files) is sent to the server using SSL for encryption. No data is stored on the server, all copies made during processing are deleted as soon as the pipeline is completed. Even with the security measure listed above  it is important that you are ensure that your data can be used in this way. The current BrainBrowser server is hosted in Montreal Canada thus please ensure that your data can legally cross borders if using internationally. Also, anonymize your data if possible. 
+

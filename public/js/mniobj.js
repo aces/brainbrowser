@@ -16,9 +16,9 @@ function MNIObject(string) {
                               //it will be set to two later if there are two hemispheres
     //replacing all new lines with spaces (obj files can be structure with or without them)
     //get all the fields as seperate strings.
-    string = string.replace(/\s+$/, '');
-    string = string.replace(/^\s+/, '');
-    stack = string.split(/\s+/).reverse();
+    var string1 = string.replace(/\s+$/, '');
+    var string2 = string1.replace(/^\s+/, '');
+    stack = string2.split(/\s+/).reverse();
     that.objectClass = stack.pop();
     if( that.objectClass == 'P') {
       parseSurfProp();

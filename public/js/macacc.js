@@ -1,4 +1,5 @@
 var brainbrowser;
+var macacc;
 function initMacacc(path_prefix,dont_build_path) {
 
   brainbrowser = new BrainBrowser();
@@ -24,7 +25,7 @@ function initMacacc(path_prefix,dont_build_path) {
   brainbrowser.afterInit = function(bb) {
 
     bb.loadObjFromUrl('/models/surf_reg_model_both.obj');
-    var macacc = new MacaccObject(bb,path_prefix,dont_build_path);
+    macacc = new MacaccObject(bb,path_prefix,dont_build_path);
     brainbrowser.afterCreateBrain = function() {
       if(bb.current_dataset != undefined) {
 	macacc.update_model(bb.current_dataset);
@@ -170,12 +171,21 @@ function initMacacc(path_prefix,dont_build_path) {
   jQuery(".button_set").buttonset();
 
   jQuery("#secondWindow").click(function(e){
-				    brainbrowser.secondWindow= window.open('/macacc.html','secondWindow');
+				    brainbrowser.secondWindow=window.open('/macacc.html','secondWindow');
 				    
 				});
-
-  window.onMessage = function(e){
-      alert("MEssage: " + e.data);
-				
-  };
+  //UNSAFEOADJFIAJDNFGIJ
+  window.addEventListener('message', function(e){
+    var vertex = parseInt(e.data);
+    var position_vector = [
+     brainbrowser.model_data.positionArray[vertex*3],
+     brainbrowser.model_data.positionArray[vertex*3+1],
+     brainbrowser.model_data.positionArray[vertex*3+2]
+    ];
+    
+    macacc.pickClick(e,{
+		       position_vector: position_vector,
+		       vertex: vertex
+		     });
+  },false);
 };

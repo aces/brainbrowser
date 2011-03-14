@@ -10,7 +10,7 @@ function MacaccObject(brainbrowser,path,dont_build_path) {
   this.brainbrowser = brainbrowser;
   this.dataSet = new Dataset(path,dont_build_path);
 
-
+  //Defining constants I will use
   that.debugLineGroup;
   that.debugLine;
   that.selectedInfo = null;
@@ -42,10 +42,13 @@ function MacaccObject(brainbrowser,path,dont_build_path) {
 
   //Gets the data related to a vertex in the image.
   this.pickClick = function(e,info) {
-    that.vertex = info.vertex;
+   that.vertex = info.vertex;
     if(that.vertex) {
       update_map();
       setVertexCoord(info,0);
+      if(brainbrowser.secondWindow != undefined) {
+	brainbrowser.secondWindow.postMessage(that.vertex,"*");
+      }
     }else {
       jQuery(that.pickInfoElem).html('--nothing--');
     }

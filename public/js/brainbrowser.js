@@ -152,6 +152,8 @@ function BrainBrowser(url) {
   };
 
 
+
+
   that.displayObjectFile = function(obj) {
     if(obj.objectClass == 'P' && obj.numberVertices == 81924) {
       that.createBrain(obj);
@@ -164,10 +166,49 @@ function BrainBrowser(url) {
     }
   };
 
+  function blinnphongParams(material){
+    
+    // Light position
+    var light_pos_param = material.getParam('lightWorldPos');
+    light_pos_param.value = that.eyeView;
+
+    // Phong components of the light source
+    var light_ambient_param = material.getParam('ambient');
+    var light_ambientIntensity_param = material.getParam('ambientIntensity');
+    var light_lightIntensity_param = material.getParam('lightIntensity');
+    var light_specular_param = material.getParam('specular');
+    var light_emissive_param = material.getParam('emissive');
+    var light_colorMult_param = material.getParam('colorMult');
+
+    //bool to state if we are displaying wireframe models or not, if true it turns off the lighting 
+    var wires = material.getParam('wires');
+    wires.value = false;
+    // White ambient light
+    light_ambient_param.value = [0.04, 0.04, 0.04, 1];
+    light_ambientIntensity_param.value = [1, 1, 1, 1];
+    light_lightIntensity_param.value = [0.8, 0.8, 0.8, 1];
+
+    // White specular light
+    light_specular_param.value = [0.5, 0.5, 0.5, 1];
+    light_emissive_param.value = [0, 0, 0, 1];
+    light_colorMult_param.value = [1, 1, 1, 1];
+
+    // Shininess of the material (for specular lighting)
+    var shininess_param = material.getParam('shininess');
+    shininess_param.value = 30.0;
+    
+    return material;
+
+  }
+
+
   this.createBrain = function(model_data) {
     that.model_data= model_data;
 
     var myMaterial = that.createMaterial("/shaders/blinnphong.txt");
+    
+    myMaterial = blinnphongParams(myMaterial);
+    
 
     /*
      * Create the Shape for the brain mesh and assign its material.
@@ -225,36 +266,6 @@ function BrainBrowser(url) {
 
 
 
-    // Light position
-    var light_pos_param = myMaterial.getParam('lightWorldPos');
-    light_pos_param.value = that.eyeView;
-
-    // Phong components of the light source
-    var light_ambient_param = myMaterial.getParam('ambient');
-    var light_ambientIntensity_param = myMaterial.getParam('ambientIntensity');
-    var light_lightIntensity_param = myMaterial.getParam('lightIntensity');
-    var light_specular_param = myMaterial.getParam('specular');
-    var light_emissive_param = myMaterial.getParam('emissive');
-    var light_colorMult_param = myMaterial.getParam('colorMult');
-
-    //bool to state if we are displaying wireframe models or not, if true it turns off the lighting 
-    var wires = myMaterial.getParam('wires');
-    wires.value = false;
-    // White ambient light
-    light_ambient_param.value = [0.04, 0.04, 0.04, 1];
-    light_ambientIntensity_param.value = [1, 1, 1, 1];
-    light_lightIntensity_param.value = [0.8, 0.8, 0.8, 1];
-
-    // White specular light
-    light_specular_param.value = [0.5, 0.5, 0.5, 1];
-    light_emissive_param.value = [0, 0, 0, 1];
-    light_colorMult_param.value = [1, 1, 1, 1];
-
-    // Shininess of the myMaterial (for specular lighting)
-    var shininess_param = myMaterial.getParam('shininess');
-    shininess_param.value = 30.0;
-
-
     // Parent the brain's transform to the client root.
      that.brainTransform.parent = that.client.root;
 
@@ -310,38 +321,7 @@ function BrainBrowser(url) {
     that.model_data= model_data;
 
     var myMaterial = that.createMaterial("/shaders/blinnphong.txt");
-
-    // Light position
-    var light_pos_param = myMaterial.getParam('lightWorldPos');
-    light_pos_param.value = that.eyeView;
-
-    // Phong components of the light source
-    var light_ambient_param = myMaterial.getParam('ambient');
-    var light_ambientIntensity_param = myMaterial.getParam('ambientIntensity');
-    var light_lightIntensity_param = myMaterial.getParam('lightIntensity');
-    var light_specular_param = myMaterial.getParam('specular');
-    var light_emissive_param = myMaterial.getParam('emissive');
-    var light_colorMult_param = myMaterial.getParam('colorMult');
-
-    //bool to state if we are displaying wireframe models or not, if true it turns off the lighting 
-    var wires = myMaterial.getParam('wires');
-    wires.value = false;
-    // White ambient light
-    light_ambient_param.value = [0.04, 0.04, 0.04, 1];
-    light_ambientIntensity_param.value = [1, 1, 1, 1];
-    light_lightIntensity_param.value = [0.8, 0.8, 0.8, 1];
-
-    // White specular light
-    light_specular_param.value = [0.5, 0.5, 0.5, 1];
-    light_emissive_param.value = [0, 0, 0, 1];
-    light_colorMult_param.value = [1, 1, 1, 1];
-
-    // Shininess of the myMaterial (for specular lighting)
-    var shininess_param = myMaterial.getParam('shininess');
-    shininess_param.value = 30.0;
-
-
-
+    myMaterial = blinnphongParams(myMaterial);
     /*
      * Create the Shape for the  mesh and assign its material.
      * two shapes will be created if the  model has two hemispheres
@@ -1005,7 +985,6 @@ function BrainBrowser(url) {
       var hemisphere      = pickInfo.element.owner.name;
       var vertex_info = that.model_data.get_vertex(primitive_index,position,hemisphere);
       var info = {
-	primitive_index: primitive_index,
 	position_vector: vertex_info.position_vector,
 	element: pickInfo.element,
 	hemisphere: hemisphere,

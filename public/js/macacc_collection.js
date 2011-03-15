@@ -187,13 +187,14 @@ function MacaccObject(brainbrowser,path,dont_build_path) {
   that.update_model = update_model;
 
   function update_map() {
+
     that.dataSet.get_data(that.vertex,get_data_controls(),update_model);
     jQuery(that.pickInfoElem).html("Viewing data for vertex: " + that.vertex  );
+    
   }
 
   this.show_atlas = function() {
-    that.dataSet.get_data("aal_atlas",get_data_controls(),update_model);
-    jQuery(that.pickInfoElem).html("Viewing data for vertex: " + that.vertex  );
+    brainbrowser.loadDataFromUrl("/assets/aal_atlas.txt");
   };
 
   function update_range(min,max) {
@@ -226,7 +227,12 @@ function MacaccObject(brainbrowser,path,dont_build_path) {
 
 
   this.data_control_change = function() {
-    if(that.vertex) {
+ 
+    var controls  = get_data_controls();
+    if(controls.modality == "AAL"){
+      that.show_atlas();
+      
+    }else if(that.vertex) {
       update_map();
     }
   };

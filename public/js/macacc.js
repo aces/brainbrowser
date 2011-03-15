@@ -173,7 +173,7 @@ function initMacacc(path_prefix,dont_build_path) {
   jQuery("#secondWindow").click(function(e){
 				    brainbrowser.secondWindow=window.open('/macacc.html','secondWindow');
 				});
-  //UNSAFEOADJFIAJDNFGIJ
+ 
   window.addEventListener('message', function(e){
    
     var vertex = parseInt(e.data);
@@ -186,7 +186,8 @@ function initMacacc(path_prefix,dont_build_path) {
     macacc.pickClick(e,{
 		       position_vector: position_vector,
 		       vertex: vertex,
-		       stop: true
+		       stop: true //tell pickClick to stop propagating the 
+                                  //click such that we don't get an infinite loop.
 		       
 		     });
     

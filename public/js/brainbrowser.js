@@ -1226,7 +1226,7 @@ function BrainBrowser(url) {
     var reader = new FileReader();
     var files = file_input.files;
     reader.file = files[0];
-
+    alert(reader.file.size);
     reader.onloadend = function(e) {
       callback(e.target.result);
     };
@@ -1238,7 +1238,7 @@ function BrainBrowser(url) {
 
   that.loadObjFromUrl = function(url) {
     loadFromUrl(url, false,function(data) {
-		  that.createBrain(new MNIObject(data));
+		  that.displayObjectFile(new MNIObject(data));
 		});
   };
 

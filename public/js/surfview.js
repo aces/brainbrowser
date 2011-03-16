@@ -144,6 +144,7 @@ function SurfView() {
 			   case 'punkdti':
 			     bb.loadObjFromUrl('/models/dti.obj');
 			     bb.loadObjFromUrl('/models/left_color.obj');
+			     bb.loadObjFromUrl('/models/right_color.obj');
 			     break;
 			   case 'realct':
 			     bb.loadObjFromUrl('/models/realct.obj');    

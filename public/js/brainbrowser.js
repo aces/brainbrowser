@@ -154,13 +154,13 @@ function BrainBrowser(url) {
 
 
 
-  that.displayObjectFile = function(obj) {
+  that.displayObjectFile = function(obj,filename) {
     if(obj.objectClass == 'P' && obj.numberVertices == 81924) {
-      that.createBrain(obj);
+      that.createBrain(obj,filename);
     }else if(obj.objectClass == 'P') {
-      that.createPolygonObject(obj);
+      that.createPolygonObject(obj,filename);
     }else if(obj.objectClass == 'L') {
-      that.createLineObject(obj);
+      that.createLineObject(obj,filename);
     }else {
       alert("Object file not supported");
     }
@@ -205,7 +205,7 @@ function BrainBrowser(url) {
   }
 
 
-  this.createBrain = function(model_data) {
+  this.createBrain = function(model_data,filename) {
     that.model_data= model_data;
 
     var myMaterial = that.createMaterial("/shaders/blinnphong.txt");
@@ -293,7 +293,7 @@ function BrainBrowser(url) {
 
   };
 
-  that.createLineObject = function(model_data) {
+  that.createLineObject = function(model_data,filename) {
     that.model_data= model_data;
 
     var myMaterial = that.createMaterial("/shaders/line.txt");
@@ -303,7 +303,7 @@ function BrainBrowser(url) {
      * two shapes will be created if the  model has two hemispheres
      */
     var shape = that.createLineShape(myMaterial, model_data);
-
+    shape.name = filename;
 
     if(that.brainTransform == undefined ){
       that.brainTransform = that.pack.createObject('Transform');
@@ -320,7 +320,7 @@ function BrainBrowser(url) {
   };
 
 
-  that.createPolygonObject = function(model_data) {
+  that.createPolygonObject = function(model_data,filename) {
     that.model_data= model_data;
 
     var myMaterial = that.createMaterial("/shaders/blinnphong.txt");
@@ -330,7 +330,7 @@ function BrainBrowser(url) {
      * two shapes will be created if the  model has two hemispheres
      */
     var shape = that.createPolygonShape(myMaterial, model_data);
-
+    shape.name = filename;
 
     if(that.brainTransform == undefined ){
       that.brainTransform = that.pack.createObject('Transform');
@@ -1252,16 +1252,23 @@ function BrainBrowser(url) {
   }
 
 
-  that.loadObjFromUrl = function(url) {
+  that.loadObFromUrl = function(url) {
     loadFromUrl(url, false,function(data) {
-		  that.displayObjectFile(new MNIObject(data));
+		    var parts = url.split("/");
+		    //last part of url will be shape name
+		    var filename = parts[parts.length-1];
+		  that.displayObjectFile(new MNIObject(data),filename);
 		});
   };
 
 
   that.loadObjFromFile = function(file_input) {
     loadFromTextFile(file_input, function(result) {
-		       that.displayObjectFile(new MNIObject(result));
+                       	 var parts = file_input.value.split("\\");
+			 //last part of path will be shape name
+			 var filename = parts[parts.length-1];
+			
+			 that.displayObjectFile(new MNIObject(result),filename);
 		     });
   };
 

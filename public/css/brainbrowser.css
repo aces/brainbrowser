@@ -62,6 +62,12 @@ h4 {
     float:left;
 }
 
+.shape {
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+}
+
 .ui-button-text {
     font-size: 11px !important
 }
@@ -74,10 +80,11 @@ a:visited {
 }
 
 
-#range-slider {
+.slider {
     width: 75%;
     margin: auto;
 }
+
 
 select {
     width: 75%;

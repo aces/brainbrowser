@@ -21,7 +21,29 @@ function SurfView() {
   };
 
 
+  brainbrowser.afterDisplayObject = function(transform) {
+    $("#shapes").html("");
+    if(transform.shapes != undefined) {
+      for( var i = 0; i < transform.shapes.length; i++) {
+	var shape = transform.shapes[i];
+	$("<div id=\"shape_"+i+"\" data-shape-name=\""+shape.name+"\" class=\"shape\">"
+	    +"<h4>Shape "+ (i + 1) +"</h4>"
+	    +"Name: " +shape.name + "<br />" +
+	    "Opacity: <div class=\"opacity-slider slider\"  data-shape-name="+shape.name+"></div>"
+	  +"</div>").appendTo("#shapes");
+      };
+      }
 
+    $(".opacity-slider").slider({
+				 value: 100,
+				 min: 0,
+				 max: 100,
+				 slide: function(event, ui) {
+				   var shape_name = $(event.target).attr('data-shape-name');
+				   var alpha = $(event.target).slider('value')/100.0;
+				   brainbrowser.changeShapeTransparency(shape_name,alpha);
+				 }});
+  };
   //Setups the view events and handlers
   jQuery('#resetview').click(brainbrowser.setupView);
   jQuery('.view_button').change(brainbrowser.setupView);
@@ -158,5 +180,5 @@ function SurfView() {
 
 
   };
-
+  
 };

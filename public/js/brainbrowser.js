@@ -164,6 +164,10 @@ function BrainBrowser(url) {
     }else {
       alert("Object file not supported");
     }
+    if(that.afterDisplayObject != undefined) {
+      that.afterDisplayObject(that.brainTransform);      
+    }
+
   };
 
   function blinnphongParams(material){
@@ -290,7 +294,6 @@ function BrainBrowser(url) {
     if(that.afterCreateBrain != undefined) {
       that.afterCreateBrain(that.model_data);
     }
-
   };
 
   that.createLineObject = function(model_data,filename) {
@@ -633,7 +636,7 @@ function BrainBrowser(url) {
       
     }
 
-    alert("positionArray.lenght" + positionArray.length + " normalArray.length" + normalArray.length);
+    
     var colorArray=[];
 
     
@@ -1242,7 +1245,7 @@ function BrainBrowser(url) {
     var reader = new FileReader();
     var files = file_input.files;
     reader.file = files[0];
-    alert(reader.file.size);
+
     reader.onloadend = function(e) {
       callback(e.target.result);
     };
@@ -1458,6 +1461,24 @@ function BrainBrowser(url) {
 
 
   };
+
+
+  that.changeShapeTransparency = function(shape_name,alpha) {
+    if(that.brainTransform.shapes != undefined) {
+      var shape = null;
+      for(var i = 0; i < that.brainTransform.shapes.length; i++)  {
+	if(that.brainTransform.shapes[i].name == shape_name) {
+	  shape = that.brainTransform.shapes[i];
+	}
+      }
+      if(shape) {
+	shape.elements[0].material.getParam('transAlpha').value = alpha;
+      }else {
+	alert("can't find shape");
+      }
+    }
+  };
+  
 
     
   that.init();

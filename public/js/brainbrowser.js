@@ -168,6 +168,9 @@ function BrainBrowser(url) {
 
   function blinnphongParams(material){
     
+    // Transparency 
+    var transAlpha = material.getParam('transAlpha');
+    transAlpha.value = 1.0;
     // Light position
     var light_pos_param = material.getParam('lightWorldPos');
     light_pos_param.value = that.eyeView;
@@ -594,6 +597,17 @@ function BrainBrowser(url) {
     polygonPrimitive.streamBank = streamBank;
     polygonPrimitive.primitiveType = that.o3d.Primitive.TRIANGLELIST;
     var state = that.pack.createObject('State'); 
+    
+    state.getStateParam('AlphaBlendEnable').value = true;
+    state.getStateParam('SourceBlendFunction').value =
+      o3djs.base.o3d.State.BLENDFUNC_SOURCE_ALPHA;
+    state.getStateParam('DestinationBlendFunction').value =
+      o3djs.base.o3d.State.BLENDFUNC_INVERSE_SOURCE_ALPHA;
+    state.getStateParam('AlphaTestEnable').value = true;
+    state.getStateParam('AlphaComparisonFunction').value =
+      o3djs.base.o3d.State.CMP_GREATER;
+
+    
     polygonPrimitive.material.state = state;
     //positionsBuffer.set(newPositionArray);
     //create Position buffer (vertices) and set the number of vertices global variable
@@ -621,9 +635,11 @@ function BrainBrowser(url) {
 
     alert("positionArray.lenght" + positionArray.length + " normalArray.length" + normalArray.length);
     var colorArray=[];
+
+    
     if(model.colorArray.length == 4) {
       for(var i=0;i<polygonPrimitive.numberVertices;i++) {
-	colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
+	colorArray.push.apply(colorArray,model.colorArray);
       }
     }else {
       colorArray = new Float32Array(indexArray.length*4);

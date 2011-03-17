@@ -31,6 +31,7 @@ uniform vec4 colorMult;
 uniform vec4 specular;
 uniform float shininess;
 uniform bool wires;
+uniform float transAlpha;
 varying vec3 v_normal;
 varying vec3 v_worldPosition;
 varying vec4 v_color;
@@ -59,6 +60,6 @@ void main() {
     outColor += lightIntensity * (v_color * colorMult * litResult.y +
        specular * litResult.z);
     outColor += emissive;
-    gl_FragColor = vec4(outColor.rgb, v_color.a * colorMult.a);
+    gl_FragColor = vec4(outColor.rgb, v_color.a * transAlpha); 
   }
 }

@@ -142,6 +142,10 @@ function SurfView() {
 
 
 
+    jQuery('#clearshapes').click(function(e) {
+				   brainbrowser.clearScreen();
+				 });
+
     jQuery("#fix_range").click(function(event,ui) {
 
       bb.fixRange= jQuery("#fix_range").attr("checked");

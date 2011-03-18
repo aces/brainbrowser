@@ -32,7 +32,11 @@ function SurfView() {
 	    "Opacity: <div class=\"opacity-slider slider\"  data-shape-name="+shape.name+"></div>"
 	  +"</div>").appendTo("#shapes");
       };
-      }
+    }
+
+    brainbrowser.afterClearScreen=function() {
+     $("#shapes").html("");
+    };
 
     $(".opacity-slider").slider({
 				 value: 100,
@@ -162,14 +166,17 @@ function SurfView() {
 			   var name = $(e.target).attr('data-example-name');
 			   switch(name) {
 			   case	'basic':
+			     bb.clearScreen();
 			     bb.loadObjFromUrl('/models/surf_reg_model_both.obj');
 			     break;
 			   case 'punkdti':
+			     bb.clearScreen();
 			     bb.loadObjFromUrl('/models/dti.obj');
 			     bb.loadObjFromUrl('/models/left_color.obj');
 			     bb.loadObjFromUrl('/models/right_color.obj');
 			     break;
 			   case 'realct':
+			     bb.clearScreen();
 			     bb.loadObjFromUrl('/models/realct.obj');    
 			     bb.loadDataFromUrl('/models/realct.txt');   
 			     break;

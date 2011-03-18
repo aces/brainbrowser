@@ -152,8 +152,30 @@ function BrainBrowser(url) {
   };
 
 
-
-
+  that.clearScreen = function() {
+    if(brainbrowser.brainTransform != undefined) {
+      if(brainbrowser.brainTransform.shapes != undefined) {
+	var num = brainbrowser.brainTransform.shapes.length;
+	
+	for(var i = 0; i < num; i++) { 
+	  brainbrowser.brainTransform.removeShape(brainbrowser.brainTransform.shapes[0]);
+	};
+	
+	
+      }
+      if(brainbrowser.brainTransform.children.length) {
+	var number_children = brainbrowser.brainTransform.children.length;
+	for(var i = 0; i < number_children; i++ ) {
+	  var num = brainbrowser.brainTransform.children[i].length;
+	  brainbrowser.brainTransform.children[i].removeShape(brainbrowser.brainTransform.children[i].shapes[0]);
+	};
+    }
+      
+      if(that.afterClearScreen != undefined) {
+	that.afterClearScreen();
+      }
+    };
+  };
   that.displayObjectFile = function(obj,filename) {
     if(obj.objectClass == 'P' && obj.numberVertices == 81924) {
       that.createBrain(obj,filename);

@@ -58,7 +58,7 @@ function BrainBrowser(url) {
       farPlane: 5000,
       nearPlane:0.1
     };
-
+    that.object_origin = [0,0,0];
 
 
     that.loading = jQuery("#o3d_loading");
@@ -1004,6 +1004,7 @@ function BrainBrowser(url) {
       var hemisphere      = pickInfo.element.owner.name;
       var vertex_info = that.model_data.get_vertex(primitive_index,position,hemisphere);
       var info = {
+	ray_position: position,
 	position_vector: vertex_info.position_vector,
 	element: pickInfo.element,
 	hemisphere: hemisphere,
@@ -1029,20 +1030,33 @@ function BrainBrowser(url) {
   };
 
   that.startDragging = function(e) {
-    if(e.shiftKey && e.ctrlKey && that.model_data.num_hemispheres == 2) {
-      that.drag_hemisphere = click(e, function(event,info) {
-				     if(info.hemisphere == "left") {
-				       return 0;
-				     }else if(info.hemisphere == "right") {
-				       return 1;
-				     }else {
-				       return false;
-				     }
-				   });
-    }
-    that.lastRot = that.thatRot;
-    that.aball.click([e.x, e.y]);
-    that.dragging = true;
+    if(e.button == that.o3d.Event.BUTTON_MIDDLE) {
+      var worldRay = o3djs.picking.clientPositionToWorldRay(
+	e.x,
+	e.y,
+	that.viewInfo.drawContext,
+	that.client.width,
+	that.client.height);
+      that.object_origin = worldRay.far;
+      that.dragging = true;
+    }else {
+      
+    
+      if(e.shiftKey && e.ctrlKey && that.model_data.num_hemispheres == 2) {
+	that.drag_hemisphere = click(e, function(event,info) {
+				       if(info.hemisphere == "left") {
+					 return 0;
+				       }else if(info.hemisphere == "right") {
+					 return 1;
+				       }else {
+					 return false;
+				       }
+				     });
+      }
+      that.lastRot = that.thatRot;
+      that.aball.click([e.x, e.y]);
+      that.dragging = true;
+    };
   };
 
   that.drag = function(e) {
@@ -1067,6 +1081,12 @@ function BrainBrowser(url) {
 
       }
 
+    }else if(that.dragging && e.button == that.o3d.Event.BUTTON_MIDDLE) {
+      this.click(e,function(e,info){
+	      var change = [info.ray_position[0] + that.object_origin[0],info.ray_position[1] + info.ray_position[1],0];
+	      that.object_origin = [change[0] + that.object_origin[0],change[1] + that.object_origin[1],0];
+	      that.brainTransform.translate(change);
+	    });
     }else if(that.dragging) {
       that.stopDragging(e);
     }
@@ -1255,7 +1275,7 @@ function BrainBrowser(url) {
   }
 
 
-  that.loadObFromUrl = function(url) {
+  that.loadObjFromUrl = function(url) {
     loadFromUrl(url, false,function(data) {
 		    var parts = url.split("/");
 		    //last part of url will be shape name

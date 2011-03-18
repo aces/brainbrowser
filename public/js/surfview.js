@@ -66,7 +66,7 @@ function SurfView() {
     jQuery("body").keydown(bb.keyPressedCallback);
 
     o3djs.event.addEventListener(bb.o3dElement, 'mousedown', function (e) {
-
+				   
       if(e.shiftKey) {
 	bb.click(e,function(e,info) {
 	  if(brainbrowser.data){
@@ -80,15 +80,16 @@ function SurfView() {
       }
     });
 
-    o3djs.event.addEventListener(bb.o3dElement, 'mousemove', function (e) {
-      bb.drag(e);
+    o3djs.event.addEventListener(bb.o3dElement, 'mousemove', function (e){
+				   				
+	  bb.drag(e);	  
     });
 
     o3djs.event.addEventListener(bb.o3dElement, 'mouseup', function (e) {
-      if(!e.shiftKey || e.button == bb.o3d.Event.BUTTON_RIGHT){
-	bb.stopDragging(e);
-      }
-    });
+				   if(!e.shiftKey || e.button == bb.o3d.Event.BUTTON_RIGHT){
+				     bb.stopDragging(e);
+				   }
+				 });
 
 
 

@@ -146,6 +146,10 @@ function SurfView() {
 				   brainbrowser.clearScreen();
 				 });
 
+    jQuery("#openImage").click(function(e){
+				 window.open(brainbrowser.getImageUrl(),"screenshot");
+			       });
+
     jQuery("#fix_range").click(function(event,ui) {
 
       bb.fixRange= jQuery("#fix_range").attr("checked");

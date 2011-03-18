@@ -323,6 +323,11 @@ function BrainBrowser(url) {
 
     var myMaterial = that.createMaterial("/shaders/line.txt");
 
+    
+    // Transparency 
+    var transAlpha = myMaterial.getParam('transAlpha');
+    transAlpha.value = 1.0;
+
     /*
      * Create the Shape for the  mesh and assign its material.
      * two shapes will be created if the  model has two hemispheres
@@ -499,6 +504,17 @@ function BrainBrowser(url) {
     linePrimitive.streamBank = streamBank;
     linePrimitive.primitiveType = that.o3d.Primitive.LINELIST;
     var state = that.pack.createObject('State'); 
+    
+    state.getStateParam('AlphaBlendEnable').value = true;
+    state.getStateParam('SourceBlendFunction').value =
+      o3djs.base.o3d.State.BLENDFUNC_SOURCE_ALPHA;
+    state.getStateParam('DestinationBlendFunction').value =
+      o3djs.base.o3d.State.BLENDFUNC_INVERSE_SOURCE_ALPHA;
+    state.getStateParam('AlphaTestEnable').value = true;
+    state.getStateParam('AlphaComparisonFunction').value =
+      o3djs.base.o3d.State.CMP_GREATER;
+
+    
     linePrimitive.material.state = state;
     //positionsBuffer.set(newPositionArray);
     //create Position buffer (vertices) and set the number of vertices global variable
@@ -1521,7 +1537,9 @@ function BrainBrowser(url) {
     }
   };
   
-
+  that.getImageUrl = function() {
+    return that.o3dElement.toDataURL();
+  };
     
   that.init();
 

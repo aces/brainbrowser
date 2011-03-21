@@ -18,7 +18,6 @@ o3djs.require('o3djs.arcball');
 o3djs.require('o3djs.quaternions');
 o3djs.require('o3djs.scene');
 
-
 function BrainBrowser(url) {
   var that = this;
 
@@ -1067,16 +1066,35 @@ function BrainBrowser(url) {
     return  that.model_data.getVertexInfo(vertex);
   };
 
+  function getCursorPosition(e){
+    var x;
+    var y;
+    if (e.pageX != undefined && e.pageY != undefined) {
+	x = e.pageX;
+	y = e.pageY;
+    }
+    else {
+	x = e.clientX + document.body.scrollLeft +
+            document.documentElement.scrollLeft;
+	y = e.clientY + document.body.scrollTop +
+            document.documentElement.scrollTop;
+    }
+    
+    
+    x -= that.o3dElement.offsetLeft;
+    y -= that.o3dElement.offsetTop;
+    
+    y = that.client.height - y;
+
+    return {x: x,y: y};
+  }
+
+
   that.startDragging = function(e) {
-    if(e.button == that.o3d.Event.BUTTON_MIDDLE) {
-      var worldRay = o3djs.picking.clientPositionToWorldRay(
-	e.x,
-	e.y,
-	that.viewInfo.drawContext,
-	that.client.width,
-	that.client.height);
-      that.object_origin = worldRay.far;
-      that.dragging = true;
+
+    if(e.button == that.o3d.Event.BUTTON_RIGHT) {
+	that.startPosition =  getCursorPosition(e);
+	that.dragging = true;
     }else {
       
     
@@ -1119,10 +1137,14 @@ function BrainBrowser(url) {
 
       }
 
-    }else if(that.dragging && e.button == that.o3d.Event.BUTTON_MIDDLE) {
+    }else if(that.dragging && e.button == that.o3d.Event.BUTTON_RIGHT) {
       this.click(e,function(e,info){
-	      var change = [info.ray_position[0] + that.object_origin[0],info.ray_position[1] + info.ray_position[1],0];
-	      that.object_origin = [change[0] + that.object_origin[0],change[1] + that.object_origin[1],0];
+              var new_position = getCursorPosition(e);
+	      change = [0,0,0];
+	 
+	      var change = [new_position.x - that.startPosition.x,new_position.y - that.startPosition.y,0];
+	      that.startPosition = new_position;
+	      
 	      that.brainTransform.translate(change);
 	    });
     }else if(that.dragging) {

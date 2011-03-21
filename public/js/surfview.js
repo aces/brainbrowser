@@ -96,6 +96,10 @@ function SurfView() {
 				 });
 
 
+    $(bb.o3dElement).bind('contextmenu',function(e){
+			      return false;
+			  })
+
 
     /********************************************************
      * This section implements the range change events

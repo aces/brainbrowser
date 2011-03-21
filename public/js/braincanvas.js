@@ -73,7 +73,7 @@ function BrainCanvas(canvas) {
 	x: that.slices.xspace,
 	y: that.slices.yspace,
 	z: that.slices.zspace
-      };
+      };u
     }
     //clear canvas
     that.initCanvas(canvas.width, canvas.height);    

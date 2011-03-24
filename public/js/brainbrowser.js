@@ -1083,8 +1083,7 @@ function BrainBrowser(url) {
     
     x -= that.o3dElement.offsetLeft;
     y -= that.o3dElement.offsetTop;
-    
-    y = that.client.height - y;
+   
 
     return {x: x,y: y};
   }
@@ -1093,7 +1092,8 @@ function BrainBrowser(url) {
   that.startDragging = function(e) {
 
     if(e.button == that.o3d.Event.BUTTON_RIGHT) {
-	that.startPosition =  getCursorPosition(e);
+        var screenPosition = getCursorPosition(e);
+	that.startPosition =  o3djs.picking.clientPositionToWorldRay(screenPosition.x,screenPosition.y,that.viewInfo.drawContext,that.client.height,that.client.width).far;
 	that.dragging = true;
     }else {
       
@@ -1138,15 +1138,16 @@ function BrainBrowser(url) {
       }
 
     }else if(that.dragging && e.button == that.o3d.Event.BUTTON_RIGHT) {
-      this.click(e,function(e,info){
-              var new_position = getCursorPosition(e);
-	      change = [0,0,0];
-	 
-	      var change = [new_position.x - that.startPosition.x,new_position.y - that.startPosition.y,0];
-	      that.startPosition = new_position;
-	      
-	      that.brainTransform.translate(change);
-	    });
+
+      var screenPosition = getCursorPosition(e);
+      var new_position = o3djs.picking.clientPositionToWorldRay(screenPosition.x,screenPosition.y,that.viewInfo.drawContext,that.client.height,that.client.width).far;
+      change = [0,0,0];
+      var distance_from_zero = that.eyeView[0];
+      var change = [(new_position[0] - that.startPosition[0])/5000*that.eyeView[2],(new_position[1] - that.startPosition[1])/5000*that.eyeView[2],0];
+      that.startPosition = new_position;
+      
+      that.brainTransform.translate(change);
+    
     }else if(that.dragging) {
       that.stopDragging(e);
     }

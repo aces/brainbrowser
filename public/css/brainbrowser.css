@@ -3,7 +3,7 @@ body {
     font: arial;
     font-size: 12px;
     color: black;
- 
+    height: 100%;
 }
 
 h4 {
@@ -15,6 +15,7 @@ h4 {
 #controls {
     width: 29%;
     max-width: 400px;
+    height: 100%;
     float:left;
 }
 

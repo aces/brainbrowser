@@ -37,10 +37,12 @@ function BrainBrowser(url) {
    * the brain model, apply material & shader
    */
    that.initStep2 = function(clientElements) {
+    
     // Initializes global variables and libraries.
     var o3dElement = clientElements[0];
     that.o3dElement = o3dElement;
     that.client = o3dElement.client;
+     that.client.height = $(window).height();
     that.o3d = o3dElement.o3d;
     that.math = o3djs.math;
     that.dragging = false;
@@ -921,7 +923,10 @@ function BrainBrowser(url) {
       this.brainTransform.children[1].translate([1,0,0]);
     }
   };
-
+  
+  window.onresize = function(e) {
+    that.client.height = $(window).height();
+  };
 
   /*
    * Creates the client area.

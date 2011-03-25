@@ -65,7 +65,9 @@ function SurfView() {
 
 
   brainbrowser.afterInit = function(bb) {
-
+    bb.clearScreen();
+    bb.loadObjFromUrl('/models/surf_reg_model_both.obj');
+    
     //Add event handlers
     jQuery("body").keydown(bb.keyPressedCallback);
 
@@ -82,6 +84,8 @@ function SurfView() {
       }else {
         bb.startDragging(e);
       }
+
+				   
     });
 
     o3djs.event.addEventListener(bb.o3dElement, 'mousemove', function (e){

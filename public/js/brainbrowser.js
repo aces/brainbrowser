@@ -37,6 +37,7 @@ function BrainBrowser(url) {
    * the brain model, apply material & shader
    */
    that.initStep2 = function(clientElements) {
+    
     // Initializes global variables and libraries.
     var o3dElement = clientElements[0];
     that.o3dElement = o3dElement;
@@ -58,51 +59,55 @@ function BrainBrowser(url) {
       nearPlane:0.1
     };
     that.object_origin = [0,0,0];
-
-
-    that.loading = jQuery("#o3d_loading");
-
-    // Initialize O3D sample libraries. o3dElement is the o3d div in the page
-    o3djs.base.init(o3dElement);
-    // Create a pack to manage the objects created.
-    that.pack = that.client.createPack();
-
-    // Create the render graph for a view.
-    var viewInfo = o3djs.rendergraph.createBasicView(
+     
+     
+     that.loading = jQuery("#o3d_loading");
+     
+     // Initialize O3D sample libraries. o3dElement is the o3d div in the page
+     o3djs.base.init(o3dElement);
+     // Create a pack to manage the objects created.
+     that.pack = that.client.createPack();
+     
+     
+     // Create the render graph for a view.
+     var viewInfo = o3djs.rendergraph.createBasicView(
       that.pack,
       that.client.root,
       that.client.renderGraphRoot,
       [0.5,0.5,0.5,1]);
-    that.viewInfo = viewInfo;
-    // Set up a simple orthographic view.
-    viewInfo.drawContext.projection = that.math.matrix4.perspective(
+     that.viewInfo = viewInfo;
+     // Set up a simple orthographic view.
+     viewInfo.drawContext.projection = that.math.matrix4.perspective(
       that.math.degToRad(30), // 30 degree fov.
       that.client.width / that.client.height,
       1,                  // Near plane.
       5000);              // Far plane.
-
-    // Set up our view transformation to look towards the world origin
-    // where the brain is located.
-    that.eyeView = [0,0,500];
-    viewInfo.drawContext.view = that.math.matrix4.lookAt(
+     
+     // Set up our view transformation to look towards the world origin
+     // where the brain is located.
+     that.eyeView = [0,0,500];
+     viewInfo.drawContext.view = that.math.matrix4.lookAt(
       that.eyeView, // eye
       [0, 0, 0],  // target
       [0, 1, 0]); // up
-
-    that.aball = o3djs.arcball.create(100, 100);
-
-    that.client.setRenderCallback(that.renderCallback);
-
-    //Add event handlers
-    jQuery("body").keydown(that.keyPressedCallback);
-    o3djs.event.addEventListener(o3dElement, 'wheel', that.scrollMe);
+     
+     that.aball = o3djs.arcball.create(100, 100);
+     
+     that.client.setRenderCallback(that.renderCallback);
+     
+     //Add event handlers
+     jQuery("body").keydown(that.keyPressedCallback);
+     o3djs.event.addEventListener(o3dElement, 'wheel', that.scrollMe);
 
      that.loadSpectrumFromUrl('/assets/spectral_spectrum.txt');
+
+
 
 
      //This allows a programmer to define a function that runs after initialization
      if(that.afterInit) {
        that.afterInit(that);
+
      }
      that.updateInfo();
 
@@ -118,31 +123,16 @@ function BrainBrowser(url) {
   };
 
 
-  /*
-   * This function is ran on every render.
-   */
   this.renderCallback = function(renderEvent) {
     that.setClientSize();
   };
 
   this.createMaterial = function(url) {
-    // Create an Effect object and initialize it using the shaders
-    // from a file on the server through an ajax request.
     var effect = that.pack.createObject('Effect');
     var shaderString = that.loadCombinedShaderFromUrl(url);
-
     effect.loadFromFXString(shaderString);
-
-    // Create a material for the mesh.
     var material = that.pack.createObject('Material');
-
-
-
-    // Set the material's drawList.
     material.drawList = that.viewInfo.performanceDrawList;
-
-    // Apply our effect to that myMaterial. The effect tells the 3D
-    // hardware which shaders to use.
     material.effect = effect;
 
     effect.createUniformParameters(material);
@@ -921,7 +911,10 @@ function BrainBrowser(url) {
       this.brainTransform.children[1].translate([1,0,0]);
     }
   };
-
+  
+  window.onresize = function(e) {
+    that.client.height = $(window).height();
+  };
 
   /*
    * Creates the client area.
@@ -1083,8 +1076,7 @@ function BrainBrowser(url) {
     
     x -= that.o3dElement.offsetLeft;
     y -= that.o3dElement.offsetTop;
-    
-    y = that.client.height - y;
+   
 
     return {x: x,y: y};
   }
@@ -1093,7 +1085,8 @@ function BrainBrowser(url) {
   that.startDragging = function(e) {
 
     if(e.button == that.o3d.Event.BUTTON_RIGHT) {
-	that.startPosition =  getCursorPosition(e);
+        var screenPosition = getCursorPosition(e);
+	that.startPosition =  o3djs.picking.clientPositionToWorldRay(screenPosition.x,screenPosition.y,that.viewInfo.drawContext,that.client.height,that.client.width).far;
 	that.dragging = true;
     }else {
       
@@ -1138,15 +1131,16 @@ function BrainBrowser(url) {
       }
 
     }else if(that.dragging && e.button == that.o3d.Event.BUTTON_RIGHT) {
-      this.click(e,function(e,info){
-              var new_position = getCursorPosition(e);
-	      change = [0,0,0];
-	 
-	      var change = [new_position.x - that.startPosition.x,new_position.y - that.startPosition.y,0];
-	      that.startPosition = new_position;
-	      
-	      that.brainTransform.translate(change);
-	    });
+
+      var screenPosition = getCursorPosition(e);
+      var new_position = o3djs.picking.clientPositionToWorldRay(screenPosition.x,screenPosition.y,that.viewInfo.drawContext,that.client.height,that.client.width).far;
+      change = [0,0,0];
+      var distance_from_zero = that.eyeView[0];
+      var change = [(new_position[0] - that.startPosition[0])/5000*that.eyeView[2],(new_position[1] - that.startPosition[1])/5000*that.eyeView[2],0];
+      that.startPosition = new_position;
+      
+      that.brainTransform.translate(change);
+    
     }else if(that.dragging) {
       that.stopDragging(e);
     }

@@ -19,10 +19,33 @@
 	    <li><a href="#viewers">Viewers</a></li>
 	    <li><a href="#about">About</a></li>
 	    <li><a href="#news">News</a></li>
+	    <li><a href="#contacts">Contacts</a></li>
 	    </ul>
 	  <div id="about" class="tab">
-	    <p>
-	      Brainbrowser is a central visualization component of the <a href="http://www.cbrain.mcgill.ca/">CBRAIN</a> platform. CBRAIN is the CANARIE-funded, integrated computational platform for brain imaging research. It combines the networking capabilities of the CANet4 network with the processing power of High Performance Computing centres across Canada and Europe and cutting-edge visualization tools such as BrainBrowser, and makes them available through an intuitive, graphical, web browser-based interface.
+	    <h2>Introduction</h2>
+	    <p>BrainBrowser is a web-enabled brain surface viewer that allows the user to explore in real time a 3D brain map expressed on a base surface. Typically, this map might be a statistical map derived from a group analysis of functional or structural imaging data. The map can be calculated using either 3D statistical tools (e.g. SPM, fMRIstat) or surface-based statistical tools (e.g. Surfstat). This map is texture-mapped on to a base surface that can be either the default surface in stereotaxic space (Lyttelton O et al., 2007) or a user-defined surface. BrainBrowser has two primary modes of operation, exploring either a pre-calculated database of structural correlation maps or working with user-defined data. In the first mode, the user may choose to explore the correlation structure for cortical thickness, cortical area or cortical volume, previously calculated at the MNI on a vertex-wise basis from the ICBM152 MRI database. This database was built using the MACACC approach to define cortical correlation structure (Lerch J et al., 2006). In the second mode, the user is prompted for the local filenames of the statistical map and the base surface. BrainBrowser can also be used to manipulate 3D fibre pathways derived from DTI, using the same simple file format (.obj) as for surface data. Examples of Brainbrowser data are available on the main page. More detail and a user-guide to BrainBrowser operation are provided below.
+</p>
+
+<h2>MACACC Database Exploration</h2>
+<p>
+In this mode, BrainBrowser is used to explore structural correlations across the
+cortex, derived in database of 152 young normal subjects from the International
+Consortium for Brain Mapping (ICBM, Mazziotta J et al., 2001). Cortical thickness at
+each of 80K 3D locations were calculated using the CLASP algorithm (MacDonald
+D et al., 2000; Kim JS et al., 2005). This subject population is the same as used for
+the MNI152 stereotaxic voxelwise templates used, for instance, in SPM. Structural
+correlation maps are calculated according to the procedures in Lerch et al., (2005),
+wherein the correlation across subjects, between the cortical thickness at a
+seed vertex and at any other vertex, is measured. This yields a cortical thickness
+correlation map for that seed vertex. The BrainBrowser database contains maps for
+all cortical vertices for each of three vertexwise morphological variables (thickness,
+area, volume). Furthermore, since the blurring kernel used will profoundly alter the
+derived statistical map, the results are generated for 9 different surface-blurring
+kernels and for three different statistics. In total, the BrainBrowser database
+comprises ~6.3 Million maps for the following permutations:
+
+80K vertices x 9 blurring kernels x 3 morphological indices x 3 statistical
+	     
 	    </p>
 	    <p>
 	     This demonstration of BrainBrowser can be used in one of the following ways:
@@ -43,8 +66,11 @@
 	  </div>
 	  <div id="viewers" class="tab">
 	    <p>
-	     BrainBrowser is web-based, 3D visualization tool for neuroimaging. Using web-standard technologies, such as WebGL and HTML5, it allows for real time manipulation and analysis of 3D neuroimaging data whether it be precalculated maps, such as the <a href="http://www.sciencedirect.com/science?_ob=ArticleURL&_udi=B6WNP-4JS1MWF-1&_user=10&_coverDate=07%2F01%2F2006&_rdoc=1&_fmt=high&_orig=gateway&_origin=gateway&_sort=d&_docanchor=&view=c&_searchStrId=1684567765&_rerunOrigin=google&_acct=C000050221&_version=1&_urlVersion=0&_userid=10&md5=7af71425a5aa4db6fad8748ab0bb5312&searchtype=a">MACACC</a> data set (Mapping Anatomical Correlations Across Cerebral Cortex), or models provided by the user in <a href="http://www.bic.mni.mcgill.ca/users/mishkin/mni_obj_format.pdf">MNI object format</a> and data in  one of the many currently supported formats (Minc, Nifty, object files, plain text).
+	     BrainBrowser is web-based, 3D visualization tool for neuroimaging. Using web-standard technologies, such as WebGL and HTML5, it allows for real time manipulation and analysis of 3D neuroimaging data whether it be precalculated maps, such as the <a href="http://www.sciencedirect.com/science?_ob=ArticleURL&_udi=B6WNP-4JS1MWF-1&_user=10&_coverDate=07%2F01%2F2006&_rdoc=1&_fmt=high&_orig=gateway&_origin=gateway&_sort=d&_docanchor=&view=c&_searchStrId=1684567765&_rerunOrigin=google&_acct=C000050221&_version=1&_urlVersion=0&_userid=10&md5=7af71425a5aa4db6fad8748ab0bb5312&searchtype=a">MACACC</a> data set (Mapping Anatomical Correlations Across Cerebral Cortex), or models provided by the user in <a href="http://www.bic.mni.mcgill.ca/users/mishkin/mni_obj_format.pdf">MNI object format</a> and data in  one of the many currently supported formats (Minc, Nifti, object files, plain text).
 	    </p>
+	    <div id="video">
+	    <object width="425" height="344"><param name="movie" value="http://www.youtube.com/v/HlRTUYUf1Ew?hl=en&fs=1"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/HlRTUYUf1Ew?hl=en&fs=1" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="425" height="344"></embed></object></div>
+
 	    <p> Check out the <a href="#about" class="tablink" data-tabs="menu" data-tab="about">About</a> page for more information.</p>
 	    </p><p>
 	      Select one of the following options to begin using BrainBrowser:
@@ -67,6 +93,11 @@
 	      
 	    </div>
 	  </div>
+	  <div id="contacts" class="tab">
+	    For support please contact
+	    Nicolas Kassis(nic.kassis@gmail.com) main developer of BrainBrowser
+	  </div>
+	   
       </div>
       <div id="footer">
 	
@@ -81,7 +112,8 @@
     <script type="text/javascript">
       $(function() { 
         $(".button").button();
-        $(".tabs").tabs();
+        $(".tabs").tabs({ heigth: 800
+      });
         $(".tablink").click(function(e) {
           var tabs_object = $(e.target).attr('data-tabs');
           var tab = $(e.target).attr('data-tab');

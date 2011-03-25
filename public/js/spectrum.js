@@ -108,5 +108,6 @@ function Spectrum(data) {
   if(data != undefined) {
     parseSpectrum(data);
   }
-
+  
+  
 }

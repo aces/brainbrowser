@@ -166,10 +166,11 @@ function BrainBrowser(url) {
     };
   };
   that.displayObjectFile = function(obj,filename) {
-    if(obj.objectClass == 'P' && obj.numberVertices == 81924) {
+    if(obj.objectClass == 'P' && obj.numberVertices <= 81924) {
+
       that.createBrain(obj,filename);
     }else if(obj.objectClass == 'P') {
-      that.createPolygonObject(obj,filename);
+	that.createPolygonObject(obj,filename);	  
     }else if(obj.objectClass == 'L') {
       that.createLineObject(obj,filename);
     }else {
@@ -1389,16 +1390,23 @@ function BrainBrowser(url) {
   that.loadDataFromFile = function(file_input) {
     var filename = file_input.files[0].name;
     var onfinish = function(text) {
-			 that.data = new Data(text);
-			 
-			 if(that.fixRange == false || that.fixRange == null) {
-			   that.rangeMin = that.data.min;
-			   that.rangeMax = that.data.max;
-			   if(that.afterLoadData !=null) {
-			     that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
-			   }
-			 }
-			 
+	var data = new Data(text);
+	if(data.values.length < that.model_data.positionArray.length/4) {
+	    alert("Number of numbers in datafile lower than number of vertices Vertices" + that.model_data.positionArray.length/3 + " data values:" + data.values.length );
+	    return -1;
+	}else {
+	    
+	    that.data = data;
+	}
+	
+	if(that.fixRange == false || that.fixRange == null) {
+	    that.rangeMin = that.data.min;
+	    that.rangeMax = that.data.max;
+	    if(that.afterLoadData !=null) {
+		that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
+	    }
+	}
+	
 			 that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
 		      };
     

@@ -32,12 +32,28 @@ function SurfView() {
 	    "Opacity: <div class=\"opacity-slider slider\"  data-shape-name="+shape.name+"></div>"
 	  +"</div>").appendTo("#shapes");
       };
+
     }
-
+      if(transform.children.length > 0 ) {
+	  for(var k; k < transform.children.length; k++) {
+	      for( var i = 0; i < transform.children[k].shapes.length; i++) {
+		  var shape = transform.children[k].shapes[i];
+		  $("<div id=\"shape_"+i+"\" data-shape-name=\""+shape.name+"\" class=\"shape\">"
+		    +"<h4>Shape "+ (i + 1) +"</h4>"
+		    +"Name: " +shape.name + "<br />" +
+		    "Opacity: <div class=\"opacity-slider slider\"  data-shape-name="+shape.name+"></div>"
+		    +"</div>").appendTo("#shapes");
+		  
+		  
+	      }
+	  }
+      }
+      
+  
     brainbrowser.afterClearScreen=function() {
-     $("#shapes").html("");
+	$("#shapes").html("");
     };
-
+      
     $(".opacity-slider").slider({
 				 value: 100,
 				 min: 0,

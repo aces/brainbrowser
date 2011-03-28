@@ -242,7 +242,7 @@ function BrainBrowser(url) {
        };
 
      } else {
-       var brainShape = that.createHemisphere(myMaterial, model_data);
+       var brainShape = that.createHemisphere(myMaterial, model_data,"filename");
        brainShape.num_hemisphere= 1;
      }
 

@@ -224,11 +224,6 @@ function BrainBrowser(url) {
   this.createBrain = function(model_data,filename) {
     that.model_data= model_data;
 
-    var myMaterial = that.createMaterial("/shaders/blinnphong.txt");
-    
-    myMaterial = blinnphongParams(myMaterial);
-    
-
     /*
      * Create the Shape for the brain mesh and assign its material.
      * two shapes will be created if the brain model has two hemispheres
@@ -236,13 +231,13 @@ function BrainBrowser(url) {
      if(model_data.num_hemispheres == 2) {
 
        var brainShape= {
-	 left: that.createHemisphere(myMaterial,model_data.left, "left"),
-	 right: that.createHemisphere(myMaterial, model_data.right, "right"),
+	 left: that.createHemisphere(model_data.left, "left"),
+	 right: that.createHemisphere(model_data.right, "right"),
 	 num_hemisphere: 2
        };
 
      } else {
-       var brainShape = that.createHemisphere(myMaterial, model_data,"filename");
+       var brainShape = that.createHemisphere(model_data,"filename");
        brainShape.num_hemisphere= 1;
      }
 
@@ -373,7 +368,11 @@ function BrainBrowser(url) {
   /*
    * Creates the hemisphere shape with the material provide.
    */
-  that.createHemisphere = function(material,model,name) {
+  that.createHemisphere = function(model,name) {
+    var material = that.createMaterial("/shaders/blinnphong.txt");
+    
+    material = blinnphongParams(material);
+
     //model = unIndexModel(model);
     var hemShape = that.pack.createObject('Shape');
     var hemPrimitive = that.pack.createObject('Primitive');
@@ -387,6 +386,19 @@ function BrainBrowser(url) {
     hemPrimitive.primitiveType = that.o3d.Primitive.TRIANGLELIST;
 
     var state = that.pack.createObject('State');
+
+
+    state.getStateParam('AlphaBlendEnable').value = true;
+    state.getStateParam('SourceBlendFunction').value =
+      o3djs.base.o3d.State.BLENDFUNC_SOURCE_ALPHA;
+    state.getStateParam('DestinationBlendFunction').value =
+      o3djs.base.o3d.State.BLENDFUNC_INVERSE_SOURCE_ALPHA;
+    state.getStateParam('AlphaTestEnable').value = true;
+    state.getStateParam('AlphaComparisonFunction').value =
+      o3djs.base.o3d.State.CMP_GREATER;
+
+    hemPrimitive.material.state = state;
+
 
     //create Position buffer (vertices) and set the number of vertices global variable
     var positionsBuffer = that.pack.createObject('VertexBuffer');
@@ -1546,19 +1558,28 @@ function BrainBrowser(url) {
 
 
   that.changeShapeTransparency = function(shape_name,alpha) {
+    var shape = null;
     if(that.brainTransform.shapes != undefined) {
-      var shape = null;
+
       for(var i = 0; i < that.brainTransform.shapes.length; i++)  {
 	if(that.brainTransform.shapes[i].name == shape_name) {
 	  shape = that.brainTransform.shapes[i];
 	}
       }
-      if(shape) {
-	shape.elements[0].material.getParam('transAlpha').value = alpha;
-      }else {
-	alert("can't find shape");
-      }
     }
+
+    for(var k = 0; k < that.brainTransform.children.length; k++) {
+      for(var i = 0; i < that.brainTransform.children[k].shapes.length; i++)  {
+	if(that.brainTransform.children[k].shapes[i].name == shape_name) {
+	  shape = that.brainTransform.children[k].shapes[i];
+	}
+      	
+      }
+    }  
+    if(shape) {
+	shape.elements[0].material.getParam('transAlpha').value = alpha;
+    }
+    
   };
   
   that.getImageUrl = function() {

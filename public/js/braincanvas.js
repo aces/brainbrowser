@@ -182,7 +182,7 @@ function BrainCanvas(canvas) {
 	{
 	  z: that.slices.zspace,
 	  x:parseInt(position.x/Math.abs(that.current_minc.xspace.step)),
-	  y:parseInt(position.y/Math.abs(that.current_minc.ypace.step)) - that.current_minc.xspace.height - that.current_minc.yspace.height
+	  y:parseInt(position.y/Math.abs(that.current_minc.yspace.step)) - that.current_minc.xspace.height - that.current_minc.yspace.height
 	};
       
     }

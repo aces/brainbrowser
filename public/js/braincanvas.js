@@ -2,7 +2,7 @@ function BrainCanvas(canvas) {
   var that  = this;
   var context = canvas.getContext("2d");
   var loader = new Loader();
-  
+
   var cursor = {
     x: [0,0],
     y: [0,0],
@@ -47,21 +47,20 @@ function BrainCanvas(canvas) {
     that.slices.xspace = number;
     var xslice_image_data = that.update_space("xspace", number,minc,time);
     context.putImageData(xslice_image_data,0,0);  
-
   };
 
   this.updateYSpace = function(number,minc,time) {
     that.slices.yspace = number;
     var yslice_image_data = that.update_space("yspace", number,minc,time);
 
-    context.putImageData(yslice_image_data,0,minc.xspace.height);   
+    context.putImageData(yslice_image_data,0,minc.xspace.height*Math.abs(minc.xspace.step));   
     
   };
   
   this.updateZSpace = function(number,minc,time) {
     that.slices.zspace = number;
     var zslice_image_data = that.update_space("zspace", number,minc,time);
-    context.putImageData(zslice_image_data,0,minc.xspace.height+minc.yspace.height);    
+    context.putImageData(zslice_image_data,0,minc.xspace.height*Math.abs(minc.xspace.step)+minc.yspace.height*Math.abs(minc.yspace.step));    
 
   };
 
@@ -73,7 +72,7 @@ function BrainCanvas(canvas) {
 	x: that.slices.xspace,
 	y: that.slices.yspace,
 	z: that.slices.zspace
-      };u
+      };
     }
     //clear canvas
     that.initCanvas(canvas.width, canvas.height);    
@@ -85,12 +84,14 @@ function BrainCanvas(canvas) {
 
 
     //draw x or square whatever 
-    drawCrosshair(that.slices[that.current_minc.xspace.length_space],
-		  that.slices[that.current_minc.xspace.height_space]);
-    drawCrosshair(that.slices[that.current_minc.yspace.length_space],
-		  that.slices[that.current_minc.yspace.height_space]+that.current_minc.xspace.height);
-    drawCrosshair(that.slices[that.current_minc.zspace.length_space],
-		  that.slices[that.current_minc.zspace.height_space]+that.current_minc.xspace.height+that.current_minc.yspace.height);    
+    drawCrosshair(that.slices[that.current_minc.xspace.length_space]*Math.abs(that.current_minc.xspace.step),
+		  that.slices[that.current_minc.xspace.height_space]*Math.abs(that.current_minc.xspace.step));
+    drawCrosshair(that.slices[that.current_minc.yspace.length_space]*Math.abs(that.current_minc.xspace.step),
+		  that.slices[that.current_minc.yspace.height_space]*Math.abs(that.current_minc.xspace.step)+that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.step));
+    drawCrosshair(that.slices[that.current_minc.zspace.length_space]*Math.abs(that.current_minc.xspace.step),
+		  that.slices[that.current_minc.zspace.height_space]*Math.abs(that.current_minc.xspace.step)
+		  +that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.step)
+		  +that.current_minc.yspace.height*Math.abs(that.current_minc.xspace.step));    
 
   };
 
@@ -108,9 +109,16 @@ function BrainCanvas(canvas) {
     that.updateYSpace(that.slices.yspace,minc);
     that.updateZSpace(that.slices.zspace,minc);
 
-    drawCrosshair(that.slices.yspace,that.slices.xspace);
-    drawCrosshair(that.slices.xspace,that.slices.zspace+that.current_minc.xspace.height);
-    drawCrosshair(that.slices.yspace,that.slices.xspace+that.current_minc.xspace.height+that.current_minc.yspace.height);    
+
+    drawCrosshair(that.slices[that.current_minc.xspace.length_space]*Math.abs(that.current_minc.xspace.step),
+		  that.slices[that.current_minc.xspace.height_space]*Math.abs(that.current_minc.xspace.step));
+    drawCrosshair(that.slices[that.current_minc.yspace.length_space]*Math.abs(that.current_minc.xspace.step),
+		  that.slices[that.current_minc.yspace.height_space]*Math.abs(that.current_minc.xspace.step)+that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.step));
+    drawCrosshair(that.slices[that.current_minc.zspace.length_space]*Math.abs(that.current_minc.xspace.step),
+		  that.slices[that.current_minc.zspace.height_space]*Math.abs(that.current_minc.xspace.step)
+		  +that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.step)
+		  +that.current_minc.yspace.height*Math.abs(that.current_minc.xspace.step));    
+
    //alert("Typeof xlsice: " + typeof xslice + " Lenght of xslice: " + xslice.length + " xslice max: " + minc.max + " xslice.min: " + minc.min + " xslice[5000]: " + xslice[5000] + " xslice[20000]: " + xslice[20000] + " xslice_image_data.data[10000*4]: "   + " " + xslice_image_data.data[2] );
     
     //var yslice = Minc.slice('yspace',1);
@@ -142,45 +150,40 @@ function BrainCanvas(canvas) {
 
   this.getSliceNumbersFromPosition = function(position){
     that.position = position;
-    if(position.y < that.current_minc.xspace.height) {
+    if(position.y/Math.abs(that.current_minc.xspace.step) < that.current_minc.xspace.height) {
       var slices = {
 	x: that.slices.xspace
       };
       if(that.current_minc.xspace.height_space == "yspace") {
-	slices.y = position.y;
-	slices.z = position.x;
+	slices.y = parseInt(position.y/Math.abs(that.current_minc.yspace.step));
+	slices.z = parseInt(position.x/Math.abs(that.current_minc.zspace.step));
       }else {
-        slices.y = position.x;
-	slices.z = position.y;
+        slices.y = parseInt(position.x/Math.abs(that.current_minc.yspace.step));
+	slices.z = parseInt(position.y/Math.abs(that.current_minc.zspace.step));
    	
       }
 
-    }else if(position.y < that.current_minc.xspace.height + that.current_minc.yspace.height){
+    }else if(position.y/Math.abs(that.current_minc.yspace.step) < that.current_minc.xspace.height + that.current_minc.yspace.height){
       var slices = {
 	y: that.slices.yspace
       };
       
       if(that.current_minc.yspace.height_space == "zspace"){
 	
-	slices.x = position.x;
-	slices.z = position.y -  that.current_minc.xspace.height;
+	slices.x = parseInt(position.x/Math.abs(that.current_minc.xspace.step));	
+	slices.z = parseInt(position.y/Math.abs(that.current_minc.zspace.step)) -  that.current_minc.xspace.height;
       } else {	
-        slices.z = position.x;
-	slices.x = position.y -  that.current_minc.xspace.height;
+        slices.z = parseInt(position.x/Math.abs(that.current_minc.zspace.step));
+	slices.x = parseInt(position.y/Math.abs(that.current_minc.yspace.step)) -  that.current_minc.xspace.height;
       }
 
     }else {
       var slices = 
 	{
-	  z: that.slices.zspace
+	  z: that.slices.zspace,
+	  x:parseInt(position.x/Math.abs(that.current_minc.xspace.step)),
+	  y:parseInt(position.y/Math.abs(that.current_minc.ypace.step)) - that.current_minc.xspace.height - that.current_minc.yspace.height
 	};
-      if(that.current_minc.yspace.height_space == "xspace"){
-	slices.x =  position.y - that.current_minc.xspace.height - that.current_minc.yspace.height;
-	slices.y = position.x;	
-      }else {
-	slices.y =  position.y - that.current_minc.xspace.height - that.current_minc.yspace.height;
-	slices.x = position.x;		
-      }
       
     }
     

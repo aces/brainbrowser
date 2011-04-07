@@ -7,4 +7,6 @@ rm /tmp/surface-combined.js
 cat utils.js mniobj.js spectrum.js data.js dataset.js brainbrowser.js macacc_collection.js macacc.js > /tmp/macacc-combined.js
 yui-compressor /tmp/macacc-combined.js -o macacc-combined.min.js
 rm /tmp/macacc-combined.js
+cat utils.js minc.js color.js spectrum.js loader.js braincanvas.js > /tmp/html5-minc-viewer.js
+yui-compressor /tmp/html5-minc-viewer.js -o html5-minc-viewer.min.js
 cp *.min.js ../../surface-viewer/js/

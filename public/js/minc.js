@@ -1,14 +1,27 @@
+/*
+ * Library to encapsulate Minc. 
+ * It request the parameters needed and then request the data block from the server
+ * The data block is a binary array
+ * The library can fetch slices in one of the three axese
+ */
 function Minc(filename,extraArgs,callback) {
   var that = this;
 
 
-  this.load_params = function(filename) {
-    var params = {};
+  /*
+   * Parameters of the minc file. 
+   * Most important  
+   */
+  this.load_headers = function(filename) {
     $.ajax({
-	     url: filename+'/params',
+	     url: filename,
 	     dataType: 'json',
+	     data: {
+	       minc_headers: true
+	     },
 	     async: false,
 	     success: function(data){
+	       that.header = data;
 	       that.order = data.order;
 	       if(that.order.length == 4) {
 		 that.order = that.order.slice(1,that.order.length);
@@ -18,6 +31,11 @@ function Minc(filename,extraArgs,callback) {
 	       that.yspace = data.yspace;
 	       that.zspace = data.zspace;
 	       
+	       that.xspace.step = parseFloat(data.xspace.step);
+	       that.yspace.step = parseFloat(data.yspace.step);
+	       that.zspace.step = parseFloat(data.zspace.step);
+	       
+
 	       if(that.xspace.step == 0) {
 		 that.xspace.step = 1;
 	       }
@@ -65,7 +83,7 @@ function Minc(filename,extraArgs,callback) {
   this.load_data = function (filename,callback,extraArgs){  
     var request = new XMLHttpRequest();
     
-    request.open('GET', filename+'/content',true);
+    request.open('GET', filename+'?raw_data=true',true);
     request.responseType = 'arraybuffer';
     request.onreadystatechange = function() {
       if(request.readyState == 4)
@@ -170,18 +188,23 @@ function Minc(filename,extraArgs,callback) {
     if(factor == null) {
       factor = Math.abs(that[axis].step);
     }
+    var new_width = that[axis].length * factor;
+    var new_height = that[axis].height * factor;
+   
+    var x_ratio = that[axis].length/new_width;
+    var y_ratio = that[axis].height/new_height;
+    
     var original_slice= that.slice(axis,number,time);
-    var new_array = new Uint16Array(original_slice.length *factor * factor);
-    for(var i=0; i < that[axis].height; i++) {
-      for(var j=0; j < factor; j++){
-	for(var k=0; k < that[axis].length; k++){
-	  for(var l=0; l < factor; l++) {
-	    new_array[(i*factor+j)*(that[axis].length*factor)+k*factor+l] = original_slice[i*that[axis].length+k];
-	  };
-
-	}
-      }
+    var new_array = new Uint16Array(new_width * new_height);
+       
+    for(var i = 0; i< new_height; i++) {
+     for(var j = 0; j < new_width; j++)  {
+       var px = Math.floor(j*x_ratio);  
+       var py = Math.floor(i*y_ratio);
+       new_array[(i*new_width)+j] = original_slice[parseInt(py*that[axis].length)+px];
+     }
     }
+    
 
     //alert("New array length: " + new_array.length + " old:" + original_slice.length);
     return new_array;
@@ -189,7 +212,7 @@ function Minc(filename,extraArgs,callback) {
 
 
   if(filename != null && callback != null) {
-    this.load_params(filename);
+    this.load_headers(filename);
     this.load_data(filename,callback,extraArgs);
   }
 

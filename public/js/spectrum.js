@@ -3,7 +3,6 @@ function Spectrum(data) {
 
 
 
-
   /*
    * Creates an canvas with the spectrum of colors
    * from low(left) to high(right) values

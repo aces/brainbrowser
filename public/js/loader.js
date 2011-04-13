@@ -9,7 +9,7 @@ function Loader() {
 	callback(data);
       },
       error: function(request,textStatus,e) {
-	alert("Failure: " + "load data");
+	//alert("Failure: " + "load data");
 	
       },
       data: {},

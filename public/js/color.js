@@ -3,7 +3,7 @@
    * This create a color map for each value in the values array
    * This can be slow and memory intensive for large arrays
    */
-function createColorMap(spectrum,canvaspixelarray,values,min,max,normalize) {
+function createColorMap(spectrum,canvaspixelarray,values,min,max,normalize,brightness,contrast) {
   
 
   var spectrum = spectrum.colors;
@@ -27,10 +27,9 @@ function createColorMap(spectrum,canvaspixelarray,values,min,max,normalize) {
       var scale = 255;
     }else
       var scale = 1;
-
-    canvaspixelarray[i*4+0]=scale*spectrum[color_index][0];
-    canvaspixelarray[i*4+1]=scale*spectrum[color_index][1];      
-    canvaspixelarray[i*4+2]=scale*spectrum[color_index][2];
+    canvaspixelarray[i*4+0]=scale*spectrum[color_index][0]*contrast+brightness*scale;
+    canvaspixelarray[i*4+1]=scale*spectrum[color_index][1]*contrast+brightness*scale;      
+    canvaspixelarray[i*4+2]=scale*spectrum[color_index][2]*contrast+brightness*scale;
     canvaspixelarray[i*4+3]=scale*1.0;
   }
   return canvaspixelarray;

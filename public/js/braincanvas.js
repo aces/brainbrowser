@@ -11,8 +11,18 @@ function BrainCanvas(canvas) {
   //Holds the slice numbers 
   that.slices = {};
 
-  var spectrum = loader.loadSpectrumFromUrl("/spectrum/spectral.txt");
-   
+  //initial brightness adjustment is 0;
+  that.brightness = 0;
+  //initial contrast at 1
+  that.contrast = 1;
+
+  //the different color specturms. 
+  var spectrums = {spectral: loader.loadSpectrumFromUrl("/spectrum/spectral.txt"),grayscale:  loader.loadSpectrumFromUrl("/spectrum/gray_scale256.txt")};
+  var spectrum = spectrums['spectral']; //default spectrum
+  
+
+ 
+  //Initialized a canvas and turns it black. 
   this.initCanvas = function(width,heigth) {
     canvas.width = width;
     canvas.height = heigth;
@@ -33,7 +43,7 @@ function BrainCanvas(canvas) {
       minc[axis].length*Math.abs(minc[minc[axis].length_space].step),
       minc[axis].height*Math.abs(minc[minc[axis].height_space].step));
     
-    slice_image_data.data = createColorMap(spectrum,slice_image_data.data,slice,minc.min,minc.max,true);
+    slice_image_data.data = createColorMap(spectrum,slice_image_data.data,slice,minc.min,minc.max,true,that.brightness,that.contrast);
 
     return slice_image_data;
   };
@@ -65,6 +75,7 @@ function BrainCanvas(canvas) {
   };
 
   this.updateSlices = function(event,time){
+    that.current_time = time;
     if(event) {
       var slice_numbers = that.getSliceNumbersFromPosition(getCursorPosition(event));      
     }else {
@@ -102,9 +113,9 @@ function BrainCanvas(canvas) {
 			  "<br> xspace.length: " + minc.xspace.length + " yspace.length: " + minc.yspace.length + " zspace.length: " + minc.zspace.length + "xspace step: " + minc.xspace.step + "yspace step: " + minc.yspace.step + "zspace step: " + minc.zspace.step);
     
 
-    that.slices.xspace = 100;
-    that.slices.yspace = 100;
-    that.slices.zspace = 100;
+    that.slices.xspace = parseInt(minc.xspace.length/2);
+    that.slices.yspace = parseInt(minc.yspace.length/2);
+    that.slices.zspace = parseInt(minc.zspace.length/2);
     that.updateXSpace(that.slices.xspace,minc);
     that.updateYSpace(that.slices.yspace,minc);
     that.updateZSpace(that.slices.zspace,minc);
@@ -210,21 +221,85 @@ function BrainCanvas(canvas) {
       }
     };
   };
-
+  
+  //Show time slider for 4D datasets
   this.showTime = function() {
-    var div = $(canvas).parent();
-    $("<input type='text' name='time' value=\"0\" size=4>").appendTo(div);
+    $("<div id=\"time\">Time Index: </div>").appendTo($(canvas).parent());
+
+    var div = $($(canvas).parent().children("#time"));
+    $("<span id=\"time-value\">1</span>").appendTo(div);
     $("<div id=\"time-slider\" width=\""+canvas.width+"\" + height=\"10\"></div>").slider({
 						  value: 0,
 						  min: 0,
 						  max: that.current_minc.time.space_length,
 						  step: 1,
 	                                          slide: function(event,ui) {
-					           that.updateSlices(null,ui.value);	    
+					            that.updateSlices(null,ui.value);	    
+						    $(div).children("#time-value").html(ui.value);
 						  }
 						}).appendTo(div);
   };
 
+  //Brightness slider 
+  this.showBrightness = function() {
+    $("<div id=\"brightness\">Brightness: </div>").appendTo($(canvas).parent());
+    var div = $($(canvas).parent().children("#brightness"));
+    $("<span id=\"brightness-value\">0%</span>").appendTo(div);
+    $("<div id=\"brightness-slider\" width=\"100px\" + height=\"10\"></div>").slider({
+						  value: 0,
+						  min: -1,
+						  max:1,	       
+                                                  step: .1,
+	                                          slide: function(event,ui) {
+						    that.brightness = ui.value;
+						    that.updateSlices(null,that.current_time);
+						    $(div).children("#brightness-value").html(ui.value*100 + "%");
+						  }
+						}).appendTo(div);
+    
+
+  };
+
+ //contrast slider 
+ this.showContrast = function() {
+    $("<div id=\"contrast\">Contrast: </div>").appendTo($(canvas).parent());
+    var div = $($(canvas).parent().children("#contrast"));
+    $("<span id=\"contrast-value\">1</span>").appendTo(div);
+    $("<div id=\"contrast-slider\" width=\"100px\" + height=\"10\"></div>").slider({
+						  value: 1,
+						  min: 1,
+						  max:5,	       
+                                                  step: .1,
+	                                          slide: function(event,ui) {
+						    that.contrast = ui.value;
+						    that.updateSlices(null,that.current_time);
+						    $(div).children("#contrast-value").html(ui.value);
+						  }
+						}).appendTo(div);
+    
+
+  };
+
+  this.changeSpectrum = function(name){
+    spectrum = spectrums[name];
+    that.updateSlices(null,that.time);
+  };
+ 
+
+  this.showSpectrum=function() {
+    $("<div id=\"spectrum\">Color Scale</div>").appendTo($(canvas).parent());
+    var div = $($(canvas).parent().children("#spectrum"));
+    $("<select id=\"spectrum-select\">"
+      +"<option value=\"spectral\">Spectral</option>"
+      +"<option value=\"grayscale\">Gray Scale</option>"
+      + "</select>").appendTo(div);
+    $(div).children("#spectrum-select").change(function(event){
+			    that.changeSpectrum($(event.target).val());
+			   });
+  };
+
+
+  //Open a Minc file, initiates the UI elements Basicly the main function. 
   this.openFile =function(filename) {
     this.current_minc = new Minc(filename, null,function(minc,extraArgs){
 				   var height = minc.xspace.height*Math.abs(minc.xspace.step)+minc.yspace.height*Math.abs(minc.yspace.step)+minc.yspace.height*Math.abs(minc.zspace.step);
@@ -232,7 +307,10 @@ function BrainCanvas(canvas) {
 				   
 				   that.initCanvas(length,height);
 				   that.showMinc(minc);
+				   that.showBrightness();
+				   that.showContrast();
 				   that.addListeners();
+                                   that.showSpectrum();
 				   if(minc.time) {
 				     that.showTime();
 				   }
@@ -240,7 +318,6 @@ function BrainCanvas(canvas) {
   };
 
 
-
-
-
 };
+
+

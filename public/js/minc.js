@@ -133,7 +133,7 @@ function Minc(filename,extraArgs,callback) {
     }else {
       var time_offset = 0;
     }
-    var step = that[axis].step;
+
     if(that.order[0] == axis) {
       var slice_length = that[axis].height*that[axis].length;
       var row_length = that[axis].length;
@@ -197,7 +197,7 @@ function Minc(filename,extraArgs,callback) {
      for(var j = 0; j < new_width; j++)  {
        var px = Math.floor(j*x_ratio);  
        var py = Math.floor(i*y_ratio);
-       new_array[parseInt(i*new_width+j)] = data[parseInt(py*width+px)];
+       new_array[Math.floor(i*new_width+j)] = data[Math.floor(py*width+px)];
      }
    
     }
@@ -209,8 +209,8 @@ function Minc(filename,extraArgs,callback) {
    var original_slice= that.slice(axis,number,time);
    var width      =  that[axis].length;
    var height     = that[axis].height;
-   var new_width  = Math.abs(that[that[axis].length_space].step)*width;
-   var new_height = Math.abs(that[that[axis].height_space].step)*height;
+   var new_width  = Math.ceil(Math.abs(that[that[axis].length_space].step)*width);
+   var new_height = Math.ceil(Math.abs(that[that[axis].height_space].step)*height);
 
    return this.nearestNeighboor(original_slice,width,height,new_width,new_height);
     

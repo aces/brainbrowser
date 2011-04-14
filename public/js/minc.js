@@ -36,17 +36,17 @@ function Minc(filename,extraArgs,callback) {
 	       that.zspace.step = parseFloat(data.zspace.step);
 	       
 
-	       if(that.xspace.step == 0) {
-		 that.xspace.step = 1;
-	       }
+	       //if(that.xspace.step == 0) {
+		 //that.xspace.step = 1;
+	       //}
 	       
-	       if(that.yspace.step == 0) {
-		 that.yspace.step = 1;
-	       }
+	       //if(that.yspace.step == 0) {
+		 //that.yspace.step = 1;
+	       //}
 
-	       if(that.zspace.step == 0) {
-		 that.zspace.step = 1;
-	       }
+	       //if(that.zspace.step == 0) {
+		 //that.zspace.step = 1;
+	      // }
 
 	       //figure out height and length of each slices in each direction
 	       that[that.order[0]].height=that[that.order[1]].space_length;
@@ -133,7 +133,7 @@ function Minc(filename,extraArgs,callback) {
     }else {
       var time_offset = 0;
     }
-
+    var step = that[axis].step;
     if(that.order[0] == axis) {
       var slice_length = that[axis].height*that[axis].length;
       var row_length = that[axis].length;
@@ -141,10 +141,13 @@ function Minc(filename,extraArgs,callback) {
       var row_offset = row_length; 
       var slice_offset = slice_length;
       var slice = new Uint16Array(slice_length);
-      
+     
       for(var i=0; i< slice_length; i++) {
 	slice[i]=this.data[time_offset+ slice_offset*number+i];
       }
+
+      
+      
       
     } else if(that.order[1] == axis ) {
 
@@ -156,10 +159,12 @@ function Minc(filename,extraArgs,callback) {
       var slice_offset = that[that.order[0]].length; 
       var slice = new Uint16Array(slice_length);
       
+      
       for(var j=0; j<height; j++)
 	for(var k=0; k< row_length; k++){
 	  slice[j*(row_length)+k] = that.data[time_offset+number*slice_offset+row_offset*k+j];    
 	}
+      
 
     }else {
       var height = that[axis].height;
@@ -174,7 +179,6 @@ function Minc(filename,extraArgs,callback) {
 	for(var k=0; k< row_length; k++){
 	  slice[j*(row_length)+k] = that.data[time_offset+number+that[that.order[0]].length*j+k*that[that.order[0]].slice_length];    
 	}
-
       
 
     }
@@ -183,31 +187,33 @@ function Minc(filename,extraArgs,callback) {
     return slice;
  };
 
-  
-  this.getScaledSlice = function(axis,number,time,factor) {
-    if(factor == null) {
-      factor = Math.abs(that[axis].step);
-    }
-    var new_width = that[axis].length * factor;
-    var new_height = that[axis].height * factor;
-   
-    var x_ratio = that[axis].length/new_width;
-    var y_ratio = that[axis].height/new_height;
-    
-    var original_slice= that.slice(axis,number,time);
+
+  this.nearestNeighboor = function(data,width,height,new_width,new_height) {
     var new_array = new Uint16Array(new_width * new_height);
-       
+    var x_ratio = width/new_width;
+    var y_ratio = height/new_height;
+    
     for(var i = 0; i< new_height; i++) {
      for(var j = 0; j < new_width; j++)  {
        var px = Math.floor(j*x_ratio);  
        var py = Math.floor(i*y_ratio);
-       new_array[(i*new_width)+j] = original_slice[parseInt(py*that[axis].length)+px];
+       new_array[parseInt(i*new_width+j)] = data[parseInt(py*width+px)];
      }
+   
     }
-    
-
-    //alert("New array length: " + new_array.length + " old:" + original_slice.length);
     return new_array;
+  };
+
+  this.getScaledSlice = function(axis,number,time) { 
+    
+   var original_slice= that.slice(axis,number,time);
+   var width      =  that[axis].length;
+   var height     = that[axis].height;
+   var new_width  = Math.abs(that[that[axis].length_space].step)*width;
+   var new_height = Math.abs(that[that[axis].height_space].step)*height;
+
+   return this.nearestNeighboor(original_slice,width,height,new_width,new_height);
+    
   };
 
 

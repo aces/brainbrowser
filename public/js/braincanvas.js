@@ -35,7 +35,7 @@ function BrainCanvas(canvas) {
  
   
   this.update_space = function(axis, number, minc,time) {
-    var slice = minc.getScaledSlice(axis,number,time,null);
+    var slice = minc.getScaledSlice(axis,number,time);
 
     //get the area of canvas to insert image into
     //Make sure that area uses the step of the axises
@@ -63,16 +63,28 @@ function BrainCanvas(canvas) {
     that.slices.yspace = number;
     var yslice_image_data = that.update_space("yspace", number,minc,time);
 
-    context.putImageData(yslice_image_data,0,minc.xspace.height*Math.abs(minc.xspace.step));   
+    context.putImageData(yslice_image_data,0,parseInt(minc.xspace.height*Math.abs(minc[minc.xspace.height_space].step)));   
     
   };
   
   this.updateZSpace = function(number,minc,time) {
     that.slices.zspace = number;
     var zslice_image_data = that.update_space("zspace", number,minc,time);
-    context.putImageData(zslice_image_data,0,minc.xspace.height*Math.abs(minc.xspace.step)+minc.yspace.height*Math.abs(minc.yspace.step));    
+    context.putImageData(zslice_image_data,0,parseInt(minc.xspace.height*Math.abs(minc[minc.xspace.height_space].step)+minc.yspace.height*Math.abs(minc[minc.yspace.height_space].step)));    
 
   };
+
+  this.showCrosshairs= function(){
+    drawCrosshair(parseInt(that.slices[that.current_minc.xspace.length_space]*Math.abs(that.current_minc[that.current_minc.xspace.length_space].step)),
+                  parseInt(that.slices[that.current_minc.xspace.height_space]*Math.abs(that.current_minc[that.current_minc.xspace.length_space].step)));
+    drawCrosshair(parseInt(that.slices[that.current_minc.yspace.length_space]*Math.abs(that.current_minc[that.current_minc.yspace.length_space].step)),
+		  parseInt(that.slices[that.current_minc.yspace.height_space]*Math.abs(that.current_minc[that.current_minc.yspace.height_space].step)+that.current_minc.xspace.height*Math.abs(that.current_minc[that.current_minc.xspace.height_space].step)));
+    drawCrosshair(parseInt(that.slices[that.current_minc.zspace.length_space]*Math.abs(that.current_minc[that.current_minc.zspace.length_space].step)),
+		  parseInt(that.slices[that.current_minc.zspace.height_space]*Math.abs(that.current_minc[that.current_minc.zspace.height_space].step)
+			   +that.current_minc.xspace.height*Math.abs(that.current_minc[that.current_minc.xspace.height_space].step)
+			   +that.current_minc.yspace.height*Math.abs(that.current_minc[that.current_minc.yspace.height_space].step)));    
+
+  }
 
   this.updateSlices = function(event,time){
     that.current_time = time;
@@ -92,19 +104,11 @@ function BrainCanvas(canvas) {
     that.updateXSpace(slice_numbers.x,that.current_minc,time);
     that.updateYSpace(slice_numbers.y,that.current_minc,time);    
     that.updateZSpace(slice_numbers.z,that.current_minc,time);
-
-
-    //draw x or square whatever 
-    drawCrosshair(that.slices[that.current_minc.xspace.length_space]*Math.abs(that.current_minc.xspace.step),
-		  that.slices[that.current_minc.xspace.height_space]*Math.abs(that.current_minc.xspace.step));
-    drawCrosshair(that.slices[that.current_minc.yspace.length_space]*Math.abs(that.current_minc.xspace.step),
-		  that.slices[that.current_minc.yspace.height_space]*Math.abs(that.current_minc.xspace.step)+that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.step));
-    drawCrosshair(that.slices[that.current_minc.zspace.length_space]*Math.abs(that.current_minc.xspace.step),
-		  that.slices[that.current_minc.zspace.height_space]*Math.abs(that.current_minc.xspace.step)
-		  +that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.step)
-		  +that.current_minc.yspace.height*Math.abs(that.current_minc.xspace.step));    
+    that.showCrosshairs();
 
   };
+ 
+
 
   this.showMinc=function(minc){
     $(canvas).siblings("#mincinfo").append("Minc Information: <br>"+
@@ -120,15 +124,7 @@ function BrainCanvas(canvas) {
     that.updateYSpace(that.slices.yspace,minc);
     that.updateZSpace(that.slices.zspace,minc);
 
-
-    drawCrosshair(that.slices[that.current_minc.xspace.length_space]*Math.abs(that.current_minc.xspace.step),
-		  that.slices[that.current_minc.xspace.height_space]*Math.abs(that.current_minc.xspace.step));
-    drawCrosshair(that.slices[that.current_minc.yspace.length_space]*Math.abs(that.current_minc.xspace.step),
-		  that.slices[that.current_minc.yspace.height_space]*Math.abs(that.current_minc.xspace.step)+that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.step));
-    drawCrosshair(that.slices[that.current_minc.zspace.length_space]*Math.abs(that.current_minc.xspace.step),
-		  that.slices[that.current_minc.zspace.height_space]*Math.abs(that.current_minc.xspace.step)
-		  +that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.step)
-		  +that.current_minc.yspace.height*Math.abs(that.current_minc.xspace.step));    
+    that.showCrosshairs();
 
    //alert("Typeof xlsice: " + typeof xslice + " Lenght of xslice: " + xslice.length + " xslice max: " + minc.max + " xslice.min: " + minc.min + " xslice[5000]: " + xslice[5000] + " xslice[20000]: " + xslice[20000] + " xslice_image_data.data[10000*4]: "   + " " + xslice_image_data.data[2] );
     
@@ -161,39 +157,40 @@ function BrainCanvas(canvas) {
 
   this.getSliceNumbersFromPosition = function(position){
     that.position = position;
-    if(position.y/Math.abs(that.current_minc.xspace.step) < that.current_minc.xspace.height) {
+    if(position.y/Math.abs(that.current_minc[that.current_minc.xspace.height_space].step) < that.current_minc.xspace.height) {
       var slices = {
 	x: that.slices.xspace
       };
       if(that.current_minc.xspace.height_space == "yspace") {
-	slices.y = parseInt(position.y/Math.abs(that.current_minc.yspace.step));
-	slices.z = parseInt(position.x/Math.abs(that.current_minc.zspace.step));
+	slices.y = parseInt(position.y/Math.abs(that.current_minc[that.current_minc.xspace.height_space].step));
+	slices.z = parseInt(position.x/Math.abs(that.current_minc[that.current_minc.xspace.length_space].step));
       }else {
-        slices.y = parseInt(position.x/Math.abs(that.current_minc.yspace.step));
-	slices.z = parseInt(position.y/Math.abs(that.current_minc.zspace.step));
+        slices.y = parseFloat(position.x/Math.abs(that.current_minc[that.current_minc.xspace.height_space].step));
+	slices.z = parseFloat(position.y/Math.abs(that.current_minc[that.current_minc.xspace.length_space].step));
    	
       }
 
-    }else if(position.y/Math.abs(that.current_minc.yspace.step) < that.current_minc.xspace.height + that.current_minc.yspace.height){
+    }else if(position.y < (that.current_minc.xspace.height*Math.abs(that.current_minc[that.current_minc.xspace.height_space].step) + that.current_minc.yspace.height*Math.abs(that.current_minc[that.current_minc.yspace.height_space].step))){
       var slices = {
 	y: that.slices.yspace
       };
       
       if(that.current_minc.yspace.height_space == "zspace"){
 	
-	slices.x = parseInt(position.x/Math.abs(that.current_minc.xspace.step));	
-	slices.z = parseInt(position.y/Math.abs(that.current_minc.zspace.step)) -  that.current_minc.xspace.height;
+	slices.x = parseInt(position.x/Math.abs(that.current_minc[that.current_minc.yspace.length_space].step));	
+	slices.z = parseInt((position.y -  that.current_minc.xspace.height*Math.abs(that.current_minc[that.current_minc.xspace.height_space].step))/Math.abs(that.current_minc.zspace.step)); 
       } else {	
-        slices.z = parseInt(position.x/Math.abs(that.current_minc.zspace.step));
-	slices.x = parseInt(position.y/Math.abs(that.current_minc.yspace.step)) -  that.current_minc.xspace.height;
+        slices.z = parseInt(position.x/Math.abs(that.current_minc[that.current_minc.yspace.length_space].step));	
+	slices.x = parseInt((position.y -  that.current_minc.xspace.height*Math.abs(that.current_minc[that.current_minc.xspace.height_space].step))/Math.abs(that.current_minc.xspace.step));
+			    
       }
 
     }else {
       var slices = 
 	{
 	  z: that.slices.zspace,
-	  x:parseInt(position.x/Math.abs(that.current_minc.xspace.step)),
-	  y:parseInt(position.y/Math.abs(that.current_minc.yspace.step)) - that.current_minc.xspace.height - that.current_minc.yspace.height
+	  x:parseInt(position.x/Math.abs(that.current_minc[that.current_minc.zspace.length_space].step)),
+	  y:parseInt((position.y - that.current_minc.xspace.height*Math.abs(that.current_minc[that.current_minc.xspace.height_space].step) - that.current_minc.yspace.height*Math.abs(that.current_minc[that.current_minc.yspace.height_space].step))/Math.abs(that.current_minc[that.current_minc.zspace.height_space].step))
 	};
       
     }
@@ -302,8 +299,8 @@ function BrainCanvas(canvas) {
   //Open a Minc file, initiates the UI elements Basicly the main function. 
   this.openFile =function(filename) {
     this.current_minc = new Minc(filename, null,function(minc,extraArgs){
-				   var height = minc.xspace.height*Math.abs(minc.xspace.step)+minc.yspace.height*Math.abs(minc.yspace.step)+minc.yspace.height*Math.abs(minc.zspace.step);
-				   var length = Math.max(minc.xspace.length*Math.abs(minc.xspace.step),minc.yspace.length*Math.abs(minc.yspace.step),minc.zspace.length*Math.abs(minc.zspace.step));
+				   var height = minc.xspace.height*Math.abs(minc[minc.xspace.height_space].step)+minc.yspace.height*Math.abs(minc[minc.yspace.height_space].step)+minc.zspace.height*Math.abs(minc[minc.zspace.height_space].step);
+				   var length = Math.max(minc.xspace.length*Math.abs(minc[minc.xspace.length_space].step),minc.yspace.length*Math.abs(minc[minc.yspace.length_space].step),minc.zspace.length*Math.abs(minc[minc.zspace.length_space].step));
 				   
 				   that.initCanvas(length,height);
 				   that.showMinc(minc);

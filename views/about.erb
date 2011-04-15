@@ -1,0 +1,37 @@
+    <h2>Introduction</h2>
+    <p>BrainBrowser is a web-enabled brain surface viewer that allows the user to explore in real time a 3D brain map expressed on a base surface. Typically, this map might be a statistical map derived from a group analysis of functional or structural imaging data. The map can be calculated using either 3D statistical tools (e.g. SPM, fMRIstat) or surface-based statistical tools (e.g. Surfstat). This map is texture-mapped on to a base surface that can be either the default surface in stereotaxic space (Lyttelton O et al., 2007) or a user-defined surface. BrainBrowser has two primary modes of operation, exploring either a pre-calculated database of structural correlation maps or working with user-defined data. In the first mode, the user may choose to explore the correlation structure for cortical thickness, cortical area or cortical volume, previously calculated at the MNI on a vertex-wise basis from the ICBM152 MRI database. This database was built using the MACACC approach to define cortical correlation structure (Lerch J et al., 2006). In the second mode, the user is prompted for the local filenames of the statistical map and the base surface. BrainBrowser can also be used to manipulate 3D fibre pathways derived from DTI, using the same simple file format (.obj) as for surface data. Examples of Brainbrowser data are available on the main page. More detail and a user-guide to BrainBrowser operation are provided below.
+    
+</p><h2>MACACC Database Exploration</h2>
+<p>
+  In this mode, Bra	inBrowser is used to explore structural correlations across the
+  cortex, derived in database of 152 young normal subjects from the International
+  Consortium for Brain Mapping (ICBM, Mazziotta J et al., 2001). Cortical thickness at
+  each of 80K 3D locations were calculated using the CLASP algorithm (MacDonald
+  D et al., 2000; Kim JS et al., 2005). This subject population is the same as used for
+  the MNI152 stereotaxic voxelwise templates used, for instance, in SPM. Structural
+  correlation maps are calculated according to the procedures in Lerch et al., (2005),
+  wherein the correlation across subjects, between the cortical thickness at a
+  seed vertex and at any other vertex, is measured. This yields a cortical thickness
+  correlation map for that seed vertex. The BrainBrowser database contains maps for
+  all cortical vertices for each of three vertexwise morphological variables (thickness,
+  area, volume). Furthermore, since the blurring kernel used will profoundly alter the
+  derived statistical map, the results are generated for 9 different surface-blurring
+  kernels and for three different statistics. In total, the BrainBrowser database
+  comprises ~6.3 Million maps for the following permutations:
+
+  80K vertices x 9 blurring kernels x 3 morphological indices x 3 statistical
+      
+</p>
+<p>
+      This demonstration of BrainBrowser can be used in one of the following ways:
+</p>
+    <ol>
+      <li>
+	Surface Viewer: Load and manipulate 3D brain surface or DTI models. 
+      </li>
+      <li>
+	Macacc Viewer: The Macacc dataset is 1TB set of correlation maps for cortical thickness, cortical area and cortical volume.
+      </li>
+    </ol>
+<p>
+  

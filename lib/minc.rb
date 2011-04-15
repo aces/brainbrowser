@@ -11,17 +11,17 @@ class Minc
       :xspace => {
         :start        => IO.popen("mincinfo -attval xspace:start #{filename}") { |fh| fh.readlines.join.to_f } ,
         :space_length => IO.popen("mincinfo -dimlength xspace #{filename}"){ |fh| fh.readlines.join.to_i},
-        :step         => IO.popen("mincinfo -attval xspace:step #{filename}"){ |fh| fh.readlines.join.to_i}
+        :step         => IO.popen("mincinfo -attval xspace:step #{filename}"){ |fh| fh.readlines.join.to_f}
       },
       :yspace => {
         :start        => IO.popen("mincinfo -attval yspace:start #{filename}"){|fh| fh.readlines.join.to_f},
         :space_length => IO.popen("mincinfo -dimlength yspace #{filename}"){ |fh| fh.readlines.join.to_i},
-        :step         => IO.popen("mincinfo -attval yspace:step #{filename}"){ |fh| fh.readlines.join.to_i}
+        :step         => IO.popen("mincinfo -attval yspace:step #{filename}"){ |fh| fh.readlines.join.to_f}
       },
       :zspace => {
         :start        => IO.popen("mincinfo -attval zspace:start #{filename}"){|fh| fh.readlines.join.to_f},
         :space_length => IO.popen("mincinfo -dimlength zspace #{filename}"){ |fh| fh.readlines.join.to_i},
-        :step         => IO.popen("mincinfo -attval zspace:step #{filename}"){ |fh| fh.readlines.join.to_i}
+        :step         => IO.popen("mincinfo -attval zspace:step #{filename}"){ |fh| fh.readlines.join.to_f}
       },
 
       :order => order

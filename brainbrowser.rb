@@ -13,16 +13,28 @@ not_found do
 end
 
 get '/' do
-  redirect '/index.html'
+  erb :index
 end
 
+get '/about' do
+  erb :about
+end
+
+get '/contacts' do
+  erb :contacts
+end
+
+
+get '/news' do
+  erb :news
+end
 
 #Runs volume object evaluate on a minc file provided by the user.
 #The file is uploaded then run through the tool, and the output is
 #sent back to the user. Also, deletes the output file
 post '/minc/volume_object_evaluate' do
-  datafile = params["datafile"][:tempfile].path
-  objfile = params["objfile"][:tempfile].path
+  datafile = headers["datafile"][:tempfile].path
+  objfile = headers["objfile"][:tempfile].path
   outfile = "tmp/xyz#{rand 100000000000000000000}.txt"
   
   
@@ -46,8 +58,8 @@ end
 #The file is uploaded then run through the tool, and the output is
 #sent back to the user. Also, deletes the output file
 post '/nii/volume_object_evaluate' do
-  datafile = params["datafile"][:tempfile].path
-  objfile = params["objfile"][:tempfile].path
+  datafile = headers["datafile"][:tempfile].path
+  objfile = headers["objfile"][:tempfile].path
   tmpnii = "tmp/xyz#{rand 100000000000000000000}.nii"
   tmpmnc = "tmp/xyz#{rand 100000000000000000000}.mnc"
   outfile = "tmp/xyz#{rand 100000000000000000000}.txt"
@@ -79,51 +91,51 @@ end
 
 
 #Extracts the content of a minc file
-get '/data/:filename/content' do
-  if !(params[:filename] == @filename)
-    filename = "data/#{params[:filename]}"
-    if file_accessible? filename do 
-        @minc = Minc.new(filename)
-        @filename = params[:filename]
+get '/data/:filename' do
+  if params[:minc_headers]
+
+    if params[:filename] == @filename
+      return @minc.headers
+    else
+      filename = "data/#{params[:filename]}"
+      
+      if file_accessible? filename do 
+          @minc = Minc.new(filename)
+          @filename = params[:filename]
+    end
+        
+      else
+        raise Sinatra::NotFound
       end
-    else
-      raise Sinatra::NotFound
+      return @minc.headers.to_json
     end
-  end
-  
-  headers  'content-type' => "text/plain"
-
-  @minc.raw_data
-end
-
-#gets a few important params from a minc file
-get '/data/:filename/params' do
-  if params[:filename] == @filename
-    return @minc.params
-  else
-    filename = "data/#{params[:filename]}"
+   
+  elsif params["raw_data"]
+    if !(params[:filename] == @filename)
+      filename = "data/#{params[:filename]}"
+      if file_accessible? filename do 
+          @minc = Minc.new(filename)
+          @filename = params[:filename]
+        end
+      else
+        raise Sinatra::NotFound
+      end
+    end
     
-    if file_accessible? filename do 
-      @minc = Minc.new(filename)
-      @filename = params[:filename]
-    end
-
-    else
-      raise Sinatra::NotFound
-    end
-    puts @minc.params
-    @minc.params.to_json
+    headers 'content-type' => "text/plain"
+    
+    @minc.raw_data
   end
 end
 
 #2d mri browser
 get '/braincanvas' do
-  erb :braincanvas
+  erb :braincanvas,:layout => false
 end
 
 #3d mri browser
 get '/braincloud' do
-  erb :braincloud
+  erb :braincloud, :layout => false
 end
 
 

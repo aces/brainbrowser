@@ -30,37 +30,22 @@ function Minc(filename,extraArgs,callback) {
 	       that.xspace = data.xspace;
 	       that.yspace = data.yspace;
 	       that.zspace = data.zspace;
-	       
-	       that.xspace.step = parseFloat(data.xspace.step);
-	       that.yspace.step = parseFloat(data.yspace.step);
-	       that.zspace.step = parseFloat(data.zspace.step);
-	       
-
-	       //if(that.xspace.step == 0) {
-		 //that.xspace.step = 1;
-	       //}
-	       
-	       //if(that.yspace.step == 0) {
-		 //that.yspace.step = 1;
-	       //}
-
-	       //if(that.zspace.step == 0) {
-		 //that.zspace.step = 1;
-	      // }
-
+	       that.xspace.name = "xspace";
+	       that.yspace.name = "yspace";
+	       that.zspace.name = "zspace";
 	       //figure out height and length of each slices in each direction
 	       that[that.order[0]].height=that[that.order[1]].space_length;
-	       that[that.order[0]].height_space=that.order[1];
+	       that[that.order[0]].height_space=that[that.order[1]];
 	       that[that.order[0]].length=that[that.order[2]].space_length;
-	       that[that.order[0]].length_space = that.order[2];
+	       that[that.order[0]].length_space = that[that.order[2]];
 	       that[that.order[1]].height=that[that.order[2]].space_length;
-	       that[that.order[1]].height_space=that.order[2];
+	       that[that.order[1]].height_space=that[that.order[2]];
 	       that[that.order[1]].length=that[that.order[0]].space_length;
-	       that[that.order[1]].length_space = that.order[0];
+	       that[that.order[1]].length_space = that[that.order[0]];
 	       that[that.order[2]].height=that[that.order[1]].space_length;
-	       that[that.order[2]].height_space=that.order[1];
+	       that[that.order[2]].height_space=that[that.order[1]];
 	       that[that.order[2]].length=that[that.order[0]].space_length;
-	       that[that.order[2]].length_space = that.order[0];
+	       that[that.order[2]].length_space = that[that.order[0]];
 	       //calculate the offsets for each element of a slice
 	       that[that.order[0]].offset=that[that.order[1]].space_length*that[that.order[2]].space_length;
 	       that[that.order[1]].offset=that[that.order[0]].space_length;
@@ -120,7 +105,9 @@ function Minc(filename,extraArgs,callback) {
     that.data = data;
     callback(this,extraArgs);
   };
- 
+  this.sliceFromCoordinates = function(axis,x,y,z) {
+    
+  };
   this.slice = function(axis,number,time) {
     if(that.order == undefined ) {
       return false;
@@ -133,21 +120,38 @@ function Minc(filename,extraArgs,callback) {
     }else {
       var time_offset = 0;
     }
-
+    var space_length = that[axis].space_length;
+    var step = that[axis].step;
+    //Are we counting slices backwards? 
+    //if(step < 0) {
+      //number = space_length - number;
+    //}
+    var length_step = that[axis].length_space.step;      
+    var height_step = that[axis].height_space.step;
     if(that.order[0] == axis) {
       var slice_length = that[axis].height*that[axis].length;
+      var height = that[axis].height;
       var row_length = that[axis].length;
       var element_offset = 1; 
       var row_offset = row_length; 
       var slice_offset = slice_length;
       var slice = new Uint16Array(slice_length);
-     
-      for(var i=0; i< slice_length; i++) {
-	slice[i]=this.data[time_offset+ slice_offset*number+i];
+
+      if(length_step > 0) {
+	for(var i=0; i< slice_length; i++) {
+	  slice[i]=this.data[time_offset+ slice_offset*number+i];
+	}
+	
+      }else {
+	for(var i=0; i < height; i++) {
+	  for(var j=0; j < row_length; j++) {
+	    slice[i*row_length+j]=this.data[time_offset+slice_offset*number+i*row_length + row_length - j];
+	  }	    
+	}
       }
 
-      
-      
+    
+
       
     } else if(that.order[1] == axis ) {
 
@@ -159,11 +163,19 @@ function Minc(filename,extraArgs,callback) {
       var slice_offset = that[that.order[0]].length; 
       var slice = new Uint16Array(slice_length);
       
+      if(height_step < 0) {
+	for(var j=0; j<height; j++)
+	  for(var k=0; k< row_length; k++){
+	    slice[j*(row_length)+k] = that.data[time_offset+number*slice_offset+row_offset*k+j];    
+	  }
+	
+      }else {
+	for(var j=height; j>=0; j--)
+	  for(var k=0; k< row_length; k++){
+	    slice[(height-j)*(row_length)+k] = that.data[time_offset+number*slice_offset+row_offset*k+j];    
+	  }
       
-      for(var j=0; j<height; j++)
-	for(var k=0; k< row_length; k++){
-	  slice[j*(row_length)+k] = that.data[time_offset+number*slice_offset+row_offset*k+j];    
-	}
+      }
       
 
     }else {
@@ -174,7 +186,9 @@ function Minc(filename,extraArgs,callback) {
       var row_offset= that[that.order[0]].length; 
       var slice_offset = 1;
       var slice = new Uint16Array(slice_length);
-
+      if(height_step < 0 ) {
+	number = space_length - number;
+      }
       for(var j=0; j<height; j++)
 	for(var k=0; k< row_length; k++){
 	  slice[j*(row_length)+k] = that.data[time_offset+number+that[that.order[0]].length*j+k*that[that.order[0]].slice_length];    
@@ -209,8 +223,8 @@ function Minc(filename,extraArgs,callback) {
    var original_slice= that.slice(axis,number,time);
    var width      =  that[axis].length;
    var height     = that[axis].height;
-   var new_width  = Math.ceil(Math.abs(that[that[axis].length_space].step)*width);
-   var new_height = Math.ceil(Math.abs(that[that[axis].height_space].step)*height);
+   var new_width  = Math.ceil(Math.abs(that[axis].length_space.step)*width);
+   var new_height = Math.ceil(Math.abs(that[axis].height_space.step)*height);
 
    return this.nearestNeighboor(original_slice,width,height,new_width,new_height);
     

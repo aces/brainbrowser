@@ -8,11 +8,7 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
   
   var loader = new Loader();
 
-  var cursor = {
-    x: [0,0],
-    y: [0,0],
-    z: [0,0]
-  };
+
   //Holds the slice numbers 
   that.slices = {};
 
@@ -78,24 +74,23 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
   };
 
   this.showCrosshairs= function(){
-    drawCrosshair(xcontext,parseInt(that.slices[that.current_minc.xspace.length_space.name]*Math.abs(that.current_minc.xspace.length_space.step)),
-                  parseInt(that.slices[that.current_minc.xspace.height_space.name]*Math.abs(that.current_minc.xspace.length_space.step)));
-    drawCrosshair(ycontext,parseInt(that.slices[that.current_minc.yspace.length_space.name]*Math.abs(that.current_minc.yspace.length_space.step)),
-		  parseInt(that.slices[that.current_minc.yspace.height_space.name]*Math.abs(that.current_minc.yspace.height_space.step)+that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.height_space.step)));
+    var coordinates = that.sliceToWorldCoordinates({x: that.slices.xspace,
+						    y: that.slices.yspace,
+						    z: that.slices.zspace});
+    
 
-    if(that.current_minc.zspace.height_space.step < 0)  {
-      var z_cross_height = parseInt((that.current_minc.zspace.height_space.space_length - that.slices[that.current_minc.zspace.height_space.name])*Math.abs(that.current_minc.zspace.height_space.step)
-				    +that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.height_space.step)
-				    +that.current_minc.yspace.height*Math.abs(that.current_minc.yspace.height_space.step));
-    }else {
-      var z_cross_height = parseInt(that.slices[that.current_minc.zspace.height_space.name]*Math.abs(that.current_minc.zspace.height_space.step)
-				    +that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.height_space.step)
-				    +that.current_minc.yspace.height*Math.abs(that.current_minc.yspace.height_space.step));
-    }
-    
-    drawCrosshair(zcontext,parseInt(that.slices[that.current_minc.zspace.length_space.name]*Math.abs(that.current_minc.zspace.length_space.step)),
-		  z_cross_height);    
-    
+    drawCrosshair(xcontext,
+		  y_width,
+		  -(coordinates.z+zdist));
+
+    drawCrosshair(ycontext,
+		  x_width,
+		  -(coordinates.z+zdist));
+
+    drawCrosshair(zcontext,
+		  x_width,
+		  -(coordinates.y+ydist));
+    alert(y_width);
   };
 
 
@@ -122,7 +117,9 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
       };
     }
     //clear canvas
-    that.initCanvas(canvas.width, canvas.height);    
+    that.initCanvas(xcanvas,xcanvas.width, xcanvas.height);    
+    that.initCanvas(ycanvas,ycanvas.width, ycanvas.height);    
+    that.initCanvas(zcanvas,zcanvas.width, zcanvas.height);    
 
     //insert slices
     that.updateXSpace(slice_numbers.x,that.current_minc,time);
@@ -172,9 +169,9 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
     }
     
     
-    x -= canvas.offsetLeft;
-    y -= canvas.offsetTop;
-    
+    x -= e.target.offsetLeft;
+    y -= e.target.offsetTop;
+    y = e.target.height-y;
     return {target: e.target,x: x,y: y};
   }
   
@@ -198,29 +195,54 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
 
   this.getSliceNumbersFromPosition = function(position){
     that.position = position;
-    if(position.target.id == "viewport-xpsace") {
+    if(position.target.id == "viewport-xspace") {
       var slices = {
 	x: that.slices.xspace,
 	y: parseInt(position.x/Math.abs(that.current_minc.xspace.height_space.step)),
 	z: parseInt(position.y/Math.abs(that.current_minc.xspace.length_space.step))
       };
 
-    }else if(position.target.id == "viewport-ypsace") {
+      if(that.current_minc.yspace.step < 0 ) {
+	slices.y = that.current_minc.yspace.space_length - slices.y;
+      }
+      if(that.current_minc.zspace.step < 0 ) {
+	slices.z = that.current_minc.zspace.space_length - slices.z;
+      }
+
+
+    }else if(position.target.id == "viewport-yspace") {
       var slices = {
 	y: that.slices.yspace,
 	x: parseInt(position.x/Math.abs(that.current_minc.xspace.step)),
 	z: parseInt(position.y/Math.abs(that.current_minc.zspace.step))
       };  
-
+      if(that.current_minc.xspace.step < 0 ) {
+	slices.x = that.current_minc.xspace.space_length - slices.x;
+      }
+      if(that.current_minc.zspace.step < 0 ) {
+	slices.z = that.current_minc.zspace.space_length - slices.z;
+      }
+      
     }else {
       var slices = {
 	  z:that.slices.zspace,
 	  x:parseInt(position.x/Math.abs(that.current_minc.zspace.length_space.step)),
 	  y:parseInt(position.y/Math.abs(that.current_minc.yspace.step))
 	};
+      if(that.current_minc.xspace.step < 0 ) {
+	slices.x = that.current_minc.xspace.space_length - slices.x;
+      }
+      if(that.current_minc.yspace.step < 0 ) {
+	slices.y = that.current_minc.yspace.space_length - slices.y;
+      }
       
     }
     
+
+    
+
+    
+  
   return slices;  
 
   };
@@ -265,8 +287,8 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
 
   //Brightness slider 
   this.showBrightness = function() {
-    $("<div id=\"brightness\">Brightness: </div>").appendTo($(canvas).parent());
-    var div = $($(canvas).parent().children("#brightness"));
+    $("<div id=\"brightness\">Brightness: </div>").appendTo($(xcanvas).parent());
+    var div = $($(xcanvas).parent().children("#brightness"));
     $("<span id=\"brightness-value\">0%</span>").appendTo(div);
     $("<div id=\"brightness-slider\" width=\"100px\" + height=\"10\"></div>").slider({
 						  value: 0,
@@ -285,8 +307,8 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
 
  //contrast slider 
  this.showContrast = function() {
-    $("<div id=\"contrast\">Contrast: </div>").appendTo($(canvas).parent());
-    var div = $($(canvas).parent().children("#contrast"));
+    $("<div id=\"contrast\">Contrast: </div>").appendTo($(xcanvas).parent());
+    var div = $($(xcanvas).parent().children("#contrast"));
     $("<span id=\"contrast-value\">1</span>").appendTo(div);
     $("<div id=\"contrast-slider\" width=\"100px\" + height=\"10\"></div>").slider({
 						  value: 1,
@@ -310,8 +332,8 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
  
 
   this.showSpectrum=function() {
-    $("<div id=\"spectrum\">Color Scale</div>").appendTo($(canvas).parent());
-    var div = $($(canvas).parent().children("#spectrum"));
+    $("<div id=\"spectrum\">Color Scale</div>").appendTo($(xcanvas).parent());
+    var div = $($(xcanvas).parent().children("#spectrum"));
     $("<select id=\"spectrum-select\">"
       +"<option value=\"spectral\">Spectral</option>"
       +"<option value=\"grayscale\">Gray Scale</option>"
@@ -351,9 +373,9 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
 				   that.showContrast();
 				   
 				  
-				   that.addListeners(xspace);
-				   that.addListeners(yspace);
-				   that.addListeners(zspace);
+				   that.addListeners(xcanvas);
+				   that.addListeners(ycanvas);
+				   that.addListeners(zcanvas);
 
                                    that.showSpectrum();
 

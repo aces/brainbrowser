@@ -135,10 +135,8 @@ function Minc(filename,extraArgs,callback) {
     }
     var space_length = that[axis].space_length;
     var step = that[axis].step;
-    //Are we counting slices backwards? 
-    //if(step < 0) {
-      //number = space_length - number;
-    //}
+
+
     var length_step = that[axis].length_space.step;      
     var height_step = that[axis].height_space.step;
     if(that.order[0] == axis) {
@@ -176,6 +174,7 @@ function Minc(filename,extraArgs,callback) {
       var slice_offset = that[that.order[0]].length; 
       var slice = new Uint16Array(slice_length);
       
+   
       if(height_step < 0) {
 	for(var j=0; j<height; j++)
 	  for(var k=0; k< row_length; k++){
@@ -199,9 +198,7 @@ function Minc(filename,extraArgs,callback) {
       var row_offset= that[that.order[0]].length; 
       var slice_offset = 1;
       var slice = new Uint16Array(slice_length);
-      if(height_step < 0 ) {
-	number = space_length - number;
-      }
+
       for(var j=0; j<height; j++)
 	for(var k=0; k< row_length; k++){
 	  slice[j*(row_length)+k] = that.data[time_offset+number+that[that.order[0]].length*j+k*that[that.order[0]].slice_length];    

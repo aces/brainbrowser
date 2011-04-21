@@ -17,10 +17,10 @@ function BrainCanvas(canvas) {
   that.contrast = 1;
 
   //the different color specturms. 
-  var spectrums = {spectral: loader.loadSpectrumFromUrl("/spectrum/spectral.txt"),grayscale:  loader.loadSpectrumFromUrl("/spectrum/gray_scale256.txt")};
+  var spectrums = {spectral: loader.loadSpectrumFromUrl("/spectrum/spectral-brainview.txt"),grayscale:  loader.loadSpectrumFromUrl("/spectrum/gray_scale256.txt")};
   var spectrum = spectrums['spectral']; //default spectrum
   
-
+  that.spectrums = spectrums;
  
   //Initialized a canvas and turns it black. 
   this.initCanvas = function(width,heigth) {
@@ -79,11 +79,20 @@ function BrainCanvas(canvas) {
                   parseInt(that.slices[that.current_minc.xspace.height_space.name]*Math.abs(that.current_minc.xspace.length_space.step)));
     drawCrosshair(parseInt(that.slices[that.current_minc.yspace.length_space.name]*Math.abs(that.current_minc.yspace.length_space.step)),
 		  parseInt(that.slices[that.current_minc.yspace.height_space.name]*Math.abs(that.current_minc.yspace.height_space.step)+that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.height_space.step)));
-    drawCrosshair(parseInt(that.slices[that.current_minc.zspace.length_space.name]*Math.abs(that.current_minc.zspace.length_space.step)),
-		  parseInt(that.slices[that.current_minc.zspace.height_space.name]*Math.abs(that.current_minc.zspace.height_space.step)
-			   +that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.height_space.step)
-			   +that.current_minc.yspace.height*Math.abs(that.current_minc.yspace.height_space.step)));    
 
+    if(that.current_minc.zspace.height_space.step < 0)  {
+      var z_cross_height = parseInt((that.current_minc.zspace.height_space.space_length - that.slices[that.current_minc.zspace.height_space.name])*Math.abs(that.current_minc.zspace.height_space.step)
+				    +that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.height_space.step)
+				    +that.current_minc.yspace.height*Math.abs(that.current_minc.yspace.height_space.step));
+    }else {
+      var z_cross_height = parseInt(that.slices[that.current_minc.zspace.height_space.name]*Math.abs(that.current_minc.zspace.height_space.step)
+				    +that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.height_space.step)
+				    +that.current_minc.yspace.height*Math.abs(that.current_minc.yspace.height_space.step));
+    }
+    
+    drawCrosshair(parseInt(that.slices[that.current_minc.zspace.length_space.name]*Math.abs(that.current_minc.zspace.length_space.step)),
+		  z_cross_height);    
+    
   };
 
 
@@ -222,6 +231,10 @@ function BrainCanvas(canvas) {
 	  x:parseInt(position.x/Math.abs(that.current_minc.zspace.length_space.step)),
 	  y:parseInt((position.y - that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.height_space.step) - that.current_minc.yspace.height*Math.abs(that.current_minc.yspace.height_space.step))/Math.abs(that.current_minc.zspace.height_space.step))
 	};
+      if(that.current_minc.zspace.height_space.step < 0 ) {
+	slices.y = that.current_minc.zspace.height_space.step - slices.y;
+      }
+
       
     }
     

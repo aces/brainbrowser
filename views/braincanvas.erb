@@ -4,20 +4,12 @@
 </head>
 <body>
   <div id="minc1" style="float: left">
-  <canvas id="viewport1"></canvas>
+    <canvas id="viewport-xspace"></canvas>
+    <canvas id="viewport-yspace"></canvas>
+    <canvas id="viewport-zspace"></canvas>
   <div id="mincinfo"></div>
   </div>
 
-
-  <div id="minc2" style="float: left">
-  <canvas id="viewport2"></canvas>
-  <div id="mincinfo"></div>
-  </div>
-
-  <div id="minc3" style="float: left">
-  <canvas id="viewport3"></canvas>
-  <div id="mincinfo"></div>
-  </div>
 
     <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.2.custom.css" rel="Stylesheet" />
   <script type="text/javascript" src="/js/jquery.js"></script>
@@ -29,13 +21,7 @@
   <script type="text/javascript" src="/js/loader.js"></script>
   <script type="text/javascript" src="/js/braincanvas.js"></script>
   <script type="text/javascript">
-    bc1 = new BrainCanvas(document.getElementById('viewport1'));
+    bc1 = new BrainCanvas(document.getElementById('viewport-xspace'),document.getElementById('viewport-yspace'),document.getElementById('viewport-zspace'));
     bc1.openFile('/data/girard_michele_20100929_145206_18_mri.mnc');
-    bc2 = new BrainCanvas(document.getElementById('viewport2'));
-    bc2.openFile('/data/kassis_nicolas_20100528_135207_2_mri-v2.mnc');
-    bc3 = new BrainCanvas(document.getElementById('viewport3'));
-    bc3.openFile('/data/01_t1_RPI.mnc');
-
-    
   </script>
 </body>      

@@ -1,6 +1,11 @@
-function BrainCanvas(canvas) {
+function BrainCanvas(xcanvas,ycanvas,zcanvas) {
   var that  = this;
-  var context = canvas.getContext("2d");
+  var xcontext = xcanvas.getContext("2d");
+  var ycontext = ycanvas.getContext("2d");
+  var zcontext = zcanvas.getContext("2d");
+
+
+  
   var loader = new Loader();
 
   var cursor = {
@@ -17,24 +22,22 @@ function BrainCanvas(canvas) {
   that.contrast = 1;
 
   //the different color specturms. 
-  var spectrums = {spectral: loader.loadSpectrumFromUrl("/spectrum/spectral.txt"),grayscale:  loader.loadSpectrumFromUrl("/spectrum/gray_scale256.txt")};
+  var spectrums = {spectral: loader.loadSpectrumFromUrl("/spectrum/spectral-brainview.txt"),grayscale:  loader.loadSpectrumFromUrl("/spectrum/gray_scale256.txt")};
   var spectrum = spectrums['spectral']; //default spectrum
   
-
+  that.spectrums = spectrums;
  
   //Initialized a canvas and turns it black. 
-  this.initCanvas = function(width,heigth) {
-    canvas.width = width;
+  this.initCanvas = function(canvas,width,heigth) {
+    canvas.width  = width;
     canvas.height = heigth;
-    
+    var context   = canvas.getContext("2d");
     context.fillStyle = "#000000";
     context.fillRect(0,0,width,heigth);
-
-  
   };
  
   
-  this.update_space = function(axis, number, minc,time) {
+  this.update_space = function(axis,context, number, minc,time) {
     var slice = minc.getScaledSlice(axis,number,time);
 
     //get the area of canvas to insert image into
@@ -48,53 +51,62 @@ function BrainCanvas(canvas) {
     return slice_image_data;
   };
 
-  function drawCrosshair(x,y) {
+  function drawCrosshair(context,x,y) {
     context.fillStyle = "#FF0000";
     context.fillRect(x-2,y-2,4,4);
   };
 
   this.updateXSpace = function(number,minc,time) {
     that.slices.xspace = number;
-    var xslice_image_data = that.update_space("xspace", number,minc,time);
-    context.putImageData(xslice_image_data,0,0);  
+    var xslice_image_data = that.update_space("xspace",xcontext, number,minc,time);
+    xcontext.putImageData(xslice_image_data,0,0);  
   };
 
   this.updateYSpace = function(number,minc,time) {
     that.slices.yspace = number;
-    var yslice_image_data = that.update_space("yspace", number,minc,time);
+    var yslice_image_data = that.update_space("yspace",ycontext, number,minc,time);
 
-    context.putImageData(yslice_image_data,0,parseInt(minc.xspace.height*Math.abs(minc.xspace.height_space.step)));   
+    ycontext.putImageData(yslice_image_data,0,0);   
     
   };
   
   this.updateZSpace = function(number,minc,time) {
     that.slices.zspace = number;
-    var zslice_image_data = that.update_space("zspace", number,minc,time);
-    context.putImageData(zslice_image_data,0,parseInt(minc.xspace.height*Math.abs(minc.xspace.height_space.step)+minc.yspace.height*Math.abs(minc.yspace.height_space.step)));    
+    var zslice_image_data = that.update_space("zspace",zcontext, number,minc,time);
+    zcontext.putImageData(zslice_image_data,0,0);
 
   };
 
   this.showCrosshairs= function(){
-    drawCrosshair(parseInt(that.slices[that.current_minc.xspace.length_space.name]*Math.abs(that.current_minc.xspace.length_space.step)),
+    drawCrosshair(xcontext,parseInt(that.slices[that.current_minc.xspace.length_space.name]*Math.abs(that.current_minc.xspace.length_space.step)),
                   parseInt(that.slices[that.current_minc.xspace.height_space.name]*Math.abs(that.current_minc.xspace.length_space.step)));
-    drawCrosshair(parseInt(that.slices[that.current_minc.yspace.length_space.name]*Math.abs(that.current_minc.yspace.length_space.step)),
+    drawCrosshair(ycontext,parseInt(that.slices[that.current_minc.yspace.length_space.name]*Math.abs(that.current_minc.yspace.length_space.step)),
 		  parseInt(that.slices[that.current_minc.yspace.height_space.name]*Math.abs(that.current_minc.yspace.height_space.step)+that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.height_space.step)));
-    drawCrosshair(parseInt(that.slices[that.current_minc.zspace.length_space.name]*Math.abs(that.current_minc.zspace.length_space.step)),
-		  parseInt(that.slices[that.current_minc.zspace.height_space.name]*Math.abs(that.current_minc.zspace.height_space.step)
-			   +that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.height_space.step)
-			   +that.current_minc.yspace.height*Math.abs(that.current_minc.yspace.height_space.step)));    
 
+    if(that.current_minc.zspace.height_space.step < 0)  {
+      var z_cross_height = parseInt((that.current_minc.zspace.height_space.space_length - that.slices[that.current_minc.zspace.height_space.name])*Math.abs(that.current_minc.zspace.height_space.step)
+				    +that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.height_space.step)
+				    +that.current_minc.yspace.height*Math.abs(that.current_minc.yspace.height_space.step));
+    }else {
+      var z_cross_height = parseInt(that.slices[that.current_minc.zspace.height_space.name]*Math.abs(that.current_minc.zspace.height_space.step)
+				    +that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.height_space.step)
+				    +that.current_minc.yspace.height*Math.abs(that.current_minc.yspace.height_space.step));
+    }
+    
+    drawCrosshair(zcontext,parseInt(that.slices[that.current_minc.zspace.length_space.name]*Math.abs(that.current_minc.zspace.length_space.step)),
+		  z_cross_height);    
+    
   };
 
 
   that.showCoordinates = function() {
-    $("<div id=\"coordinates\">x:<span id=\"x\"></span> y:<span id=\"y\"></span> z:<span id=\"z\"></span></div>").appendTo($(canvas).parent());
+    $("<div id=\"coordinates\">x:<span id=\"x\"></span> y:<span id=\"y\"></span> z:<span id=\"z\"></span></div>").appendTo($(xcanvas).parent());
   };
 
   that.updateCoordinates = function(world){
-    $(canvas).siblings("#coordinates").children("#x").html(world.x);
-    $(canvas).siblings("#coordinates").children("#y").html(world.y);
-    $(canvas).siblings("#coordinates").children("#z").html(world.z);
+    $(xcanvas).siblings("#coordinates").children("#x").html(world.x);
+    $(xcanvas).siblings("#coordinates").children("#y").html(world.y);
+    $(xcanvas).siblings("#coordinates").children("#z").html(world.z);
   };
 
 
@@ -123,7 +135,7 @@ function BrainCanvas(canvas) {
 
 
   this.showMinc=function(minc){
-    $(canvas).siblings("#mincinfo").append("Minc Information: <br>"+
+    $(xcanvas).siblings("#mincinfo").append("Minc Information: <br>"+
 			  "order: "+ minc.order +
 			  "<br>xspace.height: " + minc.xspace.height + " yspace.height: " + minc.yspace.height + " zspace.height: " + minc.zspace.height + 
 			  "<br> xspace.length: " + minc.xspace.length + " yspace.length: " + minc.yspace.length + " zspace.length: " + minc.zspace.length + "xspace step: " + minc.xspace.step + "yspace step: " + minc.yspace.step + "zspace step: " + minc.zspace.step);
@@ -163,7 +175,7 @@ function BrainCanvas(canvas) {
     x -= canvas.offsetLeft;
     y -= canvas.offsetTop;
     
-    return {x: x,y: y};
+    return {target: e.target,x: x,y: y};
   }
   
   //Will calculate the location of your click from the screen to the 
@@ -186,41 +198,25 @@ function BrainCanvas(canvas) {
 
   this.getSliceNumbersFromPosition = function(position){
     that.position = position;
-    if(position.y/Math.abs(that.current_minc.xspace.height_space.step) < that.current_minc.xspace.height) {
+    if(position.target.id == "viewport-xpsace") {
       var slices = {
-	x: that.slices.xspace
+	x: that.slices.xspace,
+	y: parseInt(position.x/Math.abs(that.current_minc.xspace.height_space.step)),
+	z: parseInt(position.y/Math.abs(that.current_minc.xspace.length_space.step))
       };
-      if(that.current_minc.xspace.height_space.name == "yspace") {
 
-	slices.y = parseInt(position.y/Math.abs(that.current_minc.xspace.height_space.step));
-	slices.z = parseInt(position.x/Math.abs(that.current_minc.xspace.length_space.step));
-      }else {
-        slices.y = parseInt(position.x/Math.abs(that.current_minc.xspace.height_space.step));
-	slices.z = parseInt(position.y/Math.abs(that.current_minc.xspace.length_space.step));
-   	
-      }
-
-    }else if(position.y < (that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.height_space.step) + that.current_minc.yspace.height*Math.abs(that.current_minc.yspace.height_space.step))){
+    }else if(position.target.id == "viewport-ypsace") {
       var slices = {
-	y: that.slices.yspace
-      };
-      
-      if(that.current_minc.yspace.height_space.name == "zspace"){
-	
-	slices.x = parseInt(position.x/Math.abs(that.current_minc.yspace.length_space.step));	
-	slices.z = parseInt((position.y -  that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.height_space.step))/Math.abs(that.current_minc.zspace.step)); 
-      } else {	
-        slices.z = parseInt(position.x/Math.abs(that.current_minc.yspace.length_space.step));	
-	slices.x = parseInt((position.y -  that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.height_space.step))/Math.abs(that.current_minc.xspace.step));
-			    
-      }
+	y: that.slices.yspace,
+	x: parseInt(position.x/Math.abs(that.current_minc.xspace.step)),
+	z: parseInt(position.y/Math.abs(that.current_minc.zspace.step))
+      };  
 
     }else {
-      var slices = 
-	{
+      var slices = {
 	  z:that.slices.zspace,
 	  x:parseInt(position.x/Math.abs(that.current_minc.zspace.length_space.step)),
-	  y:parseInt((position.y - that.current_minc.xspace.height*Math.abs(that.current_minc.xspace.height_space.step) - that.current_minc.yspace.height*Math.abs(that.current_minc.yspace.height_space.step))/Math.abs(that.current_minc.zspace.height_space.step))
+	  y:parseInt(position.y/Math.abs(that.current_minc.yspace.step))
 	};
       
     }
@@ -232,7 +228,7 @@ function BrainCanvas(canvas) {
   
 
   
-  this.addListeners = function() {
+  this.addListeners = function(canvas) {
     canvas.onmousedown = function(event) {
       that.drag = true;
     };
@@ -327,15 +323,38 @@ function BrainCanvas(canvas) {
   //Open a Minc file, initiates the UI elements Basicly the main function. 
   this.openFile =function(filename) {
     this.current_minc = new Minc(filename, null,function(minc,extraArgs){
-				   var height = minc.xspace.height*Math.abs(minc.xspace.height_space.step)+minc.yspace.height*Math.abs(minc.yspace.height_space.step)+minc.zspace.height*Math.abs(minc.zspace.height_space.step);
-				   var length = Math.max(minc.xspace.length*Math.abs(minc.xspace.length_space.step),minc.yspace.length*Math.abs(minc.yspace.length_space.step),minc.zspace.length*Math.abs(minc.zspace.length_space.step));
+				   /*
+				    * Height and Width of the canvas for each space
+				    * 
+				    * xspace: height is zspace; width is yspace
+				    * yspace: height is zspace; width is xspace
+				    * zspace: height is yspace; width is xspace
+				    *  
+				    */ 
+				   var xheight = minc.zspace.space_length*Math.abs(minc.zspace.step);
+				   var xwidth  = minc.yspace.space_length*Math.abs(minc.yspace.step);
+
+				   var yheight = minc.zspace.space_length*Math.abs(minc.zspace.step);
+				   var ywidth  = minc.xspace.space_length*Math.abs(minc.xspace.step); 
+
+				   var zheight = minc.yspace.space_length*Math.abs(minc.yspace.step);
+				   var zwidth  = minc.xspace.space_length*Math.abs(minc.xspace.step);
+
+				   //Initializes the canvas to the right height width, and clears them
+				   that.initCanvas(xcanvas,xwidth,xheight);
+				   that.initCanvas(ycanvas,ywidth,yheight);
+				   that.initCanvas(zcanvas,zwidth,zheight);
 				   
-				   that.initCanvas(length,height);
 				   that.showCoordinates();
 				   that.showMinc(minc);
 				   that.showBrightness();
 				   that.showContrast();
-				   that.addListeners();
+				   
+				  
+				   that.addListeners(xspace);
+				   that.addListeners(yspace);
+				   that.addListeners(zspace);
+
                                    that.showSpectrum();
 
 				   if(minc.time) {

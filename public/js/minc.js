@@ -33,25 +33,38 @@ function Minc(filename,extraArgs,callback) {
 	       that.xspace.name = "xspace";
 	       that.yspace.name = "yspace";
 	       that.zspace.name = "zspace";
+
+
 	       //figure out height and length of each slices in each direction
+	       //width and length are the same, I'm doing this until I replace
+	       //all references to length in code. Bad naming duh! :( 
 	       that[that.order[0]].height=that[that.order[1]].space_length;
 	       that[that.order[0]].height_space=that[that.order[1]];
 	       that[that.order[0]].length=that[that.order[2]].space_length;
 	       that[that.order[0]].length_space = that[that.order[2]];
+	       that[that.order[0]].width=that[that.order[2]].space_length;
+	       that[that.order[0]].width_space = that[that.order[2]];
+
 	       that[that.order[1]].height=that[that.order[2]].space_length;
 	       that[that.order[1]].height_space=that[that.order[2]];
 	       that[that.order[1]].length=that[that.order[0]].space_length;
 	       that[that.order[1]].length_space = that[that.order[0]];
+	       that[that.order[1]].width=that[that.order[0]].space_length;
+	       that[that.order[1]].width_space = that[that.order[0]];
+
 	       that[that.order[2]].height=that[that.order[1]].space_length;
 	       that[that.order[2]].height_space=that[that.order[1]];
 	       that[that.order[2]].length=that[that.order[0]].space_length;
 	       that[that.order[2]].length_space = that[that.order[0]];
+	       that[that.order[2]].width=that[that.order[0]].space_length;
+	       that[that.order[2]].width_space = that[that.order[0]];
+
 	       //calculate the offsets for each element of a slice
 	       that[that.order[0]].offset=that[that.order[1]].space_length*that[that.order[2]].space_length;
 	       that[that.order[1]].offset=that[that.order[0]].space_length;
 	       that[that.order[2]].offset=that[that.order[0]].space_length;
 	       that[that.order[0]].slice_length = that[that.order[0]].height*that[that.order[0]].length;
-
+	       
 
 	     },
 	     error: function(request, textStatus) {

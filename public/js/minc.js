@@ -9,8 +9,8 @@ function Minc(filename,extraArgs,callback) {
 
 
   /*
-   * Parameters of the minc file. 
-   * Most important  
+   * Fetch the parameters of the minc file. 
+   * 
    */
   this.load_headers = function(filename) {
     $.ajax({
@@ -78,6 +78,10 @@ function Minc(filename,extraArgs,callback) {
 
 
   };
+
+  /*
+   * Make request to server for Minc file's data block. 
+   */
   this.load_data = function (filename,callback,extraArgs){  
     var request = new XMLHttpRequest();
     
@@ -238,7 +242,9 @@ function Minc(filename,extraArgs,callback) {
     return slice;
  };
 
-
+  /*
+   * Interpolates the slice data using nearest neighboor interpolation
+   */
   this.nearestNeighboor = function(data,width,height,new_width,new_height) {
     var new_array = new Uint16Array(new_width * new_height);
     var x_ratio = width/new_width;
@@ -255,6 +261,9 @@ function Minc(filename,extraArgs,callback) {
     return new_array;
   };
 
+  /*
+   * Scale a slice to be at a 1 instead of whatever step it is. 
+   */
   this.getScaledSlice = function(axis,number,time) { 
     
     var original_slice= that.slice(axis,number,time);
@@ -265,16 +274,17 @@ function Minc(filename,extraArgs,callback) {
    
     var slice = this.nearestNeighboor(original_slice,width,height,new_width,new_height);
 
+   
+    //Checks if the slices are need to be rotated
+    //xspace should have yspace on the x axis and zspace on the y axis
     if(axis == "xspace" && that.xspace.height_space.name=="yspace"){
       slice = rotateUint16Array90Left(slice,new_width,new_height);      
     }
-
-
+    //yspace should be XxZ
     if(axis == "yspace" && that.yspace.height_space.name=="xspace"){
       slice = rotateUint16Array90Left(slice,new_width,new_height);      
     }
-
-
+    //zspace should be XxY 
     if(axis == "zspace" && that.zspace.height_space.name=="xspace"){
       slice = rotateUint16Array90Left(slice,new_width,new_height);      
     }
@@ -284,7 +294,18 @@ function Minc(filename,extraArgs,callback) {
     
   };
 
+  /*
+   * Get the value of a point at location x,y,z and time index 
+   * This will be used for example by the graphing tool when viewing 4D data 
+   * to show intensity graphs
+   */
+  this.getValueAtLocation = function(x,y,z,time) {
+    
+  };
 
+  /*
+   * Makes calls to server for data and headers
+   */
   if(filename != null && callback != null) {
     this.load_headers(filename);
     this.load_data(filename,callback,extraArgs);

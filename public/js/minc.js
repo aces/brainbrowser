@@ -121,6 +121,14 @@ function Minc(filename,extraArgs,callback) {
   this.sliceFromCoordinates = function(axis,x,y,z) {
     
   };
+
+  
+  /*
+   * Warning: This function can get a little crazy
+   * We are trying to get a slice out of the array. To do this we need to be careful that
+   * we check for the orientation of the slice (steps positive or negative affect the orientation)
+   * 
+   */
   this.slice = function(axis,number,time) {
     if(that.order == undefined ) {
       return false;
@@ -149,15 +157,35 @@ function Minc(filename,extraArgs,callback) {
       var slice = new Uint16Array(slice_length);
 
       if(length_step > 0) {
-	for(var i=0; i< slice_length; i++) {
-	  slice[i]=this.data[time_offset+ slice_offset*number+i];
+	if(height_step > 0) {
+	  for(var i=0; i< slice_length; i++) {
+	    slice[i]=this.data[time_offset+ slice_offset*number+i];
+	  }
+	  
+	}else {
+          for(var i=height; i > 0; i--) {
+	    for(var j=0; j < row_length; j++) {
+	      slice[(height-i)*row_length+j]=this.data[time_offset+slice_offset*number+i*row_length + j];
+	    }	    
+	  }
+	  
 	}
+
 	
       }else {
-	for(var i=0; i < height; i++) {
-	  for(var j=0; j < row_length; j++) {
-	    slice[i*row_length+j]=this.data[time_offset+slice_offset*number+i*row_length + row_length - j];
-	  }	    
+	if(height_step < 0) {
+          for(var i=0; i < height; i++) {
+	    for(var j=0; j < row_length; j++) {
+	      slice[i*row_length+j]=this.data[time_offset+slice_offset*number+i*row_length + row_length - j];
+	    }	    
+	  }
+	}else {
+          for(var i=height; i > 0; i--) {
+	    for(var j=0; j < row_length; j++) {
+	      slice[(height-i)*row_length+j]=this.data[time_offset+slice_offset*number+i*row_length + row_length - j];
+	    }	    
+	  }
+	  
 	}
       }
 
@@ -207,7 +235,6 @@ function Minc(filename,extraArgs,callback) {
 
     }
     
-
     return slice;
  };
 
@@ -230,13 +257,30 @@ function Minc(filename,extraArgs,callback) {
 
   this.getScaledSlice = function(axis,number,time) { 
     
-   var original_slice= that.slice(axis,number,time);
-   var width      =  that[axis].length;
-   var height     = that[axis].height;
-   var new_width  = Math.ceil(Math.abs(that[axis].length_space.step)*width);
-   var new_height = Math.ceil(Math.abs(that[axis].height_space.step)*height);
+    var original_slice= that.slice(axis,number,time);
+    var width      =  that[axis].length;
+    var height     = that[axis].height;
+    var new_width  = Math.ceil(Math.abs(that[axis].length_space.step)*width);
+    var new_height = Math.ceil(Math.abs(that[axis].height_space.step)*height);
+   
+    var slice = this.nearestNeighboor(original_slice,width,height,new_width,new_height);
 
-   return this.nearestNeighboor(original_slice,width,height,new_width,new_height);
+    if(axis == "xspace" && that.xspace.height_space.name=="yspace"){
+      slice = rotateUint16Array90Left(slice,new_width,new_height);      
+    }
+
+
+    if(axis == "yspace" && that.yspace.height_space.name=="xspace"){
+      slice = rotateUint16Array90Left(slice,new_width,new_height);      
+    }
+
+
+    if(axis == "zspace" && that.zspace.height_space.name=="xspace"){
+      slice = rotateUint16Array90Left(slice,new_width,new_height);      
+    }
+
+
+   return slice;
     
   };
 

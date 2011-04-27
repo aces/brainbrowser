@@ -33,15 +33,12 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
   };
  
   
-  this.update_space = function(axis,context, number, minc,time) {
+  this.update_space = function(axis,slice_image_data, number, minc,time) {
     var slice = minc.getScaledSlice(axis,number,time);
 
     //get the area of canvas to insert image into
     //Make sure that area uses the step of the axises
-    var slice_image_data = context.createImageData(
-      minc[axis].length*Math.abs(minc[axis].length_space.step),
-      minc[axis].height*Math.abs(minc[axis].height_space.step));
-    
+        
     slice_image_data.data = createColorMap(spectrum,slice_image_data.data,slice,minc.min,minc.max,true,that.brightness,that.contrast);
 
     return slice_image_data;
@@ -54,13 +51,21 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
 
   this.updateXSpace = function(number,minc,time) {
     that.slices.xspace = number;
-    var xslice_image_data = that.update_space("xspace",xcontext, number,minc,time);
+    var slice_image_data = xcontext.createImageData(
+      Math.ceil(Math.abs(minc.yspace.step)*minc.yspace.space_length),
+      Math.ceil(Math.abs(minc.zspace.step)*minc.zspace.space_length));
+
+    var xslice_image_data = that.update_space("xspace",slice_image_data, number,minc,time);
     xcontext.putImageData(xslice_image_data,0,0);  
   };
 
   this.updateYSpace = function(number,minc,time) {
     that.slices.yspace = number;
-    var yslice_image_data = that.update_space("yspace",ycontext, number,minc,time);
+    var slice_image_data = ycontext.createImageData(
+      Math.ceil(Math.abs(minc.xspace.step)*minc.xspace.space_length),
+      Math.ceil(Math.abs(minc.zspace.step)*minc.zspace.space_length));
+
+    var yslice_image_data = that.update_space("yspace",slice_image_data, number,minc,time);
 
     ycontext.putImageData(yslice_image_data,0,0);   
     
@@ -68,29 +73,56 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
   
   this.updateZSpace = function(number,minc,time) {
     that.slices.zspace = number;
-    var zslice_image_data = that.update_space("zspace",zcontext, number,minc,time);
+    var slice_image_data = zcontext.createImageData(
+      Math.ceil(Math.abs(minc.xspace.step)*minc.xspace.space_length),
+      Math.ceil(Math.abs(minc.yspace.step)*minc.yspace.space_length));
+
+    var zslice_image_data = that.update_space("zspace",slice_image_data, number,minc,time);
     zcontext.putImageData(zslice_image_data,0,0);
 
   };
 
   this.showCrosshairs= function(){
-    var coordinates = that.sliceToWorldCoordinates({x: that.slices.xspace,
-						    y: that.slices.yspace,
-						    z: that.slices.zspace});
-    
+    if(that.current_minc.xspace.step < 0 ) {
+      var xheight = (that.current_minc.xspace.space_length - that.slices.xspace)*Math.abs(that.current_minc.yspace.step);
+      var xwidth = xheight;
+    }else {
+      var xheight = that.slices.xspace*Math.abs(that.current_minc.yspace.step);
+      var xwidth = xheight;
+    }
+
+
+    if(that.current_minc.yspace.step > 0 ) {
+      var yheight = (that.current_minc.yspace.space_length - that.slices.yspace)*Math.abs(that.current_minc.yspace.step);
+      var ywidth = yheight;
+    }else {
+      var yheight = that.slices.yspace*Math.abs(that.current_minc.yspace.step);
+      var ywidth = (that.current_minc.yspace.space_length - that.slices.yspace)*Math.abs(that.current_minc.yspace.step);
+    }
+
+
+
+    if(that.current_minc.zspace.step > 0 ) {
+      var zheight = (that.current_minc.zspace.space_length - that.slices.zspace)*Math.abs(that.current_minc.zspace.step);
+      var zwidth = zheight;
+    }else {
+      var zheight = that.slices.zspace*Math.abs(that.current_minc.yspace.step);
+      var zwidth = zheight;
+    }
+
+
 
     drawCrosshair(xcontext,
-		  y_width,
-		  -(coordinates.z+zdist));
+		  ywidth,
+		  zheight);
 
     drawCrosshair(ycontext,
-		  x_width,
-		  -(coordinates.z+zdist));
+		  xwidth,
+		  zheight);
 
     drawCrosshair(zcontext,
-		  x_width,
-		  -(coordinates.y+ydist));
-    alert(y_width);
+		  xwidth,
+		  yheight);
   };
 
 
@@ -195,7 +227,7 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
 
   this.getSliceNumbersFromPosition = function(position){
     that.position = position;
-    if(position.target.id == "viewport-xspace") {
+    if(position.target.id == xcanvas.id) {
       var slices = {
 	x: that.slices.xspace,
 	y: parseInt(position.x/Math.abs(that.current_minc.xspace.height_space.step)),
@@ -210,7 +242,7 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
       }
 
 
-    }else if(position.target.id == "viewport-yspace") {
+    }else if(position.target.id == ycanvas.id ) {
       var slices = {
 	y: that.slices.yspace,
 	x: parseInt(position.x/Math.abs(that.current_minc.xspace.step)),

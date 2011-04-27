@@ -94,7 +94,7 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
 
     if(that.current_minc.yspace.step > 0 ) {
       var yheight = (that.current_minc.yspace.space_length - that.slices.yspace)*Math.abs(that.current_minc.yspace.step);
-      var ywidth = yheight;
+      var ywidth = that.slices.yspace*Math.abs(that.current_minc.yspace.step);
     }else {
       var yheight = that.slices.yspace*Math.abs(that.current_minc.yspace.step);
       var ywidth = (that.current_minc.yspace.space_length - that.slices.yspace)*Math.abs(that.current_minc.yspace.step);

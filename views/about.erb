@@ -1,3 +1,11 @@
+<div id="menu">
+  <ul class="bb-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
+    <li class="ui-state-default ui-corner-top"><a href="/">Home</a></li>
+    <li class="ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="/about">About</a></li>
+    <li class="ui-state-default ui-corner-top"><a href="/news">News</a></li>
+    <li class="ui-state-default ui-corner-top"><a href="/contacts">Contacts</a></li>
+  </ul>
+  <div id="about">
     <h2>Introduction</h2>
     <p>BrainBrowser is a web-enabled brain surface viewer that allows the user to explore in real time a 3D brain map expressed on a base surface. Typically, this map might be a statistical map derived from a group analysis of functional or structural imaging data. The map can be calculated using either 3D statistical tools (e.g. SPM, fMRIstat) or surface-based statistical tools (e.g. Surfstat). This map is texture-mapped on to a base surface that can be either the default surface in stereotaxic space (Lyttelton O et al., 2007) or a user-defined surface. BrainBrowser has two primary modes of operation, exploring either a pre-calculated database of structural correlation maps or working with user-defined data. In the first mode, the user may choose to explore the correlation structure for cortical thickness, cortical area or cortical volume, previously calculated at the MNI on a vertex-wise basis from the ICBM152 MRI database. This database was built using the MACACC approach to define cortical correlation structure (Lerch J et al., 2006). In the second mode, the user is prompted for the local filenames of the statistical map and the base surface. BrainBrowser can also be used to manipulate 3D fibre pathways derived from DTI, using the same simple file format (.obj) as for surface data. Examples of Brainbrowser data are available on the main page. More detail and a user-guide to BrainBrowser operation are provided below.
     
@@ -20,10 +28,10 @@
   comprises ~6.3 Million maps for the following permutations:
 
   80K vertices x 9 blurring kernels x 3 morphological indices x 3 statistical
-      
+  
 </p>
-<p>
-      This demonstration of BrainBrowser can be used in one of the following ways:
+    <p>
+  This demonstration of BrainBrowser can be used in one of the following ways:
 </p>
     <ol>
       <li>
@@ -33,5 +41,7 @@
 	Macacc Viewer: The Macacc dataset is 1TB set of correlation maps for cortical thickness, cortical area and cortical volume.
       </li>
     </ol>
-<p>
+    <p>
   
+  </div>
+</div>

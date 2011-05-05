@@ -301,11 +301,11 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
   
   //Show time slider for 4D datasets
   this.showTime = function() {
-    $("<div id=\"time\">Time Index: </div>").appendTo($(canvas).parent());
+    $("<div id=\"time\">Time Index: </div>").appendTo($(xcanvas).parent());
 
-    var div = $($(canvas).parent().children("#time"));
+    var div = $($(xcanvas).parent().children("#time"));
     $("<span id=\"time-value\">1</span>").appendTo(div);
-    $("<div id=\"time-slider\" width=\""+canvas.width+"\" + height=\"10\"></div>").slider({
+    $("<div id=\"time-slider\" width=\""+xcanvas.width+"\" + height=\"10\"></div>").slider({
 						  value: 0,
 						  min: 0,
 						  max: that.current_minc.time.space_length,

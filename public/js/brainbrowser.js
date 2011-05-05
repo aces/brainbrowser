@@ -125,6 +125,9 @@ function BrainBrowser(url) {
 
   this.renderCallback = function(renderEvent) {
     that.setClientSize();
+    if(that.autoRotate == true) {
+      
+    }
   };
 
   this.createMaterial = function(url) {

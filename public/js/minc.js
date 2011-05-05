@@ -278,15 +278,27 @@ function Minc(filename,extraArgs,callback) {
     //Checks if the slices are need to be rotated
     //xspace should have yspace on the x axis and zspace on the y axis
     if(axis == "xspace" && that.xspace.height_space.name=="yspace"){
-      slice = rotateUint16Array90Left(slice,new_width,new_height);      
+      if(that.zspace.step < 0){
+	slice = rotateUint16Array90Right(slice,new_width,new_height);      	
+      }else {
+	slice = rotateUint16Array90Left(slice,new_width,new_height);      	
+      }
+
+
+
     }
     //yspace should be XxZ
     if(axis == "yspace" && that.yspace.height_space.name=="xspace"){
-      slice = rotateUint16Array90Left(slice,new_width,new_height);      
+      if(that.zspace.step < 0){
+	slice = rotateUint16Array90Right(slice,new_width,new_height);      	
+      }else {
+	slice = rotateUint16Array90Left(slice,new_width,new_height);      	
+      }
+
     }
     //zspace should be XxY 
     if(axis == "zspace" && that.zspace.height_space.name=="xspace"){
-      slice = rotateUint16Array90Left(slice,new_width,new_height);      
+	slice = rotateUint16Array90Left(slice,new_width,new_height);      	
     }
 
 

@@ -11,38 +11,14 @@
   </div>
 
 
-  <div id="minc2" style="float: left">
-    <canvas id="viewport-zspace2"></canvas>
-    <canvas id="viewport-xspace2"></canvas>
-    <canvas id="viewport-yspace2"></canvas>
-    <div id="mincinfo"></div>
-  </div>
-  <div id="minc3" style="float: left">
-    <canvas id="viewport-zspace3"></canvas>
-    <canvas id="viewport-xspace3"></canvas>
-    <canvas id="viewport-yspace3"></canvas>
-    <div id="mincinfo"></div>
-  </div>
-
 
     <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.2.custom.css" rel="Stylesheet" />
   <script type="text/javascript" src="/js/jquery.js"></script>
   <script type="text/javascript" src="/js/jquery-ui-1.8.2.custom.min.js"></script>
-  <script type="text/javascript" src="/js/utils.js"></script>
-  <script type="text/javascript" src="/js/minc.js"></script>
-  <script type="text/javascript" src="/js/color.js"></script>
-  <script type="text/javascript" src="/js/spectrum.js"></script>
-  <script type="text/javascript" src="/js/loader.js"></script>
-  <script type="text/javascript" src="/js/raphael-min.js"></script>
-  <script type="text/javascript" src="/js/braincanvas.js"></script>
+  <script type="text/javascript" src="/js/html5-minc-viewer.min.js"></script>
   <script type="text/javascript">
     bc1 = new BrainCanvas(document.getElementById('viewport-xspace'),document.getElementById('viewport-yspace'),document.getElementById('viewport-zspace'));
-    bc1.openFile('/data/girard_michele_20100929_145206_18_mri.mnc');
-    bc2 = new BrainCanvas(document.getElementById('viewport-xspace2'),document.getElementById('viewport-yspace2'),document.getElementById('viewport-zspace2'));
-    bc2.openFile('/data/test_fmri.mnc');
-    bc3 = new BrainCanvas(document.getElementById('viewport-xspace3'),document.getElementById('viewport-yspace3'),document.getElementById('viewport-zspace3'));
-    bc3.openFile('/data/01_t1_RPI.mnc');
-
+    bc1.openFile('/data/nbrain.mnc');
 
   </script>
 </body>      

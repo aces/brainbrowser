@@ -15,7 +15,18 @@
     <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.2.custom.css" rel="Stylesheet" />
   <script type="text/javascript" src="/js/jquery.js"></script>
   <script type="text/javascript" src="/js/jquery-ui-1.8.2.custom.min.js"></script>
-  <script type="text/javascript" src="/js/html5-minc-viewer.min.js"></script>
+
+  <% if ENV["BRAINBROWSER_ENV"] == "production" %>
+    <script type="text/javascript" src="/js/html5-minc-viewer.min.js"></script>
+  <% else %>
+    <script type="text/javascript" src="/js/utils.js"></script>
+    <script type="text/javascript" src="/js/minc.js"></script>
+    <script type="text/javascript" src="/js/color.js"></script>
+    <script type="text/javascript" src="/js/spectrum.js"></script>
+    <script type="text/javascript" src="/js/loader.js"></script>
+    <script type="text/javascript" src="/js/raphael-min.js"></script>
+    <script type="text/javascript" src="/js/braincanvas.js"></script>
+  <% end %>
   <script type="text/javascript">
     bc1 = new BrainCanvas(document.getElementById('viewport-xspace'),document.getElementById('viewport-yspace'),document.getElementById('viewport-zspace'));
     bc1.openFile('/data/nbrain.mnc');

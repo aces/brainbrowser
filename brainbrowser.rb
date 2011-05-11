@@ -5,8 +5,11 @@ require 'minc'
 require 'json'
 require 'zlib'
 
-set :public, File.dirname(__FILE__) + '/public'
-
+if ENV["BRAINBROWSER_ENV"] == "production"
+  set :public, File.dirname(__FILE__) + 'production/public'
+else
+  set :public, File.dirname(__FILE__) + '/public'
+end
 
 not_found do 
   "Document not found" 

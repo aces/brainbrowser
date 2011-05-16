@@ -4,7 +4,7 @@
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">  
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
 
-    <title>MNI Surface Viewer</title>  
+    <title>BrainBrowser:Surface Viewer</title>  
   </head>  
   <body>  
 
@@ -14,11 +14,16 @@
 	<h4>Files</h4>
 	
 	<form id="datafile-form" method="POST"  action="/upload/minc" enctype="multipart/form-data">
-	Surface: <input type="file" name="objfile" id="objfile"><br />
+	Object File: <input type="file" name="objfile" id="objfile"><br />
 	Data: <input type="file" name="datafile" id="datafile">
 	</form>
       </div>
-      
+      <div class="box full_box" id="shapes-box">
+	<div id="shapes">
+	  
+	</div>
+	<span id="clearshapes" class="button">Clear Shapes</span>
+      </div>
       <div class="combo_box full_box">
 	<div id="views" class="box half_box" >
 	  <h4>Views</h4>
@@ -44,6 +49,7 @@
 	  </div>
 	  <p>
 	    <a class="button" id="resetview">Reset View</a>
+	    <input type="checkbox" class="button" id="meshmode"><label for="meshmode">Mesh Mode</label>
 	  </p>
 	  
 	</div>
@@ -64,12 +70,25 @@
 	<h4>Thresholding</h4>
 	<div id="data-range">
 	  Min: <input class="range-box" id="data-range-min" type="text" name="range_min" size="5" ><br />
-	    <div id="range-slider"></div>
+	    <div id="range-slider" class="slider"></div>
 	  Max: <input class="range-box" id="data-range-max" type="text" name="range_max" size="5" >
-	  <input type="checkbox" id="fix_range">Fix Range<br />
+	  <input type="checkbox" id="fix_range"><label for="fix_range">Fix Range</label>
+	  <input type="checkbox" id="clamp_range" checked="true"><label for="clamp_range">Clamp range</label>
+
 	</div>
       </div>
+      <div id="examples" class="box full_box">
+	<h3>Examples</h3>
+	<ul>
+	  <li><a href="#" class="example" data-example-name="basic">Basic Surface</a></li>
+	  <li><a href="#" span class="example" data-example-name="punkdti">DTI and Mesh Brain</a></li>
+	  <li><a href="#" class="example" data-example-name="realct">Real brain with map of Corthical Thickness</a></li>
+      </div>
+      <span id="openImage" class="button">Get Screenshot</span>      
+      <a class="button" href="/macacc.html">MACACC Dataset</a>
+      <a class="button" href="/about">About</a>
 </div>
+
     <!-- The webgl window and loading messages if any -->
     <div Id="view-window">
       <div id="o3d"></div>  
@@ -77,20 +96,23 @@
     </div>
 
     <!-- all the scripts and css -->
-    <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.2.custom.css" rel="Stylesheet" />
+    <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.10.custom.css" rel="Stylesheet" />
     <link type="text/css" href="/css/brainbrowser.css" rel="Stylesheet" />
     <script type="text/javascript" src="/js/jquery.js"></script>
     <script type="text/javascript" src="/js/o3d-webgl/base.js"></script>
     <script type="text/javascript" src="/js/o3djs/base.js"></script> 
-    <script type="text/javascript" src="/js/data.js"></script> 
-    <script type="text/javascript" src="/js/utils.js"></script> 
-    <script type="text/javascript" src="/js/spectrum.js"></script> 
-    <script type="text/javascript" src="/js/mniobj.js"></script> 
-    <script type="text/javascript" src="/js/brainbrowser.js"></script> 
-    <script type="text/javascript" src="/js/surfview.js"></script> 
-    
-
-    <script type="text/javascript" src="/js/jquery-ui-1.8.2.custom.min.js"></script>
+    <% if ENV["BRAINBROWSER_ENV"] == "production" %>
+      <script type="text/javascript" src="/js/surfview-combined.min.js"></script>
+    <% else %>
+          <script type="text/javascript" src="/js/data.js"></script> 
+	  <script type="text/javascript" src="/js/utils.js"></script> 
+	  <script type="text/javascript" src="/js/spectrum.js"></script> 
+	  <script type="text/javascript" src="/js/mniobj.js"></script> 
+	  <script type="text/javascript" src="/js/brainbrowser.js"></script> 
+	  <script type="text/javascript" src="/js/surfview.js"></script> 
+    <% end %>
+	  
+    <script type="text/javascript" src="/js/jquery-ui.js"></script>
     <script type="text/javascript">
     $(function() {
       document.getElementById("view-window").onselectstart = function() {
@@ -111,6 +133,7 @@
       jQuery("#datafile").change(function() {
         surfview.brainbrowser.loadDataFromFile(document.getElementById("datafile"));
       });
+
 
     });
     </script>

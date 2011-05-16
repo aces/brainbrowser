@@ -139,7 +139,7 @@ function SurfView() {
       slide: function(event, ui) {
 	var min = parseFloat(ui.values[0]);
 	var max = parseFloat(ui.values[1]);
-	bb.rangeChange(min,max);
+	bb.rangeChange(min,max,$("#clamp_range").attr("checked"));
       },
       step: 0.1
     });
@@ -175,11 +175,21 @@ function SurfView() {
 			       });
 
     jQuery("#fix_range").click(function(event,ui) {
-
       bb.fixRange= jQuery("#fix_range").attr("checked");
-	alert("fixRange " + bb.fixRange);
     });
 
+    jQuery("#clamp_range").change(function(e) {
+				    var min = parseFloat(jQuery("#data-range-min").val());
+				    var max = parseFloat(jQuery("#data-range-max").val());
+
+				    if($(e.target).attr("checked") == true) {
+				      bb.rangeChange(min,max,true);
+				    }else {
+				      bb.rangeChange(min,max,false);
+				    }
+				  });
+
+    
     jQuery(".range-box").keypress(function(e) {
       if(e.keyCode == '13'){
 	bb.rangeChange(parseFloat(jQuery("#data-range-min").val()),parseFloat(jQuery("#data-range-max").val()));

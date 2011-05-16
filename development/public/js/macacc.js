@@ -145,12 +145,15 @@ function initMacacc(path_prefix,dont_build_path) {
 				 });
 
     jQuery("#flip_range").change(function(e) {
-				   if(jQuery(e.target).attr("checked") == true) {
 				     macacc.update_model(brainbrowser.current_dataset);
-				   }else {
-				     macacc.update_model(brainbrowser.current_dataset);
-				   }
 				 });
+    
+    jQuery("#clamp_range").change(function(e) {
+				     macacc.update_model(brainbrowser.current_dataset);
+				 });
+    
+
+
     jQuery("#flip_correlation").click(function(e) {
 					var min = -1*parseFloat(jQuery("#data-range-max").val());
 					var max = -1*parseFloat(jQuery("#data-range-min").val());

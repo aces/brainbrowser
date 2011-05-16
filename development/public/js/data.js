@@ -12,26 +12,42 @@ function Data(data) {
 
   };
 
-  that.createColorArray = function(min,max,spectrum,flip) {
+  that.createColorArray = function(min,max,spectrum,flip,clamped,original_colors) {
     var spectrum = spectrum.colors;
     var colorArray = new Array();
-
     //calculate a slice of the data per color
     var increment = ((max-min)+(max-min)/spectrum.length)/spectrum.length;
     //for each value, assign a color
     for(var i=0; i<that.values.length; i++) {
-      if(that.values[i]<= min ) {
-	var color_index = 0;
+      if(that.values[i] <= min ) {
+	if(that.values[i] < min && !clamped) {
+	  var color_index = -1;
+	}else {
+	  var color_index = 0; 
+	}
       }else if(that.values[i]> max){
-	var color_index = spectrum.length-1;
+	if(!clamped){
+	  var color_index = -1;
+	}else {
+	  var color_index = spectrum.length-1;
+	}
       }else {
 	var color_index = parseInt((that.values[i]-min)/increment);
       }
       //This inserts the RGBA values (R,G,B,A) independently
-      if(flip) {
+      if(flip && color_index != -1) {
         colorArray.push.apply(colorArray,spectrum[spectrum.length-1-color_index]);
       }else {
-	colorArray.push.apply(colorArray,spectrum[color_index]);
+	if(color_index == -1) {
+	  if(original_colors.length == 4){
+	    	  colorArray.push.apply(colorArray,original_colors);	  
+	  }else {
+	    colorArray.push.apply(colorArray,[original_colors[i*4],original_colors[i*4+1],original_colors[i*4+2],original_colors[i*4+3]]);	  
+	  }
+	}else {
+	  colorArray.push.apply(colorArray,spectrum[color_index]);
+	}
+	
       }
 
 

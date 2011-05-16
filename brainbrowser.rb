@@ -5,8 +5,13 @@ require 'minc'
 require 'json'
 require 'zlib'
 
-set :public, File.dirname(__FILE__) + '/public'
+puts ENV["BRAINBROWSER_ENV"]
 
+if ENV["BRAINBROWSER_ENV"] == "production"
+  set :public, 'production/public'
+else
+  set :public, 'development/public'
+end
 
 not_found do 
   "Document not found" 
@@ -24,10 +29,18 @@ get '/contacts' do
   erb :contacts
 end
 
-
 get '/news' do
   erb :news
 end
+
+get '/macacc.html' do
+  erb :macacc, :layout => false
+end
+
+get '/surfview.html' do
+  erb :surfview, :layout => false
+end
+
 
 #Runs volume object evaluate on a minc file provided by the user.
 #The file is uploaded then run through the tool, and the output is

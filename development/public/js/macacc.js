@@ -191,7 +191,7 @@ function initMacacc(path_prefix,dont_build_path) {
 		       vertex: vertex,
 		       stop: true //tell pickClick to stop propagating the 
                                   //click such that we don't get an infinite loop.
-		       
+		       ,
 		     });
     
     },false);

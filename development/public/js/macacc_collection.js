@@ -180,7 +180,7 @@ function MacaccObject(brainbrowser,path,dont_build_path) {
       that.flipRange = !flip;
       jQuery("#range-slider").slider("option", "min", "0");
       jQuery("#range-slider").slider("option", "max", "1");
-      update_color_map(0,1,!flip);
+      update_color_map(0,1,!flip,clamped);
     }
 
   }
@@ -219,7 +219,7 @@ function MacaccObject(brainbrowser,path,dont_build_path) {
   this.range_change = function() {
     var min=parseFloat(jQuery("#data-range-min").val());
     var max=parseFloat(jQuery("#data-range-max").val());
-    update_color_map(min,max);
+    update_color_map(min,max,$("#flip_range").attr("checked"),$("#clamp_range").attr("checked"));
 
     if(that.afterRangeChange != undefined) {
       that.afterRangeChange(min,max);

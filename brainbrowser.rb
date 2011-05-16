@@ -46,8 +46,8 @@ end
 #The file is uploaded then run through the tool, and the output is
 #sent back to the user. Also, deletes the output file
 post '/minc/volume_object_evaluate' do
-  datafile = headers["datafile"][:tempfile].path
-  objfile = headers["objfile"][:tempfile].path
+  datafile = request["datafile"][:tempfile].path
+  objfile = request["objfile"][:tempfile].path
   outfile = "tmp/xyz#{rand 100000000000000000000}.txt"
   
   

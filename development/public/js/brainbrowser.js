@@ -1486,9 +1486,9 @@ function BrainBrowser(url) {
   /*
    * This updates the colors of the brain model
    */
-  that.updateColors = function(data,min,max,spectrum,flip) {
+  that.updateColors = function(data,min,max,spectrum,flip,clamped) {
 
-    var color_array = data.createColorArray(min,max,spectrum,flip);
+    var color_array = data.createColorArray(min,max,spectrum,flip,clamped,that.model_data.colorArray);
     if(that.model_data.num_hemispheres == 1) {
       var color_buffer = that.pack.createObject('VertexBuffer');
       var color_field = color_buffer.createField('FloatField', 4);
@@ -1539,11 +1539,11 @@ function BrainBrowser(url) {
   };
 
 
-  that.rangeChange = function(min,max) {
+  that.rangeChange = function(min,max,clamped) {
     that.rangeMin = min;
     that.rangeMax = max;
 
-    that.updateColors(that.data,that.rangeMin, that.rangeMax, that.spectrum);
+    that.updateColors(that.data,that.rangeMin, that.rangeMax, that.spectrum,false,clamped);
 
     /*
      * This callback allows users to

@@ -100,7 +100,8 @@
 	      <div id="range-slider" class="slider" ></div>
 	    </p>
 	    Max: <input class="range-box" id="data-range-max" type="text" name="range_max" size="5" value="5" >
-	    <input type="checkbox" id="fix_range" checked="true">Fix Range<br />	    
+	  <input type="checkbox" id="fix_range" checked="true"><label for="fix_range">Fix Range</label>
+	  <input type="checkbox" id="clamp_range" checked="true"><label for="clamp_range">Clamp range</label>
 	  </div>
       </div>
       <div class="combo_box full_box">
@@ -137,7 +138,19 @@
     <script type="text/javascript" src="/js/jquery.js"></script>
     <script type="text/javascript" src="/js/o3d-webgl/base.js"></script>
     <script type="text/javascript" src="/js/o3djs/base.js"></script> 
-    <script type="text/javascript" src="/js/macacc-combined.min.js"></script>
+    <% if ENV["BRAINBROWSER_ENV"]  == "production" %>
+      <script type="text/javascript" src="/js/macacc-combined.min.js"></script>
+    <% else %>
+            <script type="text/javascript" src="/js/utils.js"></script>
+	    <script type="text/javascript" src="/js/mniobj.js"></script>
+            <script type="text/javascript" src="/js/spectrum.js"></script>
+	    <script type="text/javascript" src="/js/data.js"></script>
+	    <script type="text/javascript" src="/js/dataset.js"></script>
+	    <script type="text/javascript" src="/js/brainbrowser.js"></script>
+	    <script type="text/javascript" src="/js/macacc_collection.js"></script>
+	    <script type="text/javascript" src="/js/macacc.js"></script>
+     <% end %>
+	    
     <script type="text/javascript" src="/js/jquery-ui-1.8.10.custom.min.js"></script>
     <script type="text/javascript">
       jQuery(function() {

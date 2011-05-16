@@ -145,8 +145,8 @@ function MacaccObject(brainbrowser,path,dont_build_path) {
     return {modality: data_modality, sk: data_sk, statistic: data_statistic };
   }
 
-  function update_color_map(min,max,flip) {
-      brainbrowser.updateColors(that.dataSet.current_data,min,max,brainbrowser.spectrum,flip);
+  function update_color_map(min,max,flip,clamped) {
+      brainbrowser.updateColors(that.dataSet.current_data,min,max,brainbrowser.spectrum,flip,clamped);
   }
 
 
@@ -170,11 +170,12 @@ function MacaccObject(brainbrowser,path,dont_build_path) {
     }
 
     var flip = jQuery("#flip_range").attr("checked");
+    var clamped = jQuery("#clamp_range").attr("checked");
     if(get_data_controls().statistic == "T") {
       that.flipRange = flip;
       //jQuery("#range-slider").slider("option", "min", dataset.min);
       //jQuery("#range-slider").slider("option", "max", dataset.max);
-      update_color_map(that.data_min, that.data_max,flip);
+      update_color_map(that.data_min, that.data_max,flip,clamped);
     }else {
       that.flipRange = !flip;
       jQuery("#range-slider").slider("option", "min", "0");

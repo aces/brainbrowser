@@ -5,7 +5,7 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
   var zcontext = zcanvas.getContext("2d");
 
 
-  
+  //Object to load elements, absctracts javascript calls
   var loader = new Loader();
 
 
@@ -281,7 +281,9 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
 
   
 
-  
+  /*
+   * All event handlers on the canvases are registered here. 
+   */
   this.addListeners = function(canvas) {
     canvas.onmousedown = function(event) {
       that.drag = true;
@@ -299,6 +301,11 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
     };
   };
   
+  /*
+   * The following are Methods to create UI elements
+   * 
+   */
+
   //Show time slider for 4D datasets
   this.showTime = function() {
     $("<div id=\"time\">Time Index: </div>").appendTo($(xcanvas).parent());
@@ -356,13 +363,15 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
     
 
   };
-
+  
+  /*
+   * Recalculates the colors when a user changes the spectrum
+   */ 
   this.changeSpectrum = function(name){
     spectrum = spectrums[name];
     that.updateSlices(null,that.time);
   };
  
-
   this.showSpectrum=function() {
     $("<div id=\"spectrum\">Color Scale</div>").appendTo($(xcanvas).parent());
     var div = $($(xcanvas).parent().children("#spectrum"));
@@ -374,7 +383,9 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
 			    that.changeSpectrum($(event.target).val());
 			   });
   };
-  //Open a Minc file, initiates the UI elements Basicly the main function. 
+ 
+
+ //Open a Minc file, initiates the UI elements Basicly the main function. 
   this.openFile =function(filename) {
     this.current_minc = new Minc(filename, null,function(minc,extraArgs){
 				   /*
@@ -399,21 +410,24 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
 				   that.initCanvas(ycanvas,ywidth,yheight);
 				   that.initCanvas(zcanvas,zwidth,zheight);
 				   
+				   //Builds and displays the UI elements for each 
 				   that.showCoordinates();
 				   that.showMinc(minc);
+				   //if it's a 4D dataset time will be defined. 
+				   if(minc.time) {
+				     that.showTime();
+				   }
 				   that.showBrightness();
 				   that.showContrast();
-				   
-				  
+                                   that.showSpectrum();
+
+				   //Binds events to all three elements
 				   that.addListeners(xcanvas);
 				   that.addListeners(ycanvas);
 				   that.addListeners(zcanvas);
 
-                                   that.showSpectrum();
 
-				   if(minc.time) {
-				     that.showTime();
-				   }
+
 				   
 				   ;});
   };

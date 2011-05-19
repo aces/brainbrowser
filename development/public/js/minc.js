@@ -264,13 +264,13 @@ function Minc(filename,extraArgs,callback) {
   /*
    * Scale a slice to be at a 1 instead of whatever step it is. 
    */
-  this.getScaledSlice = function(axis,number,time) { 
+  this.getScaledSlice = function(axis,number,time,zoom) { 
     
     var original_slice= that.slice(axis,number,time);
     var width      =  that[axis].length;
     var height     = that[axis].height;
-    var new_width  = Math.ceil(Math.abs(that[axis].length_space.step)*width);
-    var new_height = Math.ceil(Math.abs(that[axis].height_space.step)*height);
+    var new_width  = Math.ceil(Math.abs(that[axis].length_space.step)*width*zoom);
+    var new_height = Math.ceil(Math.abs(that[axis].height_space.step)*height*zoom);
    
     var slice = this.nearestNeighboor(original_slice,width,height,new_width,new_height);
 

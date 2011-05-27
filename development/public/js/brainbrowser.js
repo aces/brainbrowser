@@ -211,6 +211,14 @@ function BrainBrowser(url) {
   };
 
   /*
+   * Updates the clear color or background of the view window
+   * Takes a array with 4 elements, the color must be represented as for values from 0-1.0 [red,green,blue,alpha] 
+   */
+  that.updateClearColor= function(color)  {
+    that.viewInfo.clearBuffer.clearColor = color;
+  };
+
+  /*
    *setups the uniforms for a shader that implements blinnphong shading. 
    */
   function blinnphongParams(material){

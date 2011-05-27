@@ -61,6 +61,7 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
 
   this.updateXSpace = function(number,minc,time) {
     that.slices.xspace = number;
+    that.slices.xspace_height = Math.ceil(Math.abs(minc.zspace.step)*minc.zspace.space_length*xcanvas.zoom);
     var slice_image_data = xcontext.createImageData(
       Math.ceil(Math.abs(minc.yspace.step)*minc.yspace.space_length*xcanvas.zoom),
       Math.ceil(Math.abs(minc.zspace.step)*minc.zspace.space_length*xcanvas.zoom));
@@ -71,6 +72,7 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
 
   this.updateYSpace = function(number,minc,time) {
     that.slices.yspace = number;
+    that.slices.yspace_height = Math.ceil(Math.abs(minc.zspace.step)*minc.zspace.space_length*ycanvas.zoom);
     var slice_image_data = ycontext.createImageData(
       Math.ceil(Math.abs(minc.xspace.step)*minc.xspace.space_length*ycanvas.zoom),
       Math.ceil(Math.abs(minc.zspace.step)*minc.zspace.space_length*ycanvas.zoom));
@@ -83,6 +85,7 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
   
   this.updateZSpace = function(number,minc,time) {
     that.slices.zspace = number;
+    that.slices.yspace_height = Math.ceil(Math.abs(minc.yspace.step)*minc.yspace.space_length*zcanvas.zoom);
     var slice_image_data = zcontext.createImageData(
       Math.ceil(Math.abs(minc.xspace.step)*minc.xspace.space_length*zcanvas.zoom),
       Math.ceil(Math.abs(minc.yspace.step)*minc.yspace.space_length*zcanvas.zoom));
@@ -280,10 +283,10 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
     if(position.target.id == xcanvas.id) {
       var slices = {
 	x: that.slices.xspace,
-	y: parseInt((position.x-xcanvas.translate_vector.x)/(Math.abs(that.current_minc.xspace.height_space.step)*xcanvas.zoom)),
-	z: parseInt((position.y+xcanvas.translate_vector.y)/(Math.abs(that.current_minc.xspace.length_space.step)*xcanvas.zoom))
+	y: parseInt((position.x-xcanvas.translate_vector.x)/Math.abs(that.current_minc.xspace.height_space.step)/xcanvas.zoom),
+	z: parseInt((position.y+xcanvas.translate_vector.y)/Math.abs(that.current_minc.xspace.length_space.step)/xcanvas.zoom)
       };
-
+      console.log("Position.y  " + position.y + " step " + Math.abs(that.current_minc.xspace.length_space.step) + " zoom " + xcanvas.zoom    );
       if(that.current_minc.yspace.step < 0 ) {
 	slices.y = that.current_minc.yspace.space_length - slices.y;
       }

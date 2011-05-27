@@ -1,0 +1,18 @@
+
+This is the file `floatfig.txt', which accompanies the `floatflt'
+package distribution.  Thomas Kneser's style option for LaTeX 2.09
+`floatfig.sty' has been extended somewhat for LaTeX2e.  The extended
+package is called `floatflt'.  Please see the file `00readme.flt'
+for more information on the `floatflt' package. This file is only
+intended to be a pointer for `floatfig.sty' users to the `floatflt'
+package (as recommended by CJ DOHERTY <dohertcj@aston.ac.uk>). 
+
+
+Inquiries can be sent to:  <matsd@sssk.se>.  You can also visit 
+my LaTeX web page at http://www.homenet.se/matsd/latex/
+This file was last modified on 1998/06/01.
+
+
+____________________________________________________________________
+Copyright (c) 1998 by Mats Dahlgren.
+

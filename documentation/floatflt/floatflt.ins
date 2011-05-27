@@ -1,0 +1,59 @@
+%
+%  This is file `floatflt.ins', the installation file for the 
+%  `floatflt' package. Last revised 2008/03/17.  
+%
+%  Copyright (c) 1994-1998 by Mats Dahlgren <matsd@sssk.se>, 
+%  http://www.homenet.se/matsd/ .  All rights reserved.
+%
+%  You may use the `floatflt' package freely, but at your own
+%  risk.  The authors of floatflt.dtx and floatflt.ins (the
+%  complete `floatflt' package distribution) can not be held
+%  responsible for any consequence of your using any of these
+%  files, or files created from these, including hardware,
+%  software, and data damage.  You may not make any changes to
+%  the files floatflt.dtx or floatflt.ins.  You are allowed to make 
+%  changes to the `\documentclass' and/or `\usepackage' commands 
+%  of the file `floatexm.tex'.  You may incorporate
+%  the code from these files in other files under different
+%  names, provided the original authors are given full credit for
+%  their work and that you yourself take the complaints from the
+%  user(s) of your file(s).  You may freely distribute the
+%  files floatflt.dtx and floatflt.ins, provided that you
+%  always distribute `floatflt.dtx' and `floatflt.ins' together
+%  at the same time. 
+%
+\NeedsTeXFormat{LaTeX2e}[1996/12/01]
+\def\batchfile{floatflt.ins}
+\input docstrip.tex
+
+\keepsilent
+\preamble
+
+Copyright (c) 1994-1998 by Mats Dahlgren <matsd@sssk.se>.  
+All rights reserved.  See the file `floatflt.ins' for information
+on how you may (re-)distribute the `floatflt' package files.
+You are not allowed to make any changes to this file without
+explicit permission from the author.  
+
+\endpreamble
+
+\generate{\file{floatflt.sty}{\from{floatflt.dtx}{paketkod}}% 
+  \file{floatexm.tex}{\from{floatflt.dtx}{exempelkod}}% 
+  \file{floatfge.tex}{\from{floatflt.dtx}{gammalkod}}% 
+}
+
+\Msg{**************************************************************}
+\Msg{ }
+\Msg{  To finish the installation you have to move the file}
+\Msg{  `floatflt.sty' into a directory searched by TeX.}
+\Msg{ }
+\Msg{  To type-set the documentation, run the file `floatflt.dtx'}
+\Msg{  twice through LaTeX.  The original `floatfig' documentation}
+\Msg{  can be type-set by running the file `floatfge.tex' through }
+\Msg{  LaTeX.  To get an example file, run the file `floatexm.tex'}
+\Msg{  through LaTeX.}
+\Msg{ }
+\Msg{*************************************************************}
+%%  
+%%  end of file   floatflt.ins  
+%% 

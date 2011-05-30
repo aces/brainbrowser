@@ -1422,7 +1422,7 @@ function BrainBrowser(url) {
 		    }
 
 		    if(that.data) {
-		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
+		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.clamped);
 		    }
 
 		});
@@ -1440,7 +1440,7 @@ function BrainBrowser(url) {
 		    }
 
 		    if(that.data) {
-		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
+		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.clamped);
 		    }
 
 		});
@@ -1494,29 +1494,35 @@ function BrainBrowser(url) {
     }
   };
 
+  /*
+   * Load a series of data files to be viewed with a slider. 
+   */
   that.loadSeriesDataFromFile = function(file_input) {
     console.log(file_input.files.length);
-		var numberFiles = file_input.files.length
+		var numberFiles = file_input.files.length;
 		that.seriesData = new Array(numberFiles);
 		that.seriesData.numberFiles = numberFiles;
 		var files = file_input.files;
    
  		for(var i = 0; i < numberFiles; i++) {
-			
-			 	
-			 var reader = new FileReader();
+		  
+		  var reader = new FileReader();
 		   reader.file = files[i];
-			 var onfinish = 
-		   reader.onloadend = (function(file,num) {
-				return function(e) {
-		   	  console.log(e.target.result.length);
-				  console.log(num);
-					that.seriesData[num] = new Data(e.target.result);
-				  that.seriesData[num].fileName = file.name;
-
-		   }})(reader.file,i);
-
-		   reader.readAsText(files[i]);
+		  /*
+		   * Using a closure to keep the value of i around to put the 
+		   * data in an array in order. 
+		   */
+		  var onfinish = reader.onloadend = (function(file,num) {
+						       return function(e) {
+		   					 console.log(e.target.result.length);
+							 console.log(num);
+							 that.seriesData[num] = new Data(e.target.result);
+							 that.seriesData[num].fileName = file.name;
+							 
+						       };
+						     })(reader.file,i);
+		  
+		  reader.readAsText(files[i]);
 			
 			
 
@@ -1530,31 +1536,38 @@ function BrainBrowser(url) {
     var div = $("#series");
     $("<span id=\"series-value\">0%</span>").appendTo(div);
     $("<div id=\"series-slider\" width=\"100px\" + height=\"10\"></div>").slider({
-						  value: 0,
-						  min: 0,
-						  max: that.seriesData.numberFiles,	       
-              step: 1,
-	            slide: function(event,ui) {
-								that.data = that.seriesData[ui.value];	
-						    $(div).children("#series-value").html(ui.value);
-						    if(that.data.values.length < that.model_data.positionArray.length/4) {
-						      console.log("Number of numbers in datafile lower than number of vertices Vertices" + that.model_data.positionArray.length/3 + " data values:" + data.values.length );
-						      return -1;
-						    }
-						    if(that.fixRange == false || that.fixRange == null) {
-						      that.rangeMin = that.data.min;
-						      that.rangeMax = that.data.max;
-						      if(that.afterLoadData !=null) {
-							that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
-						      }
-						    }
-						    
-						    that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
-						    return null;
-						    
-						    
-						  }
-						}).appendTo(div);
+										   value: 0,
+										   min: 0,
+										   max: that.seriesData.numberFiles-1,	       
+										   step: .1,
+										   slide: function(event,ui) {
+										     console.log("UI value: " + ui.value + " floor : " + Math.floor(ui.value) + " ceil: " + Math.ceil(ui.value));
+										     if(ui.value -  Math.floor(ui.value) < 0.01) { //is it at an integer? then just return the array
+										       that.data = that.seriesData[ui.value];	 
+										     }else { //interpolate
+										       that.data = new Data(interpolateDataArray(that.seriesData[Math.floor(ui.value)],that.seriesData[Math.ceil(ui.value)],100*(ui.value -  Math.floor(ui.value))));
+
+										     }
+										     
+										     $(div).children("#series-value").html(ui.value);
+										     if(that.data.values.length < that.model_data.positionArray.length/4) {
+										       console.log("Number of numbers in datafile lower than number of vertices Vertices" + that.model_data.positionArray.length/3 + " data values:" + that.data.values.length );
+										       return -1;
+										     }
+										     if(that.fixRange == false || that.fixRange == null) {
+										       that.rangeMin = that.data.min;
+										       that.rangeMax = that.data.max;
+										       if(that.afterLoadData !=null) {
+											 that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
+										       }
+										     }
+
+										     that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,false,true);
+										     return null;
+										     
+										     
+										   }
+										 }).appendTo(div);
 
   };
 
@@ -1587,7 +1600,7 @@ function BrainBrowser(url) {
    * This updates the colors of the brain model
    */
   that.updateColors = function(data,min,max,spectrum,flip,clamped) {
-
+    that.clamped = clamped;
     var color_array = data.createColorArray(min,max,spectrum,flip,clamped,that.model_data.colorArray);
     if(that.model_data.num_hemispheres == 1) {
       var color_buffer = that.pack.createObject('VertexBuffer');
@@ -1647,7 +1660,6 @@ function BrainBrowser(url) {
   that.rangeChange = function(min,max,clamped) {
     that.rangeMin = min;
     that.rangeMax = max;
-
     that.updateColors(that.data,that.rangeMin, that.rangeMax, that.spectrum,false,clamped);
 
     /*

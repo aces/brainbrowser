@@ -24,6 +24,17 @@ Array.prototype.max = function(array) {
   return reduced_array.max();
 };
 
+/*
+ * Only works with primitive. 
+ */
+function cloneArray(original) {
+  var new_array = new Array(original.length);
+  for(var i=0; i< new_array.length; i++) {
+    new_array[i] = original[i];
+  }
+    
+  return new_array;
+}
 
 function rotateUint16Array90Left(array,width,height){
   var new_array = new Uint16Array(width*height);
@@ -49,5 +60,26 @@ function rotateUint16Array90Right(array,width,height){
       
     }
   }
+  return new_array;
+}
+
+function interpolateDataArray(first,second,percentage) {
+  console.log(first.values.length);
+//  if(first.length != second.length) {
+  //  console.log("can't interpolate different array size");
+    //throw "can't interpolate different array size";
+ // }
+  var length = first.values.length;  
+
+  var new_array = new Array(length);
+  for(var i = 0; i< length; i++) {
+    if(first.values[i]<second.values[i]) {
+      new_array[i] = (first.values[i]*percentage+second.values[i]*(100-percentage))/100;      
+    }else {
+      new_array[i] = (first.values[i]*(100-percentage)+second.values[i]*percentage)/100;      
+    }
+
+  }
+  console.log(new_array.length);
   return new_array;
 }

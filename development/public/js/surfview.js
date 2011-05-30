@@ -81,6 +81,7 @@ function SurfView() {
 
 
   brainbrowser.afterInit = function(bb) {
+    bb.clamped = true; //By default clamp range. 
     bb.clearScreen();
     bb.loadObjFromUrl('/models/surf_reg_model_both.obj');
     

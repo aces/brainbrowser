@@ -1494,6 +1494,69 @@ function BrainBrowser(url) {
     }
   };
 
+  that.loadSeriesDataFromFile = function(file_input) {
+    console.log(file_input.files.length);
+		var numberFiles = file_input.files.length
+		that.seriesData = new Array(numberFiles);
+		that.seriesData.numberFiles = numberFiles;
+		var files = file_input.files;
+   
+ 		for(var i = 0; i < numberFiles; i++) {
+			
+			 	
+			 var reader = new FileReader();
+		   reader.file = files[i];
+			 var onfinish = 
+		   reader.onloadend = (function(file,num) {
+				return function(e) {
+		   	  console.log(e.target.result.length);
+				  console.log(num);
+					that.seriesData[num] = new Data(e.target.result);
+				  that.seriesData[num].fileName = file.name;
+
+		   }})(reader.file,i);
+
+		   reader.readAsText(files[i]);
+			
+			
+
+    }
+    that.setupSeries();
+  };
+
+
+  that.setupSeries = function() {
+    $("<div id=\"series\">Series: </div>").appendTo("#surface_choice");
+    var div = $("#series");
+    $("<span id=\"series-value\">0%</span>").appendTo(div);
+    $("<div id=\"series-slider\" width=\"100px\" + height=\"10\"></div>").slider({
+						  value: 0,
+						  min: 0,
+						  max: that.seriesData.numberFiles,	       
+              step: 1,
+	            slide: function(event,ui) {
+								that.data = that.seriesData[ui.value];	
+						    $(div).children("#series-value").html(ui.value);
+						    if(that.data.values.length < that.model_data.positionArray.length/4) {
+						      console.log("Number of numbers in datafile lower than number of vertices Vertices" + that.model_data.positionArray.length/3 + " data values:" + data.values.length );
+						      return -1;
+						    }
+						    if(that.fixRange == false || that.fixRange == null) {
+						      that.rangeMin = that.data.min;
+						      that.rangeMax = that.data.max;
+						      if(that.afterLoadData !=null) {
+							that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
+						      }
+						    }
+						    
+						    that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
+						    return null;
+						    
+						    
+						  }
+						}).appendTo(div);
+
+  };
 
   that.loadDataFromUrl = function(file_input) {
     loadFromUrl(file_input, true, function(text) {

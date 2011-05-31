@@ -1422,7 +1422,7 @@ function BrainBrowser(url) {
 		    }
 
 		    if(that.data) {
-		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.clamped);
+		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped);
 		    }
 
 		});
@@ -1440,7 +1440,7 @@ function BrainBrowser(url) {
 		    }
 
 		    if(that.data) {
-		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.clamped);
+		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped);
 		    }
 
 		});
@@ -1467,7 +1467,7 @@ function BrainBrowser(url) {
 	    }
 	}
 	
-      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
+      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped);
       return null;
     };
 
@@ -1562,7 +1562,7 @@ function BrainBrowser(url) {
 										       }
 										     }
 
-										     that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,false,true);
+										     that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped);
 										     return null;
 										     
 										     
@@ -1660,7 +1660,7 @@ function BrainBrowser(url) {
   that.rangeChange = function(min,max,clamped) {
     that.rangeMin = min;
     that.rangeMax = max;
-    that.updateColors(that.data,that.rangeMin, that.rangeMax, that.spectrum,false,clamped);
+    that.updateColors(that.data,that.rangeMin, that.rangeMax, that.spectrum,that.flip,clamped);
 
     /*
      * This callback allows users to

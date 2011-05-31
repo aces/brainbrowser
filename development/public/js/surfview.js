@@ -82,6 +82,7 @@ function SurfView() {
 
   brainbrowser.afterInit = function(bb) {
     bb.clamped = true; //By default clamp range. 
+		bb.flip = false;
     bb.clearScreen();
     bb.loadObjFromUrl('/models/surf_reg_model_both.obj');
     
@@ -190,6 +191,12 @@ function SurfView() {
 				    }
 				  });
 
+
+		jQuery("#flip_range").change(function(e) {
+			 bb.flip = $(e.target).attr("checked");
+			 bb.updateColors(bb.data,bb.data.min,bb.data.max,brainbrowser.spectrum,bb.flip,bb.clamped);
+			
+		})
     
     jQuery(".range-box").keypress(function(e) {
       if(e.keyCode == '13'){

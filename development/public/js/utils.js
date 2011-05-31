@@ -73,11 +73,7 @@ function interpolateDataArray(first,second,percentage) {
 
   var new_array = new Array(length);
   for(var i = 0; i< length; i++) {
-    if(first.values[i]<second.values[i]) {
-      new_array[i] = (first.values[i]*percentage+second.values[i]*(100-percentage))/100;      
-    }else {
       new_array[i] = (first.values[i]*(100-percentage)+second.values[i]*percentage)/100;      
-    }
 
   }
   console.log(new_array.length);

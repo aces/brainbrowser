@@ -63,7 +63,7 @@ function rotateUint16Array90Right(array,width,height){
   return new_array;
 }
 
-function interpolateDataArray(first,second,percentage) {
+function interpolateDataArray(first,second,percentage,blah) {
   console.log(first.values.length);
 //  if(first.length != second.length) {
   //  console.log("can't interpolate different array size");
@@ -72,8 +72,15 @@ function interpolateDataArray(first,second,percentage) {
   var length = first.values.length;  
 
   var new_array = new Array(length);
+      console.log("Percentage: " + percentage);
   for(var i = 0; i< length; i++) {
-      new_array[i] = (first.values[i]*(100-percentage)+second.values[i]*percentage)/100;      
+    if(blah){
+      new_array[i] = (first.values[i]*(100-percentage*100)+second.values[i]*(percentage*100))/100;            
+    }else {
+      new_array[i] = (first.values[i]*(100-percentage*100)+second.values[i]*(percentage*100))/100;            
+    }
+
+      
 
   }
   console.log(new_array.length);

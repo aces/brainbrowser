@@ -196,7 +196,7 @@ function SurfView() {
 			 bb.flip = $(e.target).attr("checked");
 			 bb.updateColors(bb.data,bb.data.min,bb.data.max,brainbrowser.spectrum,bb.flip,bb.clamped);
 			
-		})
+		});
     
     jQuery(".range-box").keypress(function(e) {
       if(e.keyCode == '13'){

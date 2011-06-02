@@ -1517,6 +1517,7 @@ function BrainBrowser(url) {
 		   					 console.log(e.target.result.length);
 							 console.log(num);
 							 that.seriesData[num] = new Data(e.target.result);
+							 
 							 that.seriesData[num].fileName = file.name;
 							 
 						       };
@@ -1534,21 +1535,30 @@ function BrainBrowser(url) {
   that.setupSeries = function() {
     $("<div id=\"series\">Series: </div>").appendTo("#surface_choice");
     var div = $("#series");
-    $("<span id=\"series-value\">0%</span>").appendTo(div);
+    $("<span id=\"series-value\">0</span>").appendTo(div);
     $("<div id=\"series-slider\" width=\"100px\" + height=\"10\"></div>").slider({
 										   value: 0,
 										   min: 0,
 										   max: that.seriesData.numberFiles-1,	       
 										   step: .1,
 										   slide: function(event,ui) {
-										     console.log("UI value: " + ui.value + " floor : " + Math.floor(ui.value) + " ceil: " + Math.ceil(ui.value));
-										     if(ui.value -  Math.floor(ui.value) < 0.01) { //is it at an integer? then just return the array
-										       that.data = that.seriesData[ui.value];	 
-										     }else { //interpolate
-										       that.data = new Data(interpolateDataArray(that.seriesData[Math.floor(ui.value)],that.seriesData[Math.ceil(ui.value)],100*(ui.value -  Math.floor(ui.value))));
+										     if(ui.value -  Math.floor(ui.value) < 0.01) { //is it at an integer? then just return the array			
+										       that.data = that.seriesData[ui.value];											     }else { //interpolate
+											 if(that.seriesData[0].fileName.match("pval.*")){
+											   that.data = new Data(interpolateDataArray(that.seriesData[Math.floor(ui.value)],that.seriesData[Math.floor(ui.value)+1],(ui.value -  Math.floor(ui.value)),true));											 											   
+											 }else {
+											   that.data = new Data(interpolateDataArray(that.seriesData[Math.floor(ui.value)],that.seriesData[Math.floor(ui.value)+1],(ui.value -  Math.floor(ui.value))));											 
+											 }
 
+
+										      
 										     }
-										     
+										     if(that.seriesData[0].fileName.match("mt.*")) {
+										       $("#age_series").html("Age: " + (ui.value*3+5).toFixed(1));
+
+										     }else if(that.seriesData[0].fileName.match("pval.*")) {
+										       $("#age_series").html("Age: " + (ui.value*1+10));
+										     }
 										     $(div).children("#series-value").html(ui.value);
 										     if(that.data.values.length < that.model_data.positionArray.length/4) {
 										       console.log("Number of numbers in datafile lower than number of vertices Vertices" + that.model_data.positionArray.length/3 + " data values:" + that.data.values.length );
@@ -1561,7 +1571,7 @@ function BrainBrowser(url) {
 											 that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
 										       }
 										     }
-
+										     
 										     that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped);
 										     return null;
 										     

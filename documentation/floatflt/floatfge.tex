@@ -1,0 +1,317 @@
+%%
+%% This is file `floatfge.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% floatflt.dtx  (with options: `gammalkod')
+%% 
+%% Copyright (c) 1994-1998 by Mats Dahlgren <matsd@sssk.se>.
+%% All rights reserved.  See the file `floatflt.ins' for information
+%% on how you may (re-)distribute the `floatflt' package files.
+%% You are not allowed to make any changes to this file without
+%% explicit permission from the author.
+%% 
+ \documentclass[11pt]{article}
+ %
+ \textheight=1.1\textheight
+ \textwidth=1.15\textwidth
+ \oddsidemargin=0pt
+ \evensidemargin=0pt
+ %
+ \begin{document}
+ %
+ \title{\LaTeX-Paragraphs Floating around Figures}
+ \author{{\it Thomas Kneser}\\{\footnotesize
+ Gesellschaft f\"ur wissenschaftliche Datenverarbeitung
+  mbH G\"ottingen, FRG}}
+ \date{August 20, 1990}
+ \maketitle
+ %
+ \begin{abstract}
+ %
+ \noindent Frequently figures do not fill the full pagewidth.
+ If the width of such figures is only half of the
+ pagewidth or even less,
+ textlines should be set beside the figures,
+ or -- from another point of view -- figures should `float'
+ in paragraphs.
+ This article presents the \LaTeX{} style option {\tt FLOATFIG}
+ which can be used to set such Floating Figures as easily
+ as \LaTeX's standard figures.
+ \end{abstract}
+ %
+ \section{The name of the game}
+ The macros which make up the {\tt FLOATFIG} style option
+ are based on PLAIN-\TeX\ macros developed by Thomas Reid
+ (TUGBoat Vol. 8 \# 3 page 315), who pointed out
+ how to set figures
+ {\bf right justified} with paragraphs floating around them.
+ For such objects
+ Th. Reid has chosen the term `Floating Figures'.
+
+ This choice might cause some confusion,
+ when we adapt these macros for \LaTeX,
+ since Leslie Lamport uses the term `float' for objects
+ which are realized as \TeX-\verb+\inserts+.
+ While L. Lamports floats are floating in `main vertical list',
+ floats introduced by Th. Reid
+ are floating in paragraphs.
+ For the following we adopt the latter meaning.
+ \section{How to use it}
+ The Floating Figures style option is fully compatible with
+ \LaTeX's standard figure facility:
+ \begin{enumerate}
+ \item Floating Figures and standard figures may be requested
+       in any sequence,
+ \item Floating Figures can be captioned like standard figures,
+ \item captioned Floating Figures are inserted in the list of figures
+       which may be printed by the standard
+       \verb+\listoffigures+ command.
+ \end{enumerate}
+ A Floating Figure may be requested as follows:
+ \begin{verbatim}
+   \documentstyle[floatfig]{article}
+   \begin{document}
+   \initfloatingfigs
+           .
+           .
+   \begin{floatingfigure}{5.6cm}
+   \vspace{6.cm}
+   \caption{Intermolecular potential K-Xe}% optional !
+   \end{floatingfigure}
+           .
+           .
+   \end{document}
+ \end{verbatim}
+ where {\tt 5.6cm} specifies the width of the figure space.
+ A Floating Figure may only be requested in vertical mode, that is
+ between paragraphs.
+
+ A Floating Figure will be set as soon as possible after its request
+ has be encountered by \TeX.
+ That means,
+ it will be tested if there is enough vertical space
+ on the current page;
+ otherwise the figure moves to the next page.
+
+ Floating Figures are set {\bf alternating},
+ that is on the right hand side on odd and
+ on the left hand side on even numbered pages.
+ %
+ \subsection{Restrictions}
+ \begin{enumerate}
+ \item The {\tt FLOATFIG} style option may not be combined with the
+ {\tt TWOCOLUMN} style option,
+ \item a Floating Figure will never appear in a paragraph
+ which begins on top of a page.
+ \end{enumerate}
+ %
+ \section{About the internals}
+ %
+ We have extended the macros designed by Th.~Reid with regard to:
+ \begin{enumerate}
+ \item implantation into the \LaTeX{} context,
+ \item alternating setting of Floating Figures as explained above,
+ \item generation of warning messages for `collisions' of
+       two Floating Figures.
+ \end{enumerate}
+ %
+ \subsection{Implantation into the \LaTeX{} context}
+ The PLAIN-\TeX{} implementation by Th.~Reid
+ is based on a redefined \verb+\output+ routine:
+ %
+ \begin{verbatim}
+   \edef\oldoutput{\the\output}%
+   \output={\the\outputpretest\ifoutput\oldoutput\fi}
+   \outputpretest={\outputtrue}
+ \end{verbatim}
+ %
+ If a Floating Figure is requested,
+ the content of the
+ \verb+\outputpretest+ token register is prepared to decide:
+ \begin{enumerate}
+ \item if there is enough vertical space to set the Floating Figure,
+ \item if setting of a Floating Figure is in progress or
+ \item if indeed the current page has to be sent to the DVI file.
+ \end{enumerate}
+ %
+ In general, \TeX{} has to deal with more than one paragraph until
+ a Floating Figure will be completely processed.
+ During this process
+ the redefined \verb+\output+ routine is
+ called at the begin of {\bf every} paragraph;
+ this is done indirectly
+ by expanding the control sequence \verb+\tryfig+.
+ Therefore, the \verb+\everypar+ token
+ list is prepared by the following command sequence:
+ \begin{verbatim}
+   \edef\oldeverypar{\the\everypar}
+   \everypar={\tryfig\oldeverypar}
+ \end{verbatim}
+ Now \verb+\tryfig+ triggers the (modified)
+ \verb+\output+ routine, which then does the decisions
+ and actions mentioned above.
+
+ Adopting this concept when using the macros in the \LaTeX{} context,
+ we are faced with the following problems:
+ \begin{enumerate}
+ \item At the time \hbox{\tt FLOATFIG.STY} is read in,
+       the \verb+\output+ routine is still undefined;
+       its definition is retarded until
+       \verb+\begin{document}+ will be expanded;
+       so the redefinition of the \verb+\output+ routine has to be
+       done after \verb+\begin{document}+
+       by the command \verb+\initfloatingfigs+
+       (see section `Known Problems' below).
+ \item There are situations where
+       \LaTeX{} decides to redefine the \verb+\everypar+ token list
+       without saving of the former content;
+       this occurs for instance when expanding
+       a \verb+\section+ control sequence.
+       We overcome this by redefining \verb+\everypar+ whenever
+       the \verb+\floatingfigure+ environment is entered.
+ %
+       Hence to avoid problems, a Floating Figure should be requested
+       early enough before any sectioning control sequence
+       (see also subsection `Misleading collision warnings').\hfil\break
+ %
+       Furthermore, the concurrent definitions of
+       \verb+\everypar+ are the reason why
+       Floating Figures cannot move across section boundaries.
+ \end{enumerate}
+ %
+ \subsection{Alternating figure setting}
+ The problem to be solved
+ is to decide if a certain figure has to be set
+ left- or rightjustified.
+ This decision has to made according to
+ the value of the pagecount (left if even, right if odd).
+ That is we are dealing with the wellknown problem
+ to associate a certain part of input text with the number
+ of the page on which it will be set finally.
+
+ As pointed out by D.E. Knuth in `The {\TeX}book' this association
+ is done not before \verb+\output+ routine time.
+ But the problem is not so hard to solve,
+ since in Th.~Reid's version there is already a modified
+ \verb+\output+ routine which decides if a certain figure will
+ fit on the current page.
+ As a by-product of this decision one easily gains
+ the information `odd' or `even' for the pagecount
+ of the current page.
+ So our problem reduces to the following simple decision:
+ \begin{verbatim}
+   \ifodd\count0 %
+      \hbox to \hsize{\hss\copy\figbox}%
+      \global\oddpagestrue
+    \else% leftsetting
+      \hbox to \hsize{\copy\figbox\hss}%
+      \global\oddpagesfalse
+    \fi% \ifodd\count0
+ \end{verbatim}
+ %
+ \subsection{Collisions of Floating Figures}
+ We define a collision as a situation where:
+ \begin{enumerate}
+ \item a Floating Figure is requested before the predecessor
+       has been finished,
+ \item some sectioning is requested before a Floating Figure has been
+       finished.
+ \end{enumerate}
+
+ While the {\tt FLOATFIG} style option cannot avoid such collisions,
+ it will recognize them.
+ For diagnostic purposes we have therefore defined
+ the switch \verb+\iffigprocessing+ and another count register called
+ \verb+\ffigcount+.
+ This count register is used to attach
+ a sequence number to each Floating Figure,
+ so they can be identified uniquely within collision warning messages.
+ These sequence numbers are not to be confused
+ with the figure count maintained by standard \LaTeX.
+ %
+ \section{Known Problems}
+ \subsection{Need of Initialization}
+ The present version of the style option needs to be initialized
+ by control sequence
+ {\tt\verb+\initfloatingfigs+} as mentioned above.\footnote{%
+ This is not needed with \LaTeXe{}. /MD}
+
+ We hope a later version will initialize itself,
+ when the first request to a Floating Figure is encountered.
+ One problem with such an automatic initialization seems
+ to be,
+ that we are grouped down
+ since we are inside a \LaTeX{} environment.
+ Our first attempt failed
+ to make the respective settings \verb+\global+.
+ %
+ \subsection{Misleading collision warnings}
+ As mentioned above, Floating Figures do not move
+ across section boundaries.
+ If a Floating Figure is requested near a section end,
+ the figure will be truncated,
+ if it does not fit in the current section.
+
+ If this occurs for instance with floating figure number~4,
+ a collision will be reported when the request for
+ floating figure number~5 is encountered;
+ so the respective warning message may be substantially retarded.
+ In fact, the message will tell us that there is a problem with figure~4,
+ but there will be no further hint.
+ So one has to analyze `by hand' that the problem is {\bf not} caused
+ by collision with figure~5 but with a section heading;
+ even worse: if there is no floating figure~5, one gets no warning message
+ at all.
+
+ Furthermore, warning messages will be generated if a Floating Figure
+ ends in paragraph $n$ and the next one begins with paragraph $n+1$.
+ These warning messages are to be ignored; they are due to some retardation
+ caused by the \verb+\everypar+ mechanism.
+ %
+ \section{Conclusions}
+ Working on \texttt{FLOATFIG.STY} we had some unexpected problems
+ which were caused
+ by \LaTeX's somewhat unsafe assignments to the \verb+\everypar+ token list.
+ This is due to the fact that the use
+ of this token list is fundamental
+ to the algorithm designed by Th.~Reid.
+ On the other hand we did expect problems to couple
+ the Floating Figures with \LaTeX's figure caption adminstration,
+ that is to achieve a single figure caption numbering for
+ the standard figures and the Floating Figures and to get both types
+ listed by the \verb+\listoffigures+ control sequence.
+ %
+ But these problems could easily be solved
+ by the following local definiton within the {\tt FLOATFIG} environment:
+ \begin{verbatim}
+   \def\@captype{figure}
+ \end{verbatim}
+ Obviously this is due to the fact
+ that \LaTeX's caption apparatus is thoroughly parameterized.
+
+ The \verb+FLOATFIG.STY+ file is stored in the
+ {\tt EARN/BITNET} listserver
+ in Heidelberg; \hfil\break
+ {\tt VM/CMS} users should enter the commands:
+ \begin{verbatim}
+   TELL LISTSERV AT DHDURZ1 GET LATEXSTY INDEX
+   TELL LISTSERV AT DHDURZ1 GET LATEXSTY README
+   TELL LISTSERV AT DHDURZ1 GET LATEXSTY FILELIST
+   TELL LISTSERV AT DHDURZ1 GET FLOATFIG ZOOUUE LATEXSTY
+ \end{verbatim}
+ to obtain information about how to obtain the style option file.
+\subsection{Note by Mats Dahlgren}
+Several features described in this document still apply to the
+\LaTeXe\ \texttt{floatflt} package, whereas others do not.  Please
+run \LaTeX{} on \texttt{floatflt.dtx} twice and read the resulting
+documentation before you use the package.
+(This note was added on October 20, 1994; changed on December 27,
+1994.)
+
+ %\tableofcontents
+ \end{document}
+\endinput
+%%
+%% End of file `floatfge.tex'.

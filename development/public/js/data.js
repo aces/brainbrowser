@@ -60,7 +60,19 @@ function Data(data) {
 
 
   if(data) {
-    that.parse(data);
+    if(typeof data == "string") {
+      that.parse(data);      
+    }else if(data.values !=undefined){
+      this.values = cloneArray(data.values);
+      this.min = this.values.min();
+      this.max = this.values.max();
+    }else {
+      console.log("copying data length: " + data.length );
+      this.values = data;
+      this.min = data.min();
+      this.max = data.max();
+    }
+
   }
 
 

@@ -20,7 +20,8 @@ o3djs.require('o3djs.scene');
 
 function BrainBrowser(url) {
   var that = this;
-
+  
+  
   this.setup = function(url) {
     that.preload_model(url);
   };
@@ -115,21 +116,33 @@ function BrainBrowser(url) {
   };
 
 
-
+  /*
+   * unregisters the event handlers 
+   */
   this.uninit = function() {
     if (this.client) {
       this.client.cleanup();
     }
   };
 
-
+  
+  /*
+   * Called at every render events. 
+   */
   this.renderCallback = function(renderEvent) {
     that.setClientSize();
     if(that.autoRotate == true) {
-      
+      /*
+       *auto rotation code. 
+       */
     }
   };
 
+  /*
+   * Materials are basically shaders and properties applied to shapes
+   * the effect is where the shader programs resided
+   * changes attributes and uniforms of a shader are done using the effect object
+   */
   this.createMaterial = function(url) {
     var effect = that.pack.createObject('Effect');
     var shaderString = that.loadCombinedShaderFromUrl(url);
@@ -143,7 +156,12 @@ function BrainBrowser(url) {
     return material;
   };
 
-
+  /*
+   * Delete all the shapes on screen
+   * For this the function travels down the scenegraph and removes every shape.
+   * 
+   * Tip: when you remove a shape, the shapes array lenght will be decremented so if you need to count the number of shapes, you must save that length value before removing shapes. 
+   */
   that.clearScreen = function() {
     if(brainbrowser.brainTransform != undefined) {
       if(brainbrowser.brainTransform.shapes != undefined) {
@@ -168,6 +186,13 @@ function BrainBrowser(url) {
       }
     };
   };
+
+  /*
+   * Display and mni object file.
+   * It uses different function depending on if it's a polygon(triange) shape denoted by P
+   * if it's a polygon shape and has exactly 81924 vertices than it's probably a braina and
+   * we handle that specialy to seperate the hemispheres. 
+   */
   that.displayObjectFile = function(obj,filename) {
     if(obj.objectClass == 'P' && obj.numberVertices <= 81924) {
 
@@ -185,6 +210,17 @@ function BrainBrowser(url) {
 
   };
 
+  /*
+   * Updates the clear color or background of the view window
+   * Takes a array with 4 elements, the color must be represented as for values from 0-1.0 [red,green,blue,alpha] 
+   */
+  that.updateClearColor= function(color)  {
+    that.viewInfo.clearBuffer.clearColor = color;
+  };
+
+  /*
+   *setups the uniforms for a shader that implements blinnphong shading. 
+   */
   function blinnphongParams(material){
     
     // Transparency 
@@ -224,6 +260,9 @@ function BrainBrowser(url) {
   }
 
 
+  /*
+   * Creates a brains with two hemispheres as seperate shapes. 
+   */
   this.createBrain = function(model_data,filename) {
     that.model_data= model_data;
 
@@ -306,6 +345,10 @@ function BrainBrowser(url) {
     }
   };
 
+  /*
+   * Object that are composed of lines
+   * 
+   */
   that.createLineObject = function(model_data,filename) {
     that.model_data= model_data;
 
@@ -337,7 +380,9 @@ function BrainBrowser(url) {
     }
   };
 
-
+  /*
+   * Creates a generic polygon object. 
+   */
   that.createPolygonObject = function(model_data,filename) {
     that.model_data= model_data;
 
@@ -1377,7 +1422,7 @@ function BrainBrowser(url) {
 		    }
 
 		    if(that.data) {
-		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
+		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped);
 		    }
 
 		});
@@ -1395,7 +1440,7 @@ function BrainBrowser(url) {
 		    }
 
 		    if(that.data) {
-		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
+		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped);
 		    }
 
 		});
@@ -1422,41 +1467,119 @@ function BrainBrowser(url) {
 	    }
 	}
 	
-			 that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
-		      };
-    
-    if(filename.match(/.*.mnc/)) {
-      var xhr = new XMLHttpRequest();
-      xhr.open('POST', '/minc/volume_object_evaluate', false);
-      var form = document.getElementById('datafile-form');
-      var data = new FormData(form);
-         
-      xhr.send(data);
-      var text_data = xhr.response;
-      
+      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped);
+      return null;
+    };
 
-      onfinish(text_data);
-      
-      
-      
-    }else if(filename.match(/.*.nii/)) {
-      
-      
+    /*
+     * If the data file is a mnc or nii, we need to send it to the server and 
+     * have the server process it with volume_object_evaluate which projects the 
+     * data on the surface file. 
+     */
+    if(filename.match(/.*.mnc|.*.nii/)) {
       var xhr = new XMLHttpRequest();
-      xhr.open('POST', '/nii/volume_object_evaluate', false);
+      if(filename.match(/.*.mnc/)) {
+	 xhr.open('POST', '/minc/volume_object_evaluate', false);  
+      }else {
+	 xhr.open('POST', '/nii/volume_object_evaluate', false);  
+      }
       var form = document.getElementById('datafile-form');
       var data = new FormData(form);
-      
       xhr.send(data);
       var text_data = xhr.response;
-      
-      
       onfinish(text_data);
+      
     }else {
       loadFromTextFile(file_input, onfinish);
     }
   };
 
+  /*
+   * Load a series of data files to be viewed with a slider. 
+   */
+  that.loadSeriesDataFromFile = function(file_input) {
+    console.log(file_input.files.length);
+		var numberFiles = file_input.files.length;
+		that.seriesData = new Array(numberFiles);
+		that.seriesData.numberFiles = numberFiles;
+		var files = file_input.files;
+   
+ 		for(var i = 0; i < numberFiles; i++) {
+		  
+		  var reader = new FileReader();
+		   reader.file = files[i];
+		  /*
+		   * Using a closure to keep the value of i around to put the 
+		   * data in an array in order. 
+		   */
+		  var onfinish = reader.onloadend = (function(file,num) {
+						       return function(e) {
+		   					 console.log(e.target.result.length);
+							 console.log(num);
+							 that.seriesData[num] = new Data(e.target.result);
+							 
+							 that.seriesData[num].fileName = file.name;
+							 
+						       };
+						     })(reader.file,i);
+		  
+		  reader.readAsText(files[i]);
+			
+			
+
+    }
+    that.setupSeries();
+  };
+
+
+  that.setupSeries = function() {
+    $("<div id=\"series\">Series: </div>").appendTo("#surface_choice");
+    var div = $("#series");
+    $("<span id=\"series-value\">0</span>").appendTo(div);
+    $("<div id=\"series-slider\" width=\"100px\" + height=\"10\"></div>").slider({
+										   value: 0,
+										   min: 0,
+										   max: that.seriesData.numberFiles-1,	       
+										   step: .1,
+										   slide: function(event,ui) {
+										     if(ui.value -  Math.floor(ui.value) < 0.01) { //is it at an integer? then just return the array			
+										       that.data = that.seriesData[ui.value];											     }else { //interpolate
+											 if(that.seriesData[0].fileName.match("pval.*")){
+											   that.data = new Data(interpolateDataArray(that.seriesData[Math.floor(ui.value)],that.seriesData[Math.floor(ui.value)+1],(ui.value -  Math.floor(ui.value)),true));											 											   
+											 }else {
+											   that.data = new Data(interpolateDataArray(that.seriesData[Math.floor(ui.value)],that.seriesData[Math.floor(ui.value)+1],(ui.value -  Math.floor(ui.value))));											 
+											 }
+
+
+										      
+										     }
+										     if(that.seriesData[0].fileName.match("mt.*")) {
+										       $("#age_series").html("Age: " + (ui.value*3+5).toFixed(1));
+
+										     }else if(that.seriesData[0].fileName.match("pval.*")) {
+										       $("#age_series").html("Age: " + (ui.value*1+10));
+										     }
+										     $(div).children("#series-value").html(ui.value);
+										     if(that.data.values.length < that.model_data.positionArray.length/4) {
+										       console.log("Number of numbers in datafile lower than number of vertices Vertices" + that.model_data.positionArray.length/3 + " data values:" + that.data.values.length );
+										       return -1;
+										     }
+										     if(that.fixRange == false || that.fixRange == null) {
+										       that.rangeMin = that.data.min;
+										       that.rangeMax = that.data.max;
+										       if(that.afterLoadData !=null) {
+											 that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
+										       }
+										     }
+										     
+										     that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped);
+										     return null;
+										     
+										     
+										   }
+										 }).appendTo(div);
+
+  };
 
   that.loadDataFromUrl = function(file_input) {
     loadFromUrl(file_input, true, function(text) {
@@ -1464,9 +1587,9 @@ function BrainBrowser(url) {
       if(that.fixRange == false || that.fixRange == null) {
 	that.rangeMin = that.data.min;
 	that.rangeMax = that.data.max;
-	//if(that.afterLoadData != undefined) {
-	  //that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
-	//}
+	if(that.afterLoadData != undefined) {
+	  that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
+	}
       }
 
       that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
@@ -1487,7 +1610,7 @@ function BrainBrowser(url) {
    * This updates the colors of the brain model
    */
   that.updateColors = function(data,min,max,spectrum,flip,clamped) {
-
+    that.clamped = clamped;
     var color_array = data.createColorArray(min,max,spectrum,flip,clamped,that.model_data.colorArray);
     if(that.model_data.num_hemispheres == 1) {
       var color_buffer = that.pack.createObject('VertexBuffer');
@@ -1538,16 +1661,20 @@ function BrainBrowser(url) {
     return 1;
   };
 
-
+  
+  /*
+   * Called when the range of colors is changed in the interface
+   * Clamped signifies that the range should be clamped and values above or bellow the 
+   * thresholds should have the color of the maximum/mimimum.
+   */
   that.rangeChange = function(min,max,clamped) {
     that.rangeMin = min;
     that.rangeMax = max;
-
-    that.updateColors(that.data,that.rangeMin, that.rangeMax, that.spectrum,false,clamped);
+    that.updateColors(that.data,that.rangeMin, that.rangeMax, that.spectrum,that.flip,clamped);
 
     /*
      * This callback allows users to
-     * do things like update ui elemets
+     * do things like update ui elements
      * when brainbrowser change it internally
      *
      */
@@ -1560,6 +1687,11 @@ function BrainBrowser(url) {
   };
 
 
+  /*
+   * First this will lookup shape in the scenegraph whit it's name
+   * it then changes the value of for the alpha channel in the shaders
+   * of the specific shape. 
+   */
   that.changeShapeTransparency = function(shape_name,alpha) {
     var shape = null;
     if(that.brainTransform.shapes != undefined) {
@@ -1580,11 +1712,17 @@ function BrainBrowser(url) {
       }
     }  
     if(shape) {
+        //set the transAlpha attribute in the shader
 	shape.elements[0].material.getParam('transAlpha').value = alpha;
     }
     
   };
   
+  /*
+   * Used to get a url for a screenshot.
+   * The URL is will be long and contain the image inside. 
+   * 
+   */
   that.getImageUrl = function() {
     return that.o3dElement.toDataURL();
   };

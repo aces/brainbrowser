@@ -3,9 +3,19 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
   var xcontext = xcanvas.getContext("2d");
   var ycontext = ycanvas.getContext("2d");
   var zcontext = zcanvas.getContext("2d");
+  xcanvas.zoom = 1;
+  ycanvas.zoom = 1;
+  zcanvas.zoom = 1;
+
+  xcanvas.translate_origin = {x: 0,y:0};
+  ycanvas.translate_origin = {x: 0,y:0};
+  zcanvas.translate_origin = {x: 0,y:0};
+  xcanvas.translate_vector = {x: 0,y:0};
+  ycanvas.translate_vector = {x: 0,y:0};
+  zcanvas.translate_vector = {x: 0,y:0};
 
 
-  
+  //Object to load elements, absctracts javascript calls
   var loader = new Loader();
 
 
@@ -33,8 +43,8 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
   };
  
   
-  this.update_space = function(axis,slice_image_data, number, minc,time) {
-    var slice = minc.getScaledSlice(axis,number,time);
+  this.update_space = function(axis,slice_image_data, number, minc,time,zoom) {
+    var slice = minc.getScaledSlice(axis,number,time,zoom);
 
     //get the area of canvas to insert image into
     //Make sure that area uses the step of the axises
@@ -51,34 +61,37 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
 
   this.updateXSpace = function(number,minc,time) {
     that.slices.xspace = number;
+    that.slices.xspace_height = Math.ceil(Math.abs(minc.zspace.step)*minc.zspace.space_length*xcanvas.zoom);
     var slice_image_data = xcontext.createImageData(
-      Math.ceil(Math.abs(minc.yspace.step)*minc.yspace.space_length),
-      Math.ceil(Math.abs(minc.zspace.step)*minc.zspace.space_length));
+      Math.ceil(Math.abs(minc.yspace.step)*minc.yspace.space_length*xcanvas.zoom),
+      Math.ceil(Math.abs(minc.zspace.step)*minc.zspace.space_length*xcanvas.zoom));
 
-    var xslice_image_data = that.update_space("xspace",slice_image_data, number,minc,time);
-    xcontext.putImageData(xslice_image_data,0,0);  
+    var xslice_image_data = that.update_space("xspace",slice_image_data, number,minc,time,xcanvas.zoom);
+    xcontext.putImageData(xslice_image_data,xcanvas.translate_vector.x,xcanvas.translate_vector.y);  
   };
 
   this.updateYSpace = function(number,minc,time) {
     that.slices.yspace = number;
+    that.slices.yspace_height = Math.ceil(Math.abs(minc.zspace.step)*minc.zspace.space_length*ycanvas.zoom);
     var slice_image_data = ycontext.createImageData(
-      Math.ceil(Math.abs(minc.xspace.step)*minc.xspace.space_length),
-      Math.ceil(Math.abs(minc.zspace.step)*minc.zspace.space_length));
+      Math.ceil(Math.abs(minc.xspace.step)*minc.xspace.space_length*ycanvas.zoom),
+      Math.ceil(Math.abs(minc.zspace.step)*minc.zspace.space_length*ycanvas.zoom));
 
-    var yslice_image_data = that.update_space("yspace",slice_image_data, number,minc,time);
+    var yslice_image_data = that.update_space("yspace",slice_image_data, number,minc,time,ycanvas.zoom);
 
-    ycontext.putImageData(yslice_image_data,0,0);   
+    ycontext.putImageData(yslice_image_data,ycanvas.translate_vector.x,ycanvas.translate_vector.y);   
     
   };
   
   this.updateZSpace = function(number,minc,time) {
     that.slices.zspace = number;
+    that.slices.yspace_height = Math.ceil(Math.abs(minc.yspace.step)*minc.yspace.space_length*zcanvas.zoom);
     var slice_image_data = zcontext.createImageData(
-      Math.ceil(Math.abs(minc.xspace.step)*minc.xspace.space_length),
-      Math.ceil(Math.abs(minc.yspace.step)*minc.yspace.space_length));
+      Math.ceil(Math.abs(minc.xspace.step)*minc.xspace.space_length*zcanvas.zoom),
+      Math.ceil(Math.abs(minc.yspace.step)*minc.yspace.space_length*zcanvas.zoom));
 
-    var zslice_image_data = that.update_space("zspace",slice_image_data, number,minc,time);
-    zcontext.putImageData(zslice_image_data,0,0);
+    var zslice_image_data = that.update_space("zspace",slice_image_data, number,minc,time,zcanvas.zoom);
+    zcontext.putImageData(zslice_image_data,zcanvas.translate_vector.x,zcanvas.translate_vector.y);
 
   };
 
@@ -113,16 +126,16 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
 
 
     drawCrosshair(xcontext,
-		  ywidth,
-		  zheight);
+		  ywidth*xcanvas.zoom+xcanvas.translate_vector.x,
+		  zheight*xcanvas.zoom+xcanvas.translate_vector.y);
 
     drawCrosshair(ycontext,
-		  xwidth,
-		  zheight);
+		  xwidth*ycanvas.zoom+ycanvas.translate_vector.x,
+		  zheight*ycanvas.zoom+ycanvas.translate_vector.y);
 
     drawCrosshair(zcontext,
-		  xwidth,
-		  yheight);
+		  xwidth*zcanvas.zoom+zcanvas.translate_vector.x,
+		  yheight*zcanvas.zoom+zcanvas.translate_vector.y);
   };
 
 
@@ -162,7 +175,43 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
   };
  
 
+  /*
+   * Zoom, scroll wheel zoom in out
+   */
+  this.zoomIn = function(event,canvas,delta) {
+    if(canvas.zoom == undefined) {
+      canvas.zoom = 1 * 1.01;
+    }else {
+      canvas.zoom = canvas.zoom * 1.10;
+    }
+    
+    that.updateSlices(null,that.current_time);
+    console.log("ZoomIn on " + canvas.id + " canvas zoom factor: " + canvas.zoom);
+  };
 
+  this.zoomOut = function(event,canvas,delta) {
+    if(canvas.zoom == undefined) {
+      canvas.zoom = 0.90;
+    }else {
+      canvas.zoom = canvas.zoom*0.90;
+    }
+    that.updateSlices(null,that.current_time);
+    console.log("ZoomOut on " + canvas.id + " canvas zoom factor: " + canvas.zoom);
+  };
+
+  /*
+   * translate a slice around (useful when zoomed)
+   */
+  this.translate = function(event,canvas) {
+    var new_position =  getCursorPosition(event);
+    if(canvas.translate_origin) {
+
+      console.log("1. TVec x: " + canvas.translate_vector.x + " TVec y: " + canvas.translate_vector.y );
+      canvas.translate_vector = {x: (canvas.translate_origin.x  - new_position.x2), y: (canvas.translate_origin.y - new_position.y)};
+      console.log("2. TVec x: " + canvas.translate_vector.x + " TVec y: " + canvas.translate_vector.y );
+      that.updateSlices(null,that.current_time);
+    };
+  };
   this.showMinc=function(minc){
     $(xcanvas).siblings("#mincinfo").append("Minc Information: <br>"+
 			  "order: "+ minc.order +
@@ -199,12 +248,13 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
 	y = e.clientY + document.body.scrollTop +
             document.documentElement.scrollTop;
     }
-    
-    
     x -= e.target.offsetLeft;
     y -= e.target.offsetTop;
     y = e.target.height-y;
-    return {target: e.target,x: x,y: y};
+    return {target: e.target,x: x,y: y,x2: e.target.width - x};
+    
+    
+    
   }
   
   //Will calculate the location of your click from the screen to the 
@@ -225,15 +275,18 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
 
   };
 
+  /*
+   * Take x,y from the top left corner of the canvas and convert it to slice space. 
+   */
   this.getSliceNumbersFromPosition = function(position){
     that.position = position;
     if(position.target.id == xcanvas.id) {
       var slices = {
 	x: that.slices.xspace,
-	y: parseInt(position.x/Math.abs(that.current_minc.xspace.height_space.step)),
-	z: parseInt(position.y/Math.abs(that.current_minc.xspace.length_space.step))
+	y: parseInt((position.x-xcanvas.translate_vector.x)/Math.abs(that.current_minc.xspace.height_space.step)/xcanvas.zoom),
+	z: parseInt((position.y+xcanvas.translate_vector.y)/Math.abs(that.current_minc.xspace.length_space.step)/xcanvas.zoom)
       };
-
+      console.log("Position.y  " + position.y + " step " + Math.abs(that.current_minc.xspace.length_space.step) + " zoom " + xcanvas.zoom    );
       if(that.current_minc.yspace.step < 0 ) {
 	slices.y = that.current_minc.yspace.space_length - slices.y;
       }
@@ -245,8 +298,8 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
     }else if(position.target.id == ycanvas.id ) {
       var slices = {
 	y: that.slices.yspace,
-	x: parseInt(position.x/Math.abs(that.current_minc.xspace.step)),
-	z: parseInt(position.y/Math.abs(that.current_minc.zspace.step))
+	x: parseInt((position.x-ycanvas.translate_vector.x)/(Math.abs(that.current_minc.xspace.step)*ycanvas.zoom)),
+	z: parseInt((position.y+ycanvas.translate_vector.y)/(Math.abs(that.current_minc.zspace.step)*ycanvas.zoom))
       };  
       if(that.current_minc.xspace.step < 0 ) {
 	slices.x = that.current_minc.xspace.space_length - slices.x;
@@ -258,8 +311,8 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
     }else {
       var slices = {
 	  z:that.slices.zspace,
-	  x:parseInt(position.x/Math.abs(that.current_minc.zspace.length_space.step)),
-	  y:parseInt(position.y/Math.abs(that.current_minc.yspace.step))
+	  x:parseInt((position.x-zcanvas.translate_vector.x)/(Math.abs(that.current_minc.zspace.length_space.step)*zcanvas.zoom)),
+	  y:parseInt((position.y+zcanvas.translate_vector.y)/(Math.abs(that.current_minc.yspace.step)*zcanvas.zoom))
 	};
       if(that.current_minc.xspace.step < 0 ) {
 	slices.x = that.current_minc.xspace.space_length - slices.x;
@@ -281,10 +334,19 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
 
   
 
-  
+  /*
+   * All event handlers on the canvases are registered here. 
+   */
   this.addListeners = function(canvas) {
     canvas.onmousedown = function(event) {
       that.drag = true;
+      if(event.shiftKey) {
+	var position = getCursorPosition(event);
+	canvas.translate_origin = {x: canvas.translate_vector.x+position.x2, y: canvas.translate_vector.y + position.y};
+
+
+      }
+      return false;
     };
     
     canvas.onmouseup = function(event) {
@@ -293,12 +355,30 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
     
 
     canvas.onmousemove = function(event) {
-      if(that.drag){
-	that.updateSlices(event);	
+      if(that.drag) {
+	if(event.shiftKey) {
+	  that.translate(event,canvas);	  
+	}else {
+	  that.updateSlices(event);	  
+	}
       }
     };
+    
+    jQuery(canvas).mousewheel( function(event,delta) {
+	if(delta > 0) {
+	  that.zoomOut(event,canvas,delta);
+	}else {
+	  that.zoomIn(event,canvas,delta);
+	}
+    });
+
   };
   
+  /*
+   * The following are Methods to create UI elements
+   * 
+   */
+
   //Show time slider for 4D datasets
   this.showTime = function() {
     $("<div id=\"time\">Time Index: </div>").appendTo($(xcanvas).parent());
@@ -356,13 +436,15 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
     
 
   };
-
+  
+  /*
+   * Recalculates the colors when a user changes the spectrum
+   */ 
   this.changeSpectrum = function(name){
     spectrum = spectrums[name];
     that.updateSlices(null,that.time);
   };
  
-
   this.showSpectrum=function() {
     $("<div id=\"spectrum\">Color Scale</div>").appendTo($(xcanvas).parent());
     var div = $($(xcanvas).parent().children("#spectrum"));
@@ -374,7 +456,9 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
 			    that.changeSpectrum($(event.target).val());
 			   });
   };
-  //Open a Minc file, initiates the UI elements Basicly the main function. 
+ 
+
+ //Open a Minc file, initiates the UI elements Basicly the main function. 
   this.openFile =function(filename) {
     this.current_minc = new Minc(filename, null,function(minc,extraArgs){
 				   /*
@@ -399,21 +483,24 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
 				   that.initCanvas(ycanvas,ywidth,yheight);
 				   that.initCanvas(zcanvas,zwidth,zheight);
 				   
+				   //Builds and displays the UI elements for each 
 				   that.showCoordinates();
 				   that.showMinc(minc);
+				   //if it's a 4D dataset time will be defined. 
+				   if(minc.time) {
+				     that.showTime();
+				   }
 				   that.showBrightness();
 				   that.showContrast();
-				   
-				  
+                                   that.showSpectrum();
+
+				   //Binds events to all three elements
 				   that.addListeners(xcanvas);
 				   that.addListeners(ycanvas);
 				   that.addListeners(zcanvas);
 
-                                   that.showSpectrum();
 
-				   if(minc.time) {
-				     that.showTime();
-				   }
+
 				   
 				   ;});
   };

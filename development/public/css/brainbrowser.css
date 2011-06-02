@@ -90,3 +90,7 @@ a:visited {
 select {
     width: 75%;
 }
+
+#age_series {
+   font-size: 30px;
+}

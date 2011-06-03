@@ -110,12 +110,12 @@ MACACC (mapping anatomical correlation across cerebral cortex) was previously pr
 
 \begin{center}
   \begin{tabular}{cc}
-    \includegraphics[width=1.0\linewidth]{macacc.png}
+    \includegraphics[width=.9\linewidth]{macacc.png}
   \end{tabular}
 \end{center}
 \begin{center}
   \begin{tabular}{cc}
-    \includegraphics[width=1.0\linewidth]{brainbrowser.png}
+    \includegraphics[width=.9\linewidth]{brainbrowser.png}
   \end{tabular}
 \end{center}
 
@@ -123,7 +123,7 @@ MACACC (mapping anatomical correlation across cerebral cortex) was previously pr
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\headerbox{BrainBrowser}{name=brainbrowser,column=1.5,span=1.5,below=macacc}{
+\headerbox{BrainBrowser}{name=brainbrowser,column=1.5,span=1.5, row=0}{
 BrainBrowser uses cutting-edge technologies such as WebGL and HTML5 which allow for the rendering and manipulation of 3D models within a web browser. These technologies are built into the latest versions of several popular browsers such as Chrome  and Firefox. Any user with access to the Internet will be able to visualize their data without any requirements for complex software installation or configuration locally.
 \linebreak
 BrainBrowser can be used to visualize all kinds of 3D objects. Currently BrainBrowser is targeted a visualizing brain surfaces extracted from MRI data, 3D fibre pathways derived from DTI as line objects. These objects can be rotated, translated and a zooming features is also implemented. BrainBrowser reads the geometry of these objects from MNI Object files (.obj) and can be adapted to understand data in other formats also. 
@@ -132,31 +132,30 @@ BrainBrowser can be used to visualize all kinds of 3D objects. Currently BrainBr
 \linebreak
 BrainBrowser is built on top of WebGL is a technology developped by a con of popular browser as an interface between JavaScript and the OpenGL API. This allows applications like BrainBrowser to work seemlessly across platforms (Windows, Mac OSX, Linux) and across various popula browser. Currently Chrome and Firefox with support planned in Safari and Opera. Internet Explorer can be used with the Chrome Frames extension provided by Google.
 
+}
 
-
-\headerbox{MACACC}{name=macacc,column=1.5,span=1.5,row=0}{
+\headerbox{MACACC}{name=macacc,column=1.5,span=1.5,below=brainbrowser}{
 BrainBrowser includes access to the MACACC dataset which is used to explore structural correlations across the cortex, derived in database of 152 young normal subjects from the International Consortium for Brain Mapping (ICBM, Mazziotta J et al., 2001). Cortical thickness at each of 80K 3D locations were calculated using the CLASP algorithm (MacDonald D et al., 2000; Kim JS et al., 2005). This subject population is the same as used for the MNI152 stereotaxic voxelwise templates used, for instance, in SPM. Structural correlation maps are calculated according to the procedures in Lerch et al., (2005), wherein the correlation across subjects, between the cortical thickness at a seed vertex and at any other vertex, is measured. This yields a cortical thickness correlation map for that seed vertex. The BrainBrowser database contains maps for all cortical vertices for each of three vertexwise morphological variables (thickness, area, volume). Furthermore, since the blurring kernel used will profoundly alter the derived statistical map, the results are generated for 9 different surface-blurring kernels and for three different statistics. In total, the BrainBrowser database comprises ~6.3 Million maps for the following permutations: 80K vertices x 9 blurring kernels x 3 morphological indices x 3 statistical
 
 }
 
-}
+
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\headerbox{Conclusion}{name=conclusion,column=1.5,span=1.5,below=brainbrowser}{
-For each descriptor, the statistical maps of MACACC include t-statistic, p-value with and without random field theory correction. The data is formatted as text files that were stored on a file server at the MNI. BrainBrowser is now available online for anyone who requests remote access to the MACACC data, which is fast and highly interactive. Specifically, users can select any seeding vertex of a MACACC map on the cortical surface and further specify statistical thresholds (fig 1). Users can also use BrainBrowser to view surface data from their local machine (fig 2).
-}
-\headerbox{References}{name=references,column=1.5,span=1.5,below=brainbrowser}{
+\headerbox{References}{name=references,column=0,span=3.0,below=macacc}{
+  
   \begin{itemize} 
-    \item BrainBrowser http://brainbrowser.cbrain.mcgill.ca
-    \item WebGL http://khronos.org/webgl/wiki/Main_Page
-    \item Mazziotta J et al., 2001, A probabilistic atlas and reference system for the human brain: International Consortium for Brain Mapping (ICBM), Philosophical Transactions of the Royal Socity, Bological Sciences, August 2001 vol. 356 no. 1412 1293-1322
-    \item Lerch J. et al.,  2006,  Mapping anatomical correlations across cerebral cortex (MACACC) using cortical thickness from MRI, NeuroImage, Volume 31, Issue 3, 1 July 2006, Pages 993-1003
-    \item MacDonald D. et al., 2000,  Automated 3-D Extraction of Inner and Outer Surfaces of Cerebral Cortex from MRI, NeuroImage Volume 12, 2000,Pages 340 –356, 
-    \item Kim JS. et al., 2005, Automated 3-D extraction and evaluation of the inner and outer cortical surfaces using a Laplacian map and partial volume effect classification, NeuroImage Volume 27, Issue 1, 1 August 2005, Pages 210-221
-    \item Lyttelton O. et al, 2007, An unbiased iterative group registration template for cortical surface analysis, NeuroImage Volume 34, Issue 4, 15 February 2007, Pages 1535-1544
+    \item \tiny Kim JS. et al., 2005, Automated 3-D extraction and evaluation of the inner and outer cortical surfaces using a Laplacian map and partial volume effect classification, NeuroImage Volume 27, Issue 1, 1 August 2005, Pages 210-221
+    \item \tiny Lerch J. et al.,  2006,  Mapping anatomical correlations across cerebral cortex (MACACC) using cortical thickness from MRI, NeuroImage, Volume 31, Issue 3, 1 July 2006, Pages 993-1003
+    \item \tiny Lyttelton O. et al, 2007, An unbiased iterative group registration template for cortical surface analysis, NeuroImage Volume 34, Issue 4, 15 February 2007, Pages 1535-1544
+    \item \tiny MacDonald D. et al., 2000,  Automated 3-D Extraction of Inner and Outer Surfaces of Cerebral Cortex from MRI, NeuroImage Volume 12, 2000,Pages 340–356, 
+    \item \tiny Mazziotta J et al., 2001, A probabilistic atlas and reference system for the human brain: International Consortium for Brain Mapping (ICBM), Philosophical Transactions of the Royal Socity, Bological Sciences, August 2001 vol. 356 no. 1412 1293-1322
+    \item \tiny MNI Object File format https://brainbrowser.cbrain.mcgill.ca/documentation/mni\_obj\_format.pdf
+    \item \tiny WebGL http://khronos.org/webgl/wiki/Main\_Page
   \end{itemize}
 }
-\end{poster}%
+
+\end{poster}
 \end{document}

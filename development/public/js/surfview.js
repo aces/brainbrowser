@@ -120,7 +120,7 @@ function SurfView() {
 
     $(bb.o3dElement).bind('contextmenu',function(e){
 			      return false;
-			  })
+			  });
 
 
     /********************************************************
@@ -204,6 +204,12 @@ function SurfView() {
       }
     });
 
+    
+    jQuery("#clearColor").change(function(e){
+				  var color_name = $(e.target).val();
+				  bb.updateClearColorFromName(color_name);
+				});
+    
     jQuery("#data-range-min").change(function(e) {
       jQuery("#range-slider").slider('values', 0, parseFloat(jQuery(this).val()));
     });

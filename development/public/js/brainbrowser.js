@@ -75,7 +75,7 @@ function BrainBrowser(url) {
       that.pack,
       that.client.root,
       that.client.renderGraphRoot,
-      [0.5,0.5,0.5,1]);
+      [0.5,0.5,0.5,1])
      that.viewInfo = viewInfo;
      // Set up a simple orthographic view.
      viewInfo.drawContext.projection = that.math.matrix4.perspective(
@@ -216,6 +216,22 @@ function BrainBrowser(url) {
    */
   that.updateClearColor= function(color)  {
     that.viewInfo.clearBuffer.clearColor = color;
+  };
+
+  /*
+   * Used to select some predefined colors
+   */
+  that.updateClearColorFromName = function(name) {
+
+    if (name == "white") {
+      that.updateClearColor([1.0,1.0,1.0,1.0]);
+    }else if(name == "black") {
+      that.updateClearColor([0.0,0.0,0.0,1.0]);
+    } else if(name == "pink"){
+      that.updateClearColor([1.0,0.0,1.0,1.0]);
+    }else{
+      that.updateClearColor([0.5,0.5,0.5,1]);
+    }
   };
 
   /*

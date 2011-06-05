@@ -151,6 +151,7 @@ function SurfView() {
       jQuery("#data-range-min").val(min);
       jQuery("#data-range-max").val(max);
       var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null);
+      canvas.id = "spectrum_canvas"
       jQuery("#spectrum").html(jQuery(canvas));
     };
 

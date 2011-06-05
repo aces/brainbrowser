@@ -75,7 +75,7 @@ function BrainBrowser(url) {
       that.pack,
       that.client.root,
       that.client.renderGraphRoot,
-      [0.5,0.5,0.5,1]);
+      [0.5,0.5,0.5,1])
      that.viewInfo = viewInfo;
      // Set up a simple orthographic view.
      viewInfo.drawContext.projection = that.math.matrix4.perspective(
@@ -216,6 +216,22 @@ function BrainBrowser(url) {
    */
   that.updateClearColor= function(color)  {
     that.viewInfo.clearBuffer.clearColor = color;
+  };
+
+  /*
+   * Used to select some predefined colors
+   */
+  that.updateClearColorFromName = function(name) {
+
+    if (name == "white") {
+      that.updateClearColor([1.0,1.0,1.0,1.0]);
+    }else if(name == "black") {
+      that.updateClearColor([0.0,0.0,0.0,1.0]);
+    } else if(name == "pink"){
+      that.updateClearColor([1.0,0.0,1.0,1.0]);
+    }else{
+      that.updateClearColor([0.5,0.5,0.5,1]);
+    }
   };
 
   /*
@@ -1422,7 +1438,7 @@ function BrainBrowser(url) {
 		    }
 
 		    if(that.data) {
-		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
+		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped);
 		    }
 
 		});
@@ -1440,7 +1456,7 @@ function BrainBrowser(url) {
 		    }
 
 		    if(that.data) {
-		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
+		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped);
 		    }
 
 		});
@@ -1467,7 +1483,7 @@ function BrainBrowser(url) {
 	    }
 	}
 	
-      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
+      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped);
       return null;
     };
 
@@ -1494,6 +1510,92 @@ function BrainBrowser(url) {
     }
   };
 
+  /*
+   * Load a series of data files to be viewed with a slider. 
+   */
+  that.loadSeriesDataFromFile = function(file_input) {
+    console.log(file_input.files.length);
+		var numberFiles = file_input.files.length;
+		that.seriesData = new Array(numberFiles);
+		that.seriesData.numberFiles = numberFiles;
+		var files = file_input.files;
+   
+ 		for(var i = 0; i < numberFiles; i++) {
+		  
+		  var reader = new FileReader();
+		   reader.file = files[i];
+		  /*
+		   * Using a closure to keep the value of i around to put the 
+		   * data in an array in order. 
+		   */
+		  var onfinish = reader.onloadend = (function(file,num) {
+						       return function(e) {
+		   					 console.log(e.target.result.length);
+							 console.log(num);
+							 that.seriesData[num] = new Data(e.target.result);
+							 
+							 that.seriesData[num].fileName = file.name;
+							 
+						       };
+						     })(reader.file,i);
+		  
+		  reader.readAsText(files[i]);
+			
+			
+
+    }
+    that.setupSeries();
+  };
+
+
+  that.setupSeries = function() {
+    $("<div id=\"series\">Series: </div>").appendTo("#surface_choice");
+    var div = $("#series");
+    $("<span id=\"series-value\">0</span>").appendTo(div);
+    $("<div id=\"series-slider\" width=\"100px\" + height=\"10\"></div>").slider({
+										   value: 0,
+										   min: 0,
+										   max: that.seriesData.numberFiles-1,	       
+										   step: .1,
+										   slide: function(event,ui) {
+										     if(ui.value -  Math.floor(ui.value) < 0.01) { //is it at an integer? then just return the array			
+										       that.data = that.seriesData[ui.value];											     }else { //interpolate
+											 if(that.seriesData[0].fileName.match("pval.*")){
+											   that.data = new Data(interpolateDataArray(that.seriesData[Math.floor(ui.value)],that.seriesData[Math.floor(ui.value)+1],(ui.value -  Math.floor(ui.value)),true));											 											   
+											 }else {
+											   that.data = new Data(interpolateDataArray(that.seriesData[Math.floor(ui.value)],that.seriesData[Math.floor(ui.value)+1],(ui.value -  Math.floor(ui.value))));											 
+											 }
+
+
+										      
+										     }
+										     if(that.seriesData[0].fileName.match("mt.*")) {
+										       $("#age_series").html("Age: " + (ui.value*3+5).toFixed(1));
+
+										     }else if(that.seriesData[0].fileName.match("pval.*")) {
+										       $("#age_series").html("Age: " + (ui.value*1+10));
+										     }
+										     $(div).children("#series-value").html(ui.value);
+										     if(that.data.values.length < that.model_data.positionArray.length/4) {
+										       console.log("Number of numbers in datafile lower than number of vertices Vertices" + that.model_data.positionArray.length/3 + " data values:" + that.data.values.length );
+										       return -1;
+										     }
+										     if(that.fixRange == false || that.fixRange == null) {
+										       that.rangeMin = that.data.min;
+										       that.rangeMax = that.data.max;
+										       if(that.afterLoadData !=null) {
+											 that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
+										       }
+										     }
+										     
+										     that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped);
+										     return null;
+										     
+										     
+										   }
+										 }).appendTo(div);
+
+  };
 
   that.loadDataFromUrl = function(file_input) {
     loadFromUrl(file_input, true, function(text) {
@@ -1524,7 +1626,7 @@ function BrainBrowser(url) {
    * This updates the colors of the brain model
    */
   that.updateColors = function(data,min,max,spectrum,flip,clamped) {
-
+    that.clamped = clamped;
     var color_array = data.createColorArray(min,max,spectrum,flip,clamped,that.model_data.colorArray);
     if(that.model_data.num_hemispheres == 1) {
       var color_buffer = that.pack.createObject('VertexBuffer');
@@ -1584,8 +1686,7 @@ function BrainBrowser(url) {
   that.rangeChange = function(min,max,clamped) {
     that.rangeMin = min;
     that.rangeMax = max;
-
-    that.updateColors(that.data,that.rangeMin, that.rangeMax, that.spectrum,false,clamped);
+    that.updateColors(that.data,that.rangeMin, that.rangeMax, that.spectrum,that.flip,clamped);
 
     /*
      * This callback allows users to

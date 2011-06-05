@@ -82,6 +82,8 @@ function SurfView() {
 
 
   brainbrowser.afterInit = function(bb) {
+    bb.clamped = true; //By default clamp range. 
+		bb.flip = false;
     bb.clearScreen();
     bb.loadObjFromUrl('/models/surf_reg_model_both.obj');
     
@@ -119,7 +121,7 @@ function SurfView() {
 
     $(bb.o3dElement).bind('contextmenu',function(e){
 			      return false;
-			  })
+			  });
 
 
     /********************************************************
@@ -190,6 +192,12 @@ function SurfView() {
 				    }
 				  });
 
+
+		jQuery("#flip_range").change(function(e) {
+			 bb.flip = $(e.target).attr("checked");
+			 bb.updateColors(bb.data,bb.data.min,bb.data.max,brainbrowser.spectrum,bb.flip,bb.clamped);
+			
+		});
     
     jQuery(".range-box").keypress(function(e) {
       if(e.keyCode == '13'){
@@ -197,6 +205,12 @@ function SurfView() {
       }
     });
 
+    
+    jQuery("#clearColor").change(function(e){
+				  var color_name = $(e.target).val();
+				  bb.updateClearColorFromName(color_name);
+				});
+    
     jQuery("#data-range-min").change(function(e) {
       jQuery("#range-slider").slider('values', 0, parseFloat(jQuery(this).val()));
     });

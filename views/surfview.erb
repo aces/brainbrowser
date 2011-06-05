@@ -15,7 +15,9 @@
 	
 	<form id="datafile-form" method="POST"  action="/upload/minc" enctype="multipart/form-data">
 	Object File: <input type="file" name="objfile" id="objfile"><br />
-	Data: <input type="file" name="datafile" id="datafile">
+	Data: <input type="file" name="datafile" id="datafile"><br />
+	Data Series: <input type="file" name="dataseriesfile" id="dataseriesfile" multiple=true>
+
 	</form>
       </div>
       <div class="box full_box" id="shapes-box">
@@ -72,9 +74,9 @@
 	  Min: <input class="range-box" id="data-range-min" type="text" name="range_min" size="5" ><br />
 	    <div id="range-slider" class="slider"></div>
 	  Max: <input class="range-box" id="data-range-max" type="text" name="range_max" size="5" >
-	  <input type="checkbox" id="fix_range"><label for="fix_range">Fix Range</label>
-	  <input type="checkbox" id="clamp_range" checked="true"><label for="clamp_range">Clamp range</label>
-
+	  <input type="checkbox" class="button" id="fix_range"><label for="fix_range">Fix Range</label>
+	  <input type="checkbox" class="button" id="clamp_range" checked="true"><label for="clamp_range">Clamp range</label>
+	  <input type="checkbox" class="button" id="flip_range"><label for="flip_range">Flip Colors</label>
 	</div>
       </div>
       <div id="examples" class="box full_box">
@@ -86,11 +88,20 @@
       </div>
       <span id="openImage" class="button">Get Screenshot</span>      
       <a class="button" href="/macacc.html">MACACC Dataset</a>
-      <a class="button" href="/about">About</a>
+      <a class="button" href="/about">About</a><br />
+      Back Ground Color:
+      <select id="clearColor"> 
+	<option value="default">Default(Gray)</option>
+	<option value="white">White</option>
+	<option value="black">Black</option>
+	<option value="pink">HOT PINK!</option>
+      </select>
+	   
 </div>
 
     <!-- The webgl window and loading messages if any -->
     <div Id="view-window">
+      <center><span id="age_series"></span></center>
       <div id="o3d"></div>  
       <div id="loading"></div>
     </div>
@@ -132,6 +143,10 @@
       
       jQuery("#datafile").change(function() {
         surfview.brainbrowser.loadDataFromFile(document.getElementById("datafile"));
+      });
+
+      jQuery("#dataseriesfile").change(function() {
+        surfview.brainbrowser.loadSeriesDataFromFile(document.getElementById("dataseriesfile"));
       });
 
 

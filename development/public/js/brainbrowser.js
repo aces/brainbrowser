@@ -1639,8 +1639,32 @@ function BrainBrowser(url) {
    * 
    */
   that.getImageUrl = function() {
-    return that.o3dElement.toDataURL();
+    var canvas = document.createElement("canvas");
+    var spectrumCanvas = document.getElementById("spectrum_canvas");;
+    canvas.width = that.o3dElement.width;
+    canvas.height = that.o3dElement.height;
+      
+    var context = canvas.getContext("2d");
+    var img = new Image
+
+    function getSpectrumImage() {
+	var img = new Image();
+	img.onload = function(){
+	    context.drawImage(img,0,0); // Or at whatever offset you like
+	    window.open(canvas.toDataURL(), "screenshot");
+	};
+	img.src = spectrumCanvas.toDataURL();
+    }
+      
+    img.onload = function(){
+	context.drawImage(img,0,0); // Or at whatever offset you like
+	getSpectrumImage();
+    };
+    img.src = that.o3dElement.toDataURL();
+      
   };
+
+
     
   that.init();
 

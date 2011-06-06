@@ -200,6 +200,13 @@ function SurfView() {
 			
 		});
     
+    
+    jQuery("#autorotate").change(function(e) {
+			 bb.autoRotate = $(e.target).attr("checked");
+		
+			
+		});
+
     jQuery(".range-box").keypress(function(e) {
       if(e.keyCode == '13'){
 	bb.rangeChange(parseFloat(jQuery("#data-range-min").val()),parseFloat(jQuery("#data-range-max").val()));

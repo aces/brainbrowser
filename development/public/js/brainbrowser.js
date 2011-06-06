@@ -75,7 +75,7 @@ function BrainBrowser(url) {
       that.pack,
       that.client.root,
       that.client.renderGraphRoot,
-      [0.5,0.5,0.5,1])
+      [0.5,0.5,0.5,1]);
      that.viewInfo = viewInfo;
      // Set up a simple orthographic view.
      viewInfo.drawContext.projection = that.math.matrix4.perspective(
@@ -132,9 +132,10 @@ function BrainBrowser(url) {
   this.renderCallback = function(renderEvent) {
     that.setClientSize();
     if(that.autoRotate == true) {
-      /*
-       *auto rotation code. 
-       */
+       that.clock = 0;
+       that.clock += renderEvent.elapsedTime * that.timeMult;
+       that.brainTransform.rotateY(0.5 * that.clock);
+       that.brainTransform.rotateZ(0.5 * that.clock);
     }
   };
 

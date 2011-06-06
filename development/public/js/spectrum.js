@@ -58,7 +58,7 @@ function Spectrum(data) {
     var canvas = createCanvas(colors,20,40,flip);
     var context = canvas.getContext("2d");
 
-    context.fillStyle = "#FF0000";
+    context.fillStyle = "#FFA000";
 
     //min mark
     context.fillRect(0.5,20,1,10);

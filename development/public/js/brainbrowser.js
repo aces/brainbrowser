@@ -54,7 +54,7 @@ function BrainBrowser(url) {
     that.zoomFactor = 1.10;
     that.keyPressDelta = 0.1;
     that.clock = 0;
-    that.timeMult = 1;
+    that.timeMult = 1.0;
     that.camera = {
       farPlane: 5000,
       nearPlane:0.1
@@ -134,8 +134,8 @@ function BrainBrowser(url) {
     if(that.autoRotate == true) {
        that.clock = 0;
        that.clock += renderEvent.elapsedTime * that.timeMult;
-       that.brainTransform.rotateY(0.5 * that.clock);
-       that.brainTransform.rotateZ(0.5 * that.clock);
+       that.brainTransform.rotateY(0.1 * that.clock);
+       that.brainTransform.rotateZ(0.1 * that.clock);
     }
   };
 

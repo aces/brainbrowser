@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<head>
+  <title>2D Minc Viewer</title>
+</head>
+<body>
+  Click and drag the red dot to change slices. The red dot represents the location you are looking at. 
+  <div id="minc1" style="float: left">
+    <canvas id="viewport-zspace"></canvas>
+    <canvas id="viewport-xspace"></canvas>
+    <canvas id="viewport-yspace"></canvas>
+    <div id="mincinfo"></div>
+  </div>
+
+  <div id="minc2" style="float: left">
+    <canvas id="viewport2-zspace"></canvas>
+    <canvas id="viewport2-xspace"></canvas>
+    <canvas id="viewport2-yspace"></canvas>
+    <div id="mincinfo"></div>
+  </div>
+
+  <div id="minc3" style="float: left">
+    <canvas id="viewport3-zspace"></canvas>
+    <canvas id="viewport3-xspace"></canvas>
+    <canvas id="viewport3-yspace"></canvas>
+    <div id="mincinfo"></div>
+  </div>
+
+
+    <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.2.custom.css" rel="Stylesheet" />
+  <script type="text/javascript" src="/js/jquery.js"></script>
+  <script type="text/javascript" src="/js/jquery-ui-1.8.10.custom.min.js"></script>
+  <script type="text/javascript" src="/js/jquery.mousewheel.min.js"></script>
+  <script type="text/javascript" src="/js/utils.js"></script>
+  <script type="text/javascript" src="/js/minc.js"></script>
+  <script type="text/javascript" src="/js/color.js"></script>
+  <script type="text/javascript" src="/js/spectrum.js"></script>
+  <script type="text/javascript" src="/js/loader.js"></script>
+  <script type="text/javascript" src="/js/raphael-min.js"></script>
+  <script type="text/javascript" src="/js/braincanvas.js"></script>
+  <script type="text/javascript">
+    bc1 = new BrainCanvas(document.getElementById('viewport-xspace'),document.getElementById('viewport-yspace'),document.getElementById('viewport-zspace'));
+    bc1.openFile('/data/nbrain.mnc');
+    bc2 = new BrainCanvas(document.getElementById('viewport2-xspace'),document.getElementById('viewport2-yspace'),document.getElementById('viewport2-zspace'));
+    bc2.openFile('/data/01_t1_RPI.mnc');
+
+    bc1 = new BrainCanvas(document.getElementById('viewport3-xspace'),document.getElementById('viewport3-yspace'),document.getElementById('viewport3-zspace'));
+    bc1.openFile('/data/test_fmri.mnc');
+
+  </script>
+</body>      

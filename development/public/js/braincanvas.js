@@ -301,7 +301,6 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
 
 	z: parseInt((position.y+xcanvas.translate_vector.y-(xcanvas.height-xcanvas.current_image.height))/Math.abs(that.current_minc.xspace.length_space.step)/xcanvas.zoom)
       };
-      console.log("Position.y  " + position.y + " step " + Math.abs(that.current_minc.xspace.length_space.step) + " zoom " + xcanvas.zoom    );
       if(that.current_minc.yspace.step < 0 ) {
 	slices.y = that.current_minc.yspace.space_length - slices.y;
       }

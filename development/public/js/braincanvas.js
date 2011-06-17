@@ -62,9 +62,12 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
   this.updateXSpace = function(number,minc,time) {
     that.slices.xspace = number;
     that.slices.xspace_height = Math.ceil(Math.abs(minc.zspace.step)*minc.zspace.space_length*xcanvas.zoom);
+    xcanvas.current_image = {width: Math.ceil(Math.abs(minc.yspace.step)*minc.yspace.space_length*xcanvas.zoom),
+                             height: Math.ceil(Math.abs(minc.yspace.step)*minc.yspace.space_length*xcanvas.zoom)};
+    
     var slice_image_data = xcontext.createImageData(
-      Math.ceil(Math.abs(minc.yspace.step)*minc.yspace.space_length*xcanvas.zoom),
-      Math.ceil(Math.abs(minc.zspace.step)*minc.zspace.space_length*xcanvas.zoom));
+      xcanvas.current_image.width,
+      xcanvas.current_image.height);
 
     var xslice_image_data = that.update_space("xspace",slice_image_data, number,minc,time,xcanvas.zoom);
     xcontext.putImageData(xslice_image_data,xcanvas.translate_vector.x,xcanvas.translate_vector.y);  
@@ -73,9 +76,14 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
   this.updateYSpace = function(number,minc,time) {
     that.slices.yspace = number;
     that.slices.yspace_height = Math.ceil(Math.abs(minc.zspace.step)*minc.zspace.space_length*ycanvas.zoom);
+    ycanvas.current_image = {
+      width : Math.ceil(Math.abs(minc.xspace.step)*minc.xspace.space_length*ycanvas.zoom),
+      height: Math.ceil(Math.abs(minc.zspace.step)*minc.zspace.space_length*ycanvas.zoom)
+    };
+
     var slice_image_data = ycontext.createImageData(
-      Math.ceil(Math.abs(minc.xspace.step)*minc.xspace.space_length*ycanvas.zoom),
-      Math.ceil(Math.abs(minc.zspace.step)*minc.zspace.space_length*ycanvas.zoom));
+      ycanvas.current_image.width,
+      ycanvas.current_image.height);
 
     var yslice_image_data = that.update_space("yspace",slice_image_data, number,minc,time,ycanvas.zoom);
 
@@ -86,10 +94,16 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
   this.updateZSpace = function(number,minc,time) {
     that.slices.zspace = number;
     that.slices.yspace_height = Math.ceil(Math.abs(minc.yspace.step)*minc.yspace.space_length*zcanvas.zoom);
-    var slice_image_data = zcontext.createImageData(
-      Math.ceil(Math.abs(minc.xspace.step)*minc.xspace.space_length*zcanvas.zoom),
-      Math.ceil(Math.abs(minc.yspace.step)*minc.yspace.space_length*zcanvas.zoom));
+    zcanvas.current_image = {
+      width: Math.ceil(Math.abs(minc.xspace.step)*minc.xspace.space_length*zcanvas.zoom),      
+      height: Math.ceil(Math.abs(minc.yspace.step)*minc.yspace.space_length*zcanvas.zoom)
+    };
 
+      
+
+    var slice_image_data = zcontext.createImageData(
+      zcanvas.current_image.width,      
+      zcanvas.current_image.height);
     var zslice_image_data = that.update_space("zspace",slice_image_data, number,minc,time,zcanvas.zoom);
     zcontext.putImageData(zslice_image_data,zcanvas.translate_vector.x,zcanvas.translate_vector.y);
 
@@ -205,10 +219,7 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
   this.translate = function(event,canvas) {
     var new_position =  getCursorPosition(event);
     if(canvas.translate_origin) {
-
-      console.log("1. TVec x: " + canvas.translate_vector.x + " TVec y: " + canvas.translate_vector.y );
       canvas.translate_vector = {x: (canvas.translate_origin.x  - new_position.x2), y: (canvas.translate_origin.y - new_position.y)};
-      console.log("2. TVec x: " + canvas.translate_vector.x + " TVec y: " + canvas.translate_vector.y );
       that.updateSlices(null,that.current_time);
     };
   };
@@ -284,7 +295,11 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
       var slices = {
 	x: that.slices.xspace,
 	y: parseInt((position.x-xcanvas.translate_vector.x)/Math.abs(that.current_minc.xspace.height_space.step)/xcanvas.zoom),
-	z: parseInt((position.y+xcanvas.translate_vector.y)/Math.abs(that.current_minc.xspace.length_space.step)/xcanvas.zoom)
+	  //we have to adjust the y coordinate by the amount of difference between 
+	  //the canvas height and the image height since the image
+	  // is a little higher then the bottom of the canvas and y is counted up from the bottom
+
+	z: parseInt((position.y+xcanvas.translate_vector.y-(xcanvas.height-xcanvas.current_image.height))/Math.abs(that.current_minc.xspace.length_space.step)/xcanvas.zoom)
       };
       console.log("Position.y  " + position.y + " step " + Math.abs(that.current_minc.xspace.length_space.step) + " zoom " + xcanvas.zoom    );
       if(that.current_minc.yspace.step < 0 ) {
@@ -299,7 +314,11 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
       var slices = {
 	y: that.slices.yspace,
 	x: parseInt((position.x-ycanvas.translate_vector.x)/(Math.abs(that.current_minc.xspace.step)*ycanvas.zoom)),
-	z: parseInt((position.y+ycanvas.translate_vector.y)/(Math.abs(that.current_minc.zspace.step)*ycanvas.zoom))
+	  //we have to adjust the y coordinate by the amount of difference between 
+	  //the canvas height and the image height since the image
+	  // is a little higher then the bottom of the canvas and y is counted up from the bottom
+
+	z: parseInt((position.y+ycanvas.translate_vector.y - (ycanvas.height-ycanvas.current_image.height))/(Math.abs(that.current_minc.zspace.step)*ycanvas.zoom))
       };  
       if(that.current_minc.xspace.step < 0 ) {
 	slices.x = that.current_minc.xspace.space_length - slices.x;
@@ -312,7 +331,11 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
       var slices = {
 	  z:that.slices.zspace,
 	  x:parseInt((position.x-zcanvas.translate_vector.x)/(Math.abs(that.current_minc.zspace.length_space.step)*zcanvas.zoom)),
-	  y:parseInt((position.y+zcanvas.translate_vector.y)/(Math.abs(that.current_minc.yspace.step)*zcanvas.zoom))
+	  
+	  //we have to adjust the y coordinate by the amount of difference between 
+	  //the canvas height and the image height since the image
+	  // is a little higher then the bottom of the canvas and y is counted up from the bottom
+	  y:parseInt((position.y+zcanvas.translate_vector.y - (zcanvas.height-zcanvas.current_image.height))/(Math.abs(that.current_minc.yspace.step)*zcanvas.zoom))
 	};
       if(that.current_minc.xspace.step < 0 ) {
 	slices.x = that.current_minc.xspace.space_length - slices.x;
@@ -469,19 +492,10 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
 				    * zspace: height is yspace; width is xspace
 				    *  
 				    */ 
-				   var xheight = minc.zspace.space_length*Math.abs(minc.zspace.step);
-				   var xwidth  = minc.yspace.space_length*Math.abs(minc.yspace.step);
-
-				   var yheight = minc.zspace.space_length*Math.abs(minc.zspace.step);
-				   var ywidth  = minc.xspace.space_length*Math.abs(minc.xspace.step); 
-
-				   var zheight = minc.yspace.space_length*Math.abs(minc.yspace.step);
-				   var zwidth  = minc.xspace.space_length*Math.abs(minc.xspace.step);
-
 				   //Initializes the canvas to the right height width, and clears them
-				   that.initCanvas(xcanvas,xwidth,xheight);
-				   that.initCanvas(ycanvas,ywidth,yheight);
-				   that.initCanvas(zcanvas,zwidth,zheight);
+				   that.initCanvas(xcanvas,300,300);
+				   that.initCanvas(ycanvas,300,300);
+				   that.initCanvas(zcanvas,300,300);
 				   
 				   //Builds and displays the UI elements for each 
 				   that.showCoordinates();

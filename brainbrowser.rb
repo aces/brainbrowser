@@ -7,11 +7,18 @@ require 'zlib'
 
 puts ENV["BRAINBROWSER_ENV"]
 
+
+
 if ENV["BRAINBROWSER_ENV"] == "production"
   set :public, 'production/public'
 else
   set :public, 'development/public'
+  use Rack::Auth::Basic, "Restricted Area" do |username, password|
+    [username, password] == ['nkassis', 'br41ns']
+  end
+
 end
+
 
 not_found do 
   "Document not found" 

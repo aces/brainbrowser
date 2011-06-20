@@ -452,16 +452,7 @@ function BrainBrowser(url) {
 
     var state = that.pack.createObject('State');
 
-
-    state.getStateParam('AlphaBlendEnable').value = true;
-    state.getStateParam('SourceBlendFunction').value =
-      o3djs.base.o3d.State.BLENDFUNC_SOURCE_ALPHA;
-    state.getStateParam('DestinationBlendFunction').value =
-      o3djs.base.o3d.State.BLENDFUNC_INVERSE_SOURCE_ALPHA;
-    state.getStateParam('AlphaTestEnable').value = true;
-    state.getStateParam('AlphaComparisonFunction').value =
-      o3djs.base.o3d.State.CMP_GREATER;
-
+    enableAlphaBlending(state);
     hemPrimitive.material.state = state;
 
 
@@ -571,17 +562,8 @@ function BrainBrowser(url) {
     linePrimitive.streamBank = streamBank;
     linePrimitive.primitiveType = that.o3d.Primitive.LINELIST;
     var state = that.pack.createObject('State'); 
-    
-    state.getStateParam('AlphaBlendEnable').value = true;
-    state.getStateParam('SourceBlendFunction').value =
-      o3djs.base.o3d.State.BLENDFUNC_SOURCE_ALPHA;
-    state.getStateParam('DestinationBlendFunction').value =
-      o3djs.base.o3d.State.BLENDFUNC_INVERSE_SOURCE_ALPHA;
-    state.getStateParam('AlphaTestEnable').value = true;
-    state.getStateParam('AlphaComparisonFunction').value =
-      o3djs.base.o3d.State.CMP_GREATER;
-
-    
+    enableAlphaBlending(state);
+       
     linePrimitive.material.state = state;
     //positionsBuffer.set(newPositionArray);
     //create Position buffer (vertices) and set the number of vertices global variable
@@ -679,8 +661,21 @@ function BrainBrowser(url) {
     return lineShape;
 
   };
+  function enableAlphaBlending(state) {
+    
+    state.getStateParam('AlphaBlendEnable').value = true;
+    state.getStateParam('SourceBlendFunction').value =
+      o3djs.base.o3d.State.BLENDFUNC_SOURCE_ALPHA;
+    state.getStateParam('DestinationBlendFunction').value =
+      o3djs.base.o3d.State.BLENDFUNC_INVERSE_SOURCE_ALPHA;
+    state.getStateParam('AlphaTestEnable').value = true;
+    state.getStateParam('AlphaComparisonFunction').value =
+      o3djs.base.o3d.State.CMP_GREATER;
 
 
+  }
+
+  
 
   /*
    * Creates the hemisphere shape with the material provide.
@@ -705,16 +700,8 @@ function BrainBrowser(url) {
     polygonPrimitive.streamBank = streamBank;
     polygonPrimitive.primitiveType = that.o3d.Primitive.TRIANGLELIST;
     var state = that.pack.createObject('State'); 
-    
-    state.getStateParam('AlphaBlendEnable').value = true;
-    state.getStateParam('SourceBlendFunction').value =
-      o3djs.base.o3d.State.BLENDFUNC_SOURCE_ALPHA;
-    state.getStateParam('DestinationBlendFunction').value =
-      o3djs.base.o3d.State.BLENDFUNC_INVERSE_SOURCE_ALPHA;
-    state.getStateParam('AlphaTestEnable').value = true;
-    state.getStateParam('AlphaComparisonFunction').value =
-      o3djs.base.o3d.State.CMP_GREATER;
 
+    enableAlphaBlending(state);
     
     polygonPrimitive.material.state = state;
     //positionsBuffer.set(newPositionArray);

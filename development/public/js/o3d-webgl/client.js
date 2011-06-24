@@ -643,7 +643,10 @@ o3d.Client.prototype.initWithCanvas = function(canvas) {
     depth : true,
     stencil : true,
     antialias : true,
-    premultipliedAlpha : true
+    premultipliedAlpha : true,
+    preserveDrawingBuffer: true //don't clear drawing buffers after 
+                                //draw call. so we can use them for screenshots
+                                //Added for BB by Nic Kassis
   };
 
   if (!canvas || !canvas.getContext) {
@@ -653,7 +656,7 @@ o3d.Client.prototype.initWithCanvas = function(canvas) {
   var names = ["webgl", "experimental-webgl", "moz-webgl"];
   for (var ii = 0; ii < names.length; ++ii) {
     try {
-      gl = canvas.getContext(names[ii], standard_attributes)
+      gl = canvas.getContext(names[ii], standard_attributes);
     } catch(e) { }
     if (gl) {
       break;

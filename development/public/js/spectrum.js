@@ -6,6 +6,10 @@ function Spectrum(data) {
   /*
    * Creates an canvas with the spectrum of colors
    * from low(left) to high(right) values
+   * colors == array of colors 
+   * color_height  == height of the color bar
+   * full_height == height of the canvas
+   * flip == boolean should the colors be reversed
    */
   function createCanvas(colors,color_height,full_height,flip) {
     var canvas = document.createElement("canvas");
@@ -38,7 +42,7 @@ function Spectrum(data) {
   }
 
 
-
+  //Returns a html canvas element of the color bar from the colors
   that.createSpectrumCanvas = function(colors)  {
     if(colors == null ) {
       colors = that.colors;

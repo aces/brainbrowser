@@ -83,8 +83,8 @@ o3d.basePath = '';
  * are just here to make sure we can actually get to the initialization code.
  */
 if (!Object.prototype.__defineSetter__) {
-  Object.prototype.__defineSetter__ = function() {}
-  Object.prototype.__defineGetter__ = function() {}
+  Object.prototype.__defineSetter__ = function() {};
+  Object.prototype.__defineGetter__ = function() {};
 }
 
 /**
@@ -218,7 +218,7 @@ o3d.clone = function(object) {
     } else {
       result[name] = property;
     }
-  }
+ } 
   return result;
 };
 

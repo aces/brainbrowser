@@ -23,7 +23,7 @@ function bbObject(brainbrowser) {
 	 num_hemisphere: 2
        };
 
-     } else {
+     } else{ 
        var brainShape = that.createHemisphere(model_data,"filename");
        brainShape.num_hemisphere= 1;
      }

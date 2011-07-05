@@ -93,11 +93,14 @@ function Spectrum(data) {
     var tmp = data.split(/\n/);
     var colors = new Array();
     for(var i=0;i<tmp.length;  i++) {
-      var tmp_color = tmp[i].split(/\s+/);
-      for(var k=0; k<3; k++) {
+      var tmp_color = tmp[i].replace(/\s+$/, '').split(/\s+/);
+      for(var k=0; k<tmp_color.length; k++) {
 	tmp_color[k]=parseFloat(tmp_color[k]);
       }
-      tmp_color.push(1.0000);
+      if(tmp_color.length < 4) {
+	tmp_color.push(1.0000);	
+      }
+
       colors.push(tmp_color);
     }
     that.colors = colors;

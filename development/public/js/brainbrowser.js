@@ -19,11 +19,14 @@ o3djs.require('o3djs.quaternions');
 o3djs.require('o3djs.scene');
 
 function BrainBrowser(url) {
-  var that = this;
+  var that = this; //Brainbrowser object. Makes sure that if "this" is remapped then we can still
+                   // refer to original object. Also for local functions "this" is not available 
+                   // but "that" is and can be used for special helper methods. 
   
-  //add object management functions from object.js file to brainbrowser
+  //add object management functions from object.js file to brainbrowser 
   bbObject(this); 
   
+  //get model data first then initialize the viewer. 
   this.setup = function(url) {
     that.preload_model(url);
   };
@@ -862,7 +865,7 @@ function BrainBrowser(url) {
                        	 var parts = file_input.value.split("\\");
 			 //last part of path will be shape name
 			 var filename = parts[parts.length-1];
-			
+
 			 that.displayObjectFile(new MNIObject(result),filename);
 		     });
   };
@@ -885,9 +888,11 @@ function BrainBrowser(url) {
 		});
   };
 
+  
 
+  //Load a color bar spectrum definition file
   that.loadSpectrumFromFile = function(file_input){
-    loadFromTextFile(file_input,function (data) {
+    loadFromTextFile(file_input,function(data) {
 		    var spectrum = new Spectrum(data);
 		    that.spectrum = spectrum;
 

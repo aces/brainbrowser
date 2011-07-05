@@ -17,7 +17,14 @@ function SurfView() {
   brainbrowser.afterLoadSpectrum = function (spectrum) {
     var canvas = spectrum.createSpectrumCanvasWithScale(0,100,null);
     canvas.id = "spectrum_canvas";
-    jQuery("<div id=\"spectrum\" class=\"box full_box\"></div>").html(canvas).appendTo("#controls");
+    var spectrum_div = document.getElementById("spectrum_color_bar");
+    if(!spectrum_div){
+      jQuery("<div id=\"spectrum_color_bar\" class=\"box full_box\"></div>").html(canvas).appendTo("#controls");      
+    }else {
+      jQuery(spectrum_div).html(canvas);
+    }
+    
+
     brainbrowser.spectrumObj = spectrum;
   };
 
@@ -173,6 +180,8 @@ function SurfView() {
     jQuery('#clearshapes').click(function(e) {
 				   brainbrowser.clearScreen();
 				 });
+
+
 
     jQuery("#openImage").click(function(e){
 	brainbrowser.getImageUrl();

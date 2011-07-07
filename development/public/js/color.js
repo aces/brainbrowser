@@ -3,7 +3,7 @@
    * This create a color map for each value in the values array
    * This can be slow and memory intensive for large arrays
    */
-function createColorMap(spectrum,canvaspixelarray,values,min,max,normalize,brightness,contrast) {
+function createColorMap(spectrum,canvaspixelarray,values,min,max,convert,brightness,contrast) {
   
 
   var spectrum = spectrum.colors;
@@ -22,8 +22,8 @@ function createColorMap(spectrum,canvaspixelarray,values,min,max,normalize,brigh
     }
     //This inserts the RGBA values (R,G,B,A) independently
     
-    //should the numbers be from 0,255 or 0,1.0 normalize == true means 0-255
-    if(normalize) {
+    //should the numbers be from 0,255 or 0,1.0 convert == true means 0-255
+    if(convert) {
       var scale = 255;
     }else
       var scale = 1;

@@ -14,29 +14,34 @@ function Spectrum(data) {
   function createCanvas(colors,color_height,full_height,flip) {
     var canvas = document.createElement("canvas");
 
-    jQuery(canvas).attr("width",colors.length);
+    jQuery(canvas).attr("width",256);
     jQuery(canvas).attr("height",full_height);
-
-    var context = canvas.getContext("2d");
-    if(flip) {
-      for(var i = 0; i < colors.length; i++) {
-	var color_index = colors.length-1-i;
-	context.fillStyle = "rgb("
-			      +parseInt(parseFloat(colors[color_index][0])*255)+','
-			      +parseInt(parseFloat(colors[color_index][1])*255)+','
-			      +parseInt(parseFloat(colors[color_index][2])*255)+')';
-	context.fillRect(i,0,1,color_height);
-      };
-
-    }else{
-      for(var i = 0; i < colors.length; i++) {
-	  context.fillStyle = "rgb("+parseInt(parseFloat(colors[i][0])*255)+','+parseInt(parseFloat(colors[i][1])*255)+','+parseInt(parseFloat(colors[i][2])*255)+')';
-	  context.fillRect(i,0,1,color_height);
-	};
-
-
-
+    
+    //using createColorMap to create a array of 256 colors from the spectrum
+    var value_array  = new Array(256);
+    for(var i = 0; i < 256; i++){
+      if(flip) {
+	value_array[255-i] = i;	
+      }else {
+	value_array[i] = i;	
+      }
+      
     }
+    console.log(value_array);
+    console.log(value_array.length);
+    colors = createColorMap(that,[],value_array,0,255,true,0,1);
+    
+    var context = canvas.getContext("2d");
+    for(var k = 0; k < 256; k++) {
+	context.fillStyle = "rgb(" + parseInt(colors[k*4]) + "," + parseInt(colors[k*4+1]) 
+	+ "," + parseInt(colors[k*4+2] )
+	+ ")"; 
+	context.fillRect(k,0,1,color_height);
+    };
+    console.log("rgb(" + parseInt(colors[100*4+0]) + "," + parseInt(colors[100*4+1]) 
+	+ "," + parseInt(colors[100*4+2]));
+    console.log(context.fillStyle);
+  
     return canvas;
 
   }

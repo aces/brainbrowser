@@ -1,7 +1,6 @@
 function Spectrum(data) {
   var that = this;
-
-
+  var colorManager = new ColorManager()
 
   /*
    * Creates an canvas with the spectrum of colors
@@ -17,7 +16,7 @@ function Spectrum(data) {
     jQuery(canvas).attr("width",256);
     jQuery(canvas).attr("height",full_height);
     
-    //using createColorMap to create a array of 256 colors from the spectrum
+    //using colorManager.createColorMap to create a array of 256 colors from the spectrum
     var value_array  = new Array(256);
     for(var i = 0; i < 256; i++){
       if(flip) {
@@ -29,7 +28,7 @@ function Spectrum(data) {
     }
     console.log(value_array);
     console.log(value_array.length);
-    colors = createColorMap(that,[],value_array,0,255,true,0,1);
+    colors = colorManager.createColorMap(that,[],value_array,0,255,true,0,1);
     
     var context = canvas.getContext("2d");
     for(var k = 0; k < 256; k++) {

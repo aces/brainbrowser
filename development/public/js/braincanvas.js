@@ -1,5 +1,6 @@
 function BrainCanvas(xcanvas,ycanvas,zcanvas) {
   var that  = this;
+  var colorManager = new ColorManager();
   var xcontext = xcanvas.getContext("2d");
   var ycontext = ycanvas.getContext("2d");
   var zcontext = zcanvas.getContext("2d");
@@ -49,7 +50,7 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
     //get the area of canvas to insert image into
     //Make sure that area uses the step of the axises
         
-    slice_image_data.data = createColorMap(spectrum,slice_image_data.data,slice,minc.min,minc.max,true,that.brightness,that.contrast);
+    slice_image_data.data = colorManager.createColorMap(spectrum,slice_image_data.data,slice,minc.min,minc.max,true,that.brightness,that.contrast);
 
     return slice_image_data;
   };

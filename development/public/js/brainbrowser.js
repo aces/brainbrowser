@@ -26,6 +26,7 @@ function BrainBrowser(url) {
   //add object management functions from object.js file to brainbrowser 
   bbObject(this); 
   
+  var colorManager = new ColorManager();
   //get model data first then initialize the viewer. 
   this.setup = function(url) {
     that.preload_model(url);
@@ -909,6 +910,10 @@ function BrainBrowser(url) {
       
   };
 
+
+  /*
+   * Load text data from file and update colors
+   */
   that.loadDataFromFile = function(file_input) {
     var filename = file_input.files[0].name;
     var onfinish = function(text) {
@@ -994,53 +999,127 @@ function BrainBrowser(url) {
   };
 
 
+  /*
+   * Setup for series data, creates a slider to switch between files. 
+   */
   that.setupSeries = function() {
     $("<div id=\"series\">Series: </div>").appendTo("#surface_choice");
     var div = $("#series");
     $("<span id=\"series-value\">0</span>").appendTo(div);
-    $("<div id=\"series-slider\" width=\"100px\" + height=\"10\"></div>").slider({
-										   value: 0,
-										   min: 0,
-										   max: that.seriesData.numberFiles-1,	       
-										   step: .1,
-										   slide: function(event,ui) {
-										     if(ui.value -  Math.floor(ui.value) < 0.01) { //is it at an integer? then just return the array			
-										       that.data = that.seriesData[ui.value];											     }else { //interpolate
-											 if(that.seriesData[0].fileName.match("pval.*")){
-											   that.data = new Data(interpolateDataArray(that.seriesData[Math.floor(ui.value)],that.seriesData[Math.floor(ui.value)+1],(ui.value -  Math.floor(ui.value)),true));											 											   
-											 }else {
-											   that.data = new Data(interpolateDataArray(that.seriesData[Math.floor(ui.value)],that.seriesData[Math.floor(ui.value)+1],(ui.value -  Math.floor(ui.value))));											 
-											 }
+    $("<div id=\"series-slider\" width=\"100px\" + height=\"10\"></div>")
+      .slider({
+		value: 0,
+		min: 0,
+		max: that.seriesData.numberFiles-1,	       
+		step: .1,
+		slide: function(event,ui) {
+		  if(ui.value -  Math.floor(ui.value) < 0.01) { //is it at an integer? then just return the array			
+		    that.data = that.seriesData[ui.value];											     }else { //interpolate
+		      if(that.seriesData[0].fileName.match("pval.*")){
+			that.data = new Data(interpolateDataArray(that.seriesData[Math.floor(ui.value)],
+								  that.seriesData[Math.floor(ui.value)+1],
+								  (ui.value -  Math.floor(ui.value)),true));		
+		      }else {
+			that.data = new Data(interpolateDataArray(that.seriesData[Math.floor(ui.value)],
+								  that.seriesData[Math.floor(ui.value)+1],
+								  (ui.value -  Math.floor(ui.value))));
+		      }
+		      
+		      
+		      
+		    }
+		  if(that.seriesData[0].fileName.match("mt.*")) {
+		    $("#age_series").html("Age: " + (ui.value*3+5).toFixed(1));
+		    
+		  }else if(that.seriesData[0].fileName.match("pval.*")) {
+		    $("#age_series").html("Age: " + (ui.value*1+10));
+		  }
+		  $(div).children("#series-value").html(ui.value);
+		  if(that.data.values.length < that.model_data.positionArray.length/4) {
+		    console.log("Number of numbers in datafile lower than number of vertices Vertices" 
+				+ that.model_data.positionArray.length/3 + " data values:" 
+				+ that.data.values.length );
+		    return -1;
+		  }
+		  if(that.fixRange == false || that.fixRange == null) {
+		    that.rangeMin = that.data.min;
+		    that.rangeMax = that.data.max;
+		    if(that.afterLoadData !=null) {
+		      that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
+		    }
+		  }
+		  
+		  that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped);
+		  return null;
+		  
+		  
+		}
+	      }).appendTo(div);
+    
+  };
 
 
-										      
-										     }
-										     if(that.seriesData[0].fileName.match("mt.*")) {
-										       $("#age_series").html("Age: " + (ui.value*3+5).toFixed(1));
 
-										     }else if(that.seriesData[0].fileName.match("pval.*")) {
-										       $("#age_series").html("Age: " + (ui.value*1+10));
-										     }
-										     $(div).children("#series-value").html(ui.value);
-										     if(that.data.values.length < that.model_data.positionArray.length/4) {
-										       console.log("Number of numbers in datafile lower than number of vertices Vertices" + that.model_data.positionArray.length/3 + " data values:" + that.data.values.length );
-										       return -1;
-										     }
-										     if(that.fixRange == false || that.fixRange == null) {
-										       that.rangeMin = that.data.min;
-										       that.rangeMax = that.data.max;
-										       if(that.afterLoadData !=null) {
-											 that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
-										       }
-										     }
-										     
-										     that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped);
-										     return null;
-										     
-										     
-										   }
-										 }).appendTo(div);
+  /*
+   * Load files to blend 
+   */
+  that.loadBlendDataFromFile = function(file_input) {
+    console.log(file_input.files.length);
+		var numberFiles = file_input.files.length;
+		that.blendData = new Array(numberFiles);
+		that.blendData.numberFiles = numberFiles;
+		var files = file_input.files;
+   
+ 		for(var i = 0; i < numberFiles; i++) {
+		  
+		  var reader = new FileReader();
+		   reader.file = files[i];
+		  /*
+		   * Using a closure to keep the value of i around to put the 
+		   * data in an array in order. 
+		   */
+		  var onfinish = reader.onloadend = (function(file,num) {
+						       return function(e) {
+		   					 console.log(e.target.result.length);
+							 console.log(num);
+							 that.blendData[num] = new Data(e.target.result);
+							 
+							 that.blendData[num].fileName = file.name;
+							 
+						       };
+						     })(reader.file,i);
+		  
+		  reader.readAsText(files[i]);
+			
+			
 
+    }
+    that.setupBlendColors();
+  };
+
+
+
+  that.setupBlendColors = function(){
+    console.log("Blend colors has ran " + that.blendData.numberFiles);
+    $("#blend").remove();
+    $("<div id=\"blend\">Blend ratios: </div>").appendTo("#surface_choice");
+    var div = $("#blend");
+    for(var i = 0; i< that.blendData.numberFiles; i++){
+      $("<span id=\"blend_value"+i+"\">0</span>").appendTo(div);
+      $("<div class=\"blend_slider\" id=\"blend_slider"+i+"\" width=\"100px\" + height=\"10\"></div>")
+      .slider({
+		value: 0,
+		min: 0,
+		max: 1.0,
+		step:.01,
+		slide: function(event,ui) {
+		  $(div).children("#blend_value"+i).html(ui.value);
+		}
+	      }).appendTo(div);
+    
+    
+      
+    }
   };
 
   that.loadDataFromUrl = function(file_input) {
@@ -1071,9 +1150,10 @@ function BrainBrowser(url) {
   /*
    * This updates the colors of the brain model
    */
-  that.updateColors = function(data,min,max,spectrum,flip,clamped) {
+  that.updateColors = function(data,min,max,spectrum,flip,clamped,blend) {
     that.clamped = clamped;
     var color_array = data.createColorArray(min,max,spectrum,flip,clamped,that.model_data.colorArray);
+
     if(that.model_data.num_hemispheres == 1) {
       var color_buffer = that.pack.createObject('VertexBuffer');
       var color_field = color_buffer.createField('FloatField', 4);

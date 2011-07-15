@@ -16,7 +16,8 @@
 	<form id="datafile-form" method="POST"  action="/upload/minc" enctype="multipart/form-data">
 	Object File: <input type="file" name="objfile" id="objfile"><br />
 	Data: <input type="file" name="datafile" id="datafile"><br />
-	Data Series: <input type="file" name="dataseriesfile" id="dataseriesfile" multiple=true> <br />
+	Data Series(Multiple): <input type="file" name="dataseriesfile" id="dataseriesfile" multiple=true> <br />
+	Data Blend(Multiple): <input type="file" name="datablendfile" id="datablendfile" multiple=true> <br />
 	Color Bar: <input type="file" name="spectrum" id="spectrum"><br />
 	</form>
       </div>
@@ -156,6 +157,10 @@
 
       jQuery("#dataseriesfile").change(function() {
         surfview.brainbrowser.loadSeriesDataFromFile(document.getElementById("dataseriesfile"));
+      });
+
+      jQuery("#datablendfile").change(function() {
+        surfview.brainbrowser.loadBlendDataFromFile(document.getElementById("datablendfile"));
       });
 
 

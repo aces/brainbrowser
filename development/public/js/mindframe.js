@@ -12,6 +12,7 @@ o3djs.require('o3djs.arcball');
 
 function MindFrame() {
   var that = this;
+  var loader = new Loader()
   this.init = function() {
     o3djs.webgl.makeClients(initStep2);
   };
@@ -269,48 +270,38 @@ function MindFrame() {
     return shape;
   };
 
-  this.createMaterial = function(url,callback) {
+  /*
+   * Fetches shader from url, creates material from it
+   * 
+   * Params:
+   *  url: url of shader file
+   *  setup_params: function to setup parameters (uniforms) for the shader
+   *  callback: function to call when material is done. 
+   */
+  this.createMaterial = function(url,setup_params,callback) {
     // Create an Effect object and initialize it using the shaders
     // from a file on the server through an ajax request.
-    var effect = that.pack.createObject('Effect');
-    var shaderString;
-    jQuery.ajax({ type: 'GET',
-      url: url,
-      dataType: 'text',
-      success: function(data) {
-	shaderString = data;
-      },
-      error: function(request,textStatus,e) {
-	alert("Failure: " +  textStatus);
-      },
-      data: {},
-      async: false,
-      timeout: 10000
-    });
+    
+    loader.loadFromUrl(url,function(shaderString) {
+		  var effect = that.pack.createObject('Effect');
+		  effect.loadFromFXString(shaderString);
+		  // Create a material for the mesh.
+		  var material = that.pack.createObject('Material');
 
 
-    effect.loadFromFXString(shaderString);
-
-    // Create a material for the mesh.
-    var material = that.pack.createObject('Material');
-
-
-
-    // Set the material's drawList.
-    material.drawList = that.viewInfo.performanceDrawList;
-
-    // Apply our effect to that myMaterial. The effect tells the 3D
-    // hardware which shaders to use.
-    material.effect = effect;
-
-    effect.createUniformParameters(material);
-
-    if(callback !=null) {
-      material = callback(material);
-    }
-
-    return material;
-
+		  
+		  // Set the material's drawList.
+		  material.drawList = that.viewInfo.performanceDrawList;
+		  
+		  // Apply our effect to that myMaterial. The effect tells the 3D
+		  // hardware which shaders to use.
+		  material.effect = effect;
+		  
+		  effect.createUniformParameters(material);
+		  material = setup_params(material);
+		  callback(material);
+		  
+		});
   };
 
   this.loadSpectrum = function(url) {

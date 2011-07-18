@@ -1110,10 +1110,33 @@ function BrainBrowser(url) {
       .slider({
 		value: 0,
 		min: 0,
-		max: 1.0,
+	        max: 1.0,
+          value: 1.0/that.blendData.numberFiles,
 		step:.01,
+	        /*
+		 * When the sliding the slider, change all the other sliders by the amount of this slider
+		 */
 		slide: function(event,ui) {
 		  $(div).children("#blend_value"+i).html(ui.value);
+		    var sliders = $(div).children(".blend_sliders");
+		    
+		    var total = 0;
+		    $(sliders).each(function(index,slider) {
+			if(!$(slider).id == event.target.id) {
+			    total += $(slider).slider('value');
+			}
+		    });
+		    console.log("Total: " + total);
+		    var diff = ($(event.target).slider("value") + total - 1.0)/sliders.length
+		    
+		    $(sliders).each(function(index,slider) {
+			if(!$(slider).id == event.target.id) {
+			    $(slider).slider('value', $(slider).slider('value') - diff)
+			}
+		    });
+				    
+				    
+				    
 		}
 	      }).appendTo(div);
     

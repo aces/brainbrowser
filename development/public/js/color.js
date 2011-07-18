@@ -4,13 +4,11 @@ function ColorManager(){
    * This can be slow and memory intensive for large arrays
    */
   function createColorMap(spectrum,canvaspixelarray,values,min,max,convert,brightness,contrast,alpha) {
-    
-    
     var spectrum = spectrum.colors;
     
     //calculate a slice of the data per color
     var increment = ((max-min)+(max-min)/spectrum.length)/spectrum.length;
-    //  alert("min:" + min +"  "+ values.min() + " " + "Max : " + max + " "+ values.max()+ "inc : " + increment + " spectrum.length" +spectrum.length);
+   
     //for each value, assign a color
     for(var i=0; i<values.length; i++) {
       if(values[i]<= min ) {
@@ -47,15 +45,15 @@ function ColorManager(){
    * Blend multiple color_arrays into one using their alpha values
    */
   function blendColors(color_arrays) {
-    var final_color = new Float32Array(color_arrays[0].length);
+    var final_color = color_arrays[0];
     for(var i = 0; i < color_arrays[0].length/4; i++){
-      for(var j = 0;  j < color_arrays.length; j++) {
-	var alpha_old = final_color[i*4+3];
-	var alpha_new = color_array[j][i*4+3];
-	final_color[i*4] = final_color[i*4]*alpha_old+color_array[j][i*4]*new_alpha;
-	final_color[i*4+1] = final_color[i*4+1]*alpha_old+color_array[j][i*4+1]*new_alpha;
-	final_color[i*4+2] = final_color[i*4+2]*alpha_old+color_array[j][i*4+2]*new_alpha;
-	final_color[i*4+3] = alpha_old + alpha_new;
+      for(var j = 1;  j < color_arrays.length; j++) {
+	var old_alpha = final_color[i*4+3];
+	var new_alpha = color_arrays[j][i*4+3];
+	final_color[i*4] = final_color[i*4]*old_alpha+color_arrays[j][i*4]*new_alpha;
+	final_color[i*4+1] = final_color[i*4+1]*old_alpha+color_arrays[j][i*4+1]*new_alpha;
+	final_color[i*4+2] = final_color[i*4+2]*old_alpha+color_arrays[j][i*4+2]*new_alpha;
+	final_color[i*4+3] = old_alpha + new_alpha;
       }   
     }
     return final_color;
@@ -67,18 +65,24 @@ function ColorManager(){
   /*
    * Blends two or more arrays of values into one color array
    */
-  function blendColorMap(spectrum,value_arrays,brightness,contrast)
+  function blendColorMap(spectrum,value_arrays,min,max,brightness,contrast)
   {
-    var number_arrays = values_arrays.length;
+    var number_arrays = value_arrays.length;
     var color_arrays = new Array(number_arrays);
     
     var final_alpha = 0;
-    for(var i = 0; i< number_arrays; i++) {
-      final_alpha += value_arrays[i].alpha;
-      color_arrays[i] = createColorMap(spectrum,new Array(value_arrays[i].values),value_arrays[i].values,value_arrays[i].min,value_arrays[i].max,false,0,1,value_arrays[i].alpha);
+    for(var i = 0; i< number_arrays; i++){
+      color_arrays[i] = createColorMap(spectrum,
+				       new Array(value_arrays[i].values.length),
+				       value_arrays[i].values,
+				       min,
+				       max,
+				       false,
+				       0,
+				       1,
+				       value_arrays[i].alpha);
     }
-    
-    return blend_colors(color_arrays);
+    return blendColors(color_arrays);
     
   }
   this.blendColorMap = blendColorMap;

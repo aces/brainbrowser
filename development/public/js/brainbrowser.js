@@ -295,7 +295,7 @@ function BrainBrowser(url) {
 
     // Shininess of the material (for specular lighting)
     var shininess_param = material.getParam('shininess');
-    shininess_param.value = 30.0;
+    shininess_param.value = 10000.0;
     
     return material;
 
@@ -1083,9 +1083,10 @@ function BrainBrowser(url) {
 		   					 console.log(e.target.result.length);
 							 console.log(num);
 							 that.blendData[num] = new Data(e.target.result);
+							 that.blendData.alpha = 1.0/numberFiles;
 							 
 							 that.blendData[num].fileName = file.name;
-							 
+							 that.blend();
 						       };
 						     })(reader.file,i);
 		  
@@ -1104,45 +1105,47 @@ function BrainBrowser(url) {
     $("#blend").remove();
     $("<div id=\"blend\">Blend ratios: </div>").appendTo("#surface_choice");
     var div = $("#blend");
-    for(var i = 0; i< that.blendData.numberFiles; i++){
-      $("<span id=\"blend_value"+i+"\">0</span>").appendTo(div);
-      $("<div class=\"blend_slider\" id=\"blend_slider"+i+"\" width=\"100px\" + height=\"10\"></div>")
+    $("<span id=\"blend_value"+i+"\">0</span>").appendTo(div);
+    $("<div class=\"blend_slider\" id=\"blend_slider"+i+"\" width=\"100px\" + height=\"10\"></div>")
       .slider({
 		value: 0,
 		min: 0,
 	        max: 1.0,
-          value: 1.0/that.blendData.numberFiles,
+		value: 0.5,
 		step:.01,
 	        /*
 		 * When the sliding the slider, change all the other sliders by the amount of this slider
 		 */
 		slide: function(event,ui) {
-		  $(div).children("#blend_value"+i).html(ui.value);
-		    var sliders = $(div).children(".blend_sliders");
-		    
-		    var total = 0;
-		    $(sliders).each(function(index,slider) {
-			if(!$(slider).id == event.target.id) {
-			    total += $(slider).slider('value');
-			}
-		    });
-		    console.log("Total: " + total);
-		    var diff = ($(event.target).slider("value") + total - 1.0)/sliders.length
-		    
-		    $(sliders).each(function(index,slider) {
-			if(!$(slider).id == event.target.id) {
-			    $(slider).slider('value', $(slider).slider('value') - diff)
-			}
-		    });
-				    
-				    
-				    
+		  that.blend($(this).slider("value"));  
 		}
 	      }).appendTo(div);
     
     
-      
+     
+  };
+
+
+  that.blend = function(value) {
+    for(var i = 0; i < that.blendData.length; i++) {
+      if(that.blendData[i] == undefined) {
+	return;
+      }
     }
+    that.blendData[0].alpha = value;
+    that.blendData[1].alpha = 1.0 - value;
+    for(var i = 2; i<that.blendData.length; i++) {
+      that.blendData[i].alpha = 0.0;
+    }
+    
+    if(that.fixRange == false || that.fixRange == null) {
+      that.rangeMin = that.blendData[0].values.min();
+      that.rangeMax = that.blendData[0].values.max();
+      if(that.afterLoadData !=null) {
+	that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
+      }
+    }
+    that.updateColors(that.blendData,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped,true); //last parameter says to blend data.
   };
 
   that.loadDataFromUrl = function(file_input) {
@@ -1175,7 +1178,12 @@ function BrainBrowser(url) {
    */
   that.updateColors = function(data,min,max,spectrum,flip,clamped,blend) {
     that.clamped = clamped;
-    var color_array = data.createColorArray(min,max,spectrum,flip,clamped,that.model_data.colorArray);
+    if(blend) {
+      var color_array = colorManager.blendColorMap(spectrum,data,min,max, 0, 1);
+    }else {
+      var color_array = data.createColorArray(min,max,spectrum,flip,clamped,that.model_data.colorArray);      
+    }
+
 
     if(that.model_data.num_hemispheres == 1) {
       var color_buffer = that.pack.createObject('VertexBuffer');

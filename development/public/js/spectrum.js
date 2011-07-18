@@ -26,8 +26,6 @@ function Spectrum(data) {
       }
       
     }
-    console.log(value_array);
-    console.log(value_array.length);
     colors = colorManager.createColorMap(that,[],value_array,0,255,true,0,1);
     
     var context = canvas.getContext("2d");

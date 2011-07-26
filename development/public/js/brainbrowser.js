@@ -1,12 +1,21 @@
-/* BrainBrowser.js
- * This file defines the brainbrowser object used to initialize an O3D client and display a brain
- * model.
+/* 
+ * BrainBrowser.js
+ * 
+ * Copyright (C) 2011 McGill University
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- * This object requires that a div with o3d is defined in the page
- * This file currently depends on mniobj.js
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-//Required o3d librairies
 
 o3djs.base.o3d = o3d;
 o3djs.require('o3djs.webgl');
@@ -234,6 +243,21 @@ function BrainBrowser(url) {
     }
 
   };
+
+  /*
+   * Initialize the range for a file if it's not already set or 
+   * fixed by the user. 
+   */ 
+  function initRange(min,max,file) {
+    if(file == null) {
+     file = that.data;
+    }
+    if(file.fixRange == false || file.fixRange == null) {
+      file.rangeMin = min;
+      file.rangeMax = max;
+    }
+  }
+
 
   /*
    * Updates the clear color or background of the view window
@@ -883,7 +907,7 @@ function BrainBrowser(url) {
 		    }
 
 		    if(that.data) {
-		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped);
+		      that.updateColors(that.data,that.data.rangeMin, that.data.rangeMax,that.spectrum,that.flip,that.clamped);
 		    }
 
 		});
@@ -903,7 +927,7 @@ function BrainBrowser(url) {
 		    }
 
 		    if(that.data) {
-		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped);
+		      that.updateColors(that.data,that.data.rangeMin, that.data.rangeMax,that.spectrum,that.flip,that.clamped);
 		    }
 
 		});
@@ -925,16 +949,14 @@ function BrainBrowser(url) {
 	    
 	    that.data = data;
 	}
-	
-	if(that.fixRange == false || that.fixRange == null) {
-	    that.rangeMin = that.data.min;
-	    that.rangeMax = that.data.max;
-	    if(that.afterLoadData !=null) {
-		that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
-	    }
-	}
-	
-      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped);
+      initRange(that.data.min,
+		that.data.max);
+      if(that.afterLoadData !=null) {
+	that.afterLoadData(that.data.rangeMin,that.data.rangeMax,that.data);
+      }
+      
+      
+      that.updateColors(that.data,that.data.rangeMin, that.data.rangeMax,that.spectrum,that.flip,that.clamped);
       return null;
     };
 
@@ -1041,15 +1063,12 @@ function BrainBrowser(url) {
 				+ that.data.values.length );
 		    return -1;
 		  }
-		  if(that.fixRange == false || that.fixRange == null) {
-		    that.rangeMin = that.data.min;
-		    that.rangeMax = that.data.max;
-		    if(that.afterLoadData !=null) {
-		      that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
-		    }
+		  initRange(that.data.min,that.data.max);
+		  if(that.afterLoadData !=null) {
+		    that.afterLoadData(that.data.rangeMin,that.data.rangeMax,that.data);
 		  }
-		  
-		  that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped);
+				  
+		  that.updateColors(that.data,that.data.rangeMin, that.data.rangeMax,that.spectrum,that.flip,that.clamped);
 		  return null;
 		  
 		  
@@ -1058,13 +1077,12 @@ function BrainBrowser(url) {
     
   };
 
-
+  
 
   /*
    * Load files to blend 
    */
   that.loadBlendDataFromFile = function(file_input) {
-    console.log(file_input.files.length);
 		var numberFiles = file_input.files.length;
 		that.blendData = new Array(numberFiles);
 		that.blendData.numberFiles = numberFiles;
@@ -1080,13 +1098,31 @@ function BrainBrowser(url) {
 		   */
 		  var onfinish = reader.onloadend = (function(file,num) {
 						       return function(e) {
-		   					 console.log(e.target.result.length);
-							 console.log(num);
-							 that.blendData[num] = new Data(e.target.result);
+		   					 that.blendData[num] = new Data(e.target.result);
 							 that.blendData.alpha = 1.0/numberFiles;
 							 
 							 that.blendData[num].fileName = file.name;
-							 that.blend();
+							 for(var k = 0; k < 2; k++) {
+							   if(that.blendData[k] == undefined) {						     
+							     console.log("not done yet");
+							     return;
+							   }
+							  
+							 }		 
+							 initRange(that.blendData[0].values.min(),
+								   that.blendData[0].values.max(),
+								   that.blendData[0]);
+							 
+							 initRange(that.blendData[1].values.min(),
+								   that.blendData[1].values.max(),
+								   that.blendData[1]);
+							 if(that.afterLoadData !=null) {
+							   that.afterLoadData(null,null,that.blendData,true); //multiple set to true
+							 }
+							 
+							 that.blend($(".blend_slider").slider("value"));
+							 
+							 
 						       };
 						     })(reader.file,i);
 		  
@@ -1098,9 +1134,13 @@ function BrainBrowser(url) {
     that.setupBlendColors();
   };
 
+  
+
 
 
   that.setupBlendColors = function(){
+    
+    
     console.log("Blend colors has ran " + that.blendData.numberFiles);
     $("#blend").remove();
     $("<div id=\"blend\">Blend ratios: </div>").appendTo("#surface_choice");
@@ -1109,8 +1149,8 @@ function BrainBrowser(url) {
     $("<div class=\"blend_slider\" id=\"blend_slider"+i+"\" width=\"100px\" + height=\"10\"></div>")
       .slider({
 		value: 0,
-		min: 0,
-	        max: 1.0,
+		min: 0.1,
+	        max: 0.99,
 		value: 0.5,
 		step:.01,
 	        /*
@@ -1122,47 +1162,38 @@ function BrainBrowser(url) {
 	      }).appendTo(div);
     
     
-     
+
+
   };
 
 
+
   that.blend = function(value) {
-    for(var i = 0; i < that.blendData.length; i++) {
-      if(that.blendData[i] == undefined) {
-	return;
-      }
-    }
     that.blendData[0].alpha = value;
     that.blendData[1].alpha = 1.0 - value;
     for(var i = 2; i<that.blendData.length; i++) {
       that.blendData[i].alpha = 0.0;
     }
     
-    if(that.fixRange == false || that.fixRange == null) {
-      that.rangeMin = that.blendData[0].values.min();
-      that.rangeMax = that.blendData[0].values.max();
-      if(that.afterLoadData !=null) {
-	that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
-      }
-    }
-    that.updateColors(that.blendData,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped,true); //last parameter says to blend data.
+
+    that.updateColors(that.blendData,null,null,that.spectrum,that.flip,that.clamped,true); //last parameter says to blend data.
   };
 
   that.loadDataFromUrl = function(file_input) {
     loadFromUrl(file_input, true, function(text) {
-      that.data = new Data(text);
-      if(that.fixRange == false || that.fixRange == null) {
-	that.rangeMin = that.data.min;
-	that.rangeMax = that.data.max;
-	if(that.afterLoadData != undefined) {
-	  that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
-	}
-      }
+		  that.data = new Data(text);
+		  initRange(that.data.min,that.data.max);
+		  if(that.afterLoadData != undefined) {
+		    that.afterLoadData(that.data.rangeMin,
+				       that.data.rangeMax,
+				       that.data);
+		  }
+		  
 
-      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
-    });
+		  that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
+		});
   };
-
+  
 
   that.loadCombinedShaderFromUrl = function(url){
     var shaderString;
@@ -1179,7 +1210,7 @@ function BrainBrowser(url) {
   that.updateColors = function(data,min,max,spectrum,flip,clamped,blend) {
     that.clamped = clamped;
     if(blend) {
-      var color_array = colorManager.blendColorMap(spectrum,data,min,max, 0, 1);
+      var color_array = colorManager.blendColorMap(spectrum,data,0,1);
     }else {
       var color_array = data.createColorArray(min,max,spectrum,flip,clamped,that.model_data.colorArray);      
     }

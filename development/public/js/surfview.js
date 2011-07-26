@@ -1,3 +1,20 @@
+/* 
+ * Copyright (C) 2011 McGill University
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 var brainbrowser;
 function SurfView() {
   var that = this;
@@ -17,9 +34,9 @@ function SurfView() {
   brainbrowser.afterLoadSpectrum = function (spectrum) {
     var canvas = spectrum.createSpectrumCanvasWithScale(0,100,null);
     canvas.id = "spectrum_canvas";
-    var spectrum_div = document.getElementById("spectrum_color_bar");
+    var spectrum_div = document.getElementById("color_bar");
     if(!spectrum_div){
-      jQuery("<div id=\"spectrum_color_bar\" class=\"box full_box\"></div>").html(canvas).appendTo("#controls");      
+      jQuery("<div id=\"color_bar\"></div>").html(canvas).appendTo("#data-range");      
     }else {
       jQuery(spectrum_div).html(canvas);
     }
@@ -158,14 +175,61 @@ function SurfView() {
       jQuery("#data-range-min").val(min);
       jQuery("#data-range-max").val(max);
       var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null);
-      canvas.id = "spectrum_canvas"
-      jQuery("#spectrum").html(jQuery(canvas));
+      canvas.id = "spectrum_canvas";
+      jQuery("#color_bar").html(jQuery(canvas));
     };
 
-    bb.afterLoadData = function(min,max,data) {
-      bb.afterRangeChange(min,max);
-      jQuery("#range-slider").slider('values', 0, parseFloat(min));
-      jQuery("#range-slider").slider('values', 1, parseFloat(max));
+    bb.afterLoadData = function(min,max,data,multiple) {
+      var rangeBox = $("#data_range");
+
+      if(multiple) {
+	$(rangeBox).html("");
+	var html_string = "<div id=\"data_range_multiple\">"
+			  + "<ul>";
+	for(var i=0; i<data.length; i++) {
+	  html_string += "<li><a href=\"#data_file"+i+"\">"+data[i].fileName+"</a></li>";
+	}
+	html_string +="</ul>";
+	for(var k=0; k<data.length; k++) {
+	  html_string += "<div id=\"data_file"+k+"\" class=\"box full_box\">"
+	    + "<h4>Thresholding</h4>"
+	    +    "Min: <input class=\"range-box\" id=\"data-range-min\" type=\"text\" name=\"range_min\" size=\"5\" ><br />"
+	    + "<div id=\"range-slider+"+k+"\" data-blend-index=\""+k+"\" class=\"slider\"></div>"
+	    + "Max: <input class=\"range-box\" id=\"data-range-max\" type=\"text\" name=\"range_max\" size=\"5\" >"
+	    + "<input type=\"checkbox\" class=\"button\" id=\"fix_range\"><label for=\"fix_range\">Fix Range</label>"
+	    + "<input type=\"checkbox\" class=\"button\" id=\"clamp_range\" checked=\"true\"><label for=\"clamp_range\">Clamp range</label>"
+	    + "<input type=\"checkbox\" class=\"button\" id=\"flip_range\"><label for=\"flip_range\">Flip Colors</label>"
+	    + "</div>";
+	}
+	
+        html_string += "</div>";
+	$(rangeBox).html(html_string);
+	$(rangeBox).tabs();
+	$("#data_range").find(".slider").each(function(index,element) {
+					 
+					    $(element).slider({
+								range:true,
+								min: data[index].values.min(),
+								max: data[index].values.max(),
+								values: [data[index].rangeMin,data[index].rangeMax],
+								slide: function(event,ui) {
+								  var blend_id = $(event.target).attr("data-blend-index");
+								  bb.blendData[blend_id].rangeMin = ui.values[0];
+								  bb.blendData[blend_id].rangeMax = ui.values[1];
+								  bb.blend($(".blend_slider").slider("value"));
+								}
+							      }
+							     );
+					      });
+
+
+      }else {
+      	$(rangeBox).html(html_string);
+	jQuery("#range-slider").slider('values', 0, parseFloat(min));
+	jQuery("#range-slider").slider('values', 1, parseFloat(max));
+	bb.afterRangeChange(min,max);
+      }
+      
     };
     jQuery('#meshmode').change(function(e) {
 				 if(jQuery(e.target).attr("checked") == true) {

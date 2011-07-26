@@ -153,12 +153,6 @@ get '/braincanvas' do
   erb :braincanvas,:layout => false
 end
 
-#3d mri browser
-get '/braincloud' do
-  erb :braincloud, :layout => false
-end
-
-
 #Checks if a file is accessible and if 
 #the path is safe. Won't allow symlinks
 #or using ..

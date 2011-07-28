@@ -36,13 +36,7 @@ function BrainBrowser(url) {
   bbObject(this); 
   
   var colorManager = new ColorManager();
-  //get model data first then initialize the viewer. 
-  this.setup = function(url) {
-    that.preload_model(url);
-  };
-
   this.init = function() {
-
     o3djs.webgl.makeClients(that.initStep2);
   };
 
@@ -52,7 +46,7 @@ function BrainBrowser(url) {
    * Initialize the global variables of BrainBrowser,
    * the brain model, apply material & shader
    */
-   that.initStep2 = function(clientElements) {
+  that.initStep2 = function(clientElements) {
     
     // Initializes global variables and libraries.
     var o3dElement = clientElements[0];
@@ -222,7 +216,7 @@ function BrainBrowser(url) {
   };
 
   /*
-   * Display and mni object file.
+   * Display and MNI object file.
    * It uses different function depending on if it's a polygon(triange) shape denoted by P
    * if it's a polygon shape and has exactly 81924 vertices than it's probably a braina and
    * we handle that specialy to seperate the hemispheres. 
@@ -342,7 +336,9 @@ function BrainBrowser(url) {
 
 
 
-
+  /*
+   * Figures out what view has been selected and activates it
+   */
   this.setupView = function(e) {
     that.resetView();
     if(that.model_data && that.model_data.num_hemispheres == 2) {
@@ -389,6 +385,10 @@ function BrainBrowser(url) {
     that.thatRot = that.math.matrix4.mul(that.brainTransform.localMatrix, that.math.matrix4.identity());
   };
 
+  /*
+   * Following two functions turn the shapes visibility on off
+   * state is a boolean (true == visible, false == not visible) 
+   */
   this.leftHemisphereVisible = function(state)  {
     that.brainTransform.children[0].visible = state;
   };
@@ -934,6 +934,11 @@ function BrainBrowser(url) {
       
   };
 
+  function setupDataUi(data) {
+
+  }
+
+
 
   /*
    * Load text data from file and update colors
@@ -942,6 +947,7 @@ function BrainBrowser(url) {
     var filename = file_input.files[0].name;
     var onfinish = function(text) {
 	var data = new Data(text);
+        data.fileName = filename;
 	if(data.values.length < that.model_data.positionArray.length/4) {
 	    alert("Number of numbers in datafile lower than number of vertices Vertices" + that.model_data.positionArray.length/3 + " data values:" + data.values.length );
 	    return -1;
@@ -1180,7 +1186,7 @@ function BrainBrowser(url) {
   };
 
   that.loadDataFromUrl = function(file_input) {
-    loadFromUrl(file_input, true, function(text) {
+    loadFromUrl(file_input, true, function(text,file) {
 		  that.data = new Data(text);
 		  initRange(that.data.min,that.data.max);
 		  if(that.afterLoadData != undefined) {

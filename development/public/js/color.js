@@ -15,8 +15,15 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+/**
+ * Utility object for doing stuff with colors
+ *  
+ * @constructor
+ */
 function ColorManager(){
-  /*
+
+  /**
    * This create a color map for each value in the values array
    * This can be slow and memory intensive for large arrays
    */
@@ -58,7 +65,7 @@ function ColorManager(){
   };
   this.createColorMap = createColorMap; 
 
-  /*
+  /**
    * Blend multiple color_arrays into one using their alpha values
    */
   function blendColors(color_arrays) {
@@ -79,7 +86,7 @@ function ColorManager(){
   this.blendColors = blendColors;
 
 
-  /*
+  /**
    * Blends two or more arrays of values into one color array
    */
   function blendColorMap(spectrum,value_arrays,brightness,contrast)

@@ -15,6 +15,13 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+/**
+ * Spectrum object constructor also called color bar
+ *  
+ * @constructor
+ * @param {String} data String of data from loaded color file to parse to make spectrum obj
+ */
 function Spectrum(data) {
   var that = this;
   var colorManager = new ColorManager()

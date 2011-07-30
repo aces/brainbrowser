@@ -15,9 +15,11 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
+/**
  * Manages object creation
  * Brains/polygon shapes/line objects ...
+ *
+ * @augments BrainBrowser
  */
 function bbObject(brainbrowser) {
   var that = brainbrowser;

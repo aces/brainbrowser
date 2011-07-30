@@ -15,6 +15,11 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+/**
+ * @constructor
+ * @param {String} data data file in string format to parse 
+ */
 function Data(data) {
   var that = this;
   that.parse = function(string) {
@@ -29,7 +34,7 @@ function Data(data) {
 
   };
 
-  that.createColorArray = function(min,max,spectrum,flip,clamped,original_colors) {
+  this.createColorArray = function(min,max,spectrum,flip,clamped,original_colors) {
     var spectrum = spectrum.colors;
     var colorArray = new Array();
     //calculate a slice of the data per color

@@ -48,6 +48,10 @@ get '/surfview.html' do
   erb :surfview, :layout => false
 end
 
+get '/cfd.html' do
+  erb :cfd, :layout => false
+end
+
 
 #Runs volume object evaluate on a minc file provided by the user.
 #The file is uploaded then run through the tool, and the output is

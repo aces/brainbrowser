@@ -33,7 +33,7 @@ a img {
 
 
 #main {
-    width: 1024px;
+    width: 1280px;
     padding: 0px;
     margin-left: auto;
     margin-right: auto;
@@ -60,7 +60,7 @@ a img {
     height: 750px;
     background: white;
     margin:auto;
-
+    padding-bottom: 20px;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     

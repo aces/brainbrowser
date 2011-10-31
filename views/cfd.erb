@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">  
+  <head>  
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">  
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <title>BrainBrowser:Surface Viewer</title>  
+  </head>  
+  <body>  
+
+    <div id="controls">
+      <div id="logos" class="box full_box" style="background-color: white">
+	<a href="http://www.mni.mcgill.ca"><img width=100 src="/img/mni.gif" /></a>
+	<a href="http://www.mcgill.ca"><img src="/img/mcgill.png" /></a>
+	<a href="http://www.canarie.com"><img src="/img/canarie.png" /></a><br />
+	<a href="https://computecanada.org/"><img width=100 src="/img/ComputeCanada175.jpg" /></a>
+	<a href="http://www.newmerical.com/"><img width=100 src="/img/newmerical.png"></img></a>
+      </div>
+      
+      <div id="surface_choice" class="box full_box">
+	<h4>Files</h4>
+	
+	<form id="datafile-form" method="POST"  action="/upload/minc" enctype="multipart/form-data">
+	Object File: <input type="file" name="objfile" id="objfile"><br />
+	Data: <input type="file" name="datafile" id="datafile"><br />
+	Data Series: <input type="file" name="dataseriesfile" id="dataseriesfile" multiple=true> <br />
+	Color Bar: <input type="file" name="spectrum" id="spectrum"><br />
+	</form>
+      </div>
+      <div class="box full_box" id="shapes-box">
+	<div id="shapes">
+	  
+	</div>
+	<span id="clearshapes" class="button">Clear Shapes</span>
+      </div>
+      <div class="combo_box full_box">
+	<div id="views" class="box half_box" >
+	  <h4>Views</h4>
+	  <div id="hem_views_1" class="half_box">
+	    <input id="left_hem_visible" class="view_button" type="checkbox" checked="true">Left 
+	    <br />
+	    <input id="hem_superior" class="view_button" type="radio" name="hem_view" value="superior" checked="true">Superior
+	    
+	    <br />
+	    <input id="hem_medial" class="view_button" type="radio" name="hem_view" value="medial">Medial
+	    
+	    <br />
+	    <input id="hem_anterior" class="view_button" type="radio" name="hem_view" value="anterior">Anterior
+	    
+	  </div>
+	  <div id="hem_views_2" class="half_box">
+	    <input id="right_hem_visible" class="view_button" type="checkbox" checked="true">Right<br />
+	    <input id="hem_inferior" class="view_button" type="radio" name="hem_view" value="inferior">Inferior	     
+	    <br />
+	    <input id="hem_lateral" class="view_button" type="radio" name="hem_view" value="lateral">Lateral
+	    <br />
+	    <input id="hem_posterior" class="view_button" type="radio" name="hem_view" value="posterior">Posterior
+	  </div>
+	  <p>
+	    <a class="button" id="resetview">Reset View</a>
+	    <input type="checkbox" class="button" id="autorotate"><label for="autorotate">Autorotate</label>
+	    <input type="checkbox" class="button" id="meshmode"><label for="meshmode">Mesh Mode</label>
+	  </p>
+	  
+	</div>
+
+	<div id="coordinates" class="box half_box">
+	  <h4>Coordinates</h4>
+	  <p>
+	    <input id="x-coord" type="text" size="5">&nbsp<span class="button" id="x-coord-flip">X</span><br />
+	    <input id="y-coord" type="text" size="5"> Y<br />
+	    <input id="z-coord" type="text" size="5"> Z<br />
+	    <input id="v-coord" type="text" size="5"> Index<br />
+	    <input id="value-coord" type="text" size="5"> Value
+	  </p>
+	</div>
+      </div>
+      
+      <div id="data range" class="box full_box">
+	<h4>Thresholding</h4>
+	<div id="data-range">
+	  Min: <input class="range-box" id="data-range-min" type="text" name="range_min" size="5" ><br />
+	    <div id="range-slider" class="slider"></div>
+	  Max: <input class="range-box" id="data-range-max" type="text" name="range_max" size="5" >
+	  <input type="checkbox" class="button" id="fix_range"><label for="fix_range">Fix Range</label>
+	  <input type="checkbox" class="button" id="clamp_range" checked="true"><label for="clamp_range">Clamp range</label>
+	  <input type="checkbox" class="button" id="flip_range"><label for="flip_range">Flip Colors</label>
+	</div>
+      </div>
+      <div id="examples" class="box full_box">
+	<h3>Examples</h3>
+	<ul>
+	  <li><a href="#" class="example" data-example-name="basic">Basic Surface</a></li>
+	  <li><a href="#" span class="example" data-example-name="punkdti">DTI and Mesh Brain</a></li>
+	  <li><a href="#" class="example" data-example-name="realct">Real brain with map of Corthical Thickness</a></li>
+      </div>
+      <span id="openImage" class="button">Get Screenshot</span>      
+      <a class="button" href="/macacc.html">MACACC Dataset</a>
+      <a class="button" href="/about">About</a><br />
+      Background Color:
+      <select id="clearColor"> 
+	<option value="default">Default(Gray)</option>
+	<option value="white">White</option>
+	<option value="black">Black</option>
+	<option value="pink">HOT PINK!</option>
+      </select>
+
+     </div>
+
+    <!-- The webgl window and loading messages if any -->
+    <div Id="view-window">
+      <center><span id="age_series"></span></center>
+      <div id="o3d"></div>  
+      <div id="loading"></div>
+    </div>
+
+    <!-- all the scripts and css -->
+    <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.10.custom.css" rel="Stylesheet" />
+    <link type="text/css" href="/css/brainbrowser.css" rel="Stylesheet" />
+    <script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/o3d-webgl/base.js"></script>
+    <script type="text/javascript" src="/js/o3djs/base.js"></script> 
+    <% if ENV["BRAINBROWSER_ENV"] == "production" %>
+      <script type="text/javascript" src="/js/surfview-combined.min.js"></script>
+    <% else %>
+          <script type="text/javascript" src="/js/data.js"></script> 
+	  <script type="text/javascript" src="/js/utils.js"></script> 
+	  <script type="text/javascript" src="/js/spectrum.js"></script> 
+	  <script type="text/javascript" src="/js/mniobj.js"></script> 
+	  <script type="text/javascript" src="/js/object.js"></script> 
+	  <script type="text/javascript" src="/js/brainbrowser.js"></script> 
+	  <script type="text/javascript" src="/js/surfview.js"></script> 
+
+    <% end %>
+	  
+    <script type="text/javascript" src="/js/jquery-ui.js"></script>
+    <script type="text/javascript">
+    $(function() {
+      document.getElementById("view-window").onselectstart = function() {
+      return false;
+    };
+      
+      document.getElementById("view-window").onmousedown = function() {
+        return false;
+      };
+      
+      jQuery(".button").button();
+      var surfview = new SurfView();
+      
+      jQuery("#objfile").change(function() {
+        surfview.brainbrowser.loadObjFromFile(document.getElementById("objfile"));
+      });
+      
+      jQuery("#datafile").change(function() {
+        surfview.brainbrowser.loadDataFromFile(document.getElementById("datafile"));
+      });
+
+      jQuery("#spectrum").change(function() {
+        surfview.brainbrowser.loadSpectrumFromFile(document.getElementById("spectrum"));
+      });
+
+
+      jQuery("#dataseriesfile").change(function() {
+        surfview.brainbrowser.loadSeriesDataFromFile(document.getElementById("dataseriesfile"));
+      });
+
+
+    });
+    </script>
+  </body>  
+</html>  

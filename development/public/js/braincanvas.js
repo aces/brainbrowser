@@ -1,5 +1,23 @@
+/* 
+ * Copyright (C) 2011 McGill University
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 function BrainCanvas(xcanvas,ycanvas,zcanvas) {
   var that  = this;
+  var colorManager = new ColorManager();
   var xcontext = xcanvas.getContext("2d");
   var ycontext = ycanvas.getContext("2d");
   var zcontext = zcanvas.getContext("2d");
@@ -49,7 +67,7 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
     //get the area of canvas to insert image into
     //Make sure that area uses the step of the axises
         
-    slice_image_data.data = createColorMap(spectrum,slice_image_data.data,slice,minc.min,minc.max,true,that.brightness,that.contrast);
+    slice_image_data.data = colorManager.createColorMap(spectrum,slice_image_data.data,slice,minc.min,minc.max,true,that.brightness,that.contrast);
 
     return slice_image_data;
   };

@@ -1,16 +1,37 @@
-/*
+/* 
+ * Copyright (C) 2011 McGill University
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
  * Library to encapsulate Minc. 
  * It request the parameters needed and then request the data block from the server
  * The data block is a binary array
  * The library can fetch slices in one of the three axese
+ * @constructor
+ * @param {string}   filename  File name or url of minc file
+ * @param {object}   extraArgs object for extra arguments
+ * @param {function} callback  function to call when data is finish loading 
  */
 function Minc(filename,extraArgs,callback) {
   var that = this;
 
 
-  /*
-   * Fetch the parameters of the minc file. 
-   * 
+  /**
+   * Fetch the parameters of the minc file. sends a request to http://filename/?minc_headers=true
+   * @param {String} filename url/filename of the file to load minc headers
    */
   this.load_headers = function(filename) {
     $.ajax({
@@ -79,8 +100,11 @@ function Minc(filename,extraArgs,callback) {
 
   };
 
-  /*
+  /**
    * Make request to server for Minc file's data block. 
+   * @param {String}    filename  url/filename of the minc file
+   * @param {Function}  callback  function to call when data is done loading
+   * @param {Object}    extraArgs with extraArgs to pass to callback when data is done loading
    */
   this.load_data = function (filename,callback,extraArgs){  
     var request = new XMLHttpRequest();

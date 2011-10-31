@@ -1,3 +1,20 @@
+/* 
+ * Copyright (C) 2011 McGill University
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /*
  * MindFrame is a library of functions usefull for developing WebGL apps for
  * Scientific applications
@@ -12,6 +29,7 @@ o3djs.require('o3djs.arcball');
 
 function MindFrame() {
   var that = this;
+  var loader = new Loader()
   this.init = function() {
     o3djs.webgl.makeClients(initStep2);
   };
@@ -269,48 +287,38 @@ function MindFrame() {
     return shape;
   };
 
-  this.createMaterial = function(url,callback) {
+  /*
+   * Fetches shader from url, creates material from it
+   * 
+   * Params:
+   *  url: url of shader file
+   *  setup_params: function to setup parameters (uniforms) for the shader
+   *  callback: function to call when material is done. 
+   */
+  this.createMaterial = function(url,setup_params,callback) {
     // Create an Effect object and initialize it using the shaders
     // from a file on the server through an ajax request.
-    var effect = that.pack.createObject('Effect');
-    var shaderString;
-    jQuery.ajax({ type: 'GET',
-      url: url,
-      dataType: 'text',
-      success: function(data) {
-	shaderString = data;
-      },
-      error: function(request,textStatus,e) {
-	alert("Failure: " +  textStatus);
-      },
-      data: {},
-      async: false,
-      timeout: 10000
-    });
+    
+    loader.loadFromUrl(url,function(shaderString) {
+		  var effect = that.pack.createObject('Effect');
+		  effect.loadFromFXString(shaderString);
+		  // Create a material for the mesh.
+		  var material = that.pack.createObject('Material');
 
 
-    effect.loadFromFXString(shaderString);
-
-    // Create a material for the mesh.
-    var material = that.pack.createObject('Material');
-
-
-
-    // Set the material's drawList.
-    material.drawList = that.viewInfo.performanceDrawList;
-
-    // Apply our effect to that myMaterial. The effect tells the 3D
-    // hardware which shaders to use.
-    material.effect = effect;
-
-    effect.createUniformParameters(material);
-
-    if(callback !=null) {
-      material = callback(material);
-    }
-
-    return material;
-
+		  
+		  // Set the material's drawList.
+		  material.drawList = that.viewInfo.performanceDrawList;
+		  
+		  // Apply our effect to that myMaterial. The effect tells the 3D
+		  // hardware which shaders to use.
+		  material.effect = effect;
+		  
+		  effect.createUniformParameters(material);
+		  material = setup_params(material);
+		  callback(material);
+		  
+		});
   };
 
   this.loadSpectrum = function(url) {

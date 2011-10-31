@@ -16,7 +16,8 @@
 	<form id="datafile-form" method="POST"  action="/upload/minc" enctype="multipart/form-data">
 	Object File: <input type="file" name="objfile" id="objfile"><br />
 	Data: <input type="file" name="datafile" id="datafile"><br />
-	Data Series: <input type="file" name="dataseriesfile" id="dataseriesfile" multiple=true> <br />
+	Data Series(Multiple): <input type="file" name="dataseriesfile" id="dataseriesfile" multiple=true> <br />
+	Data Blend(Multiple): <input type="file" name="datablendfile" id="datablendfile" multiple=true> <br />
 	Color Bar: <input type="file" name="spectrum" id="spectrum"><br />
 	</form>
       </div>
@@ -69,7 +70,7 @@
 	</div>
       </div>
       
-      <div id="data range" class="box full_box">
+      <div id="data_range" class="box full_box">
 	<h4>Thresholding</h4>
 	<div id="data-range">
 	  Min: <input class="range-box" id="data-range-min" type="text" name="range_min" size="5" ><br />
@@ -118,6 +119,7 @@
     <% else %>
           <script type="text/javascript" src="/js/data.js"></script> 
 	  <script type="text/javascript" src="/js/utils.js"></script> 
+	  <script type="text/javascript" src="/js/color.js"></script>
 	  <script type="text/javascript" src="/js/spectrum.js"></script> 
 	  <script type="text/javascript" src="/js/mniobj.js"></script> 
 	  <script type="text/javascript" src="/js/object.js"></script> 
@@ -155,6 +157,10 @@
 
       jQuery("#dataseriesfile").change(function() {
         surfview.brainbrowser.loadSeriesDataFromFile(document.getElementById("dataseriesfile"));
+      });
+
+      jQuery("#datablendfile").change(function() {
+        surfview.brainbrowser.loadBlendDataFromFile(document.getElementById("datablendfile"));
       });
 
 

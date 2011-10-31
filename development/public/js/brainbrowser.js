@@ -1,12 +1,21 @@
-/* BrainBrowser.js
- * This file defines the brainbrowser object used to initialize an O3D client and display a brain
- * model.
+/* 
+ * BrainBrowser.js
+ * 
+ * Copyright (C) 2011 McGill University
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ * 
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
  *
- * This object requires that a div with o3d is defined in the page
- * This file currently depends on mniobj.js
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-//Required o3d librairies
 
 o3djs.base.o3d = o3d;
 o3djs.require('o3djs.webgl');
@@ -18,7 +27,12 @@ o3djs.require('o3djs.arcball');
 o3djs.require('o3djs.quaternions');
 o3djs.require('o3djs.scene');
 
-function BrainBrowser(url) {
+/**
+ * Create new BrainBrowser viewer object
+ * @constructor
+ *  
+ */
+function BrainBrowser() {
   var that = this; //Brainbrowser object. Makes sure that if "this" is remapped then we can still
                    // refer to original object. Also for local functions "this" is not available 
                    // but "that" is and can be used for special helper methods. 
@@ -26,23 +40,18 @@ function BrainBrowser(url) {
   //add object management functions from object.js file to brainbrowser 
   bbObject(this); 
   
-  //get model data first then initialize the viewer. 
-  this.setup = function(url) {
-    that.preload_model(url);
-  };
-
+  var colorManager = new ColorManager();
   this.init = function() {
-
     o3djs.webgl.makeClients(that.initStep2);
   };
 
 
 
-  /*
+  /** 
    * Initialize the global variables of BrainBrowser,
    * the brain model, apply material & shader
    */
-   that.initStep2 = function(clientElements) {
+  this.initStep2 = function(clientElements) {
     
     // Initializes global variables and libraries.
     var o3dElement = clientElements[0];
@@ -144,10 +153,12 @@ function BrainBrowser(url) {
     }
   };
 
-  /*
+  /**
    * Materials are basically shaders and properties applied to shapes
    * the effect is where the shader programs resided
    * changes attributes and uniforms of a shader are done using the effect object
+   *
+   * @param {String} url url of shader code to load, this is the combined shader.   
    */
   this.createMaterial = function(url) {
     var effect = that.pack.createObject('Effect');
@@ -162,8 +173,9 @@ function BrainBrowser(url) {
     return material;
   };
 
-  /*
+  /**
    * Turn on alpha blending on the materials state object passed in.  
+   * @param {o3d.State} state State object of the material's effect on which we want to enable alpha blending
    */
   function enableAlphaBlending(state) {
     
@@ -180,13 +192,13 @@ function BrainBrowser(url) {
 
   that.enableAlphaBlending = enableAlphaBlending;
 
-  /*
+  /** 
    * Delete all the shapes on screen
    * For this the function travels down the scenegraph and removes every shape.
    * 
    * Tip: when you remove a shape, the shapes array lenght will be decremented so if you need to count the number of shapes, you must save that length value before removing shapes. 
    */
-  that.clearScreen = function() {
+  this.clearScreen = function() {
     if(brainbrowser.brainTransform != undefined) {
       if(brainbrowser.brainTransform.shapes != undefined) {
 	var num = brainbrowser.brainTransform.shapes.length;
@@ -211,13 +223,16 @@ function BrainBrowser(url) {
     };
   };
 
-  /*
-   * Display and mni object file.
+  /**
+   * Display and MNI object file.
    * It uses different function depending on if it's a polygon(triange) shape denoted by P
    * if it's a polygon shape and has exactly 81924 vertices than it's probably a braina and
    * we handle that specialy to seperate the hemispheres. 
+   *
+   * @param {Object} obj object of the parsed MNI Object file to be displayed
+   * @param {String} filename filename of the original object file   
    */
-  that.displayObjectFile = function(obj,filename) {
+  this.displayObjectFile = function(obj,filename) {
     if(obj.objectClass == 'P' && obj.numberVertices <= 81924) {
 
       that.createBrain(obj,filename);
@@ -234,18 +249,38 @@ function BrainBrowser(url) {
 
   };
 
-  /*
+  /**
+   * Initialize the range for a file if it's not already set or 
+   * fixed by the user. 
+   * @param {Number} min minimum value of the range if the  range is not fixed
+   * @param {Number} max maximum value of the range if the range is not fixed 
+   * @param {Object} file Data file on which the range will be set
+   */ 
+  function initRange(min,max,file) {
+    if(file == null) {
+     file = that.data;
+    }
+    if(file.fixRange == false || file.fixRange == null) {
+      file.rangeMin = min;
+      file.rangeMax = max;
+    }
+  }
+
+
+  /**
    * Updates the clear color or background of the view window
-   * Takes a array with 4 elements, the color must be represented as for values from 0-1.0 [red,green,blue,alpha] 
+   * @param {Number[]} color Takes an array with 4 elements, the color must be represented as for values from 0-1.0 [red,green,blue,alpha] 
+    * 
    */
-  that.updateClearColor= function(color)  {
+  this.updateClearColor= function(color)  {
     that.viewInfo.clearBuffer.clearColor = color;
   };
 
-  /*
+  /**
    * Used to select some predefined colors
+   * @param {String} name name of color from pre defined list (white,black,pink)
    */
-  that.updateClearColorFromName = function(name) {
+  this.updateClearColorFromName = function(name) {
 
     if (name == "white") {
       that.updateClearColor([1.0,1.0,1.0,1.0]);
@@ -258,11 +293,12 @@ function BrainBrowser(url) {
     }
   };
 
-  /*
+  /**
    *setups the uniforms for a shader that implements blinnphong shading. 
+   *@param {o3d.Material} material material on which to set the shader params 
    */
 
-   that.blinnphongParams = function(material){
+  this.blinnphongParams = function(material){
     
     // Transparency 
     var transAlpha = material.getParam('transAlpha');
@@ -294,7 +330,7 @@ function BrainBrowser(url) {
 
     // Shininess of the material (for specular lighting)
     var shininess_param = material.getParam('shininess');
-    shininess_param.value = 30.0;
+    shininess_param.value = 10000.0;
     
     return material;
 
@@ -306,7 +342,7 @@ function BrainBrowser(url) {
    * Resets the view of the scene by resetting its local matrix to the identity
    * matrix.
    */
-  that.resetView = function() {
+  this.resetView = function() {
     that.brainTransform.children[0].visible=true;
     that.brainTransform.children[1].visible=true;
     that.brainTransform.identity();
@@ -317,7 +353,9 @@ function BrainBrowser(url) {
 
 
 
-
+  /**
+   * Figures out what view has been selected and activates it
+   */
   this.setupView = function(e) {
     that.resetView();
     if(that.model_data && that.model_data.num_hemispheres == 2) {
@@ -364,18 +402,28 @@ function BrainBrowser(url) {
     that.thatRot = that.math.matrix4.mul(that.brainTransform.localMatrix, that.math.matrix4.identity());
   };
 
+  /**
+   * functions turn the left hemisphere shapes visibility on off
+   * @param {Bool} state  boolean (true == visible, false == not visible) 
+   */
   this.leftHemisphereVisible = function(state)  {
     that.brainTransform.children[0].visible = state;
   };
 
+
+  /**
+   * functions turn the right hemisphere shapes visibility on off
+   * @param {Bool} state  boolean (true == visible, false == not visible) 
+   */
   this.rightHemisphereVisible = function(state)  {
     that.brainTransform.children[1].visible = state;
   };
 
 
 
-  /*
-   * The following functions handle to preset views of the system.
+  /**
+   * function to handle to preset views of the system.
+   * 
    */
   this.medialView = function(e) {
 
@@ -389,6 +437,9 @@ function BrainBrowser(url) {
     }
   };
 
+  /**
+   * function to handle to preset views of the system.
+   */
   this.lateralView = function(e) {
 
     if(that.model_data.num_hemispheres == 2 ) {
@@ -403,27 +454,40 @@ function BrainBrowser(url) {
     }
   };
 
+
+  /**
+   * function to handle to preset views of the system.
+   */
   this.superiorView = function() {
     //nothing should be already done with reset view, placeholder
   };
 
+  /**
+   * function to handle to preset views of the system.
+   */
   this.inferiorView = function() {
     that.brainTransform.rotateY(that.math.degToRad(180));
   };
 
+  /**
+   * function to handle to preset views of the system.
+   */
   this.anteriorView = function(e) {
     that.resetView();
     that.brainTransform.rotateX(that.math.degToRad(-90));
     that.brainTransform.rotateZ(that.math.degToRad(180));
   };
 
+  /**
+   * function to handle to preset views of the system.
+   */
   this.posteriorView = function(e) {
     that.resetView();
     that.brainTransform.rotateX(that.math.degToRad(-90));
   };
 
 
-  /*
+  /**
    * Adds space between the hemispheres
    */
   this.separateHemispheres = function(e) {
@@ -437,7 +501,7 @@ function BrainBrowser(url) {
     that.client.height = $(window).height();
   };
 
-  /*
+  /**
    * Creates the client area.
    */
   this.setClientSize= function() {
@@ -458,10 +522,10 @@ function BrainBrowser(url) {
   };
 
 
-  /*
+  /**
    * The following methods implement the zoom in and out
    */
-  that.ZoomInOut = function(zoom) {
+  this.ZoomInOut = function(zoom) {
     for (var i = 0; i < that.eyeView.length; i += 1) {
       that.eyeView[i] = that.eyeView[i] / zoom;
     }
@@ -576,7 +640,7 @@ function BrainBrowser(url) {
   //currently a wrapper for model.getVertexInfo
   //Should theoretically return the same infor as click and
   //click should use this to build that info object
-  that.getInfoForVertex = function(vertex) {
+  this.getInfoForVertex = function(vertex) {
     return  that.model_data.getVertexInfo(vertex);
   };
 
@@ -603,7 +667,7 @@ function BrainBrowser(url) {
   }
 
 
-  that.startDragging = function(e) {
+  this.startDragging = function(e) {
 
     if(e.button == that.o3d.Event.BUTTON_RIGHT) {
         var screenPosition = getCursorPosition(e);
@@ -629,7 +693,7 @@ function BrainBrowser(url) {
     };
   };
 
-  that.drag = function(e) {
+  this.drag = function(e) {
 
     if (that.dragging && e.button == that.o3d.Event.BUTTON_LEFT ) {
 
@@ -669,7 +733,7 @@ function BrainBrowser(url) {
 
 
 
-  that.stopDragging = function(e) {
+  this.stopDragging = function(e) {
     that.drag_hemisphere = false;
     that.dragging = false;
   };
@@ -679,7 +743,7 @@ function BrainBrowser(url) {
 
 
 
-  that.updateCamera = function() {
+  this.updateCamera = function() {
 
     var up = [0, 1, 0];
     that.viewInfo.drawContext.view = that.math.matrix4.lookAt(that.camera.eye,
@@ -688,7 +752,7 @@ function BrainBrowser(url) {
     that.lightPosParam.value = that.camera.eye;
   };
 
-  that.updateProjection = function() {
+  this.updateProjection = function() {
 
     // Create a perspective projection matrix.
     that.viewInfo.drawContext.projection = that.math.matrix4.perspective(
@@ -706,7 +770,7 @@ function BrainBrowser(url) {
    * @param {delta} The angle by which the scene should be rotated.
    * @return true if an action was taken.
    */
-  that.keyPressedAction = function(keyPressed, delta) {
+  this.keyPressedAction = function(keyPressed, delta) {
     var actionTaken = false;
     switch(keyPressed) {
     case '&':
@@ -732,7 +796,7 @@ function BrainBrowser(url) {
    * Invokes the action to be performed for the key pressed.
    * @param {event} keyPress event passed to us by javascript.
    */
-   that.keyPressedCallback = function(event) {
+   this.keyPressedCallback = function(event) {
 
    var action_taken = false;
    switch(event.which) {
@@ -764,7 +828,7 @@ function BrainBrowser(url) {
   /*
    * Sets the fillmode of the brain to wireframe or filled
    */
-  that.set_fill_mode_wireframe= function() {
+  this.set_fill_mode_wireframe= function() {
 
     if(that.model_data.num_hemispheres == 2){
       var brainMaterial = that.brainTransform.children[0].shapes[0].elements[0].material;
@@ -792,7 +856,7 @@ function BrainBrowser(url) {
     that.client.render();
   };
 
-  that.set_fill_mode_solid = function() {
+  this.set_fill_mode_solid = function() {
     if(that.model_data.num_hemispheres == 2){
 
       var brainMaterial = that.brainTransform.children[0].shapes[0].elements[0].material;
@@ -850,7 +914,7 @@ function BrainBrowser(url) {
   }
 
 
-  that.loadObjFromUrl = function(url) {
+  this.loadObjFromUrl = function(url) {
     loadFromUrl(url, false,function(data) {
 		    var parts = url.split("/");
 		    //last part of url will be shape name
@@ -860,7 +924,7 @@ function BrainBrowser(url) {
   };
 
 
-  that.loadObjFromFile = function(file_input) {
+  this.loadObjFromFile = function(file_input) {
     loadFromTextFile(file_input, function(result) {
                        	 var parts = file_input.value.split("\\");
 			 //last part of path will be shape name
@@ -870,7 +934,7 @@ function BrainBrowser(url) {
 		     });
   };
 
-  that.loadSpectrumFromUrl  = function(url) {
+  this.loadSpectrumFromUrl  = function(url) {
     //get the spectrum of colors
     loadFromUrl(url,true,function (data) {
 		    var spectrum = new Spectrum(data);
@@ -882,7 +946,7 @@ function BrainBrowser(url) {
 		    }
 
 		    if(that.data) {
-		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped);
+		      that.updateColors(that.data,that.data.rangeMin, that.data.rangeMax,that.spectrum,that.flip,that.clamped);
 		    }
 
 		});
@@ -891,7 +955,7 @@ function BrainBrowser(url) {
   
 
   //Load a color bar spectrum definition file
-  that.loadSpectrumFromFile = function(file_input){
+  this.loadSpectrumFromFile = function(file_input){
     loadFromTextFile(file_input,function(data) {
 		    var spectrum = new Spectrum(data);
 		    that.spectrum = spectrum;
@@ -902,17 +966,27 @@ function BrainBrowser(url) {
 		    }
 
 		    if(that.data) {
-		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped);
+		      that.updateColors(that.data,that.data.rangeMin, that.data.rangeMax,that.spectrum,that.flip,that.clamped);
 		    }
 
 		});
       
   };
 
-  that.loadDataFromFile = function(file_input) {
+  function setupDataUi(data) {
+
+  }
+
+
+
+  /*
+   * Load text data from file and update colors
+   */
+  this.loadDataFromFile = function(file_input) {
     var filename = file_input.files[0].name;
     var onfinish = function(text) {
 	var data = new Data(text);
+        data.fileName = filename;
 	if(data.values.length < that.model_data.positionArray.length/4) {
 	    alert("Number of numbers in datafile lower than number of vertices Vertices" + that.model_data.positionArray.length/3 + " data values:" + data.values.length );
 	    return -1;
@@ -920,16 +994,14 @@ function BrainBrowser(url) {
 	    
 	    that.data = data;
 	}
-	
-	if(that.fixRange == false || that.fixRange == null) {
-	    that.rangeMin = that.data.min;
-	    that.rangeMax = that.data.max;
-	    if(that.afterLoadData !=null) {
-		that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
-	    }
-	}
-	
-      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped);
+      initRange(that.data.min,
+		that.data.max);
+      if(that.afterLoadData !=null) {
+	that.afterLoadData(that.data.rangeMin,that.data.rangeMax,that.data);
+      }
+      
+      
+      that.updateColors(that.data,that.data.rangeMin, that.data.rangeMax,that.spectrum,that.flip,that.clamped);
       return null;
     };
 
@@ -959,7 +1031,7 @@ function BrainBrowser(url) {
   /*
    * Load a series of data files to be viewed with a slider. 
    */
-  that.loadSeriesDataFromFile = function(file_input) {
+  this.loadSeriesDataFromFile = function(file_input) {
     console.log(file_input.files.length);
 		var numberFiles = file_input.files.length;
 		that.seriesData = new Array(numberFiles);
@@ -994,72 +1066,181 @@ function BrainBrowser(url) {
   };
 
 
-  that.setupSeries = function() {
+  /*
+   * Setup for series data, creates a slider to switch between files. 
+   */
+  this.setupSeries = function() {
     $("<div id=\"series\">Series: </div>").appendTo("#surface_choice");
     var div = $("#series");
     $("<span id=\"series-value\">0</span>").appendTo(div);
-    $("<div id=\"series-slider\" width=\"100px\" + height=\"10\"></div>").slider({
-										   value: 0,
-										   min: 0,
-										   max: that.seriesData.numberFiles-1,	       
-										   step: .1,
-										   slide: function(event,ui) {
-										     if(ui.value -  Math.floor(ui.value) < 0.01) { //is it at an integer? then just return the array			
-										       that.data = that.seriesData[ui.value];											     }else { //interpolate
-											 if(that.seriesData[0].fileName.match("pval.*")){
-											   that.data = new Data(interpolateDataArray(that.seriesData[Math.floor(ui.value)],that.seriesData[Math.floor(ui.value)+1],(ui.value -  Math.floor(ui.value)),true));											 											   
-											 }else {
-											   that.data = new Data(interpolateDataArray(that.seriesData[Math.floor(ui.value)],that.seriesData[Math.floor(ui.value)+1],(ui.value -  Math.floor(ui.value))));											 
-											 }
+    $("<div id=\"series-slider\" width=\"100px\" + height=\"10\"></div>")
+      .slider({
+		value: 0,
+		min: 0,
+		max: that.seriesData.numberFiles-1,	       
+		step: .1,
+		slide: function(event,ui) {
+		  if(ui.value -  Math.floor(ui.value) < 0.01) { //is it at an integer? then just return the array			
+		    that.data = that.seriesData[ui.value];											     }else { //interpolate
+		      if(that.seriesData[0].fileName.match("pval.*")){
+			that.data = new Data(interpolateDataArray(that.seriesData[Math.floor(ui.value)],
+								  that.seriesData[Math.floor(ui.value)+1],
+								  (ui.value -  Math.floor(ui.value)),true));		
+		      }else {
+			that.data = new Data(interpolateDataArray(that.seriesData[Math.floor(ui.value)],
+								  that.seriesData[Math.floor(ui.value)+1],
+								  (ui.value -  Math.floor(ui.value))));
+		      }
+		      
+		      
+		      
+		    }
+		  if(that.seriesData[0].fileName.match("mt.*")) {
+		    $("#age_series").html("Age: " + (ui.value*3+5).toFixed(1));
+		    
+		  }else if(that.seriesData[0].fileName.match("pval.*")) {
+		    $("#age_series").html("Age: " + (ui.value*1+10));
+		  }
+		  $(div).children("#series-value").html(ui.value);
+		  if(that.data.values.length < that.model_data.positionArray.length/4) {
+		    console.log("Number of numbers in datafile lower than number of vertices Vertices" 
+				+ that.model_data.positionArray.length/3 + " data values:" 
+				+ that.data.values.length );
+		    return -1;
+		  }
+		  initRange(that.data.min,that.data.max);
+		  if(that.afterLoadData !=null) {
+		    that.afterLoadData(that.data.rangeMin,that.data.rangeMax,that.data);
+		  }
+				  
+		  that.updateColors(that.data,that.data.rangeMin, that.data.rangeMax,that.spectrum,that.flip,that.clamped);
+		  return null;
+		  
+		  
+		}
+	      }).appendTo(div);
+    
+  };
+
+  
+
+  /*
+   * Load files to blend 
+   */
+  this.loadBlendDataFromFile = function(file_input) {
+		var numberFiles = file_input.files.length;
+		that.blendData = new Array(numberFiles);
+		that.blendData.numberFiles = numberFiles;
+		var files = file_input.files;
+   
+ 		for(var i = 0; i < numberFiles; i++) {
+		  
+		  var reader = new FileReader();
+		   reader.file = files[i];
+		  /*
+		   * Using a closure to keep the value of i around to put the 
+		   * data in an array in order. 
+		   */
+		  var onfinish = reader.onloadend = (function(file,num) {
+						       return function(e) {
+		   					 that.blendData[num] = new Data(e.target.result);
+							 that.blendData.alpha = 1.0/numberFiles;
+							 
+							 that.blendData[num].fileName = file.name;
+							 for(var k = 0; k < 2; k++) {
+							   if(that.blendData[k] == undefined) {						     
+							     console.log("not done yet");
+							     return;
+							   }
+							  
+							 }		 
+							 initRange(that.blendData[0].values.min(),
+								   that.blendData[0].values.max(),
+								   that.blendData[0]);
+							 
+							 initRange(that.blendData[1].values.min(),
+								   that.blendData[1].values.max(),
+								   that.blendData[1]);
+							 if(that.afterLoadData !=null) {
+							   that.afterLoadData(null,null,that.blendData,true); //multiple set to true
+							 }
+							 
+							 that.blend($(".blend_slider").slider("value"));
+							 
+							 
+						       };
+						     })(reader.file,i);
+		  
+		  reader.readAsText(files[i]);
+			
+			
+
+    }
+    that.setupBlendColors();
+  };
+
+  
 
 
-										      
-										     }
-										     if(that.seriesData[0].fileName.match("mt.*")) {
-										       $("#age_series").html("Age: " + (ui.value*3+5).toFixed(1));
 
-										     }else if(that.seriesData[0].fileName.match("pval.*")) {
-										       $("#age_series").html("Age: " + (ui.value*1+10));
-										     }
-										     $(div).children("#series-value").html(ui.value);
-										     if(that.data.values.length < that.model_data.positionArray.length/4) {
-										       console.log("Number of numbers in datafile lower than number of vertices Vertices" + that.model_data.positionArray.length/3 + " data values:" + that.data.values.length );
-										       return -1;
-										     }
-										     if(that.fixRange == false || that.fixRange == null) {
-										       that.rangeMin = that.data.min;
-										       that.rangeMax = that.data.max;
-										       if(that.afterLoadData !=null) {
-											 that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
-										       }
-										     }
-										     
-										     that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum,that.flip,that.clamped);
-										     return null;
-										     
-										     
-										   }
-										 }).appendTo(div);
+  this.setupBlendColors = function(){
+    
+    
+    console.log("Blend colors has ran " + that.blendData.numberFiles);
+    $("#blend").remove();
+    $("<div id=\"blend\">Blend ratios: </div>").appendTo("#surface_choice");
+    var div = $("#blend");
+    $("<span id=\"blend_value"+i+"\">0</span>").appendTo(div);
+    $("<div class=\"blend_slider\" id=\"blend_slider"+i+"\" width=\"100px\" + height=\"10\"></div>")
+      .slider({
+		value: 0,
+		min: 0.1,
+	        max: 0.99,
+		value: 0.5,
+		step:.01,
+	        /*
+		 * When the sliding the slider, change all the other sliders by the amount of this slider
+		 */
+		slide: function(event,ui) {
+		  that.blend($(this).slider("value"));  
+		}
+	      }).appendTo(div);
+    
+    
+
 
   };
 
-  that.loadDataFromUrl = function(file_input) {
-    loadFromUrl(file_input, true, function(text) {
-      that.data = new Data(text);
-      if(that.fixRange == false || that.fixRange == null) {
-	that.rangeMin = that.data.min;
-	that.rangeMax = that.data.max;
-	if(that.afterLoadData != undefined) {
-	  that.afterLoadData(that.rangeMin,that.rangeMax,that.data);
-	}
-      }
 
-      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
-    });
+
+  this.blend = function(value) {
+    that.blendData[0].alpha = value;
+    that.blendData[1].alpha = 1.0 - value;
+    for(var i = 2; i<that.blendData.length; i++) {
+      that.blendData[i].alpha = 0.0;
+    }
+    
+
+    that.updateColors(that.blendData,null,null,that.spectrum,that.flip,that.clamped,true); //last parameter says to blend data.
   };
 
+  this.loadDataFromUrl = function(file_input) {
+    loadFromUrl(file_input, true, function(text,file) {
+		  that.data = new Data(text);
+		  initRange(that.data.min,that.data.max);
+		  if(that.afterLoadData != undefined) {
+		    that.afterLoadData(that.data.rangeMin,
+				       that.data.rangeMax,
+				       that.data);
+		  }
+		  
 
-  that.loadCombinedShaderFromUrl = function(url){
+		  that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
+		});
+  };
+  
+
+  this.loadCombinedShaderFromUrl = function(url){
     var shaderString;
     loadFromUrl(url,false,function(data){
       shaderString = data;		  
@@ -1071,9 +1252,15 @@ function BrainBrowser(url) {
   /*
    * This updates the colors of the brain model
    */
-  that.updateColors = function(data,min,max,spectrum,flip,clamped) {
+  this.updateColors = function(data,min,max,spectrum,flip,clamped,blend) {
     that.clamped = clamped;
-    var color_array = data.createColorArray(min,max,spectrum,flip,clamped,that.model_data.colorArray);
+    if(blend) {
+      var color_array = colorManager.blendColorMap(spectrum,data,0,1);
+    }else {
+      var color_array = data.createColorArray(min,max,spectrum,flip,clamped,that.model_data.colorArray);      
+    }
+
+
     if(that.model_data.num_hemispheres == 1) {
       var color_buffer = that.pack.createObject('VertexBuffer');
       var color_field = color_buffer.createField('FloatField', 4);
@@ -1129,7 +1316,7 @@ function BrainBrowser(url) {
    * Clamped signifies that the range should be clamped and values above or bellow the 
    * thresholds should have the color of the maximum/mimimum.
    */
-  that.rangeChange = function(min,max,clamped) {
+  this.rangeChange = function(min,max,clamped) {
     that.rangeMin = min;
     that.rangeMax = max;
     that.updateColors(that.data,that.rangeMin, that.rangeMax, that.spectrum,that.flip,clamped);
@@ -1154,7 +1341,7 @@ function BrainBrowser(url) {
    * it then changes the value of for the alpha channel in the shaders
    * of the specific shape. 
    */
-  that.changeShapeTransparency = function(shape_name,alpha) {
+  this.changeShapeTransparency = function(shape_name,alpha) {
     var shape = null;
     if(that.brainTransform.shapes != undefined) {
 
@@ -1185,7 +1372,7 @@ function BrainBrowser(url) {
    * The URL is will be long and contain the image inside. 
    * 
    */
-  that.getImageUrl = function() {
+  this.getImageUrl = function() {
     var canvas = document.createElement("canvas");
     var spectrumCanvas = document.getElementById("spectrum_canvas");;
     canvas.width = that.o3dElement.width;

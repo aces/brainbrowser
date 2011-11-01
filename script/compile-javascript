@@ -1,19 +1,12 @@
 #!/bin/bash
 source ~/.profile
 cd development/public/js
-<<<<<<< HEAD
-cat utils.js mniobj.js object.js spectrum.js data.js brainbrowser.js surfview.js > /tmp/surface-combined.js
-yui-compressor /tmp/surface-combined.js -o ../../../production/public/js/surfview-combined.min.js
-rm /tmp/surface-combined.js
-cat utils.js mniobj.js object.js spectrum.js data.js dataset.js brainbrowser.js macacc_collection.js macacc.js > /tmp/macacc-combined.js
-=======
 cat utils.js color.js mniobj.js spectrum.js data.js brainbrowser.js surfview.js > /tmp/surface-combined.js
 yui-compressor /tmp/surface-combined.js -o ../../../production/public/js/surfview-combined.min.js
 rm /tmp/surface-combined.js
 cat utils.js color.js mniobj.js spectrum.js data.js dataset.js brainbrowser.js macacc_collection.js macacc.js > /tmp/macacc-combined.js
->>>>>>> bb-code-redesign
 yui-compressor /tmp/macacc-combined.js -o ../../../production/public/js/macacc-combined.min.js
 rm /tmp/macacc-combined.js
 cat utils.js minc.js color.js spectrum.js loader.js braincanvas.js > /tmp/html5-minc-viewer.js
 yui-compressor /tmp/html5-minc-viewer.js -o ../../../production/public/js/html5-minc-viewer.min.js
-cp *.min.js ../../../surface-viewer/js/
+

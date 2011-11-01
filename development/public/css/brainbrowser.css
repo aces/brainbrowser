@@ -94,3 +94,12 @@ select {
 #age_series {
    font-size: 30px;
 }
+
+.cfd_logo {
+   height: 150px;
+   background-color: white;
+   background-image:url('/img/airplane_logos.jpg');
+   background-repeat: no-repeat;
+   background-position: left top;
+}
+

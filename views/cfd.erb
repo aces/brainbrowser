@@ -9,12 +9,7 @@
   <body>  
 
     <div id="controls">
-      <div id="logos" class="box full_box" style="background-color: white">
-	<a href="http://www.mni.mcgill.ca"><img width=100 src="/img/mni.gif" /></a>
-	<a href="http://www.mcgill.ca"><img src="/img/mcgill.png" /></a>
-	<a href="http://www.canarie.com"><img src="/img/canarie.png" /></a><br />
-	<a href="https://computecanada.org/"><img width=100 src="/img/ComputeCanada175.jpg" /></a>
-	<a href="http://www.newmerical.com/"><img width=100 src="/img/newmerical.png"></img></a>
+      <div id="logos" class="box full_box cfd_logo">
       </div>
       
       <div id="surface_choice" class="box full_box">
@@ -146,8 +141,16 @@
       
       jQuery(".button").button();
       var surfview = new SurfView(function(bb) {
+         bb.updateClearColorFromName('black');
          bb.loadObjFromUrl('/models/dlr_bigger.streamlines.obj');
          bb.loadObjFromUrl('/models/dlr.model.obj');
+         bb.eyeView = [0,0,32.0]
+   
+         bb.viewInfo.drawContext.view = bb.math.matrix4.lookAt(
+            bb.eyeView, // eye
+            [0, 0, 0],   // target
+            [0, 1, 0]);  // up
+         bb.brainTransform.localMatrix = [0.5175565260543228, 0.2198608202734916, -0.8269198643443321, 0, -0.7683778894163086, 0.5446338685327888, -0.33610916129012, 0, 0.3764713287817814, 0.8093424299736646, 0.45081500601644064, 0, 0, 0, 0, 1];
        });
       
       jQuery("#objfile").change(function() {

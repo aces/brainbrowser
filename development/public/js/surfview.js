@@ -16,7 +16,7 @@
  */
 
 var brainbrowser;
-function SurfView() {
+function SurfView(model_url) {
   var that = this;
   brainbrowser = new BrainBrowser();
   this.brainbrowser = brainbrowser;
@@ -110,7 +110,13 @@ function SurfView() {
     bb.clamped = true; //By default clamp range. 
     bb.flip = false;
     bb.clearScreen();
-    bb.loadObjFromUrl('/models/surf_reg_model_both.obj');
+    if(typeof model_url == 'string' && model_url != '') {
+      bb.loadObjFromUrl(model_url);      
+    }else if(typeof model_url == 'function'){
+      console.log("loading models");
+      model_url(bb);
+    }
+
     
     //Add event handlers
     jQuery("body").keydown(bb.keyPressedCallback);

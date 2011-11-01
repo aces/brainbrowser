@@ -140,7 +140,7 @@
       };
       
       jQuery(".button").button();
-      var surfview = new SurfView();
+      var surfview = new SurfView('/models/surf_reg_model_both.obj');
       
       jQuery("#objfile").change(function() {
         surfview.brainbrowser.loadObjFromFile(document.getElementById("objfile"));

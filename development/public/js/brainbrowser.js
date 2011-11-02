@@ -258,7 +258,7 @@ function BrainBrowser() {
    */ 
   function initRange(min,max,file) {
     if(file == null) {
-     file = that.data;
+     file = that.model_data.data;
     }
     if(file.fixRange == false || file.fixRange == null) {
       file.rangeMin = min;
@@ -945,8 +945,8 @@ function BrainBrowser() {
 		      that.afterLoadSpectrum(spectrum);
 		    }
 
-		    if(that.data) {
-		      that.updateColors(that.data,that.data.rangeMin, that.data.rangeMax,that.spectrum,that.flip,that.clamped);
+		    if(that.model_data.data) {
+		      that.updateColors(that.model_data.data,that.model_data.data.rangeMin, that.model_data.data.rangeMax,that.spectrum,that.flip,that.clamped);
 		    }
 
 		});
@@ -965,8 +965,8 @@ function BrainBrowser() {
 		      that.afterLoadSpectrum(spectrum);
 		    }
 
-		    if(that.data) {
-		      that.updateColors(that.data,that.data.rangeMin, that.data.rangeMax,that.spectrum,that.flip,that.clamped);
+		    if(that.model_data.data) {
+		      that.updateColors(that.model_data.data,that.model_data.data.rangeMin, that.model_data.data.rangeMax,that.spectrum,that.flip,that.clamped);
 		    }
 
 		});
@@ -992,16 +992,16 @@ function BrainBrowser() {
 	    return -1;
 	}else {
 	    
-	    that.data = data;
+	    that.model_data.data = data;
 	}
-      initRange(that.data.min,
-		that.data.max);
+      initRange(that.model_data.data.min,
+		that.model_data.data.max);
       if(that.afterLoadData !=null) {
-	that.afterLoadData(that.data.rangeMin,that.data.rangeMax,that.data);
+	that.afterLoadData(that.model_data.data.rangeMin,that.model_data.data.rangeMax,that.model_data.data);
       }
       
       
-      that.updateColors(that.data,that.data.rangeMin, that.data.rangeMax,that.spectrum,that.flip,that.clamped);
+      that.updateColors(that.model_data.data,that.model_data.data.rangeMin, that.model_data.data.rangeMax,that.spectrum,that.flip,that.clamped);
       return null;
     };
 
@@ -1081,13 +1081,13 @@ function BrainBrowser() {
 		step: .1,
 		slide: function(event,ui) {
 		  if(ui.value -  Math.floor(ui.value) < 0.01) { //is it at an integer? then just return the array			
-		    that.data = that.seriesData[ui.value];											     }else { //interpolate
+		    that.model_data.data = that.seriesData[ui.value];											     }else { //interpolate
 		      if(that.seriesData[0].fileName.match("pval.*")){
-			that.data = new Data(interpolateDataArray(that.seriesData[Math.floor(ui.value)],
+			that.model_data.data = new Data(interpolateDataArray(that.seriesData[Math.floor(ui.value)],
 								  that.seriesData[Math.floor(ui.value)+1],
 								  (ui.value -  Math.floor(ui.value)),true));		
 		      }else {
-			that.data = new Data(interpolateDataArray(that.seriesData[Math.floor(ui.value)],
+			that.model_data.data = new Data(interpolateDataArray(that.seriesData[Math.floor(ui.value)],
 								  that.seriesData[Math.floor(ui.value)+1],
 								  (ui.value -  Math.floor(ui.value))));
 		      }
@@ -1102,18 +1102,18 @@ function BrainBrowser() {
 		    $("#age_series").html("Age: " + (ui.value*1+10));
 		  }
 		  $(div).children("#series-value").html(ui.value);
-		  if(that.data.values.length < that.model_data.positionArray.length/4) {
+		  if(that.model_data.data.values.length < that.model_data.positionArray.length/4) {
 		    console.log("Number of numbers in datafile lower than number of vertices Vertices" 
 				+ that.model_data.positionArray.length/3 + " data values:" 
-				+ that.data.values.length );
+				+ that.model_data.data.values.length );
 		    return -1;
 		  }
-		  initRange(that.data.min,that.data.max);
+		  initRange(that.model_data.data.min,that.model_data.data.max);
 		  if(that.afterLoadData !=null) {
-		    that.afterLoadData(that.data.rangeMin,that.data.rangeMax,that.data);
+		    that.afterLoadData(that.model_data.data.rangeMin,that.model_data.data.rangeMax,that.model_data.data);
 		  }
 				  
-		  that.updateColors(that.data,that.data.rangeMin, that.data.rangeMax,that.spectrum,that.flip,that.clamped);
+		  that.updateColors(that.model_data.data,that.model_data.data.rangeMin, that.model_data.data.rangeMax,that.spectrum,that.flip,that.clamped);
 		  return null;
 		  
 		  
@@ -1226,16 +1226,16 @@ function BrainBrowser() {
 
   this.loadDataFromUrl = function(file_input) {
     loadFromUrl(file_input, true, function(text,file) {
-		  that.data = new Data(text);
-		  initRange(that.data.min,that.data.max);
+		  that.model_data.data = new Data(text);
+		  initRange(that.model_data.data.min,that.model_data.data.max);
 		  if(that.afterLoadData != undefined) {
-		    that.afterLoadData(that.data.rangeMin,
-				       that.data.rangeMax,
-				       that.data);
+		    that.afterLoadData(that.model_data.data.rangeMin,
+				       that.model_data.data.rangeMax,
+				       that.model_data.data);
 		  }
 		  
 
-		  that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
+		  that.updateColors(that.model_data.data,that.rangeMin, that.rangeMax,that.spectrum);
 		});
   };
   
@@ -1252,7 +1252,7 @@ function BrainBrowser() {
   /*
    * This updates the colors of the brain model
    */
-  this.updateColors = function(data,min,max,spectrum,flip,clamped,blend) {
+  this.updateColors = function(data,min,max,spectrum,flip,clamped,blend,shape) {
     that.clamped = clamped;
     if(blend) {
       var color_array = colorManager.blendColorMap(spectrum,data,0,1);
@@ -1317,9 +1317,9 @@ function BrainBrowser() {
    * thresholds should have the color of the maximum/mimimum.
    */
   this.rangeChange = function(min,max,clamped) {
-    that.rangeMin = min;
-    that.rangeMax = max;
-    that.updateColors(that.data,that.rangeMin, that.rangeMax, that.spectrum,that.flip,clamped);
+    that.model_data.data.rangeMin = min;
+    that.model_data.data.rangeMax = max;
+    that.updateColors(that.model_data.data,that.model_data.data.rangeMin, that.model_data.data.rangeMax, that.spectrum,that.flip,clamped);
 
     /*
      * This callback allows users to

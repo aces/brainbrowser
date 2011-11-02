@@ -35,7 +35,7 @@ function bbObject(brainbrowser) {
      * two shapes will be created if the brain model has two hemispheres
      */
      if(model_data.num_hemispheres == 2) {
-
+       
        var brainShape= {
 	 left: that.createHemisphere(model_data.left, "left"),
 	 right: that.createHemisphere(model_data.right, "right"),
@@ -282,7 +282,7 @@ function bbObject(brainbrowser) {
    * Creates the hemisphere shape with the material provide.
    */
   that.createLineShape = function(material,model,name) {
-    //model = unIndexModel(model);
+
     var lineShape = that.pack.createObject('Shape');
     var streamBank = that.pack.createObject('StreamBank');
     lineShape.name = name;

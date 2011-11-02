@@ -219,23 +219,30 @@ function SurfView(model_url) {
       $("#data_range").find(".slider").each(function(index,element) {
 					      $(element).slider({
 								  range:true,
-								  min: data[index].values.min(),
-								  max: data[index].values.max(),
+								  min: data[0].values.min(),
+								  max: data[0].values.max(),
 								  values: [data[index].rangeMin,data[index].rangeMax],
 								  slide: function(event,ui) {
 								      var blend_id = $(this).attr("data-blend-index");
-								      console.log(blend_id);
-								      bb.data[blend_id].rangeMin = ui.values[0];
-								      bb.data[blend_id].rangeMax = ui.values[1];
-								 
-								     that.updateColors(that.data,null,null,that.spectrum,that.flip,that.clamped,true);
+								      data[0].rangeMin = ui.values[0];
+								      data[0].rangeMax = ui.values[1];
+								      bb.model_data.data = data[0];
+								    bb.updateColors(bb.model_data.data,bb.model_data.data.rangeMin,bb.model_data.data.rangeMax,bb.spectrum,bb.flip,bb.clamped,false);
+								    bb.rangeChange(data[0].rangeMin, data[0].rangeMax, bb.clamped);
 								    
 								}
 							      }
 							     );
 					      });
-
-
+      jQuery("#data-range-min").change(function(e) {
+					 jQuery(e.target).siblings(".slider").slider('values', 0, parseFloat(jQuery(this).val()));
+				       });
+      
+      jQuery("#data-range-max").change(function(e) {
+					 jQuery(e.target).siblings(".slider").slider('values', 1, parseFloat(jQuery(this).val()));
+				       });
+      
+      
     }
 
     bb.afterLoadData = function(min,max,data,multiple) {
@@ -288,7 +295,7 @@ function SurfView(model_url) {
 
     jQuery("#flip_range").change(function(e) {
 				   bb.flip = $(e.target).attr("checked");
-				   bb.updateColors(bb.data,bb.data.min,bb.data.max,brainbrowser.spectrum,bb.flip,bb.clamped);
+				   bb.updateColors(bb.model_data.data,bb.model_data.data.min,bb.model_data.data.max,brainbrowser.spectrum,bb.flip,bb.clamped);
 				   
 				 });
     
@@ -309,13 +316,6 @@ function SurfView(model_url) {
 				   bb.updateClearColorFromName(color_name);
 				 });
     
-    jQuery("#data-range-min").change(function(e) {
-				       jQuery("#range-slider").slider('values', 0, parseFloat(jQuery(this).val()));
-				     });
-    
-    jQuery("#data-range-max").change(function(e) {
-				       jQuery("#range-slider").slider('values', 1, parseFloat(jQuery(this).val()));
-				     });
     
     $("#examples").click(function(e) {
 			   var name = $(e.target).attr('data-example-name');

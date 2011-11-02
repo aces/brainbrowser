@@ -217,17 +217,19 @@ function SurfView(model_url) {
       $(rangeBox).html(html_string);
       $(rangeBox).tabs();
       $("#data_range").find(".slider").each(function(index,element) {
-					      
 					      $(element).slider({
 								  range:true,
 								  min: data[index].values.min(),
 								  max: data[index].values.max(),
 								  values: [data[index].rangeMin,data[index].rangeMax],
 								  slide: function(event,ui) {
-								    var blend_id = $(event.target).attr("data-blend-index");
-								  bb.blendData[blend_id].rangeMin = ui.values[0];
-								  bb.blendData[blend_id].rangeMax = ui.values[1];
-								  bb.blend($(".blend_slider").slider("value"));
+								      var blend_id = $(this).attr("data-blend-index");
+								      console.log(blend_id);
+								      bb.data[blend_id].rangeMin = ui.values[0];
+								      bb.data[blend_id].rangeMax = ui.values[1];
+								 
+								     that.updateColors(that.data,null,null,that.spectrum,that.flip,that.clamped,true);
+								    
 								}
 							      }
 							     );

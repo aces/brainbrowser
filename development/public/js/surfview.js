@@ -222,6 +222,7 @@ function SurfView(model_url) {
 								  min: data[0].values.min(),
 								  max: data[0].values.max(),
 								  values: [data[index].rangeMin,data[index].rangeMax],
+								  step: 0.1,
 								  slide: function(event,ui) {
 								      var blend_id = $(this).attr("data-blend-index");
 								      data[0].rangeMin = ui.values[0];
@@ -230,16 +231,30 @@ function SurfView(model_url) {
 								    bb.updateColors(bb.model_data.data,bb.model_data.data.rangeMin,bb.model_data.data.rangeMax,bb.spectrum,bb.flip,bb.clamped,false);
 								    bb.rangeChange(data[0].rangeMin, data[0].rangeMax, bb.clamped);
 								    
+								},
+								  change: function(event,ui) {
+	
+								  var blend_id = $(this).attr("data-blend-index");
+								    data[0].rangeMin = ui.values[0];
+								      data[0].rangeMax = ui.values[1];
+								      bb.model_data.data = data[0];
+								    bb.updateColors(bb.model_data.data,bb.model_data.data.rangeMin,bb.model_data.data.rangeMax,bb.spectrum,bb.flip,bb.clamped,false);
+								    bb.rangeChange(data[0].rangeMin, data[0].rangeMax, bb.clamped);
+
+
+								
+								  }
 								}
-							      }
 							     );
-					      });
+					    });
       jQuery("#data-range-min").change(function(e) {
 					 jQuery(e.target).siblings(".slider").slider('values', 0, parseFloat(jQuery(this).val()));
+					 jQuery(e.target).siblings(".slider").trigger('change');
 				       });
       
       jQuery("#data-range-max").change(function(e) {
 					 jQuery(e.target).siblings(".slider").slider('values', 1, parseFloat(jQuery(this).val()));
+					 jQuery(e.target).siblings(".slider").trigger('change');
 				       });
       
       

@@ -923,6 +923,14 @@ function BrainBrowser() {
 		});
   };
 
+  this.loadWaveformObjFromUrl = function(url) {
+    loadFromUrl(url, false,function(data) {
+		    var parts = url.split("/");
+		    //last part of url will be shape name
+		    var filename = parts[parts.length-1];
+		    that.displayObjectFile(new WaveformObj(data),filename);
+		});
+  };
 
   this.loadObjFromFile = function(file_input) {
     loadFromTextFile(file_input, function(result) {

@@ -148,16 +148,11 @@ function bbObject(brainbrowser) {
    * Creates a generic polygon object. 
    */
   that.createPolygonObject = function(model_data,filename) {
+    
     that.model_data= model_data;
-
     var myMaterial = that.createMaterial("/shaders/blinnphong.txt");
     myMaterial = that.blinnphongParams(myMaterial);
-    /*
-     * Create the Shape for the  mesh and assign its material.
-     * two shapes will be created if the  model has two hemispheres
-     */
-    var shape = that.createPolygonShape(myMaterial, model_data);
-    shape.name = filename;
+    
 
     if(that.brainTransform == undefined ){
       that.brainTransform = that.pack.createObject('Transform');
@@ -165,11 +160,30 @@ function bbObject(brainbrowser) {
 
 
 
-
+    
     // Parent the 's transform to the client root.
     that.brainTransform.parent = that.client.root;
-    that.brainTransform.addShape(shape);
-    shape.createDrawElements(that.pack, null);
+    /*
+     * Create the Shape for the  mesh and assign its material.
+     * two shapes will be created if the  model has two hemispheres
+     */
+    if(model_data.shapes){
+      for(var i =0; i< model_data.shapes.length; i++){
+	var shape = that.createPolygonShape(myMaterial, model_data.shapes[i]);
+	shape.name = model_data.shapes[i].name;
+	that.brainTransform.addShape(shape);      
+	shape.createDrawElements(that.pack, null);
+	
+      }
+    }else {
+      var shape = that.createPolygonShape(myMaterial, model_data);
+      shape.name = filename;
+      that.brainTransform.addShape(shape);      
+      shape.createDrawElements(that.pack, null);
+      
+    }
+
+
     that.model_data = model_data;
     if(that.afterCreate != undefined) {
       that.afterCreate(that.model_data);
@@ -443,26 +457,33 @@ function bbObject(brainbrowser) {
     //create Position buffer (vertices) and set the number of vertices global variable
     
     
-    
-    var indexArray  = model.indexArray;
-    //var indexBuffer = that.pack.createObject('IndexBuffer');
-    polygonPrimitive.numberPrimitives = indexArray.length/3;
-    polygonPrimitive.numberVertices = indexArray.length;
-    that.indexArray = indexArray;
-    //indexBuffer.set(indexArray);
-    //polygonPrimitive.indexBuffer = indexBuffer;
-    var positionArray = new Float32Array(indexArray.length*3);
-    var normalArray = new Float32Array(indexArray.length*3);
-    for(var j = 0; j < indexArray.length; j++) {
-      positionArray[j*3] = model.positionArray[indexArray[j]*3];
-      positionArray[j*3+1] = model.positionArray[indexArray[j]*3+1];
-      positionArray[j*3+2] = model.positionArray[indexArray[j]*3+2];
-      normalArray[j*3] = model.normalArray[indexArray[j]*3];
-      normalArray[j*3+1] = model.normalArray[indexArray[j]*3+1];
-      normalArray[j*3+2] = model.normalArray[indexArray[j]*3+2];
+    if(model.nonindexed == undefined) {
       
-    }
 
+      var indexArray  = model.indexArray;
+      //var indexBuffer = that.pack.createObject('IndexBuffer');
+      polygonPrimitive.numberPrimitives = indexArray.length/3;
+      polygonPrimitive.numberVertices = indexArray.length;
+      that.indexArray = indexArray;
+      //indexBuffer.set(indexArray);
+      //polygonPrimitive.indexBuffer = indexBuffer;
+      var positionArray = new Float32Array(indexArray.length*3);
+      var normalArray = new Float32Array(indexArray.length*3);
+      for(var j = 0; j < indexArray.length; j++) {
+	positionArray[j*3] = model.positionArray[indexArray[j]*3];
+	positionArray[j*3+1] = model.positionArray[indexArray[j]*3+1];
+	positionArray[j*3+2] = model.positionArray[indexArray[j]*3+2];
+	normalArray[j*3] = model.normalArray[indexArray[j]*3];
+	normalArray[j*3+1] = model.normalArray[indexArray[j]*3+1];
+	normalArray[j*3+2] = model.normalArray[indexArray[j]*3+2];
+	
+      }
+    }else {
+      polygonPrimitive.numberPrimitives = model.positionArray.length/3/3;
+      polygonPrimitive.numberVertices = model.positionArray.length/3;
+      var positionArray = new Float32Array(model.positionArray);
+      var normalArray = new Float32Array(model.normalArray);
+    }
     
     var colorArray=[];
 

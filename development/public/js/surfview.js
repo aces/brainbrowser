@@ -350,10 +350,37 @@ function SurfView(model_url) {
 			     bb.loadObjFromUrl('/models/realct.obj');    
 			     bb.loadDataFromUrl('/models/realct.txt');   
 			     break;
+                           case 'car':
+			     bb.clearScreen();
+			     bb.loadWaveformObjFromUrl('/models/car.obj');
+			     bb.eyeView[2] = 1200.0;
+			     
+			     bb.viewInfo.drawContext.view = bb.math.matrix4.lookAt(
+			       bb.eyeView, // eye
+			       [0, 0, 0],   // target
+			       [0, 1, 0]);  // up
+			     bb.brainTransform.localMatrix = [-0.6294293478361535, -0.3144581862622229, 0.7105876055598128, 0, -0.7677129789836492, 0.3930456549792469, -0.5060947490361718, 0, -0.1201477339886419, -0.864078215322321, -0.48880810122458723, 0, 0, 0, 0, 1];
+			     bb.thatRot = bb.math.matrix4.mul(bb.brainTransform.localMatrix, bb.math.matrix4.identity());
+			    
+			   break;
+			   case 'plane':
+			     bb.clearScreen();
+			     bb.updateClearColorFromName('black');
+			     bb.loadObjFromUrl('/models/dlr_bigger.streamlines.obj');
+			     bb.loadObjFromUrl('/models/dlr.model.obj');
+			     bb.eyeView[2] = 32.0;
+			     
+			     bb.viewInfo.drawContext.view = bb.math.matrix4.lookAt(
+			       bb.eyeView, // eye
+			       [0, 0, 0],   // target
+			       [0, 1, 0]);  // up
+			     bb.brainTransform.localMatrix = [0.5175565260543228, 0.2198608202734916, -0.8269198643443321, 0, -0.7683778894163086, 0.5446338685327888, -0.33610916129012, 0, 0.3764713287817814, 0.8093424299736646, 0.45081500601644064, 0, 0, 0, 0, 1];
+			     bb.thatRot = bb.math.matrix4.mul(bb.brainTransform.localMatrix, bb.math.matrix4.identity());
 			     
 			   }
+			   
 			   return false; 
-
+			   
 			 });
 
 

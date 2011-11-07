@@ -11,7 +11,17 @@
     <div id="controls">
       <div id="logos" class="box full_box cfd_logo">
       </div>
-      
+      <div id="examples" class="box full_box">
+	<h3>Examples</h3>
+	<ul>
+	  <li><a href="#" class="example" data-example-name="car">Car</a></li>
+	  <li><a href="#" class="example" data-example-name="plane">Plane with air density and air flow</a></li>
+	  <li><a href="#" class="example" data-example-name="basic">Basic Surface</a></li>
+	  <li><a href="#" span class="example" data-example-name="punkdti">DTI and Mesh Brain</a></li>
+	  <li><a href="#" class="example" data-example-name="realct">Real brain with map of Corthical Thickness</a></li>
+
+      </div>
+
       <div id="surface_choice" class="box full_box">
 	<h4>Files</h4>
 	
@@ -82,13 +92,6 @@
 	  <input type="checkbox" class="button" id="flip_range"><label for="flip_range">Flip Colors</label>
 	</div>
       </div>
-      <div id="examples" class="box full_box">
-	<h3>Examples</h3>
-	<ul>
-	  <li><a href="#" class="example" data-example-name="basic">Basic Surface</a></li>
-	  <li><a href="#" span class="example" data-example-name="punkdti">DTI and Mesh Brain</a></li>
-	  <li><a href="#" class="example" data-example-name="realct">Real brain with map of Corthical Thickness</a></li>
-      </div>
       <span id="openImage" class="button">Get Screenshot</span>      
       <a class="button" href="/macacc.html">MACACC Dataset</a>
       <a class="button" href="/about">About</a><br />
@@ -113,6 +116,7 @@
     <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.10.custom.css" rel="Stylesheet" />
     <link type="text/css" href="/css/brainbrowser.css" rel="Stylesheet" />
     <script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/glMatrix.js"></script>
     <script type="text/javascript" src="/js/o3d-webgl/base.js"></script>
     <script type="text/javascript" src="/js/o3djs/base.js"></script> 
     <% if ENV["BRAINBROWSER_ENV"] == "production" %>
@@ -123,6 +127,7 @@
 	  <script type="text/javascript" src="/js/color.js"></script>
 	  <script type="text/javascript" src="/js/spectrum.js"></script> 
 	  <script type="text/javascript" src="/js/mniobj.js"></script> 
+	  <script type="text/javascript" src="/js/waveformObj.js"></script>
 	  <script type="text/javascript" src="/js/object.js"></script> 
 	  <script type="text/javascript" src="/js/brainbrowser.js"></script> 
 	  <script type="text/javascript" src="/js/surfview.js"></script> 

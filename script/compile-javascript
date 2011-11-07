@@ -4,7 +4,7 @@ cd development/public/js
 cat data.js utils.js color.js spectrum.js mniobj.js object.js brainbrowser.js surfview.js > /tmp/surface-combined.js
 yui-compressor /tmp/surface-combined.js -o ../../../production/public/js/surfview-combined.min.js
 rm /tmp/surface-combined.js
-cat utils.js mniobj.js color.js spectrum.js data.js dataset.js object.js brainbrowser.js macacc_collection.js macacc.js > /tmp/macacc-combined.js
+cat utils.js waveformObj.js mniobj.js color.js spectrum.js data.js dataset.js object.js brainbrowser.js macacc_collection.js macacc.js > /tmp/macacc-combined.js
 yui-compressor /tmp/macacc-combined.js -o ../../../production/public/js/macacc-combined.min.js
 rm /tmp/macacc-combined.js
 cat utils.js minc.js color.js spectrum.js loader.js braincanvas.js > /tmp/html5-minc-viewer.js

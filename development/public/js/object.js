@@ -168,9 +168,12 @@ function bbObject(brainbrowser) {
      * two shapes will be created if the  model has two hemispheres
      */
     if(model_data.shapes){
-      for(var i =0; i< model_data.shapes.length; i++){
-	var shape = that.createPolygonShape(myMaterial, model_data.shapes[i]);
-	shape.name = model_data.shapes[i].name;
+      console.log("multi_shape");
+      console.log(model_data);
+      for(var z =0; z< model_data.shapes.length; z++){
+	console.log(model_data.shapes[z]);
+	var shape = that.createPolygonShape(myMaterial, model_data.shapes[z]);
+	shape.name = model_data.shapes[z].name;
 	that.brainTransform.addShape(shape);      
 	shape.createDrawElements(that.pack, null);
 	
@@ -483,6 +486,7 @@ function bbObject(brainbrowser) {
       polygonPrimitive.numberVertices = model.positionArray.length/3;
       var positionArray = new Float32Array(model.positionArray);
       var normalArray = new Float32Array(model.normalArray);
+      console.log(model);
     }
     
     var colorArray=[];

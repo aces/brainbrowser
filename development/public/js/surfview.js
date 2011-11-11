@@ -353,13 +353,13 @@ function SurfView(model_url) {
                            case 'car':
 			     bb.clearScreen();
 			     bb.loadWaveformObjFromUrl('/models/car.obj');
-			     bb.eyeView[2] = 1200.0;
+			     bb.eyeView[2] = 62.0;
 			     
 			     bb.viewInfo.drawContext.view = bb.math.matrix4.lookAt(
 			       bb.eyeView, // eye
 			       [0, 0, 0],   // target
 			       [0, 1, 0]);  // up
-			     bb.brainTransform.localMatrix = [-0.6294293478361535, -0.3144581862622229, 0.7105876055598128, 0, -0.7677129789836492, 0.3930456549792469, -0.5060947490361718, 0, -0.1201477339886419, -0.864078215322321, -0.48880810122458723, 0, 0, 0, 0, 1];
+			     bb.brainTransform.localMatrix = [0.42618776159231875, 0.37186445186747336, -0.8246701287825527, 0, -0.9043269714016714, 0.15135489203623487, -0.3991045294809117, 0, -0.023594928785854036, 0.9158649060281773, 0.4007926561722248, 0, 0, 0, 0, 1];
 			     bb.thatRot = bb.math.matrix4.mul(bb.brainTransform.localMatrix, bb.math.matrix4.identity());
 			    
 			   break;

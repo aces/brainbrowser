@@ -28,7 +28,7 @@ function MNIObject(string) {
 
   var that = this;
 
-  this.parse = function (string) {
+  function parse(string) {
     that.num_hemispheres = 1; //setting it to one here by default,
                               //it will be set to two later if there are two hemispheres
     //replacing all new lines with spaces (obj files can be structure with or without them)
@@ -55,15 +55,7 @@ function MNIObject(string) {
     parseEndIndices();
     parseIndexArray();    
  
-    // alert("objectClass: " + that.objectClass + " indexArray: " 
-    // 	  + that.indexArray.length + " normalArray: "
-
-    // 	  + that.positionArray.length  + " nitems: " 
-    // 	  + that.nitems  + " colorArray: " 
-    // 	  + that.colorArray.length + " endindices: " 
-    // 	  + that.endIndicesArray.length);
-
-    //If there is two hemispheres, might need to be a better test one day
+     //If there is two hemispheres, might need to be a better test one day
     if(that.objectClass == 'P' ) {
       if(that.positionArray.length ==  81924*3){
 	that.brainSurface = true;
@@ -160,72 +152,72 @@ function MNIObject(string) {
    * Making it easier to move the parts around (rotate the hemispheres 90 degrees,...)
    *
    */
-  this.split_hemispheres = function() {
+  that.split_hemispheres = function() {
 
-    this.left = {};
-    this.right = {};
+    that.left = {};
+    that.right = {};
 
-    var num_vertices = this.positionArray.length;
-    this.left.positionArray = this.positionArray.slice(0,num_vertices/2);			this.right.positionArray = this.positionArray.slice(num_vertices/2, num_vertices);
+    var num_vertices = that.positionArray.length;
+    that.left.positionArray = that.positionArray.slice(0,num_vertices/2);			that.right.positionArray = that.positionArray.slice(num_vertices/2, num_vertices);
 
-    var num_indices = this.indexArray.length;
-    this.left.indexArray = this.indexArray.slice(0,num_indices/2);
-    this.right.indexArray = this.indexArray.slice(num_indices/2, num_indices);
+    var num_indices = that.indexArray.length;
+    that.left.indexArray = that.indexArray.slice(0,num_indices/2);
+    that.right.indexArray = that.indexArray.slice(num_indices/2, num_indices);
 
-    for(var i = 0; i < this.right.indexArray.length; i++) {
-      this.right.indexArray[i] = this.right.indexArray[i]- 2 - num_indices/3/2/2;
+    for(var i = 0; i < that.right.indexArray.length; i++) {
+      that.right.indexArray[i] = that.right.indexArray[i]- 2 - num_indices/3/2/2;
     }
-    var num_normals = this.normalArray.length;
-    this.left.normalArray = this.normalArray.slice(0,num_normals/2);
-    this.right.normalArray = this.normalArray.slice(num_normals/2, num_normals);
+    var num_normals = that.normalArray.length;
+    that.left.normalArray = that.normalArray.slice(0,num_normals/2);
+    that.right.normalArray = that.normalArray.slice(num_normals/2, num_normals);
 
 
-    this.left.colorFlag = this.colorFlag;
-    this.right.colorFlag = this.colorFlag;
+    that.left.colorFlag = that.colorFlag;
+    that.right.colorFlag = that.colorFlag;
 
 
-    if(this.colorFlag == 0 || this.colorFlag == 1) {
+    if(that.colorFlag == 0 || that.colorFlag == 1) {
 
-      this.left.colorArray = this.colorArray;
-      this.right.colorArray = this.colorArray;
+      that.left.colorArray = that.colorArray;
+      that.right.colorArray = that.colorArray;
 
     }else {
-      var num_colors = this.colorArray.length;
-      this.left.colorArray = this.colorArray.slice(0,num_colors/2);
-      this.right.colorArray = this.colorArray.slice(num_colors/2+1,-1);
+      var num_colors = that.colorArray.length;
+      that.left.colorArray = that.colorArray.slice(0,num_colors/2);
+      that.right.colorArray = that.colorArray.slice(num_colors/2+1,-1);
     };
 
-    this.left.numberVertices = this.numberVertices/2;
-    this.right.numberVertices = this.numberVertices/2;
+    that.left.numberVertices = that.numberVertices/2;
+    that.right.numberVertices = that.numberVertices/2;
 
-    this.left.numberPolygons = this.numberPolygons/2;
-    this.right.numberPolygons = this.numberPolygons/2;
+    that.left.numberPolygons = that.numberPolygons/2;
+    that.right.numberPolygons = that.numberPolygons/2;
 
-    this.num_hemispheres = 2;
+    that.num_hemispheres = 2;
 
   };
 
 
-  this.getVertexInfo = function(vertex) {
+  that.getVertexInfo = function(vertex) {
     var position_vector = [
-      this.positionArray[vertex*3],
-      this.positionArray[vertex*3+1],
-      this.positionArray[vertex*3+2]
+      that.positionArray[vertex*3],
+      that.positionArray[vertex*3+1],
+      that.positionArray[vertex*3+2]
     ];
     return { vertex: vertex, position_vector: position_vector};
   };
 
-  this.get_vertex = function(index,position,hemisphere) {
+  that.get_vertex = function(index,position,hemisphere) {
 
-    if(this.num_hemispheres > 1 ) {
-      var model = this[hemisphere];
+    if(that.num_hemispheres > 1 ) {
+      var model = that[hemisphere];
       var offset = 0;
       if(hemisphere == "right") {
 	offset = 2 + model.indexArray.length/3/2; //Since the index is offset when splitting the hemispheres, we have to make it right again to find the correct one.
       }
 
     }else {
-      var model = this;
+      var model = that;
       var offset = 0;
     }
 
@@ -264,7 +256,7 @@ function MNIObject(string) {
   };
 
   if(string){
-    this.parse(string);
+    parse(string);
   };
 
 

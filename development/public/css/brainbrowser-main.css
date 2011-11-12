@@ -32,8 +32,12 @@ a img {
 }
 
 
+#icons {
+    display: table-row;
+}
+
 #main {
-    width: 1280px;
+    width: 1024px;
     padding: 0px;
     margin-left: auto;
     margin-right: auto;
@@ -57,32 +61,35 @@ a img {
 }
 
 #content {
-    height: 750px;
+    
     background: white;
     margin:auto;
-    padding-bottom: 20px;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    
+    border-radius: 10px;
+
 }
+
+
 
 
 #footer {
     text-align: center;
-    background: #F4F4F4;
+    background: #D0D0D0;
     padding: 10px;
-}
-
-#menu {
-    heigth: 750px;
+    border-bottom-right-radius:10px;
+    border-bottom-left-radius:10px;
 }
 
 #menu li {
     float: left;
     padding-top: 1em;
-    padding-bottom: 0.5e;m
+    margin-bottom: 0px;
 }
 
+#text-box {
+    padding-left: 10px;
+    padding-right: 10px;
+
+}
 
 bb-tabs bb-tabs-nav li {
     list-style: none;
@@ -95,7 +102,7 @@ bb-tabs bb-tabs-nav li {
     white-space: nowrap;
 }
 
-.icons {
+#icons {
     text-align: center;
 }
 
@@ -120,11 +127,18 @@ bb-tabs bb-tabs-nav li {
     margin-top: 0px;
 }
 
+
 .sidebyside-icon {
+    display: table-cell;
     margin:10px;
-    float: left;
+    padding-left: 10px;
+    padding-right: 10px;
     text-align: center;
 }
 .sidebyside-icon a {
     text-decoration: none;
+}
+
+#video {
+    text-align: center;
 }

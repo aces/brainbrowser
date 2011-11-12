@@ -61,11 +61,10 @@ a img {
 }
 
 #content {
-    
+    min-height: 500px;
     background: white;
     margin:auto;
-    border-radius: 10px;
-
+    padding-bottom: 10px;
 }
 
 

@@ -124,6 +124,11 @@ bb-tabs bb-tabs-nav li {
    border-bottom: 0 !important;
 }
 
+.ui-corner-all {
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
 .notop-margin {
     margin-top: 0px;
 }

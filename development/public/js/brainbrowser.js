@@ -1243,7 +1243,7 @@ function BrainBrowser() {
 		  }
 		  
 
-		  that.updateColors(that.model_data.data,that.rangeMin, that.rangeMax,that.spectrum);
+		  that.updateColors(that.model_data.data,that.model_data.data.rangeMin, that.model_data.data.rangeMax,that.spectrum);
 		});
   };
   

@@ -20,7 +20,7 @@
 	  <li><a href="#" span class="example" data-example-name="punkdti">DTI and Mesh Brain</a></li>
 	  <li><a href="#" class="example" data-example-name="realct">Real brain with map of Cortical Thickness</a></li>
 
-      </div>
+     </div>
 
       <div id="surface_choice" class="box full_box">
 	<h4>Files</h4>
@@ -63,7 +63,19 @@
 	  </div>
 	  <p>
 	    <a class="button" id="resetview">Reset View</a>
-	    <input type="checkbox" class="button" id="autorotate"><label for="autorotate">Autorotate</label>
+	    
+	    <p>
+	    <input type="checkbox" class="button" id="autorotate"><label for="autorotate">Autorotate</label><br />
+	    <span id="autorotate-controls" class="buttonset">
+	      <input type="checkbox"  id="autorotateX"><label for="autorotateX">X</label>
+	      <input type="checkbox"  id="autorotateY"><label for="autorotateY">Y</label>
+	      <input type="checkbox"  id="autorotateZ"><label for="autorotateZ">Z</label>
+	    </span>
+	    <br />
+	    </p>
+
+
+
 	    <input type="checkbox" class="button" id="meshmode"><label for="meshmode">Mesh Mode</label>
 	  </p>
 	  
@@ -145,6 +157,7 @@
       };
       
       jQuery(".button").button();
+      jQuery(".buttonset").buttonset();
       var surfview = new SurfView(function(bb) {
          bb.updateClearColorFromName('black');
          bb.loadObjFromUrl('/models/dlr_bigger.streamlines.obj');

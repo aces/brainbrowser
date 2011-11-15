@@ -315,6 +315,8 @@ function SurfView(model_url) {
 	bb.autoRotate.x = $("#autorotateX").attr("checked");
 	bb.autoRotate.y = $("#autorotateY").attr("checked");
 	bb.autoRotate.z = $("#autorotateZ").attr("checked");
+	
+	
       }else {
 	bb.autoRotate = false;
       }
@@ -322,6 +324,7 @@ function SurfView(model_url) {
     }
     
     jQuery("#autorotate-controls").children().change(changeAutoRotate);
+    jQuery("#autorotate").change(changeAutoRotate);
 
     jQuery(".range-box").keypress(function(e) {
 				    if(e.keyCode == '13'){

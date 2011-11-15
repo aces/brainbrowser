@@ -231,37 +231,52 @@ function SurfView(model_url) {
 								    bb.updateColors(bb.model_data.data,bb.model_data.data.rangeMin,bb.model_data.data.rangeMax,bb.spectrum,bb.flip,bb.clamped,false);
 								    bb.rangeChange(data[0].rangeMin, data[0].rangeMax, bb.clamped);
 								    
-								},
-								  change: function(event,ui) {
-	
-								  var blend_id = $(this).attr("data-blend-index");
-								    data[0].rangeMin = ui.values[0];
-								      data[0].rangeMax = ui.values[1];
-								      bb.model_data.data = data[0];
-								    bb.updateColors(bb.model_data.data,bb.model_data.data.rangeMin,bb.model_data.data.rangeMax,bb.spectrum,bb.flip,bb.clamped,false);
-								    bb.rangeChange(data[0].rangeMin, data[0].rangeMax, bb.clamped);
-
-
-								
-								  }
+								}
+								  
+							
+								 
 								}
 							     );
 					    });
-      jQuery("#data-range-min").change(function(e) {
-					 jQuery(e.target).siblings(".slider").slider('values', 0, parseFloat(jQuery(this).val()));
-					 jQuery(e.target).siblings(".slider").trigger('change');
-				       });
       
-      jQuery("#data-range-max").change(function(e) {
-					 jQuery(e.target).siblings(".slider").slider('values', 1, parseFloat(jQuery(this).val()));
-					 jQuery(e.target).siblings(".slider").trigger('change');
-				       });
+      function dataRangeChange(e) {
+	var min = $("#data-range-min").val();
+	var max = $("#data-range-max").val();
+	jQuery(e.target).siblings(".slider").slider('values', 0, min);
+	jQuery(e.target).siblings(".slider").slider('values', 1, max);
+	bb.rangeChange(min,max,$(e.target).siblings("#clamp_range").attr("checked"));
+	
+      }
+      jQuery("#data-range-min").change(dataRangeChange);
       
+      jQuery("#data-range-max").change(dataRangeChange);
+      
+      jQuery("#fix_range").click(function(event,ui) {
+				   bb.fixRange= jQuery(e.target).attr("checked");
+				 });
+      
+      jQuery("#clamp_range").change(function(e) {
+				      var min = parseFloat($(e.target).siblings("#data-range-min").val());
+				      var max = parseFloat($(e.target).siblings("#data-range-max").val());
+				      
+				      if($(e.target).attr("checked") == true) {
+					bb.rangeChange(min,max,true);
+				      }else {
+					bb.rangeChange(min,max,false);
+				      }
+				    });
+      
+      
+      jQuery("#flip_range").change(function(e) {
+				     bb.flip = $(e.target).attr("checked");
+				     bb.updateColors(bb.model_data.data,bb.model_data.data.rangeMin,bb.model_data.data.rangeMax,brainbrowser.spectrum,bb.flip,bb.clamped);
+				   
+				 });
       
     }
-
+    
     bb.afterLoadData = function(min,max,data,multiple) {
-
+      
       if(multiple) {
 	createDataUI(data);
       }else {
@@ -292,27 +307,6 @@ function SurfView(model_url) {
 	brainbrowser.getImageUrl();
 			       });
 
-    jQuery("#fix_range").click(function(event,ui) {
-      bb.fixRange= jQuery("#fix_range").attr("checked");
-    });
-
-    jQuery("#clamp_range").change(function(e) {
-				    var min = parseFloat(jQuery("#data-range-min").val());
-				    var max = parseFloat(jQuery("#data-range-max").val());
-
-				    if($(e.target).attr("checked") == true) {
-				      bb.rangeChange(min,max,true);
-				    }else {
-				      bb.rangeChange(min,max,false);
-				    }
-				  });
-
-
-    jQuery("#flip_range").change(function(e) {
-				   bb.flip = $(e.target).attr("checked");
-				   bb.updateColors(bb.model_data.data,bb.model_data.data.min,bb.model_data.data.max,brainbrowser.spectrum,bb.flip,bb.clamped);
-				   
-				 });
     
     
     jQuery("#autorotate").change(function(e) {
@@ -338,17 +332,36 @@ function SurfView(model_url) {
 			   case	'basic':
 			     bb.clearScreen();
 			     bb.loadObjFromUrl('/models/surf_reg_model_both.obj');
+			     bb.eyeView[2] = 500.0;
+			     bb.viewInfo.drawContext.view = bb.math.matrix4.lookAt(
+			       bb.eyeView, // eye
+			       [0, 0, 0],   // target
+			       [0, 1, 0]);  // up
+			     bb.setupView();
 			     break;
 			   case 'punkdti':
 			     bb.clearScreen();
 			     bb.loadObjFromUrl('/models/dti.obj');
 			     bb.loadObjFromUrl('/models/left_color.obj');
 			     bb.loadObjFromUrl('/models/right_color.obj');
+			     bb.eyeView[2] = 500.0;
+			     bb.viewInfo.drawContext.view = bb.math.matrix4.lookAt(
+			       bb.eyeView, // eye
+			       [0, 0, 0],   // target
+			       [0, 1, 0]);  // up
+			     bb.setupView();
 			     break;
 			   case 'realct':
 			     bb.clearScreen();
 			     bb.loadObjFromUrl('/models/realct.obj');    
-			     bb.loadDataFromUrl('/models/realct.txt');   
+			     bb.loadDataFromUrl('/models/realct.txt','cortical thickness'); 
+			     bb.eyeView[2] = 500.0;
+			     bb.viewInfo.drawContext.view = bb.math.matrix4.lookAt(
+			       bb.eyeView, // eye
+			       [0, 0, 0],   // target
+			       [0, 1, 0]);  // up
+			     bb.setupView();
+			     
 			     break;
                            case 'car':
 			     bb.clearScreen();

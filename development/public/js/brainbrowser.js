@@ -1232,9 +1232,10 @@ function BrainBrowser() {
     that.updateColors(that.blendData,null,null,that.spectrum,that.flip,that.clamped,true); //last parameter says to blend data.
   };
 
-  this.loadDataFromUrl = function(file_input) {
+  this.loadDataFromUrl = function(file_input,name) {
     loadFromUrl(file_input, true, function(text,file) {
 		  that.model_data.data = new Data(text);
+		  that.model_data.data.fileName = name;
 		  initRange(that.model_data.data.min,that.model_data.data.max);
 		  if(that.afterLoadData != undefined) {
 		    that.afterLoadData(that.model_data.data.rangeMin,

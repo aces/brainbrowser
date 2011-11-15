@@ -145,11 +145,19 @@ function BrainBrowser() {
    */
   this.renderCallback = function(renderEvent) {
     that.setClientSize();
-    if(that.autoRotate == true) {
+    if(that.autoRotate) {
        that.clock = 0;
        that.clock += renderEvent.elapsedTime * that.timeMult;
-       that.brainTransform.rotateY(0.1 * that.clock);
-       that.brainTransform.rotateZ(0.1 * that.clock);
+       if(that.autoRotate.x){
+	 that.brainTransform.rotateX(0.1 * that.clock);
+       }
+      if(that.autoRotate.y){
+	that.brainTransform.rotateY(0.1 * that.clock);
+      }
+      if(that.autoRotate.z){
+	that.brainTransform.rotateZ(0.1 * that.clock);
+      }
+      
     }
   };
 

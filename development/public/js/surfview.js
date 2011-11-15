@@ -308,10 +308,20 @@ function SurfView(model_url) {
 			       });
 
     
+    function changeAutoRotate(e) {
+
+      if($("#autorotate").attr("checked")){
+	bb.autoRotate = {};
+	bb.autoRotate.x = $("#autorotateX").attr("checked");
+	bb.autoRotate.y = $("#autorotateY").attr("checked");
+	bb.autoRotate.z = $("#autorotateZ").attr("checked");
+      }else {
+	bb.autoRotate = false;
+      }
+      
+    }
     
-    jQuery("#autorotate").change(function(e) {
-				   bb.autoRotate = $(e.target).attr("checked");
-				 });
+    jQuery("#autorotate-controls").children().change(changeAutoRotate);
 
     jQuery(".range-box").keypress(function(e) {
 				    if(e.keyCode == '13'){

@@ -52,7 +52,15 @@
 	  </div>
 	  <p>
 	    <a class="button" id="resetview">Reset View</a>
-	    <input type="checkbox" class="button" id="autorotate"><label for="autorotate">Autorotate</label>
+	    <p>
+	    <input type="checkbox" class="button" id="autorotate"><label for="autorotate">Autorotate</label><br />
+	    <span id="autorotate-controls" class="buttonset">
+	      <input type="checkbox"  id="autorotateX"><label for="autorotateX">X</label>
+	      <input type="checkbox"  id="autorotateY"><label for="autorotateY">Y</label>
+	      <input type="checkbox"  id="autorotateZ"><label for="autorotateZ">Z</label>
+	    </span>
+	    <br />
+	    </p>
 	    <input type="checkbox" class="button" id="meshmode"><label for="meshmode">Mesh Mode</label>
 	  </p>
 	  
@@ -141,6 +149,7 @@
       };
       
       jQuery(".button").button();
+      $(".buttonset").buttonset();
       var surfview = new SurfView('/models/surf_reg_model_both.obj');
       
       jQuery("#objfile").change(function() {

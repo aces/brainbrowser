@@ -241,7 +241,7 @@ function BrainBrowser() {
    * @param {String} filename filename of the original object file   
    */
   this.displayObjectFile = function(obj,filename) {
-    if(obj.objectClass == 'P' && obj.numberVertices <= 81924) {
+    if(obj.objectClass == 'P' && obj.numberVertices == 81924) {
 
       that.createBrain(obj,filename);
     }else if(obj.objectClass == 'P') {

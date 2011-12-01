@@ -117,16 +117,16 @@ function BrainBrowser() {
      that.loadSpectrumFromUrl('/assets/spectral_spectrum.txt');
 
 
-
+    jQuery('#screenshot').click(function(event) {jQuery(this).attr("href",bb.client.toDataURL());});
 
      //This allows a programmer to define a function that runs after initialization
      if(that.afterInit) {
        that.afterInit(that);
-
      }
+    window.onresize();      
      that.updateInfo();
 
-     jQuery('#screenshot').click(function(event) {jQuery(this).attr("href",bb.client.toDataURL());});
+
   };
 
 
@@ -1412,7 +1412,14 @@ function BrainBrowser() {
       
   };
 
-
+  window.onresize = function() {
+    that.client.height = window.innerHeight;
+    that.viewInfo.drawContext.projection = that.math.matrix4.perspective(
+      that.math.degToRad(30), // 30 degree fov.
+      that.client.width / that.client.height,
+      1,                  // Near plane.
+      5000);              // Far plane.
+  };
     
   that.init();
 

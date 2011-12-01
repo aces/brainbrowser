@@ -13,17 +13,21 @@ h4 {
 }
 
 #controls {
-    width: 29%;
+    width: 420px;
     max-width: 400px;
     height: 100%;
     float:left;
 }
 
 #view-window {
-    float: left;
-    width: 70%;
+    float: right;
     height: 100%;
-    margin-left: 1%;
+    margin: 1px;
+    position: absolute;
+    left: 420px;
+    top: 0px
+    bottom: 0px;
+    right: 0px;
 }
 #o3d {
     z-index: 200;

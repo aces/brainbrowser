@@ -505,9 +505,6 @@ function BrainBrowser() {
     }
   };
   
-  window.onresize = function(e) {
-    that.client.height = $(window).height();
-  };
 
   /**
    * Creates the client area.

@@ -472,7 +472,8 @@ function bbObject(brainbrowser) {
       //polygonPrimitive.indexBuffer = indexBuffer;
       var positionArray = new Float32Array(indexArray.length*3);
       var normalArray = new Float32Array(indexArray.length*3);
-      for(var j = 0; j < indexArray.length; j++) {
+      var indexArrayLength = indexArray.length;
+      for(var j = 0; j < indexArrayLength ; j++) {
 	positionArray[j*3] = model.positionArray[indexArray[j]*3];
 	positionArray[j*3+1] = model.positionArray[indexArray[j]*3+1];
 	positionArray[j*3+2] = model.positionArray[indexArray[j]*3+2];

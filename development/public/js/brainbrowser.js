@@ -620,15 +620,15 @@ function BrainBrowser() {
 
       select(pickInfo);
       var primitive_index = pickInfo.rayIntersectionInfo.primitiveIndex;
-      var position = pickInfo.rayIntersectionInfo.position;
+      var position        = pickInfo.rayIntersectionInfo.position;
       var hemisphere      = pickInfo.element.owner.name;
-      var vertex_info = that.model_data.get_vertex(primitive_index,position,hemisphere);
+      var vertex_info     = that.model_data.get_vertex(primitive_index,position,hemisphere);
       var info = {
-	ray_position: position,
+	ray_position:    position,
 	position_vector: vertex_info.position_vector,
-	element: pickInfo.element,
-	hemisphere: hemisphere,
-	vertex: vertex_info.vertex
+	element:         pickInfo.element,
+	hemisphere:      hemisphere,
+	vertex:          vertex_info.vertex
       };
 	return click_callback(e,info);
     } else {
@@ -1271,24 +1271,12 @@ function BrainBrowser() {
     if(blend) {
       var color_array = colorManager.blendColorMap(spectrum,data,0,1);
     }else {
-      var color_array = data.createColorArray(min,max,spectrum,flip,clamped,that.model_data.colorArray);      
+      var color_array = data.createColorArray(min,max,spectrum,flip,clamped,that.model_data.colorArray,that.model_data);      
     }
 
 
-    if(that.model_data.num_hemispheres == 1) {
-      var color_buffer = that.pack.createObject('VertexBuffer');
-      var color_field = color_buffer.createField('FloatField', 4);
-      color_buffer.set(color_array);
-      var brain_shape = that.brainTransform.shapes[0];
-      var stream_bank = brain_shape.elements[0].streamBank;
-      stream_bank.setVertexStream(
-	that.o3d.Stream.COLOR, //  This stream stores vertex positions
-	0,                     // First (and only) position stream
-	color_field,        // field: the field this stream uses.
-	0);                    // start_index:
+    if(that.model_data.num_hemispheres == 2) {
 
-
-    } else {
       var left_color_array = color_array.slice(0, color_array.length/2);
       var right_color_array = color_array.slice(color_array.length/2, color_array.length);
 
@@ -1315,11 +1303,31 @@ function BrainBrowser() {
 	0,                     // First (and only) position stream
 	right_color_field,        // field: the field this stream uses.
 	0);                    // start_index:
-	that.client.render();
+
+      that.client.render();
+
+
+
+    } else {
+      
+      var color_buffer = that.pack.createObject('VertexBuffer');
+      var color_field = color_buffer.createField('FloatField', 4);
+      color_buffer.set(color_array.nonIndexedColorArray);
+      var brain_shape = that.brainTransform.shapes[0];
+      console.log(brain_shape);
+      var stream_bank = brain_shape.elements[0].streamBank;
+      stream_bank.setVertexStream(
+	that.o3d.Stream.COLOR, //  This stream stores vertex positions
+	0,                     // First (and only) position stream
+	color_field,        // field: the field this stream uses.
+	0);                    // start_index:
+      that.client.render();
     };
+
     if(that.afterUpdateColors !=null ) {
       that.afterUpdateColors(data,min,max,spectrum);
     }
+
 
     return 1;
   };

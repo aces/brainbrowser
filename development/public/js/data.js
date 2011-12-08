@@ -34,7 +34,7 @@ function Data(data) {
 
   };
 
-  this.createColorArray = function(min,max,spectrum,flip,clamped,original_colors) {
+  this.createColorArray = function(min,max,spectrum,flip,clamped,original_colors,model) {
     var spectrum = spectrum.colors;
     var colorArray = new Array();
     //calculate a slice of the data per color
@@ -68,12 +68,26 @@ function Data(data) {
 	  }
 	}else {
 	  colorArray.push.apply(colorArray,spectrum[color_index]);
-	}
+	}	
 	
       }
 
 
+
     }
+
+    if(model.num_hemisphere != 2) {
+      var newColorArray = [];
+      var indexArrayLength = model.indexArray.length;
+      for(var j=0; j< indexArrayLength; j++ ) {
+	newColorArray[j*4]     = colorArray[model.indexArray[j]*4];
+	newColorArray[j*4 + 1] = colorArray[model.indexArray[j]*4 + 1];
+	newColorArray[j*4 + 2] = colorArray[model.indexArray[j]*4 + 2];
+	newColorArray[j*4 + 3] = colorArray[model.indexArray[j]*4 + 3];
+      }
+      colorArray.nonIndexedColorArray = newColorArray;
+    }
+    
     return colorArray;
 
 

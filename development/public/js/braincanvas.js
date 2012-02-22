@@ -15,12 +15,19 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-function BrainCanvas(xcanvas,ycanvas,zcanvas) {
+function BrainCanvas(opt) {
+  if(!opt) {
+    opt = {};
+  }
   var that  = this;
-  var colorManager = new ColorManager();
-  var xcontext = xcanvas.getContext("2d");
-  var ycontext = ycanvas.getContext("2d");
-  var zcontext = zcanvas.getContext("2d");
+  var colorManager = new ColorManager()
+  , xcanvas = opt.xcanvas || document.createElement('canvas')
+  , ycanvas = opt.ycanvas || document.createElement('canvas')
+  , zcanvas = opt.zcanvas || document.createElement('canvas')
+  , xcontext = xcanvas.getContext("2d")
+  , ycontext = ycanvas.getContext("2d")
+  , zcontext = zcanvas.getContext("2d");
+
   xcanvas.zoom = 1;
   ycanvas.zoom = 1;
   zcanvas.zoom = 1;
@@ -532,9 +539,12 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
 				    *  
 				    */ 
 				   //Initializes the canvas to the right height width, and clears them
-				   that.initCanvas(xcanvas,512,512);
-				   that.initCanvas(ycanvas,512,512);
-				   that.initCanvas(zcanvas,512,512);
+				   var height = opt.canvasHeight || 256
+				   ,   width  = opt.canvasWidth  || 256;
+				  
+				   that.initCanvas(xcanvas, width, height);
+				   that.initCanvas(ycanvas, width, height);
+				   that.initCanvas(zcanvas, width, height);
 				   
 				   //Builds and displays the UI elements for each 
 				   that.showCoordinates();

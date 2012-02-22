@@ -46,7 +46,10 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
   that.contrast = 1;
 
   //the different color specturms. 
-  var spectrums = {spectral: loader.loadSpectrumFromUrl("/spectrum/spectral-brainview.txt"),grayscale:  loader.loadSpectrumFromUrl("/spectrum/gray_scale256.txt")};
+  var spectrums = {
+    spectral: loader.loadSpectrumFromUrl("/spectrum/spectral-brainview.txt")
+    , grayscale:  loader.loadSpectrumFromUrl("/spectrum/gray_scale256.txt")
+  };
   var spectrum = spectrums['spectral']; //default spectrum
   
   that.spectrums = spectrums;
@@ -61,15 +64,68 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
   };
  
   
-  this.update_space = function(axis,slice_image_data, number, minc,time,zoom) {
-    var slice = minc.getScaledSlice(axis,number,time,zoom);
+  this.update_space = function(axis,canvas,context, number, minc,time) {
+    that.slices[axis] = number;
+    that.slices[axis].space_height = Math.ceil(Math.abs(minc[axis].height_space.step)
+					  * minc[axis].height_space.space_length
+					  * canvas.zoom);
 
+    var width = Math.ceil(Math.abs(minc[axis].length_space.step)
+					      * minc[axis].length_space.space_length
+					      * canvas.zoom);
+    var height = Math.ceil(Math.abs(minc[axis].height_space.step)
+					       * minc[axis].height_space.space_length
+					       * canvas.zoom);
+    canvas.current_image = {width: width,
+                             height: height};
+    
+    console.log("current_image.height" + canvas.current_image.height + " axis: " + axis);
+    console.log("current_image.width" + canvas.current_image.width + " axis: " + axis);
+
+
+    //Checks if the slices are need to be rotated
+    //xspace should have yspace on the x axis and zspace on the y axis
+    if(axis == "xspace" && minc.xspace.height_space.name=="yspace"){
+      canvas.current_image.width = height;
+      canvas.current_image.height = width;
+    };
+
+    //yspace should be XxZ
+    if(axis == "yspace" && minc.yspace.height_space.name=="xspace"){
+      canvas.current_image.width = height;
+      canvas.current_image.height = width;
+    }
+    //zspace should be XxY 
+    if(axis == "zspace" && minc.zspace.height_space.name=="xspace"){
+      canvas.current_image.width = height;
+      canvas.current_image.height = widht;
+    }
+
+
+    var slice_image_data = context.createImageData(
+      canvas.current_image.width,
+      canvas.current_image.height);
+
+
+
+
+    var slice = minc.getScaledSlice(axis,number,time,canvas.zoom);
+    
     //get the area of canvas to insert image into
     //Make sure that area uses the step of the axises
         
-    slice_image_data.data = colorManager.createColorMap(spectrum,slice_image_data.data,slice,minc.min,minc.max,true,that.brightness,that.contrast);
+    slice_image_data.data = colorManager.createColorMap(spectrum
+							, slice_image_data.data
+							, slice,minc.min,minc.max
+							, true
+							, that.brightness
+							, that.contrast
+						       );
 
-    return slice_image_data;
+    context.putImageData(slice_image_data
+			 , canvas.translate_vector.x
+			 , canvas.translate_vector.y);  
+
   };
 
   function drawCrosshair(context,x,y) {
@@ -78,53 +134,16 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
   };
 
   this.updateXSpace = function(number,minc,time) {
-    that.slices.xspace = number;
-    that.slices.xspace_height = Math.ceil(Math.abs(minc.zspace.step)*minc.zspace.space_length*xcanvas.zoom);
-    xcanvas.current_image = {width: Math.ceil(Math.abs(minc.yspace.step)*minc.yspace.space_length*xcanvas.zoom),
-                             height: Math.ceil(Math.abs(minc.yspace.step)*minc.yspace.space_length*xcanvas.zoom)};
-    
-    var slice_image_data = xcontext.createImageData(
-      xcanvas.current_image.width,
-      xcanvas.current_image.height);
-
-    var xslice_image_data = that.update_space("xspace",slice_image_data, number,minc,time,xcanvas.zoom);
-    xcontext.putImageData(xslice_image_data,xcanvas.translate_vector.x,xcanvas.translate_vector.y);  
+    that.update_space("xspace",xcanvas,xcontext, number,minc,time);
   };
 
   this.updateYSpace = function(number,minc,time) {
-    that.slices.yspace = number;
-    that.slices.yspace_height = Math.ceil(Math.abs(minc.zspace.step)*minc.zspace.space_length*ycanvas.zoom);
-    ycanvas.current_image = {
-      width : Math.ceil(Math.abs(minc.xspace.step)*minc.xspace.space_length*ycanvas.zoom),
-      height: Math.ceil(Math.abs(minc.zspace.step)*minc.zspace.space_length*ycanvas.zoom)
-    };
-
-    var slice_image_data = ycontext.createImageData(
-      ycanvas.current_image.width,
-      ycanvas.current_image.height);
-
-    var yslice_image_data = that.update_space("yspace",slice_image_data, number,minc,time,ycanvas.zoom);
-
-    ycontext.putImageData(yslice_image_data,ycanvas.translate_vector.x,ycanvas.translate_vector.y);   
-    
+    that.update_space("yspace",ycanvas, ycontext,number,minc,time);
   };
   
   this.updateZSpace = function(number,minc,time) {
-    that.slices.zspace = number;
-    that.slices.yspace_height = Math.ceil(Math.abs(minc.yspace.step)*minc.yspace.space_length*zcanvas.zoom);
-    zcanvas.current_image = {
-      width: Math.ceil(Math.abs(minc.xspace.step)*minc.xspace.space_length*zcanvas.zoom),      
-      height: Math.ceil(Math.abs(minc.yspace.step)*minc.yspace.space_length*zcanvas.zoom)
-    };
 
-      
-
-    var slice_image_data = zcontext.createImageData(
-      zcanvas.current_image.width,      
-      zcanvas.current_image.height);
-    var zslice_image_data = that.update_space("zspace",slice_image_data, number,minc,time,zcanvas.zoom);
-    zcontext.putImageData(zslice_image_data,zcanvas.translate_vector.x,zcanvas.translate_vector.y);
-
+   that.update_space("zspace", zcanvas, zcontext, number, minc, time);
   };
 
   this.showCrosshairs= function(){
@@ -151,23 +170,28 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
       var zheight = (that.current_minc.zspace.space_length - that.slices.zspace)*Math.abs(that.current_minc.zspace.step);
       var zwidth = zheight;
     }else {
-      var zheight = that.slices.zspace*Math.abs(that.current_minc.yspace.step);
+      var zheight = that.slices.zspace*Math.abs(that.current_minc.zspace.step);
       var zwidth = zheight;
     }
-
 
 
     drawCrosshair(xcontext,
 		  ywidth*xcanvas.zoom+xcanvas.translate_vector.x,
 		  zheight*xcanvas.zoom+xcanvas.translate_vector.y);
-
+       
     drawCrosshair(ycontext,
 		  xwidth*ycanvas.zoom+ycanvas.translate_vector.x,
 		  zheight*ycanvas.zoom+ycanvas.translate_vector.y);
-
+    
+    
     drawCrosshair(zcontext,
 		  xwidth*zcanvas.zoom+zcanvas.translate_vector.x,
 		  yheight*zcanvas.zoom+zcanvas.translate_vector.y);
+    
+    
+
+
+
   };
 
 
@@ -330,7 +354,9 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
     }else if(position.target.id == ycanvas.id ) {
       var slices = {
 	y: that.slices.yspace,
-	x: parseInt((position.x-ycanvas.translate_vector.x)/(Math.abs(that.current_minc.xspace.step)*ycanvas.zoom)),
+	x: parseInt((position.x-ycanvas.translate_vector.x)
+		    / (Math.abs(that.current_minc.xspace.step)
+		       * ycanvas.zoom)),
 	  //we have to adjust the y coordinate by the amount of difference between 
 	  //the canvas height and the image height since the image
 	  // is a little higher then the bottom of the canvas and y is counted up from the bottom
@@ -510,9 +536,9 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
 				    *  
 				    */ 
 				   //Initializes the canvas to the right height width, and clears them
-				   that.initCanvas(xcanvas,300,300);
-				   that.initCanvas(ycanvas,300,300);
-				   that.initCanvas(zcanvas,300,300);
+				   that.initCanvas(xcanvas,512,512);
+				   that.initCanvas(ycanvas,512,512);
+				   that.initCanvas(zcanvas,512,512);
 				   
 				   //Builds and displays the UI elements for each 
 				   that.showCoordinates();

@@ -117,6 +117,7 @@ end
 #Extracts the content of a minc file
 get '/data/:filename' do
   if params[:minc_headers]
+    
 
     if params[:filename] == @filename
       return @minc.headers

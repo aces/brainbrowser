@@ -54,36 +54,54 @@ function Minc(filename,extraArgs,callback) {
 	       that.xspace.name = "xspace";
 	       that.yspace.name = "yspace";
 	       that.zspace.name = "zspace";
+	       
+	       that.xspace.space_length = parseFloat(that.xspace.space_length);
+	       that.yspace.space_length = parseFloat(that.yspace.space_length);
+	       that.zspace.space_length = parseFloat(that.zspace.space_length);
 
+	       that.xspace.start = parseFloat(that.xspace.start);
+	       that.yspace.start = parseFloat(that.yspace.start);
+	       that.zspace.start = parseFloat(that.zspace.start);
+
+	       that.xspace.step = parseFloat(that.xspace.step);
+	       that.yspace.step = parseFloat(that.yspace.step);
+	       that.zspace.step = parseFloat(that.zspace.step);
+
+
+	       if(that.order.length == 4) {
+		 that.time.space_length = parseFloat(that.time.space_length);
+		 that.time.start = parseFloat(that.time.start);	       
+		 that.time.step = parseFloat(that.time.step);
+	       }
 
 	       //figure out height and length of each slices in each direction
 	       //width and length are the same, I'm doing this until I replace
 	       //all references to length in code. Bad naming duh! :( 
-	       that[that.order[0]].height=that[that.order[1]].space_length;
-	       that[that.order[0]].height_space=that[that.order[1]];
-	       that[that.order[0]].length=that[that.order[2]].space_length;
-	       that[that.order[0]].length_space = that[that.order[2]];
-	       that[that.order[0]].width=that[that.order[2]].space_length;
-	       that[that.order[0]].width_space = that[that.order[2]];
+	       that[that.order[0]].height        = parseFloat(that[that.order[1]].space_length);
+	       that[that.order[0]].height_space  = that[that.order[1]];
+	       that[that.order[0]].length        = parseFloat(that[that.order[2]].space_length);
+	       that[that.order[0]].length_space  = that[that.order[2]];
+	       that[that.order[0]].width         = parseFloat(that[that.order[2]].space_length);
+	       that[that.order[0]].width_space   = that[that.order[2]];
 
-	       that[that.order[1]].height=that[that.order[2]].space_length;
+	       that[that.order[1]].height=parseFloat(that[that.order[2]].space_length);
 	       that[that.order[1]].height_space=that[that.order[2]];
-	       that[that.order[1]].length=that[that.order[0]].space_length;
+	       that[that.order[1]].length=parseFloat(that[that.order[0]].space_length);
 	       that[that.order[1]].length_space = that[that.order[0]];
-	       that[that.order[1]].width=that[that.order[0]].space_length;
+	       that[that.order[1]].width=parseFloat(that[that.order[0]].space_length);
 	       that[that.order[1]].width_space = that[that.order[0]];
 
-	       that[that.order[2]].height=that[that.order[1]].space_length;
+	       that[that.order[2]].height=parseFloat(that[that.order[1]].space_length);
 	       that[that.order[2]].height_space=that[that.order[1]];
-	       that[that.order[2]].length=that[that.order[0]].space_length;
+	       that[that.order[2]].length=parseFloat(that[that.order[0]].space_length);
 	       that[that.order[2]].length_space = that[that.order[0]];
-	       that[that.order[2]].width=that[that.order[0]].space_length;
+	       that[that.order[2]].width=parseFloat(that[that.order[0]].space_length);
 	       that[that.order[2]].width_space = that[that.order[0]];
 
 	       //calculate the offsets for each element of a slice
-	       that[that.order[0]].offset=that[that.order[1]].space_length*that[that.order[2]].space_length;
-	       that[that.order[1]].offset=that[that.order[0]].space_length;
-	       that[that.order[2]].offset=that[that.order[0]].space_length;
+	       that[that.order[0]].offset=parseFloat(that[that.order[1]].space_length)*parseFloat(that[that.order[2]].space_length);
+	       that[that.order[1]].offset=parseFloat(that[that.order[0]].space_length);
+	       that[that.order[2]].offset=parseFloat(that[that.order[0]].space_length);
 	       that[that.order[0]].slice_length = that[that.order[0]].height*that[that.order[0]].length;
 	       
 
@@ -109,6 +127,13 @@ function Minc(filename,extraArgs,callback) {
   this.load_data = function (filename,callback,extraArgs){  
     var request = new XMLHttpRequest();
     
+    if(filename.match(/\?/)) {
+      filename = filename+'&raw_data=true';
+    }else {
+      filename = filename+'?raw_data=true';
+    }
+
+
     request.open('GET', filename+'?raw_data=true',true);
     request.responseType = 'arraybuffer';
     request.onreadystatechange = function() {
@@ -165,7 +190,7 @@ function Minc(filename,extraArgs,callback) {
       if(!time) {
 	time = 0;
       }
-      var time_offset = time*that[that.order[0]].height*that[that.order[0]].length*that[that.order[0]].space_length;
+      var time_offset = time*that[that.order[0]].height*that[that.order[0]].length*parseFloat(that[that.order[0]].space_length);
     }else {
       var time_offset = 0;
     }
@@ -196,7 +221,6 @@ function Minc(filename,extraArgs,callback) {
 	      slice[(height-i)*row_length+j]=this.data[time_offset+slice_offset*number+i*row_length + j];
 	    }	    
 	  }
-	  
 	}
 
 	
@@ -295,7 +319,7 @@ function Minc(filename,extraArgs,callback) {
     var height     = that[axis].height;
     var new_width  = Math.ceil(Math.abs(that[axis].length_space.step)*width*zoom);
     var new_height = Math.ceil(Math.abs(that[axis].height_space.step)*height*zoom);
-   
+    console.log('new_height: ' + new_height + " " + axis);
     var slice = this.nearestNeighboor(original_slice,width,height,new_width,new_height);
 
    

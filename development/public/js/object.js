@@ -113,9 +113,9 @@ function bbObject(brainbrowser) {
    * Object that are composed of lines
    * 
    */
-  that.createLineObject = function(model_data,filename) {
+  that.createLineObject = function(model_data,filename,mesh) {
     that.model_data= model_data;
-
+    
     var myMaterial = that.createMaterial("/shaders/line.txt");
 
     
@@ -127,7 +127,11 @@ function bbObject(brainbrowser) {
      * Create the Shape for the  mesh and assign its material.
      * two shapes will be created if the  model has two hemispheres
      */
-    var shape = that.createLineShape(myMaterial, model_data);
+    if(mesh) {
+      console.log("mesh");      
+    }
+
+    var shape = that.createLineShape(myMaterial,model_data,filename,mesh);
     shape.name = filename;
 
     if(that.brainTransform == undefined ){
@@ -298,7 +302,7 @@ function bbObject(brainbrowser) {
   /*
    * Creates the hemisphere shape with the material provide.
    */
-  that.createLineShape = function(material,model,name) {
+  that.createLineShape = function(material,model,name,mesh) {
 
     var lineShape = that.pack.createObject('Shape');
     var streamBank = that.pack.createObject('StreamBank');
@@ -332,54 +336,59 @@ function bbObject(brainbrowser) {
     //positionsBuffer.set(newPositionArray);
     //create Position buffer (vertices) and set the number of vertices global variable
     
-    
-    
+
     var indexArray  = new Array();
-     for(var i = 0; i < model.nitems; i ++){
-       if(i == 0){
+    for(var i = 0; i < model.nitems; i ++){
+      if(i == 0){
      	var start = 0;
-       }else {
-	 var start = model.endIndicesArray[i-1];
-       }
-       indexArray.push(model.indexArray[start]);
-       for(var k = start+1; k < model.endIndicesArray[i]-1; k++) {
-     	indexArray.push(model.indexArray[k]);
-     	indexArray.push(model.indexArray[k]);
-       }
-       indexArray.push(model.indexArray[model.endIndicesArray[i]-1]);
-    
-     }
-    var indexBuffer = that.pack.createObject('IndexBuffer');
-    linePrimitive.numberPrimitives = indexArray.length/2;
-    linePrimitive.numberVertices = indexArray.length;
-    that.indexArray = indexArray;
-    //indexBuffer.set(indexArray);
-    //linePrimitive.indexBuffer = indexBuffer;
-    var positionArray = new Float32Array(indexArray.length*3);
-    for(var j = 0; j < indexArray.length; j++) {
-      positionArray[j*3] = model.positionArray[indexArray[j]*3];
-      positionArray[j*3+1] = model.positionArray[indexArray[j]*3+1];
-      positionArray[j*3+2] = model.positionArray[indexArray[j]*3+2];
-    }
-
-    var colorArray=[];
-    if(model.colorArray.length == 4) {
-      for(var i=0;i<numberVertices;i++) {
-	colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
+      }else {
+	var start = model.endIndicesArray[i-1];
       }
-    }else {
-      colorArray = new Float32Array(indexArray.length*4);
+      indexArray.push(model.indexArray[start]);
+      for(var k = start+1; k < model.endIndicesArray[i]-1; k++) {
+     	indexArray.push(model.indexArray[k]);
+     	indexArray.push(model.indexArray[k]);
+      }
+      indexArray.push(model.indexArray[model.endIndicesArray[i]-1]);
+      
+    }    
+    
+    if(!mesh) {   
+
+      var indexBuffer = that.pack.createObject('IndexBuffer');
+      linePrimitive.numberPrimitives = indexArray.length/2;
+      linePrimitive.numberVertices = indexArray.length;
+      that.indexArray = indexArray;
+      //indexBuffer.set(indexArray);
+      //linePrimitive.indexBuffer = indexBuffer;
+      var positionArray = new Float32Array(indexArray.length*3);
       for(var j = 0; j < indexArray.length; j++) {
-	colorArray[j*4] = model.colorArray[indexArray[j]*4];
-	colorArray[j*4+1] = model.colorArray[indexArray[j]*4+1];
-	colorArray[j*4+2] = model.colorArray[indexArray[j]*4+2];
-	colorArray[j*4+3] = model.colorArray[indexArray[j]*4+3];
+	positionArray[j*3] = model.positionArray[indexArray[j]*3];
+	positionArray[j*3+1] = model.positionArray[indexArray[j]*3+1];
+	positionArray[j*3+2] = model.positionArray[indexArray[j]*3+2];
       }
+      var colorArray=[];
+      if(model.colorArray.length == 4) {
+	for(var i=0;i<numberVertices;i++) {
+	  colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
+	}
+      }else {
+	colorArray = new Float32Array(indexArray.length*4);
+	for(var j = 0; j < indexArray.length; j++) {
+	  colorArray[j*4] = model.colorArray[indexArray[j]*4];
+	  colorArray[j*4+1] = model.colorArray[indexArray[j]*4+1];
+	  colorArray[j*4+2] = model.colorArray[indexArray[j]*4+2];
+	  colorArray[j*4+3] = model.colorArray[indexArray[j]*4+3];
+	}
+      }
+      
+    }else {
+      console.log('mesh shape');
+      linePrimitive.numberVertices = model.meshPostionArray.length/3;
+      linePrimitive.numberPrimitives = linePrimitive.numberVertices/2;
+      var positionArray =model.meshPositionArray;
+      var colorArray    =model.meshColorArray;
     }
-
-    
-
-
 
     var positionsBuffer = that.pack.createObject('VertexBuffer');
     var positionsField = positionsBuffer.createField('FloatField', 3);
@@ -396,13 +405,13 @@ function bbObject(brainbrowser) {
       0);                    // start_index:
     
     
-    if(colorArray.length < model.positionArray.length) {
+    if(colorArray.length/4 < positionArray.length/3) {
       alert('Problem with the colors: ' + colorArray.length);
     }
     var colorBuffer = that.pack.createObject('VertexBuffer');
     var colorField = colorBuffer.createField('FloatField', 4);
-      colorBuffer.set(colorArray);
-    colorArray = [];
+    colorBuffer.set(colorArray);
+    
     
     
     
@@ -462,7 +471,6 @@ function bbObject(brainbrowser) {
     
     if(model.nonindexed == undefined) {
       
-
       var indexArray  = model.indexArray;
       //var indexBuffer = that.pack.createObject('IndexBuffer');
       polygonPrimitive.numberPrimitives = indexArray.length/3;
@@ -471,17 +479,49 @@ function bbObject(brainbrowser) {
       //indexBuffer.set(indexArray);
       //polygonPrimitive.indexBuffer = indexBuffer;
       var positionArray = new Float32Array(indexArray.length*3);
+      var meshPositionArray = new Array(indexArray.length*3);
+      var meshColorArray = new Array(indexArray.length*4);
       var normalArray = new Float32Array(indexArray.length*3);
       var indexArrayLength = indexArray.length;
       for(var j = 0; j < indexArrayLength ; j++) {
 	positionArray[j*3] = model.positionArray[indexArray[j]*3];
 	positionArray[j*3+1] = model.positionArray[indexArray[j]*3+1];
 	positionArray[j*3+2] = model.positionArray[indexArray[j]*3+2];
+	
 	normalArray[j*3] = model.normalArray[indexArray[j]*3];
 	normalArray[j*3+1] = model.normalArray[indexArray[j]*3+1];
 	normalArray[j*3+2] = model.normalArray[indexArray[j]*3+2];
 	
       }
+      //for mesh mode;
+      for(var k = 0; k < indexArrayLength; k+=3) {
+
+	var vert = [];
+	vert[0] = [model.positionArray[indexArray[k]*3],
+		   model.positionArray[indexArray[k]*3+1],
+		   model.positionArray[indexArray[k]*3+2]];
+	
+
+	vert[1] = [model.positionArray[indexArray[k+1]*3],
+		    model.positionArray[indexArray[k+1]*3+1],
+		    model.positionArray[indexArray[k+1]*3+2]];
+	
+	vert[2] = [model.positionArray[indexArray[k+2]*3],
+		   model.positionArray[indexArray[k+2]*3+1],
+		   model.positionArray[indexArray[k+2]*3+2]];
+	
+	meshPositionArray.push.apply(meshPositionArray, vert[0]);
+	meshPositionArray.push.apply(meshPositionArray, vert[1]);
+
+	meshPositionArray.push.apply(meshPositionArray, vert[1]);
+	meshPositionArray.push.apply(meshPositionArray, vert[2]);
+
+	meshPositionArray.push.apply(meshPositionArray, vert[2]);
+	meshPositionArray.push.apply(meshPositionArray, vert[0]);
+		     
+      };
+      
+      polygonShape.meshPositionArray = meshPositionArray;
     }else {
       polygonPrimitive.numberPrimitives = model.positionArray.length/3/3;
       polygonPrimitive.numberVertices = model.positionArray.length/3;
@@ -499,16 +539,48 @@ function bbObject(brainbrowser) {
       }
     }else {
       colorArray = new Float32Array(indexArray.length*4);
-      for(var j = 0; j < indexArray.length; j++) {
-	colorArray[j*4] = model.colorArray[indexArray[j]*4];
+      var indexArrayLength = indexArray.length;
+      for(var j = 0; j < indexArrayLength ; j++) {
+	colorArray[j*4] = 
 	colorArray[j*4+1] = model.colorArray[indexArray[j]*4+1];
 	colorArray[j*4+2] = model.colorArray[indexArray[j]*4+2];
 	colorArray[j*4+3] = model.colorArray[indexArray[j]*4+3];
       }
+      for(var l=0; l < indexArrayLenght; l+=3 ) {
+	var color = [];
+	color[0] = [model.colorArray[indexArray[j]*4],
+		    model.colorArray[indexArray[j]*4 +1],
+		    model.colorArray[indexArray[j]*4 +2],
+		    model.colorArray[indexArray[j]*4 +3]
+		   ];
+
+	color[1] = [model.colorArray[indexArray[j+1]*4],
+		    model.colorArray[indexArray[j+1]*4 +1],
+		    model.colorArray[indexArray[j+1]*4 +2],
+		    model.colorArray[indexArray[j+1]*4 +3]
+		   ];
+
+	color[2] = [model.colorArray[indexArray[j+2]*4],
+		    model.colorArray[indexArray[j+2]*4 +1],
+		    model.colorArray[indexArray[j+2]*4 +2],
+		    model.colorArray[indexArray[j+2]*4 +3]
+		   ];
+	
+	meshColorArray.push.apply(meshColorArray, color[0]);
+	meshColorArray.push.apply(meshColorArray, color[1]);
+
+	meshColorArray.push.apply(meshColorArray, color[1]);
+	meshColorArray.push.apply(meshColorArray, color[2]);
+
+	meshColorArray.push.apply(meshColorArray, color[2]);
+	meshColorArray.push.apply(meshColorArray, color[0]);	
+      }
+
     }
 
 
-
+    model.meshPositionArray = meshPositionArray;
+    model.meshColorArray = meshColorArray;
     //Create normal buffer
     var normalBuffer = that.pack.createObject('VertexBuffer');
     var normalField = normalBuffer.createField('FloatField', 3);
@@ -561,7 +633,7 @@ function bbObject(brainbrowser) {
     }
     
     
-
+    
     return polygonShape;
 
   };

@@ -344,7 +344,7 @@ function BrainBrowser() {
 
   }
 
-
+  
 
   /**
    * Resets the view of the scene by resetting its local matrix to the identity
@@ -835,6 +835,7 @@ function BrainBrowser() {
    */
   this.set_fill_mode_wireframe= function() {
 
+    
     if(that.model_data.num_hemispheres == 2){
       var brainMaterial = that.brainTransform.children[0].shapes[0].elements[0].material;
       that.state = that.pack.createObject('State');
@@ -850,13 +851,15 @@ function BrainBrowser() {
       wires.value = true;
 
     } else {
-      var brainMaterial = that.brainTransform.shapes[0].elements[0].material;
-      that.state = that.pack.createObject('State');
-      brainMaterial.state = that.state;
-      that.state.getStateParam('FillMode').value = that.o3d.State.WIREFRAME;
-      var wires = brainMaterial.getParam('wires');
-      wires.value = true;
-      
+      that.brainTransform.children[0].visible = false;
+      that.createLineObject(that.model_data,"mesh", true);
+      //var brainMaterial = that.brainTransform.shapes[0].elements[0].material;
+      //that.state = that.pack.createObject('State');
+      //brainMaterial.state = that.state;
+      //that.state.getStateParam('FillMode').value = that.o3d.State.WIREFRAME;
+      //var wires = brainMaterial.getParam('wires');
+      //wires.value = true;
+
     }
     that.client.render();
   };

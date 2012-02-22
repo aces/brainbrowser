@@ -428,9 +428,9 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
     
     jQuery(canvas).mousewheel( function(event,delta) {
 	if(delta > 0) {
-	  that.zoomOut(event,canvas,delta);
-	}else {
 	  that.zoomIn(event,canvas,delta);
+	}else {
+	  that.zoomOut(event,canvas,delta);
 	}
     });
 

@@ -319,7 +319,7 @@ function Minc(filename,extraArgs,callback) {
     var height     = that[axis].height;
     var new_width  = Math.ceil(Math.abs(that[axis].length_space.step)*width*zoom);
     var new_height = Math.ceil(Math.abs(that[axis].height_space.step)*height*zoom);
-    console.log('new_height: ' + new_height + " " + axis);
+
     var slice = this.nearestNeighboor(original_slice,width,height,new_width,new_height);
 
    

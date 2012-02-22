@@ -79,9 +79,6 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
     canvas.current_image = {width: width,
                              height: height};
     
-    console.log("current_image.height" + canvas.current_image.height + " axis: " + axis);
-    console.log("current_image.width" + canvas.current_image.width + " axis: " + axis);
-
 
     //Checks if the slices are need to be rotated
     //xspace should have yspace on the x axis and zspace on the y axis
@@ -242,7 +239,7 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
     }
     
     that.updateSlices(null,that.current_time);
-    console.log("ZoomIn on " + canvas.id + " canvas zoom factor: " + canvas.zoom);
+
   };
 
   this.zoomOut = function(event,canvas,delta) {
@@ -252,7 +249,6 @@ function BrainCanvas(xcanvas,ycanvas,zcanvas) {
       canvas.zoom = canvas.zoom*0.90;
     }
     that.updateSlices(null,that.current_time);
-    console.log("ZoomOut on " + canvas.id + " canvas zoom factor: " + canvas.zoom);
   };
 
   /*

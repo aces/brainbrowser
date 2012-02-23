@@ -433,14 +433,16 @@ function BrainCanvas(opt) {
       }
     };
     
-    jQuery(canvas).mousewheel( function(event,delta) {
-	if(delta > 0) {
-	  that.zoomIn(event,canvas,delta);
-	}else {
-	  that.zoomOut(event,canvas,delta);
-	}
-    });
-
+    jQuery(canvas).mousewheel(function(event,delta) {
+				if(delta > 0) {
+				  that.zoomIn(event,canvas,delta);
+				}else {
+				  that.zoomOut(event,canvas,delta);
+				}
+				
+				return false;
+			      });
+    
   };
   
   /*
@@ -452,18 +454,122 @@ function BrainCanvas(opt) {
   this.showTime = function() {
     $("<div id=\"time\">Time Index: </div>").appendTo($(xcanvas).parent());
 
+
+
+    var playStatus = {
+        playing:false
+      , position: 0
+    };
+
+
     var div = $($(xcanvas).parent().children("#time"));
     $("<span id=\"time-value\">1</span>").appendTo(div);
+    
+
     $("<div id=\"time-slider\" width=\""+xcanvas.width+"\" + height=\"10\"></div>").slider({
 						  value: 0,
 						  min: 0,
 						  max: that.current_minc.time.space_length,
 						  step: 1,
-	                                          slide: function(event,ui) {
+						  change: function(event,ui) {
+						    console.log("BLAH!");
 					            that.updateSlices(null,ui.value);	    
+
+						    playStatus.position = ui.value;
 						    $(div).children("#time-value").html(ui.value);
+						  },
+	                                          slide: function(event,ui) {
+						    console.log("BLAH!");
+					            that.updateSlices(null,ui.value);
+						    playStatus.position = ui.value;	    
+						    $(div).children("#time-value").html(ui.value);
+						  }}).appendTo(div);
+
+    //Play buttons
+    $("<div class=\"toolbar\"><span id=\"time-toolbar\" class=\"ui-widget-header ui-corner-all\">"
+      + "<button id=\"play\">play</button>"
+      + "<button id=\"stop\">stop</button>"
+      + "</span></div>"
+     ).appendTo(div);
+    
+
+											   
+    
+    function tick(){
+      if(playStatus.playing) {
+	playStatus.position+=1;
+	if(playStatus.position > that.current_minc.time.space_length) {
+	  playStatus.position = 0;
+	};
+	$(div).children("#time-slider").slider("value", playStatus.position);
+	
+	
+	setTimeout(tick, 500);
+      }
+    }
+
+    function play() {
+      playStatus.playing = true;
+      tick();
+    }
+    
+
+    function pause() {
+      playStatus.playing = false;
+    }
+
+    function stop() {
+      playStatus.playing = false;
+      playStatus.position = 0;
+      $(div).children("#time-slider").slider("value", playStatus.position);
+    }
+    
+    $("#time-toolbar").children("#play").button({
+						    label: "play"
+						  , text: false
+						  , icons: {
+						      primary: "ui-icon-play"
 						  }
-						}).appendTo(div);
+						})
+    .click(function(){
+	     var options;
+			if ( $( this ).text() === "play" ) {
+				options = {
+					label: "pause",
+					icons: {
+						primary: "ui-icon-pause"
+					}
+				};
+			  play();
+			} else {
+				options = {
+					label: "play",
+					icons: {
+						primary: "ui-icon-play"
+					}
+				};
+			  pause();
+			}
+			$( this ).button( "option", options );
+	   });
+    $("#time-toolbar").children("#stop").button({
+						    label: "stop"
+						  , text: false
+						  , icons: {
+						      primary: "ui-icon-stop"
+						  }
+						})
+
+      .click(function() {
+	       $( "#play" ).button( "option", {
+				      label: "play",
+				      icons: {
+					primary: "ui-icon-play"
+				      }
+				    });
+	       stop();
+	     });
+    
   };
 
   //Brightness slider 
@@ -529,7 +635,7 @@ function BrainCanvas(opt) {
 
  //Open a Minc file, initiates the UI elements Basicly the main function. 
   this.openFile =function(filename) {
-    this.current_minc = new Minc(filename, null,function(minc,extraArgs){
+    this.current_minc = new Minc(filename, opt ,function(minc,extraArgs){
 				   /*
 				    * Height and Width of the canvas for each space
 				    * 

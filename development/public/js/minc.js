@@ -26,20 +26,31 @@
  * @param {function} callback  function to call when data is finish loading 
  */
 function Minc(filename,extraArgs,callback) {
-  var that = this;
+  if(!extraArgs) {
+    extraArgs = {};
+  }
+  console.log(extraArgs);
+  
+  var that = this
+  ,   getRawDataParam = extraArgs.getRawDataParam || "raw_data=true"
+  ,   getHeaderParam = extraArgs.getHeaderParam || "minc_headers=true";
 
 
+  
   /**
-   * Fetch the parameters of the minc file. sends a request to http://filename/?minc_headers=true
+   * Fetch the parameters of the minc file. sends a request to http://filename/?minc_headers=true or whatever getHeadersParams says
    * @param {String} filename url/filename of the file to load minc headers
    */
   this.load_headers = function(filename) {
+    var param = getHeaderParam.split('=')
+    ,   dataArgs = {};
+
+    dataArgs[param[0]] = param[1];
+
     $.ajax({
 	     url: filename,
 	     dataType: 'json',
-	     data: {
-	       minc_headers: true
-	     },
+	     data: dataArgs,
 	     async: false,
 	     success: function(data){
 	       that.header = data;
@@ -126,15 +137,15 @@ function Minc(filename,extraArgs,callback) {
    */
   this.load_data = function (filename,callback,extraArgs){  
     var request = new XMLHttpRequest();
-    
+
     if(filename.match(/\?/)) {
-      filename = filename+'&raw_data=true';
+      filename = filename+'&'+ getRawDataParam;
     }else {
-      filename = filename+'?raw_data=true';
+      filename = filename+'?'+ getRawDataParam;
     }
 
 
-    request.open('GET', filename+'?raw_data=true',true);
+    request.open('GET', filename ,true);
     request.responseType = 'arraybuffer';
     request.onreadystatechange = function() {
       if(request.readyState == 4)

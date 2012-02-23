@@ -1,0 +1,9 @@
+.toolbar {
+   margin: 10px;
+}
+
+#time-toolbar {
+                font-size: 50%;
+                margin-top: 5px;
+		padding: 10px 4px 10px 4px;
+	}

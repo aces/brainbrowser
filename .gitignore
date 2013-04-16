@@ -12,3 +12,4 @@ config.yml
 rackup.ru
 braincanvas.erb
 braincloud.erb
+development/public/models/*.obj

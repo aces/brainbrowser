@@ -14,7 +14,11 @@ if ENV["BRAINBROWSER_ENV"] == "production"
 else
   set :public, 'development/public'
   use Rack::Auth::Basic, "Restricted Area" do |username, password|
+<<<<<<< HEAD
     [username, password] == ['tsherif', 'sosecret']
+=======
+    [username, password] == ['tsherif', 'br41ns']
+>>>>>>> b2f5b845b5d20663e3d4cda75c6a9c748e82e738
   end
 
 end

@@ -209,24 +209,22 @@ function BrainBrowser() {
   this.clearScreen = function() {
     if(brainbrowser.brainTransform != undefined) {
       if(brainbrowser.brainTransform.shapes != undefined) {
-	var num = brainbrowser.brainTransform.shapes.length;
+	      var num = brainbrowser.brainTransform.shapes.length;
 	
-	for(var i = 0; i < num; i++) { 
-	  brainbrowser.brainTransform.removeShape(brainbrowser.brainTransform.shapes[0]);
-	};
-	
-	
+	      for(var i = 0; i < num; i++) { 
+	        brainbrowser.brainTransform.removeShape(brainbrowser.brainTransform.shapes[0]);
+	      };
       }
       if(brainbrowser.brainTransform.children.length) {
-	var number_children = brainbrowser.brainTransform.children.length;
-	for(var i = 0; i < number_children; i++ ) {
-	  var num = brainbrowser.brainTransform.children[i].length;
-	  brainbrowser.brainTransform.children[i].removeShape(brainbrowser.brainTransform.children[i].shapes[0]);
-	};
-    }
+	      var number_children = brainbrowser.brainTransform.children.length;
+	      for(var i = 0; i < number_children; i++ ) {
+	        var num = brainbrowser.brainTransform.children[i].length;
+	        brainbrowser.brainTransform.children[i].removeShape(brainbrowser.brainTransform.children[i].shapes[0]);
+	      };
+      }
       
       if(that.afterClearScreen != undefined) {
-	that.afterClearScreen();
+	      that.afterClearScreen();
       }
     };
   };
@@ -245,7 +243,7 @@ function BrainBrowser() {
 
       that.createBrain(obj,filename);
     }else if(obj.objectClass == 'P') {
-	that.createPolygonObject(obj,filename);	  
+	    that.createPolygonObject(obj,filename);	  
     }else if(obj.objectClass == 'L') {
       that.createLineObject(obj,filename);
     }else {
@@ -676,21 +674,19 @@ function BrainBrowser() {
 
     if(e.button == that.o3d.Event.BUTTON_RIGHT) {
         var screenPosition = getCursorPosition(e);
-	that.startPosition =  o3djs.picking.clientPositionToWorldRay(screenPosition.x,screenPosition.y,that.viewInfo.drawContext,that.client.height,that.client.width).far;
-	that.dragging = true;
+	      that.startPosition =  o3djs.picking.clientPositionToWorldRay(screenPosition.x,screenPosition.y,that.viewInfo.drawContext,that.client.height,that.client.width).far;
+	      that.dragging = true;
     }else {
-      
-    
       if(e.shiftKey && e.ctrlKey && that.model_data.num_hemispheres == 2) {
-	that.drag_hemisphere = click(e, function(event,info) {
-				       if(info.hemisphere == "left") {
-					 return 0;
-				       }else if(info.hemisphere == "right") {
-					 return 1;
-				       }else {
-					 return false;
-				       }
-				     });
+        that.drag_hemisphere = click(e, function(event,info) {
+          if(info.hemisphere == "left") {
+            return 0;
+          }else if(info.hemisphere == "right") {
+            return 1;
+          }else {
+            return false;
+          }
+        });
       }
       that.lastRot = that.thatRot;
       that.aball.click([e.x, e.y]);
@@ -896,10 +892,10 @@ function BrainBrowser() {
       url: url ,
       dataType: 'text',
       success: function(data) {
-	callback(data);
+	      callback(data);
       },
       error: function(request,textStatus,e) {
-	alert("Failure: " +  textStatus);
+	      alert("Failure in loadFromURL: " +  textStatus);
       },
       data: {},
       async: sync,
@@ -1001,19 +997,18 @@ function BrainBrowser() {
   this.loadDataFromFile = function(file_input) {
     var filename = file_input.files[0].name;
     var onfinish = function(text) {
-	var data = new Data(text);
-        data.fileName = filename;
-	if(data.values.length < that.model_data.positionArray.length/4) {
-	    alert("Number of numbers in datafile lower than number of vertices Vertices" + that.model_data.positionArray.length/3 + " data values:" + data.values.length );
-	    return -1;
-	}else {
-	    
-	    that.model_data.data = data;
-	}
+	    var data = new Data(text);
+      data.fileName = filename;
+	    if(data.values.length < that.model_data.positionArray.length/4) {
+	      alert("Number of numbers in datafile lower than number of vertices Vertices" + that.model_data.positionArray.length/3 + " data values:" + data.values.length );
+	      return -1;
+	    }else {
+	      that.model_data.data = data;
+	    }
       initRange(that.model_data.data.min,
-		that.model_data.data.max);
+		    that.model_data.data.max);
       if(that.afterLoadData !=null) {
-	that.afterLoadData(that.model_data.data.rangeMin,that.model_data.data.rangeMax,that.model_data.data);
+	      that.afterLoadData(that.model_data.data.rangeMin,that.model_data.data.rangeMax,that.model_data.data);
       }
       
       

@@ -123,8 +123,8 @@ function SurfView(model_url) {
 
     o3djs.event.addEventListener(bb.o3dElement, 'mousedown', function (e) {
 				   
-      if(e.shiftKey) {
-	bb.click(e,function(e,info) {
+    if(e.shiftKey) {
+	    bb.click(e,function(e,info) {
 	  if(brainbrowser.data){
 	    that.updateCoordinates(info.position_vector,
 	    info.vertex,

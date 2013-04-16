@@ -97,7 +97,7 @@ function BrainBrowser(url) {
 	shaderString = data;
       },
       error: function(request,textStatus,e) {
-	alert("Failure: " +  textStatus);
+	alert("Failure in initStep2: " +  textStatus);
       },
       data: {},
       async: false,
@@ -501,7 +501,7 @@ function BrainBrowser(url) {
 	that.init();
       },
       error: function(request,textStatus,e) {
-	alert("Failure: " +  textStatus);
+	alert("Failure in preload_model: " +  textStatus);
       },
       data: {},
       async: true,

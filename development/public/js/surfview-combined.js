@@ -91,19 +91,19 @@ function MNIObject(string) {
     this.colorArray = new Array();
     if(this.colorFlag === 0) {
       for(var i=0; i<4; i++){
-	this.colorArray.push(parseFloat(stack.pop()));
+	      this.colorArray.push(parseFloat(stack.pop()));
       }
     }else if(this.colorFlag === 1) {
       for(var c=0;c < this.numberPolygons; c++){
-	for(var i=0; i<4; i++){
-	  this.colorArray.push(parseFloat(stack.pop()));
-	}
+	      for(var i=0; i<4; i++){
+	        this.colorArray.push(parseFloat(stack.pop()));
+	      }
       }
     }else if(this.colorFlag === 2) {
       for(var c=0;c < this.numberVertices; c++){
-	for(var i=0; i<4; i++){
-	  this.colorArray.push(parseFloat(stack.pop()));
-	}
+	      for(var i=0; i<4; i++){
+	        this.colorArray.push(parseFloat(stack.pop()));
+	      }
       }
     }else {
       throw new Error("colorFlag not valid in this file");
@@ -184,7 +184,7 @@ function MNIObject(string) {
       var model = this[hemisphere];
       var offset = 0;
       if(hemisphere == "right") {
-	offset = 2 + model.indexArray.length/3/2; //Since the index is offset when splitting the hemispheres, we have to make it right again to find the correct one.
+	      offset = 2 + model.indexArray.length/3/2; //Since the index is offset when splitting the hemispheres, we have to make it right again to find the correct one.
       }
 
     }else {
@@ -509,7 +509,7 @@ function BrainBrowser(url) {
 	shaderString = data;
       },
       error: function(request,textStatus,e) {
-	alert("Failure: " +  textStatus);
+	alert("Failure in createBrain: " +  textStatus);
       },
       data: {},
       async: false,
@@ -1189,7 +1189,7 @@ function BrainBrowser(url) {
 	that.createBrain(new MNIObject(data));
       },
       error: function(request,textStatus,e) {
-	alert("Failure: " +  textStatus);
+	alert("Failure in loadObjFromUrl: " +  textStatus);
       },
       data: {},
       async: true,

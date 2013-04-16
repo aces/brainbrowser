@@ -33,19 +33,19 @@ function bbObject(brainbrowser) {
     /*
      * Create the Shape for the brain mesh and assign its material.
      * two shapes will be created if the brain model has two hemispheres
-     */
-     if(model_data.num_hemispheres == 2) {
+    */
+    if(model_data.num_hemispheres == 2) {
        
-       var brainShape= {
-	 left: that.createHemisphere(model_data.left, "left"),
-	 right: that.createHemisphere(model_data.right, "right"),
-	 num_hemisphere: 2
-       };
+      var brainShape= {
+	      left: that.createHemisphere(model_data.left, "left"),
+	      right: that.createHemisphere(model_data.right, "right"),
+	      num_hemisphere: 2
+      };
 
-     } else{ 
+    } else { 
        var brainShape = that.createHemisphere(model_data,"filename");
        brainShape.num_hemisphere= 1;
-     }
+    }
 
 
 
@@ -54,9 +54,9 @@ function bbObject(brainbrowser) {
 
       that.brainTransform = that.pack.createObject('Transform');
       if(model_data.num_hemispheres == 2) {
-	that.brainHemisphereTransforms = {};
-	that.brainHemisphereTransforms.left = that.pack.createObject('Transform');
-	that.brainHemisphereTransforms.right = that.pack.createObject('Transform');
+	      that.brainHemisphereTransforms = {};
+	      that.brainHemisphereTransforms.left = that.pack.createObject('Transform');
+	      that.brainHemisphereTransforms.right = that.pack.createObject('Transform');
       }
     }else {
       that.brainTransform.removeShape(that.brainTransform.shapes[0]);
@@ -78,8 +78,8 @@ function bbObject(brainbrowser) {
 
     if(model_data.num_hemispheres == 2 && that.brainHemisphereTransforms == null) {
     	that.brainHemisphereTransforms = {};
-	that.brainHemisphereTransforms.left = that.pack.createObject('Transform');
-	that.brainHemisphereTransforms.right = that.pack.createObject('Transform');
+	    that.brainHemisphereTransforms.left = that.pack.createObject('Transform');
+	    that.brainHemisphereTransforms.right = that.pack.createObject('Transform');
     }
 
 
@@ -257,7 +257,7 @@ function bbObject(brainbrowser) {
     var colorArray=[];
     if(model.colorArray.length == 4) {
       for(var i=0;i<numberVertices;i++) {
-	colorArray.push.apply(colorArray,model.colorArray);
+	      colorArray.push.apply(colorArray,model.colorArray);
       }
     }else {
       colorArray = model.colorArray;

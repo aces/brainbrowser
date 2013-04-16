@@ -58,8 +58,8 @@ function MNIObject(string) {
      //If there is two hemispheres, might need to be a better test one day
     if(that.objectClass == 'P' ) {
       if(that.positionArray.length ==  81924*3){
-	that.brainSurface = true;
-	that.split_hemispheres();
+	      that.brainSurface = true;
+	      that.split_hemispheres();
       }
       
     }
@@ -69,15 +69,15 @@ function MNIObject(string) {
   function parseSurfProp() {
     if(that.objectClass == 'P') {
       that.surfaceProperties = {
-	ambient: parseFloat(stack.pop()),
-	diffuse: parseFloat(stack.pop()),
-	specular_reflectance: parseFloat(stack.pop()),
-	specular_scattering: parseFloat(stack.pop()),
-	transparency: parseFloat(stack.pop())
+	      ambient: parseFloat(stack.pop()),
+	      diffuse: parseFloat(stack.pop()),
+	      specular_reflectance: parseFloat(stack.pop()),
+	      specular_scattering: parseFloat(stack.pop()),
+	      transparency: parseFloat(stack.pop())
       };
     }else if(that.objectClass == 'L') {
       that.surfaceProperties = {
-	width: stack.pop()
+	      width: stack.pop()
       };
     }
   }
@@ -86,7 +86,7 @@ function MNIObject(string) {
     that.positionArray = new Array();
     for(var v=0; v < that.numberVertices; v++) {
       for(var i=0; i<3;i++) {
-	that.positionArray.push(parseFloat(stack.pop()));
+	      that.positionArray.push(parseFloat(stack.pop()));
       }
     }
   }
@@ -108,19 +108,19 @@ function MNIObject(string) {
     that.colorArray = new Array();
     if(that.colorFlag === 0) {
       for(var i=0; i<4; i++){
-	that.colorArray.push(parseFloat(stack.pop()));
+	      that.colorArray.push(parseFloat(stack.pop()));
       }
     }else if(that.colorFlag === 1) {
       for(var c=0;c < that.numberPolygons; c++){
-	for(var i=0; i<4; i++){
-	  that.colorArray.push(parseFloat(stack.pop()));
-	}
+	      for(var i=0; i<4; i++){
+	        that.colorArray.push(parseFloat(stack.pop()));
+	      }
       }
     }else if(that.colorFlag === 2) {
       for(var c=0;c < that.numberVertices; c++){
-	for(var i=0; i<4; i++){
-	  that.colorArray.push(parseFloat(stack.pop()));
-	}
+	      for(var i=0; i<4; i++){
+	        that.colorArray.push(parseFloat(stack.pop()));
+	      }
       }
     }else {
       throw new Error("colorFlag not valid in that file");

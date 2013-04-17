@@ -62,12 +62,12 @@ function bbObject(brainbrowser) {
       that.brainTransform.removeShape(that.brainTransform.shapes[0]);
 
       if(that.brainTransform.children[0] != null) {
-	that.brainTransform.children[0].removeShape(that.brainTransform.children[0].shapes[0]);
+	      that.brainTransform.children[0].removeShape(that.brainTransform.children[0].shapes[0]);
       }
 
       if(that.brainTransform.children[1] !=null ) {
-	that.brainTransform.children[1].removeShape(
-	  that.brainTransform.children[1].shapes[0]);
+	      that.brainTransform.children[1].removeShape(
+	        that.brainTransform.children[1].shapes[0]);
       }
     };
 
@@ -100,7 +100,6 @@ function bbObject(brainbrowser) {
       that.brainHemisphereTransforms.right.addShape(brainShape.right);
       brainShape.left.createDrawElements(that.pack, null);
       brainShape.right.createDrawElements(that.pack, null);
-
     }
     that.model_data = model_data;
 
@@ -175,11 +174,11 @@ function bbObject(brainbrowser) {
       console.log("multi_shape");
       console.log(model_data);
       for(var z =0; z< model_data.shapes.length; z++){
-	console.log(model_data.shapes[z]);
-	var shape = that.createPolygonShape(myMaterial, model_data.shapes[z]);
-	shape.name = model_data.shapes[z].name;
-	that.brainTransform.addShape(shape);      
-	shape.createDrawElements(that.pack, null);
+	      console.log(model_data.shapes[z]);
+	      var shape = that.createPolygonShape(myMaterial, model_data.shapes[z]);
+	      shape.name = model_data.shapes[z].name;
+	      that.brainTransform.addShape(shape);      
+	      shape.createDrawElements(that.pack, null);
 	
       }
     }else {
@@ -342,7 +341,7 @@ function bbObject(brainbrowser) {
       if(i == 0){
      	var start = 0;
       }else {
-	var start = model.endIndicesArray[i-1];
+	      var start = model.endIndicesArray[i-1];
       }
       indexArray.push(model.indexArray[start]);
       for(var k = start+1; k < model.endIndicesArray[i]-1; k++) {
@@ -363,23 +362,23 @@ function bbObject(brainbrowser) {
       //linePrimitive.indexBuffer = indexBuffer;
       var positionArray = new Float32Array(indexArray.length*3);
       for(var j = 0; j < indexArray.length; j++) {
-	positionArray[j*3] = model.positionArray[indexArray[j]*3];
-	positionArray[j*3+1] = model.positionArray[indexArray[j]*3+1];
-	positionArray[j*3+2] = model.positionArray[indexArray[j]*3+2];
+	      positionArray[j*3] = model.positionArray[indexArray[j]*3];
+	      positionArray[j*3+1] = model.positionArray[indexArray[j]*3+1];
+	      positionArray[j*3+2] = model.positionArray[indexArray[j]*3+2];
       }
       var colorArray=[];
       if(model.colorArray.length == 4) {
-	for(var i=0;i<numberVertices;i++) {
-	  colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
-	}
+	      for(var i=0;i<numberVertices;i++) {
+	        colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
+	      }
       }else {
-	colorArray = new Float32Array(indexArray.length*4);
-	for(var j = 0; j < indexArray.length; j++) {
-	  colorArray[j*4] = model.colorArray[indexArray[j]*4];
-	  colorArray[j*4+1] = model.colorArray[indexArray[j]*4+1];
-	  colorArray[j*4+2] = model.colorArray[indexArray[j]*4+2];
-	  colorArray[j*4+3] = model.colorArray[indexArray[j]*4+3];
-	}
+	      colorArray = new Float32Array(indexArray.length*4);
+	      for(var j = 0; j < indexArray.length; j++) {
+	        colorArray[j*4] = model.colorArray[indexArray[j]*4];
+	        colorArray[j*4+1] = model.colorArray[indexArray[j]*4+1];
+	        colorArray[j*4+2] = model.colorArray[indexArray[j]*4+2];
+	        colorArray[j*4+3] = model.colorArray[indexArray[j]*4+3];
+	      }
       }
       
     }else {
@@ -484,40 +483,39 @@ function bbObject(brainbrowser) {
       var normalArray = new Float32Array(indexArray.length*3);
       var indexArrayLength = indexArray.length;
       for(var j = 0; j < indexArrayLength ; j++) {
-	positionArray[j*3] = model.positionArray[indexArray[j]*3];
-	positionArray[j*3+1] = model.positionArray[indexArray[j]*3+1];
-	positionArray[j*3+2] = model.positionArray[indexArray[j]*3+2];
+	      positionArray[j*3] = model.positionArray[indexArray[j]*3];
+	      positionArray[j*3+1] = model.positionArray[indexArray[j]*3+1];
+	      positionArray[j*3+2] = model.positionArray[indexArray[j]*3+2];
 	
-	normalArray[j*3] = model.normalArray[indexArray[j]*3];
-	normalArray[j*3+1] = model.normalArray[indexArray[j]*3+1];
-	normalArray[j*3+2] = model.normalArray[indexArray[j]*3+2];
+	      normalArray[j*3] = model.normalArray[indexArray[j]*3];
+	      normalArray[j*3+1] = model.normalArray[indexArray[j]*3+1];
+	      normalArray[j*3+2] = model.normalArray[indexArray[j]*3+2];
 	
       }
       //for mesh mode;
       for(var k = 0; k < indexArrayLength; k+=3) {
 
-	var vert = [];
-	vert[0] = [model.positionArray[indexArray[k]*3],
-		   model.positionArray[indexArray[k]*3+1],
-		   model.positionArray[indexArray[k]*3+2]];
+	      var vert = [];
+	      vert[0] = [model.positionArray[indexArray[k]*3],
+		    model.positionArray[indexArray[k]*3+1],
+		    model.positionArray[indexArray[k]*3+2]];
 	
 
-	vert[1] = [model.positionArray[indexArray[k+1]*3],
+	      vert[1] = [model.positionArray[indexArray[k+1]*3],
 		    model.positionArray[indexArray[k+1]*3+1],
 		    model.positionArray[indexArray[k+1]*3+2]];
+        vert[2] = [model.positionArray[indexArray[k+2]*3],
+		    model.positionArray[indexArray[k+2]*3+1],
+		    model.positionArray[indexArray[k+2]*3+2]];
 	
-	vert[2] = [model.positionArray[indexArray[k+2]*3],
-		   model.positionArray[indexArray[k+2]*3+1],
-		   model.positionArray[indexArray[k+2]*3+2]];
-	
-	meshPositionArray.push.apply(meshPositionArray, vert[0]);
-	meshPositionArray.push.apply(meshPositionArray, vert[1]);
-
-	meshPositionArray.push.apply(meshPositionArray, vert[1]);
-	meshPositionArray.push.apply(meshPositionArray, vert[2]);
-
-	meshPositionArray.push.apply(meshPositionArray, vert[2]);
-	meshPositionArray.push.apply(meshPositionArray, vert[0]);
+        meshPositionArray.push.apply(meshPositionArray, vert[0]);
+        meshPositionArray.push.apply(meshPositionArray, vert[1]);
+  
+        meshPositionArray.push.apply(meshPositionArray, vert[1]);
+        meshPositionArray.push.apply(meshPositionArray, vert[2]);
+  
+        meshPositionArray.push.apply(meshPositionArray, vert[2]);
+        meshPositionArray.push.apply(meshPositionArray, vert[0]);
 		     
       };
       

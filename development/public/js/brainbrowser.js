@@ -17,22 +17,22 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-o3djs.base.o3d = o3d;
-o3djs.require('o3djs.webgl');
-o3djs.require('o3djs.math');
-o3djs.require('o3djs.rendergraph');
-o3djs.require('o3djs.pack');
-o3djs.require('o3djs.picking');
-o3djs.require('o3djs.arcball');
-o3djs.require('o3djs.quaternions');
-o3djs.require('o3djs.scene');
+//o3djs.base.o3d = o3d;
+//o3djs.require('o3djs.webgl');
+//o3djs.require('o3djs.math');
+//o3djs.require('o3djs.rendergraph');
+//o3djs.require('o3djs.pack');
+//o3djs.require('o3djs.picking');
+//o3djs.require('o3djs.arcball');
+//o3djs.require('o3djs.quaternions');
+//o3djs.require('o3djs.scene');
 
 /**
  * Create new BrainBrowser viewer object
  * @constructor
  *  
  */
-function BrainBrowser() {
+function BrainBrowser(initCallback) {
   var that = this; //Brainbrowser object. Makes sure that if "this" is remapped then we can still
                    // refer to original object. Also for local functions "this" is not available 
                    // but "that" is and can be used for special helper methods. 
@@ -41,11 +41,95 @@ function BrainBrowser() {
   bbObject(this); 
   
   var colorManager = new ColorManager();
+  var view_window; //canvas element
+  var render; //THREE.js renderer
+  var camera; //THREE.js camera
+  var scene; //THREE.js scene
+  var afterInit = initCallback;
+  var brain;
+  
   this.init = function() {
-    o3djs.webgl.makeClients(that.initStep2);
+    //o3djs.webgl.makeClients(that.initStep2);
+    
+    scene = new THREE.Scene();
+    view_window = $("#view-window");
+    camera = new THREE.PerspectiveCamera(30, view_window.width()/view_window.height(), 0.1, 5000);
+    
+    renderer = new THREE.WebGLRenderer({clearColor: 0x888888, clearAlpha: 1});
+    renderer.setSize(view_window.width(), view_window.height());
+    view_window.append(renderer.domElement);
+    
+    var geometry = new THREE.CubeGeometry(100,100,100);
+    var material = new THREE.MeshPhongMaterial({color: 0x00ff00, ambient: 0x0A0A0A, specular: 0x080808});
+    var cube = new THREE.Mesh(geometry, material);
+    cube.position.x = -200;
+    
+    //scene.add(cube);
+    
+    camera.position.z = 500;
+    
+    var pointLight = new THREE.PointLight(0xFFFFFF);
+
+    pointLight.position.x = 0;
+    pointLight.position.y = 0;
+    pointLight.position.z = 500;
+
+    scene.add(pointLight);
+    
+    function render(timestamp) {
+    	requestAnimationFrame(render);
+    	
+    	// cube.rotation.x -= 0.01;
+    	//       cube.rotation.z += 0.01;
+    	
+    	// if(brain){
+    	//         brain.rotation.x += 0.01;
+    	//         brain.rotation.y += 0.01;
+    	//       }
+
+
+      that.renderCallback();    
+    }
+    if(afterInit) {
+       afterInit(that);
+    }
+    
+    window.onresize();      
+    //that.updateInfo();
+    
+    //that.loadSpectrumFromUrl('/assets/spectral_spectrum.txt');
+    
+    render();
+    
   };
-
-
+  
+  function addBrain(obj) {
+    //that.createBrain(obj,filename);
+    var verts = obj.positionArray;
+    var ind = obj.indexArray;
+    var norms = obj.normalArray;
+    
+    console.log(obj);
+    
+    console.log("Norm 0: " + norms[0] + ", " + norms[1] + ", " + norms[2]);
+    
+    var geometry = new THREE.Geometry();
+    for(var i = 0; i+2 < verts.length; i+=3) {
+      geometry.vertices.push(new THREE.Vector3(verts[i], verts[i+1], verts[i+2]));
+      //geometry.normals.push(new THREE.Vector3(norms[i], norms[i+1], norms[i+2]))
+    }
+    for(var i = 0; i+2 < ind.length; i+=3) {
+      geometry.faces.push(new THREE.Face3(ind[i], ind[i+1], ind[i+2]));
+    }
+    
+    geometry.computeFaceNormals();
+    geometry.computeVertexNormals();
+    
+    var material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808});
+    brain = new THREE.Mesh(geometry, material);
+    
+    scene.add(brain);
+  }
 
   /** 
    * Initialize the global variables of BrainBrowser,
@@ -123,7 +207,7 @@ function BrainBrowser() {
      if(that.afterInit) {
        that.afterInit(that);
      }
-    window.onresize();      
+     window.onresize();      
      that.updateInfo();
 
 
@@ -146,19 +230,20 @@ function BrainBrowser() {
   this.renderCallback = function(renderEvent) {
     that.setClientSize();
     if(that.autoRotate) {
-       that.clock = 0;
-       that.clock += renderEvent.elapsedTime * that.timeMult;
+       //that.clock = 0;
+       //that.clock += renderEvent.elapsedTime * that.timeMult;
        if(that.autoRotate.x){
-	 that.brainTransform.rotateX(0.1 * that.clock);
+	       brain.rotation.x += 0.01;
        }
       if(that.autoRotate.y){
-	that.brainTransform.rotateY(0.1 * that.clock);
+	      brain.rotation.y += 0.01;
       }
       if(that.autoRotate.z){
-	that.brainTransform.rotateZ(0.1 * that.clock);
+	      brain.rotation.z += 0.01;
       }
       
     }
+    renderer.render(scene, camera);
   };
 
   /**
@@ -169,16 +254,17 @@ function BrainBrowser() {
    * @param {String} url url of shader code to load, this is the combined shader.   
    */
   this.createMaterial = function(url) {
-    var effect = that.pack.createObject('Effect');
-    var shaderString = that.loadCombinedShaderFromUrl(url);
-    effect.loadFromFXString(shaderString);
-    var material = that.pack.createObject('Material');
-    material.drawList = that.viewInfo.performanceDrawList;
-    material.effect = effect;
-
-    effect.createUniformParameters(material);
-    
-    return material;
+    console.log("createMaterial commented out!");
+    // var effect = that.pack.createObject('Effect');
+    //     var shaderString = that.loadCombinedShaderFromUrl(url);
+    //     effect.loadFromFXString(shaderString);
+    //     var material = that.pack.createObject('Material');
+    //     material.drawList = that.viewInfo.performanceDrawList;
+    //     material.effect = effect;
+    // 
+    //     effect.createUniformParameters(material);
+    //     
+    //     return material;
   };
 
   /**
@@ -207,26 +293,27 @@ function BrainBrowser() {
    * Tip: when you remove a shape, the shapes array lenght will be decremented so if you need to count the number of shapes, you must save that length value before removing shapes. 
    */
   this.clearScreen = function() {
-    if(brainbrowser.brainTransform != undefined) {
-      if(brainbrowser.brainTransform.shapes != undefined) {
-	      var num = brainbrowser.brainTransform.shapes.length;
-	
-	      for(var i = 0; i < num; i++) { 
-	        brainbrowser.brainTransform.removeShape(brainbrowser.brainTransform.shapes[0]);
-	      };
-      }
-      if(brainbrowser.brainTransform.children.length) {
-	      var number_children = brainbrowser.brainTransform.children.length;
-	      for(var i = 0; i < number_children; i++ ) {
-	        var num = brainbrowser.brainTransform.children[i].length;
-	        brainbrowser.brainTransform.children[i].removeShape(brainbrowser.brainTransform.children[i].shapes[0]);
-	      };
-      }
-      
-      if(that.afterClearScreen != undefined) {
-	      that.afterClearScreen();
-      }
-    };
+    console.log("clearScreen commented out!");
+    // if(brainbrowser.brainTransform != undefined) {
+    //       if(brainbrowser.brainTransform.shapes != undefined) {
+    //        var num = brainbrowser.brainTransform.shapes.length;
+    //  
+    //        for(var i = 0; i < num; i++) { 
+    //          brainbrowser.brainTransform.removeShape(brainbrowser.brainTransform.shapes[0]);
+    //        };
+    //       }
+    //       if(brainbrowser.brainTransform.children.length) {
+    //        var number_children = brainbrowser.brainTransform.children.length;
+    //        for(var i = 0; i < number_children; i++ ) {
+    //          var num = brainbrowser.brainTransform.children[i].length;
+    //          brainbrowser.brainTransform.children[i].removeShape(brainbrowser.brainTransform.children[i].shapes[0]);
+    //        };
+    //       }
+    //       
+    //       if(that.afterClearScreen != undefined) {
+    //        that.afterClearScreen();
+    //       }
+    //     };
   };
 
   /**
@@ -240,8 +327,7 @@ function BrainBrowser() {
    */
   this.displayObjectFile = function(obj,filename) {
     if(obj.objectClass == 'P' && obj.numberVertices == 81924) {
-
-      that.createBrain(obj,filename);
+      addBrain(obj);
     }else if(obj.objectClass == 'P') {
 	    that.createPolygonObject(obj,filename);	  
     }else if(obj.objectClass == 'L') {
@@ -509,8 +595,8 @@ function BrainBrowser() {
    */
   this.setClientSize= function() {
 
-    var newWidth  = parseInt(that.client.width);
-    var newHeight = parseInt(that.client.height);
+    var newWidth  = parseInt(view_window.width());
+    var newHeight = parseInt(view_window.height());
 
     if (newWidth != that.o3dWidth || newHeight != that.o3dHeight) {
 
@@ -520,7 +606,8 @@ function BrainBrowser() {
       that.updateProjection();
 
       // Sets a new area size for arcball.
-      that.aball.setAreaSize(that.o3dWidth, that.o3dHeight);
+      //that.aball.setAreaSize(that.o3dWidth, that.o3dHeight);
+      console.log("ARC BALL CODE COMMENTED OUT!");
     }
   };
 
@@ -622,13 +709,13 @@ function BrainBrowser() {
       var hemisphere      = pickInfo.element.owner.name;
       var vertex_info     = that.model_data.get_vertex(primitive_index,position,hemisphere);
       var info = {
-	ray_position:    position,
-	position_vector: vertex_info.position_vector,
-	element:         pickInfo.element,
-	hemisphere:      hemisphere,
-	vertex:          vertex_info.vertex
+	      ray_position:    position,
+	      position_vector: vertex_info.position_vector,
+	      element:         pickInfo.element,
+	      hemisphere:      hemisphere,
+	      vertex:          vertex_info.vertex
       };
-	return click_callback(e,info);
+	    return click_callback(e,info);
     } else {
 
       //that.debugLine.setVisible(false);
@@ -641,7 +728,7 @@ function BrainBrowser() {
 
   //Returns the position and info about a vertex
   //currently a wrapper for model.getVertexInfo
-  //Should theoretically return the same infor as click and
+  //Should theoretically return thei same infor as click and
   //click should use this to build that info object
   this.getInfoForVertex = function(vertex) {
     return  that.model_data.getVertexInfo(vertex);
@@ -651,13 +738,13 @@ function BrainBrowser() {
     var x;
     var y;
     if (e.pageX != undefined && e.pageY != undefined) {
-	x = e.pageX;
-	y = e.pageY;
+	    x = e.pageX;
+	    y = e.pageY;
     }
     else {
-	x = e.clientX + document.body.scrollLeft +
+	    x = e.clientX + document.body.scrollLeft +
             document.documentElement.scrollLeft;
-	y = e.clientY + document.body.scrollTop +
+	          y = e.clientY + document.body.scrollTop +
             document.documentElement.scrollTop;
     }
     
@@ -754,11 +841,11 @@ function BrainBrowser() {
   };
 
   this.updateProjection = function() {
-
+    console.log("updateProjection commented out!");
     // Create a perspective projection matrix.
-    that.viewInfo.drawContext.projection = that.math.matrix4.perspective(
-      that.math.degToRad(45), that.o3dWidth / that.o3dHeight, that.camera.nearPlane,
-      that.camera.farPlane);
+    //that.viewInfo.drawContext.projection = that.math.matrix4.perspective(
+    //  that.math.degToRad(45), that.o3dWidth / that.o3dHeight, that.camera.nearPlane,
+    //  that.camera.farPlane);
 
   };
 
@@ -923,7 +1010,7 @@ function BrainBrowser() {
 		    var parts = url.split("/");
 		    //last part of url will be shape name
 		    var filename = parts[parts.length-1];
-		  that.displayObjectFile(new MNIObject(data),filename);
+		    that.displayObjectFile(new MNIObject(data),filename);
 		});
   };
 
@@ -1024,9 +1111,9 @@ function BrainBrowser() {
     if(filename.match(/.*.mnc|.*.nii/)) {
       var xhr = new XMLHttpRequest();
       if(filename.match(/.*.mnc/)) {
-	 xhr.open('POST', '/minc/volume_object_evaluate', false);  
+	      xhr.open('POST', '/minc/volume_object_evaluate', false);  
       }else {
-	 xhr.open('POST', '/nii/volume_object_evaluate', false);  
+	      xhr.open('POST', '/nii/volume_object_evaluate', false);  
       }
       var form = document.getElementById('datafile-form');
       var data = new FormData(form);
@@ -1284,10 +1371,10 @@ function BrainBrowser() {
       var left_brain_shape = that.brainTransform.children[0].shapes[0];
       var left_stream_bank = left_brain_shape.elements[0].streamBank;
       left_stream_bank.setVertexStream(
-	that.o3d.Stream.COLOR, //  This stream stores vertex positions
-	0,                     // First (and only) position stream
-	left_color_field,        // field: the field this stream uses.
-	0);                    // start_index:
+	      that.o3d.Stream.COLOR, //  This stream stores vertex positions
+	      0,                     // First (and only) position stream
+	      left_color_field,        // field: the field this stream uses.
+	      0);                    // start_index:
 
 
 
@@ -1297,14 +1384,12 @@ function BrainBrowser() {
       var right_brain_shape = that.brainTransform.children[1].shapes[0];
       var right_stream_bank = right_brain_shape.elements[0].streamBank;
       right_stream_bank.setVertexStream(
-	that.o3d.Stream.COLOR, //  This stream stores vertex positions
-	0,                     // First (and only) position stream
-	right_color_field,        // field: the field this stream uses.
-	0);                    // start_index:
+	      that.o3d.Stream.COLOR, //  This stream stores vertex positions
+	      0,                     // First (and only) position stream
+	      right_color_field,        // field: the field this stream uses.
+	      0);                    // start_index:
 
       that.client.render();
-
-
 
     } else {
       
@@ -1315,12 +1400,12 @@ function BrainBrowser() {
       console.log(brain_shape);
       var stream_bank = brain_shape.elements[0].streamBank;
       stream_bank.setVertexStream(
-	that.o3d.Stream.COLOR, //  This stream stores vertex positions
-	0,                     // First (and only) position stream
-	color_field,        // field: the field this stream uses.
-	0);                    // start_index:
-      that.client.render();
-    };
+	      that.o3d.Stream.COLOR, //  This stream stores vertex positions
+	      0,                     // First (and only) position stream
+	      color_field,        // field: the field this stream uses.
+	      0);                    // start_index:
+        that.client.render();
+      };
 
     if(that.afterUpdateColors !=null ) {
       that.afterUpdateColors(data,min,max,spectrum);
@@ -1394,7 +1479,7 @@ function BrainBrowser() {
    */
   this.getImageUrl = function() {
     var canvas = document.createElement("canvas");
-    var spectrumCanvas = document.getElementById("spectrum_canvas");;
+    var spectrumCanvas = document.getElementById("spectrum_canvas");
     canvas.width = that.o3dElement.width;
     canvas.height = that.o3dElement.height;
       
@@ -1402,29 +1487,25 @@ function BrainBrowser() {
     var img = new Image();
 
     function getSpectrumImage() {
-	var img = new Image();
-	img.onload = function(){
-	    context.drawImage(img,0,0); // Or at whatever offset you like
-	    window.open(canvas.toDataURL(), "screenshot");
-	};
-	img.src = spectrumCanvas.toDataURL();
+	    var img = new Image();
+	    img.onload = function(){
+	      context.drawImage(img,0,0); // Or at whatever offset you like
+	      window.open(canvas.toDataURL(), "screenshot");
+	    };
+	    img.src = spectrumCanvas.toDataURL();
     }
       
     img.onload = function(){
-	context.drawImage(img,0,0); // Or at whatever offset you like
-	getSpectrumImage();
+	    context.drawImage(img,0,0); // Or at whatever offset you like
+	    getSpectrumImage();
     };
-    img.src = that.o3dElement.toDataURL();
-      
+    
+    img.src = that.o3dElement.toDataURL();  
   };
 
   window.onresize = function() {
-    that.client.height = window.innerHeight;
-    that.viewInfo.drawContext.projection = that.math.matrix4.perspective(
-      that.math.degToRad(30), // 30 degree fov.
-      that.client.width / that.client.height,
-      1,                  // Near plane.
-      5000);              // Far plane.
+    renderer.setSize(view_window.width(), view_window.height());
+    camera.aspect = view_window.width()/view_window.height();
   };
     
   that.init();

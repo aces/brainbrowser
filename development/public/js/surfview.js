@@ -201,19 +201,20 @@ function SurfView(model_url) {
       }
       
     };
+    
     jQuery('#meshmode').change(function(e) {
-				 if(jQuery(e.target).attr("checked") == true) {
-				   bb.set_fill_mode_wireframe();
-				 }else {
-				   bb.set_fill_mode_solid();
-				 }
-			       });
+		  if(jQuery(e.target).attr("checked") == true) {
+			  bb.set_fill_mode_wireframe();
+			}else {
+			  bb.set_fill_mode_solid();
+		  }
+		});
 
 
 
     jQuery('#clearshapes').click(function(e) {
-				   brainbrowser.clearScreen();
-				 });
+		  brainbrowser.clearScreen();
+		});
 
 
 

@@ -66,7 +66,7 @@ function BrainBrowser(initCallback) {
     
     //scene.add(cube);
     
-    camera.position.z = 500;
+    camera.position.z = 300;
     
     var pointLight = new THREE.PointLight(0xFFFFFF);
 
@@ -919,59 +919,60 @@ function BrainBrowser(initCallback) {
   this.set_fill_mode_wireframe= function() {
 
     
-    if(that.model_data.num_hemispheres == 2){
-      var brainMaterial = that.brainTransform.children[0].shapes[0].elements[0].material;
-      that.state = that.pack.createObject('State');
-      brainMaterial.state = that.state;
-
-      var wires = brainMaterial.getParam('wires');
-      wires.value = true;
-
-      that.state.getStateParam('FillMode').value = that.o3d.State.WIREFRAME;
-      brainMaterial = that.brainTransform.children[1].shapes[0].elements[0].material;
-      brainMaterial.state = that.state;
-      wires = brainMaterial.getParam('wires');
-      wires.value = true;
-
-    } else {
-      that.brainTransform.children[0].visible = false;
-      that.createLineObject(that.model_data,"mesh", true);
-      //var brainMaterial = that.brainTransform.shapes[0].elements[0].material;
-      //that.state = that.pack.createObject('State');
-      //brainMaterial.state = that.state;
-      //that.state.getStateParam('FillMode').value = that.o3d.State.WIREFRAME;
-      //var wires = brainMaterial.getParam('wires');
-      //wires.value = true;
-
-    }
-    that.client.render();
+    // if(that.model_data.num_hemispheres == 2){
+    //       var brainMaterial = that.brainTransform.children[0].shapes[0].elements[0].material;
+    //       that.state = that.pack.createObject('State');
+    //       brainMaterial.state = that.state;
+    // 
+    //       var wires = brainMaterial.getParam('wires');
+    //       wires.value = true;
+    // 
+    //       that.state.getStateParam('FillMode').value = that.o3d.State.WIREFRAME;
+    //       brainMaterial = that.brainTransform.children[1].shapes[0].elements[0].material;
+    //       brainMaterial.state = that.state;
+    //       wires = brainMaterial.getParam('wires');
+    //       wires.value = true;
+    // 
+    //     } else {
+    //       that.brainTransform.children[0].visible = false;
+    //       that.createLineObject(that.model_data,"mesh", true);
+    //       //var brainMaterial = that.brainTransform.shapes[0].elements[0].material;
+    //       //that.state = that.pack.createObject('State');
+    //       //brainMaterial.state = that.state;
+    //       //that.state.getStateParam('FillMode').value = that.o3d.State.WIREFRAME;
+    //       //var wires = brainMaterial.getParam('wires');
+    //       //wires.value = true;
+    // 
+    //     }
+    //     that.client.render();
+    brain.material.wireframe = true;
   };
 
   this.set_fill_mode_solid = function() {
-    if(that.model_data.num_hemispheres == 2){
-
-      var brainMaterial = that.brainTransform.children[0].shapes[0].elements[0].material;
-      that.state1 = that.pack.createObject('State');
-      brainMaterial.state = that.state1;
-      var wires = brainMaterial.getParam('wires');
-      wires.value = false;
-
-      that.state.getStateParam('FillMode').value = that.o3d.State.SOLID;
-      brainMaterial = that.brainTransform.children[1].shapes[0].elements[0].material;
-      brainMaterial.state = that.state;
-      var wires = brainMaterial.getParam('wires');
-      wires.value = false;
-
-    } else {
-      var brainMaterial = that.brainTransform.shapes[0].elements[0].material;
-      that.state = that.pack.createObject('State');
-      brainMaterial.state = that.state;
-      that.state.getStateParam('FillMode').value = that.o3d.State.SOLID;
-      var wires = brainMaterial.getParam('wires');
-      wires.value = false;
-
-    }
-
+    // if(that.model_data.num_hemispheres == 2){
+    // 
+    //      var brainMaterial = that.brainTransform.children[0].shapes[0].elements[0].material;
+    //      that.state1 = that.pack.createObject('State');
+    //      brainMaterial.state = that.state1;
+    //      var wires = brainMaterial.getParam('wires');
+    //      wires.value = false;
+    // 
+    //      that.state.getStateParam('FillMode').value = that.o3d.State.SOLID;
+    //      brainMaterial = that.brainTransform.children[1].shapes[0].elements[0].material;
+    //      brainMaterial.state = that.state;
+    //      var wires = brainMaterial.getParam('wires');
+    //      wires.value = false;
+    // 
+    //    } else {
+    //      var brainMaterial = that.brainTransform.shapes[0].elements[0].material;
+    //      that.state = that.pack.createObject('State');
+    //      brainMaterial.state = that.state;
+    //      that.state.getStateParam('FillMode').value = that.o3d.State.SOLID;
+    //      var wires = brainMaterial.getParam('wires');
+    //      wires.value = false;
+    // 
+    //    }
+    brain.material.wireframe = false;
   };
 
   function loadFromUrl(url,sync,callback) {

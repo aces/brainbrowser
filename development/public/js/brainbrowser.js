@@ -79,13 +79,13 @@ function BrainBrowser(initCallback) {
     function render(timestamp) {
     	requestAnimationFrame(render);
     	
-    	// cube.rotation.x -= 0.01;
-    	//       cube.rotation.z += 0.01;
+    	 //cube.rotation.x -= 0.01;
+    	 //cube.rotation.z += 0.01;
     	
-    	// if(brain){
-    	//         brain.rotation.x += 0.01;
-    	//         brain.rotation.y += 0.01;
-    	//       }
+    	 //if(brain){
+    	 //        brain.rotation.x += 0.01;
+    	 //        brain.rotation.y += 0.01;
+    	 //      }
 
 
       that.renderCallback();    
@@ -945,7 +945,7 @@ function BrainBrowser(initCallback) {
     // 
     //     }
     //     that.client.render();
-    brain.material.wireframe = true;
+    brain.material =  new THREE.MeshBasicMaterial({color: 0xFFFFFF, wireframe: true});
   };
 
   this.set_fill_mode_solid = function() {
@@ -972,7 +972,7 @@ function BrainBrowser(initCallback) {
     //      wires.value = false;
     // 
     //    }
-    brain.material.wireframe = false;
+    brain.material =  new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808});
   };
 
   function loadFromUrl(url,sync,callback) {

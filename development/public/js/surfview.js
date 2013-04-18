@@ -237,7 +237,6 @@ function SurfView(model_url) {
       }
       
     }
-console.log("SETTING AUTOROTATE CONTROLS");
     jQuery("#autorotate-controls").children().change(changeAutoRotate);
     jQuery("#autorotate").change(changeAutoRotate);
 

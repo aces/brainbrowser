@@ -42,11 +42,11 @@ function BrainBrowser(initCallback) {
   
   var colorManager = new ColorManager();
   var view_window; //canvas element
-  var render; //THREE.js renderer
+  var renderer; //THREE.js renderer
   var camera; //THREE.js camera
   var scene; //THREE.js scene
   var afterInit = initCallback;
-  var brain;
+  var brain = new THREE.Object3D();
   var camera_controls;
   var light_controls;
   
@@ -68,7 +68,7 @@ function BrainBrowser(initCallback) {
     
     //scene.add(cube);
     
-    camera.position.z = 300;
+    camera.position.z = 500;
     
     var pointLight = new THREE.PointLight(0xFFFFFF);
 
@@ -78,24 +78,19 @@ function BrainBrowser(initCallback) {
 
     scene.add(pointLight);
     
-    camera_controls = new THREE.TrackballControls(camera);
-    light_controls = new THREE.TrackballControls(pointLight);
+    camera_controls = new THREE.TrackballControls(camera, view_window[0]);
+    light_controls = new THREE.TrackballControls(pointLight, view_window[0]);
     camera_controls.zoomSpeed = 2;                 
     light_controls.zoomSpeed = 2;
     
     function render(timestamp) {
     	requestAnimationFrame(render);
-    	
-    	 //cube.rotation.x -= 0.01;
-    	 //cube.rotation.z += 0.01;
-    	
-    	 //if(brain){
-    	 //        brain.rotation.x += 0.01;
-    	 //        brain.rotation.y += 0.01;
-    	 //      }
-
       camera_controls.update();
       light_controls.update();
+      if(brain.getChildByName("left")) {
+       // brain.getChildByName("left").rotation.x -= 0.1;
+        //brain.getChildByName("right").rotation.x += 0.1;
+      }
       that.renderCallback();    
     }
     if(afterInit) {
@@ -112,14 +107,22 @@ function BrainBrowser(initCallback) {
   };
   
   function addBrain(obj) {
+    that.model_data = obj;
+    var left = addHemisphere(obj.left);
+    left.name = "left";
+    var right = addHemisphere(obj.right);
+    right.name = "right"
+    brain.add(left);
+    brain.add(right);
+    
+    scene.add(brain);
+  }
+  
+  function addHemisphere(obj) {
     //that.createBrain(obj,filename);
     var verts = obj.positionArray;
     var ind = obj.indexArray;
     var norms = obj.normalArray;
-    
-    console.log(obj);
-    
-    console.log("Norm 0: " + norms[0] + ", " + norms[1] + ", " + norms[2]);
     
     var geometry = new THREE.Geometry();
     for(var i = 0; i+2 < verts.length; i+=3) {
@@ -134,9 +137,9 @@ function BrainBrowser(initCallback) {
     geometry.computeVertexNormals();
     
     var material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808});
-    brain = new THREE.Mesh(geometry, material);
-        
-    scene.add(brain);
+    var hemisphere = new THREE.Mesh(geometry, material);
+            
+    return hemisphere;
   }
 
   /** 
@@ -244,7 +247,7 @@ function BrainBrowser(initCallback) {
 	       brain.rotation.x += 0.01;
        }
       if(that.autoRotate.y){
-	      brain.rotation.y += 0.01;
+        brain.rotation.y += 0.01;
       }
       if(that.autoRotate.z){
 	      brain.rotation.z += 0.01;
@@ -372,8 +375,9 @@ function BrainBrowser(initCallback) {
    * @param {Number[]} color Takes an array with 4 elements, the color must be represented as for values from 0-1.0 [red,green,blue,alpha] 
     * 
    */
-  this.updateClearColor= function(color)  {
-    that.viewInfo.clearBuffer.clearColor = color;
+  this.updateClearColor = function(color)  {
+    renderer.setClearColor(new THREE.Color(color));
+    //that.viewInfo.clearBuffer.clearColor = color;
   };
 
   /**
@@ -383,13 +387,13 @@ function BrainBrowser(initCallback) {
   this.updateClearColorFromName = function(name) {
 
     if (name == "white") {
-      that.updateClearColor([1.0,1.0,1.0,1.0]);
+      that.updateClearColor(0xFFFFFF);
     }else if(name == "black") {
-      that.updateClearColor([0.0,0.0,0.0,1.0]);
+      that.updateClearColor(0x000000);
     } else if(name == "pink"){
-      that.updateClearColor([1.0,0.0,1.0,1.0]);
+      that.updateClearColor(0xFF00FF);
     }else{
-      that.updateClearColor([0.5,0.5,0.5,1]);
+      that.updateClearColor(0x888888);
     }
   };
 
@@ -443,12 +447,21 @@ function BrainBrowser(initCallback) {
    * matrix.
    */
   this.resetView = function() {
-    that.brainTransform.children[0].visible=true;
-    that.brainTransform.children[1].visible=true;
-    that.brainTransform.identity();
-    that.brainTransform.children[0].identity();
-    that.brainTransform.children[1].identity();
-
+    // that.brainTransform.children[0].visible=true;
+    //  that.brainTransform.children[1].visible=true;
+    //  that.brainTransform.identity();
+    //  that.brainTransform.children[0].identity();
+    //  that.brainTransform.children[1].identity();
+    camera_controls.reset();                 
+    light_controls.reset();
+    brain.position.set(0, 0, 0);
+    brain.rotation.set(0, 0, 0);
+    brain.getChildByName("left").visible = true;
+    brain.getChildByName("left").position.set(0, 0, 0);
+    brain.getChildByName("left").rotation.set(0, 0, 0);
+    brain.getChildByName("right").visible = true;
+    brain.getChildByName("right").position.set(0, 0, 0);
+    brain.getChildByName("right").rotation.set(0, 0, 0);
   };
 
 
@@ -462,26 +475,26 @@ function BrainBrowser(initCallback) {
       var params=that.getViewParams(); //Must be defined by calling app
       switch(params.view) {
         case 'superior':
-	  that.superiorView();
-	  break;
-	case 'medial':
-	  that.medialView();
-	  break;
+        that.superiorView();
+        break;
+        case 'medial':
+        that.medialView();
+        break;
         case 'anterior':
-	  that.anteriorView();
-	  break;
+        that.anteriorView();
+        break;
         case 'inferior':
-	  that.inferiorView();
-	  break;
+        that.inferiorView();
+        break;
         case 'lateral':
-	  that.lateralView();
-	  break;
+        that.lateralView();
+        break;
         case 'posterior':
-	  that.posteriorView();
-	  break;
+        that.posteriorView();
+        break;
         default:
-	  that.superiorView();
-	  break;
+        that.superiorView();
+        break;
       }
 
     }
@@ -499,15 +512,19 @@ function BrainBrowser(initCallback) {
     }else {
       that.rightHemisphereVisible(false);
     }
-    that.thatRot = that.math.matrix4.mul(that.brainTransform.localMatrix, that.math.matrix4.identity());
+    //that.thatRot = that.math.matrix4.mul(that.brainTransform.localMatrix, that.math.matrix4.identity());
   };
+  
+  function degToRad(deg) {
+    return deg * Math.PI/180;
+  }
 
   /**
    * functions turn the left hemisphere shapes visibility on off
    * @param {Bool} state  boolean (true == visible, false == not visible) 
    */
   this.leftHemisphereVisible = function(state)  {
-    that.brainTransform.children[0].visible = state;
+    brain.getChildByName("left").visible = state;
   };
 
 
@@ -516,7 +533,7 @@ function BrainBrowser(initCallback) {
    * @param {Bool} state  boolean (true == visible, false == not visible) 
    */
   this.rightHemisphereVisible = function(state)  {
-    that.brainTransform.children[1].visible = state;
+    brain.getChildByName("right").visible = state;
   };
 
 
@@ -526,14 +543,18 @@ function BrainBrowser(initCallback) {
    * 
    */
   this.medialView = function(e) {
-
     if(that.model_data.num_hemispheres == 2 ) {
 
-      that.brainTransform.children[0].translate([-100,0,0]);
-      that.brainTransform.children[1].translate([100,0,0]);
-      that.brainTransform.children[0].rotateZ(that.math.degToRad(-90));
-      that.brainTransform.children[1].rotateZ(that.math.degToRad(90));
-      that.brainTransform.rotateX(that.math.degToRad(-90));
+      //that.brainTransform.children[0].translate([-100,0,0]);
+      //that.brainTransform.children[1].translate([100,0,0]);
+      //that.brainTransform.children[0].rotateZ(that.math.degToRad(-90));
+      //that.brainTransform.children[1].rotateZ(that.math.degToRad(90));
+      //that.brainTransform.rotateX(that.math.degToRad(-90));
+      brain.getChildByName("left").position.x -= 100;
+      brain.getChildByName("left").rotation.z -= degToRad(90);
+      brain.getChildByName("right").position.x += 100;
+      brain.getChildByName("right").rotation.z += degToRad(90);     
+      brain.rotation.x += degToRad(-90);
     }
   };
 
@@ -544,13 +565,19 @@ function BrainBrowser(initCallback) {
 
     if(that.model_data.num_hemispheres == 2 ) {
 
-      that.brainTransform.children[0].translate([-100,0,0]);
-      that.brainTransform.children[1].translate([100,0,0]);
-      that.brainTransform.children[0].rotateZ(that.math.degToRad(-90));
-      that.brainTransform.children[1].rotateZ(that.math.degToRad(90));
-      that.brainTransform.rotateX(that.math.degToRad(90));
-      that.brainTransform.rotateY(that.math.degToRad(180));
+      // that.brainTransform.children[0].translate([-100,0,0]);
+      //   that.brainTransform.children[1].translate([100,0,0]);
+      //   that.brainTransform.children[0].rotateZ(that.math.degToRad(-90));
+      //   that.brainTransform.children[1].rotateZ(that.math.degToRad(90));
+      //   that.brainTransform.rotateX(that.math.degToRad(90));
+      //   that.brainTransform.rotateY(that.math.degToRad(180));
 
+      brain.getChildByName("left").position.x -= 100;
+      brain.getChildByName("left").rotation.z += degToRad(-90);
+      brain.getChildByName("right").position.x += 100;
+      brain.getChildByName("right").rotation.z += degToRad(90);
+      brain.rotation.x += degToRad(90);
+      brain.rotation.y += degToRad(180);
     }
   };
 
@@ -566,7 +593,8 @@ function BrainBrowser(initCallback) {
    * function to handle to preset views of the system.
    */
   this.inferiorView = function() {
-    that.brainTransform.rotateY(that.math.degToRad(180));
+    brain.rotation.y += degToRad(180);
+    //that.brainTransform.rotateY(that.math.degToRad(180));
   };
 
   /**
@@ -574,8 +602,10 @@ function BrainBrowser(initCallback) {
    */
   this.anteriorView = function(e) {
     that.resetView();
-    that.brainTransform.rotateX(that.math.degToRad(-90));
-    that.brainTransform.rotateZ(that.math.degToRad(180));
+    brain.rotation.x += degToRad(-90);
+    brain.rotation.z += degToRad(180);
+    //that.brainTransform.rotateX(that.math.degToRad(-90));
+    //that.brainTransform.rotateZ(that.math.degToRad(180));
   };
 
   /**
@@ -583,7 +613,8 @@ function BrainBrowser(initCallback) {
    */
   this.posteriorView = function(e) {
     that.resetView();
-    that.brainTransform.rotateX(that.math.degToRad(-90));
+    brain.rotation.x += degToRad(-90);
+    //that.brainTransform.rotateX(that.math.degToRad(-90));
   };
 
 
@@ -800,14 +831,14 @@ function BrainBrowser(initCallback) {
 
       if(that.drag_hemisphere === 0 || that.drag_hemisphere === 1) {
 
-	var m = that.brainTransform.children[that.drag_hemisphere].localMatrix;
-	that.math.matrix4.setUpper3x3(m, that.thatRot);
-	that.brainTransform.children[that.drag_hemisphere].localMatrix = m;
+	      var m = that.brainTransform.children[that.drag_hemisphere].localMatrix;
+	      that.math.matrix4.setUpper3x3(m, that.thatRot);
+	      that.brainTransform.children[that.drag_hemisphere].localMatrix = m;
 
       } else {
-	var m = that.brainTransform.localMatrix;
-	that.math.matrix4.setUpper3x3(m, that.thatRot);
-	that.brainTransform.localMatrix = m;
+	      var m = that.brainTransform.localMatrix;
+	      that.math.matrix4.setUpper3x3(m, that.thatRot);
+	      that.brainTransform.localMatrix = m;
 
       }
 
@@ -953,7 +984,8 @@ function BrainBrowser(initCallback) {
     // 
     //     }
     //     that.client.render();
-    brain.material =  new THREE.MeshBasicMaterial({color: 0xFFFFFF, wireframe: true});
+    brain.getChildByName("left").material =  new THREE.MeshBasicMaterial({color: 0xFFFFFF, wireframe: true});
+    brain.getChildByName("right").material =  new THREE.MeshBasicMaterial({color: 0xFFFFFF, wireframe: true});
   };
 
   this.set_fill_mode_solid = function() {
@@ -980,7 +1012,8 @@ function BrainBrowser(initCallback) {
     //      wires.value = false;
     // 
     //    }
-    brain.material =  new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808});
+    brain.getChildByName("left").material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808});
+    brain.getChildByName("right").material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808});
   };
 
   function loadFromUrl(url,sync,callback) {

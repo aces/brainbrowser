@@ -104,27 +104,27 @@ function SurfView(model_url) {
       var rangeBox = $("#data-range");
       $(rangeBox).html("");
       var html_string = "<div id=\"data_range_multiple\">"
-	+ "<ul>";
+	    + "<ul>";
       
       //Make the data object an array to make the rest work the same for both
       //multiple data files and singles. 
       if(!data.length) {
-	var data = [data];
+	      var data = [data];
       }
       for(var i=0; i<data.length; i++) {
-	html_string += "<li><a href=\"#data_file"+i+"\">"+data[i].fileName+"</a></li>";
+	      html_string += "<li><a href=\"#data_file"+i+"\">"+data[i].fileName+"</a></li>";
       }
       html_string +="</ul>";
       for(var k=0; k<data.length; k++) {
-	html_string += "<div id=\"data_file"+k+"\" class=\"box full_box\">"
-	  + "<h4>Thresholding</h4>"
-	  +    "Min: <input class=\"range-box\" id=\"data-range-min\" type=\"text\" name=\"range_min\" size=\"5\" ><br />"
-	  + "<div id=\"range-slider+"+k+"\" data-blend-index=\""+k+"\" class=\"slider\"></div>"
-	  + "Max: <input class=\"range-box\" id=\"data-range-max\" type=\"text\" name=\"range_max\" size=\"5\" >"
-	  + "<input type=\"checkbox\" class=\"button\" id=\"fix_range\"><label for=\"fix_range\">Fix Range</label>"
-	  + "<input type=\"checkbox\" class=\"button\" id=\"clamp_range\" checked=\"true\"><label for=\"clamp_range\">Clamp range</label>"
-	  + "<input type=\"checkbox\" class=\"button\" id=\"flip_range\"><label for=\"flip_range\">Flip Colors</label>"
-	  + "</div>";
+	      html_string += "<div id=\"data_file"+k+"\" class=\"box full_box\">"
+    	  + "<h4>Thresholding</h4>"
+    	  +    "Min: <input class=\"range-box\" id=\"data-range-min\" type=\"text\" name=\"range_min\" size=\"5\" ><br />"
+    	  + "<div id=\"range-slider+"+k+"\" data-blend-index=\""+k+"\" class=\"slider\"></div>"
+    	  + "Max: <input class=\"range-box\" id=\"data-range-max\" type=\"text\" name=\"range_max\" size=\"5\" >"
+    	  + "<input type=\"checkbox\" class=\"button\" id=\"fix_range\"><label for=\"fix_range\">Fix Range</label>"
+    	  + "<input type=\"checkbox\" class=\"button\" id=\"clamp_range\" checked=\"true\"><label for=\"clamp_range\">Clamp range</label>"
+    	  + "<input type=\"checkbox\" class=\"button\" id=\"flip_range\"><label for=\"flip_range\">Flip Colors</label>"
+    	  + "</div>";
       }
       
       html_string += "</div>";

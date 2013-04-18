@@ -47,6 +47,8 @@ function BrainBrowser(initCallback) {
   var scene; //THREE.js scene
   var afterInit = initCallback;
   var brain;
+  var camera_controls;
+  var light_controls;
   
   this.init = function() {
     //o3djs.webgl.makeClients(that.initStep2);
@@ -76,6 +78,11 @@ function BrainBrowser(initCallback) {
 
     scene.add(pointLight);
     
+    camera_controls = new THREE.TrackballControls(camera);
+    light_controls = new THREE.TrackballControls(pointLight);
+    camera_controls.zoomSpeed = 2;                 
+    light_controls.zoomSpeed = 2;
+    
     function render(timestamp) {
     	requestAnimationFrame(render);
     	
@@ -87,7 +94,8 @@ function BrainBrowser(initCallback) {
     	 //        brain.rotation.y += 0.01;
     	 //      }
 
-
+      camera_controls.update();
+      light_controls.update();
       that.renderCallback();    
     }
     if(afterInit) {
@@ -127,7 +135,7 @@ function BrainBrowser(initCallback) {
     
     var material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808});
     brain = new THREE.Mesh(geometry, material);
-    
+        
     scene.add(brain);
   }
 

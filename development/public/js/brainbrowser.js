@@ -17,22 +17,13 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//o3djs.base.o3d = o3d;
-//o3djs.require('o3djs.webgl');
-//o3djs.require('o3djs.math');
-//o3djs.require('o3djs.rendergraph');
-//o3djs.require('o3djs.pack');
-//o3djs.require('o3djs.picking');
-//o3djs.require('o3djs.arcball');
-//o3djs.require('o3djs.quaternions');
-//o3djs.require('o3djs.scene');
 
 /**
  * Create new BrainBrowser viewer object
  * @constructor
  *  
  */
-function BrainBrowser(initCallback) {
+function BrainBrowser() {
   var that = this; //Brainbrowser object. Makes sure that if "this" is remapped then we can still
                    // refer to original object. Also for local functions "this" is not available 
                    // but "that" is and can be used for special helper methods. 
@@ -45,28 +36,27 @@ function BrainBrowser(initCallback) {
   var renderer; //THREE.js renderer
   var camera; //THREE.js camera
   var scene; //THREE.js scene
-  var afterInit = initCallback;
   var brain = new THREE.Object3D();
   var camera_controls;
   var light_controls;
   
+  this.start = function() {
+    window.onload = function() {
+      setTimeout(function(){
+        that.init();
+      }, 1);
+    };
+  }
+  
   this.init = function() {
-    //o3djs.webgl.makeClients(that.initStep2);
     
     scene = new THREE.Scene();
     view_window = $("#view-window");
     camera = new THREE.PerspectiveCamera(30, view_window.width()/view_window.height(), 0.1, 5000);
     
-    renderer = new THREE.WebGLRenderer({clearColor: 0x888888, clearAlpha: 1});
+    renderer = new THREE.WebGLRenderer({clearColor: 0x888888, clearAlpha: 1, preserveDrawingBuffer: true});
     renderer.setSize(view_window.width(), view_window.height());
-    view_window.append(renderer.domElement);
-    
-    var geometry = new THREE.CubeGeometry(100,100,100);
-    var material = new THREE.MeshPhongMaterial({color: 0x00ff00, ambient: 0x0A0A0A, specular: 0x080808});
-    var cube = new THREE.Mesh(geometry, material);
-    cube.position.x = -200;
-    
-    //scene.add(cube);
+    view_window.append(renderer.domElement);  
     
     camera.position.z = 500;
     
@@ -93,14 +83,14 @@ function BrainBrowser(initCallback) {
       }
       that.renderCallback();    
     }
-    if(afterInit) {
-       afterInit(that);
+    if(this.afterInit) {
+       this.afterInit(that);
     }
     
     window.onresize();      
     //that.updateInfo();
     
-    //that.loadSpectrumFromUrl('/assets/spectral_spectrum.txt');
+    that.loadSpectrumFromUrl('/assets/spectral_spectrum.txt');
     
     render();
     
@@ -136,7 +126,7 @@ function BrainBrowser(initCallback) {
     geometry.computeFaceNormals();
     geometry.computeVertexNormals();
     
-    var material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808});
+    var material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808, transparent: true});
     var hemisphere = new THREE.Mesh(geometry, material);
             
     return hemisphere;
@@ -146,83 +136,83 @@ function BrainBrowser(initCallback) {
    * Initialize the global variables of BrainBrowser,
    * the brain model, apply material & shader
    */
-  this.initStep2 = function(clientElements) {
-    
-    // Initializes global variables and libraries.
-    var o3dElement = clientElements[0];
-    that.o3dElement = o3dElement;
-    that.client = o3dElement.client;
-    that.o3d = o3dElement.o3d;
-    that.math = o3djs.math;
-    that.dragging = false;
-    that.o3dWidth = -1;
-    that.o3dHeight = -1;
-    that.quaternions = o3djs.quaternions;
-    that.lastRot = that.math.matrix4.identity();
-    that.thatRot = that.math.matrix4.identity();
-    that.zoomFactor = 1.10;
-    that.keyPressDelta = 0.1;
-    that.clock = 0;
-    that.timeMult = 1.0;
-    that.camera = {
-      farPlane: 5000,
-      nearPlane:0.1
-    };
-    that.object_origin = [0,0,0];
-     
-     
-     that.loading = jQuery("#o3d_loading");
-     
-     // Initialize O3D sample libraries. o3dElement is the o3d div in the page
-     o3djs.base.init(o3dElement);
-     // Create a pack to manage the objects created.
-     that.pack = that.client.createPack();
-     
-     
-     // Create the render graph for a view.
-     var viewInfo = o3djs.rendergraph.createBasicView(
-      that.pack,
-      that.client.root,
-      that.client.renderGraphRoot,
-      [0.5,0.5,0.5,1]);
-     that.viewInfo = viewInfo;
-     // Set up a simple orthographic view.
-     viewInfo.drawContext.projection = that.math.matrix4.perspective(
-      that.math.degToRad(30), // 30 degree fov.
-      that.client.width / that.client.height,
-      1,                  // Near plane.
-      5000);              // Far plane.
-     
-     // Set up our view transformation to look towards the world origin
-     // where the brain is located.
-     that.eyeView = [0,0,500];
-     viewInfo.drawContext.view = that.math.matrix4.lookAt(
-      that.eyeView, // eye
-      [0, 0, 0],  // target
-      [0, 1, 0]); // up
-     
-     that.aball = o3djs.arcball.create(100, 100);
-     
-     that.client.setRenderCallback(that.renderCallback);
-     
-     //Add event handlers
-     jQuery("body").keydown(that.keyPressedCallback);
-     o3djs.event.addEventListener(o3dElement, 'wheel', that.scrollMe);
-
-     that.loadSpectrumFromUrl('/assets/spectral_spectrum.txt');
-
-
-    jQuery('#screenshot').click(function(event) {jQuery(this).attr("href",bb.client.toDataURL());});
-
-     //This allows a programmer to define a function that runs after initialization
-     if(that.afterInit) {
-       that.afterInit(that);
-     }
-     window.onresize();      
-     that.updateInfo();
-
-
-  };
+  // this.initStep2 = function(clientElements) {
+  //     
+  //     // Initializes global variables and libraries.
+  //     var o3dElement = clientElements[0];
+  //     that.o3dElement = o3dElement;
+  //     that.client = o3dElement.client;
+  //     that.o3d = o3dElement.o3d;
+  //     that.math = o3djs.math;
+  //     that.dragging = false;
+  //     that.o3dWidth = -1;
+  //     that.o3dHeight = -1;
+  //     that.quaternions = o3djs.quaternions;
+  //     that.lastRot = that.math.matrix4.identity();
+  //     that.thatRot = that.math.matrix4.identity();
+  //     that.zoomFactor = 1.10;
+  //     that.keyPressDelta = 0.1;
+  //     that.clock = 0;
+  //     that.timeMult = 1.0;
+  //     that.camera = {
+  //       farPlane: 5000,
+  //       nearPlane:0.1
+  //     };
+  //     that.object_origin = [0,0,0];
+  //      
+  //      
+  //      that.loading = jQuery("#o3d_loading");
+  //      
+  //      // Initialize O3D sample libraries. o3dElement is the o3d div in the page
+  //      o3djs.base.init(o3dElement);
+  //      // Create a pack to manage the objects created.
+  //      that.pack = that.client.createPack();
+  //      
+  //      
+  //      // Create the render graph for a view.
+  //      var viewInfo = o3djs.rendergraph.createBasicView(
+  //       that.pack,
+  //       that.client.root,
+  //       that.client.renderGraphRoot,
+  //       [0.5,0.5,0.5,1]);
+  //      that.viewInfo = viewInfo;
+  //      // Set up a simple orthographic view.
+  //      viewInfo.drawContext.projection = that.math.matrix4.perspective(
+  //       that.math.degToRad(30), // 30 degree fov.
+  //       that.client.width / that.client.height,
+  //       1,                  // Near plane.
+  //       5000);              // Far plane.
+  //      
+  //      // Set up our view transformation to look towards the world origin
+  //      // where the brain is located.
+  //      that.eyeView = [0,0,500];
+  //      viewInfo.drawContext.view = that.math.matrix4.lookAt(
+  //       that.eyeView, // eye
+  //       [0, 0, 0],  // target
+  //       [0, 1, 0]); // up
+  //      
+  //      that.aball = o3djs.arcball.create(100, 100);
+  //      
+  //      that.client.setRenderCallback(that.renderCallback);
+  //      
+  //      //Add event handlers
+  //      jQuery("body").keydown(that.keyPressedCallback);
+  //      o3djs.event.addEventListener(o3dElement, 'wheel', that.scrollMe);
+  // 
+  //      that.loadSpectrumFromUrl('/assets/spectral_spectrum.txt');
+  // 
+  // 
+  //     jQuery('#screenshot').click(function(event) {jQuery(this).attr("href",bb.client.toDataURL());});
+  // 
+  //      //This allows a programmer to define a function that runs after initialization
+  //      if(that.afterInit) {
+  //        that.afterInit(that);
+  //      }
+  //      window.onresize();      
+  //      that.updateInfo();
+  // 
+  // 
+  //   };
 
 
   /*
@@ -304,7 +294,16 @@ function BrainBrowser(initCallback) {
    * Tip: when you remove a shape, the shapes array lenght will be decremented so if you need to count the number of shapes, you must save that length value before removing shapes. 
    */
   this.clearScreen = function() {
-    console.log("clearScreen commented out!");
+    if(brain) {
+      scene.remove(brain)
+    }
+    
+    brain = new THREE.Object3D();
+    
+    if(that.afterClearScreen != undefined) {
+      that.afterClearScreen();
+    }
+    
     // if(brainbrowser.brainTransform != undefined) {
     //       if(brainbrowser.brainTransform.shapes != undefined) {
     //        var num = brainbrowser.brainTransform.shapes.length;
@@ -347,7 +346,7 @@ function BrainBrowser(initCallback) {
       alert("Object file not supported");
     }
     if(that.afterDisplayObject != undefined) {
-      that.afterDisplayObject(that.brainTransform);      
+      that.afterDisplayObject(brain);      
     }
 
   };
@@ -956,62 +955,11 @@ function BrainBrowser(initCallback) {
    * Sets the fillmode of the brain to wireframe or filled
    */
   this.set_fill_mode_wireframe= function() {
-
-    
-    // if(that.model_data.num_hemispheres == 2){
-    //       var brainMaterial = that.brainTransform.children[0].shapes[0].elements[0].material;
-    //       that.state = that.pack.createObject('State');
-    //       brainMaterial.state = that.state;
-    // 
-    //       var wires = brainMaterial.getParam('wires');
-    //       wires.value = true;
-    // 
-    //       that.state.getStateParam('FillMode').value = that.o3d.State.WIREFRAME;
-    //       brainMaterial = that.brainTransform.children[1].shapes[0].elements[0].material;
-    //       brainMaterial.state = that.state;
-    //       wires = brainMaterial.getParam('wires');
-    //       wires.value = true;
-    // 
-    //     } else {
-    //       that.brainTransform.children[0].visible = false;
-    //       that.createLineObject(that.model_data,"mesh", true);
-    //       //var brainMaterial = that.brainTransform.shapes[0].elements[0].material;
-    //       //that.state = that.pack.createObject('State');
-    //       //brainMaterial.state = that.state;
-    //       //that.state.getStateParam('FillMode').value = that.o3d.State.WIREFRAME;
-    //       //var wires = brainMaterial.getParam('wires');
-    //       //wires.value = true;
-    // 
-    //     }
-    //     that.client.render();
     brain.getChildByName("left").material =  new THREE.MeshBasicMaterial({color: 0xFFFFFF, wireframe: true});
     brain.getChildByName("right").material =  new THREE.MeshBasicMaterial({color: 0xFFFFFF, wireframe: true});
   };
 
   this.set_fill_mode_solid = function() {
-    // if(that.model_data.num_hemispheres == 2){
-    // 
-    //      var brainMaterial = that.brainTransform.children[0].shapes[0].elements[0].material;
-    //      that.state1 = that.pack.createObject('State');
-    //      brainMaterial.state = that.state1;
-    //      var wires = brainMaterial.getParam('wires');
-    //      wires.value = false;
-    // 
-    //      that.state.getStateParam('FillMode').value = that.o3d.State.SOLID;
-    //      brainMaterial = that.brainTransform.children[1].shapes[0].elements[0].material;
-    //      brainMaterial.state = that.state;
-    //      var wires = brainMaterial.getParam('wires');
-    //      wires.value = false;
-    // 
-    //    } else {
-    //      var brainMaterial = that.brainTransform.shapes[0].elements[0].material;
-    //      that.state = that.pack.createObject('State');
-    //      brainMaterial.state = that.state;
-    //      that.state.getStateParam('FillMode').value = that.o3d.State.SOLID;
-    //      var wires = brainMaterial.getParam('wires');
-    //      wires.value = false;
-    // 
-    //    }
     brain.getChildByName("left").material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808});
     brain.getChildByName("right").material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808});
   };
@@ -1488,30 +1436,11 @@ function BrainBrowser(initCallback) {
    * it then changes the value of for the alpha channel in the shaders
    * of the specific shape. 
    */
-  this.changeShapeTransparency = function(shape_name,alpha) {
-    var shape = null;
-    if(that.brainTransform.shapes != undefined) {
-
-      for(var i = 0; i < that.brainTransform.shapes.length; i++)  {
-	if(that.brainTransform.shapes[i].name == shape_name) {
-	  shape = that.brainTransform.shapes[i];
-	}
-      }
+  this.changeShapeTransparency = function(shape_name, alpha) {
+    var shape = brain.getChildByName(shape_name);
+    if (shape) {
+      shape.material.opacity = alpha;
     }
-
-    for(var k = 0; k < that.brainTransform.children.length; k++) {
-      for(var i = 0; i < that.brainTransform.children[k].shapes.length; i++)  {
-	if(that.brainTransform.children[k].shapes[i].name == shape_name) {
-	  shape = that.brainTransform.children[k].shapes[i];
-	}
-      	
-      }
-    }  
-    if(shape) {
-        //set the transAlpha attribute in the shader
-	shape.elements[0].material.getParam('transAlpha').value = alpha;
-    }
-    
   };
   
   /*
@@ -1522,9 +1451,9 @@ function BrainBrowser(initCallback) {
   this.getImageUrl = function() {
     var canvas = document.createElement("canvas");
     var spectrumCanvas = document.getElementById("spectrum_canvas");
-    canvas.width = that.o3dElement.width;
-    canvas.height = that.o3dElement.height;
-      
+    canvas.width = view_window.width();
+    canvas.height = view_window.height();
+            
     var context = canvas.getContext("2d");
     var img = new Image();
 
@@ -1542,7 +1471,7 @@ function BrainBrowser(initCallback) {
 	    getSpectrumImage();
     };
     
-    img.src = that.o3dElement.toDataURL();  
+    img.src = renderer.domElement.toDataURL();
   };
 
   window.onresize = function() {
@@ -1550,7 +1479,6 @@ function BrainBrowser(initCallback) {
     camera.aspect = view_window.width()/view_window.height();
   };
     
-  that.init();
-
+  that.start();
 
 }

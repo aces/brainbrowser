@@ -533,45 +533,45 @@ function bbObject(brainbrowser) {
     
     if(model.colorArray.length == 4) {
       for(var i=0;i<polygonPrimitive.numberVertices;i++) {
-	colorArray.push.apply(colorArray,model.colorArray);
+	      colorArray.push.apply(colorArray,model.colorArray);
       }
     }else {
       colorArray = new Float32Array(indexArray.length*4);
       var indexArrayLength = indexArray.length;
       for(var j = 0; j < indexArrayLength ; j++) {
-	colorArray[j*4] = 
-	colorArray[j*4+1] = model.colorArray[indexArray[j]*4+1];
-	colorArray[j*4+2] = model.colorArray[indexArray[j]*4+2];
-	colorArray[j*4+3] = model.colorArray[indexArray[j]*4+3];
+	      colorArray[j*4] = 
+	      colorArray[j*4+1] = model.colorArray[indexArray[j]*4+1];
+	      colorArray[j*4+2] = model.colorArray[indexArray[j]*4+2];
+	      colorArray[j*4+3] = model.colorArray[indexArray[j]*4+3];
       }
       for(var l=0; l < indexArrayLenght; l+=3 ) {
-	var color = [];
-	color[0] = [model.colorArray[indexArray[j]*4],
+	      var color = [];
+	      color[0] = [model.colorArray[indexArray[j]*4],
 		    model.colorArray[indexArray[j]*4 +1],
 		    model.colorArray[indexArray[j]*4 +2],
 		    model.colorArray[indexArray[j]*4 +3]
 		   ];
 
-	color[1] = [model.colorArray[indexArray[j+1]*4],
-		    model.colorArray[indexArray[j+1]*4 +1],
-		    model.colorArray[indexArray[j+1]*4 +2],
-		    model.colorArray[indexArray[j+1]*4 +3]
+	     color[1] = [model.colorArray[indexArray[j+1]*4],
+		     model.colorArray[indexArray[j+1]*4 +1],
+		     model.colorArray[indexArray[j+1]*4 +2],
+		     model.colorArray[indexArray[j+1]*4 +3]
 		   ];
 
-	color[2] = [model.colorArray[indexArray[j+2]*4],
-		    model.colorArray[indexArray[j+2]*4 +1],
-		    model.colorArray[indexArray[j+2]*4 +2],
-		    model.colorArray[indexArray[j+2]*4 +3]
+	     color[2] = [model.colorArray[indexArray[j+2]*4],
+		     model.colorArray[indexArray[j+2]*4 +1],
+		     model.colorArray[indexArray[j+2]*4 +2],
+		     model.colorArray[indexArray[j+2]*4 +3]
 		   ];
 	
-	meshColorArray.push.apply(meshColorArray, color[0]);
-	meshColorArray.push.apply(meshColorArray, color[1]);
+	     meshColorArray.push.apply(meshColorArray, color[0]);
+	     meshColorArray.push.apply(meshColorArray, color[1]);
 
-	meshColorArray.push.apply(meshColorArray, color[1]);
-	meshColorArray.push.apply(meshColorArray, color[2]);
+	     meshColorArray.push.apply(meshColorArray, color[1]);
+	     meshColorArray.push.apply(meshColorArray, color[2]);
 
-	meshColorArray.push.apply(meshColorArray, color[2]);
-	meshColorArray.push.apply(meshColorArray, color[0]);	
+	     meshColorArray.push.apply(meshColorArray, color[2]);
+	     meshColorArray.push.apply(meshColorArray, color[0]);	
       }
 
     }

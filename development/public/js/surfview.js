@@ -331,26 +331,17 @@ function SurfView(model_url) {
 			     bb.loadObjFromUrl('/models/dti.obj');
 			     bb.loadObjFromUrl('/models/left_color.obj');
 			     bb.loadObjFromUrl('/models/right_color.obj');
-			     bb.eyeView[2] = 500.0;
-			     bb.viewInfo.drawContext.view = bb.math.matrix4.lookAt(
-			       bb.eyeView, // eye
-			       [0, 0, 0],   // target
-			       [0, 1, 0]);  // up
 			     bb.setupView();
 			     break;
 			   case 'realct':
 			     bb.clearScreen();
 			     bb.loadObjFromUrl('/models/realct.obj');    
 			     bb.loadDataFromUrl('/models/realct.txt','cortical thickness'); 
-			     bb.eyeView[2] = 500.0;
-			     bb.viewInfo.drawContext.view = bb.math.matrix4.lookAt(
-			       bb.eyeView, // eye
-			       [0, 0, 0],   // target
-			       [0, 1, 0]);  // up
+
 			     bb.setupView();
 			     
 			     break;
-                           case 'car':
+         case 'car':
 			     bb.clearScreen();
 			     bb.loadWaveformObjFromUrl('/models/car.obj');
 			     bb.eyeView[2] = 62.0;

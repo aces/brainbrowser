@@ -66,11 +66,13 @@ function SurfView(model_url) {
       
   $(".opacity-slider").slider({
 	  value: 100,
-	  min: 0,
-	  max: 100,
+	  min: -1,
+	  max: 101,
 	  slide: function(event, ui) {
 	     var shape_name = $(event.target).attr('data-shape-name');
-	     var alpha = $(event.target).slider('value')/100.0;
+	     var alpha = $(event.target).slider('value');
+	     alpha = Math.min(100, Math.max(0, alpha)) / 100.0;
+	     
 	     brainbrowser.changeShapeTransparency(shape_name,alpha);
 	  }});
   };

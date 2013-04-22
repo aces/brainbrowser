@@ -252,7 +252,7 @@ function BrainBrowser() {
    * Called at every render events. 
    */
   this.renderCallback = function(renderEvent) {
-    that.setClientSize();
+    //that.setClientSize();
     if(that.autoRotate) {
        //that.clock = 0;
        //that.clock += renderEvent.elapsedTime * that.timeMult;
@@ -653,23 +653,23 @@ function BrainBrowser() {
   /**
    * Creates the client area.
    */
-  this.setClientSize= function() {
-
-    var newWidth  = parseInt(view_window.width());
-    var newHeight = parseInt(view_window.height());
-
-    if (newWidth != that.o3dWidth || newHeight != that.o3dHeight) {
-
-      that.o3dWidth = newWidth;
-      that.o3dHeight = newHeight;
-
-      that.updateProjection();
-
-      // Sets a new area size for arcball.
-      //that.aball.setAreaSize(that.o3dWidth, that.o3dHeight);
-      console.log("ARC BALL CODE COMMENTED OUT!");
-    }
-  };
+  // this.setClientSize= function() {
+  // 
+  //     var newWidth  = parseInt(view_window.width());
+  //     var newHeight = parseInt(view_window.height());
+  // 
+  //     if (newWidth != that.o3dWidth || newHeight != that.o3dHeight) {
+  // 
+  //       that.o3dWidth = newWidth;
+  //       that.o3dHeight = newHeight;
+  // 
+  //       that.updateProjection();
+  // 
+  //       // Sets a new area size for arcball.
+  //       //that.aball.setAreaSize(that.o3dWidth, that.o3dHeight);
+  //       console.log("ARC BALL CODE COMMENTED OUT!");
+  //     }
+  //   };
 
 
   /**
@@ -1386,21 +1386,26 @@ function BrainBrowser() {
         right_color_buffer.push(col);
       }
 
-      var left_hem_faces = brain.getChildByName("left").geometry.faces;
+      var left_hem = brain.getChildByName("left");
+      var left_hem_faces = left_hem.geometry.faces;
       for (var i = 0; i < left_hem_faces.length; i++) {
         var face = left_hem_faces[i];
         face.vertexColors[0] = left_color_buffer[face.a];
         face.vertexColors[1] = left_color_buffer[face.b];
         face.vertexColors[2] = left_color_buffer[face.c];
       }
+ 
+      left_hem.geometry.colorsNeedUpdate = true;
       
-      var right_hem_faces = brain.getChildByName("right").geometry.faces;
+      var right_hem = brain.getChildByName("right");
+      var right_hem_faces = right_hem.geometry.faces;
       for (var i = 0; i < right_hem_faces.length; i++) {
         var face = right_hem_faces[i];
         face.vertexColors[0] = right_color_buffer[face.a];
         face.vertexColors[1] = right_color_buffer[face.b];
         face.vertexColors[2] = right_color_buffer[face.c];
       }
+      right_hem.geometry.colorsNeedUpdate = true;
       
       // brain.getChildByName("left").geometry.colors = left_color_buffer;
       //       brain.getChildByName("left").geometry.colorsNeedUpdate = true;
@@ -1522,7 +1527,11 @@ function BrainBrowser() {
       
     img.onload = function(){
 	    context.drawImage(img,0,0); // Or at whatever offset you like
-	    getSpectrumImage();
+	    if (spectrumCanvas) {
+  	    getSpectrumImage();	      
+	    } else {
+	      window.open(canvas.toDataURL(), "screenshot");
+	    }
     };
     
     img.src = renderer.domElement.toDataURL();

@@ -1177,21 +1177,29 @@ function BrainBrowser() {
 
    };
 
-
-
-
+  function drawDot(x, y, z) {
+    var geometry = new THREE.SphereGeometry(2);
+    var material = new THREE.MeshBasicMaterial({color: 0xFF0000});
+  
+    var sphere = new THREE.Mesh(geometry, material);
+    sphere.position.set(x, y, z);
+  
+    scene.add(sphere);
+  }
+  
   /*
    * Sets the fillmode of the brain to wireframe or filled
    */
   this.set_fill_mode_wireframe= function() {
-    brain.getChildByName("left").material =  new THREE.MeshBasicMaterial({color: 0xFFFFFF, wireframe: true});
-    brain.getChildByName("right").material =  new THREE.MeshBasicMaterial({color: 0xFFFFFF, wireframe: true});
+    brain.getChildByName("left").material =  new THREE.MeshBasicMaterial({color: 0xFFFFFF, wireframe: true, transparent: true});
+    brain.getChildByName("right").material =  new THREE.MeshBasicMaterial({color: 0xFFFFFF, wireframe: true, transparent: true});
+  };
+  
+  this.set_fill_mode_solid = function() {
+    brain.getChildByName("left").material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808, transparent: true, vertexColors: THREE.VertexColors});
+    brain.getChildByName("right").material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808, transparent: true, vertexColors: THREE.VertexColors});
   };
 
-  this.set_fill_mode_solid = function() {
-    brain.getChildByName("left").material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808});
-    brain.getChildByName("right").material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808});
-  };
 
   function loadFromUrl(url,sync,callback) {
     jQuery.ajax({ type: 'GET',

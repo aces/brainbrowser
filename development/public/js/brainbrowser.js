@@ -98,9 +98,9 @@ function BrainBrowser() {
   
   function addBrain(obj) {
     that.model_data = obj;
-    var left = addHemisphere(obj.left);
+    var left = createHemisphere(obj.left);
     left.name = "left";
-    var right = addHemisphere(obj.right);
+    var right = createHemisphere(obj.right);
     right.name = "right"
     brain.add(left);
     brain.add(right);
@@ -108,7 +108,7 @@ function BrainBrowser() {
     scene.add(brain);
   }
   
-  function addHemisphere(obj) {
+  function createHemisphere(obj) {
     //that.createBrain(obj,filename);
     var verts = obj.positionArray;
     var ind = obj.indexArray;
@@ -130,30 +130,234 @@ function BrainBrowser() {
     return hemisphere;
   }
 
-  function addLineObject(obj) {
-    var verts = obj.positionArray;
-    var ind = obj.indexArray;
-    
-    var geometry = new THREE.Geometry();
-    for(var i = 0; i+2 < verts.length; i+=3) {
-      geometry.vertices.push(new THREE.Vector3(verts[i], verts[i+1], verts[i+2]));
-    }
-    for(var i = 0; i+2 < ind.length; i+=3) {
-      geometry.faces.push(new THREE.Face3(ind[i], ind[i+1], ind[i+2]));
-    }
-    
-    geometry.computeFaceNormals();
-    geometry.computeVertexNormals();
-    
-    var material = new THREE.MeshBasicMaterial({color: 0xE05D1B, wireframe: true, transparent: true});
-    var lineObject = new THREE.Mesh(geometry, material);
+  function addLineObject(obj, filename, mesh) {
+    var lineObject = createLineObject(obj, mesh);
+    lineObject.name = filename; 
     
     brain.add(lineObject);
     
     scene.add(brain)
+  
+  }
+
+  function createLineObject(obj, mesh) {
+    var model_data = obj;
+  
+    var indices = [];
+    var verts = []; 
+    var colors = [];
+
+    for(var i = 0; i < model_data.nitems; i ++){
+      if(i == 0){
+        var start = 0;
+      }else {
+        var start = model_data.endIndicesArray[i-1];
+      }
+      indices.push(model_data.indexArray[start]);
+      for(var k = start+1; k < model_data.endIndicesArray[i]-1; k++) {
+        indices.push(model_data.indexArray[k]);
+        //indices.push(model_data.indexArray[k]);
+      }
+      indices.push(model_data.indexArray[model_data.endIndicesArray[i]-1]);
+    }    
+    
+    if(!mesh) {   
+    
+      for(var j = 0; j < indices.length; j++) {
+	      verts.push(model_data.positionArray[indices[j]*3]) ;
+	      verts.push(model_data.positionArray[indices[j]*3+1]);
+	      verts.push(model_data.positionArray[indices[j]*3+2]);
+      }
+      var colorArray=[];
+      if(model_data.colorArray.length == 4) {
+	      for(var i=0;i<numberVertices;i++) {
+	        colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
+	      }
+      }else {
+	      //colorArray = new Float32Array(indexArray.length*4);
+	      for(var j = 0; j < indices.length; j++) {
+	        colors.push(model_data.colorArray[indices[j]*4]);
+	        colors.push(model_data.colorArray[indices[j]*4+1]);
+	        colors.push(model_data.colorArray[indices[j]*4+2]);
+	        //colors[j*4+3] = model.colorArray[indexArray[j]*4+3];
+	      }
+      }
+      //~ //indexBuffer.set(indexArray);
+      //~ //linePrimitive.indexBuffer = indexBuffer;
+      //~ for(var j = 0; j < indexArray.length; j++) {
+	      //~ positionArray[j*3] = model.positionArray[indexArray[j]*3];
+	      //~ positionArray[j*3+1] = model.positionArray[indexArray[j]*3+1];
+	      //~ positionArray[j*3+2] = model.positionArray[indexArray[j]*3+2];
+      //~ }
+      //~ var colorArray=[];
+      //~ if(model.colorArray.length == 4) {
+	      //~ for(var i=0;i<numberVertices;i++) {
+	        //~ colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
+	      //~ }
+      //~ }else {
+	      //~ colorArray = new Float32Array(indexArray.length*4);
+	      //~ for(var j = 0; j < indexArray.length; j++) {
+	        //~ colorArray[j*4] = model.colorArray[indexArray[j]*4];
+	        //~ colorArray[j*4+1] = model.colorArray[indexArray[j]*4+1];
+	        //~ colorArray[j*4+2] = model.colorArray[indexArray[j]*4+2];
+	        //~ colorArray[j*4+3] = model.colorArray[indexArray[j]*4+3];
+	      //~ }
+      //~ }
+      
+    }else {
+      console.log('mesh shape');
+      //linePrimitive.numberVertices = model.meshPostionArray.length/3;
+      //linePrimitive.numberPrimitives = linePrimitive.numberVertices/2;
+      verts = model_data.meshPositionArray;
+      colors = model_data.meshColorArray;
+    }
+
+    
+    var geometry = new THREE.Geometry();
+    for(var i = 0; i+2 < verts.length; i+=3) {
+      geometry.vertices.push(new THREE.Vector3(verts[i], verts[i+1], verts[i+2]));
+      var col = new THREE.Color();
+      col.setRGB(colors[i], colors[i+1], colors[i+2]);
+      geometry.colors.push(col);
+    }
+    geometry.colorsNeedUpdate = true;
+    
+    //~ for(var i = 0; i+2 < indices.length; i+=3) {
+      //~ var face = new THREE.Face3(indices[i], indices[i+1], indices[i+2]);
+      //~ face.vertexColors[0] = geometry.colors[face.a];
+      //~ face.vertexColors[1] = geometry.colors[face.b];
+      //~ face.vertexColors[2] = geometry.colors[face.c];
+      //~ geometry.faces.push(face);
+    //~ }
+    
+    //geometry.computeFaceNormals();
+    //geometry.computeVertexNormals();
+    
+    var material = new THREE.LineBasicMaterial({transparent: true, vertexColors: THREE.VertexColors});
+    var lineObject = new THREE.Line(geometry, material);
     
     return lineObject;
   }
+  
+  /*
+   * Creates the hemisphere shape with the material provide.
+   */
+  that.xxxcreateLineShape = function(material,model,name,mesh) {
+
+    var lineShape = that.pack.createObject('Shape');
+    var streamBank = that.pack.createObject('StreamBank');
+    lineShape.name = name;
+    
+    if(!model.positionArray) {
+      alert("PositionArray nil");
+      return false;
+    }
+    
+    that.numberVertices = model.numberVertices; 
+        
+    var linePrimitive = that.pack.createObject('Primitive');      
+    
+    linePrimitive.material = material;
+    linePrimitive.owner = lineShape;
+    linePrimitive.streamBank = streamBank;
+    linePrimitive.primitiveType = that.o3d.Primitive.LINELIST;
+    var state = that.pack.createObject('State'); 
+    that.enableAlphaBlending(state);
+       
+    linePrimitive.material.state = state;
+    //positionsBuffer.set(newPositionArray);
+    //create Position buffer (vertices) and set the number of vertices global variable
+    
+
+    var indexArray  = new Array();
+    for(var i = 0; i < model.nitems; i ++){
+      if(i == 0){
+     	var start = 0;
+      }else {
+	      var start = model.endIndicesArray[i-1];
+      }
+      indexArray.push(model.indexArray[start]);
+      for(var k = start+1; k < model.endIndicesArray[i]-1; k++) {
+     	indexArray.push(model.indexArray[k]);
+     	indexArray.push(model.indexArray[k]);
+      }
+      indexArray.push(model.indexArray[model.endIndicesArray[i]-1]);
+    }    
+    
+    if(!mesh) {   
+
+      var indexBuffer = that.pack.createObject('IndexBuffer');
+      linePrimitive.numberPrimitives = indexArray.length/2;
+      linePrimitive.numberVertices = indexArray.length;
+      that.indexArray = indexArray;
+      //indexBuffer.set(indexArray);
+      //linePrimitive.indexBuffer = indexBuffer;
+      var positionArray = new Float32Array(indexArray.length*3);
+      for(var j = 0; j < indexArray.length; j++) {
+	      positionArray[j*3] = model.positionArray[indexArray[j]*3];
+	      positionArray[j*3+1] = model.positionArray[indexArray[j]*3+1];
+	      positionArray[j*3+2] = model.positionArray[indexArray[j]*3+2];
+      }
+      var colorArray=[];
+      if(model.colorArray.length == 4) {
+	      for(var i=0;i<numberVertices;i++) {
+	        colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
+	      }
+      }else {
+	      colorArray = new Float32Array(indexArray.length*4);
+	      for(var j = 0; j < indexArray.length; j++) {
+	        colorArray[j*4] = model.colorArray[indexArray[j]*4];
+	        colorArray[j*4+1] = model.colorArray[indexArray[j]*4+1];
+	        colorArray[j*4+2] = model.colorArray[indexArray[j]*4+2];
+	        colorArray[j*4+3] = model.colorArray[indexArray[j]*4+3];
+	      }
+      }
+      
+    }else {
+      console.log('mesh shape');
+      linePrimitive.numberVertices = model.meshPostionArray.length/3;
+      linePrimitive.numberPrimitives = linePrimitive.numberVertices/2;
+      var positionArray =model.meshPositionArray;
+      var colorArray    =model.meshColorArray;
+    }
+
+    var positionsBuffer = that.pack.createObject('VertexBuffer');
+    var positionsField = positionsBuffer.createField('FloatField', 3);
+    
+    
+    
+    positionsBuffer.set(positionArray);
+    
+
+    streamBank.setVertexStream(
+      that.o3d.Stream.POSITION, //  That stream stores vertex positions
+      0,                     // First (and only) position stream
+      positionsField,        // field: the field that stream uses.
+      0);                    // start_index:
+    
+    
+    if(colorArray.length/4 < positionArray.length/3) {
+      alert('Problem with the colors: ' + colorArray.length);
+    }
+    var colorBuffer = that.pack.createObject('VertexBuffer');
+    var colorField = colorBuffer.createField('FloatField', 4);
+    colorBuffer.set(colorArray);
+    
+    streamBank.setVertexStream(
+      that.o3d.Stream.COLOR,
+      0,
+      colorField,
+      0);
+    
+      
+    if(that.loading){
+      jQuery(that.loading).html("Buffers Loaded");
+    }
+    
+    that.pack.gl.lineWidth(1.0);
+    return lineShape;
+
+  };
 
   /** 
    * Initialize the global variables of BrainBrowser,
@@ -364,7 +568,7 @@ function BrainBrowser() {
     }else if(obj.objectClass == 'P') {
 	    that.createPolygonObject(obj,filename);	  
     }else if(obj.objectClass == 'L') {
-      that.createLineObject(obj,filename);
+      addLineObject(obj, filename);
     }else {
       alert("Object file not supported");
     }
@@ -407,7 +611,6 @@ function BrainBrowser() {
    * @param {String} name name of color from pre defined list (white,black,pink)
    */
   this.updateClearColorFromName = function(name) {
-
     if (name == "white") {
       that.updateClearColor(0xFFFFFF);
     }else if(name == "black") {
@@ -424,43 +627,43 @@ function BrainBrowser() {
    *@param {o3d.Material} material material on which to set the shader params 
    */
 
-  this.blinnphongParams = function(material){
+  // this.blinnphongParams = function(material){
     
-    // Transparency 
-    var transAlpha = material.getParam('transAlpha');
-    transAlpha.value = 1.0;
-    // Light position
-    var light_pos_param = material.getParam('lightWorldPos');
-    light_pos_param.value = that.eyeView;
+    // // Transparency 
+    // var transAlpha = material.getParam('transAlpha');
+    // transAlpha.value = 1.0;
+    // // Light position
+    // var light_pos_param = material.getParam('lightWorldPos');
+    // light_pos_param.value = that.eyeView;
 
-    // Phong components of the light source
-    var light_ambient_param = material.getParam('ambient');
-    var light_ambientIntensity_param = material.getParam('ambientIntensity');
-    var light_lightIntensity_param = material.getParam('lightIntensity');
-    var light_specular_param = material.getParam('specular');
-    var light_emissive_param = material.getParam('emissive');
-    var light_colorMult_param = material.getParam('colorMult');
+    // // Phong components of the light source
+    // var light_ambient_param = material.getParam('ambient');
+    // var light_ambientIntensity_param = material.getParam('ambientIntensity');
+    // var light_lightIntensity_param = material.getParam('lightIntensity');
+    // var light_specular_param = material.getParam('specular');
+    // var light_emissive_param = material.getParam('emissive');
+    // var light_colorMult_param = material.getParam('colorMult');
 
-    //bool to state if we are displaying wireframe models or not, if true it turns off the lighting 
-    var wires = material.getParam('wires');
-    wires.value = false;
-    // White ambient light
-    light_ambient_param.value = [0.04, 0.04, 0.04, 1];
-    light_ambientIntensity_param.value = [1, 1, 1, 1];
-    light_lightIntensity_param.value = [0.8, 0.8, 0.8, 1];
+    // //bool to state if we are displaying wireframe models or not, if true it turns off the lighting 
+    // var wires = material.getParam('wires');
+    // wires.value = false;
+    // // White ambient light
+    // light_ambient_param.value = [0.04, 0.04, 0.04, 1];
+    // light_ambientIntensity_param.value = [1, 1, 1, 1];
+    // light_lightIntensity_param.value = [0.8, 0.8, 0.8, 1];
 
-    // White specular light
-    light_specular_param.value = [0.5, 0.5, 0.5, 1];
-    light_emissive_param.value = [0, 0, 0, 1];
-    light_colorMult_param.value = [1, 1, 1, 1];
+    // // White specular light
+    // light_specular_param.value = [0.5, 0.5, 0.5, 1];
+    // light_emissive_param.value = [0, 0, 0, 1];
+    // light_colorMult_param.value = [1, 1, 1, 1];
 
-    // Shininess of the material (for specular lighting)
-    var shininess_param = material.getParam('shininess');
-    shininess_param.value = 10000.0;
+    // // Shininess of the material (for specular lighting)
+    // var shininess_param = material.getParam('shininess');
+    // shininess_param.value = 10000.0;
     
-    return material;
+    // return material;
 
-  }
+  // }
 
   
 
@@ -523,15 +726,19 @@ function BrainBrowser() {
     /*
      * Decides if the hemispheres need to be shown
      */
-    if(params.left  == true) {
-      that.leftHemisphereVisible(true);
-    }else {
-      that.leftHemisphereVisible(false);
+    if (brain.getChildByName("left")) {
+      if(params.left  == true) {
+        that.leftHemisphereVisible(true);
+      }else {
+        that.leftHemisphereVisible(false);
+      }
     }
-    if(params.right == true ) {
-      that.rightHemisphereVisible(true);
-    }else {
-      that.rightHemisphereVisible(false);
+    if (brain.getChildByName("right")) {
+      if(params.right == true ) {
+        that.rightHemisphereVisible(true);
+      }else {
+        that.rightHemisphereVisible(false);
+      }
     }
     //that.thatRot = that.math.matrix4.mul(that.brainTransform.localMatrix, that.math.matrix4.identity());
   };

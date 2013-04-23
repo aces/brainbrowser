@@ -156,7 +156,7 @@ function BrainBrowser() {
       indices.push(model_data.indexArray[start]);
       for(var k = start+1; k < model_data.endIndicesArray[i]-1; k++) {
         indices.push(model_data.indexArray[k]);
-        //indices.push(model_data.indexArray[k]);
+        indices.push(model_data.indexArray[k]);
       }
       indices.push(model_data.indexArray[model_data.endIndicesArray[i]-1]);
     }    
@@ -234,7 +234,7 @@ function BrainBrowser() {
     //geometry.computeVertexNormals();
     
     var material = new THREE.LineBasicMaterial({transparent: true, vertexColors: THREE.VertexColors});
-    var lineObject = new THREE.Line(geometry, material);
+    var lineObject = new THREE.Line(geometry, material, THREE.LinePieces);
     
     return lineObject;
   }

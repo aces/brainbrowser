@@ -96,7 +96,7 @@ function BrainBrowser() {
     
   };
   
-  function addBrain(obj) {
+  function addBrain(obj, renderDepth) {
     that.model_data = obj;
     var left = createHemisphere(obj.left);
     left.name = "left";
@@ -112,10 +112,21 @@ function BrainBrowser() {
     //that.createBrain(obj,filename);
     var verts = obj.positionArray;
     var ind = obj.indexArray;
+    var bounding_box = {};
+    var centroid = {};
+    
+    //Calculate center so positions of objects relative to each other can
+    // defined (mainly for transparency).
+    for(var i = 0; i+2 < verts.length; i+=3) {
+      boundingBoxUpdate(bounding_box, verts[i], verts[i+1], verts[i+2]);
+    }
+    centroid.x = bounding_box.minX + 0.5 * (bounding_box.maxX - bounding_box.minX);
+    centroid.y = bounding_box.minY + 0.5 * (bounding_box.maxY - bounding_box.minY);
+    centroid.z = bounding_box.minY + 0.5 * (bounding_box.maxZ - bounding_box.minZ);
     
     var geometry = new THREE.Geometry();
     for(var i = 0; i+2 < verts.length; i+=3) {
-      geometry.vertices.push(new THREE.Vector3(verts[i], verts[i+1], verts[i+2]));
+      geometry.vertices.push(new THREE.Vector3(verts[i]-centroid.x, verts[i+1]-centroid.y, verts[i+2]-centroid.z));
     }
     for(var i = 0; i+2 < ind.length; i+=3) {
       geometry.faces.push(new THREE.Face3(ind[i], ind[i+1], ind[i+2]));
@@ -124,20 +135,24 @@ function BrainBrowser() {
     geometry.computeFaceNormals();
     geometry.computeVertexNormals();
     
-    var material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808, transparent: true, vertexColors: THREE.VertexColors});
+    var material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808, vertexColors: THREE.VertexColors});
     var hemisphere = new THREE.Mesh(geometry, material);
-            
+    hemisphere.centroid = centroid;
+    hemisphere.position.set(centroid.x, centroid.y, centroid.z);
+    
     return hemisphere;
   }
 
-  function addLineObject(obj, filename, mesh) {
+  function addLineObject(obj, filename, mesh, renderDepth) {
     var lineObject = createLineObject(obj, mesh);
     lineObject.name = filename; 
-    
+    if(renderDepth) {
+      lineObject.renderDepth = renderDepth;
+    }
+
     brain.add(lineObject);
     
-    scene.add(brain)
-  
+    scene.add(brain);  
   }
 
   function createLineObject(obj, mesh) {
@@ -146,6 +161,8 @@ function BrainBrowser() {
     var indices = [];
     var verts = []; 
     var colors = [];
+    var bounding_box = {};
+    var centroid = {};
 
     for(var i = 0; i < model_data.nitems; i ++){
       if(i == 0){
@@ -159,14 +176,28 @@ function BrainBrowser() {
         indices.push(model_data.indexArray[k]);
       }
       indices.push(model_data.indexArray[model_data.endIndicesArray[i]-1]);
-    }    
+    }   
+    
+    var posArray = model_data.positionArray;
+  
+    //Calculate center so positions of objects relative to each other can be determined.
+    //Mainly for transparency.
+    for(var j = 0; j < indices.length; j++) {
+      boundingBoxUpdate(bounding_box, posArray[indices[j]*3], posArray[indices[j]*3+1], posArray[indices[j]*3+2]);
+    }
+    
+    centroid.x = bounding_box.minX + 0.5 * (bounding_box.maxX - bounding_box.minX);
+    centroid.y = bounding_box.minY + 0.5 * (bounding_box.maxY - bounding_box.minY);
+    centroid.z = bounding_box.minY + 0.5 * (bounding_box.maxZ - bounding_box.minZ);
     
     if(!mesh) {   
     
       for(var j = 0; j < indices.length; j++) {
-	      verts.push(model_data.positionArray[indices[j]*3]) ;
-	      verts.push(model_data.positionArray[indices[j]*3+1]);
-	      verts.push(model_data.positionArray[indices[j]*3+2]);
+        verts.push(new THREE.Vector3(
+                      posArray[indices[j]*3] - centroid.x,
+                      posArray[indices[j]*3+1] - centroid.y,
+                      posArray[indices[j]*3+2] - centroid.z
+                    ));
       }
       var colorArray=[];
       if(model_data.colorArray.length == 4) {
@@ -175,34 +206,14 @@ function BrainBrowser() {
 	      }
       }else {
 	      //colorArray = new Float32Array(indexArray.length*4);
+	      var colorArray = model_data.colorArray;
+	      
 	      for(var j = 0; j < indices.length; j++) {
-	        colors.push(model_data.colorArray[indices[j]*4]);
-	        colors.push(model_data.colorArray[indices[j]*4+1]);
-	        colors.push(model_data.colorArray[indices[j]*4+2]);
-	        //colors[j*4+3] = model.colorArray[indexArray[j]*4+3];
+	        var col = new THREE.Color();
+          col.setRGB(colorArray[indices[j]*4], colorArray[indices[j]*4+1], colorArray[indices[j]*4+2]);
+          colors.push(col);
 	      }
       }
-      //~ //indexBuffer.set(indexArray);
-      //~ //linePrimitive.indexBuffer = indexBuffer;
-      //~ for(var j = 0; j < indexArray.length; j++) {
-	      //~ positionArray[j*3] = model.positionArray[indexArray[j]*3];
-	      //~ positionArray[j*3+1] = model.positionArray[indexArray[j]*3+1];
-	      //~ positionArray[j*3+2] = model.positionArray[indexArray[j]*3+2];
-      //~ }
-      //~ var colorArray=[];
-      //~ if(model.colorArray.length == 4) {
-	      //~ for(var i=0;i<numberVertices;i++) {
-	        //~ colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
-	      //~ }
-      //~ }else {
-	      //~ colorArray = new Float32Array(indexArray.length*4);
-	      //~ for(var j = 0; j < indexArray.length; j++) {
-	        //~ colorArray[j*4] = model.colorArray[indexArray[j]*4];
-	        //~ colorArray[j*4+1] = model.colorArray[indexArray[j]*4+1];
-	        //~ colorArray[j*4+2] = model.colorArray[indexArray[j]*4+2];
-	        //~ colorArray[j*4+3] = model.colorArray[indexArray[j]*4+3];
-	      //~ }
-      //~ }
       
     }else {
       console.log('mesh shape');
@@ -214,27 +225,15 @@ function BrainBrowser() {
 
     
     var geometry = new THREE.Geometry();
-    for(var i = 0; i+2 < verts.length; i+=3) {
-      geometry.vertices.push(new THREE.Vector3(verts[i], verts[i+1], verts[i+2]));
-      var col = new THREE.Color();
-      col.setRGB(colors[i], colors[i+1], colors[i+2]);
-      geometry.colors.push(col);
-    }
+    geometry.vertices = verts; 
+    geometry.colors = colors;
+
     geometry.colorsNeedUpdate = true;
     
-    //~ for(var i = 0; i+2 < indices.length; i+=3) {
-      //~ var face = new THREE.Face3(indices[i], indices[i+1], indices[i+2]);
-      //~ face.vertexColors[0] = geometry.colors[face.a];
-      //~ face.vertexColors[1] = geometry.colors[face.b];
-      //~ face.vertexColors[2] = geometry.colors[face.c];
-      //~ geometry.faces.push(face);
-    //~ }
-    
-    //geometry.computeFaceNormals();
-    //geometry.computeVertexNormals();
-    
-    var material = new THREE.LineBasicMaterial({transparent: true, vertexColors: THREE.VertexColors});
+    var material = new THREE.LineBasicMaterial({vertexColors: THREE.VertexColors});
     var lineObject = new THREE.Line(geometry, material, THREE.LinePieces);
+    lineObject.position.set(centroid.x, centroid.y, centroid.z);
+    lineObject.centroid = centroid;
     
     return lineObject;
   }
@@ -359,89 +358,6 @@ function BrainBrowser() {
 
   };
 
-  /** 
-   * Initialize the global variables of BrainBrowser,
-   * the brain model, apply material & shader
-   */
-  // this.initStep2 = function(clientElements) {
-  //     
-  //     // Initializes global variables and libraries.
-  //     var o3dElement = clientElements[0];
-  //     that.o3dElement = o3dElement;
-  //     that.client = o3dElement.client;
-  //     that.o3d = o3dElement.o3d;
-  //     that.math = o3djs.math;
-  //     that.dragging = false;
-  //     that.o3dWidth = -1;
-  //     that.o3dHeight = -1;
-  //     that.quaternions = o3djs.quaternions;
-  //     that.lastRot = that.math.matrix4.identity();
-  //     that.thatRot = that.math.matrix4.identity();
-  //     that.zoomFactor = 1.10;
-  //     that.keyPressDelta = 0.1;
-  //     that.clock = 0;
-  //     that.timeMult = 1.0;
-  //     that.camera = {
-  //       farPlane: 5000,
-  //       nearPlane:0.1
-  //     };
-  //     that.object_origin = [0,0,0];
-  //      
-  //      
-  //      that.loading = jQuery("#o3d_loading");
-  //      
-  //      // Initialize O3D sample libraries. o3dElement is the o3d div in the page
-  //      o3djs.base.init(o3dElement);
-  //      // Create a pack to manage the objects created.
-  //      that.pack = that.client.createPack();
-  //      
-  //      
-  //      // Create the render graph for a view.
-  //      var viewInfo = o3djs.rendergraph.createBasicView(
-  //       that.pack,
-  //       that.client.root,
-  //       that.client.renderGraphRoot,
-  //       [0.5,0.5,0.5,1]);
-  //      that.viewInfo = viewInfo;
-  //      // Set up a simple orthographic view.
-  //      viewInfo.drawContext.projection = that.math.matrix4.perspective(
-  //       that.math.degToRad(30), // 30 degree fov.
-  //       that.client.width / that.client.height,
-  //       1,                  // Near plane.
-  //       5000);              // Far plane.
-  //      
-  //      // Set up our view transformation to look towards the world origin
-  //      // where the brain is located.
-  //      that.eyeView = [0,0,500];
-  //      viewInfo.drawContext.view = that.math.matrix4.lookAt(
-  //       that.eyeView, // eye
-  //       [0, 0, 0],  // target
-  //       [0, 1, 0]); // up
-  //      
-  //      that.aball = o3djs.arcball.create(100, 100);
-  //      
-  //      that.client.setRenderCallback(that.renderCallback);
-  //      
-  //      //Add event handlers
-  //      jQuery("body").keydown(that.keyPressedCallback);
-  //      o3djs.event.addEventListener(o3dElement, 'wheel', that.scrollMe);
-  // 
-  //      that.loadSpectrumFromUrl('/assets/spectral_spectrum.txt');
-  // 
-  // 
-  //     jQuery('#screenshot').click(function(event) {jQuery(this).attr("href",bb.client.toDataURL());});
-  // 
-  //      //This allows a programmer to define a function that runs after initialization
-  //      if(that.afterInit) {
-  //        that.afterInit(that);
-  //      }
-  //      window.onresize();      
-  //      that.updateInfo();
-  // 
-  // 
-  //   };
-
-
   /*
    * unregisters the event handlers 
    */
@@ -500,15 +416,15 @@ function BrainBrowser() {
    * @param {o3d.State} state State object of the material's effect on which we want to enable alpha blending
    */
   function enableAlphaBlending(state) {
-    
-    state.getStateParam('AlphaBlendEnable').value = true;
-    state.getStateParam('SourceBlendFunction').value =
-      o3djs.base.o3d.State.BLENDFUNC_SOURCE_ALPHA;
-    state.getStateParam('DestinationBlendFunction').value =
-      o3djs.base.o3d.State.BLENDFUNC_INVERSE_SOURCE_ALPHA;
-    state.getStateParam('AlphaTestEnable').value = true;
-    state.getStateParam('AlphaComparisonFunction').value =
-      o3djs.base.o3d.State.CMP_GREATER;
+    console.log("ENABLE ALPHA BLENDING COMMENTED OUT!");
+    // state.getStateParam('AlphaBlendEnable').value = true;
+    //     state.getStateParam('SourceBlendFunction').value =
+    //       o3djs.base.o3d.State.BLENDFUNC_SOURCE_ALPHA;
+    //     state.getStateParam('DestinationBlendFunction').value =
+    //       o3djs.base.o3d.State.BLENDFUNC_INVERSE_SOURCE_ALPHA;
+    //     state.getStateParam('AlphaTestEnable').value = true;
+    //     state.getStateParam('AlphaComparisonFunction').value =
+    //       o3djs.base.o3d.State.CMP_GREATER;
 
   }
 
@@ -562,13 +478,13 @@ function BrainBrowser() {
    * @param {Object} obj object of the parsed MNI Object file to be displayed
    * @param {String} filename filename of the original object file   
    */
-  this.displayObjectFile = function(obj,filename) {
+  this.displayObjectFile = function(obj,filename, renderDepth) {
     if(obj.objectClass == 'P' && obj.numberVertices == 81924) {
-      addBrain(obj);
+      addBrain(obj, renderDepth);
     }else if(obj.objectClass == 'P') {
-	    that.createPolygonObject(obj,filename);	  
+	    that.createPolygonObject(obj,filename, renderDepth);	  
     }else if(obj.objectClass == 'L') {
-      addLineObject(obj, filename);
+      addLineObject(obj, filename, false, renderDepth);
     }else {
       alert("Object file not supported");
     }
@@ -622,49 +538,6 @@ function BrainBrowser() {
     }
   };
 
-  /**
-   *setups the uniforms for a shader that implements blinnphong shading. 
-   *@param {o3d.Material} material material on which to set the shader params 
-   */
-
-  // this.blinnphongParams = function(material){
-    
-    // // Transparency 
-    // var transAlpha = material.getParam('transAlpha');
-    // transAlpha.value = 1.0;
-    // // Light position
-    // var light_pos_param = material.getParam('lightWorldPos');
-    // light_pos_param.value = that.eyeView;
-
-    // // Phong components of the light source
-    // var light_ambient_param = material.getParam('ambient');
-    // var light_ambientIntensity_param = material.getParam('ambientIntensity');
-    // var light_lightIntensity_param = material.getParam('lightIntensity');
-    // var light_specular_param = material.getParam('specular');
-    // var light_emissive_param = material.getParam('emissive');
-    // var light_colorMult_param = material.getParam('colorMult');
-
-    // //bool to state if we are displaying wireframe models or not, if true it turns off the lighting 
-    // var wires = material.getParam('wires');
-    // wires.value = false;
-    // // White ambient light
-    // light_ambient_param.value = [0.04, 0.04, 0.04, 1];
-    // light_ambientIntensity_param.value = [1, 1, 1, 1];
-    // light_lightIntensity_param.value = [0.8, 0.8, 0.8, 1];
-
-    // // White specular light
-    // light_specular_param.value = [0.5, 0.5, 0.5, 1];
-    // light_emissive_param.value = [0, 0, 0, 1];
-    // light_colorMult_param.value = [1, 1, 1, 1];
-
-    // // Shininess of the material (for specular lighting)
-    // var shininess_param = material.getParam('shininess');
-    // shininess_param.value = 10000.0;
-    
-    // return material;
-
-  // }
-
   
 
   /**
@@ -682,9 +555,14 @@ function BrainBrowser() {
     brain.position.set(0, 0, 0);
     brain.rotation.set(0, 0, 0);
     for(var i = 0; i < brain.children.length; i++) {
-      brain.children[i].visible = true;
-      brain.children[i].position.set(0, 0, 0);
-      brain.children[i].rotation.set(0, 0, 0);
+      var child = brain.children[i];
+      child.visible = true;
+      if (child.centroid) {
+        child.position.set(child.centroid.x, child.centroid.y, child.centroid.z);
+      } else {
+        child.position.set(0, 0, 0);
+      }
+      child.rotation.set(0, 0, 0);
     }
   };
 
@@ -772,12 +650,6 @@ function BrainBrowser() {
    */
   this.medialView = function(e) {
     if(that.model_data.num_hemispheres == 2 ) {
-
-      //that.brainTransform.children[0].translate([-100,0,0]);
-      //that.brainTransform.children[1].translate([100,0,0]);
-      //that.brainTransform.children[0].rotateZ(that.math.degToRad(-90));
-      //that.brainTransform.children[1].rotateZ(that.math.degToRad(90));
-      //that.brainTransform.rotateX(that.math.degToRad(-90));
       brain.getChildByName("left").position.x -= 100;
       brain.getChildByName("left").rotation.z -= degToRad(90);
       brain.getChildByName("right").position.x += 100;
@@ -792,14 +664,6 @@ function BrainBrowser() {
   this.lateralView = function(e) {
 
     if(that.model_data.num_hemispheres == 2 ) {
-
-      // that.brainTransform.children[0].translate([-100,0,0]);
-      //   that.brainTransform.children[1].translate([100,0,0]);
-      //   that.brainTransform.children[0].rotateZ(that.math.degToRad(-90));
-      //   that.brainTransform.children[1].rotateZ(that.math.degToRad(90));
-      //   that.brainTransform.rotateX(that.math.degToRad(90));
-      //   that.brainTransform.rotateY(that.math.degToRad(180));
-
       brain.getChildByName("left").position.x -= 100;
       brain.getChildByName("left").rotation.z += degToRad(-90);
       brain.getChildByName("right").position.x += 100;
@@ -822,7 +686,6 @@ function BrainBrowser() {
    */
   this.inferiorView = function() {
     brain.rotation.y += degToRad(180);
-    //that.brainTransform.rotateY(that.math.degToRad(180));
   };
 
   /**
@@ -832,8 +695,6 @@ function BrainBrowser() {
     that.resetView();
     brain.rotation.x += degToRad(-90);
     brain.rotation.z += degToRad(180);
-    //that.brainTransform.rotateX(that.math.degToRad(-90));
-    //that.brainTransform.rotateZ(that.math.degToRad(180));
   };
 
   /**
@@ -842,7 +703,6 @@ function BrainBrowser() {
   this.posteriorView = function(e) {
     that.resetView();
     brain.rotation.x += degToRad(-90);
-    //that.brainTransform.rotateX(that.math.degToRad(-90));
   };
 
 
@@ -1151,32 +1011,54 @@ function BrainBrowser() {
    * Invokes the action to be performed for the key pressed.
    * @param {event} keyPress event passed to us by javascript.
    */
-   this.keyPressedCallback = function(event) {
+  this.keyPressedCallback = function(event) {
 
-   var action_taken = false;
-   switch(event.which) {
-    case 38:
-     that.ZoomInOut(that.zoomFactor);
-     action_taken = "ZoomIn";
-     break;
-    case 40:
-     that.ZoomInOut(1/that.zoomFactor);
-     action_taken = "ZoomOut";
-     break;
-
-    case 32:
-     that.separateHemispheres();
-     action_taken = "Seperate";
-     break;
+    var action_taken = false;
+    switch(event.which) {
+     case 38:
+      that.ZoomInOut(that.zoomFactor);
+      action_taken = "ZoomIn";
+      break;
+     case 40:
+      that.ZoomInOut(1/that.zoomFactor);
+      action_taken = "ZoomOut";
+      break;
+    
+     case 32:
+      that.separateHemispheres();
+      action_taken = "Seperate";
+      break;
     };
-     if(action_taken){
-       return false;
-     }else {
-       return true;
+    if(action_taken){
+      return false;
+    }else {
+      return true;
+    }
+    
+  };
+   
+   function boundingBoxUpdate(bb, x, y, z) {
+     if (! bb.minX || bb.minX > x) {
+       bb.minX = x;
+     } 
+     if (! bb.maxX || bb.maxX < x) {
+       bb.maxX = x;
+     }
+     if (! bb.minY || bb.minY > y) {
+       bb.minY = y;
+     } 
+     if (! bb.maxY || bb.maxY < y) {
+       bb.maxY = y;
+     }
+     if (! bb.minZ || bb.minZ > z) {
+       bb.minZ = z;
+     } 
+     if (! bb.maxZ || bb.maxZ < z) {
+       bb.maxZ = z;
      }
 
-   };
-
+   }
+   
   function drawDot(x, y, z) {
     var geometry = new THREE.SphereGeometry(2);
     var material = new THREE.MeshBasicMaterial({color: 0xFF0000});
@@ -1191,13 +1073,19 @@ function BrainBrowser() {
    * Sets the fillmode of the brain to wireframe or filled
    */
   this.set_fill_mode_wireframe= function() {
-    brain.getChildByName("left").material =  new THREE.MeshBasicMaterial({color: 0xFFFFFF, wireframe: true, transparent: true});
-    brain.getChildByName("right").material =  new THREE.MeshBasicMaterial({color: 0xFFFFFF, wireframe: true, transparent: true});
+    var children = brain.children;
+    
+    for (var i = 0; i < children.length; i++) {
+      children[i].material = new THREE.MeshBasicMaterial({color: 0xFFFFFF, wireframe: true});
+    }
   };
   
   this.set_fill_mode_solid = function() {
-    brain.getChildByName("left").material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808, transparent: true, vertexColors: THREE.VertexColors});
-    brain.getChildByName("right").material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808, transparent: true, vertexColors: THREE.VertexColors});
+    var children = brain.children;
+    
+    for (var i = 0; i < children.length; i++) {
+      children[i].material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808, vertexColors: THREE.VertexColors});
+    }
   };
 
 
@@ -1232,31 +1120,31 @@ function BrainBrowser() {
   }
 
 
-  this.loadObjFromUrl = function(url) {
+  this.loadObjFromUrl = function(url, renderDepth) {
     loadFromUrl(url, false,function(data) {
 		    var parts = url.split("/");
 		    //last part of url will be shape name
 		    var filename = parts[parts.length-1];
-		    that.displayObjectFile(new MNIObject(data),filename);
+		    that.displayObjectFile(new MNIObject(data),filename, renderDepth);
 		});
   };
 
-  this.loadWaveformObjFromUrl = function(url) {
+  this.loadWaveformObjFromUrl = function(url, renderDepth) {
     loadFromUrl(url, false,function(data) {
 		    var parts = url.split("/");
 		    //last part of url will be shape name
 		    var filename = parts[parts.length-1];
-		    that.displayObjectFile(new WaveformObj(data),filename);
+		    that.displayObjectFile(new WaveformObj(data),filename, renderDepth);
 		});
   };
 
-  this.loadObjFromFile = function(file_input) {
+  this.loadObjFromFile = function(file_input, renderDepth) {
     loadFromTextFile(file_input, function(result) {
                        	 var parts = file_input.value.split("\\");
 			 //last part of path will be shape name
 			 var filename = parts[parts.length-1];
 
-			 that.displayObjectFile(new MNIObject(result),filename);
+			 that.displayObjectFile(new MNIObject(result),filename, renderDepth);
 		     });
   };
 
@@ -1714,6 +1602,11 @@ function BrainBrowser() {
     var shape = brain.getChildByName(shape_name);
     if (shape) {
       shape.material.opacity = alpha;
+      if (alpha == 1) {
+        shape.material.transparent = false;
+      } else {
+        shape.material.transparent = true;
+      }
     }
   };
   

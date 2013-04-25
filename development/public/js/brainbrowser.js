@@ -77,10 +77,7 @@ function BrainBrowser() {
     	requestAnimationFrame(render);
       camera_controls.update();
       light_controls.update();
-      if(brain.getChildByName("left")) {
-       // brain.getChildByName("left").rotation.x -= 0.1;
-        //brain.getChildByName("right").rotation.x += 0.1;
-      }
+
       that.renderCallback();    
     }
     if(this.afterInit) {
@@ -95,6 +92,10 @@ function BrainBrowser() {
     render();
     
   };
+  
+  this.setCamera = function(x, y, z) {
+    camera.position.set(x, y, z);
+  }
   
   function addBrain(obj, renderDepth) {
     that.model_data = obj;
@@ -156,7 +157,7 @@ function BrainBrowser() {
   }
 
   function createLineObject(obj, mesh) {
-    var model_data = obj;
+    that.model_data = obj;
   
     var indices = [];
     var verts = []; 
@@ -164,21 +165,21 @@ function BrainBrowser() {
     var bounding_box = {};
     var centroid = {};
 
-    for(var i = 0; i < model_data.nitems; i ++){
+    for(var i = 0; i < that.model_data.nitems; i ++){
       if(i == 0){
         var start = 0;
       }else {
-        var start = model_data.endIndicesArray[i-1];
+        var start = that.model_data.endIndicesArray[i-1];
       }
-      indices.push(model_data.indexArray[start]);
-      for(var k = start+1; k < model_data.endIndicesArray[i]-1; k++) {
-        indices.push(model_data.indexArray[k]);
-        indices.push(model_data.indexArray[k]);
+      indices.push(that.model_data.indexArray[start]);
+      for(var k = start+1; k < that.model_data.endIndicesArray[i]-1; k++) {
+        indices.push(that.model_data.indexArray[k]);
+        indices.push(that.model_data.indexArray[k]);
       }
-      indices.push(model_data.indexArray[model_data.endIndicesArray[i]-1]);
+      indices.push(that.model_data.indexArray[that.model_data.endIndicesArray[i]-1]);
     }   
     
-    var posArray = model_data.positionArray;
+    var posArray = that.model_data.positionArray;
   
     //Calculate center so positions of objects relative to each other can be determined.
     //Mainly for transparency.
@@ -200,13 +201,13 @@ function BrainBrowser() {
                     ));
       }
       var colorArray=[];
-      if(model_data.colorArray.length == 4) {
+      if(that.model_data.colorArray.length == 4) {
 	      for(var i=0;i<numberVertices;i++) {
 	        colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
 	      }
       }else {
 	      //colorArray = new Float32Array(indexArray.length*4);
-	      var colorArray = model_data.colorArray;
+	      var colorArray = that.model_data.colorArray;
 	      
 	      for(var j = 0; j < indices.length; j++) {
 	        var col = new THREE.Color();
@@ -219,8 +220,8 @@ function BrainBrowser() {
       console.log('mesh shape');
       //linePrimitive.numberVertices = model.meshPostionArray.length/3;
       //linePrimitive.numberPrimitives = linePrimitive.numberVertices/2;
-      verts = model_data.meshPositionArray;
-      colors = model_data.meshColorArray;
+      verts = that.model_data.meshPositionArray;
+      colors = that.model_data.meshColorArray;
     }
 
     
@@ -238,125 +239,88 @@ function BrainBrowser() {
     return lineObject;
   }
   
-  /*
-   * Creates the hemisphere shape with the material provide.
-   */
-  that.xxxcreateLineShape = function(material,model,name,mesh) {
-
-    var lineShape = that.pack.createObject('Shape');
-    var streamBank = that.pack.createObject('StreamBank');
-    lineShape.name = name;
+  function addPolygonObject(obj,filename, renderDepth){
+    that.model_data = obj;
     
-    if(!model.positionArray) {
-      alert("PositionArray nil");
-      return false;
-    }
-    
-    that.numberVertices = model.numberVertices; 
-        
-    var linePrimitive = that.pack.createObject('Primitive');      
-    
-    linePrimitive.material = material;
-    linePrimitive.owner = lineShape;
-    linePrimitive.streamBank = streamBank;
-    linePrimitive.primitiveType = that.o3d.Primitive.LINELIST;
-    var state = that.pack.createObject('State'); 
-    that.enableAlphaBlending(state);
-       
-    linePrimitive.material.state = state;
-    //positionsBuffer.set(newPositionArray);
-    //create Position buffer (vertices) and set the number of vertices global variable
-    
-
-    var indexArray  = new Array();
-    for(var i = 0; i < model.nitems; i ++){
-      if(i == 0){
-     	var start = 0;
-      }else {
-	      var start = model.endIndicesArray[i-1];
+    if (that.model_data.shapes){
+      for (var i = 0; 1< that.model_data.shapes.length; i++){
+	      var shape = that.createPolygonShape(that.model_data.shapes[z]);
+	      shape.name = that.model_data.shapes[z].name;
+	      brain.add(shape);      	
       }
-      indexArray.push(model.indexArray[start]);
-      for(var k = start+1; k < model.endIndicesArray[i]-1; k++) {
-     	indexArray.push(model.indexArray[k]);
-     	indexArray.push(model.indexArray[k]);
-      }
-      indexArray.push(model.indexArray[model.endIndicesArray[i]-1]);
-    }    
-    
-    if(!mesh) {   
-
-      var indexBuffer = that.pack.createObject('IndexBuffer');
-      linePrimitive.numberPrimitives = indexArray.length/2;
-      linePrimitive.numberVertices = indexArray.length;
-      that.indexArray = indexArray;
-      //indexBuffer.set(indexArray);
-      //linePrimitive.indexBuffer = indexBuffer;
-      var positionArray = new Float32Array(indexArray.length*3);
-      for(var j = 0; j < indexArray.length; j++) {
-	      positionArray[j*3] = model.positionArray[indexArray[j]*3];
-	      positionArray[j*3+1] = model.positionArray[indexArray[j]*3+1];
-	      positionArray[j*3+2] = model.positionArray[indexArray[j]*3+2];
-      }
-      var colorArray=[];
-      if(model.colorArray.length == 4) {
-	      for(var i=0;i<numberVertices;i++) {
-	        colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
-	      }
-      }else {
-	      colorArray = new Float32Array(indexArray.length*4);
-	      for(var j = 0; j < indexArray.length; j++) {
-	        colorArray[j*4] = model.colorArray[indexArray[j]*4];
-	        colorArray[j*4+1] = model.colorArray[indexArray[j]*4+1];
-	        colorArray[j*4+2] = model.colorArray[indexArray[j]*4+2];
-	        colorArray[j*4+3] = model.colorArray[indexArray[j]*4+3];
-	      }
-      }
-      
     }else {
-      console.log('mesh shape');
-      linePrimitive.numberVertices = model.meshPostionArray.length/3;
-      linePrimitive.numberPrimitives = linePrimitive.numberVertices/2;
-      var positionArray =model.meshPositionArray;
-      var colorArray    =model.meshColorArray;
+      var shape = createPolygonShape(that.model_data);
+      shape.name = filename;
+      brain.add(shape);      
     }
 
-    var positionsBuffer = that.pack.createObject('VertexBuffer');
-    var positionsField = positionsBuffer.createField('FloatField', 3);
-    
-    
-    
-    positionsBuffer.set(positionArray);
-    
-
-    streamBank.setVertexStream(
-      that.o3d.Stream.POSITION, //  That stream stores vertex positions
-      0,                     // First (and only) position stream
-      positionsField,        // field: the field that stream uses.
-      0);                    // start_index:
-    
-    
-    if(colorArray.length/4 < positionArray.length/3) {
-      alert('Problem with the colors: ' + colorArray.length);
+    if(that.afterCreate != undefined) {
+      that.afterCreate(that.model_data);
     }
-    var colorBuffer = that.pack.createObject('VertexBuffer');
-    var colorField = colorBuffer.createField('FloatField', 4);
-    colorBuffer.set(colorArray);
     
-    streamBank.setVertexStream(
-      that.o3d.Stream.COLOR,
-      0,
-      colorField,
-      0);
+    scene.add(brain);
+  }
+  
+  function createPolygonShape(model_data) {
     
+    var positionArray = model_data.positionArray;
+    var indexArray  = model_data.indexArray;
+    
+    var colorArray=[];
+
+    
+    if(model_data.colorArray.length == 4) {
+      for (var i = 0; i < positionArray.length / 3; i++) {
+	      colorArray.push(model_data.colorArray[0]);
+	      colorArray.push(model_data.colorArray[1]);
+	      colorArray.push(model_data.colorArray[2]);
+      }
+    }else {
+      colorArray = [];
+      var indexArrayLength = indexArray.length;
+      for(var j = 0; j < indexArrayLength ; j++) {
+	      colorArray.push(model_data.colorArray[j*4]);
+	      colorArray.push(model_data.colorArray[j*4+1]);
+	      colorArray.push(model_data.colorArray[j*4+2]);
+      }
+    }
+    
+    var colors = [];
+    var col;
+
+    var geometry = new THREE.Geometry();
+    for (var i = 0; i + 2 < positionArray.length; i += 3) {
+      geometry.vertices.push(new THREE.Vector3(positionArray[i], positionArray[i+1], positionArray[i+2]));
+                    
+      col = new THREE.Color();
+      col.setRGB(colorArray[i], colorArray[i+1], colorArray[i+2]);
+      colors.push(col);
+    }
+    
+    for(var i = 0; i + 2 < indexArray.length; i+=3) {
+      var face = new THREE.Face3(indexArray[i], indexArray[i+1], indexArray[i+2]);
+      face.vertexColors[0] = colors[face.a];
+      face.vertexColors[1] = colors[face.b];
+      face.vertexColors[2] = colors[face.c];
+      geometry.faces.push(face);
+    }
+    
+    geometry.computeFaceNormals();
+    geometry.computeVertexNormals();
+    geometry.colorsNeedUpdate = true;
+    
+    var material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808, vertexColors: THREE.VertexColors});
+    
+    var polygonShape = new THREE.Mesh(geometry, material);
       
     if(that.loading){
       jQuery(that.loading).html("Buffers Loaded");
     }
     
-    that.pack.gl.lineWidth(1.0);
-    return lineShape;
-
-  };
+    
+    
+    return polygonShape;
+  }
 
   /*
    * unregisters the event handlers 
@@ -482,7 +446,7 @@ function BrainBrowser() {
     if(obj.objectClass == 'P' && obj.numberVertices == 81924) {
       addBrain(obj, renderDepth);
     }else if(obj.objectClass == 'P') {
-	    that.createPolygonObject(obj,filename, renderDepth);	  
+	    addPolygonObject(obj,filename, renderDepth);	  
     }else if(obj.objectClass == 'L') {
       addLineObject(obj, filename, false, renderDepth);
     }else {
@@ -1509,39 +1473,6 @@ function BrainBrowser() {
         face.vertexColors[2] = right_color_buffer[face.c];
       }
       right_hem.geometry.colorsNeedUpdate = true;
-      
-      // brain.getChildByName("left").geometry.colors = left_color_buffer;
-      //       brain.getChildByName("left").geometry.colorsNeedUpdate = true;
-      //       brain.getChildByName("right").geometry.colors = right_color_buffer;
-      //       brain.getChildByName("right").geometry.colorsNeedUpdate = true;
-      
- 
-
-      // var left_color_buffer = that.pack.createObject('VertexBuffer');
-      //       var left_color_field = left_color_buffer.createField('FloatField', 4);
-      //       left_color_buffer.set(left_color_array);
-      //       var left_brain_shape = that.brainTransform.children[0].shapes[0];
-      //       var left_stream_bank = left_brain_shape.elements[0].streamBank;
-      //       left_stream_bank.setVertexStream(
-      //        that.o3d.Stream.COLOR, //  This stream stores vertex positions
-      //        0,                     // First (and only) position stream
-      //        left_color_field,        // field: the field this stream uses.
-      //        0);                    // start_index:
-      // 
-      // 
-      // 
-      //       var right_color_buffer = that.pack.createObject('VertexBuffer');
-      //       var right_color_field = right_color_buffer.createField('FloatField', 4);
-      //       right_color_buffer.set(right_color_array);
-      //       var right_brain_shape = that.brainTransform.children[1].shapes[0];
-      //       var right_stream_bank = right_brain_shape.elements[0].streamBank;
-      //       right_stream_bank.setVertexStream(
-      //        that.o3d.Stream.COLOR, //  This stream stores vertex positions
-      //        0,                     // First (and only) position stream
-      //        right_color_field,        // field: the field this stream uses.
-      //        0);                    // start_index:
-      // 
-      //       that.client.render();
 
     } else {
       

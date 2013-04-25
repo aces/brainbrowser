@@ -346,14 +346,7 @@ function SurfView(model_url) {
          case 'car':
 			     bb.clearScreen();
 			     bb.loadWaveformObjFromUrl('/models/car.obj');
-			     bb.eyeView[2] = 62.0;
-			     
-			     bb.viewInfo.drawContext.view = bb.math.matrix4.lookAt(
-			       bb.eyeView, // eye
-			       [0, 0, 0],   // target
-			       [0, 1, 0]);  // up
-			     bb.brainTransform.localMatrix = [0.42618776159231875, 0.37186445186747336, -0.8246701287825527, 0, -0.9043269714016714, 0.15135489203623487, -0.3991045294809117, 0, -0.023594928785854036, 0.9158649060281773, 0.4007926561722248, 0, 0, 0, 0, 1];
-			     bb.thatRot = bb.math.matrix4.mul(bb.brainTransform.localMatrix, bb.math.matrix4.identity());
+			     bb.setCamera(0, 0, 100);			     
 			    
 			   break;
 			   case 'plane':

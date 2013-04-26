@@ -97,6 +97,10 @@ function BrainBrowser() {
     camera.position.set(x, y, z);
   }
   
+  this.getModel = function() {
+    return brain;
+  }
+  
   function addBrain(obj, renderDepth) {
     that.model_data = obj;
     var left = createHemisphere(obj.left);
@@ -338,11 +342,10 @@ function BrainBrowser() {
   this.renderCallback = function(renderEvent) {
     //that.setClientSize();
     if(that.autoRotate) {
-       //that.clock = 0;
-       //that.clock += renderEvent.elapsedTime * that.timeMult;
-       if(that.autoRotate.x){
+      
+      if(that.autoRotate.x){
 	       brain.rotation.x += 0.01;
-       }
+      }
       if(that.autoRotate.y){
         brain.rotation.y += 0.01;
       }
@@ -1040,7 +1043,7 @@ function BrainBrowser() {
     var children = brain.children;
     
     for (var i = 0; i < children.length; i++) {
-      children[i].material = new THREE.MeshBasicMaterial({color: 0xFFFFFF, wireframe: true});
+      children[i].material.wireframe = true;
     }
   };
   
@@ -1048,7 +1051,7 @@ function BrainBrowser() {
     var children = brain.children;
     
     for (var i = 0; i < children.length; i++) {
-      children[i].material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808, vertexColors: THREE.VertexColors});
+      children[i].material.wireframe = false;
     }
   };
 

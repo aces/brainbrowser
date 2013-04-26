@@ -354,14 +354,17 @@ function SurfView(model_url) {
 			     bb.updateClearColorFromName('black');
 			     bb.loadObjFromUrl('/models/dlr_bigger.streamlines.obj');
 			     bb.loadObjFromUrl('/models/dlr.model.obj');
-			     bb.eyeView[2] = 32.0;
-			     
-			     bb.viewInfo.drawContext.view = bb.math.matrix4.lookAt(
-			       bb.eyeView, // eye
-			       [0, 0, 0],   // target
-			       [0, 1, 0]);  // up
-			     bb.brainTransform.localMatrix = [0.5175565260543228, 0.2198608202734916, -0.8269198643443321, 0, -0.7683778894163086, 0.5446338685327888, -0.33610916129012, 0, 0.3764713287817814, 0.8093424299736646, 0.45081500601644064, 0, 0, 0, 0, 1];
-			     bb.thatRot = bb.math.matrix4.mul(bb.brainTransform.localMatrix, bb.math.matrix4.identity());
+			     bb.setCamera(0, 0, 75);
+
+           var matrix = new THREE.Matrix4();
+           var matrixRotX = new THREE.Matrix4();
+           matrixRotX.makeRotationX(-0.25 * Math.PI)
+           var matrixRotY = new THREE.Matrix4();
+           matrixRotY.makeRotationY(0.4 * Math.PI)
+           
+           matrix.multiplyMatrices( matrixRotY, matrixRotX );
+           
+           bb.getModel().applyMatrix(matrix);
 			     
 			   }
 			   

@@ -162,8 +162,17 @@
          bb.updateClearColorFromName('black');
          bb.loadObjFromUrl('/models/dlr_bigger.streamlines.obj');
          bb.loadObjFromUrl('/models/dlr.model.obj');
-         bb.setCamera(0, 0, 100);
-
+         bb.setCamera(0, 0, 75);
+         
+         var matrix = new THREE.Matrix4();
+         var matrixRotX = new THREE.Matrix4();
+         matrixRotX.makeRotationX(-0.25 * Math.PI)
+         var matrixRotY = new THREE.Matrix4();
+         matrixRotY.makeRotationY(0.4 * Math.PI)
+         
+         matrix.multiplyMatrices(matrixRotY, matrixRotX);
+         
+         bb.getModel().applyMatrix(matrix);
          $("#clearColor").val('black');
        });
       

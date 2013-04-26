@@ -362,7 +362,7 @@ function SurfView(model_url) {
            var matrixRotY = new THREE.Matrix4();
            matrixRotY.makeRotationY(0.4 * Math.PI)
            
-           matrix.multiplyMatrices( matrixRotY, matrixRotX );
+           matrix.multiplyMatrices(matrixRotY, matrixRotX);
            
            bb.getModel().applyMatrix(matrix);
 			     

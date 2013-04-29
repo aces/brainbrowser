@@ -245,11 +245,11 @@ function BrainBrowser() {
   
   function addPolygonObject(obj,filename, renderDepth){
     that.model_data = obj;
-    
+
     if (that.model_data.shapes){
-      for (var i = 0; 1< that.model_data.shapes.length; i++){
-	      var shape = that.createPolygonShape(that.model_data.shapes[z]);
-	      shape.name = that.model_data.shapes[z].name;
+      for (var i = 0; i < that.model_data.shapes.length; i++){
+	      var shape = createPolygonShape(that.model_data.shapes[i]);
+	      shape.name = that.model_data.shapes[i].name;
 	      brain.add(shape);      	
       }
     }else {
@@ -282,10 +282,10 @@ function BrainBrowser() {
     }else {
       colorArray = [];
       var indexArrayLength = indexArray.length;
-      for(var j = 0; j < indexArrayLength ; j++) {
-	      colorArray.push(model_data.colorArray[j*4]);
-	      colorArray.push(model_data.colorArray[j*4+1]);
-	      colorArray.push(model_data.colorArray[j*4+2]);
+      for(var j = 0; j + 2 < model_data.colorArray.length; j += 4) {
+	      colorArray.push(model_data.colorArray[j]);
+	      colorArray.push(model_data.colorArray[j+1]);
+	      colorArray.push(model_data.colorArray[j+2]);
       }
     }
     
@@ -301,18 +301,48 @@ function BrainBrowser() {
       colors.push(col);
     }
     
-    for(var i = 0; i + 2 < indexArray.length; i+=3) {
-      var face = new THREE.Face3(indexArray[i], indexArray[i+1], indexArray[i+2]);
-      face.vertexColors[0] = colors[face.a];
-      face.vertexColors[1] = colors[face.b];
-      face.vertexColors[2] = colors[face.c];
-      geometry.faces.push(face);
+    if (model_data.faces && model_data.faces.length > 0) {
+      var faces = model_data.faces;
+      for(var i = 0; i < faces.length-2; i++) {
+        if (faces[i].length < 3) cosole.log("TOOO SHOOOORT");
+        if (faces[i].length <= 3){
+          if (faces[i].length <= 3) {
+            var face = new THREE.Face3(faces[i][0], faces[i][1], faces[i][2]);
+          } else if (faces[i].length == 4){
+            var face = new THREE.Face4(faces[i][0], faces[i][1], faces[i][2], faces[i][3]);
+            console.log("FOUR");
+          }
+          face.vertexColors[0] = colors[face.a];
+          face.vertexColors[1] = colors[face.b];
+          face.vertexColors[2] = colors[face.c];
+          // if (faces[i].length > 3) {
+          //             face.vertexColors[3] = colors[face.d];
+          //           }
+          geometry.faces.push(face);
+        } else {
+          for (var j = 1; j + 1 < faces[i].length; j++) {
+            var face = new THREE.Face3(faces[i][0], faces[i][j], faces[i][j+1]);
+            face.vertexColors[0] = new THREE.Color(0xFF00000);//colors[face.a];
+            face.vertexColors[1] = new THREE.Color(0xFF00000);//colors[face.b];
+            face.vertexColors[2] = new THREE.Color(0xFF00000);//colors[face.c];
+            geometry.faces.push(face);
+          }
+        }      
+      }
+    } else {
+      for(var i = 0; i + 2 < indexArray.length; i+=3) {
+        var face = new THREE.Face3(indexArray[i], indexArray[i+1], indexArray[i+2]);
+        face.vertexColors[0] = colors[face.a];
+        face.vertexColors[1] = colors[face.b];
+        face.vertexColors[2] = colors[face.c];
+        geometry.faces.push(face);
+      }
     }
     
     geometry.computeFaceNormals();
     geometry.computeVertexNormals();
     geometry.colorsNeedUpdate = true;
-    
+
     var material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808, vertexColors: THREE.VertexColors});
     
     var polygonShape = new THREE.Mesh(geometry, material);
@@ -1107,12 +1137,12 @@ function BrainBrowser() {
 
   this.loadObjFromFile = function(file_input, renderDepth) {
     loadFromTextFile(file_input, function(result) {
-                       	 var parts = file_input.value.split("\\");
-			 //last part of path will be shape name
-			 var filename = parts[parts.length-1];
+      var parts = file_input.value.split("\\");
+			//last part of path will be shape name
+			var filename = parts[parts.length-1];
 
-			 that.displayObjectFile(new MNIObject(result),filename, renderDepth);
-		     });
+			that.displayObjectFile(new MNIObject(result),filename, renderDepth);
+	  });
   };
 
   this.loadSpectrumFromUrl  = function(url) {

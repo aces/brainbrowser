@@ -303,28 +303,27 @@ function BrainBrowser() {
     
     if (model_data.faces && model_data.faces.length > 0) {
       var faces = model_data.faces;
-      for(var i = 0; i < faces.length-2; i++) {
-        if (faces[i].length < 3) cosole.log("TOOO SHOOOORT");
-        if (faces[i].length <= 3){
+      for(var i = 0; i < faces.length; i++) {
+        if (faces[i].length < 3) continue;
+        if (faces[i].length <= 4){
           if (faces[i].length <= 3) {
             var face = new THREE.Face3(faces[i][0], faces[i][1], faces[i][2]);
           } else if (faces[i].length == 4){
             var face = new THREE.Face4(faces[i][0], faces[i][1], faces[i][2], faces[i][3]);
-            console.log("FOUR");
           }
           face.vertexColors[0] = colors[face.a];
           face.vertexColors[1] = colors[face.b];
           face.vertexColors[2] = colors[face.c];
-          // if (faces[i].length > 3) {
-          //             face.vertexColors[3] = colors[face.d];
-          //           }
+          if (faces[i].length > 3) {
+            face.vertexColors[3] = colors[face.d];
+          }
           geometry.faces.push(face);
         } else {
           for (var j = 1; j + 1 < faces[i].length; j++) {
             var face = new THREE.Face3(faces[i][0], faces[i][j], faces[i][j+1]);
-            face.vertexColors[0] = new THREE.Color(0xFF00000);//colors[face.a];
-            face.vertexColors[1] = new THREE.Color(0xFF00000);//colors[face.b];
-            face.vertexColors[2] = new THREE.Color(0xFF00000);//colors[face.c];
+            face.vertexColors[0] = colors[face.a];
+            face.vertexColors[1] = colors[face.b];
+            face.vertexColors[2] = colors[face.c];
             geometry.faces.push(face);
           }
         }      
@@ -408,25 +407,6 @@ function BrainBrowser() {
     //     return material;
   };
 
-  /**
-   * Turn on alpha blending on the materials state object passed in.  
-   * @param {o3d.State} state State object of the material's effect on which we want to enable alpha blending
-   */
-  function enableAlphaBlending(state) {
-    console.log("ENABLE ALPHA BLENDING COMMENTED OUT!");
-    // state.getStateParam('AlphaBlendEnable').value = true;
-    //     state.getStateParam('SourceBlendFunction').value =
-    //       o3djs.base.o3d.State.BLENDFUNC_SOURCE_ALPHA;
-    //     state.getStateParam('DestinationBlendFunction').value =
-    //       o3djs.base.o3d.State.BLENDFUNC_INVERSE_SOURCE_ALPHA;
-    //     state.getStateParam('AlphaTestEnable').value = true;
-    //     state.getStateParam('AlphaComparisonFunction').value =
-    //       o3djs.base.o3d.State.CMP_GREATER;
-
-  }
-
-  that.enableAlphaBlending = enableAlphaBlending;
-
   /** 
    * Delete all the shapes on screen
    * For this the function travels down the scenegraph and removes every shape.
@@ -443,27 +423,6 @@ function BrainBrowser() {
     if(that.afterClearScreen != undefined) {
       that.afterClearScreen();
     }
-    
-    // if(brainbrowser.brainTransform != undefined) {
-    //       if(brainbrowser.brainTransform.shapes != undefined) {
-    //        var num = brainbrowser.brainTransform.shapes.length;
-    //  
-    //        for(var i = 0; i < num; i++) { 
-    //          brainbrowser.brainTransform.removeShape(brainbrowser.brainTransform.shapes[0]);
-    //        };
-    //       }
-    //       if(brainbrowser.brainTransform.children.length) {
-    //        var number_children = brainbrowser.brainTransform.children.length;
-    //        for(var i = 0; i < number_children; i++ ) {
-    //          var num = brainbrowser.brainTransform.children[i].length;
-    //          brainbrowser.brainTransform.children[i].removeShape(brainbrowser.brainTransform.children[i].shapes[0]);
-    //        };
-    //       }
-    //       
-    //       if(that.afterClearScreen != undefined) {
-    //        that.afterClearScreen();
-    //       }
-    //     };
   };
 
   /**
@@ -475,7 +434,9 @@ function BrainBrowser() {
    * @param {Object} obj object of the parsed MNI Object file to be displayed
    * @param {String} filename filename of the original object file   
    */
-  this.displayObjectFile = function(obj,filename, renderDepth) {
+  this.displayObjectFile = function(obj, filename, opts) {
+    var options = opts || {};
+    var renderDepth = options.renderDepth;
     if(obj.objectClass == 'P' && obj.numberVertices == 81924) {
       addBrain(obj, renderDepth);
     }else if(obj.objectClass == 'P') {
@@ -542,11 +503,6 @@ function BrainBrowser() {
    * matrix.
    */
   this.resetView = function() {
-    // that.brainTransform.children[0].visible=true;
-    //  that.brainTransform.children[1].visible=true;
-    //  that.brainTransform.identity();
-    //  that.brainTransform.children[0].identity();
-    //  that.brainTransform.children[1].identity();
     camera_controls.reset();                 
     light_controls.reset();
     brain.position.set(0, 0, 0);
@@ -1117,31 +1073,37 @@ function BrainBrowser() {
   }
 
 
-  this.loadObjFromUrl = function(url, renderDepth) {
+  this.loadObjFromUrl = function(url, opts) {
     loadFromUrl(url, false,function(data) {
 		    var parts = url.split("/");
 		    //last part of url will be shape name
 		    var filename = parts[parts.length-1];
-		    that.displayObjectFile(new MNIObject(data),filename, renderDepth);
+		    that.displayObjectFile(new MNIObject(data), filename, opts);
 		});
   };
 
-  this.loadWaveformObjFromUrl = function(url, renderDepth) {
+  this.loadWavefrontObjFromUrl = function(url, opts) {
     loadFromUrl(url, false,function(data) {
 		    var parts = url.split("/");
 		    //last part of url will be shape name
 		    var filename = parts[parts.length-1];
-		    that.displayObjectFile(new WaveformObj(data),filename, renderDepth);
+		    that.displayObjectFile(new WavefrontObj(data), filename, opts);
 		});
   };
 
-  this.loadObjFromFile = function(file_input, renderDepth) {
+  this.loadObjFromFile = function(file_input, opts) {
+    var options = opts || {};    
     loadFromTextFile(file_input, function(result) {
       var parts = file_input.value.split("\\");
 			//last part of path will be shape name
 			var filename = parts[parts.length-1];
-
-			that.displayObjectFile(new MNIObject(result),filename, renderDepth);
+      var obj;
+      if (options.format == "wavefront") {
+        obj = new WavefrontObj(result);
+      } else {
+        obj = new MNIObject(result);
+      }
+			that.displayObjectFile(obj, filename, options);
 	  });
   };
 

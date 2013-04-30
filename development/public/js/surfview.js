@@ -345,9 +345,15 @@ function SurfView(model_url) {
 			     break;
          case 'car':
 			     bb.clearScreen();
-			     bb.loadWaveformObjFromUrl('/models/car.obj');
+			     bb.loadWavefrontObjFromUrl('/models/car.obj');
 			     bb.setCamera(0, 0, 100);			     
 			    
+			     var matrixRotX = new THREE.Matrix4();
+           matrixRotX.makeRotationX(-0.25 * Math.PI)
+           var matrixRotY = new THREE.Matrix4();
+           matrixRotY.makeRotationY(0.4 * Math.PI)
+           
+           bb.getModel().applyMatrix(matrixRotY.multiply(matrixRotX));
 			   break;
 			   case 'plane':
 			     bb.clearScreen();

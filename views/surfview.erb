@@ -14,7 +14,15 @@
 	<h4>Files</h4>
 	
 	<form id="datafile-form" method="POST"  action="/upload/minc" enctype="multipart/form-data">
-	Object File: <input type="file" name="objfile" id="objfile"><br />
+  <span id="obj_file_select">
+    Object File: <input type="file" name="objfile" id="objfile"><br>
+    Format:
+  	<select  id="obj_file_format" name="format">
+      <option value="mni">MNI OBJ</option>
+      <option value="wavefront">Wavefront OBJ</option>
+    </select>
+  </span>
+	<br />
 	Data: <input type="file" name="datafile" id="datafile"><br />
 	Data Series(Multiple): <input type="file" name="dataseriesfile" id="dataseriesfile" multiple=true> <br />
 	Data Blend(Multiple): <input type="file" name="datablendfile" id="datablendfile" multiple=true> <br />
@@ -133,7 +141,7 @@
 	    <script type="text/javascript" src="/js/color.js"></script>
 	    <script type="text/javascript" src="/js/spectrum.js"></script> 
 	    <script type="text/javascript" src="/js/mniobj.js"></script> 
-	    <script type="text/javascript" src="/js/waveformObj.js"></script>
+	    <script type="text/javascript" src="/js/wavefront_obj.js"></script>
 	    <script type="text/javascript" src="/js/object.js"></script> 
 	    <script type="text/javascript" src="/js/brainbrowser.js"></script> 
 	    <script type="text/javascript" src="/js/surfview.js"></script> 
@@ -155,7 +163,14 @@
       var surfview = new SurfView('/models/surf_reg_model_both.obj');
       
       jQuery("#objfile").change(function() {
-        surfview.brainbrowser.loadObjFromFile(document.getElementById("objfile"));
+        surfview.brainbrowser.clearScreen();
+        var format = $(this).closest("#obj_file_select").find("#obj_file_format option:selected").val();
+        surfview.brainbrowser.loadObjFromFile(document.getElementById("objfile"), {format: format});
+      });
+      jQuery("#obj_file_format").change(function() {
+        surfview.brainbrowser.clearScreen();
+        var format = $(this).closest("#obj_file_select").find("#obj_file_format option:selected").val();
+        surfview.brainbrowser.loadObjFromFile(document.getElementById("objfile"), {format: format});
       });
       
       jQuery("#datafile").change(function() {

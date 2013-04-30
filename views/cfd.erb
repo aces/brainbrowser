@@ -8,37 +8,44 @@
   </head>  
   <body>  
 
-    <div id="controls">
-      <div id="logos" class="box full_box cfd_logo">
-      </div>
-      <div id="examples" class="box full_box">
-	<h3>Examples</h3>
-	<ul>
-	  <li><a href="#" class="example" data-example-name="car">Car</a></li>
-	  <li><a href="#" class="example" data-example-name="plane">Plane with air density and air flow</a></li>
-	  <li><a href="#" class="example" data-example-name="basic">Basic Surface</a></li>
-	  <li><a href="#" span class="example" data-example-name="punkdti">DTI and Mesh Brain</a></li>
-	  <li><a href="#" class="example" data-example-name="realct">Real brain with map of Cortical Thickness</a></li>
+  <div id="controls">
+    <div id="logos" class="box full_box cfd_logo">
+    </div>
+    <div id="examples" class="box full_box">
+      <h3>Examples</h3>
+      <ul>
+        <li><a href="#" class="example" data-example-name="car">Car</a></li>
+        <li><a href="#" class="example" data-example-name="plane">Plane with air density and air flow</a></li>
+        <li><a href="#" class="example" data-example-name="basic">Basic Surface</a></li>
+        <li><a href="#" span class="example" data-example-name="punkdti">DTI and Mesh Brain</a></li>
+        <li><a href="#" class="example" data-example-name="realct">Real brain with map of Cortical Thickness</a></li>
+      </ul>
+    </div>
 
-     </div>
-
-      <div id="surface_choice" class="box full_box">
+  <div id="surface_choice" class="box full_box">
 	<h4>Files</h4>
 	
 	<form id="datafile-form" method="POST"  action="/upload/minc" enctype="multipart/form-data">
-	Object File: <input type="file" name="objfile" id="objfile"><br />
-	Data: <input type="file" name="datafile" id="datafile"><br />
-	Data Series: <input type="file" name="dataseriesfile" id="dataseriesfile" multiple=true> <br />
-	Color Bar: <input type="file" name="spectrum" id="spectrum"><br />
+	  <span id="obj_file_select">
+      Object File: <input type="file" name="objfile" id="objfile"><br>
+      Format:
+    	<select  id="obj_file_format" name="format">
+        <option value="mni">MNI OBJ</option>
+        <option value="wavefront">Wavefront OBJ</option>
+      </select>
+    </span>
+  	<br />
+	  Data: <input type="file" name="datafile" id="datafile"><br />
+	  Data Series: <input type="file" name="dataseriesfile" id="dataseriesfile" multiple=true> <br />
+	  Color Bar: <input type="file" name="spectrum" id="spectrum"><br />
 	</form>
-      </div>
-      <div class="box full_box" id="shapes-box">
-	<div id="shapes">
-	  
-	</div>
-	<span id="clearshapes" class="button">Clear Shapes</span>
-      </div>
-      <div class="combo_box full_box">
+  </div>
+  <div class="box full_box" id="shapes-box">
+	  <div id="shapes">  
+	  </div>
+	  <span id="clearshapes" class="button">Clear Shapes</span>
+  </div>
+  <div class="combo_box full_box">
 	<div id="views" class="box half_box" >
 	  <h4>Views</h4>
 	  <div id="hem_views_1" class="half_box">
@@ -139,7 +146,7 @@
 	  <script type="text/javascript" src="/js/color.js"></script>
 	  <script type="text/javascript" src="/js/spectrum.js"></script> 
 	  <script type="text/javascript" src="/js/mniobj.js"></script> 
-	  <script type="text/javascript" src="/js/waveformObj.js"></script>
+	  <script type="text/javascript" src="/js/wavefront_obj.js"></script>
 	  <script type="text/javascript" src="/js/object.js"></script> 
 	  <script type="text/javascript" src="/js/brainbrowser.js"></script> 
 	  <script type="text/javascript" src="/js/surfview.js"></script> 
@@ -164,21 +171,25 @@
          bb.loadObjFromUrl('/models/dlr.model.obj');
          bb.setCamera(0, 0, 75);
          
-         var matrix = new THREE.Matrix4();
          var matrixRotX = new THREE.Matrix4();
          matrixRotX.makeRotationX(-0.25 * Math.PI)
          var matrixRotY = new THREE.Matrix4();
          matrixRotY.makeRotationY(0.4 * Math.PI)
          
-         matrix.multiplyMatrices(matrixRotY, matrixRotX);
-         
-         bb.getModel().applyMatrix(matrix);
+         bb.getModel().applyMatrix(matrixRotY.multiply(matrixRotX));
          $("#clearColor").val('black');
        });
       
-      jQuery("#objfile").change(function() {
-        surfview.brainbrowser.loadObjFromFile(document.getElementById("objfile"));
-      });
+       jQuery("#objfile").change(function() {
+         surfview.brainbrowser.clearScreen();
+         var format = $(this).closest("#obj_file_select").find("#obj_file_format option:selected").val();
+         surfview.brainbrowser.loadObjFromFile(document.getElementById("objfile"), {format: format});
+       });
+       jQuery("#obj_file_format").change(function() {
+         surfview.brainbrowser.clearScreen();
+         var format = $(this).closest("#obj_file_select").find("#obj_file_format option:selected").val();
+         surfview.brainbrowser.loadObjFromFile(document.getElementById("objfile"), {format: format});
+       });
       
       jQuery("#datafile").change(function() {
         surfview.brainbrowser.loadDataFromFile(document.getElementById("datafile"));

@@ -1,4 +1,4 @@
-function WaveformObj(data) {
+function WavefrontObj(data) {
   var obj = this;
   data = data.split('\n');
 

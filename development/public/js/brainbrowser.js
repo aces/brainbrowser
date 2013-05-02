@@ -399,6 +399,7 @@ function BrainBrowser() {
     if(brain) {
       scene.remove(brain)
     }
+    that.resetView();
     
     brain = new THREE.Object3D();
     
@@ -717,8 +718,6 @@ function BrainBrowser() {
   function unSelectAll() {
 
     if (that.selectedInfo) {
-
-
       that.highlightShape = null;
       that.selectedInfo = null;
     }

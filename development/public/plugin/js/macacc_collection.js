@@ -11,7 +11,7 @@ var g_spectrum;
 
 
 
-function MacaccObject(brainbrowser,path) {
+function MacaccObject(brainbrowser, path) {
   var that = this;
   this.brainbrowser = brainbrowser;
   this.dataSet = new Dataset(path);

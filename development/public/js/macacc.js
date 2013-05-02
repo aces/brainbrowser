@@ -45,17 +45,17 @@ function initMacacc(path_prefix,dont_build_path) {
     macacc = new MacaccObject(bb,path_prefix,dont_build_path);
     brainbrowser.afterCreateBrain = function() {
       if(bb.current_dataset != undefined) {
-	macacc.update_model(bb.current_dataset);
+	      macacc.update_model(bb.current_dataset);
       }
     };
 
 
     macacc.afterRangeChange= function(min,max) {
       if(macacc.flipRange == true) {
-	var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null,true);
+	      var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null,true);
       }
       else {
-	var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null,false);
+	      var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null,false);
       }
 
       jQuery("#spectrum").html(jQuery(canvas));
@@ -71,21 +71,21 @@ function initMacacc(path_prefix,dont_build_path) {
 				 });
 
     jQuery("#range-slider").slider({
-				     range: true,
-				     min: -10,
-				     max: 15,
-				     values: [0, 5],
-				     slide: function(event, ui) {
-				       jQuery("#data-range-min").val(ui.values[0]);
-				       jQuery("#data-range-max").val(ui.values[1]);
-				       if(bb.current_dataset) {
-					 macacc.range_change();
-				       }
-				     },
-				     step: 0.1
-				     //stop: macacc.range_change
-
-				   });
+		  range: true,
+		  min: -10,
+		  max: 15,
+		  values: [0, 5],
+		  slide: function(event, ui) {
+		    jQuery("#data-range-min").val(ui.values[0]);
+		    jQuery("#data-range-max").val(ui.values[1]);
+		    if(bb.current_dataset) {
+		      macacc.range_change();
+		    }
+		  },
+		  step: 0.1
+		  //stop: macacc.range_change
+    
+		});
 
 
 
@@ -119,47 +119,62 @@ function initMacacc(path_prefix,dont_build_path) {
     jQuery("#model").change(macacc.change_model);
 
     jQuery('#screenshot').click(function(event) {jQuery(this).attr("href",bb.client.toDataUR());});
-    o3djs.event.addEventListener(bb.o3dElement, 'mousedown', function (e) {
-				   var pointer_setting=jQuery('[name=pointer]:checked').val();
-
-				   if(pointer_setting=="rotate" && !e.shiftKey  && !e.ctrlKey){
-				     bb.startDragging(e);
-				   }if(e.ctrlKey || pointer_setting == "check") {
-				     if(bb.valueAtPointCallback) {
-				       bb.click(e,bb.valueAtPointCallback);
-				     }
-				   }if(e.shiftKey || pointer_setting == "select") {
-
-				     if(bb.clickCallback) {
-				       bb.click(e,bb.clickCallback);
-				     }
-
-				   }
-
-
-				 });
-    o3djs.event.addEventListener(bb.o3dElement, 'mousemove', function (e) {
-				   var pointer_setting=jQuery('[name=pointer]:checked').val();
-				   if( pointer_setting == "check" && e.shiftKey) {
-				     if(bb.valueAtPointCallback) {
-				       bb.click(e,bb.valueAtPointCallback);
-				     }
-				   }else if(pointer_setting == "select" && e.shiftKey) {
-
-				     if(bb.clickCallback) {
-				       bb.click(e,bb.clickCallback);
-				     }
-				   }else
-				   {
-				     bb.drag(e);
-				   }
-
-				 });
-    o3djs.event.addEventListener(bb.o3dElement, 'mouseup', function (e) {
-				   if(!e.shiftKey || e.button == bb.o3d.Event.BUTTON_RIGHT){
-				     bb.stopDragging(e);
-				   }
-				 });
+    
+    $("#view-window").mousedown(function(e) {
+      var pointer_setting=jQuery('[name=pointer]:checked').val();
+      
+      if(e.ctrlKey || pointer_setting == "check") {
+        if(bb.valueAtPointCallback) {
+          bb.click(e, bb.valueAtPointCallback);
+        }
+      }if(e.shiftKey || pointer_setting == "select") {
+        if(bb.clickCallback) {
+          bb.click(e, bb.clickCallback);
+        }
+      }
+    });
+    
+    // o3djs.event.addEventListener(bb.o3dElement, 'mousedown', function (e) {
+    //           var pointer_setting=jQuery('[name=pointer]:checked').val();
+    // 
+    //           if(pointer_setting=="rotate" && !e.shiftKey  && !e.ctrlKey){
+    //             bb.startDragging(e);
+    //           }if(e.ctrlKey || pointer_setting == "check") {
+    //             if(bb.valueAtPointCallback) {
+    //               bb.click(e,bb.valueAtPointCallback);
+    //             }
+    //           }if(e.shiftKey || pointer_setting == "select") {
+    // 
+    //             if(bb.clickCallback) {
+    //               bb.click(e,bb.clickCallback);
+    //             }
+    // 
+    //           }
+    // 
+    // 
+    //         });
+    //     o3djs.event.addEventListener(bb.o3dElement, 'mousemove', function (e) {
+    //           var pointer_setting=jQuery('[name=pointer]:checked').val();
+    //           if( pointer_setting == "check" && e.shiftKey) {
+    //             if(bb.valueAtPointCallback) {
+    //               bb.click(e,bb.valueAtPointCallback);
+    //             }
+    //           }else if(pointer_setting == "select" && e.shiftKey) {
+    // 
+    //             if(bb.clickCallback) {
+    //               bb.click(e,bb.clickCallback);
+    //             }
+    //           }else
+    //           {
+    //             bb.drag(e);
+    //           }
+    // 
+    //         });
+    //     o3djs.event.addEventListener(bb.o3dElement, 'mouseup', function (e) {
+    //           if(!e.shiftKey || e.button == bb.o3d.Event.BUTTON_RIGHT){
+    //             bb.stopDragging(e);
+    //           }
+    //         });
 
     jQuery("#flip_range").change(function(e) {
 				     macacc.update_model(brainbrowser.current_dataset);

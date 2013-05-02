@@ -77,7 +77,9 @@ function BrainBrowser() {
     	requestAnimationFrame(render);
       camera_controls.update();
       light_controls.update();
-
+      
+      
+     
       that.renderCallback();    
     }
     if(this.afterInit) {
@@ -85,13 +87,13 @@ function BrainBrowser() {
     }
     
     window.onresize();      
-    //that.updateInfo();
     
     that.loadSpectrumFromUrl('/assets/spectral_spectrum.txt');
-    
+        
     render();
-    
   };
+
+
   
   this.setCamera = function(x, y, z) {
     camera.position.set(x, y, z);
@@ -105,8 +107,10 @@ function BrainBrowser() {
     that.model_data = obj;
     var left = createHemisphere(obj.left);
     left.name = "left";
+    left.model_num = 0;
     var right = createHemisphere(obj.right);
     right.name = "right"
+    right.model_num = 1;
     brain.add(left);
     brain.add(right);
     
@@ -114,7 +118,6 @@ function BrainBrowser() {
   }
   
   function createHemisphere(obj) {
-    //that.createBrain(obj,filename);
     var verts = obj.positionArray;
     var ind = obj.indexArray;
     var bounding_box = {};
@@ -384,27 +387,6 @@ function BrainBrowser() {
       
     }
     renderer.render(scene, camera);
-  };
-
-  /**
-   * Materials are basically shaders and properties applied to shapes
-   * the effect is where the shader programs resided
-   * changes attributes and uniforms of a shader are done using the effect object
-   *
-   * @param {String} url url of shader code to load, this is the combined shader.   
-   */
-  this.createMaterial = function(url) {
-    console.log("createMaterial commented out!");
-    // var effect = that.pack.createObject('Effect');
-    //     var shaderString = that.loadCombinedShaderFromUrl(url);
-    //     effect.loadFromFXString(shaderString);
-    //     var material = that.pack.createObject('Material');
-    //     material.drawList = that.viewInfo.performanceDrawList;
-    //     material.effect = effect;
-    // 
-    //     effect.createUniformParameters(material);
-    //     
-    //     return material;
   };
 
   /** 
@@ -725,12 +707,12 @@ function BrainBrowser() {
     }
   }
 
-  this.updateInfo = function() {
-    if (!that.treeInfo) {
-      that.treeInfo = o3djs.picking.createPickManager(that.client.root);
-    }
-    that.treeInfo.update();
-  };
+  // this.updateInfo = function() {
+  //    if (!that.treeInfo) {
+  //      that.treeInfo = o3djs.picking.createPickManager(that.client.root);
+  //    }
+  //    that.treeInfo.update();
+  //  };
 
   function unSelectAll() {
 
@@ -756,16 +738,36 @@ function BrainBrowser() {
    *
    *
    *
-   */
-  this.click = function(e,click_callback) {
-
-    var worldRay = o3djs.picking.clientPositionToWorldRay(
-      e.x,
-      e.y,
-      that.viewInfo.drawContext,
-      that.client.width,
-      that.client.height);
+  */
+  this.click = function(e, click_callback) {
+    var offset = view_window.offset();
+    mouseX = ((e.clientX - offset.left)/view_window.width()) * 2 - 1;
+    mouseY = -((e.clientY - offset.top)/view_window.height()) * 2 + 1;
+    
+    var projector = new THREE.Projector();
+    var raycaster = new THREE.Raycaster();
+     
     unSelectAll();
+    
+    var vector = new THREE.Vector3(mouseX, mouseY, 1 );
+    projector.unprojectVector(vector, camera);
+    raycaster.set(camera.position, vector.sub(camera.position).normalize() );
+    var intersects = raycaster.intersectObject(brain, true);
+    if (intersects.length > 0) {      
+      return click_callback(e, intersects[0]);
+    } else {
+      jQuery(that.pickInfoElem).html('--nothing--');
+      return false;
+    }
+
+
+    // var worldRay = o3djs.picking.clientPositionToWorldRay(
+    //    e.x,
+    //    e.y,
+    //    that.viewInfo.drawContext,
+    //    that.client.width,
+    //    that.client.height);
+   
 
     // Update the entire tree in case anything moved.
     // NOTE: This function is very SLOW!
@@ -778,31 +780,31 @@ function BrainBrowser() {
     // transform graph and only pick against that subgraph.
     // Even better, make a separate transform graph with only cubes on it to
     // represent the animals and use that instead of the actual animals.
-    that.treeInfo.update();
+    //that.treeInfo.update();
 
-    var pickInfo = that.treeInfo.pick(worldRay);
-    if (pickInfo) {
-
-      select(pickInfo);
-      var primitive_index = pickInfo.rayIntersectionInfo.primitiveIndex;
-      var position        = pickInfo.rayIntersectionInfo.position;
-      var hemisphere      = pickInfo.element.owner.name;
-      var vertex_info     = that.model_data.get_vertex(primitive_index,position,hemisphere);
-      var info = {
-	      ray_position:    position,
-	      position_vector: vertex_info.position_vector,
-	      element:         pickInfo.element,
-	      hemisphere:      hemisphere,
-	      vertex:          vertex_info.vertex
-      };
-	    return click_callback(e,info);
-    } else {
+    // var pickInfo = that.treeInfo.pick(worldRay);
+    //     if (pickInfo) {
+    // 
+    //       select(pickInfo);
+    //       var primitive_index = pickInfo.rayIntersectionInfo.primitiveIndex;
+    //       var position        = pickInfo.rayIntersectionInfo.position;
+    //       var hemisphere      = pickInfo.element.owner.name;
+    //       var vertex_info     = that.model_data.get_vertex(primitive_index,position,hemisphere);
+    //       var info = {
+    //        ray_position:    position,
+    //        position_vector: vertex_info.position_vector,
+    //        element:         pickInfo.element,
+    //        hemisphere:      hemisphere,
+    //        vertex:          vertex_info.vertex
+    //       };
+    //      return click_callback(e,info);
+    //     } else {
 
       //that.debugLine.setVisible(false);
-      jQuery(that.pickInfoElem).html('--nothing--');
-    }
-
-    return false;
+      // jQuery(that.pickInfoElem).html('--nothing--');
+      //  // }
+      // 
+      //  return false;
   };
 
 
@@ -813,122 +815,6 @@ function BrainBrowser() {
   this.getInfoForVertex = function(vertex) {
     return  that.model_data.getVertexInfo(vertex);
   };
-
-  function getCursorPosition(e){
-    var x;
-    var y;
-    if (e.pageX != undefined && e.pageY != undefined) {
-	    x = e.pageX;
-	    y = e.pageY;
-    }
-    else {
-	    x = e.clientX + document.body.scrollLeft +
-            document.documentElement.scrollLeft;
-	          y = e.clientY + document.body.scrollTop +
-            document.documentElement.scrollTop;
-    }
-    
-    
-    x -= that.o3dElement.offsetLeft;
-    y -= that.o3dElement.offsetTop;
-   
-
-    return {x: x,y: y};
-  }
-
-
-  this.startDragging = function(e) {
-
-    if(e.button == that.o3d.Event.BUTTON_RIGHT) {
-        var screenPosition = getCursorPosition(e);
-	      that.startPosition =  o3djs.picking.clientPositionToWorldRay(screenPosition.x,screenPosition.y,that.viewInfo.drawContext,that.client.height,that.client.width).far;
-	      that.dragging = true;
-    }else {
-      if(e.shiftKey && e.ctrlKey && that.model_data.num_hemispheres == 2) {
-        that.drag_hemisphere = click(e, function(event,info) {
-          if(info.hemisphere == "left") {
-            return 0;
-          }else if(info.hemisphere == "right") {
-            return 1;
-          }else {
-            return false;
-          }
-        });
-      }
-      that.lastRot = that.thatRot;
-      that.aball.click([e.x, e.y]);
-      that.dragging = true;
-    };
-  };
-
-  this.drag = function(e) {
-
-    if (that.dragging && e.button == that.o3d.Event.BUTTON_LEFT ) {
-
-      var rotationQuat = that.aball.drag([e.x, e.y]);
-      var rot_mat = that.quaternions.quaternionToRotation(rotationQuat);
-      that.thatRot = that.math.matrix4.mul(that.lastRot, rot_mat);
-
-
-      if(that.drag_hemisphere === 0 || that.drag_hemisphere === 1) {
-
-	      var m = that.brainTransform.children[that.drag_hemisphere].localMatrix;
-	      that.math.matrix4.setUpper3x3(m, that.thatRot);
-	      that.brainTransform.children[that.drag_hemisphere].localMatrix = m;
-
-      } else {
-	      var m = that.brainTransform.localMatrix;
-	      that.math.matrix4.setUpper3x3(m, that.thatRot);
-	      that.brainTransform.localMatrix = m;
-
-      }
-
-    }else if(that.dragging && e.button == that.o3d.Event.BUTTON_RIGHT) {
-
-      var screenPosition = getCursorPosition(e);
-      var new_position = o3djs.picking.clientPositionToWorldRay(screenPosition.x,screenPosition.y,that.viewInfo.drawContext,that.client.height,that.client.width).far;
-      change = [0,0,0];
-      var distance_from_zero = that.eyeView[0];
-      var change = [(new_position[0] - that.startPosition[0])/5000*that.eyeView[2],(new_position[1] - that.startPosition[1])/5000*that.eyeView[2],0];
-      that.startPosition = new_position;
-      
-      that.brainTransform.translate(change);
-    
-    }else if(that.dragging) {
-      that.stopDragging(e);
-    }
-  };
-
-
-
-  this.stopDragging = function(e) {
-    that.drag_hemisphere = false;
-    that.dragging = false;
-  };
-
-
-
-
-
-
-  this.updateCamera = function() {
-
-    var up = [0, 1, 0];
-    that.viewInfo.drawContext.view = that.math.matrix4.lookAt(that.camera.eye,
-							      that.camera.target,
-							      up);
-    that.lightPosParam.value = that.camera.eye;
-  };
-
-  this.updateProjection = function() {
-    console.log("updateProjection commented out!");
-    // Create a perspective projection matrix.
-    //that.viewInfo.drawContext.projection = that.math.matrix4.perspective(
-    //  that.math.degToRad(45), that.o3dWidth / that.o3dHeight, that.camera.nearPlane,
-    //  that.camera.farPlane);
-
-  };
-
 
   /**
    * Function performing the rotate action in response to a key-press.
@@ -1059,7 +945,7 @@ function BrainBrowser() {
 
   }
 
-  function loadFromTextFile(file_input,callback) {
+  function loadFromTextFile(file_input, callback) {
     var reader = new FileReader();
     var files = file_input.files;
     reader.file = files[0];
@@ -1455,6 +1341,9 @@ function BrainBrowser() {
         face.vertexColors[0] = left_color_buffer[face.a];
         face.vertexColors[1] = left_color_buffer[face.b];
         face.vertexColors[2] = left_color_buffer[face.c];
+        if (face.d) {
+          face.vertexColors[3] = left_color_buffer[face.d];
+        }
       }
  
       left_hem.geometry.colorsNeedUpdate = true;
@@ -1466,26 +1355,49 @@ function BrainBrowser() {
         face.vertexColors[0] = right_color_buffer[face.a];
         face.vertexColors[1] = right_color_buffer[face.b];
         face.vertexColors[2] = right_color_buffer[face.c];
+        if (face.d) {
+          face.vertexColors[3] = right_color_buffer[face.d];
+        }
       }
       right_hem.geometry.colorsNeedUpdate = true;
 
     } else {
+      var color_buffer = [];
+      for (var i = 0; i + 2 < color_array.length; i += 4) {
+        var col = new THREE.Color()
+        col.setRGB(color_array[i], color_array[i+1], color_array[i+2]);
+        color_buffer.push(col);
+      }
       
-      var color_buffer = that.pack.createObject('VertexBuffer');
-      var color_field = color_buffer.createField('FloatField', 4);
-      color_buffer.set(color_array.nonIndexedColorArray);
-      var brain_shape = that.brainTransform.shapes[0];
-      console.log(brain_shape);
-      var stream_bank = brain_shape.elements[0].streamBank;
-      stream_bank.setVertexStream(
-	      that.o3d.Stream.COLOR, //  This stream stores vertex positions
-	      0,                     // First (and only) position stream
-	      color_field,        // field: the field this stream uses.
-	      0);                    // start_index:
-        that.client.render();
-      };
+      var children = that.brain.children;
+      for (var i = 0; i < children.length; i++) {
+        for (var j = 0; j < children[i].faces.length; j++) {
+          var face = children[i].faces[j];
+          face.vertexColors[0] = color_buffer[face.a];
+          face.vertexColors[1] = color_buffer[face.b];
+          face.vertexColors[2] = color_buffer[face.c];
+          if (face.d) {
+            face.vertexColors[3] = color_buffer[face.d];
+          }
+        }
+        children[i].geometry.colorsNeedUpdate = true;
+      }
+      
+      // var color_buffer = that.pack.createObject('VertexBuffer');
+      //       var color_field = color_buffer.createField('FloatField', 4);
+      //       color_buffer.set(color_array.nonIndexedColorArray);
+      //       var brain_shape = that.brainTransform.shapes[0];
+      //       console.log(brain_shape);
+      //       var stream_bank = brain_shape.elements[0].streamBank;
+      //       stream_bank.setVertexStream(
+      //        that.o3d.Stream.COLOR, //  This stream stores vertex positions
+      //        0,                     // First (and only) position stream
+      //        color_field,        // field: the field this stream uses.
+      //        0);                    // start_index:
+      //         that.client.render();
+    }
 
-    if(that.afterUpdateColors !=null ) {
+    if (that.afterUpdateColors !=null ) {
       that.afterUpdateColors(data,min,max,spectrum);
     }
 

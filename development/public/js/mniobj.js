@@ -213,9 +213,8 @@ function MNIObject(string) {
       var model = that[hemisphere];
       var offset = 0;
       if(hemisphere == "right") {
-	offset = 2 + model.indexArray.length/3/2; //Since the index is offset when splitting the hemispheres, we have to make it right again to find the correct one.
+	      offset = 2 + model.indexArray.length/3/2; //Since the index is offset when splitting the hemispheres, we have to make it right again to find the correct one.
       }
-
     }else {
       var model = that;
       var offset = 0;
@@ -234,7 +233,7 @@ function MNIObject(string) {
       var start_pos = triangle[i]*3;
       vertices[i] = new Array();
       for(var k=0;k<3;k++){
-	vertices[i][k] = model.positionArray[start_pos+k];
+	      vertices[i][k] = model.positionArray[start_pos+k];
       }
     }
     var distances = new Array();

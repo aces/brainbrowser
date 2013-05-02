@@ -48,34 +48,39 @@ function MacaccObject(brainbrowser,path,dont_build_path) {
   that.coordinates = jQuery("#coordinates");
   that.selectPoint = null;
 
-  function setVertexCoord(info,value) {
-      jQuery("#x-coord").val(info.position_vector[0]);
-      jQuery("#y-coord").val(info.position_vector[1]);
-      jQuery("#z-coord").val(info.position_vector[2]);
-      jQuery("#v-coord").val(info.vertex);
+  function setVertexCoord(intersection, value) {
+    var vertex = intersection.face.a;
+    if (vertex != undefined && value != undefined) {
+      jQuery("#x-coord").val(intersection.point.x);
+      jQuery("#y-coord").val(intersection.point.y);
+      jQuery("#z-coord").val(intersection.point.z);
+      jQuery("#v-coord").val(vertex);
       jQuery("#value-coord").val(value);
+    }
   }
 
 
   //Gets the data related to a vertex in the image.
-  this.pickClick = function(e,info) {
-   that.vertex = info.vertex;
+  this.pickClick = function(e, intersection) {
+    that.vertex = intersection.face.a;
+    
+    if (intersection.object.model_num) {
+      that.vertex += intersection.object.model_num * intersection.object.geometry.vertices.length;
+    } 
+   
     if(that.vertex) {
       update_map();
-      setVertexCoord(info,0);
-      if(brainbrowser.secondWindow != undefined && info["stop"] != true) {
-	brainbrowser.secondWindow.postMessage(that.vertex,"*");
+      setVertexCoord(intersection, 0);
+      if(brainbrowser.secondWindow != undefined && true) {
+	      brainbrowser.secondWindow.postMessage(that.vertex,"*");
       }
     }else {
       jQuery(that.pickInfoElem).html('--nothing--');
     }
-
-
   };
+  
   this.change_model = function(event) {
-    var type=jQuery(event.target).val();
-
-
+    var type = jQuery(event.target).val();
 
     brainbrowser.loadObjFromUrl('/data/surfaces/surf_reg_model_both_'+type+'.obj');
   };
@@ -92,66 +97,60 @@ function MacaccObject(brainbrowser,path,dont_build_path) {
   };
 
   //Finds out what the value is at a certain point and displays it
-  this.valueAtPoint = function(e,info) {
-    var value = that.dataArray[info.vertex];
-    if(info.vertex && value){
-      jQuery("#x-coord").val(info.position_vector[0]);
-      jQuery("#y-coord").val(info.position_vector[1]);
-      jQuery("#z-coord").val(info.position_vector[2]);
-      jQuery("#v-coord").val(info.vertex);
-      jQuery("#value-coord").val(value);
-    }
+  this.valueAtPoint = function(e, intersection) {
+    var value = that.dataArray[intersection.face.a];
+    setVertexCoord(intersection, value);
   };
 
 
   /**
    * This method applies the colors to the model
    */
-  function update_colors(color_array) {
-    if(brainbrowser.model_data.num_hemispheres == 1) {
-      var color_buffer = brainbrowser.pack.createObject('VertexBuffer');
-      var color_field = color_buffer.createField('FloatField', 4);
-      color_buffer.set(color_array);
-      var brain_shape = brainbrowser.brainTransform.shapes[0];
-      var stream_bank = brain_shape.elements[0].streamBank;
-      stream_bank.setVertexStream(
-	brainbrowser.o3d.Stream.COLOR, //  This stream stores vertex positions
-	0,                     // First (and only) position stream
-	color_field,        // field: the field this stream uses.
-	0);                    // start_index:
-
-
-    } else {
-      var left_color_array = color_array.slice(0, color_array.length/2);
-      var right_color_array = color_array.slice(color_array.length/2, color_array.length);
-
-      var left_color_buffer = brainbrowser.pack.createObject('VertexBuffer');
-      var left_color_field = left_color_buffer.createField('FloatField', 4);
-      left_color_buffer.set(left_color_array);
-      var left_brain_shape = brainbrowser.brainTransform.children[0].shapes[0];
-      var left_stream_bank = left_brain_shape.elements[0].streamBank;
-      left_stream_bank.setVertexStream(
-	brainbrowser.o3d.Stream.COLOR, //  This stream stores vertex positions
-	0,                     // First (and only) position stream
-	left_color_field,        // field: the field this stream uses.
-	0);                    // start_index:
-
-
-
-      var right_color_buffer = brainbrowser.pack.createObject('VertexBuffer');
-      var right_color_field = right_color_buffer.createField('FloatField', 4);
-      right_color_buffer.set(right_color_array);
-      var right_brain_shape = brainbrowser.brainTransform.children[1].shapes[0];
-      var right_stream_bank = right_brain_shape.elements[0].streamBank;
-      right_stream_bank.setVertexStream(
-	brainbrowser.o3d.Stream.COLOR, //  This stream stores vertex positions
-	0,                     // First (and only) position stream
-	right_color_field,        // field: the field this stream uses.
-	0);                    // start_index:
-	brainbrowser.client.render();
-    }
-
-  }
+  // function update_colors(color_array) {
+  //   if(brainbrowser.model_data.num_hemispheres == 1) {
+  //     var color_buffer = brainbrowser.pack.createObject('VertexBuffer');
+  //     var color_field = color_buffer.createField('FloatField', 4);
+  //     color_buffer.set(color_array);
+  //     var brain_shape = brainbrowser.brainTransform.shapes[0];
+  //     var stream_bank = brain_shape.elements[0].streamBank;
+  //     stream_bank.setVertexStream(
+  //        brainbrowser.o3d.Stream.COLOR, //  This stream stores vertex positions
+  //        0,                     // First (and only) position stream
+  //        color_field,        // field: the field this stream uses.
+  //        0);                    // start_index:
+  // 
+  // 
+  //   } else {
+  //     var left_color_array = color_array.slice(0, color_array.length/2);
+  //     var right_color_array = color_array.slice(color_array.length/2, color_array.length);
+  // 
+  //     var left_color_buffer = brainbrowser.pack.createObject('VertexBuffer');
+  //     var left_color_field = left_color_buffer.createField('FloatField', 4);
+  //     left_color_buffer.set(left_color_array);
+  //     var left_brain_shape = brainbrowser.brainTransform.children[0].shapes[0];
+  //     var left_stream_bank = left_brain_shape.elements[0].streamBank;
+  //     left_stream_bank.setVertexStream(
+  //        brainbrowser.o3d.Stream.COLOR, //  This stream stores vertex positions
+  //        0,                     // First (and only) position stream
+  //        left_color_field,        // field: the field this stream uses.
+  //        0);                    // start_index:
+  // 
+  // 
+  // 
+  //     var right_color_buffer = brainbrowser.pack.createObject('VertexBuffer');
+  //     var right_color_field = right_color_buffer.createField('FloatField', 4);
+  //     right_color_buffer.set(right_color_array);
+  //     var right_brain_shape = brainbrowser.brainTransform.children[1].shapes[0];
+  //     var right_stream_bank = right_brain_shape.elements[0].streamBank;
+  //     right_stream_bank.setVertexStream(
+  //       brainbrowser.o3d.Stream.COLOR, //  This stream stores vertex positions
+  //       0,                     // First (and only) position stream
+  //       right_color_field,        // field: the field this stream uses.
+  //       0);                    // start_index:
+  //       brainbrowser.client.render();
+  //   }
+  // 
+  // }
 
   function get_data_controls() {
     var data_modality = jQuery("[name=modality]:checked").val(); //CT,AREA or Volume
@@ -162,7 +161,7 @@ function MacaccObject(brainbrowser,path,dont_build_path) {
     return {modality: data_modality, sk: data_sk, statistic: data_statistic };
   }
 
-  function update_color_map(min,max,flip,clamped) {
+  function update_color_map(min, max, flip, clamped) {
       brainbrowser.updateColors(that.dataSet.current_data,min,max,brainbrowser.spectrum,flip,clamped);
   }
 
@@ -172,16 +171,16 @@ function MacaccObject(brainbrowser,path,dont_build_path) {
     brainbrowser.current_dataset = dataset;
     if(jQuery("#fix_range").attr("checked") == true) {
       if(!(that.data_min = parseFloat(jQuery("#data-range-min").val()))) {
-	if(!that.data_min === 0 ) {
-	  that.data_min = dataset.current_data.min;
-	}
+	      if(!that.data_min === 0 ) {
+	        that.data_min = dataset.current_data.min;
+	      }
       }
       if(!(that.data_max = parseFloat(jQuery("#data-range-max").val()))) {
-	if(!that.data_max === 0 ) {
-	  that.data_max = dataset.current_data.max;
-	}
+	      if(!that.data_max === 0 ) {
+	        that.data_max = dataset.current_data.max;
+	      }
       }
-    }else if(get_data_controls().statistic == "T") {
+    } else if(get_data_controls().statistic == "T") {
       that.data_min = dataset.current_data.min;
       that.data_max = dataset.current_data.max;
     }
@@ -206,7 +205,7 @@ function MacaccObject(brainbrowser,path,dont_build_path) {
 
   function update_map() {
 
-    that.dataSet.get_data(that.vertex,get_data_controls(),update_model);
+    that.dataSet.get_data(that.vertex, get_data_controls(), update_model);
     jQuery(that.pickInfoElem).html("Viewing data for vertex: " + that.vertex  );
     
   }
@@ -257,14 +256,9 @@ function MacaccObject(brainbrowser,path,dont_build_path) {
 
 
   brainbrowser.loadSpectrumFromUrl("/assets/spectral_spectrum.txt");
-  brainbrowser.updateInfo();
+  //brainbrowser.updateInfo();
   brainbrowser.valueAtPointCallback = this.valueAtPoint;
   brainbrowser.clickCallback = this.pickClick; //associating pickClick for brainbrowser which handles events.
-
-
-
-
-
 
 }
 

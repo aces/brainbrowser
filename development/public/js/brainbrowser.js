@@ -54,7 +54,13 @@ function BrainBrowser() {
     view_window = $("#view-window");
     camera = new THREE.PerspectiveCamera(30, view_window.width()/view_window.height(), 0.1, 5000);
     
-    renderer = new THREE.WebGLRenderer({clearColor: 0x888888, clearAlpha: 1, preserveDrawingBuffer: true});
+    if (webgl_enabled()) {
+      renderer = new THREE.WebGLRenderer({clearColor: 0x888888, clearAlpha: 1, preserveDrawingBuffer: true});
+    } else {
+      view_window.html(webGLErrorMessage());
+      return;
+    }
+    
     renderer.setSize(view_window.width(), view_window.height());
     view_window.append(renderer.domElement);  
     
@@ -92,7 +98,28 @@ function BrainBrowser() {
         
     render();
   };
+  
+  //WebGL test taken from Detector.js by
+  //@author alteredq / http://alteredqualia.com/
+  //@author mr.doob / http://mrdoob.com/
+  function webgl_enabled() { 
+    try { 
+      return !!window.WebGLRenderingContext && !!document.createElement( 'canvas' ).getContext( 'experimental-webgl' ); 
+    } catch(e) { 
+      return false; 
+    } 
+  }
 
+  function webGLErrorMessage() {
+    var text = 'BrainBrowser requires <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">WebGL</a>.<br/>';
+    text += window.WebGLRenderingContext ? 'Your browser seems to support it, but it is <br/> disabled or unavailable.<br/>' : 
+            "Your browser does not seem to support it.<br/>";
+		text += 'Test your browser\'s WebGL support <a href="http://get.webgl.org/">here</a>.';
+		
+    var el = $('<div id="webgl-error">' + text + '</div>');
+        
+    return el;
+  }
 
   
   this.setCamera = function(x, y, z) {

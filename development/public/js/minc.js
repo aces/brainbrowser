@@ -56,8 +56,8 @@ function Minc(filename,extraArgs,callback) {
 	       that.header = data;
 	       that.order = data.order;
 	       if(that.order.length == 4) {
-		 that.order = that.order.slice(1,that.order.length);
-		 that.time = data.time;
+		       that.order = that.order.slice(1,that.order.length);
+		       that.time = data.time;
 	       }
 	       that.xspace = data.xspace;
 	       that.yspace = data.yspace;
@@ -79,10 +79,10 @@ function Minc(filename,extraArgs,callback) {
 	       that.zspace.step = parseFloat(that.zspace.step);
 
 
-	       if(that.order.length == 4) {
-		 that.time.space_length = parseFloat(that.time.space_length);
-		 that.time.start = parseFloat(that.time.start);	       
-		 that.time.step = parseFloat(that.time.step);
+	       if (that.order.length == 4) {
+		       that.time.space_length = parseFloat(that.time.space_length);
+		       that.time.start = parseFloat(that.time.start);	       
+		       that.time.step = parseFloat(that.time.step);
 	       }
 
 	       //figure out height and length of each slices in each direction
@@ -119,8 +119,8 @@ function Minc(filename,extraArgs,callback) {
 	     },
 	     error: function(request, textStatus) {
 	       throw {
-		 request: request,
-		 textStatus: textStatus
+		       request: request,
+		       textStatus: textStatus
 	       };
 	     }
 

@@ -108,40 +108,6 @@ function SurfView(model_url) {
     //Add event handlers
     jQuery("body").keydown(bb.keyPressedCallback);
 
-    // o3djs.event.addEventListener(bb.o3dElement, 'mousedown', function (e) {
-    //           
-    //     if(e.shiftKey) {
-    //      bb.click(e,function(e,info) {
-    //    if(brainbrowser.data){
-    //      that.updateCoordinates(info.position_vector,
-    //      info.vertex,
-    //      brainbrowser.data.values[info.vertex]);
-    //     }
-    //   });
-    //       }else {
-    //         bb.startDragging(e);
-    //       }
-    // 
-    //           
-    //     });
-    // 
-    //     o3djs.event.addEventListener(bb.o3dElement, 'mousemove', function (e){
-    //                  
-    //    bb.drag(e);   
-    //     });
-    // 
-    //     o3djs.event.addEventListener(bb.o3dElement, 'mouseup', function (e) {
-    //           if(!e.shiftKey || e.button == bb.o3d.Event.BUTTON_RIGHT){
-    //             bb.stopDragging(e);
-    //           }
-    //         });
-    // 
-    // 
-    //     $(bb.o3dElement).bind('contextmenu',function(e){
-    //            return false;
-    //        });
-    
-
     /********************************************************
      * This section implements the range change events
      * It takes care of updating the UI elements related to

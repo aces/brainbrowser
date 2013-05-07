@@ -35,6 +35,7 @@ function BrainBrowser() {
   var view_window; //canvas element
   var renderer; //THREE.js renderer
   var camera; //THREE.js camera
+  var pointLight;
   var scene; //THREE.js scene
   var brain = new THREE.Object3D();
   var camera_controls;
@@ -66,7 +67,7 @@ function BrainBrowser() {
     
     camera.position.z = 500;
     
-    var pointLight = new THREE.PointLight(0xFFFFFF);
+    pointLight = new THREE.PointLight(0xFFFFFF);
 
     pointLight.position.x = 0;
     pointLight.position.y = 0;
@@ -99,9 +100,11 @@ function BrainBrowser() {
     render();
   };
   
-  //WebGL test taken from Detector.js by
-  //@author alteredq / http://alteredqualia.com/
-  //@author mr.doob / http://mrdoob.com/
+  /*! 
+   * WebGL test taken from Detector.js by
+   * alteredq / http://alteredqualia.com/
+   * mr.doob / http://mrdoob.com/
+  */
   function webgl_enabled() { 
     try { 
       return !!window.WebGLRenderingContext && !!document.createElement( 'canvas' ).getContext( 'experimental-webgl' ); 
@@ -674,46 +677,27 @@ function BrainBrowser() {
    */
   this.separateHemispheres = function(e) {
     if(that.model_data.num_hemispheres == 2 ) {
-      this.brainTransform.children[0].translate([-1,0,0]);
-      this.brainTransform.children[1].translate([1,0,0]);
+      brain.children[0].position.x -= 1;
+      brain.children[1].position.x += 1;
     }
   };
   
-
-  /**
-   * Creates the client area.
-   */
-  // this.setClientSize= function() {
-  // 
-  //     var newWidth  = parseInt(view_window.width());
-  //     var newHeight = parseInt(view_window.height());
-  // 
-  //     if (newWidth != that.o3dWidth || newHeight != that.o3dHeight) {
-  // 
-  //       that.o3dWidth = newWidth;
-  //       that.o3dHeight = newHeight;
-  // 
-  //       that.updateProjection();
-  // 
-  //       // Sets a new area size for arcball.
-  //       //that.aball.setAreaSize(that.o3dWidth, that.o3dHeight);
-  //       console.log("ARC BALL CODE COMMENTED OUT!");
-  //     }
-  //   };
 
 
   /**
    * The following methods implement the zoom in and out
    */
   this.ZoomInOut = function(zoom) {
-    for (var i = 0; i < that.eyeView.length; i += 1) {
-      that.eyeView[i] = that.eyeView[i] / zoom;
-    }
-
-    that.viewInfo.drawContext.view = that.math.matrix4.lookAt(
-      that.eyeView, // eye
-      [0, 0, 0],   // target
-      [0, 1, 0]);  // up
+    camera.fov *= zoom;
+    camera.updateProjectionMatrix();
+    // for (var i = 0; i < that.eyeView.length; i += 1) {
+    //    that.eyeView[i] = that.eyeView[i] / zoom;
+    //  }
+    // 
+    //  that.viewInfo.drawContext.view = that.math.matrix4.lookAt(
+    //    that.eyeView, // eye
+    //    [0, 0, 0],   // target
+    //    [0, 1, 0]);  // up
   };
 
   /**
@@ -729,18 +713,10 @@ function BrainBrowser() {
 
     unSelectAll();
       if (pickInfo) {
-
       that.selectedInfo = pickInfo;
-
     }
   }
 
-  // this.updateInfo = function() {
-  //    if (!that.treeInfo) {
-  //      that.treeInfo = o3djs.picking.createPickManager(that.client.root);
-  //    }
-  //    that.treeInfo.update();
-  //  };
 
   function unSelectAll() {
 
@@ -775,7 +751,7 @@ function BrainBrowser() {
      
     unSelectAll();
     
-    var vector = new THREE.Vector3(mouseX, mouseY, 1 );
+    var vector = new THREE.Vector3(mouseX, mouseY, 1);
     projector.unprojectVector(vector, camera);
     raycaster.set(camera.position, vector.sub(camera.position).normalize() );
     var intersects = raycaster.intersectObject(brain, true);
@@ -785,52 +761,6 @@ function BrainBrowser() {
       jQuery(that.pickInfoElem).html('--nothing--');
       return false;
     }
-
-
-    // var worldRay = o3djs.picking.clientPositionToWorldRay(
-    //    e.x,
-    //    e.y,
-    //    that.viewInfo.drawContext,
-    //    that.client.width,
-    //    that.client.height);
-   
-
-    // Update the entire tree in case anything moved.
-    // NOTE: This function is very SLOW!
-    // If you really want to use picking you should manually update only those
-    // transforms and shapes that moved, were added, or deleted by writing your
-    // own picking library. You should also make sure that you are only
-    // considering things that are pickable. By that I mean if you have a scene of
-    // a meadow with trees, grass, bushes, and animals and the only thing the user
-    // can pick is the animals then put the animals on their own sub branch of the
-    // transform graph and only pick against that subgraph.
-    // Even better, make a separate transform graph with only cubes on it to
-    // represent the animals and use that instead of the actual animals.
-    //that.treeInfo.update();
-
-    // var pickInfo = that.treeInfo.pick(worldRay);
-    //     if (pickInfo) {
-    // 
-    //       select(pickInfo);
-    //       var primitive_index = pickInfo.rayIntersectionInfo.primitiveIndex;
-    //       var position        = pickInfo.rayIntersectionInfo.position;
-    //       var hemisphere      = pickInfo.element.owner.name;
-    //       var vertex_info     = that.model_data.get_vertex(primitive_index,position,hemisphere);
-    //       var info = {
-    //        ray_position:    position,
-    //        position_vector: vertex_info.position_vector,
-    //        element:         pickInfo.element,
-    //        hemisphere:      hemisphere,
-    //        vertex:          vertex_info.vertex
-    //       };
-    //      return click_callback(e,info);
-    //     } else {
-
-      //that.debugLine.setVisible(false);
-      // jQuery(that.pickInfoElem).html('--nothing--');
-      //  // }
-      // 
-      //  return false;
   };
 
 
@@ -842,35 +772,35 @@ function BrainBrowser() {
     return  that.model_data.getVertexInfo(vertex);
   };
 
-  /**
-   * Function performing the rotate action in response to a key-press.
-   * Rotates the scene based on key pressed. (w ,s, a, d). Note that the x and
-   * y-axis referenced here are relative to the current view of the scene.
-   * @param {keyPressed} The letter pressed, in lower case.
-   * @param {delta} The angle by which the scene should be rotated.
-   * @return true if an action was taken.
-   */
-  this.keyPressedAction = function(keyPressed, delta) {
-    var actionTaken = false;
-    switch(keyPressed) {
-    case '&':
-      that.ZoomInOut(that.zoomFactor);
-      actionTaken = 'zoom_in';
-      break;
-    case '(':
-      that.ZoomInOut(1/that.zoomFactor);
-      actionTaken = 'zoom_out';
-      break;
-
-    case ' ':
-      that.separateHemispheres();
-      actionTaken = 'separate';
-      break;
-    }
-
-    return actionTaken;
-  };
-
+  // /**
+  //   * Function performing the rotate action in response to a key-press.
+  //   * Rotates the scene based on key pressed. (w ,s, a, d). Note that the x and
+  //   * y-axis referenced here are relative to the current view of the scene.
+  //   * @param {keyPressed} The letter pressed, in lower case.
+  //   * @param {delta} The angle by which the scene should be rotated.
+  //   * @return true if an action was taken.
+  //   */
+  //  this.keyPressedAction = function(keyPressed, delta) {
+  //    var actionTaken = false;
+  //    switch(keyPressed) {
+  //    case '&':
+  //      that.ZoomInOut(that.zoomFactor);
+  //      actionTaken = 'zoom_in';
+  //      break;
+  //    case '(':
+  //      that.ZoomInOut(1/that.zoomFactor);
+  //      actionTaken = 'zoom_out';
+  //      break;
+  // 
+  //    case ' ':
+  //      that.separateHemispheres();
+  //      actionTaken = 'separate';
+  //      break;
+  //    }
+  // 
+  //    return actionTaken;
+  //  };
+ 
   /**
    * Callback for the keypress event.
    * Invokes the action to be performed for the key pressed.
@@ -881,11 +811,11 @@ function BrainBrowser() {
     var action_taken = false;
     switch(event.which) {
      case 38:
-      that.ZoomInOut(that.zoomFactor);
+      that.ZoomInOut(1.1);
       action_taken = "ZoomIn";
       break;
      case 40:
-      that.ZoomInOut(1/that.zoomFactor);
+      that.ZoomInOut(1/1.1);
       action_taken = "ZoomOut";
       break;
     
@@ -1408,19 +1338,6 @@ function BrainBrowser() {
         }
         children[i].geometry.colorsNeedUpdate = true;
       }
-      
-      // var color_buffer = that.pack.createObject('VertexBuffer');
-      //       var color_field = color_buffer.createField('FloatField', 4);
-      //       color_buffer.set(color_array.nonIndexedColorArray);
-      //       var brain_shape = that.brainTransform.shapes[0];
-      //       console.log(brain_shape);
-      //       var stream_bank = brain_shape.elements[0].streamBank;
-      //       stream_bank.setVertexStream(
-      //        that.o3d.Stream.COLOR, //  This stream stores vertex positions
-      //        0,                     // First (and only) position stream
-      //        color_field,        // field: the field this stream uses.
-      //        0);                    // start_index:
-      //         that.client.render();
     }
 
     if (that.afterUpdateColors !=null ) {

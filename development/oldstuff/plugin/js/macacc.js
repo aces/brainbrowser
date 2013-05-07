@@ -12,10 +12,11 @@ jQuery(function () {
     jQuery('#screenshot').click(function(event) {jQuery(this).attr("href",bb.client.toDataURL());});
 
   };
+  
   brainbrowser.setup('/models/surf_reg_model_both.obj');
   jQuery('#resetview').click(brainbrowser.resetView);
   jQuery('#sagitalView').click(brainbrowser.sagitalView);
-    jQuery('#reverseSagitalView').click(brainbrowser.reverseSagitalView);
+  jQuery('#reverseSagitalView').click(brainbrowser.reverseSagitalView);
   jQuery(".button").button();
 
 });

@@ -134,12 +134,14 @@
     <!-- all the scripts and css -->
     <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.10.custom.css" rel="Stylesheet" />
     <link type="text/css" href="/css/brainbrowser.css" rel="Stylesheet" />
-    <script type="text/javascript" src="/js/jquery-1.4.4.min.js"></script>
     <script type="text/javascript" src="/js/three.min.js"></script>
     <script type="text/javascript" src="/js/TrackballControls.js"></script>
     <% if ENV["BRAINBROWSER_ENV"] == "production" %>
+      <script type="text/javascript" src="/js/jquery.js"></script>
       <script type="text/javascript" src="/js/surfview-combined.min.js"></script>
+      <script type="text/javascript" src="/js/jquery-ui.js"></script>
     <% else %>
+      <script type="text/javascript" src="/js/jquery-1.4.4.min.js"></script>
       <script type="text/javascript" src="/js/data.js"></script> 
 	    <script type="text/javascript" src="/js/utils.js"></script> 
 	    <script type="text/javascript" src="/js/color.js"></script>
@@ -149,9 +151,9 @@
 	    <script type="text/javascript" src="/js/object.js"></script> 
 	    <script type="text/javascript" src="/js/brainbrowser.js"></script> 
 	    <script type="text/javascript" src="/js/surfview.js"></script> 
+	    <script type="text/javascript" src="/js/jquery-ui-1.8.10.custom.min.js"></script>
     <% end %>
 	  
-    <script type="text/javascript" src="/js/jquery-ui-1.8.10.custom.min.js"></script>
     <script type="text/javascript">
     $(function() {
       document.getElementById("view-window").onselectstart = function() {

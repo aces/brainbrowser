@@ -29,10 +29,7 @@ h4 {
     bottom: 0px;
     right: 0px;
 }
-#o3d {
-    z-index: 200;
-    
-}
+
 .box {
     border-radius: 10px;
     -moz-border-radius: 10px;
@@ -121,4 +118,5 @@ select {
 #webgl-error a {
   color: #FA5705;
 }
+
 

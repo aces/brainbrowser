@@ -146,5 +146,6 @@ bb-tabs bb-tabs-nav li {
 }
 
 #video {
+    padding: 2em;
     text-align: center;
 }

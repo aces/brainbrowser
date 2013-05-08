@@ -44,7 +44,6 @@ function SurfView(model_url) {
     brainbrowser.spectrumObj = spectrum;
   };
 
-
   brainbrowser.afterDisplayObject = function(object) {
     $("#shapes").html("");
     if(object.children.length > 0 ) {
@@ -56,26 +55,27 @@ function SurfView(model_url) {
 	      + "Opacity: <div class=\"opacity-slider slider\"  data-shape-name="+shape.name+"></div>"
 	      +"</div>").appendTo("#shapes");
 	    }
-
-  }
+    }
       
   
-  brainbrowser.afterClearScreen=function() {
-    $("#shapes").html("");
-  };
+    brainbrowser.afterClearScreen=function() {
+      $("#shapes").html("");
+    };
       
-  $(".opacity-slider").slider({
-	  value: 100,
-	  min: -1,
-	  max: 101,
-	  slide: function(event, ui) {
-	     var shape_name = $(event.target).attr('data-shape-name');
-	     var alpha = $(event.target).slider('value');
-	     alpha = Math.min(100, Math.max(0, alpha)) / 100.0;
+    $(".opacity-slider").slider({
+	    value: 100,
+	    min: -1,
+	    max: 101,
+	    slide: function(event, ui) {
+	      var shape_name = $(event.target).attr('data-shape-name');
+	      var alpha = $(event.target).slider('value');
+	      alpha = Math.min(100, Math.max(0, alpha)) / 100.0;
 	     
-	     brainbrowser.changeShapeTransparency(shape_name,alpha);
-	  }});
+	      brainbrowser.changeShapeTransparency(shape_name,alpha);
+	    }
+	  });
   };
+  
   //Setups the view events and handlers
   jQuery('#resetview').click(brainbrowser.setupView);
   jQuery('.view_button').change(brainbrowser.setupView);
@@ -323,7 +323,6 @@ function SurfView(model_url) {
 			   break;
 			   case 'plane':
 			     bb.clearScreen();
-			     bb.updateClearColorFromName('black');
 			     bb.loadObjFromUrl('/models/dlr_bigger.streamlines.obj');
 			     bb.loadObjFromUrl('/models/dlr.model.obj');
 			     bb.setCamera(0, 0, 75);

@@ -22,7 +22,7 @@ var g_spectrum;
 
 
 
-function MacaccObject(brainbrowser,path,dont_build_path) {
+function MacaccObject(brainbrowser, path, dont_build_path) {
   var that = this;
   this.brainbrowser = brainbrowser;
   this.dataSet = new Dataset(path,dont_build_path);
@@ -48,12 +48,12 @@ function MacaccObject(brainbrowser,path,dont_build_path) {
   that.coordinates = jQuery("#coordinates");
   that.selectPoint = null;
 
-  function setVertexCoord(intersection, value) {
-    var vertex = intersection.face.a;
+  function setVertexCoord(vertex_data, value) {
+    var vertex = vertex_data.vertex;
     if (vertex != undefined && value != undefined) {
-      jQuery("#x-coord").val(intersection.point.x);
-      jQuery("#y-coord").val(intersection.point.y);
-      jQuery("#z-coord").val(intersection.point.z);
+      jQuery("#x-coord").val(vertex_data.point.x);
+      jQuery("#y-coord").val(vertex_data.point.y);
+      jQuery("#z-coord").val(vertex_data.point.z);
       jQuery("#v-coord").val(vertex);
       jQuery("#value-coord").val(value);
     }
@@ -61,16 +61,16 @@ function MacaccObject(brainbrowser,path,dont_build_path) {
 
 
   //Gets the data related to a vertex in the image.
-  this.pickClick = function(e, intersection) {
-    that.vertex = intersection.face.a;
+  this.pickClick = function(e, vertex_data) {
+    that.vertex = vertex_data.vertex;
     
-    if (intersection.object.model_num) {
-      that.vertex += intersection.object.model_num * intersection.object.geometry.vertices.length;
+    if (vertex_data.object && vertex_data.object.model_num) {
+      that.vertex += vertex_data.object.model_num * vertex_data.object.geometry.vertices.length;
     } 
    
     if(that.vertex) {
       update_map();
-      setVertexCoord(intersection, 0);
+      setVertexCoord(vertex_data, 0);
       if(brainbrowser.secondWindow != undefined && true) {
 	      brainbrowser.secondWindow.postMessage(that.vertex,"*");
       }
@@ -86,20 +86,21 @@ function MacaccObject(brainbrowser,path,dont_build_path) {
   };
 
   this.flipXCoordinate = function() {
+    if (!that.dataArray) return;
+    
     if(that.vertex > that.dataArray.length/2) {
       that.vertex -= that.dataArray.length/2;
     }else {
       that.vertex += that.dataArray.length/2;
     }
-    setVertexCoord(brainbrowser.getInfoForVertex(that.vertex),0);
+    setVertexCoord(brainbrowser.getInfoForVertex(that.vertex), 0);
     update_map();
-
   };
 
   //Finds out what the value is at a certain point and displays it
-  this.valueAtPoint = function(e, intersection) {
-    var value = that.dataArray[intersection.face.a];
-    setVertexCoord(intersection, value);
+  this.valueAtPoint = function(e, vertex_data) {
+    var value = that.dataArray[vertex_data.vertex];
+    setVertexCoord(vertex_data, value);
   };
 
 

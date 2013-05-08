@@ -90,35 +90,35 @@ function initMacacc(path_prefix,dont_build_path) {
 
 
     jQuery(".range-box").keypress(function(e) {
-				    if(e.keyCode == '13'){
-				      macacc.range_change(e);
-				    }
-				  }
-				 );
+		   if(e.keyCode == '13'){
+		     macacc.range_change(e);
+		   }
+		 }
+		);
 
     jQuery("#data-range-min").change(function(e) {
-				       jQuery("#range-slider").slider('values', 0, jQuery(this).val());
-				       macacc.afterRangeChange(parseFloat(jQuery("#data-range-min").val()),parseFloat(jQuery("#data-range-max").val()));
-				     });
+		  jQuery("#range-slider").slider('values', 0, jQuery(this).val());
+		  macacc.afterRangeChange(parseFloat(jQuery("#data-range-min").val()),parseFloat(jQuery("#data-range-max").val()));
+		});
 
     jQuery("#data-range-max").change(function(e) {
-				       jQuery("#range-slider").slider('values', 1, jQuery(this).val());
-				       macacc.afterRangeChange(parseFloat(jQuery("#data-range-min").val()),parseFloat(jQuery("#data-range-max").val()));
-				     });
+		  jQuery("#range-slider").slider('values', 1, jQuery(this).val());
+		  macacc.afterRangeChange(parseFloat(jQuery("#data-range-min").val()),parseFloat(jQuery("#data-range-max").val()));
+		});
 
     jQuery('.data_controls').change(macacc.data_control_change);
     macacc.pickInfoElem=jQuery("#vertex_info");
     jQuery("#x-coord-flip").click(macacc.flipXCoordinate); //flip x from one hemisphere to the other.
 
     jQuery("[name=pointer]").change(function(e) {
-				      if(jQuery("[name=pointer]:checked").val() == "AAL_atlas") {
-					macacc.show_atlas();
-				      }
-				    });
+		  if(jQuery("[name=pointer]:checked").val() == "AAL_atlas") {
+		    macacc.show_atlas();
+		  }
+		});
 
     jQuery("#model").change(macacc.change_model);
 
-    jQuery('#screenshot').click(function(event) {jQuery(this).attr("href",bb.client.toDataUR());});
+    jQuery('#screenshot').click(function(event) {jQuery(this).attr("href", bb.client.toDataUR());});
     
     $("#view-window").mousedown(function(e) {
       var pointer_setting=jQuery('[name=pointer]:checked').val();
@@ -127,7 +127,7 @@ function initMacacc(path_prefix,dont_build_path) {
         if(bb.valueAtPointCallback) {
           bb.click(e, bb.valueAtPointCallback);
         }
-      }if(e.shiftKey || pointer_setting == "select") {
+      } else if(e.shiftKey || pointer_setting == "select") {
         if(bb.clickCallback) {
           bb.click(e, bb.clickCallback);
         }

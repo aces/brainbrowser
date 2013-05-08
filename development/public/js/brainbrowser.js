@@ -462,7 +462,6 @@ function BrainBrowser() {
     if(that.afterDisplayObject != undefined) {
       that.afterDisplayObject(brain);      
     }
-
   };
 
   /**
@@ -756,7 +755,13 @@ function BrainBrowser() {
     raycaster.set(camera.position, vector.sub(camera.position).normalize() );
     var intersects = raycaster.intersectObject(brain, true);
     if (intersects.length > 0) {      
-      return click_callback(e, intersects[0]);
+      var intersection = intersects[0];
+      var vertex_data = {
+        vertex: intersection.face.a,
+        point: new THREE.Vector3(intersection.point.x, intersection.point.y, intersection.point.z),
+        object: intersection.object
+      };
+      return click_callback(e, vertex_data);
     } else {
       jQuery(that.pickInfoElem).html('--nothing--');
       return false;
@@ -769,7 +774,12 @@ function BrainBrowser() {
   //Should theoretically return thei same infor as click and
   //click should use this to build that info object
   this.getInfoForVertex = function(vertex) {
-    return  that.model_data.getVertexInfo(vertex);
+    var model_data = that.model_data.getVertexInfo(vertex);
+    var vertex_data = {
+      vertex: model_data.vertex,
+      point: new THREE.Vector3(model_data.position_vector[0], model_data.position_vector[1], model_data.position_vector[2])
+    };
+    return vertex_data;
   };
 
   // /**
@@ -884,7 +894,7 @@ function BrainBrowser() {
   };
 
 
-  function loadFromUrl(url,sync,callback) {
+  function loadFromUrl(url, sync, callback) {
     jQuery.ajax({ type: 'GET',
       url: url ,
       dataType: 'text',
@@ -916,7 +926,7 @@ function BrainBrowser() {
 
 
   this.loadObjFromUrl = function(url, opts) {
-    loadFromUrl(url, false,function(data) {
+    loadFromUrl(url, false, function(data) {
 		    var parts = url.split("/");
 		    //last part of url will be shape name
 		    var filename = parts[parts.length-1];
@@ -974,12 +984,9 @@ function BrainBrowser() {
     loadFromTextFile(file_input,function(data) {
 		    var spectrum = new Spectrum(data);
 		    that.spectrum = spectrum;
-
-
 		    if(that.afterLoadSpectrum != null) {
 		      that.afterLoadSpectrum(spectrum);
 		    }
-
 		    if(that.model_data.data) {
 		      that.updateColors(that.model_data.data,that.model_data.data.rangeMin, that.model_data.data.rangeMax,that.spectrum,that.flip,that.clamped);
 		    }

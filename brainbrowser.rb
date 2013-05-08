@@ -36,20 +36,12 @@ get '/contacts' do
   erb :contacts
 end
 
-get '/news' do
-  erb :news
-end
-
 get '/macacc.html' do
   erb :macacc, :layout => false
 end
 
 get '/surfview.html' do
   erb :surfview, :layout => false
-end
-
-get '/cfd.html' do
-  erb :cfd, :layout => false
 end
 
 

@@ -42,7 +42,7 @@ function initMacacc(path_prefix,dont_build_path) {
   brainbrowser.afterInit = function(bb) {
 
     bb.loadObjFromUrl('/models/surf_reg_model_both.obj');
-    macacc = new MacaccObject(bb,path_prefix,dont_build_path);
+    macacc = new MacaccObject(bb, path_prefix, dont_build_path);
     brainbrowser.afterCreateBrain = function() {
       if(bb.current_dataset != undefined) {
 	      macacc.update_model(bb.current_dataset);
@@ -133,56 +133,14 @@ function initMacacc(path_prefix,dont_build_path) {
         }
       }
     });
-    
-    // o3djs.event.addEventListener(bb.o3dElement, 'mousedown', function (e) {
-    //           var pointer_setting=jQuery('[name=pointer]:checked').val();
-    // 
-    //           if(pointer_setting=="rotate" && !e.shiftKey  && !e.ctrlKey){
-    //             bb.startDragging(e);
-    //           }if(e.ctrlKey || pointer_setting == "check") {
-    //             if(bb.valueAtPointCallback) {
-    //               bb.click(e,bb.valueAtPointCallback);
-    //             }
-    //           }if(e.shiftKey || pointer_setting == "select") {
-    // 
-    //             if(bb.clickCallback) {
-    //               bb.click(e,bb.clickCallback);
-    //             }
-    // 
-    //           }
-    // 
-    // 
-    //         });
-    //     o3djs.event.addEventListener(bb.o3dElement, 'mousemove', function (e) {
-    //           var pointer_setting=jQuery('[name=pointer]:checked').val();
-    //           if( pointer_setting == "check" && e.shiftKey) {
-    //             if(bb.valueAtPointCallback) {
-    //               bb.click(e,bb.valueAtPointCallback);
-    //             }
-    //           }else if(pointer_setting == "select" && e.shiftKey) {
-    // 
-    //             if(bb.clickCallback) {
-    //               bb.click(e,bb.clickCallback);
-    //             }
-    //           }else
-    //           {
-    //             bb.drag(e);
-    //           }
-    // 
-    //         });
-    //     o3djs.event.addEventListener(bb.o3dElement, 'mouseup', function (e) {
-    //           if(!e.shiftKey || e.button == bb.o3d.Event.BUTTON_RIGHT){
-    //             bb.stopDragging(e);
-    //           }
-    //         });
 
     jQuery("#flip_range").change(function(e) {
-				     macacc.update_model(brainbrowser.current_dataset);
-				 });
+      macacc.update_model(brainbrowser.current_dataset);
+    });
     
     jQuery("#clamp_range").change(function(e) {
-				     macacc.update_model(brainbrowser.current_dataset);
-				 });
+		  macacc.update_model(brainbrowser.current_dataset);
+		});
     
 
 

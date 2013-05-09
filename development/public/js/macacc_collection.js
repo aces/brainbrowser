@@ -81,7 +81,8 @@ function MacaccObject(brainbrowser, path, dont_build_path) {
   
   this.change_model = function(event) {
     var type = jQuery(event.target).val();
-
+    
+    brainbrowser.clearScreen();
     brainbrowser.loadObjFromUrl('/data/surfaces/surf_reg_model_both_'+type+'.obj');
   };
 

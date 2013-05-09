@@ -781,35 +781,6 @@ function BrainBrowser() {
     };
     return vertex_data;
   };
-
-  // /**
-  //   * Function performing the rotate action in response to a key-press.
-  //   * Rotates the scene based on key pressed. (w ,s, a, d). Note that the x and
-  //   * y-axis referenced here are relative to the current view of the scene.
-  //   * @param {keyPressed} The letter pressed, in lower case.
-  //   * @param {delta} The angle by which the scene should be rotated.
-  //   * @return true if an action was taken.
-  //   */
-  //  this.keyPressedAction = function(keyPressed, delta) {
-  //    var actionTaken = false;
-  //    switch(keyPressed) {
-  //    case '&':
-  //      that.ZoomInOut(that.zoomFactor);
-  //      actionTaken = 'zoom_in';
-  //      break;
-  //    case '(':
-  //      that.ZoomInOut(1/that.zoomFactor);
-  //      actionTaken = 'zoom_out';
-  //      break;
-  // 
-  //    case ' ':
-  //      that.separateHemispheres();
-  //      actionTaken = 'separate';
-  //      break;
-  //    }
-  // 
-  //    return actionTaken;
-  //  };
  
   /**
    * Callback for the keypress event.

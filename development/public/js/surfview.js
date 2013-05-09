@@ -296,7 +296,7 @@ function SurfView(model_url) {
 			     break;
 			   case 'punkdti':
 			     bb.clearScreen();
-			     bb.loadObjFromUrl('/models/dti.obj', 999);
+			     bb.loadObjFromUrl('/models/dti.obj', { renderDepth: 999 });
 			     bb.loadObjFromUrl('/models/left_color.obj');
 			     bb.loadObjFromUrl('/models/right_color.obj');
 			     bb.setupView();

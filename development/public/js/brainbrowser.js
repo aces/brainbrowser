@@ -40,6 +40,8 @@ function BrainBrowser() {
   var brain = new THREE.Object3D();
   var camera_controls;
   var light_controls;
+  var current_frame;
+  var last_frame;
   
   this.start = function() {
     window.onload = function() {
@@ -85,9 +87,9 @@ function BrainBrowser() {
       camera_controls.update();
       light_controls.update();
       
-      
-     
-      that.renderCallback();    
+      last_frame = current_frame || timestamp;
+      current_frame = timestamp;
+      that.renderCallback(timestamp);    
     }
     if(this.afterInit) {
        this.afterInit(that);
@@ -254,9 +256,6 @@ function BrainBrowser() {
       }
       
     }else {
-      console.log('mesh shape');
-      //linePrimitive.numberVertices = model.meshPostionArray.length/3;
-      //linePrimitive.numberPrimitives = linePrimitive.numberVertices/2;
       verts = that.model_data.meshPositionArray;
       colors = that.model_data.meshColorArray;
     }
@@ -401,18 +400,20 @@ function BrainBrowser() {
   /*
    * Called at every render events. 
    */
-  this.renderCallback = function(renderEvent) {
-    //that.setClientSize();
+  this.renderCallback = function() {
+    var delta = current_frame - last_frame;
+    var rotation = delta * 0.00015;
+    
     if(that.autoRotate) {
       
       if(that.autoRotate.x){
-	       brain.rotation.x += 0.01;
+	       brain.rotation.x += rotation;
       }
       if(that.autoRotate.y){
-        brain.rotation.y += 0.01;
+        brain.rotation.y += rotation;
       }
       if(that.autoRotate.z){
-	      brain.rotation.z += 0.01;
+	      brain.rotation.z += rotation;
       }
       
     }

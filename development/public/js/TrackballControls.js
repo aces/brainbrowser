@@ -1,5 +1,7 @@
 /**
  * @author Eberhard Graether / http://egraether.com/
+ * 
+ * Modifications to mousewheel delta calculations by Tarek Sherif
  */
 
 THREE.TrackballControls = function ( object, domElement ) {
@@ -420,16 +422,14 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 		var delta = 0;
 
+    // Delta calculations modified by Tarek Sherif
 		if ( event.wheelDelta ) { // WebKit / Opera / Explorer 9
-
-			delta = event.wheelDelta / 40;
-
+			delta = event.wheelDelta > 0 ? 1 : -1 ;
 		} else if ( event.detail ) { // Firefox
-
-			delta = - event.detail / 3;
+			delta = event.detail < 0 ? 1 : -1 ;
 
 		}
-
+		delta *= 5;
 		_zoomStart.y += ( 1 / delta ) * 0.05;
 
 	}

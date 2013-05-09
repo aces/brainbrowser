@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <head>
-  <title>2D Minc Viewer</title>
+  <title>BrainBrowser Volume Viewer</title>
 </head>
 <body>
+  <h1>Volume Viewer</h1>
   Click and drag the red dot to change slices. The red dot represents the location you are looking at. 
+  <br>
   <div id="minc1" style="float: left">
     <canvas id="viewport-zspace"></canvas>
     <canvas id="viewport-xspace"></canvas>
@@ -13,8 +15,8 @@
 
 
 
-    <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.2.custom.css" rel="Stylesheet" />
-    <link type="text/css" href="/css/braincanvas.css" rel="Stylesheet" />
+  <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.2.custom.css" rel="Stylesheet" />
+  <link type="text/css" href="/css/braincanvas.css" rel="Stylesheet" />
   <script type="text/javascript" src="/js/jquery.js"></script>
   <script type="text/javascript" src="/js/jquery-ui-1.8.10.custom.min.js"></script>
   <script type="text/javascript" src="/js/jquery.mousewheel.min.js"></script>
@@ -26,7 +28,6 @@
     <script type="text/javascript" src="/js/color.js"></script>
     <script type="text/javascript" src="/js/spectrum.js"></script>
     <script type="text/javascript" src="/js/loader.js"></script>
-    <script type="text/javascript" src="/js/raphael-min.js"></script>
     <script type="text/javascript" src="/js/braincanvas.js"></script>
   <% end %>
   <script type="text/javascript">

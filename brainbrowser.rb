@@ -32,8 +32,8 @@ get '/about' do
   erb :about
 end
 
-get '/contacts' do
-  erb :contacts
+get '/credits' do
+  erb :credits
 end
 
 get '/macacc.html' do

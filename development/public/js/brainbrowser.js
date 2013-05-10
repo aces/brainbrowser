@@ -84,21 +84,21 @@ function BrainBrowser() {
     
     function render(timestamp) {
     	requestAnimationFrame(render);
-      camera_controls.update();
-      light_controls.update();
       
       last_frame = current_frame || timestamp;
       current_frame = timestamp;
-      that.renderCallback(timestamp);    
+      
+      camera_controls.update();
+      light_controls.update();
+      that.renderCallback(timestamp);
     }
-    if(this.afterInit) {
-       this.afterInit(that);
+    
+    if(that.afterInit) {
+      that.afterInit(that); 
     }
     
     window.onresize();      
     
-    that.loadSpectrumFromUrl('/assets/spectral_spectrum.txt');
-        
     render();
   };
   
@@ -463,6 +463,9 @@ function BrainBrowser() {
     if(that.afterDisplayObject != undefined) {
       that.afterDisplayObject(brain);      
     }
+    var options = opts || {};    
+    var afterDisplay = options.afterDisplay;
+    if (afterDisplay) afterDisplay();
   };
 
   /**
@@ -490,7 +493,6 @@ function BrainBrowser() {
    */
   this.updateClearColor = function(color)  {
     renderer.setClearColor(new THREE.Color(color));
-    //that.viewInfo.clearBuffer.clearColor = color;
   };
 
   /**
@@ -866,7 +868,7 @@ function BrainBrowser() {
   };
 
 
-  function loadFromUrl(url, sync, callback) {
+  function loadFromUrl(url, callback) {
     jQuery.ajax({ type: 'GET',
       url: url ,
       dataType: 'text',
@@ -877,7 +879,6 @@ function BrainBrowser() {
 	      alert("Failure in loadFromURL: " +  textStatus);
       },
       data: {},
-      async: sync,
       timeout: 100000
     });
 
@@ -898,25 +899,35 @@ function BrainBrowser() {
 
 
   this.loadObjFromUrl = function(url, opts) {
-    loadFromUrl(url, false, function(data) {
+    var options = opts || {};    
+    var beforeLoad = options.beforeLoad;
+    if (beforeLoad) beforeLoad();
+    
+    loadFromUrl(url, function(data) {
 		    var parts = url.split("/");
 		    //last part of url will be shape name
 		    var filename = parts[parts.length-1];
-		    that.displayObjectFile(new MNIObject(data), filename, opts);
+		    that.displayObjectFile(new MNIObject(data), filename, options);
 		});
   };
 
   this.loadWavefrontObjFromUrl = function(url, opts) {
-    loadFromUrl(url, false,function(data) {
+    var options = opts || {};    
+    var beforeLoad = options.beforeLoad;
+    if (beforeLoad) beforeLoad();
+    
+    loadFromUrl(url, function(data) {
 		    var parts = url.split("/");
 		    //last part of url will be shape name
 		    var filename = parts[parts.length-1];
-		    that.displayObjectFile(new WavefrontObj(data), filename, opts);
+		    that.displayObjectFile(new WavefrontObj(data), filename, options);
 		});
   };
 
   this.loadObjFromFile = function(file_input, opts) {
     var options = opts || {};    
+    var beforeLoad = options.beforeLoad;
+    if (beforeLoad) beforeLoad();
     loadFromTextFile(file_input, function(result) {
       var parts = file_input.value.split("\\");
 			//last part of path will be shape name
@@ -933,7 +944,7 @@ function BrainBrowser() {
 
   this.loadSpectrumFromUrl  = function(url) {
     //get the spectrum of colors
-    loadFromUrl(url,true,function (data) {
+    loadFromUrl(url,function (data) {
 		    var spectrum = new Spectrum(data);
 		    that.spectrum = spectrum;
 
@@ -1217,8 +1228,8 @@ function BrainBrowser() {
     that.updateColors(that.blendData,null,null,that.spectrum,that.flip,that.clamped,true); //last parameter says to blend data.
   };
 
-  this.loadDataFromUrl = function(file_input,name) {
-    loadFromUrl(file_input, true, function(text,file) {
+  this.loadDataFromUrl = function(file_input, name) {
+    loadFromUrl(file_input, function(text,file) {
 		  that.model_data.data = new Data(text);
 		  that.model_data.data.fileName = name;
 		  initRange(that.model_data.data.min,that.model_data.data.max);
@@ -1236,7 +1247,7 @@ function BrainBrowser() {
 
   this.loadCombinedShaderFromUrl = function(url){
     var shaderString;
-    loadFromUrl(url,false,function(data){
+    loadFromUrl(url,function(data){
       shaderString = data;		  
     });
     return shaderString;

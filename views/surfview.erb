@@ -107,9 +107,10 @@
   </div>
 
     <!-- The webgl window and loading messages if any -->
-    <div id="view-window">
+    <div>
+      <div id="loading">Loading...</div>
       <center><span id="age_series"></span></center>
-      <div id="loading"></div>
+      <div id="view-window"></div>
     </div>
 
     <!-- all the scripts and css -->
@@ -148,7 +149,16 @@
       jQuery(".button").button();
       $(".buttonset").buttonset();
       var surfview = new SurfView(function(bb) {
-        bb.loadObjFromUrl('/models/dti.obj', { renderDepth: 999 });
+        bb.loadObjFromUrl('/models/dti.obj', { 
+		      renderDepth: 999,
+		      beforeLoad: function() {
+		        $("#loading").show();
+		      },
+		      afterDisplay: function() {
+		        $("#loading").hide();
+		        bb.loadSpectrumFromUrl('/assets/spectral_spectrum.txt');
+		      }
+		    });
 		    bb.loadObjFromUrl('/models/left_color.obj');
 		    bb.loadObjFromUrl('/models/right_color.obj');
       });

@@ -41,34 +41,48 @@ function initMacacc(path_prefix,dont_build_path) {
 
   brainbrowser.afterInit = function(bb) {
 
-    bb.loadObjFromUrl('/models/surf_reg_model_both.obj');
-    macacc = new MacaccObject(bb, path_prefix, dont_build_path);
-    brainbrowser.afterCreateBrain = function() {
-      if(bb.current_dataset != undefined) {
-	      macacc.update_model(bb.current_dataset);
-      }
-    };
+    bb.loadObjFromUrl('/models/surf_reg_model_both.obj', { 
+      beforeLoad: function() {
+        $("#loading").show();
+      },
+      afterDisplay: function() {
+        $("#loading").hide();
+        macacc = new MacaccObject(bb, path_prefix, dont_build_path);
+        brainbrowser.afterCreateBrain = function() {
+          if(bb.current_dataset != undefined) {
+    	      macacc.update_model(bb.current_dataset);
+          }
+        };
 
 
-    macacc.afterRangeChange= function(min,max) {
-      if(macacc.flipRange == true) {
-	      var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null,true);
-      }
-      else {
-	      var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null,false);
-      }
+        macacc.afterRangeChange= function(min,max) {
+          if(macacc.flipRange == true) {
+    	      var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null,true);
+          }
+          else {
+    	      var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null,false);
+          }
 
-      jQuery("#spectrum").html(jQuery(canvas));
-    };
+          jQuery("#spectrum").html(jQuery(canvas));
+          
+          jQuery('.data_controls').change(macacc.data_control_change);
+          macacc.pickInfoElem=jQuery("#vertex_info");
+          
+          jQuery("#x-coord-flip").click(macacc.flipXCoordinate); //flip x from one hemisphere to the other.
+          
+          jQuery("#model").change(macacc.change_model);
+        };
+      }
+    });
 
 
     jQuery('#meshmode').change(function(e) {
-				   if(jQuery(e.target).attr("checked") == true) {
-				     bb.set_fill_mode_wireframe();
-				   }else {
-				     bb.set_fill_mode_solid();
-				   }
-				 });
+		  if(jQuery(e.target).attr("checked") == true) {
+		    bb.set_fill_mode_wireframe();
+		  }else {
+		    bb.set_fill_mode_solid();
+		  }
+		});
 
     jQuery("#range-slider").slider({
 		  range: true,
@@ -106,17 +120,13 @@ function initMacacc(path_prefix,dont_build_path) {
 		  macacc.afterRangeChange(parseFloat(jQuery("#data-range-min").val()),parseFloat(jQuery("#data-range-max").val()));
 		});
 
-    jQuery('.data_controls').change(macacc.data_control_change);
-    macacc.pickInfoElem=jQuery("#vertex_info");
-    jQuery("#x-coord-flip").click(macacc.flipXCoordinate); //flip x from one hemisphere to the other.
-
     jQuery("[name=pointer]").change(function(e) {
 		  if(jQuery("[name=pointer]:checked").val() == "AAL_atlas") {
 		    macacc.show_atlas();
 		  }
 		});
 
-    jQuery("#model").change(macacc.change_model);
+    
 
     jQuery('#screenshot').click(function(event) {jQuery(this).attr("href", bb.client.toDataUR());});
     
@@ -145,17 +155,16 @@ function initMacacc(path_prefix,dont_build_path) {
 
 
     jQuery("#flip_correlation").click(function(e) {
-					var min = -1*parseFloat(jQuery("#data-range-max").val());
-					var max = -1*parseFloat(jQuery("#data-range-min").val());
-					jQuery("#data-range-min").val(min).change();
-					jQuery("#data-range-max").val(max).change();
-
-					jQuery("#flip_range").attr("checked",!jQuery("#flip_range").attr("checked")).change();
-
-
-				      });
+			var min = -1*parseFloat(jQuery("#data-range-max").val());
+			var max = -1*parseFloat(jQuery("#data-range-min").val());
+			jQuery("#data-range-min").val(min).change();
+			jQuery("#data-range-max").val(max).change();
+      
+			jQuery("#flip_range").attr("checked",!jQuery("#flip_range").attr("checked")).change();
+	  });
 
   };
+  
   jQuery('#resetview').click(brainbrowser.setupView);
 
   jQuery('.view_button').change(brainbrowser.setupView);

@@ -287,46 +287,78 @@ function SurfView(model_url) {
 		});
         
     $("#examples").click(function(e) {
+         
 			   var name = $(e.target).attr('data-example-name');
 			   switch(name) {
 			   case	'basic':
 			     bb.clearScreen();
-			     bb.loadObjFromUrl('/models/surf_reg_model_both.obj');
-			     bb.setupView();
+			     bb.loadObjFromUrl('/models/surf_reg_model_both.obj', { 
+ 			       beforeLoad: function() {
+ 			         $("#loading").show();
+ 			       },
+ 			       afterDisplay: function() {
+ 			         $("#loading").hide();
+ 			       }
+ 			     });
 			     break;
 			   case 'punkdti':
 			     bb.clearScreen();
-			     bb.loadObjFromUrl('/models/dti.obj', { renderDepth: 999 });
-			     bb.loadObjFromUrl('/models/left_color.obj');
-			     bb.loadObjFromUrl('/models/right_color.obj');
-			     bb.setupView();
+			     bb.loadObjFromUrl('/models/dti.obj', { 
+			       renderDepth: 999,
+			       beforeLoad: function() {
+			         $("#loading").show();
+			       },
+			       afterDisplay: function() {
+			         $("#loading").hide();
+			       }
+			     });
+   		     bb.loadObjFromUrl('/models/left_color.obj');
+   		     bb.loadObjFromUrl('/models/right_color.obj');
 			     break;
 			   case 'realct':
 			     bb.clearScreen();
-			     bb.loadObjFromUrl('/models/realct.obj');    
-			     bb.loadDataFromUrl('/models/realct.txt','cortical thickness'); 
-
-			     bb.setupView();
-			     
+			     bb.loadObjFromUrl('/models/realct.obj', {
+			       beforeLoad: function() {
+ 			         $("#loading").show();
+ 			       },
+    		     afterDisplay: function() {
+    		       bb.loadDataFromUrl('/models/realct.txt','cortical thickness'); 
+    		       $("#loading").hide();
+    		     }
+    		   });    
 			     break;
          case 'car':
 			     bb.clearScreen();
-			     bb.loadWavefrontObjFromUrl('/models/car.obj');
-			     bb.setCamera(0, 0, 100);			     
-			    
-			     var matrixRotX = new THREE.Matrix4();
+			     bb.loadWavefrontObjFromUrl('/models/car.obj', {
+ 			       beforeLoad: function() {
+  			         $("#loading").show();
+  			       },
+     		     afterDisplay: function() {
+     		       $("#loading").hide();
+     		     }
+     		   });
+     		   bb.setCamera(0, 0, 100);			     
+           
+  			   var matrixRotX = new THREE.Matrix4();
            matrixRotX.makeRotationX(-0.25 * Math.PI)
            var matrixRotY = new THREE.Matrix4();
            matrixRotY.makeRotationY(0.4 * Math.PI)
            
            bb.getModel().applyMatrix(matrixRotY.multiply(matrixRotX));
-			   break;
+			     break;
 			   case 'plane':
 			     bb.clearScreen();
 			     bb.loadObjFromUrl('/models/dlr_bigger.streamlines.obj');
-			     bb.loadObjFromUrl('/models/dlr.model.obj');
-			     bb.setCamera(0, 0, 75);
-
+			     bb.loadObjFromUrl('/models/dlr.model.obj', {
+ 			       beforeLoad: function() {
+  			         $("#loading").show();
+  			       },
+     		     afterDisplay: function() {
+     		       $("#loading").hide();
+     		     }
+     		   });
+     		   bb.setCamera(0, 0, 75);
+           
            var matrix = new THREE.Matrix4();
            var matrixRotX = new THREE.Matrix4();
            matrixRotX.makeRotationX(-0.25 * Math.PI)
@@ -336,7 +368,6 @@ function SurfView(model_url) {
            matrix.multiplyMatrices(matrixRotY, matrixRotX);
            
            bb.getModel().applyMatrix(matrix);
-			     
 			   }
 			   
 			   return false; 

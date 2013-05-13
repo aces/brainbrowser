@@ -144,7 +144,7 @@ div#obj_file_submit_div {
   text-align: center;
 }
 
-input#obj_file_submit {
+#obj_file_submit {
   margin-top: 0.7em;
 }
 

@@ -34,7 +34,7 @@
             <option value="wavefront">Wavefront OBJ</option>
           </select><br>
           <div id="obj_file_submit_div">
-            <input type="submit" id="obj_file_submit" class="button" value="Load">
+            <span id="obj_file_submit" class="button">Load</span><br>
           </div>
         </div>
         <p>
@@ -43,6 +43,7 @@
           Data Blend(Multiple): <input type="file" name="datablendfile" id="datablendfile" multiple=true> <br />
           Color Bar: <input type="file" name="spectrum" id="spectrum"><br />
         </p>
+        <span id="clearshapes" class="button">Clear Shapes</span>
     </div>
     <div id="background_select" class="box full_box">
       Background Color:
@@ -56,7 +57,6 @@
     <div class="box full_box" id="shapes-box">
       <div id="shapes">
       </div>
-      <span id="clearshapes" class="button">Clear Shapes</span>
     </div>
     <div class="box full_box">
         <h4>Views</h4>

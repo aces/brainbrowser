@@ -137,14 +137,23 @@ div#obj_file_select {
   background-color: gray;
   padding: 0.5em;
   border-radius: 10px;
+ 
 }
 
-input#objfile {
-  width: 18em;
+div#obj_file_submit_div {
+  text-align: center;
 }
 
 input#obj_file_submit {
-  margin-left: 0.7em;
+  margin-top: 0.7em;
+}
+
+input[type=file] {
+  margin-bottom: 0.4em;
+}
+
+select#obj_file_format {
+    width: 85%;
 }
 
 div#usage_notes {

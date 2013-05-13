@@ -26,13 +26,16 @@
         (Note: your data will remain on your computer and will not be transferred to the BrainBrowser server.)
       </p>     
         <div id="obj_file_select">
-          Object File: <br>
-          <input type="file" name="objfile" id="objfile">
-          <select  id="obj_file_format" name="format" style="display:inline">
+          Object File:
+          <input type="file" name="objfile" id="objfile"><br>
+          Format: 
+          <select  id="obj_file_format" name="format">
             <option value="mni">MNI OBJ</option>
             <option value="wavefront">Wavefront OBJ</option>
-          </select>
-          <input type="submit" id="obj_file_submit" class="button" value="Load">
+          </select><br>
+          <div id="obj_file_submit_div">
+            <input type="submit" id="obj_file_submit" class="button" value="Load">
+          </div>
         </div>
         <p>
           Data: <input type="file" name="datafile" id="datafile"><br />

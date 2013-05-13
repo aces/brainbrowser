@@ -100,7 +100,6 @@ function SurfView(model_url) {
     if(typeof model_url == 'string' && model_url != '') {
       bb.loadObjFromUrl(model_url);      
     }else if(typeof model_url == 'function'){
-      console.log("loading models");
       model_url(bb);
     }
 
@@ -281,7 +280,7 @@ function SurfView(model_url) {
 		  }
 		});
         
-    jQuery("#clearColor").change(function(e){
+    jQuery("#clear_color").change(function(e){
 		  var color_name = $(e.target).val();
 		  bb.updateClearColorFromName(color_name);
 		});
@@ -291,23 +290,19 @@ function SurfView(model_url) {
 			   var name = $(e.target).attr('data-example-name');
 			   switch(name) {
 			   case	'basic':
+			     $("#loading").show();
 			     bb.clearScreen();
 			     bb.loadObjFromUrl('/models/surf_reg_model_both.obj', { 
- 			       beforeLoad: function() {
- 			         $("#loading").show();
- 			       },
  			       afterDisplay: function() {
  			         $("#loading").hide();
  			       }
  			     });
 			     break;
 			   case 'punkdti':
+			     $("#loading").show();
 			     bb.clearScreen();
 			     bb.loadObjFromUrl('/models/dti.obj', { 
 			       renderDepth: 999,
-			       beforeLoad: function() {
-			         $("#loading").show();
-			       },
 			       afterDisplay: function() {
 			         $("#loading").hide();
 			       }
@@ -316,11 +311,9 @@ function SurfView(model_url) {
    		     bb.loadObjFromUrl('/models/right_color.obj');
 			     break;
 			   case 'realct':
+			     $("#loading").show();
 			     bb.clearScreen();
 			     bb.loadObjFromUrl('/models/realct.obj', {
-			       beforeLoad: function() {
- 			         $("#loading").show();
- 			       },
     		     afterDisplay: function() {
     		       bb.loadDataFromUrl('/models/realct.txt','cortical thickness'); 
     		       $("#loading").hide();
@@ -328,11 +321,9 @@ function SurfView(model_url) {
     		   });    
 			     break;
          case 'car':
+           $("#loading").show();
 			     bb.clearScreen();
 			     bb.loadWavefrontObjFromUrl('/models/car.obj', {
- 			       beforeLoad: function() {
-  			         $("#loading").show();
-  			       },
      		     afterDisplay: function() {
      		       $("#loading").hide();
      		     }
@@ -347,12 +338,10 @@ function SurfView(model_url) {
            bb.getModel().applyMatrix(matrixRotY.multiply(matrixRotX));
 			     break;
 			   case 'plane':
+			     $("#loading").show();
 			     bb.clearScreen();
 			     bb.loadObjFromUrl('/models/dlr_bigger.streamlines.obj');
 			     bb.loadObjFromUrl('/models/dlr.model.obj', {
- 			       beforeLoad: function() {
-  			         $("#loading").show();
-  			       },
      		     afterDisplay: function() {
      		       $("#loading").hide();
      		     }

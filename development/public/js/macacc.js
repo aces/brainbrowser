@@ -40,91 +40,92 @@ function initMacacc(path_prefix,dont_build_path) {
 
 
   brainbrowser.afterInit = function(bb) {
-
+    $("#loading").show();
     bb.loadObjFromUrl('/models/surf_reg_model_both.obj', { 
-      beforeLoad: function() {
-        $("#loading").show();
-      },
       afterDisplay: function() {
         $("#loading").hide();
         macacc = new MacaccObject(bb, path_prefix, dont_build_path);
         brainbrowser.afterCreateBrain = function() {
           if(bb.current_dataset != undefined) {
-    	      macacc.update_model(bb.current_dataset);
+            macacc.update_model(bb.current_dataset);
           }
         };
 
 
         macacc.afterRangeChange= function(min,max) {
           if(macacc.flipRange == true) {
-    	      var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null,true);
+            var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null,true);
           }
           else {
-    	      var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null,false);
+            var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null,false);
           }
-
           jQuery("#spectrum").html(jQuery(canvas));
-          
-          jQuery('.data_controls').change(macacc.data_control_change);
-          macacc.pickInfoElem=jQuery("#vertex_info");
-          
-          jQuery("#x-coord-flip").click(macacc.flipXCoordinate); //flip x from one hemisphere to the other.
-          
-          jQuery("#model").change(macacc.change_model);
         };
+        
+        jQuery('.data_controls').change(macacc.data_control_change);
+        macacc.pickInfoElem=jQuery("#vertex_info");
+        
+        jQuery("#x-coord-flip").click(macacc.flipXCoordinate); //flip x from one hemisphere to the other.
+        
+        jQuery("#model").change(function(event) {
+          $("#loading").show();
+          macacc.change_model(event, {
+            afterDisplay: function() {
+              $("#loading").hide();
+            }
+          });
+        });
       }
     });
 
 
     jQuery('#meshmode').change(function(e) {
-		  if(jQuery(e.target).attr("checked") == true) {
-		    bb.set_fill_mode_wireframe();
-		  }else {
-		    bb.set_fill_mode_solid();
-		  }
-		});
+      if(jQuery(e.target).attr("checked") == true) {
+        bb.set_fill_mode_wireframe();
+      }else {
+        bb.set_fill_mode_solid();
+      }
+    });
 
     jQuery("#range-slider").slider({
-		  range: true,
-		  min: -10,
-		  max: 15,
-		  values: [0, 5],
-		  slide: function(event, ui) {
-		    jQuery("#data-range-min").val(ui.values[0]);
-		    jQuery("#data-range-max").val(ui.values[1]);
-		    if(bb.current_dataset) {
-		      macacc.range_change();
-		    }
-		  },
-		  step: 0.1
-		  //stop: macacc.range_change
-    
-		});
+      range: true,
+      min: -10,
+      max: 15,
+      values: [0, 5],
+      slide: function(event, ui) {
+        jQuery("#data-range-min").val(ui.values[0]);
+        jQuery("#data-range-max").val(ui.values[1]);
+        if(bb.current_dataset) {
+          macacc.range_change();
+        }
+      },
+      step: 0.1    
+    });
 
 
 
     jQuery(".range-box").keypress(function(e) {
-		   if(e.keyCode == '13'){
-		     macacc.range_change(e);
-		   }
-		 }
-		);
+       if(e.keyCode == '13'){
+         macacc.range_change(e);
+       }
+     }
+    );
 
     jQuery("#data-range-min").change(function(e) {
-		  jQuery("#range-slider").slider('values', 0, jQuery(this).val());
-		  macacc.afterRangeChange(parseFloat(jQuery("#data-range-min").val()),parseFloat(jQuery("#data-range-max").val()));
-		});
+      jQuery("#range-slider").slider('values', 0, jQuery(this).val());
+      macacc.afterRangeChange(parseFloat(jQuery("#data-range-min").val()),parseFloat(jQuery("#data-range-max").val()));
+    });
 
     jQuery("#data-range-max").change(function(e) {
-		  jQuery("#range-slider").slider('values', 1, jQuery(this).val());
-		  macacc.afterRangeChange(parseFloat(jQuery("#data-range-min").val()),parseFloat(jQuery("#data-range-max").val()));
-		});
+      jQuery("#range-slider").slider('values', 1, jQuery(this).val());
+      macacc.afterRangeChange(parseFloat(jQuery("#data-range-min").val()),parseFloat(jQuery("#data-range-max").val()));
+    });
 
     jQuery("[name=pointer]").change(function(e) {
-		  if(jQuery("[name=pointer]:checked").val() == "AAL_atlas") {
-		    macacc.show_atlas();
-		  }
-		});
+      if(jQuery("[name=pointer]:checked").val() == "AAL_atlas") {
+        macacc.show_atlas();
+      }
+    });
 
     
 
@@ -149,19 +150,19 @@ function initMacacc(path_prefix,dont_build_path) {
     });
     
     jQuery("#clamp_range").change(function(e) {
-		  macacc.update_model(brainbrowser.current_dataset);
-		});
+      macacc.update_model(brainbrowser.current_dataset);
+    });
     
 
 
     jQuery("#flip_correlation").click(function(e) {
-			var min = -1*parseFloat(jQuery("#data-range-max").val());
-			var max = -1*parseFloat(jQuery("#data-range-min").val());
-			jQuery("#data-range-min").val(min).change();
-			jQuery("#data-range-max").val(max).change();
+      var min = -1*parseFloat(jQuery("#data-range-max").val());
+      var max = -1*parseFloat(jQuery("#data-range-min").val());
+      jQuery("#data-range-min").val(min).change();
+      jQuery("#data-range-max").val(max).change();
       
-			jQuery("#flip_range").attr("checked",!jQuery("#flip_range").attr("checked")).change();
-	  });
+      jQuery("#flip_range").attr("checked",!jQuery("#flip_range").attr("checked")).change();
+    });
 
   };
   
@@ -173,8 +174,8 @@ function initMacacc(path_prefix,dont_build_path) {
   jQuery(".button_set").buttonset();
 
   jQuery("#secondWindow").click(function(e){
-				    brainbrowser.secondWindow=window.open('/macacc.html','secondWindow');
-				});
+    brainbrowser.secondWindow=window.open('/macacc.html','secondWindow');
+  });
  
   window.addEventListener('message', function(e){
    
@@ -186,12 +187,12 @@ function initMacacc(path_prefix,dont_build_path) {
     ];
     
     macacc.pickClick(e,{
-		       position_vector: position_vector,
-		       vertex: vertex,
-		       stop: true //tell pickClick to stop propagating the 
+           position_vector: position_vector,
+           vertex: vertex,
+           stop: true //tell pickClick to stop propagating the 
                                   //click such that we don't get an infinite loop.
-		       ,
-		     });
+           ,
+         });
     
     },false);
   if(window.opener !=null)  {

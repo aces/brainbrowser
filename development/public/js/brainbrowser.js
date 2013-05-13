@@ -745,8 +745,8 @@ function BrainBrowser() {
   */
   this.click = function(e, click_callback) {
     var offset = view_window.offset();
-    mouseX = ((e.clientX - offset.left)/view_window.width()) * 2 - 1;
-    mouseY = -((e.clientY - offset.top)/view_window.height()) * 2 + 1;
+    mouseX = ((e.clientX - offset.left + $(window).scrollLeft())/view_window.width()) * 2 - 1;
+    mouseY = -((e.clientY - offset.top + $(window).scrollTop())/view_window.height()) * 2 + 1;
     
     var projector = new THREE.Projector();
     var raycaster = new THREE.Raycaster();
@@ -868,7 +868,11 @@ function BrainBrowser() {
   };
 
 
-  function loadFromUrl(url, callback) {
+  function loadFromUrl(url, opts, callback) {
+    var options = opts || {};    
+    var beforeLoad = options.beforeLoad;
+    if (beforeLoad) beforeLoad();
+    
     jQuery.ajax({ type: 'GET',
       url: url ,
       dataType: 'text',
@@ -884,67 +888,71 @@ function BrainBrowser() {
 
   }
 
-  function loadFromTextFile(file_input, callback) {
-    var reader = new FileReader();
+  function loadFromTextFile(file_input, opts, callback) {
     var files = file_input.files;
+    
+    if (files.length === 0) {
+      return;
+    }
+    
+    var options = opts || {};    
+    var beforeLoad = options.beforeLoad;
+    var reader = new FileReader();
     reader.file = files[0];
-
+    
+    if (beforeLoad) {
+      beforeLoad();
+    }
+    
     reader.onloadend = function(e) {
       callback(e.target.result);
     };
-
+    
     reader.readAsText(files[0]);
-
   }
 
 
   this.loadObjFromUrl = function(url, opts) {
-    var options = opts || {};    
-    var beforeLoad = options.beforeLoad;
-    if (beforeLoad) beforeLoad();
-    
-    loadFromUrl(url, function(data) {
+    loadFromUrl(url, opts, function(data) {
 		    var parts = url.split("/");
 		    //last part of url will be shape name
 		    var filename = parts[parts.length-1];
-		    that.displayObjectFile(new MNIObject(data), filename, options);
+		    that.displayObjectFile(new MNIObject(data), filename, opts);
 		});
   };
 
   this.loadWavefrontObjFromUrl = function(url, opts) {
-    var options = opts || {};    
-    var beforeLoad = options.beforeLoad;
-    if (beforeLoad) beforeLoad();
-    
-    loadFromUrl(url, function(data) {
+    loadFromUrl(url, opts, function(data) {
 		    var parts = url.split("/");
 		    //last part of url will be shape name
 		    var filename = parts[parts.length-1];
-		    that.displayObjectFile(new WavefrontObj(data), filename, options);
+		    that.displayObjectFile(new WavefrontObj(data), filename, opts);
 		});
   };
 
   this.loadObjFromFile = function(file_input, opts) {
-    var options = opts || {};    
-    var beforeLoad = options.beforeLoad;
-    if (beforeLoad) beforeLoad();
-    loadFromTextFile(file_input, function(result) {
+    var options = opts || {};
+    loadFromTextFile(file_input, options, function(result) {
       var parts = file_input.value.split("\\");
 			//last part of path will be shape name
 			var filename = parts[parts.length-1];
       var obj;
-      if (options.format == "wavefront") {
+      if (options.format === "wavefront") {
         obj = new WavefrontObj(result);
       } else {
         obj = new MNIObject(result);
       }
-			that.displayObjectFile(obj, filename, options);
+      if (obj.objectClass !== "__FAIL__") {
+        that.displayObjectFile(obj, filename, options);
+      } else if (options.onError != undefined) {
+        options.onError();
+      }
 	  });
   };
 
   this.loadSpectrumFromUrl  = function(url) {
     //get the spectrum of colors
-    loadFromUrl(url,function (data) {
+    loadFromUrl(url, null, function (data) {
 		    var spectrum = new Spectrum(data);
 		    that.spectrum = spectrum;
 
@@ -964,7 +972,7 @@ function BrainBrowser() {
 
   //Load a color bar spectrum definition file
   this.loadSpectrumFromFile = function(file_input){
-    loadFromTextFile(file_input,function(data) {
+    loadFromTextFile(file_input, null, function(data) {
 		    var spectrum = new Spectrum(data);
 		    that.spectrum = spectrum;
 		    if(that.afterLoadSpectrum != null) {
@@ -977,12 +985,6 @@ function BrainBrowser() {
 		});
       
   };
-
-  function setupDataUi(data) {
-
-  }
-
-
 
   /*
    * Load text data from file and update colors
@@ -1028,7 +1030,7 @@ function BrainBrowser() {
       onfinish(text_data);
       
     }else {
-      loadFromTextFile(file_input, onfinish);
+      loadFromTextFile(file_input, null, onfinish);
     }
   };
 
@@ -1229,7 +1231,7 @@ function BrainBrowser() {
   };
 
   this.loadDataFromUrl = function(file_input, name) {
-    loadFromUrl(file_input, function(text,file) {
+    loadFromUrl(file_input, null, function(text,file) {
 		  that.model_data.data = new Data(text);
 		  that.model_data.data.fileName = name;
 		  initRange(that.model_data.data.min,that.model_data.data.max);
@@ -1245,13 +1247,13 @@ function BrainBrowser() {
   };
   
 
-  this.loadCombinedShaderFromUrl = function(url){
-    var shaderString;
-    loadFromUrl(url,function(data){
-      shaderString = data;		  
-    });
-    return shaderString;
-  };
+  // this.loadCombinedShaderFromUrl = function(url){
+  //   var shaderString;
+  //   loadFromUrl(url,function(data){
+  //     shaderString = data;     
+  //   });
+  //   return shaderString;
+  // };
 
 
   /*

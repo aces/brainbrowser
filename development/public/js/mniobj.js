@@ -49,7 +49,8 @@ function MNIObject(string) {
       parsePositionArray();
       that.nitems = parseInt(stack.pop());
     }else { 
-      throw new Error("That object class is not supported currently");
+      that.objectClass = "__FAIL__"
+      return;
     }
     parseColorArray();
     parseEndIndices();
@@ -142,9 +143,6 @@ function MNIObject(string) {
     for(var i=0; i<numberIndex;i++) {
       that.indexArray.push(parseInt(stack.pop()));
     }
-    
-    //alert(" "+ that.indexArray[0] + " " +  " "+ that.indexArray[that.indexArray.length -1] + " " );
-
   }
 
   /*

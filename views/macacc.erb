@@ -11,6 +11,13 @@
     
     <div id="controls">
       <h1>MACACC Dataset Viewer</h1>
+      <div id="data range" class="box full_box">
+        <h4>Usage</h4>
+        <div id="usage_notes">
+          Shift-click: select a point for correlation mapping.<br>
+          Ctrl-click: select a point for coordinate and value information.
+        </div>
+      </div>
       <div id="surface_choice" class="box full_box">
         <h4>Surface Choice</h4>
         <select class="controls" id="model">
@@ -117,20 +124,10 @@
       </div>
 
       <span id="secondWindow" class="button">Second Window</span>
-      <br />
-      <div id="data range" class="box full_box">
-        <h4>Shortcuts</h4>
-        <p>
-          Shift-click: select a point for correlation mapping.
-        </p>
-        <p>
-          Ctrl-click: select a point for coordinate and value information.
-        </p>
-      </div>
     </div>
     <!-- The webgl window and loading messages if any -->
     <div>
-      <div id="loading">Loading...</div>
+      <div id="loading" style="display: none">Loading...</div>
       <div id="view-window"></div>
     </div>
 
@@ -161,6 +158,5 @@
 	      initMacacc('/data/');
      });
     </script>
-
   </body>  
 </html>  

@@ -77,10 +77,10 @@ h4 {
 a:link {
     color: orange;
 }
+
 a:visited {
     color: orange;
 }
-
 
 .slider {
     width: 75%;
@@ -88,7 +88,7 @@ a:visited {
 }
 
 
-select {
+select#clear_color {
     width: 75%;
 }
 
@@ -132,4 +132,22 @@ select {
   border-radius: 0.5em;
 }
 
+div#obj_file_select {
+  margin-bottom: 1.5em;
+  background-color: gray;
+  padding: 0.5em;
+  border-radius: 10px;
+}
 
+input#objfile {
+  width: 18em;
+}
+
+input#obj_file_submit {
+  margin-left: 0.7em;
+}
+
+div#usage_notes {
+  padding: 0.3em;
+  font-size: 1.2em;
+}

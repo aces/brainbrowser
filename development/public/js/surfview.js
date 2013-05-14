@@ -24,8 +24,8 @@ function SurfView(model_url) {
   brainbrowser.getViewParams = function() {
     return {
       view: jQuery('[name=hem_view]:checked').val(),
-      left: jQuery('#left_hem_visible').attr("checked"),
-      right: jQuery('#right_hem_visible').attr("checked")
+      left: jQuery('#left_hem_visible').is(":checked"),
+      right: jQuery('#right_hem_visible').is(":checked")
     };
 
   };
@@ -125,7 +125,7 @@ function SurfView(model_url) {
       slide: function(event, ui) {
 	      var min = parseFloat(ui.values[0]);
 	      var max = parseFloat(ui.values[1]);
-	      bb.rangeChange(min,max,$("#clamp_range").attr("checked"));
+	      bb.rangeChange(min, max, $("#clamp_range").is(":checked"));
       },
       step: 0.1
     });
@@ -237,7 +237,7 @@ function SurfView(model_url) {
   };
 
   jQuery('#meshmode').change(function(e) {
-    if(jQuery(e.target).attr("checked") == true) {
+    if(jQuery(e.target).is(":checked")) {
       bb.set_fill_mode_wireframe();
     }else {
       bb.set_fill_mode_solid();
@@ -261,9 +261,9 @@ function SurfView(model_url) {
 
       if($("#autorotate").attr("checked")){
 	      bb.autoRotate = {};
-	      bb.autoRotate.x = $("#autorotateX").attr("checked");
-	      bb.autoRotate.y = $("#autorotateY").attr("checked");
-	      bb.autoRotate.z = $("#autorotateZ").attr("checked");
+	      bb.autoRotate.x = $("#autorotateX").is(":checked");
+	      bb.autoRotate.y = $("#autorotateY").is(":checked");
+	      bb.autoRotate.z = $("#autorotateZ").is(":checked");
 	
 	
       }else {

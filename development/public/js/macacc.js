@@ -24,8 +24,8 @@ function initMacacc(path_prefix,dont_build_path) {
   brainbrowser.getViewParams = function() {
     return {
       view: jQuery('[name=hem_view]:checked').val(),
-      left: jQuery('#left_hem_visible').attr("checked"),
-      right: jQuery('#right_hem_visible').attr("checked")
+      left: jQuery('#left_hem_visible').is(":checked"),
+      right: jQuery('#right_hem_visible').is(":checked")
     };
 
   };
@@ -80,7 +80,7 @@ function initMacacc(path_prefix,dont_build_path) {
 
 
     jQuery('#meshmode').change(function(e) {
-      if(jQuery(e.target).attr("checked") == true) {
+      if(jQuery(e.target).is(":checked")) {
         bb.set_fill_mode_wireframe();
       }else {
         bb.set_fill_mode_solid();

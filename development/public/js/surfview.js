@@ -192,7 +192,7 @@ function SurfView(model_url) {
         var max = $("#data-range-max").val();
         jQuery(e.target).siblings(".slider").slider('values', 0, min);
         jQuery(e.target).siblings(".slider").slider('values', 1, max);
-        bb.rangeChange(min,max,$(e.target).siblings("#clamp_range").attr("checked"));
+        bb.rangeChange(min,max,$(e.target).siblings("#clamp_range").is(":checked"));
 
       }
       jQuery("#data-range-min").change(dataRangeChange);
@@ -200,14 +200,14 @@ function SurfView(model_url) {
       jQuery("#data-range-max").change(dataRangeChange);
 
       jQuery("#fix_range").click(function(event,ui) {
-        bb.fixRange= jQuery(e.target).attr("checked");
+        bb.fixRange = jQuery(e.target).is(":checked");
       });
 
       jQuery("#clamp_range").change(function(e) {
         var min = parseFloat($(e.target).siblings("#data-range-min").val());
         var max = parseFloat($(e.target).siblings("#data-range-max").val());
 
-        if($(e.target).attr("checked") == true) {
+        if($(e.target).is(":checked")) {
           bb.rangeChange(min,max,true);
         }else {
           bb.rangeChange(min,max,false);
@@ -216,7 +216,7 @@ function SurfView(model_url) {
 
 
       jQuery("#flip_range").change(function(e) {
-        bb.flip = $(e.target).attr("checked");
+        bb.flip = $(e.target).is(":checked");
         bb.updateColors(bb.model_data.data,bb.model_data.data.rangeMin,bb.model_data.data.rangeMax,brainbrowser.spectrum,bb.flip,bb.clamped);
 
       });
@@ -259,7 +259,7 @@ function SurfView(model_url) {
   
   function changeAutoRotate(e) {
 
-      if($("#autorotate").attr("checked")){
+      if($("#autorotate").is(":checked")){
 	      bb.autoRotate = {};
 	      bb.autoRotate.x = $("#autorotateX").is(":checked");
 	      bb.autoRotate.y = $("#autorotateY").is(":checked");

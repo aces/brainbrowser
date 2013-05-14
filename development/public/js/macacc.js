@@ -161,7 +161,7 @@ function initMacacc(path_prefix,dont_build_path) {
       jQuery("#data-range-min").val(min).change();
       jQuery("#data-range-max").val(max).change();
       
-      jQuery("#flip_range").attr("checked",!jQuery("#flip_range").attr("checked")).change();
+      jQuery("#flip_range").attr("checked", !jQuery("#flip_range").attr("checked")).change();
     });
 
   };

@@ -79,15 +79,20 @@ function initMacacc(path_prefix,dont_build_path) {
     });
 
 
-    jQuery('#meshmode').change(function(e) {
+    $('#meshmode').change(function(e) {
       if(jQuery(e.target).is(":checked")) {
         bb.set_fill_mode_wireframe();
       }else {
         bb.set_fill_mode_solid();
       }
     });
+    
+    $("#clear_color").change(function(e){
+		  var color_name = $(e.target).val();
+		  bb.updateClearColorFromName(color_name);
+		});
 
-    jQuery("#range-slider").slider({
+    $("#range-slider").slider({
       range: true,
       min: -10,
       max: 15,
@@ -104,25 +109,25 @@ function initMacacc(path_prefix,dont_build_path) {
 
 
 
-    jQuery(".range-box").keypress(function(e) {
+    $(".range-box").keypress(function(e) {
        if(e.keyCode == '13'){
          macacc.range_change(e);
        }
      }
     );
 
-    jQuery("#data-range-min").change(function(e) {
-      jQuery("#range-slider").slider('values', 0, jQuery(this).val());
-      macacc.afterRangeChange(parseFloat(jQuery("#data-range-min").val()),parseFloat(jQuery("#data-range-max").val()));
+    $("#data-range-min").change(function(e) {
+      $("#range-slider").slider('values', 0, $(this).val());
+      macacc.afterRangeChange(parseFloat($("#data-range-min").val()),parseFloat($("#data-range-max").val()));
     });
 
-    jQuery("#data-range-max").change(function(e) {
+    $("#data-range-max").change(function(e) {
       jQuery("#range-slider").slider('values', 1, jQuery(this).val());
       macacc.afterRangeChange(parseFloat(jQuery("#data-range-min").val()),parseFloat(jQuery("#data-range-max").val()));
     });
 
-    jQuery("[name=pointer]").change(function(e) {
-      if(jQuery("[name=pointer]:checked").val() == "AAL_atlas") {
+    $("[name=pointer]").change(function(e) {
+      if($("[name=pointer]:checked").val() == "AAL_atlas") {
         macacc.show_atlas();
       }
     });

@@ -271,16 +271,16 @@ function SurfView(model_url) {
       }
       
     }
-    jQuery("#autorotate-controls").children().change(changeAutoRotate);
-    jQuery("#autorotate").change(changeAutoRotate);
+    $("#autorotate-controls").children().change(changeAutoRotate);
+    $("#autorotate").change(changeAutoRotate);
 
-    jQuery(".range-box").keypress(function(e) {
+    $(".range-box").keypress(function(e) {
 		  if(e.keyCode == '13'){
 		    bb.rangeChange(parseFloat(jQuery("#data-range-min").val()),parseFloat(jQuery("#data-range-max").val()));
 		  }
 		});
         
-    jQuery("#clear_color").change(function(e){
+    $("#clear_color").change(function(e){
 		  var color_name = $(e.target).val();
 		  bb.updateClearColorFromName(color_name);
 		});

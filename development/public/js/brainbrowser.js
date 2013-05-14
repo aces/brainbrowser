@@ -1259,7 +1259,7 @@ function BrainBrowser() {
   /*
    * This updates the colors of the brain model
    */
-  this.updateColors = function(data,min,max,spectrum,flip,clamped,blend,shape) {
+  this.updateColors = function(data, min, max, spectrum, flip, clamped, blend, shape) {
     that.clamped = clamped;
     if(blend) {
       var color_array = colorManager.blendColorMap(spectrum,data,0,1);

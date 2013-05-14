@@ -1,20 +1,16 @@
 #!/bin/bash
 
-if test -z "$YUI_COMPRESS_JAR_PATH" ; then
-  echo "Please set the YUI_COMPRESS_JAR_PATH environment variable to the location of the yui-compress jar file."
-  exit 2
-fi
+APP_ROOT=`pwd`
 
+COMPRESSOR="java -jar $APP_ROOT/script/yuicompressor-2.4.7.jar"
 
-COMPRESSOR="java -jar $YUI_COMPRESS_JAR_PATH"
-
-cd development/public/js
+cd $APP_ROOT/development/public/js
 cat data.js utils.js color.js spectrum.js wavefront_obj.js mniobj.js object.js brainbrowser.js surfview.js > /tmp/surface-combined.js
-$COMPRESSOR /tmp/surface-combined.js -o ../../../production/public/js/surfview-combined.min.js
+$COMPRESSOR /tmp/surface-combined.js -o $APP_ROOT/production/public/js/surfview-combined.min.js
 rm /tmp/surface-combined.js
 cat utils.js wavefront_obj.js mniobj.js color.js spectrum.js data.js dataset.js object.js brainbrowser.js macacc_collection.js macacc.js > /tmp/macacc-combined.js
-$COMPRESSOR /tmp/macacc-combined.js -o ../../../production/public/js/macacc-combined.min.js
+$COMPRESSOR /tmp/macacc-combined.js -o $APP_ROOT/production/public/js/macacc-combined.min.js
 rm /tmp/macacc-combined.js
 cat utils.js minc.js color.js spectrum.js loader.js braincanvas.js > /tmp/html5-minc-viewer.js
-$COMPRESSOR /tmp/html5-minc-viewer.js -o ../../../production/public/js/html5-minc-viewer.min.js
+$COMPRESSOR /tmp/html5-minc-viewer.js -o $APP_ROOT/production/public/js/html5-minc-viewer.min.js
 

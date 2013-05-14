@@ -165,7 +165,6 @@
       });
       
       function loadFile() {
-        surfview.brainbrowser.clearScreen();
         var format = $("#obj_file_format").closest("#obj_file_select").find("#obj_file_format option:selected").val();
         surfview.brainbrowser.loadObjFromFile(document.getElementById("objfile"), { 
           format: format, 

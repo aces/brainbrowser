@@ -40,7 +40,6 @@ function initMacacc(path_prefix,dont_build_path) {
 
 
   brainbrowser.afterInit = function(bb) {
-    $("#loading").show();
     bb.loadObjFromUrl('/models/surf_reg_model_both.obj', { 
       afterDisplay: function() {
         $("#loading").hide();

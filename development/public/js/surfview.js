@@ -131,24 +131,21 @@ function SurfView(model_url) {
     });
 
     bb.afterRangeChange = function(min,max) {
-      jQuery("#data-range-min").val(min);
-      jQuery("#data-range-max").val(max);
-      var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null);
+      $("#data-range-min").val(min);
+      $("#data-range-max").val(max);
+      var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min, max, null);
       canvas.id = "spectrum_canvas";
-      jQuery("#color_bar").html(jQuery(canvas));
+      $("#color_bar").html($(canvas));
     };
 
     function createDataUI(data) {
       var rangeBox = $("#data-range");
-      $(rangeBox).html("");
-      var html_string = "<div id=\"data_range_multiple\">"
-	    + "<ul>";
+      var range_updating = false;
+      var html_string = "<div id=\"data_range_multiple\"><ul>";
+      var data = data.length ? data : [data];
       
-      //Make the data object an array to make the rest work the same for both
-      //multiple data files and singles. 
-      if(!data.length) {
-	      var data = [data];
-      }
+      $(rangeBox).html("");
+      
       for(var i=0; i<data.length; i++) {
 	      html_string += "<li><a href=\"#data_file"+i+"\">"+data[i].fileName+"</a></li>";
       }
@@ -168,6 +165,7 @@ function SurfView(model_url) {
       html_string += "</div>";
       $(rangeBox).html(html_string);
       $(rangeBox).tabs();
+      
       $("#data_range").find(".slider").each(function(index,element) {
         $(element).slider({
           range:true,
@@ -176,13 +174,18 @@ function SurfView(model_url) {
           values: [data[index].rangeMin,data[index].rangeMax],
           step: 0.1,
           slide: function(event,ui) {
-            var blend_id = $(this).attr("data-blend-index");
-            data[0].rangeMin = ui.values[0];
-            data[0].rangeMax = ui.values[1];
-            bb.model_data.data = data[0];
-            bb.updateColors(bb.model_data.data,bb.model_data.data.rangeMin,bb.model_data.data.rangeMax,bb.spectrum,bb.flip,bb.clamped,false);
-            bb.rangeChange(data[0].rangeMin, data[0].rangeMax, bb.clamped);
-
+            if (!range_updating) {
+              range_updating = true;
+              var blend_id = $(this).attr("data-blend-index");
+              data[0].rangeMin = ui.values[0];
+              data[0].rangeMax = ui.values[1];
+              bb.model_data.data = data[0];
+              bb.rangeChange(data[0].rangeMin, data[0].rangeMax, bb.clamped, {
+                afterChange: function () {
+                  range_updating = false;
+                }
+              });
+            }
           }
         });
       });

@@ -59,9 +59,6 @@ function Spectrum(data) {
       + ")"; 
       context.fillRect(k,0,1,color_height);
     };
-    // console.log("rgb(" + parseInt(colors[100*4+0]) + "," + parseInt(colors[100*4+1]) 
-    //     + "," + parseInt(colors[100*4+2]));
-    //     console.log(context.fillStyle);
 
     return canvas;
 

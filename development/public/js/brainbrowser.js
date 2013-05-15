@@ -29,7 +29,7 @@ function BrainBrowser() {
                    // but "that" is and can be used for special helper methods. 
   
   //add object management functions from object.js file to brainbrowser 
-  bbObject(this); 
+  //bbObject(this); 
   
   var colorManager = new ColorManager();
   var view_window; //canvas element
@@ -47,7 +47,7 @@ function BrainBrowser() {
     window.onload = function() {
       setTimeout(function(){
         that.init();
-      }, 1);
+      }, 0);
     };
   }
   
@@ -154,6 +154,7 @@ function BrainBrowser() {
     var ind = obj.indexArray;
     var bounding_box = {};
     var centroid = {};
+    var face;
     
     //Calculate center so positions of objects relative to each other can
     // defined (mainly for transparency).
@@ -169,7 +170,11 @@ function BrainBrowser() {
       geometry.vertices.push(new THREE.Vector3(verts[i]-centroid.x, verts[i+1]-centroid.y, verts[i+2]-centroid.z));
     }
     for(var i = 0; i+2 < ind.length; i+=3) {
-      geometry.faces.push(new THREE.Face3(ind[i], ind[i+1], ind[i+2]));
+      face = new THREE.Face3(ind[i], ind[i+1], ind[i+2]);
+      face.vertexColors[0] = new THREE.Color();
+      face.vertexColors[1] = new THREE.Color();
+      face.vertexColors[2] = new THREE.Color();
+      geometry.faces.push(face);
     }
     
     geometry.computeFaceNormals();
@@ -245,7 +250,6 @@ function BrainBrowser() {
 	        colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
 	      }
       }else {
-	      //colorArray = new Float32Array(indexArray.length*4);
 	      var colorArray = that.model_data.colorArray;
 	      
 	      for(var j = 0; j < indices.length; j++) {
@@ -958,12 +962,16 @@ function BrainBrowser() {
 	  });
   };
 
-  this.loadSpectrumFromUrl  = function(url) {
+  this.loadSpectrumFromUrl  = function(url, opts) {
+    options = opts || {};
+    var afterLoadSpectrum = options.afterLoadSpectrum
+    
     //get the spectrum of colors
-    loadFromUrl(url, null, function (data) {
+    loadFromUrl(url, options, function (data) {
 		    var spectrum = new Spectrum(data);
 		    that.spectrum = spectrum;
 
+        if (afterLoadSpectrum) afterLoadSpectrum();
 
 		    if(that.afterLoadSpectrum != null) {
 		      that.afterLoadSpectrum(spectrum);
@@ -1210,7 +1218,7 @@ function BrainBrowser() {
 	        max: 0.99,
 		value: 0.5,
 		step:.01,
-	        /*
+	  /*
 		 * When the sliding the slider, change all the other sliders by the amount of this slider
 		 */
 		slide: function(event,ui) {
@@ -1248,7 +1256,7 @@ function BrainBrowser() {
 		  }
 		  
 
-		  that.updateColors(that.model_data.data,that.model_data.data.rangeMin, that.model_data.data.rangeMax,that.spectrum);
+		  that.updateColors(that.model_data.data, that.model_data.data.rangeMin, that.model_data.data.rangeMax, that.spectrum);
 		});
   };
   
@@ -1265,54 +1273,63 @@ function BrainBrowser() {
   /*
    * This updates the colors of the brain model
    */
-  this.updateColors = function(data, min, max, spectrum, flip, clamped, blend, shape) {
+  this.updateColors = function(data, min, max, spectrum, flip, clamped, blend, shape, opts) {
+    var options = opts || {};
+    var afterUpdate = options.afterUpdate;
+
     that.clamped = clamped;
     if(blend) {
       var color_array = colorManager.blendColorMap(spectrum,data,0,1);
     }else {
-      var color_array = data.createColorArray(min,max,spectrum,flip,clamped,that.model_data.colorArray,that.model_data);      
+      var color_array = data.createColorArray(min, max, spectrum, flip, clamped, that.model_data.colorArray, that.model_data);      
     }
-
 
     if(that.model_data.num_hemispheres == 2) {
       var left_color_array = color_array.slice(0, color_array.length/2);
       var right_color_array = color_array.slice(color_array.length/2, color_array.length);
       var left_color_buffer = [];
       var right_color_buffer = [];
-      for (var i = 0; i + 2 < color_array.length; i += 4) {
-        var col = new THREE.Color()
-        col.setRGB(left_color_array[i], left_color_array[i+1], left_color_array[i+2]);
-        left_color_buffer.push(col);
-        col = new THREE.Color()
-        col.setRGB(right_color_array[i], right_color_array[i+1], right_color_array[i+2]);
-        right_color_buffer.push(col);
-      }
-
       var left_hem = brain.getChildByName("left");
       var left_hem_faces = left_hem.geometry.faces;
-      for (var i = 0; i < left_hem_faces.length; i++) {
-        var face = left_hem_faces[i];
-        face.vertexColors[0] = left_color_buffer[face.a];
-        face.vertexColors[1] = left_color_buffer[face.b];
-        face.vertexColors[2] = left_color_buffer[face.c];
-        if (face.d) {
-          face.vertexColors[3] = left_color_buffer[face.d];
-        }
-      }
- 
-      left_hem.geometry.colorsNeedUpdate = true;
-      
       var right_hem = brain.getChildByName("right");
       var right_hem_faces = right_hem.geometry.faces;
-      for (var i = 0; i < right_hem_faces.length; i++) {
-        var face = right_hem_faces[i];
-        face.vertexColors[0] = right_color_buffer[face.a];
-        face.vertexColors[1] = right_color_buffer[face.b];
-        face.vertexColors[2] = right_color_buffer[face.c];
-        if (face.d) {
-          face.vertexColors[3] = right_color_buffer[face.d];
+      var face;
+      var right_hem_faces_length = right_hem_faces.length;
+      var left_hem_faces_length = left_hem_faces.length;
+      var length;
+      var color_index;
+      
+      length = Math.max(left_hem_faces_length, right_hem_faces_length);
+      for (var i = 0; i < length; i++) {
+        if (i < left_hem_faces_length) {
+          face = left_hem_faces[i];
+          color_index = face.a * 4;
+          face.vertexColors[0].setRGB(left_color_array[color_index], left_color_array[color_index+1], left_color_array[color_index+2]);
+          color_index = face.b * 4;
+          face.vertexColors[1].setRGB(left_color_array[color_index], left_color_array[color_index+1], left_color_array[color_index+2]);
+          color_index = face.c * 4;
+          face.vertexColors[2].setRGB(left_color_array[color_index], left_color_array[color_index+1], left_color_array[color_index+2]);
+          if (face.d) {
+            color_index = face.d * 4;
+            face.vertexColors[3].setRGB(left_color_array[color_index], left_color_array[color_index+1], left_color_array[color_index+2]);
+          }
         }
+        if (i < right_hem_faces_length) {
+          face = right_hem_faces[i];
+          color_index = face.a * 4;
+          face.vertexColors[0].setRGB(right_color_array[color_index], right_color_array[color_index+1], right_color_array[color_index+2]);
+          color_index = face.b * 4;
+          face.vertexColors[1].setRGB(right_color_array[color_index], right_color_array[color_index+1], right_color_array[color_index+2]);
+          color_index = face.c * 4;
+          face.vertexColors[2].setRGB(right_color_array[color_index], right_color_array[color_index+1], right_color_array[color_index+2]);
+          if (face.d) {
+            color_index = face.d * 4;
+            face.vertexColors[3].setRGB(right_color_array[color_index], right_color_array[color_index+1], right_color_array[color_index+2]);
+          }
+        }  
       }
+  
+      left_hem.geometry.colorsNeedUpdate = true;
       right_hem.geometry.colorsNeedUpdate = true;
 
     } else {
@@ -1338,8 +1355,12 @@ function BrainBrowser() {
       }
     }
 
-    if (that.afterUpdateColors !=null ) {
-      that.afterUpdateColors(data,min,max,spectrum);
+    if (afterUpdate) {
+      afterUpdate();
+    }
+
+    if (that.afterUpdateColors != null ) {
+      that.afterUpdateColors(data, min, max, spectrum);
     }
 
 
@@ -1352,10 +1373,13 @@ function BrainBrowser() {
    * Clamped signifies that the range should be clamped and values above or bellow the 
    * thresholds should have the color of the maximum/mimimum.
    */
-  this.rangeChange = function(min,max,clamped) {
+  this.rangeChange = function(min, max, clamped, opts) {
+    var options = opts || {};
+    var afterChange = options.afterChange;
+    
     that.model_data.data.rangeMin = min;
     that.model_data.data.rangeMax = max;
-    that.updateColors(that.model_data.data,that.model_data.data.rangeMin, that.model_data.data.rangeMax, that.spectrum,that.flip,clamped);
+    that.updateColors(that.model_data.data, that.model_data.data.rangeMin, that.model_data.data.rangeMax, that.spectrum,that.flip, clamped);
 
     /*
      * This callback allows users to
@@ -1364,8 +1388,12 @@ function BrainBrowser() {
      *
      */
 
+    if (afterChange) {
+      afterChange();
+    }
+
     if(that.afterRangeChange != null) {
-      that.afterRangeChange(min,max);
+      that.afterRangeChange(min, max);
     }
 
 

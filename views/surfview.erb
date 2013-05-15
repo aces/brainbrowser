@@ -13,8 +13,8 @@
     <div id="examples" class="box full_box">
       <h3>Sample Models</h3>
       <ul>
-         <li><a href="#" span class="example" data-example-name="punkdti">DTI and Mesh Brain</a></li>
          <li><a href="#" class="example" data-example-name="realct">Brain with Map of Cortical Thickness</a></li>
+         <li><a href="#" span class="example" data-example-name="punkdti">DTI and Mesh Brain</a></li>
          <li><a href="#" class="example" data-example-name="basic">Basic Brain Surface</a></li>
          <li><a href="#" class="example" data-example-name="plane" title="DLR-F6 Geometry 2nd AIAA CFD Drag Prediction Workshop, 2003">Aeroplane with Air Density and Air Flow</a></li>
          <li><a href="#" class="example" data-example-name="car">Automobile</a></li> 
@@ -134,34 +134,35 @@
 	    <script type="text/javascript" src="/js/spectrum.js"></script> 
 	    <script type="text/javascript" src="/js/mniobj.js"></script> 
 	    <script type="text/javascript" src="/js/wavefront_obj.js"></script>
-	    <script type="text/javascript" src="/js/object.js"></script> 
 	    <script type="text/javascript" src="/js/brainbrowser.js"></script> 
 	    <script type="text/javascript" src="/js/surfview.js"></script> 
 	    <script type="text/javascript" src="/js/jquery-ui-1.8.10.custom.min.js"></script>
     <% end %>
 	  
     <script type="text/javascript">
-    $(function() {
-      document.getElementById("view-window").onselectstart = function() {
-      return false;
-    };
-      
+      $(function() {
+        document.getElementById("view-window").onselectstart = function() {
+        return false;
+      };
+        
       document.getElementById("view-window").onmousedown = function() {
         return false;
       };
-      jQuery(".button").button();
+      $(".button").button();
       $(".buttonset").buttonset();
+      $("#loading").show();
       var surfview = new SurfView(function(bb) {
-        $("#loading").show();
-        bb.loadObjFromUrl('/models/dti.obj', { 
-          renderDepth: 999,
-          afterDisplay: function() {
-            $("#loading").hide();
-            bb.loadSpectrumFromUrl('/assets/spectral_spectrum.txt');
-          }
-        });
-        bb.loadObjFromUrl('/models/left_color.obj');
-        bb.loadObjFromUrl('/models/right_color.obj');
+		     bb.clearScreen();
+		     bb.loadObjFromUrl('/models/realct.obj', {
+  		     afterDisplay: function() {
+  		       bb.loadSpectrumFromUrl('/assets/spectral_spectrum.txt', {
+  		         afterLoadSpectrum: function() {
+  		           bb.loadDataFromUrl('/models/realct.txt','cortical thickness'); 
+  		         }
+  		       });
+  		       $("#loading").hide();
+  		     }
+  		   });
       });
       
       function loadFile() {

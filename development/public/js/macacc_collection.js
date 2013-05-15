@@ -113,10 +113,6 @@ function MacaccObject(brainbrowser, path, dont_build_path) {
     return {modality: data_modality, sk: data_sk, statistic: data_statistic };
   }
 
-  function update_color_map(min, max, flip, clamped) {
-    brainbrowser.updateColors(that.dataSet.current_data,min,max,brainbrowser.spectrum,flip,clamped);
-  }
-
   this.update_model = function (dataset) {
     that.dataArray = dataset.current_data.values;
     brainbrowser.current_dataset = dataset;
@@ -140,12 +136,12 @@ function MacaccObject(brainbrowser, path, dont_build_path) {
     var clamped = jQuery("#clamp_range").is(":checked");
     if(get_data_controls().statistic == "T") {
       that.flipRange = flip;
-      update_color_map(that.data_min, that.data_max, flip, clamped);
+      brainbrowser.updateColors(that.dataSet.current_data, that.data_min, that.data_max, brainbrowser.spectrum, flip, clamped);
     }else {
       that.flipRange = !flip;
       jQuery("#range-slider").slider("option", "min", "0");
       jQuery("#range-slider").slider("option", "max", "1");
-      update_color_map(0, 1, !flip, clamped);
+      brainbrowser.updateColors(that.dataSet.current_data, 0, 1, brainbrowser.spectrum, !flip, clamped);
     }
 
   };
@@ -175,16 +171,13 @@ function MacaccObject(brainbrowser, path, dont_build_path) {
 
   }
 
-  function update_scale(min,max) {
-  }
-
   this.range_change = function() {
-    var min=parseFloat(jQuery("#data-range-min").val());
-    var max=parseFloat(jQuery("#data-range-max").val());
-    update_color_map(min,max,$("#flip_range").attr("checked"),$("#clamp_range").attr("checked"));
+    var min = parseFloat($("#data-range-min").val());
+    var max = parseFloat($("#data-range-max").val());
+    brainbrowser.updateColors(that.dataSet.current_data, min, max, brainbrowser.spectrum, $("#flip_range").is(":checked"), $("#clamp_range").is(":checked"));
 
     if(that.afterRangeChange != undefined) {
-      that.afterRangeChange(min,max);
+      that.afterRangeChange(min, max);
     }
   };
 

@@ -34,7 +34,7 @@ function Data(data) {
 
   };
 
-  this.createColorArray = function(min,max,spectrum,flip,clamped,original_colors,model) {
+  this.createColorArray = function(min, max, spectrum, flip, clamped, original_colors, model) {
     var spectrum = spectrum.colors;
     var colorArray = new Array();
     //calculate a slice of the data per color
@@ -47,7 +47,7 @@ function Data(data) {
         }else {
           var color_index = 0; 
         }
-      }else if(that.values[i]> max){
+      }else if(that.values[i] > max){
         if(!clamped){
           var color_index = -1;
         }else {
@@ -58,16 +58,16 @@ function Data(data) {
       }
       //This inserts the RGBA values (R,G,B,A) independently
       if(flip && color_index != -1) {
-        colorArray.push.apply(colorArray,spectrum[spectrum.length-1-color_index]);
+        colorArray.push.apply(colorArray, spectrum[spectrum.length-1-color_index]);
       }else {
         if(color_index == -1) {
           if(original_colors.length == 4){
-            colorArray.push.apply(colorArray,original_colors);	  
+            colorArray.push.apply(colorArray, original_colors);	  
           }else {
-            colorArray.push.apply(colorArray,[original_colors[i*4],original_colors[i*4+1],original_colors[i*4+2],original_colors[i*4+3]]);	  
+            colorArray.push.apply(colorArray, [original_colors[i*4], original_colors[i*4+1], original_colors[i*4+2], original_colors[i*4+3]]);	  
           }
         }else {
-          colorArray.push.apply(colorArray,spectrum[color_index]);
+          colorArray.push.apply(colorArray, spectrum[color_index]);
         }	
       }
     }

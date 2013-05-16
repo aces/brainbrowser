@@ -239,15 +239,21 @@ function SurfView(model_url) {
 
   };
 
-  jQuery('#meshmode').change(function(e) {
-    if(jQuery(e.target).is(":checked")) {
+  $('#meshmode').change(function(e) {
+    if ($(e.target).is(":checked")) {
       bb.set_fill_mode_wireframe();
-    }else {
+    } else {
       bb.set_fill_mode_solid();
     }
   });
 
-
+  $('#threedee').change(function(e) {
+    if ($(e.target).is(":checked")) {
+      bb.anaglyphEffect();
+    } else {
+      bb.noEffect();
+    }
+  });
 
   jQuery('#clearshapes').click(function(e) {
 	  brainbrowser.clearScreen();

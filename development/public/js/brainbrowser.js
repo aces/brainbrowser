@@ -42,6 +42,8 @@ function BrainBrowser() {
   var light_controls;
   var current_frame;
   var last_frame;
+  var effect;
+  var anaglyphEffect;
   
   this.start = function() {
     window.onload = function() {
@@ -65,6 +67,11 @@ function BrainBrowser() {
     }
     
     renderer.setSize(view_window.width(), view_window.height());
+    effect = renderer;
+    
+    anaglyphEffect = new THREE.AnaglyphEffect(renderer);
+    anaglyphEffect.setSize(view_window.width(), view_window.height());
+  
     view_window.append(renderer.domElement);  
     
     camera.position.z = 500;
@@ -125,7 +132,14 @@ function BrainBrowser() {
         
     return el;
   }
+  
+  this.anaglyphEffect = function() {
+    effect = anaglyphEffect;
+  }
 
+  this.noEffect = function() {
+    effect = renderer;
+  }
   
   this.setCamera = function(x, y, z) {
     camera.position.set(x, y, z);
@@ -421,7 +435,7 @@ function BrainBrowser() {
       }
       
     }
-    renderer.render(scene, camera);
+    effect.render(scene, camera);
   };
 
   /** 
@@ -1454,7 +1468,7 @@ function BrainBrowser() {
 
   window.onresize = function() {
     view_window = $("#view-window");
-    renderer.setSize(view_window.width(), view_window.height());
+    effect.setSize(view_window.width(), view_window.height());
     camera.aspect = view_window.width()/view_window.height();
     camera.updateProjectionMatrix();
   };

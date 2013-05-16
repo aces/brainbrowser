@@ -95,6 +95,9 @@
           </div>
           <span class="button" id="resetview">Reset View</span>
           <input type="checkbox" class="button" id="meshmode"><label for="meshmode">Mesh Mode</label>
+          <p>
+            <input type="checkbox" class="button" id="threedee"><label for="threedee">3D Glasses!</label>
+          </p>
         </div>
 
         <div id="coordinates" class="box half_box">
@@ -146,6 +149,7 @@
     <script type="text/javascript" src="/js/jquery.js"></script>
     <script type="text/javascript" src="/js/three.min.js"></script>
     <script type="text/javascript" src="/js/TrackballControls.js"></script>
+    <script type="text/javascript" src="/js/AnaglyphEffect.js"></script>
     <% if ENV["BRAINBROWSER_ENV"]  == "production" %>
       <script type="text/javascript" src="/js/macacc-combined.min.js"></script>
     <% else %>

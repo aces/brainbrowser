@@ -86,6 +86,14 @@ function initMacacc(path_prefix,dont_build_path) {
       }
     });
     
+    $('#threedee').change(function(e) {
+      if ($(e.target).is(":checked")) {
+        bb.anaglyphEffect();
+      } else {
+        bb.noEffect();
+      }
+    });
+    
     $("#clear_color").change(function(e){
 		  var color_name = $(e.target).val();
 		  bb.updateClearColorFromName(color_name);

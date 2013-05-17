@@ -14,3 +14,4 @@ braincanvas.erb
 braincloud.erb
 development/public/models/*.obj
 development/public/models/*.mtl
+development/public/models/*.asc

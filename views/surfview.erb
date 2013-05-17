@@ -32,7 +32,9 @@
           <select  id="obj_file_format" name="format">
             <option value="mni">MNI OBJ</option>
             <option value="wavefront">Wavefront OBJ</option>
+            <option value="freesurfer">Freesurfer ASC</option>
           </select><br>
+          <div id="format_hints"></div>
           <div id="obj_file_submit_div">
             <span id="obj_file_submit" class="button">Load</span><br>
           </div>
@@ -137,6 +139,7 @@
 	    <script type="text/javascript" src="/js/spectrum.js"></script> 
 	    <script type="text/javascript" src="/js/mniobj.js"></script> 
 	    <script type="text/javascript" src="/js/wavefront_obj.js"></script>
+	    <script type="text/javascript" src="/js/freesurfer_asc.js"></script>
 	    <script type="text/javascript" src="/js/brainbrowser.js"></script> 
 	    <script type="text/javascript" src="/js/surfview.js"></script> 
 	    <script type="text/javascript" src="/js/jquery-ui-1.8.10.custom.min.js"></script>
@@ -185,6 +188,15 @@
         
         return false;
       }
+      
+      $("#obj_file_format").change(function () {
+        var format = $("#obj_file_format").closest("#obj_file_select").find("#obj_file_format option:selected").val();
+        if (format === "freesurfer") {
+          $("#format_hints").html('You can use <a href="http://surfer.nmr.mgh.harvard.edu/fswiki/mris_convert" target="_blank">mris_convert</a> to convert your binary surface files into .asc format.');
+        } else {
+          $("#format_hints").html("");
+        }
+      });
       
       $("#obj_file_submit").click(loadFile);
       

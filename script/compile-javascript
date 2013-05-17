@@ -5,10 +5,10 @@ APP_ROOT=`pwd`
 COMPRESSOR="java -jar $APP_ROOT/script/yuicompressor-2.4.7.jar"
 
 cd $APP_ROOT/development/public/js
-cat data.js utils.js color.js spectrum.js wavefront_obj.js mniobj.js brainbrowser.js surfview.js > /tmp/surface-combined.js
+cat data.js utils.js color.js spectrum.js wavefront_obj.js freesurfer_asc.js mniobj.js brainbrowser.js surfview.js > /tmp/surface-combined.js
 $COMPRESSOR /tmp/surface-combined.js -o $APP_ROOT/production/public/js/surfview-combined.min.js
 rm /tmp/surface-combined.js
-cat utils.js wavefront_obj.js mniobj.js color.js spectrum.js data.js dataset.js brainbrowser.js macacc_collection.js macacc.js > /tmp/macacc-combined.js
+cat utils.js mniobj.js color.js spectrum.js data.js dataset.js brainbrowser.js macacc_collection.js macacc.js > /tmp/macacc-combined.js
 $COMPRESSOR /tmp/macacc-combined.js -o $APP_ROOT/production/public/js/macacc-combined.min.js
 rm /tmp/macacc-combined.js
 cat utils.js minc.js color.js spectrum.js loader.js braincanvas.js > /tmp/html5-minc-viewer.js

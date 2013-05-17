@@ -28,8 +28,6 @@ function BrainBrowser() {
                    // refer to original object. Also for local functions "this" is not available 
                    // but "that" is and can be used for special helper methods. 
   
-  //add object management functions from object.js file to brainbrowser 
-  //bbObject(this); 
   
   var colorManager = new ColorManager();
   var view_window; //canvas element
@@ -584,7 +582,6 @@ function BrainBrowser() {
         that.superiorView();
         break;
       }
-
     }
 
     /*
@@ -963,10 +960,15 @@ function BrainBrowser() {
 			//last part of path will be shape name
 			var filename = parts[parts.length-1];
       var obj;
-      if (options.format === "wavefront") {
-        obj = new WavefrontObj(result);
-      } else {
-        obj = new MNIObject(result);
+      switch (options.format) {
+        case "wavefront":
+          obj = new WavefrontObj(result);
+          break;
+        case "freesurfer":
+          obj = new FreeSurferAsc(result);
+          break;
+        default:
+          obj = new MNIObject(result);
       }
       if (obj.objectClass !== "__FAIL__") {
         that.displayObjectFile(obj, filename, options);

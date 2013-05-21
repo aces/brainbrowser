@@ -56,7 +56,7 @@ function MNIObject(string) {
     parseEndIndices();
     parseIndexArray();    
  
-     //If there is two hemispheres, might need to be a better test one day
+    //If there is two hemispheres, might need to be a better test one day
     if(that.objectClass == 'P' ) {
       if(that.positionArray.length ==  81924*3){
 	      that.brainSurface = true;
@@ -139,7 +139,6 @@ function MNIObject(string) {
   function parseIndexArray() {
     that.indexArray = new Array();
     var numberIndex = stack.length;
-    //alert("Stack length " + stack.length + " END: " + stack[0] + "END-1 : " + stack[1]);
     for(var i=0; i<numberIndex;i++) {
       that.indexArray.push(parseInt(stack.pop()));
     }

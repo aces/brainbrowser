@@ -8,8 +8,9 @@ function FreeSurferAsc(data) {
   var vertexCount;
   var faceCount;
   var line;
-  var face;
+  var face, shape;
   var numberOfShapes;
+  var i, l;
   
   data = data.split('\n');
   obj.shapes = [];
@@ -20,14 +21,14 @@ function FreeSurferAsc(data) {
   vertexCount = parseInt(counts[0], 10);
   faceCount = parseInt(counts[1], 10);
   
-  for (var i = 2; i < vertexCount + 2; i++) {
+  for (i = 2; i < vertexCount + 2; i++) {
     line = data[i].split(/\s+/);
     vertexArray.push(parseFloat(line[0]));
     vertexArray.push(parseFloat(line[1]));
     vertexArray.push(parseFloat(line[2]));
   }
   
-  for (var i = vertexCount + 2; i < vertexCount + faceCount + 2; i++) {
+  for (i = vertexCount + 2; i < vertexCount + faceCount + 2; i++) {
     line = data[i].split(/\s+/);
     face = [];
     face.push(parseInt(line[0], 10));
@@ -37,8 +38,8 @@ function FreeSurferAsc(data) {
   }
   
   numberOfShapes = obj.shapes.length;
-  for(var l=0; l < numberOfShapes; l++){
-    var shape = obj.shapes[l];
+  for(l = 0; l < numberOfShapes; l++){
+    shape = obj.shapes[l];
     
     shape.positionArray = vertexArray;
     if (shape.colorArray.length == 0) {

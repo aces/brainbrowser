@@ -291,9 +291,9 @@ function BrainBrowser() {
     return lineObject;
   }
   
-  function addPolygonObject(obj,filename, renderDepth){
+  function addPolygonObject(obj, filename, renderDepth){
     that.model_data = obj;
-
+    
     if (that.model_data.shapes){
       for (var i = 0; i < that.model_data.shapes.length; i++){
 	      var shape = createPolygonShape(that.model_data.shapes[i]);

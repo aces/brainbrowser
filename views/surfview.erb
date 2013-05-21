@@ -147,78 +147,21 @@
 	  
     <script type="text/javascript">
       $(function() {
-        document.getElementById("view-window").onselectstart = function() {
-        return false;
-      };
-        
-      document.getElementById("view-window").onmousedown = function() {
-        return false;
-      };
-      $(".button").button();
-      $(".buttonset").buttonset();
-      $("#loading").show();
-      var surfview = new SurfView(function(bb) {
-		     bb.clearScreen();
-		     bb.loadObjFromUrl('/models/realct.obj', {
-  		     afterDisplay: function() {
-  		       bb.loadSpectrumFromUrl('/assets/spectral_spectrum.txt', {
-  		         afterLoadSpectrum: function() {
-  		           bb.loadDataFromUrl('/models/realct.txt','cortical thickness'); 
-  		         }
-  		       });
-  		       $("#loading").hide();
-  		     }
-  		   });
-      });
-      
-      function loadFile() {
-        var format = $("#obj_file_format").closest("#obj_file_select").find("#obj_file_format option:selected").val();
-        surfview.brainbrowser.loadObjFromFile(document.getElementById("objfile"), { 
-          format: format, 
-          beforeLoad: function() {
-            $("#loading").show();
-          }, 
-          afterDisplay: function() {
-            $("#loading").hide();
-          },
-          onError: function() {
-            $("#loading").hide();
-          }
+        $("#loading").show();
+        surfview.init(function(bb) {
+          bb.clearScreen();
+          bb.loadObjFromUrl('/models/realct.obj', {
+            afterDisplay: function() {
+              bb.loadSpectrumFromUrl('/assets/spectral_spectrum.txt', {
+                afterLoadSpectrum: function() {
+                  bb.loadDataFromUrl('/models/realct.txt','cortical thickness'); 
+                }
+              });
+              $("#loading").hide();
+            }
+          });
         });
-        
-        return false;
-      }
-      
-      $("#obj_file_format").change(function () {
-        var format = $("#obj_file_format").closest("#obj_file_select").find("#obj_file_format option:selected").val();
-        if (format === "freesurfer") {
-          $("#format_hints").html('You can use <a href="http://surfer.nmr.mgh.harvard.edu/fswiki/mris_convert" target="_blank">mris_convert</a> to convert your binary surface files into .asc format.');
-        } else {
-          $("#format_hints").html("");
-        }
       });
-      
-      $("#obj_file_submit").click(loadFile);
-      
-      jQuery("#datafile").change(function() {
-        surfview.brainbrowser.loadDataFromFile(document.getElementById("datafile"));
-      });
-
-      jQuery("#spectrum").change(function() {
-        surfview.brainbrowser.loadSpectrumFromFile(document.getElementById("spectrum"));
-      });
-
-
-      jQuery("#dataseriesfile").change(function() {
-        surfview.brainbrowser.loadSeriesDataFromFile(document.getElementById("dataseriesfile"));
-      });
-
-      jQuery("#datablendfile").change(function() {
-        surfview.brainbrowser.loadBlendDataFromFile(document.getElementById("datablendfile"));
-      });
-
-
-    });
     </script>
   </body>  
 </html>  

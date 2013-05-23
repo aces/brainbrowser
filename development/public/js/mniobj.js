@@ -29,26 +29,29 @@ function MNIObject(string) {
   var that = this;
 
   function parse(string) {
-    that.num_hemispheres = 1; //setting it to one here by default,
-                              //it will be set to two later if there are two hemispheres
     //replacing all new lines with spaces (obj files can be structure with or without them)
     //get all the fields as seperate strings.
     var string1 = string.replace(/\s+$/, '');
     var string2 = string1.replace(/^\s+/, '');
+    
+    //setting it to one here by default,
+    //it will be set to two later if there are two hemispheres
+    that.num_hemispheres = 1; 
+  
     stack = string2.split(/\s+/).reverse();
     that.objectClass = stack.pop();
-    if( that.objectClass == 'P') {
+    if( that.objectClass === 'P') {
       parseSurfProp();
       that.numberVertices = parseInt(stack.pop());
       parsePositionArray();
       parseNormalArray();
       that.nitems = parseInt(stack.pop());
-    }else if (that.objectClass == 'L') {
+    } else if (that.objectClass === 'L') {
       parseSurfProp();
       that.numberVertices = parseInt(stack.pop());
       parsePositionArray();
       that.nitems = parseInt(stack.pop());
-    }else { 
+    } else { 
       that.objectClass = "__FAIL__"
       return;
     }
@@ -57,8 +60,8 @@ function MNIObject(string) {
     parseIndexArray();    
  
     //If there is two hemispheres, might need to be a better test one day
-    if(that.objectClass == 'P' ) {
-      if(that.positionArray.length ==  81924*3){
+    if (that.objectClass == 'P' ) {
+      if (that.positionArray.length ==  81924*3){
 	      that.brainSurface = true;
 	      that.split_hemispheres();
       }
@@ -68,7 +71,7 @@ function MNIObject(string) {
   };
 
   function parseSurfProp() {
-    if(that.objectClass == 'P') {
+    if (that.objectClass == 'P') {
       that.surfaceProperties = {
 	      ambient: parseFloat(stack.pop()),
 	      diffuse: parseFloat(stack.pop()),
@@ -76,7 +79,7 @@ function MNIObject(string) {
 	      specular_scattering: parseFloat(stack.pop()),
 	      transparency: parseFloat(stack.pop())
       };
-    }else if(that.objectClass == 'L') {
+    }else if (that.objectClass == 'L') {
       that.surfaceProperties = {
 	      width: stack.pop()
       };
@@ -84,64 +87,87 @@ function MNIObject(string) {
   }
 
   function parsePositionArray() {
-    that.positionArray = new Array();
-    for(var v=0; v < that.numberVertices; v++) {
-      for(var i=0; i<3;i++) {
-	      that.positionArray.push(parseFloat(stack.pop()));
+    var positionArray = [];
+    var numberVertices = that.numberVertices;
+    var v, i;
+    
+    for (v = 0; v < numberVertices; v++) {
+      for (i = 0; i < 3; i++) {
+	      positionArray.push(parseFloat(stack.pop()));
       }
     }
+    
+    that.positionArray = positionArray;
   }
 
 
   function parseNormalArray() {
-    //Normals for each vertex
-    that.normalArray = new Array();
-    for(var n=0; n < that.numberVertices; n++){
-      for(var i=0; i<3; i++) {
-        that.normalArray.push(parseFloat(stack.pop()));
+    var normalArray = [];
+    var numberVertices = that.numberVertices;
+    var n, i;
+    
+    for (n = 0; n < numberVertices; n++){
+      for (i = 0; i < 3; i++) {
+        normalArray.push(parseFloat(stack.pop()));
       }
     }
+    
+    that.normalArray = normalArray;
   }
 
   function parseColorArray() {
-    that.colorFlag = parseInt(stack.pop());
-    //alert('ColorFlag: ' + that.colorFlag);
-    that.colorArray = new Array();
-    if(that.colorFlag === 0) {
-      for(var i=0; i<4; i++){
-	      that.colorArray.push(parseFloat(stack.pop()));
+    var colorArray = [];
+    var colorFlag = parseInt(stack.pop(), 10);
+    var i, c, count;
+    
+    if (colorFlag === 0) {
+      for (i = 0; i < 4; i++){
+	      colorArray.push(parseFloat(stack.pop()));
       }
-    }else if(that.colorFlag === 1) {
-      for(var c=0;c < that.numberPolygons; c++){
-	      for(var i=0; i<4; i++){
-	        that.colorArray.push(parseFloat(stack.pop()));
+    } else if (colorFlag === 1) {
+      for (c = 0, count = that.numberPolygons; c < count; c++){
+	      for (i = 0; i<4; i++){
+	        colorArray.push(parseFloat(stack.pop()));
 	      }
       }
-    }else if(that.colorFlag === 2) {
-      for(var c=0;c < that.numberVertices; c++){
-	      for(var i=0; i<4; i++){
-	        that.colorArray.push(parseFloat(stack.pop()));
+    } else if (colorFlag === 2) {
+      for (c = 0, count = that.numberVertices; c < count; c++){
+	      for (i = 0; i < 4; i++){
+	        colorArray.push(parseFloat(stack.pop()));
 	      }
       }
-    }else {
+    } else {
       throw new Error("colorFlag not valid in that file");
     }
+    
+    that.colorFlag = colorFlag;
+    that.colorArray = colorArray;
   }
 
   function parseEndIndices() {
-    that.endIndicesArray = new Array();
-    for(var p=0; p < that.nitems;p++){
-      that.endIndicesArray.push(parseInt(stack.pop()));
+    var nitems = that.nitems;
+    var endIndicesArray = that.endIndicesArray;
+    var endIndicesArray = [];
+    var p, count;   
+    
+    for(p = 0, count = that.nitems; p < count; p++){
+      endIndicesArray.push(parseInt(stack.pop(), 10));
     }
-
+    
+    that.endIndicesArray = endIndicesArray;
   }
 
   function parseIndexArray() {
-    that.indexArray = new Array();
     var numberIndex = stack.length;
-    for(var i=0; i<numberIndex;i++) {
-      that.indexArray.push(parseInt(stack.pop()));
+    var indexArray = [];
+    var index;
+    var i, count;
+    
+    for (i = 0, count = stack.length; i < numberIndex; i++) {
+      index = parseInt(stack.pop(), 10);
+      indexArray.push(index);
     }
+    that.indexArray = indexArray;
   }
 
   /*
@@ -150,47 +176,56 @@ function MNIObject(string) {
    *
    */
   that.split_hemispheres = function() {
+    var left = {};
+    var right = {};
+    var right_index_array;
+    var adjusted_num_indices;
+    var num_vertices, num_indices, num_normals, num_colors;
+    var i, count;
 
-    that.left = {};
-    that.right = {};
+    num_vertices = that.positionArray.length;
+    left.positionArray = that.positionArray.slice(0, num_vertices/2);			
+    right.positionArray = that.positionArray.slice(num_vertices/2, num_vertices);
 
-    var num_vertices = that.positionArray.length;
-    that.left.positionArray = that.positionArray.slice(0,num_vertices/2);			that.right.positionArray = that.positionArray.slice(num_vertices/2, num_vertices);
+    num_indices = that.indexArray.length;
+    left.indexArray = that.indexArray.slice(0, num_indices/2);
+    right.indexArray = that.indexArray.slice(num_indices/2, num_indices);
 
-    var num_indices = that.indexArray.length;
-    that.left.indexArray = that.indexArray.slice(0,num_indices/2);
-    that.right.indexArray = that.indexArray.slice(num_indices/2, num_indices);
-
-    for(var i = 0; i < that.right.indexArray.length; i++) {
-      that.right.indexArray[i] = that.right.indexArray[i]- 2 - num_indices/3/2/2;
+    right_index_array = right.indexArray;
+    adjusted_num_indices = num_indices/3/2/2;
+    
+    for (i = 0, count = right_index_array.length; i < count; i++) {
+      right_index_array[i] = right_index_array[i] - 2 - adjusted_num_indices;
     }
-    var num_normals = that.normalArray.length;
-    that.left.normalArray = that.normalArray.slice(0,num_normals/2);
-    that.right.normalArray = that.normalArray.slice(num_normals/2, num_normals);
+    
+    num_normals = that.normalArray.length;
+    left.normalArray = that.normalArray.slice(0, num_normals/2);
+    right.normalArray = that.normalArray.slice(num_normals/2, num_normals);
 
 
-    that.left.colorFlag = that.colorFlag;
-    that.right.colorFlag = that.colorFlag;
+    left.colorFlag = that.colorFlag;
+    right.colorFlag = that.colorFlag;
 
 
-    if(that.colorFlag == 0 || that.colorFlag == 1) {
-
-      that.left.colorArray = that.colorArray;
-      that.right.colorArray = that.colorArray;
-
+    if(that.colorFlag === 0 || that.colorFlag === 1) {
+      left.colorArray = that.colorArray;
+      right.colorArray = that.colorArray;
     }else {
-      var num_colors = that.colorArray.length;
-      that.left.colorArray = that.colorArray.slice(0,num_colors/2);
-      that.right.colorArray = that.colorArray.slice(num_colors/2+1,-1);
+      num_colors = that.colorArray.length;
+      left.colorArray = that.colorArray.slice(0, num_colors/2);
+      right.colorArray = that.colorArray.slice(num_colors/2+1, -1);
     };
 
-    that.left.numberVertices = that.numberVertices/2;
-    that.right.numberVertices = that.numberVertices/2;
-
-    that.left.numberPolygons = that.numberPolygons/2;
-    that.right.numberPolygons = that.numberPolygons/2;
+    left.numberVertices = that.numberVertices/2;
+    right.numberVertices = that.numberVertices/2;
+    
+    left.numberPolygons = that.numberPolygons/2;
+    right.numberPolygons = that.numberPolygons/2;
 
     that.num_hemispheres = 2;
+
+    that.left = left;
+    that.right = right;
 
   };
 
@@ -203,57 +238,8 @@ function MNIObject(string) {
     ];
     return { vertex: vertex, position_vector: position_vector};
   };
-
-  that.get_vertex = function(index,position,hemisphere) {
-
-    if(that.num_hemispheres > 1 ) {
-      var model = that[hemisphere];
-      var offset = 0;
-      if(hemisphere == "right") {
-	      offset = 2 + model.indexArray.length/3/2; //Since the index is offset when splitting the hemispheres, we have to make it right again to find the correct one.
-      }
-    }else {
-      var model = that;
-      var offset = 0;
-    }
-
-
-
-
-    var triangle = new Array();
-    var start_index = index*3;
-    for(var i=0; i<3; i++) {
-      triangle.push(model.indexArray[start_index+i]);
-    }
-    var vertices = new Array();
-    for(var i=0; i<3; i++) {
-      var start_pos = triangle[i]*3;
-      vertices[i] = new Array();
-      for(var k=0;k<3;k++){
-	      vertices[i][k] = model.positionArray[start_pos+k];
-      }
-    }
-    var distances = new Array();
-    for(var i=0; i<3; i++) {
-      distances.push(o3djs.math.distance(position,vertices[i]));
-    }
-    var closest = 0;
-    if(distances[1] < distances[0]) {
-      closest = 1;
-    }
-    if(distances[2] < distances[closest]) {
-      closest = 2;
-    }
-    var vertex = triangle[closest] + offset;
-    var position_vector = vertices[closest];
-    return {vertex: vertex, position_vector: position_vector};
-
-
-  };
-
+ 
   if(string){
     parse(string);
   };
-
-
 };

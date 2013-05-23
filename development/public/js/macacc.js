@@ -15,36 +15,31 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var brainbrowser;
-var macacc;
-function initMacacc(path_prefix,dont_build_path) {
 
-  brainbrowser = new BrainBrowser();
+function initMacacc(path_prefix, dont_build_path) {
+  var macacc;
+  
+  BrainBrowser(function(bb) {
+    bb.getViewParams = function() {
+      return {
+        view: jQuery('[name=hem_view]:checked').val(),
+        left: jQuery('#left_hem_visible').is(":checked"),
+        right: jQuery('#right_hem_visible').is(":checked")
+      };
 
-  brainbrowser.getViewParams = function() {
-    return {
-      view: jQuery('[name=hem_view]:checked').val(),
-      left: jQuery('#left_hem_visible').is(":checked"),
-      right: jQuery('#right_hem_visible').is(":checked")
     };
 
-  };
-
-  brainbrowser.afterLoadSpectrum = function (spectrum) {
-    var canvas = spectrum.createSpectrumCanvasWithScale(0,5,null,false);
-    jQuery("#spectrum").html(jQuery(canvas));
-    brainbrowser.spectrumObj = spectrum;
-  };
-
-
-
-
-  brainbrowser.afterInit = function(bb) {
+    bb.afterLoadSpectrum = function (spectrum) {
+      var canvas = spectrum.createSpectrumCanvasWithScale(0,5,null,false);
+      jQuery("#spectrum").html(jQuery(canvas));
+      bb.spectrumObj = spectrum;
+    };
+    
     bb.loadObjFromUrl('/models/surf_reg_model_both.obj', { 
       afterDisplay: function() {
         $("#loading").hide();
         macacc = new MacaccObject(bb, path_prefix, dont_build_path);
-        brainbrowser.afterCreateBrain = function() {
+        bb.afterCreateBrain = function() {
           if(bb.current_dataset != undefined) {
             macacc.update_model(bb.current_dataset);
           }
@@ -158,11 +153,11 @@ function initMacacc(path_prefix,dont_build_path) {
     });
 
     jQuery("#flip_range").change(function(e) {
-      macacc.update_model(brainbrowser.current_dataset);
+      macacc.update_model(bb.current_dataset);
     });
     
     jQuery("#clamp_range").change(function(e) {
-      macacc.update_model(brainbrowser.current_dataset);
+      macacc.update_model(bb.current_dataset);
     });
     
 
@@ -175,39 +170,39 @@ function initMacacc(path_prefix,dont_build_path) {
       
       jQuery("#flip_range").attr("checked", !jQuery("#flip_range").attr("checked")).change();
     });
+    
+    jQuery('#resetview').click(bb.setupView);
 
-  };
-  
-  jQuery('#resetview').click(brainbrowser.setupView);
+    jQuery('.view_button').change(bb.setupView);
+    jQuery('[name=hem_view]').change(bb.setupView);
+    jQuery(".button").button();
+    jQuery(".button_set").buttonset();
 
-  jQuery('.view_button').change(brainbrowser.setupView);
-  jQuery('[name=hem_view]').change(brainbrowser.setupView);
-  jQuery(".button").button();
-  jQuery(".button_set").buttonset();
+    jQuery("#secondWindow").click(function(e){
+      bb.secondWindow=window.open('/macacc.html','secondWindow');
+    });
 
-  jQuery("#secondWindow").click(function(e){
-    brainbrowser.secondWindow=window.open('/macacc.html','secondWindow');
+    window.addEventListener('message', function(e){
+
+      var vertex = parseInt(e.data);
+      var position_vector = [
+       bb.model_data.positionArray[vertex*3],
+       bb.model_data.positionArray[vertex*3+1],
+       bb.model_data.positionArray[vertex*3+2]
+      ];
+
+      macacc.pickClick(e,{
+             position_vector: position_vector,
+             vertex: vertex,
+             stop: true //tell pickClick to stop propagating the 
+                                    //click such that we don't get an infinite loop.
+             ,
+           });
+
+      },false);
+    if(window.opener !=null)  {
+      bb.secondWindow = window.opener;
+    }
   });
- 
-  window.addEventListener('message', function(e){
-   
-    var vertex = parseInt(e.data);
-    var position_vector = [
-     brainbrowser.model_data.positionArray[vertex*3],
-     brainbrowser.model_data.positionArray[vertex*3+1],
-     brainbrowser.model_data.positionArray[vertex*3+2]
-    ];
-    
-    macacc.pickClick(e,{
-           position_vector: position_vector,
-           vertex: vertex,
-           stop: true //tell pickClick to stop propagating the 
-                                  //click such that we don't get an infinite loop.
-           ,
-         });
-    
-    },false);
-  if(window.opener !=null)  {
-    brainbrowser.secondWindow = window.opener;
-  }
+  
 };

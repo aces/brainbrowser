@@ -17,8 +17,6 @@
 
 
 var surfview = (function() {
-  var that = this;
-  var brainbrowser = new BrainBrowser();
   
   function init(model_url) {
     var view_window = document.getElementById("view-window");
@@ -34,71 +32,70 @@ var surfview = (function() {
     $(".button").button();
     $(".buttonset").buttonset();
     
-    brainbrowser.getViewParams = function() {
-      return {
-        view: $('[name=hem_view]:checked').val(),
-        left: $('#left_hem_visible').is(":checked"),
-        right: $('#right_hem_visible').is(":checked")
+    BrainBrowser(function(bb) {
+      bb.getViewParams = function() {
+        return {
+          view: $('[name=hem_view]:checked').val(),
+          left: $('#left_hem_visible').is(":checked"),
+          right: $('#right_hem_visible').is(":checked")
+        };
+
       };
 
-    };
-
-    brainbrowser.afterLoadSpectrum = function (spectrum) {
-      var canvas = spectrum.createSpectrumCanvasWithScale(0,100,null);
-      canvas.id = "spectrum_canvas";
-      var spectrum_div = document.getElementById("color_bar");
-      if(!spectrum_div){
-        jQuery("<div id=\"color_bar\"></div>").html(canvas).appendTo("#data-range");      
-      }else {
-        jQuery(spectrum_div).html(canvas);
-      }
+      bb.afterLoadSpectrum = function (spectrum) {
+        var canvas = spectrum.createSpectrumCanvasWithScale(0,100,null);
+        canvas.id = "spectrum_canvas";
+        var spectrum_div = document.getElementById("color_bar");
+        if(!spectrum_div){
+          jQuery("<div id=\"color_bar\"></div>").html(canvas).appendTo("#data-range");      
+        }else {
+          jQuery(spectrum_div).html(canvas);
+        }
 
 
-      brainbrowser.spectrumObj = spectrum;
-    };
+        bb.spectrumObj = spectrum;
+      };
 
-    brainbrowser.afterDisplayObject = function(object) {
-      var shape;
-      var i;
-      
-      $("#shapes").html("");
-      if(object.children.length > 0 ) {
-  	    for(i = 0; i < object.children.length; i++) {
-  	      shape = object.children[i];
-  	      $("<div id=\"shape_"+i+"\" data-shape-name=\""+shape.name+"\" class=\"shape\">"
-  	        +"<h4>Shape "+ (i + 1) +"</h4>"
-  	        +"Name: " +shape.name + "<br />" 
-  	        + "Opacity: <div class=\"opacity-slider slider\"  data-shape-name="+shape.name+"></div>"
-  	        +"</div>").appendTo("#shapes");
-  	    }
-      }
+      bb.afterDisplayObject = function(object) {
+        var shape;
+        var i;
 
-
-      brainbrowser.afterClearScreen = function() {
         $("#shapes").html("");
+        if(object.children.length > 0 ) {
+    	    for(i = 0; i < object.children.length; i++) {
+    	      shape = object.children[i];
+    	      $("<div id=\"shape_"+i+"\" data-shape-name=\""+shape.name+"\" class=\"shape\">"
+    	        +"<h4>Shape "+ (i + 1) +"</h4>"
+    	        +"Name: " +shape.name + "<br />" 
+    	        + "Opacity: <div class=\"opacity-slider slider\"  data-shape-name="+shape.name+"></div>"
+    	        +"</div>").appendTo("#shapes");
+    	    }
+        }
+
+
+        bb.afterClearScreen = function() {
+          $("#shapes").html("");
+        };
+
+        $(".opacity-slider").slider({
+    	    value: 100,
+    	    min: -1,
+    	    max: 101,
+    	    slide: function(event, ui) {
+    	      var shape_name = $(event.target).attr('data-shape-name');
+    	      var alpha = $(event.target).slider('value');
+    	      alpha = Math.min(100, Math.max(0, alpha)) / 100.0;
+
+    	      bb.changeShapeTransparency(shape_name,alpha);
+    	    }
+    	  });
       };
 
-      $(".opacity-slider").slider({
-  	    value: 100,
-  	    min: -1,
-  	    max: 101,
-  	    slide: function(event, ui) {
-  	      var shape_name = $(event.target).attr('data-shape-name');
-  	      var alpha = $(event.target).slider('value');
-  	      alpha = Math.min(100, Math.max(0, alpha)) / 100.0;
-
-  	      brainbrowser.changeShapeTransparency(shape_name,alpha);
-  	    }
-  	  });
-    };
-
-    //Setups the view events and handlers
-    jQuery('#resetview').click(brainbrowser.setupView);
-    jQuery('.view_button').change(brainbrowser.setupView);
-    jQuery('[name=hem_view]').change(brainbrowser.setupView);
-
-
-    brainbrowser.afterInit = function(bb) {
+      //Setups the view events and handlers
+      $('#resetview').click(bb.setupView);
+      $('.view_button').change(bb.setupView);
+      $('[name=hem_view]').change(bb.setupView);
+      
       //setting up some defaults 
       bb.clamped = true; //By default clamp range. 
       bb.flip = false;
@@ -226,7 +223,7 @@ var surfview = (function() {
 
         jQuery("#flip_range").change(function(e) {
           bb.flip = $(e.target).is(":checked");
-          bb.updateColors(bb.model_data.data,bb.model_data.data.rangeMin,bb.model_data.data.rangeMax,brainbrowser.spectrum,bb.flip,bb.clamped);
+          bb.updateColors(bb.model_data.data,bb.model_data.data.rangeMin,bb.model_data.data.rangeMax,bb.spectrum,bb.flip,bb.clamped);
 
         });
 
@@ -262,13 +259,13 @@ var surfview = (function() {
       });
 
       jQuery('#clearshapes').click(function(e) {
-    	  brainbrowser.clearScreen();
+    	  bb.clearScreen();
     	});
 
 
 
       jQuery("#openImage").click(function(e){
-    	  brainbrowser.getImageUrl();
+    	  bb.getImageUrl();
     	});
 
 
@@ -301,131 +298,129 @@ var surfview = (function() {
         
   			var name = $(e.target).attr('data-example-name');
   			switch(name) {
-  			case	'basic':
-  			  $("#loading").show();
-  			  bb.clearScreen();
-  			  bb.loadObjFromUrl('/models/surf_reg_model_both.obj', { 
-   			    afterDisplay: function() {
-   			      $("#loading").hide();
-   			    }
-   			  });
-  			  break;
-  			case 'punkdti':
-  			  $("#loading").show();
-  			  bb.clearScreen();
-  			  bb.loadObjFromUrl('/models/dti.obj', { 
-  			    renderDepth: 999,
-  			    afterDisplay: function() {
-  			      $("#loading").hide();
-  			    }
-  			  });
-     		  bb.loadObjFromUrl('/models/left_color.obj');
-     		  bb.loadObjFromUrl('/models/right_color.obj');
-  			  break;
-  			case 'realct':
-  			  $("#loading").show();
-  			  bb.clearScreen();
-  			  bb.loadObjFromUrl('/models/realct.obj', {
-      	    afterDisplay: function() {
-      	      bb.loadDataFromUrl('/models/realct.txt','cortical thickness'); 
-      	      $("#loading").hide();
-      	    }
-      	  });    
-  			  break;
-        case 'car':
-          $("#loading").show();
-  			  bb.clearScreen();
-  			  bb.loadWavefrontObjFromUrl('/models/car.obj', {
-       	    afterDisplay: function() {
-       	      $("#loading").hide();
-       	    }
-       	  });
-       	  bb.setCamera(0, 0, 100);			     
+    			case	'basic':
+    			  $("#loading").show();
+    			  bb.clearScreen();
+    			  bb.loadObjFromUrl('/models/surf_reg_model_both.obj', { 
+     			    afterDisplay: function() {
+     			      $("#loading").hide();
+     			    }
+     			  });
+    			  break;
+    			case 'punkdti':
+    			  $("#loading").show();
+    			  bb.clearScreen();
+    			  bb.loadObjFromUrl('/models/dti.obj', { 
+    			    renderDepth: 999,
+    			    afterDisplay: function() {
+    			      $("#loading").hide();
+    			    }
+    			  });
+       		  bb.loadObjFromUrl('/models/left_color.obj');
+       		  bb.loadObjFromUrl('/models/right_color.obj');
+    			  break;
+    			case 'realct':
+    			  $("#loading").show();
+    			  bb.clearScreen();
+    			  bb.loadObjFromUrl('/models/realct.obj', {
+        	    afterDisplay: function() {
+        	      bb.loadDataFromUrl('/models/realct.txt','cortical thickness'); 
+        	      $("#loading").hide();
+        	    }
+        	  });    
+    			  break;
+          case 'car':
+            $("#loading").show();
+    			  bb.clearScreen();
+    			  bb.loadWavefrontObjFromUrl('/models/car.obj', {
+         	    afterDisplay: function() {
+         	      $("#loading").hide();
+         	    }
+         	  });
+         	  bb.setCamera(0, 0, 100);			     
         
-    		  var matrixRotX = new THREE.Matrix4();
-          matrixRotX.makeRotationX(-0.25 * Math.PI)
-          var matrixRotY = new THREE.Matrix4();
-          matrixRotY.makeRotationY(0.4 * Math.PI)
+      		  var matrixRotX = new THREE.Matrix4();
+            matrixRotX.makeRotationX(-0.25 * Math.PI)
+            var matrixRotY = new THREE.Matrix4();
+            matrixRotY.makeRotationY(0.4 * Math.PI)
         
-          bb.getModel().applyMatrix(matrixRotY.multiply(matrixRotX));
-  			  break;
-  			case 'plane':
-  			  $("#loading").show();
-  			  bb.clearScreen();
-  			  bb.loadObjFromUrl('/models/dlr_bigger.streamlines.obj');
-  			  bb.loadObjFromUrl('/models/dlr.model.obj', {
-       	    afterDisplay: function() {
-       	      $("#loading").hide();
-       	    }
-       	  });
-       	  bb.setCamera(0, 0, 75);
+            bb.getModel().applyMatrix(matrixRotY.multiply(matrixRotX));
+    			  break;
+    			case 'plane':
+    			  $("#loading").show();
+    			  bb.clearScreen();
+    			  bb.loadObjFromUrl('/models/dlr_bigger.streamlines.obj');
+    			  bb.loadObjFromUrl('/models/dlr.model.obj', {
+         	    afterDisplay: function() {
+         	      $("#loading").hide();
+         	    }
+         	  });
+         	  bb.setCamera(0, 0, 75);
         
-          var matrix = new THREE.Matrix4();
-          var matrixRotX = new THREE.Matrix4();
-          matrixRotX.makeRotationX(-0.25 * Math.PI)
-          var matrixRotY = new THREE.Matrix4();
-          matrixRotY.makeRotationY(0.4 * Math.PI)
+            var matrix = new THREE.Matrix4();
+            var matrixRotX = new THREE.Matrix4();
+            matrixRotX.makeRotationX(-0.25 * Math.PI)
+            var matrixRotY = new THREE.Matrix4();
+            matrixRotY.makeRotationY(0.4 * Math.PI)
         
-          matrix.multiplyMatrices(matrixRotY, matrixRotX);
+            matrix.multiplyMatrices(matrixRotY, matrixRotX);
         
-          bb.getModel().applyMatrix(matrix);
+            bb.getModel().applyMatrix(matrix);
   			}
         
   			return false; 
         
   	  });
-    };
-    
-    $("#obj_file_format").change(function () {
-      var format = $("#obj_file_format").closest("#obj_file_select").find("#obj_file_format option:selected").val();
-      if (format === "freesurfer") {
-        $("#format_hints").html('You can use <a href="http://surfer.nmr.mgh.harvard.edu/fswiki/mris_convert" target="_blank">mris_convert</a> to convert your binary surface files into .asc format.');
-      } else {
-        $("#format_hints").html("");
-      }
+  	  
+  	  $("#obj_file_format").change(function () {
+        var format = $("#obj_file_format").closest("#obj_file_select").find("#obj_file_format option:selected").val();
+        if (format === "freesurfer") {
+          $("#format_hints").html('You can use <a href="http://surfer.nmr.mgh.harvard.edu/fswiki/mris_convert" target="_blank">mris_convert</a> to convert your binary surface files into .asc format.');
+        } else {
+          $("#format_hints").html("");
+        }
+      });
+      
+      $("#obj_file_submit").click(function () {
+        var format = $("#obj_file_format").closest("#obj_file_select").find("#obj_file_format option:selected").val();
+        bb.loadObjFromFile(document.getElementById("objfile"), { 
+          format: format, 
+          beforeLoad: function() {
+            $("#loading").show();
+          }, 
+          afterDisplay: function() {
+            $("#loading").hide();
+          },
+          onError: function() {
+            $("#loading").hide();
+          }
+        });
+
+        return false;
+      });
+      
+      $("#datafile").change(function() {
+        bb.loadDataFromFile(document.getElementById("datafile"));
+      });
+      
+      $("#spectrum").change(function() {
+        bb.loadSpectrumFromFile(document.getElementById("spectrum"));
+      });
+      
+      
+      $("#dataseriesfile").change(function() {
+        bb.loadSeriesDataFromFile(document.getElementById("dataseriesfile"));
+      });
+      
+      $("#datablendfile").change(function() {
+        bb.loadBlendDataFromFile(document.getElementById("datablendfile"));
+      });
     });
-
-    $("#obj_file_submit").click(loadFile);
-
-    jQuery("#datafile").change(function() {
-      brainbrowser.loadDataFromFile(document.getElementById("datafile"));
-    });
-
-    jQuery("#spectrum").change(function() {
-      brainbrowser.loadSpectrumFromFile(document.getElementById("spectrum"));
-    });
-
-
-    jQuery("#dataseriesfile").change(function() {
-      brainbrowser.loadSeriesDataFromFile(document.getElementById("dataseriesfile"));
-    });
-
-    jQuery("#datablendfile").change(function() {
-      brainbrowser.loadBlendDataFromFile(document.getElementById("datablendfile"));
-    });
-  }
-  
-  function loadFile() {
-    var format = $("#obj_file_format").closest("#obj_file_select").find("#obj_file_format option:selected").val();
-    surfview.brainbrowser.loadObjFromFile(document.getElementById("objfile"), { 
-      format: format, 
-      beforeLoad: function() {
-        $("#loading").show();
-      }, 
-      afterDisplay: function() {
-        $("#loading").hide();
-      },
-      onError: function() {
-        $("#loading").hide();
-      }
-    });
-
-    return false;
+   
   }
     
   return {
     init: init,
-    brainbrowser: brainbrowser
   };  
 })();
 

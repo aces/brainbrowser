@@ -23,11 +23,15 @@
  * @constructor
  *  
  */
-function BrainBrowser() {
+function BrainBrowser(callback) {
+  
+  if(!(this instanceof BrainBrowser)) {
+    return new BrainBrowser(callback);
+  }
+  
   var that = this; //Brainbrowser object. Makes sure that if "this" is remapped then we can still
                    // refer to original object. Also for local functions "this" is not available 
                    // but "that" is and can be used for special helper methods. 
-  
   
   var colorManager = new ColorManager();
   var view_window; //canvas element
@@ -42,14 +46,6 @@ function BrainBrowser() {
   var last_frame;
   var effect;
   var anaglyphEffect;
-  
-  this.start = function() {
-    window.onload = function() {
-      setTimeout(function(){
-        that.init();
-      }, 0);
-    };
-  }
   
   this.init = function() {
     
@@ -87,25 +83,46 @@ function BrainBrowser() {
     camera_controls.zoomSpeed = 2;                 
     light_controls.zoomSpeed = 2;
     
-    function render(timestamp) {
-    	requestAnimationFrame(render);
-      
-      last_frame = current_frame || timestamp;
-      current_frame = timestamp;
-      
-      camera_controls.update();
-      light_controls.update();
-      that.renderCallback(timestamp);
-    }
-    
-    if(that.afterInit) {
-      that.afterInit(that); 
-    }
+    window.onresize = function() {
+      effect.setSize(view_window.width(), view_window.height());
+      camera.aspect = view_window.width()/view_window.height();
+      camera.updateProjectionMatrix();
+    };
     
     window.onresize();      
     
     render();
   };
+  
+  function render(timestamp) {
+    var delta;
+    var rotation;
+    
+  	requestAnimationFrame(render);
+    
+    last_frame = current_frame || timestamp;
+    current_frame = timestamp;
+    
+    camera_controls.update();
+    light_controls.update();
+    delta = current_frame - last_frame;
+    rotation = delta * 0.00015;
+
+    if(that.autoRotate) {
+
+      if(that.autoRotate.x){
+	       brain.rotation.x += rotation;
+      }
+      if(that.autoRotate.y){
+        brain.rotation.y += rotation;
+      }
+      if(that.autoRotate.z){
+	      brain.rotation.z += rotation;
+      }
+
+    }
+    effect.render(scene, camera);
+  }
   
   /*! 
    * WebGL test taken from Detector.js by
@@ -121,12 +138,13 @@ function BrainBrowser() {
   }
 
   function webGLErrorMessage() {
+    var el;
     var text = 'BrainBrowser requires <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">WebGL</a>.<br/>';
     text += window.WebGLRenderingContext ? 'Your browser seems to support it, but it is <br/> disabled or unavailable.<br/>' : 
             "Your browser does not seem to support it.<br/>";
 		text += 'Test your browser\'s WebGL support <a href="http://get.webgl.org/">here</a>.';
 		
-    var el = $('<div id="webgl-error">' + text + '</div>');
+    el = $('<div id="webgl-error">' + text + '</div>');
         
     return el;
   }
@@ -148,11 +166,13 @@ function BrainBrowser() {
   }
   
   function addBrain(obj, renderDepth) {
+    var left, right;
+    
     that.model_data = obj;
-    var left = createHemisphere(obj.left);
+    left = createHemisphere(obj.left);
     left.name = "left";
     left.model_num = 0;
-    var right = createHemisphere(obj.right);
+    right = createHemisphere(obj.right);
     right.name = "right"
     right.model_num = 1;
     brain.add(left);
@@ -167,33 +187,37 @@ function BrainBrowser() {
     var bounding_box = {};
     var centroid = {};
     var face;
+    var i, count;
+    var geometry, vertices, faces, material, hemisphere;
     
     //Calculate center so positions of objects relative to each other can
     // defined (mainly for transparency).
-    for(var i = 0; i+2 < verts.length; i+=3) {
+    for(i = 0, count = verts.length; i + 2 < count; i += 3) {
       boundingBoxUpdate(bounding_box, verts[i], verts[i+1], verts[i+2]);
     }
     centroid.x = bounding_box.minX + 0.5 * (bounding_box.maxX - bounding_box.minX);
     centroid.y = bounding_box.minY + 0.5 * (bounding_box.maxY - bounding_box.minY);
     centroid.z = bounding_box.minY + 0.5 * (bounding_box.maxZ - bounding_box.minZ);
     
-    var geometry = new THREE.Geometry();
-    for(var i = 0; i+2 < verts.length; i+=3) {
-      geometry.vertices.push(new THREE.Vector3(verts[i]-centroid.x, verts[i+1]-centroid.y, verts[i+2]-centroid.z));
+    geometry = new THREE.Geometry();
+    vertices = geometry.vertices;
+    
+    for (i = 0, count = verts.length; i + 2 < count; i += 3) {
+      vertices.push(new THREE.Vector3(verts[i]-centroid.x, verts[i+1]-centroid.y, verts[i+2]-centroid.z));
     }
-    for(var i = 0; i+2 < ind.length; i+=3) {
+    
+    faces = geometry.faces;
+    for (i = 0, count = ind.length; i + 2 < count; i += 3) {
       face = new THREE.Face3(ind[i], ind[i+1], ind[i+2]);
-      face.vertexColors[0] = new THREE.Color();
-      face.vertexColors[1] = new THREE.Color();
-      face.vertexColors[2] = new THREE.Color();
-      geometry.faces.push(face);
+      face.vertexColors = [new THREE.Color(), new THREE.Color(), new THREE.Color()];
+      faces.push(face);
     }
     
     geometry.computeFaceNormals();
     geometry.computeVertexNormals();
     
-    var material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808, vertexColors: THREE.VertexColors});
-    var hemisphere = new THREE.Mesh(geometry, material);
+    material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808, vertexColors: THREE.VertexColors});
+    hemisphere = new THREE.Mesh(geometry, material);
     hemisphere.centroid = centroid;
     hemisphere.position.set(centroid.x, centroid.y, centroid.z);
     
@@ -203,7 +227,7 @@ function BrainBrowser() {
   function addLineObject(obj, filename, mesh, renderDepth) {
     var lineObject = createLineObject(obj, mesh);
     lineObject.name = filename; 
-    if(renderDepth) {
+    if (renderDepth) {
       lineObject.renderDepth = renderDepth;
     }
 
@@ -213,33 +237,46 @@ function BrainBrowser() {
   }
 
   function createLineObject(obj, mesh) {
-    that.model_data = obj;
-  
+    var model_data = obj;
     var indices = [];
     var verts = []; 
     var colors = [];
     var bounding_box = {};
     var centroid = {};
+    var i, j, k, count;
+    var nitems = model_data.nitems;
+    var start;
+    var indexArray;
+    var endIndex;
+    var endIndicesArray;
+    var colorArray = [];
+    var col;
+    var geometry, material, lineObject;
+    var posArray;
+    
+    that.model_data = model_data;
 
-    for(var i = 0; i < that.model_data.nitems; i ++){
-      if(i == 0){
-        var start = 0;
-      }else {
-        var start = that.model_data.endIndicesArray[i-1];
+    for (i = 0; i < nitems; i++){
+      if (i === 0){
+        start = 0;
+      } else {
+        start = model_data.endIndicesArray[i-1];
       }
-      indices.push(that.model_data.indexArray[start]);
-      for(var k = start+1; k < that.model_data.endIndicesArray[i]-1; k++) {
-        indices.push(that.model_data.indexArray[k]);
-        indices.push(that.model_data.indexArray[k]);
+      indices.push(model_data.indexArray[start]);
+      indexArray = model_data.indexArray;
+      endIndex = model_data.endIndicesArray[i];
+      for (k = start + 1; k < endIndex - 1; k++) {
+        indices.push(indexArray[k]);
+        indices.push(indexArray[k]);
       }
-      indices.push(that.model_data.indexArray[that.model_data.endIndicesArray[i]-1]);
+      indices.push(indexArray[endIndex-1]);
     }   
     
-    var posArray = that.model_data.positionArray;
+    posArray = that.model_data.positionArray;
   
     //Calculate center so positions of objects relative to each other can be determined.
     //Mainly for transparency.
-    for(var j = 0; j < indices.length; j++) {
+    for (j = 0, count = indices.length; j < count; j++) {
       boundingBoxUpdate(bounding_box, posArray[indices[j]*3], posArray[indices[j]*3+1], posArray[indices[j]*3+2]);
     }
     
@@ -247,44 +284,43 @@ function BrainBrowser() {
     centroid.y = bounding_box.minY + 0.5 * (bounding_box.maxY - bounding_box.minY);
     centroid.z = bounding_box.minY + 0.5 * (bounding_box.maxZ - bounding_box.minZ);
     
-    if(!mesh) {   
-    
-      for(var j = 0; j < indices.length; j++) {
+    if (!mesh) {   
+      for (j = 0, count = indices.length; j < count; j++) {
         verts.push(new THREE.Vector3(
                       posArray[indices[j]*3] - centroid.x,
                       posArray[indices[j]*3+1] - centroid.y,
                       posArray[indices[j]*3+2] - centroid.z
                     ));
       }
-      var colorArray=[];
-      if(that.model_data.colorArray.length == 4) {
-	      for(var i=0;i<numberVertices;i++) {
-	        colorArray.push.apply(colorArray,[0.5,0.5,0.7,1]);
+      
+      if (model_data.colorArray.length === 4) {
+	      for (i = 0; i < numberVertices; i++) {
+	        colorArray.push(0.5, 0.5, 0.7, 1);
 	      }
-      }else {
-	      var colorArray = that.model_data.colorArray;
+      } else {
+	      colorArray = that.model_data.colorArray;
 	      
-	      for(var j = 0; j < indices.length; j++) {
-	        var col = new THREE.Color();
+	      for(j = 0, count = indices.length; j < count; j++) {
+	        col = new THREE.Color();
           col.setRGB(colorArray[indices[j]*4], colorArray[indices[j]*4+1], colorArray[indices[j]*4+2]);
           colors.push(col);
 	      }
       }
       
-    }else {
+    } else {
       verts = that.model_data.meshPositionArray;
       colors = that.model_data.meshColorArray;
     }
 
     
-    var geometry = new THREE.Geometry();
+    geometry = new THREE.Geometry();
     geometry.vertices = verts; 
     geometry.colors = colors;
 
     geometry.colorsNeedUpdate = true;
     
-    var material = new THREE.LineBasicMaterial({vertexColors: THREE.VertexColors});
-    var lineObject = new THREE.Line(geometry, material, THREE.LinePieces);
+    material = new THREE.LineBasicMaterial({vertexColors: THREE.VertexColors});
+    lineObject = new THREE.Line(geometry, material, THREE.LinePieces);
     lineObject.position.set(centroid.x, centroid.y, centroid.z);
     lineObject.centroid = centroid;
     
@@ -292,16 +328,21 @@ function BrainBrowser() {
   }
   
   function addPolygonObject(obj, filename, renderDepth){
-    that.model_data = obj;
+    var shape;
+    var i, count;
+    var model_data = obj;
+    var shapes = model_data.shapes;
     
-    if (that.model_data.shapes){
-      for (var i = 0; i < that.model_data.shapes.length; i++){
-	      var shape = createPolygonShape(that.model_data.shapes[i]);
+    that.model_data = model_data;
+    
+    if (shapes){
+      for (i = 0, count = shapes.length; i < count; i++){
+	      shape = createPolygonShape(that.model_data.shapes[i]);
 	      shape.name = that.model_data.shapes[i].name;
 	      brain.add(shape);      	
       }
     }else {
-      var shape = createPolygonShape(that.model_data);
+      shape = createPolygonShape(that.model_data);
       shape.name = filename;
       brain.add(shape);      
     }
@@ -313,72 +354,72 @@ function BrainBrowser() {
     scene.add(brain);
   }
   
-  function createPolygonShape(model_data) {
-    
+  function createPolygonShape(model_data) {    
     var positionArray = model_data.positionArray;
     var indexArray  = model_data.indexArray;
-    
-    var colorArray=[];
+    var colorArray = [];
+    var model_data_color_array = model_data.colorArray;
+    var i, j, count;
+    var col;
+    var all_gray = false;
+    var geometry, material, polygonShape;
+    var colors = [];
+    var face;
+    var faces;
+    var data_faces = model_data.faces;
+    var data_faces_length;
+    var data_face;
+    var data_face_length;
 
     
-    if(model_data.colorArray.length == 4) {
-      for (var i = 0; i < positionArray.length / 3; i++) {
-	      colorArray.push(model_data.colorArray[0]);
-	      colorArray.push(model_data.colorArray[1]);
-	      colorArray.push(model_data.colorArray[2]);
-      }
-    }else {
-      colorArray = [];
-      var indexArrayLength = indexArray.length;
-      for(var j = 0; j + 2 < model_data.colorArray.length; j += 4) {
-	      colorArray.push(model_data.colorArray[j]);
-	      colorArray.push(model_data.colorArray[j+1]);
-	      colorArray.push(model_data.colorArray[j+2]);
-      }
+    if(model_data_color_array.length == 4) {
+      all_gray = true;
+      col = new THREE.Color();
+      col.setRGB(model_data_color_array[0], model_data_color_array[1], model_data_color_array[2]);
     }
     
-    var colors = [];
-    var col;
-
-    var geometry = new THREE.Geometry();
-    for (var i = 0; i + 2 < positionArray.length; i += 3) {
-      geometry.vertices.push(new THREE.Vector3(positionArray[i], positionArray[i+1], positionArray[i+2]));
+    colors = [];
+    geometry = new THREE.Geometry();
+    for (i = 0, count = positionArray.length/3; i < count; i++) {
+      geometry.vertices.push(new THREE.Vector3(positionArray[i*3], positionArray[i*3+1], positionArray[i*3+2]));
                     
-      col = new THREE.Color();
-      col.setRGB(colorArray[i], colorArray[i+1], colorArray[i+2]);
+      if (!all_gray) {
+        col = new THREE.Color();
+        col.setRGB(model_data_color_array[i*4], model_data_color_array[i*4+1], model_data_color_array[i*4+2]);
+      } 
       colors.push(col);
     }
     
-    if (model_data.faces && model_data.faces.length > 0) {
-      var faces = model_data.faces;
-      for(var i = 0; i < faces.length; i++) {
-        if (faces[i].length < 3) continue;
-        if (faces[i].length <= 4){
-          if (faces[i].length <= 3) {
-            var face = new THREE.Face3(faces[i][0], faces[i][1], faces[i][2]);
-          } else if (faces[i].length == 4){
-            var face = new THREE.Face4(faces[i][0], faces[i][1], faces[i][2], faces[i][3]);
+    faces = geometry.faces;
+    if (data_faces && data_faces.length > 0) {
+      data_faces_length = data_faces.length;
+      for(i = 0; i < data_faces_length; i++) {
+        data_face = data_faces[i];
+        data_face_length = data_face.length;
+        if (data_face_length < 3) continue;
+        if (data_face_length <= 4){
+          if (data_face_length <= 3) {
+            face = new THREE.Face3(data_face[0], data_face[1], data_face[2]);
+          } else if (data_face_length === 4){
+            face = new THREE.Face4(data_face[0], data_face[1], data_face[2], data_face[3]);
           }
-          face.vertexColors[0] = colors[face.a];
-          face.vertexColors[1] = colors[face.b];
-          face.vertexColors[2] = colors[face.c];
-          if (faces[i].length > 3) {
+
+          face.vertexColors = [colors[face.a], colors[face.b], colors[face.c]];
+          if (data_face_length > 3) {
             face.vertexColors[3] = colors[face.d];
           }
-          geometry.faces.push(face);
+          faces.push(face);
         } else {
-          for (var j = 1; j + 1 < faces[i].length; j++) {
-            var face = new THREE.Face3(faces[i][0], faces[i][j], faces[i][j+1]);
-            face.vertexColors[0] = colors[face.a];
-            face.vertexColors[1] = colors[face.b];
-            face.vertexColors[2] = colors[face.c];
-            geometry.faces.push(face);
+          for (j = 1; j + 1 < data_face_length; j++) {
+            face = new THREE.Face3(data_face[0], data_face[j], data_face[j+1]);
+            face.vertexColors = [colors[face.a], colors[face.b], colors[face.c]];
+            faces.push(face);
           }
         }      
       }
     } else {
-      for(var i = 0; i + 2 < indexArray.length; i+=3) {
-        var face = new THREE.Face3(indexArray[i], indexArray[i+1], indexArray[i+2]);
+      for(i = 0; i + 2 < indexArray.length; i+=3) {
+        face = new THREE.Face3(indexArray[i], indexArray[i+1], indexArray[i+2]);
         face.vertexColors[0] = colors[face.a];
         face.vertexColors[1] = colors[face.b];
         face.vertexColors[2] = colors[face.c];
@@ -390,9 +431,9 @@ function BrainBrowser() {
     geometry.computeVertexNormals();
     geometry.colorsNeedUpdate = true;
 
-    var material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808, vertexColors: THREE.VertexColors});
+    material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808, vertexColors: THREE.VertexColors});
     
-    var polygonShape = new THREE.Mesh(geometry, material);
+    polygonShape = new THREE.Mesh(geometry, material);
       
     if(that.loading){
       jQuery(that.loading).html("Buffers Loaded");
@@ -403,39 +444,6 @@ function BrainBrowser() {
     return polygonShape;
   }
 
-  /*
-   * unregisters the event handlers 
-   */
-  this.uninit = function() {
-    if (this.client) {
-      this.client.cleanup();
-    }
-  };
-
-  
-  /*
-   * Called at every render events. 
-   */
-  this.renderCallback = function() {
-    var delta = current_frame - last_frame;
-    var rotation = delta * 0.00015;
-    
-    if(that.autoRotate) {
-      
-      if(that.autoRotate.x){
-	       brain.rotation.x += rotation;
-      }
-      if(that.autoRotate.y){
-        brain.rotation.y += rotation;
-      }
-      if(that.autoRotate.z){
-	      brain.rotation.z += rotation;
-      }
-      
-    }
-    effect.render(scene, camera);
-  };
-
   /** 
    * Delete all the shapes on screen
    * For this the function travels down the scenegraph and removes every shape.
@@ -443,7 +451,7 @@ function BrainBrowser() {
    * Tip: when you remove a shape, the shapes array lenght will be decremented so if you need to count the number of shapes, you must save that length value before removing shapes. 
    */
   this.clearScreen = function() {
-    if(brain) {
+    if (brain) {
       scene.remove(brain)
     }
     that.resetView();
@@ -467,20 +475,21 @@ function BrainBrowser() {
   this.displayObjectFile = function(obj, filename, opts) {
     var options = opts || {};
     var renderDepth = options.renderDepth;
-    if(obj.objectClass == 'P' && obj.numberVertices == 81924) {
+    var afterDisplay = options.afterDisplay;
+    
+    if (obj.objectClass == 'P' && obj.numberVertices == 81924) {
       addBrain(obj, renderDepth);
-    }else if(obj.objectClass == 'P') {
+    } else if(obj.objectClass == 'P') {
 	    addPolygonObject(obj,filename, renderDepth);	  
-    }else if(obj.objectClass == 'L') {
+    } else if(obj.objectClass == 'L') {
       addLineObject(obj, filename, false, renderDepth);
-    }else {
+    } else {
       alert("Object file not supported");
     }
     if(that.afterDisplayObject != undefined) {
       that.afterDisplayObject(brain);      
     }
-    var options = opts || {};    
-    var afterDisplay = options.afterDisplay;
+    
     if (afterDisplay) afterDisplay();
   };
 
@@ -491,11 +500,12 @@ function BrainBrowser() {
    * @param {Number} max maximum value of the range if the range is not fixed 
    * @param {Object} file Data file on which the range will be set
    */ 
-  function initRange(min,max,file) {
-    if(file == null) {
+  function initRange(min, max, file) {
+    
+    if (!file) {
      file = that.model_data.data;
     }
-    if(file.fixRange == false || file.fixRange == null) {
+    if (file.fixRange == false || file.fixRange == null) {
       file.rangeMin = min;
       file.rangeMax = max;
     }
@@ -534,12 +544,15 @@ function BrainBrowser() {
    * matrix.
    */
   this.resetView = function() {
+    var child;
+    var i, count;
+    
     camera_controls.reset();                 
     light_controls.reset();
     brain.position.set(0, 0, 0);
     brain.rotation.set(0, 0, 0);
-    for(var i = 0; i < brain.children.length; i++) {
-      var child = brain.children[i];
+    for (i = 0, count = brain.children.length; i < count; i++) {
+      child = brain.children[i];
       child.visible = true;
       if (child.centroid) {
         child.position.set(child.centroid.x, child.centroid.y, child.centroid.z);
@@ -556,9 +569,10 @@ function BrainBrowser() {
    * Figures out what view has been selected and activates it
    */
   this.setupView = function(e) {
+    var params = that.getViewParams(); //Must be defined by calling app
+    
     that.resetView();
     if(that.model_data && that.model_data.num_hemispheres == 2) {
-      var params=that.getViewParams(); //Must be defined by calling app
       switch(params.view) {
         case 'superior':
         that.superiorView();
@@ -588,14 +602,14 @@ function BrainBrowser() {
      * Decides if the hemispheres need to be shown
      */
     if (brain.getChildByName("left")) {
-      if(params.left  == true) {
+      if(params.left) {
         that.leftHemisphereVisible(true);
       }else {
         that.leftHemisphereVisible(false);
       }
     }
     if (brain.getChildByName("right")) {
-      if(params.right == true ) {
+      if(params.right) {
         that.rightHemisphereVisible(true);
       }else {
         that.rightHemisphereVisible(false);
@@ -603,10 +617,6 @@ function BrainBrowser() {
     }
     //that.thatRot = that.math.matrix4.mul(that.brainTransform.localMatrix, that.math.matrix4.identity());
   };
-  
-  function degToRad(deg) {
-    return deg * Math.PI/180;
-  }
 
   /**
    * functions turn the left hemisphere shapes visibility on off
@@ -645,12 +655,16 @@ function BrainBrowser() {
    * function to handle to preset views of the system.
    */
   this.lateralView = function(e) {
-
+    var left_child, right_child;
+    
     if(that.model_data.num_hemispheres == 2 ) {
-      brain.getChildByName("left").position.x -= 100;
-      brain.getChildByName("left").rotation.z += degToRad(-90);
-      brain.getChildByName("right").position.x += 100;
-      brain.getChildByName("right").rotation.z += degToRad(90);
+      left_child = brain.getChildByName("left");
+      right_child = brain.getChildByName("right");
+      
+      left_child.position.x -= 100;
+      left_child.rotation.z += degToRad(-90);
+      right_child.position.x += 100;
+      right_child.rotation.z += degToRad(90);
       brain.rotation.x += degToRad(90);
       brain.rotation.y += degToRad(180);
     }
@@ -707,14 +721,6 @@ function BrainBrowser() {
   this.ZoomInOut = function(zoom) {
     camera.fov *= zoom;
     camera.updateProjectionMatrix();
-    // for (var i = 0; i < that.eyeView.length; i += 1) {
-    //    that.eyeView[i] = that.eyeView[i] / zoom;
-    //  }
-    // 
-    //  that.viewInfo.drawContext.view = that.math.matrix4.lookAt(
-    //    that.eyeView, // eye
-    //    [0, 0, 0],   // target
-    //    [0, 1, 0]);  // up
   };
 
   /**
@@ -725,23 +731,6 @@ function BrainBrowser() {
     that.ZoomInOut(zoom);
     that.client.render();
   };
-
-  function select(pickInfo) {
-
-    unSelectAll();
-      if (pickInfo) {
-      that.selectedInfo = pickInfo;
-    }
-  }
-
-
-  function unSelectAll() {
-
-    if (that.selectedInfo) {
-      that.highlightShape = null;
-      that.selectedInfo = null;
-    }
-  }
 
 
   /*
@@ -760,28 +749,27 @@ function BrainBrowser() {
   */
   this.click = function(e, click_callback) {
     var offset = view_window.offset();
-    mouseX = ((e.clientX - offset.left + $(window).scrollLeft())/view_window.width()) * 2 - 1;
-    mouseY = -((e.clientY - offset.top + $(window).scrollTop())/view_window.height()) * 2 + 1;
-    
     var projector = new THREE.Projector();
     var raycaster = new THREE.Raycaster();
-     
-    unSelectAll();
-    
+    var mouseX = ((e.clientX - offset.left + $(window).scrollLeft())/view_window.width()) * 2 - 1;
+    var mouseY = -((e.clientY - offset.top + $(window).scrollTop())/view_window.height()) * 2 + 1;
     var vector = new THREE.Vector3(mouseX, mouseY, 1);
+    var intersects, intersection, vertex_data;
+    
+    
     projector.unprojectVector(vector, camera);
     raycaster.set(camera.position, vector.sub(camera.position).normalize() );
-    var intersects = raycaster.intersectObject(brain, true);
+    intersects = raycaster.intersectObject(brain, true);
     if (intersects.length > 0) {      
-      var intersection = intersects[0];
-      var vertex_data = {
+      intersection = intersects[0];
+      vertex_data = {
         vertex: intersection.face.a,
         point: new THREE.Vector3(intersection.point.x, intersection.point.y, intersection.point.z),
         object: intersection.object
       };
       return click_callback(e, vertex_data);
     } else {
-      jQuery(that.pickInfoElem).html('--nothing--');
+      $(that.pickInfoElem).html('--nothing--');
       return false;
     }
   };
@@ -808,59 +796,45 @@ function BrainBrowser() {
   this.keyPressedCallback = function(event) {
 
     var action_taken = false;
+
     switch(event.which) {
-     case 38:
-      that.ZoomInOut(1.1);
-      action_taken = "ZoomIn";
-      break;
-     case 40:
-      that.ZoomInOut(1/1.1);
-      action_taken = "ZoomOut";
-      break;
-    
-     case 32:
-      that.separateHemispheres();
-      action_taken = "Seperate";
-      break;
+      case 38:
+        that.ZoomInOut(1.1);
+        action_taken = true;
+        break;
+      case 40:
+        that.ZoomInOut(1/1.1);
+        action_taken = true;
+        break;
+      case 32:
+       that.separateHemispheres();
+       action_taken = true;
+       break;
     };
-    if(action_taken){
-      return false;
-    }else {
-      return true;
-    }
-    
+
+    return !action_taken;
   };
    
-   function boundingBoxUpdate(bb, x, y, z) {
-     if (! bb.minX || bb.minX > x) {
-       bb.minX = x;
-     } 
-     if (! bb.maxX || bb.maxX < x) {
-       bb.maxX = x;
-     }
-     if (! bb.minY || bb.minY > y) {
-       bb.minY = y;
-     } 
-     if (! bb.maxY || bb.maxY < y) {
-       bb.maxY = y;
-     }
-     if (! bb.minZ || bb.minZ > z) {
-       bb.minZ = z;
-     } 
-     if (! bb.maxZ || bb.maxZ < z) {
-       bb.maxZ = z;
-     }
-
-   }
-   
-  function drawDot(x, y, z) {
-    var geometry = new THREE.SphereGeometry(2);
-    var material = new THREE.MeshBasicMaterial({color: 0xFF0000});
+  function boundingBoxUpdate(box, x, y, z) {
+    if (!box.minX || box.minX > x) {
+      box.minX = x;
+    } 
+    if (!box.maxX || box.maxX < x) {
+      box.maxX = x;
+    }
+    if (!box.minY || box.minY > y) {
+      box.minY = y;
+    } 
+    if (!box.maxY || box.maxY < y) {
+      box.maxY = y;
+    }
+    if (!box.minZ || box.minZ > z) {
+      box.minZ = z;
+    } 
+    if (!box.maxZ || box.maxZ < z) {
+      box.maxZ = z;
+    }
   
-    var sphere = new THREE.Mesh(geometry, material);
-    sphere.position.set(x, y, z);
-  
-    scene.add(sphere);
   }
   
   /*
@@ -868,9 +842,10 @@ function BrainBrowser() {
    */
   this.set_fill_mode_wireframe = function() {
     var children = brain.children;
+    var material;
     
     for (var i = 0; i < children.length; i++) {
-      var material = children[i].material;
+      material = children[i].material;
       material.wireframe = true;
       if (material.emissive) {
         material.emissive.setHex(0x7777777);
@@ -880,9 +855,10 @@ function BrainBrowser() {
   
   this.set_fill_mode_solid = function() {
     var children = brain.children;
+    var material;
     
     for (var i = 0; i < children.length; i++) {
-      var material = children[i].material;
+      material = children[i].material;
       material.wireframe = false;
       if (material.emissive) {
         material.emissive.setHex(0x000000);
@@ -913,14 +889,13 @@ function BrainBrowser() {
 
   function loadFromTextFile(file_input, opts, callback) {
     var files = file_input.files;
-    
     if (files.length === 0) {
       return;
     }
-    
     var options = opts || {};    
     var beforeLoad = options.beforeLoad;
     var reader = new FileReader();
+    
     reader.file = files[0];
     
     if (beforeLoad) {
@@ -936,30 +911,37 @@ function BrainBrowser() {
 
 
   this.loadObjFromUrl = function(url, opts) {
+    var parts;
+    var filename;
     loadFromUrl(url, opts, function(data) {
-		    var parts = url.split("/");
+		    parts = url.split("/");
 		    //last part of url will be shape name
-		    var filename = parts[parts.length-1];
+		    filename = parts[parts.length-1];
 		    that.displayObjectFile(new MNIObject(data), filename, opts);
 		});
   };
 
   this.loadWavefrontObjFromUrl = function(url, opts) {
+    var parts;
+    var filename;
     loadFromUrl(url, opts, function(data) {
-		    var parts = url.split("/");
+		    parts = url.split("/");
 		    //last part of url will be shape name
-		    var filename = parts[parts.length-1];
+		    filename = parts[parts.length-1];
 		    that.displayObjectFile(new WavefrontObj(data), filename, opts);
 		});
   };
 
   this.loadObjFromFile = function(file_input, opts) {
     var options = opts || {};
+    var parts;
+    var filename;
+    var obj;
+    
     loadFromTextFile(file_input, options, function(result) {
-      var parts = file_input.value.split("\\");
+      parts = file_input.value.split("\\");
 			//last part of path will be shape name
-			var filename = parts[parts.length-1];
-      var obj;
+			filename = parts[parts.length-1];
       switch (options.format) {
         case "wavefront":
           obj = new WavefrontObj(result);
@@ -979,12 +961,13 @@ function BrainBrowser() {
   };
 
   this.loadSpectrumFromUrl  = function(url, opts) {
-    options = opts || {};
+    var options = opts || {};
     var afterLoadSpectrum = options.afterLoadSpectrum
+    var spectrum;
     
     //get the spectrum of colors
     loadFromUrl(url, options, function (data) {
-		    var spectrum = new Spectrum(data);
+		    spectrum = new Spectrum(data);
 		    that.spectrum = spectrum;
 
         if (afterLoadSpectrum) afterLoadSpectrum();
@@ -1004,18 +987,19 @@ function BrainBrowser() {
 
   //Load a color bar spectrum definition file
   this.loadSpectrumFromFile = function(file_input){
+    var spectrum;
+    var model_data = that.model_data;
+    
     loadFromTextFile(file_input, null, function(data) {
-		    var spectrum = new Spectrum(data);
+		    spectrum = new Spectrum(data);
 		    that.spectrum = spectrum;
 		    if(that.afterLoadSpectrum != null) {
 		      that.afterLoadSpectrum(spectrum);
 		    }
-		    if(that.model_data.data) {
-		      that.updateColors(that.model_data.data,that.model_data.data.rangeMin, that.model_data.data.rangeMax,that.spectrum,that.flip,that.clamped);
+		    if(model_data.data) {
+		      that.updateColors(model_data.data, model_data.data.rangeMin, model_data.data.rangeMax, that.spectrum, that.flip, that.clamped);
 		    }
-
 		});
-      
   };
 
   /*
@@ -1023,82 +1007,91 @@ function BrainBrowser() {
    */
   this.loadDataFromFile = function(file_input) {
     var filename = file_input.files[0].name;
+    var model_data = that.model_data;
+    var positionArray = model_data.positionArray;
+    var positionArrayLength = positionArray.length;
+    
     var onfinish = function(text) {
 	    var data = new Data(text);
       data.fileName = filename;
-	    if(data.values.length < that.model_data.positionArray.length/4) {
-	      alert("Number of numbers in datafile lower than number of vertices Vertices" + that.model_data.positionArray.length/3 + " data values:" + data.values.length );
+	    if (data.values.length < positionArrayLength/4) {
+	      alert("Number of numbers in datafile lower than number of vertices Vertices" + positionArrayLength/3 + " data values:" + data.values.length );
 	      return -1;
-	    }else {
-	      that.model_data.data = data;
+	    } else {
+	      model_data.data = data;
 	    }
-      initRange(that.model_data.data.min,
-		    that.model_data.data.max);
+      initRange(data.min,
+		    data.max);
       if(that.afterLoadData !=null) {
-	      that.afterLoadData(that.model_data.data.rangeMin,that.model_data.data.rangeMax,that.model_data.data);
+	      that.afterLoadData(data.rangeMin, data.rangeMax, data);
       }
       
       
-      that.updateColors(that.model_data.data,that.model_data.data.rangeMin, that.model_data.data.rangeMax,that.spectrum,that.flip,that.clamped);
-      return null;
+      that.updateColors(data, data.rangeMin, data.rangeMax, that.spectrum, that.flip, that.clamped);
     };
 
-    /*
-     * If the data file is a mnc or nii, we need to send it to the server and 
-     * have the server process it with volume_object_evaluate which projects the 
-     * data on the surface file. 
-     */
     if(filename.match(/.*.mnc|.*.nii/)) {
-      var xhr = new XMLHttpRequest();
-      if(filename.match(/.*.mnc/)) {
-	      xhr.open('POST', '/minc/volume_object_evaluate', false);  
-      }else {
-	      xhr.open('POST', '/nii/volume_object_evaluate', false);  
-      }
-      var form = document.getElementById('datafile-form');
-      var data = new FormData(form);
-      xhr.send(data);
-      var text_data = xhr.response;
-      onfinish(text_data);
-      
-    }else {
+      evaluate_volume(filename, onfinish);
+    } else {
       loadFromTextFile(file_input, null, onfinish);
     }
   };
+  
+  /*
+   * If the data file is a mnc or nii, we need to send it to the server and 
+   * have the server process it with volume_object_evaluate which projects the 
+   * data on the surface file. 
+  */
+  
+  function evaluate_volume(filename, onfinish) {
+    var xhr;
+    var form;
+    var form_data;
+    var text_data;
+    
+    
+    xhr = new XMLHttpRequest();
+    if(filename.match(/.*.mnc/)) {
+      xhr.open('POST', '/minc/volume_object_evaluate', false);  
+    }else {
+      xhr.open('POST', '/nii/volume_object_evaluate', false);  
+    }
+    form_data = new FormData(document.getElementById('datafile-form'));
+    xhr.send(form_data);
+    var text_data = xhr.response;
+    onfinish(text_data);
+  }
 
   /*
    * Load a series of data files to be viewed with a slider. 
    */
   this.loadSeriesDataFromFile = function(file_input) {
-    console.log(file_input.files.length);
 		var numberFiles = file_input.files.length;
+		var files = file_input.files;
+		var reader;
+		var i;
+		
 		that.seriesData = new Array(numberFiles);
 		that.seriesData.numberFiles = numberFiles;
-		var files = file_input.files;
-   
- 		for(var i = 0; i < numberFiles; i++) {
-		  
-		  var reader = new FileReader();
-		   reader.file = files[i];
+		
+ 		for(i = 0; i < numberFiles; i++) {
+		  reader = new FileReader();
+		  reader.file = files[i];
 		  /*
-		   * Using a closure to keep the value of i around to put the 
-		   * data in an array in order. 
-		   */
-		  var onfinish = reader.onloadend = (function(file,num) {
-						       return function(e) {
-		   					 console.log(e.target.result.length);
-							 console.log(num);
-							 that.seriesData[num] = new Data(e.target.result);
+		  * Using a closure to keep the value of i around to put the 
+		  * data in an array in order. 
+		  */
+		  reader.onloadend = (function(file, num) {
+			  return function(e) {
+		   	  console.log(e.target.result.length);
+					console.log(num);
+					that.seriesData[num] = new Data(e.target.result);
+				  that.seriesData[num].fileName = file.name;
 							 
-							 that.seriesData[num].fileName = file.name;
-							 
-						       };
-						     })(reader.file,i);
+				};
+			})(reader.file, i);
 		  
 		  reader.readAsText(files[i]);
-			
-			
-
     }
     that.setupSeries();
   };
@@ -1108,6 +1101,10 @@ function BrainBrowser() {
    * Setup for series data, creates a slider to switch between files. 
    */
    this.setupSeries = function() {
+     var model_data = that.model_data;
+     var seriesData = that.seriesData;
+     var positionArray = that.model_data.positionArray;
+     
      $("<div id=\"series\">Series: </div>").appendTo("#surface_choice");
      var div = $("#series");
      $("<span id=\"series-value\">0</span>").appendTo(div);
@@ -1115,44 +1112,43 @@ function BrainBrowser() {
       .slider({
         value: 0,
         min: 0,
-        max: that.seriesData.numberFiles-1,	       
-        step: .1,
+        max: seriesData.numberFiles-1,	       
+        step: 0.1,
         slide: function(event,ui) {
-          if(ui.value -  Math.floor(ui.value) < 0.01) { //is it at an integer? then just return the array			
-            that.model_data.data = that.seriesData[ui.value];											     
+          if (ui.value -  Math.floor(ui.value) < 0.01) { //is it at an integer? then just return the array			
+            model_data.data = seriesData[ui.value];											     
             } else { //interpolate
-              if(that.seriesData[0].fileName.match("pval.*")){
-                that.model_data.data = new Data(interpolateDataArray(that.seriesData[Math.floor(ui.value)],
-                that.seriesData[Math.floor(ui.value)+1],
+              if (seriesData[0].fileName.match("pval.*")){
+                model_data.data = new Data(interpolateDataArray(seriesData[Math.floor(ui.value)],
+                seriesData[Math.floor(ui.value)+1],
                 (ui.value -  Math.floor(ui.value)),true));		
-              }else {
-                that.model_data.data = new Data(interpolateDataArray(that.seriesData[Math.floor(ui.value)],
-                that.seriesData[Math.floor(ui.value)+1],
+              } else {
+                model_data.data = new Data(interpolateDataArray(seriesData[Math.floor(ui.value)],
+                seriesData[Math.floor(ui.value)+1],
                 (ui.value -  Math.floor(ui.value))));
               }    
             }
-            if(that.seriesData[0].fileName.match("mt.*")) {
+            if (seriesData[0].fileName.match("mt.*")) {
               $("#age_series").html("Age: " + (ui.value*3+5).toFixed(1));
 
-            }else if(that.seriesData[0].fileName.match("pval.*")) {
+            } else if (seriesData[0].fileName.match("pval.*")) {
               $("#age_series").html("Age: " + (ui.value*1+10));
             }
             $(div).children("#series-value").html(ui.value);
-            if(that.model_data.data.values.length < that.model_data.positionArray.length/4) {
+            if (model_data.data.values.length < positionArray.length/4) {
               console.log("Number of numbers in datafile lower than number of vertices Vertices" 
-              + that.model_data.positionArray.length/3 + " data values:" 
-              + that.model_data.data.values.length );
+              + positionArray.length/3 + " data values:" 
+              + model_data.data.values.length );
               return -1;
             }
-            initRange(that.model_data.data.min,that.model_data.data.max);
-            if(that.afterLoadData !=null) {
-              that.afterLoadData(that.model_data.data.rangeMin,that.model_data.data.rangeMax,that.model_data.data);
+            initRange(model_data.data.min, model_data.data.max);
+            if (that.afterLoadData !=null) {
+              that.afterLoadData(model_data.data.rangeMin, model_data.data.rangeMax, model_data.data);
             }
 
-            that.updateColors(that.model_data.data,that.model_data.data.rangeMin, that.model_data.data.rangeMax,that.spectrum,that.flip,that.clamped);
+            that.updateColors(model_data.data, model_data.data.rangeMin, model_data.data.rangeMax, that.spectrum, that.flip, that.clamped);
+            
             return null;
-
-
           }
       }).appendTo(div);
 
@@ -1165,52 +1161,50 @@ function BrainBrowser() {
    */
   this.loadBlendDataFromFile = function(file_input) {
 		var numberFiles = file_input.files.length;
+	  var files = file_input.files;
+	  var reader;
+	  var i, k;
+		
 		that.blendData = new Array(numberFiles);
 		that.blendData.numberFiles = numberFiles;
-		var files = file_input.files;
    
- 		for(var i = 0; i < numberFiles; i++) {
+ 		for(i = 0; i < numberFiles; i++) {
 		  
-		  var reader = new FileReader();
-		   reader.file = files[i];
+		  reader = new FileReader();
+		  reader.file = files[i];
 		  /*
-		   * Using a closure to keep the value of i around to put the 
-		   * data in an array in order. 
-		   */
-		  var onfinish = reader.onloadend = (function(file,num) {
-						       return function(e) {
-		   					 that.blendData[num] = new Data(e.target.result);
-							 that.blendData.alpha = 1.0/numberFiles;
-							 
-							 that.blendData[num].fileName = file.name;
-							 for(var k = 0; k < 2; k++) {
-							   if(that.blendData[k] == undefined) {						     
-							     console.log("not done yet");
-							     return;
-							   }
-							  
-							 }		 
-							 initRange(that.blendData[0].values.min(),
-								   that.blendData[0].values.max(),
-								   that.blendData[0]);
-							 
-							 initRange(that.blendData[1].values.min(),
-								   that.blendData[1].values.max(),
-								   that.blendData[1]);
-							 if(that.afterLoadData !=null) {
-							   that.afterLoadData(null,null,that.blendData,true); //multiple set to true
-							 }
-							 
-							 that.blend($(".blend_slider").slider("value"));
-							 
-							 
-						       };
-						     })(reader.file,i);
-		  
+		  * Using a closure to keep the value of i around to put the 
+		  * data in an array in order. 
+		  */
+		  reader.onloadend = (function(file,num) {
+			  return function(e) {
+		   	  that.blendData[num] = new Data(e.target.result);
+					that.blendData.alpha = 1.0/numberFiles;
+					
+					that.blendData[num].fileName = file.name;
+					for(k = 0; k < 2; k++) {
+					  if(that.blendData[k] == undefined) {						     
+					    console.log("not done yet");
+					    return;
+					  }
+					 
+					}		 
+					initRange(that.blendData[0].values.min(),
+					    that.blendData[0].values.max(),
+					    that.blendData[0]);
+					
+					initRange(that.blendData[1].values.min(),
+					    that.blendData[1].values.max(),
+					    that.blendData[1]);
+					if(that.afterLoadData !=null) {
+					  that.afterLoadData(null,null,that.blendData,true); //multiple set to true
+					}
+					
+					that.blend($(".blend_slider").slider("value"));
+				};
+			})(reader.file,i);
+		      
 		  reader.readAsText(files[i]);
-			
-			
-
     }
     that.setupBlendColors();
   };
@@ -1220,70 +1214,61 @@ function BrainBrowser() {
 
 
   this.setupBlendColors = function(){
-    
-    
-    console.log("Blend colors has ran " + that.blendData.numberFiles);
+    console.log("Blend colors has run " + that.blendData.numberFiles);
     $("#blend").remove();
     $("<div id=\"blend\">Blend ratios: </div>").appendTo("#surface_choice");
     var div = $("#blend");
     $("<span id=\"blend_value"+i+"\">0</span>").appendTo(div);
     $("<div class=\"blend_slider\" id=\"blend_slider"+i+"\" width=\"100px\" + height=\"10\"></div>")
       .slider({
-		value: 0,
-		min: 0.1,
-	        max: 0.99,
-		value: 0.5,
-		step:.01,
-	  /*
-		 * When the sliding the slider, change all the other sliders by the amount of this slider
-		 */
-		slide: function(event,ui) {
-		  that.blend($(this).slider("value"));  
-		}
-	      }).appendTo(div);
-    
-    
-
-
+		    value: 0,
+		    min: 0.1,
+	      max: 0.99,
+		    value: 0.5,
+		    step: 0.01,
+	      /*
+		    * When the sliding the slider, change all the other sliders by the amount of this slider
+		    */
+		    slide: function(event,ui) {
+		      that.blend($(this).slider("value"));  
+		    }
+	    }).appendTo(div);
   };
 
 
 
   this.blend = function(value) {
-    that.blendData[0].alpha = value;
-    that.blendData[1].alpha = 1.0 - value;
-    for(var i = 2; i<that.blendData.length; i++) {
-      that.blendData[i].alpha = 0.0;
+    var blendData = that.blendData;
+    var blendDataLength = blendData.length;
+    var i;
+    
+    blendData[0].alpha = value;
+    blendData[1].alpha = 1.0 - value;
+    for(i = 2; i < blendDataLength; i++) {
+      blendData[i].alpha = 0.0;
     }
     
 
-    that.updateColors(that.blendData,null,null,that.spectrum,that.flip,that.clamped,true); //last parameter says to blend data.
+    that.updateColors(blendData, null, null, that.spectrum, that.flip, that.clamped, true); //last parameter says to blend data.
   };
 
   this.loadDataFromUrl = function(file_input, name) {
+    
     loadFromUrl(file_input, null, function(text,file) {
-		  that.model_data.data = new Data(text);
-		  that.model_data.data.fileName = name;
-		  initRange(that.model_data.data.min,that.model_data.data.max);
-		  if(that.afterLoadData != undefined) {
-		    that.afterLoadData(that.model_data.data.rangeMin,
-				       that.model_data.data.rangeMax,
-				       that.model_data.data);
-		  }
-		  
+      var data;
+      
+		  that.model_data.data  = new Data(text);
+		  data = that.model_data.data;
 
-		  that.updateColors(that.model_data.data, that.model_data.data.rangeMin, that.model_data.data.rangeMax, that.spectrum);
+		  data.fileName = name;
+		  initRange(data.min, data.max);
+		  if (that.afterLoadData != undefined) {
+		    that.afterLoadData(data.rangeMin, data.rangeMax, data);
+		  }
+
+		  that.updateColors(data, data.rangeMin, data.rangeMax, that.spectrum);
 		});
   };
-  
-
-  // this.loadCombinedShaderFromUrl = function(url){
-  //   var shaderString;
-  //   loadFromUrl(url,function(data){
-  //     shaderString = data;     
-  //   });
-  //   return shaderString;
-  // };
 
 
   /*
@@ -1292,83 +1277,20 @@ function BrainBrowser() {
   this.updateColors = function(data, min, max, spectrum, flip, clamped, blend, shape, opts) {
     var options = opts || {};
     var afterUpdate = options.afterUpdate;
+    var color_array;
+    
 
     that.clamped = clamped;
-    if(blend) {
-      var color_array = colorManager.blendColorMap(spectrum,data,0,1);
-    }else {
-      var color_array = data.createColorArray(min, max, spectrum, flip, clamped, that.model_data.colorArray, that.model_data);      
+    if (blend) {
+      color_array = colorManager.blendColorMap(spectrum, data, 0, 1);
+    } else {
+      color_array = data.createColorArray(min, max, spectrum, flip, clamped, that.model_data.colorArray, that.model_data);      
     }
 
-    if(that.model_data.num_hemispheres == 2) {
-      var left_color_array = color_array.slice(0, color_array.length/2);
-      var right_color_array = color_array.slice(color_array.length/2, color_array.length);
-      var left_color_buffer = [];
-      var right_color_buffer = [];
-      var left_hem = brain.getChildByName("left");
-      var left_hem_faces = left_hem.geometry.faces;
-      var right_hem = brain.getChildByName("right");
-      var right_hem_faces = right_hem.geometry.faces;
-      var face;
-      var right_hem_faces_length = right_hem_faces.length;
-      var left_hem_faces_length = left_hem_faces.length;
-      var length;
-      var color_index;
-      
-      length = Math.max(left_hem_faces_length, right_hem_faces_length);
-      for (var i = 0; i < length; i++) {
-        if (i < left_hem_faces_length) {
-          face = left_hem_faces[i];
-          color_index = face.a * 4;
-          face.vertexColors[0].setRGB(left_color_array[color_index], left_color_array[color_index+1], left_color_array[color_index+2]);
-          color_index = face.b * 4;
-          face.vertexColors[1].setRGB(left_color_array[color_index], left_color_array[color_index+1], left_color_array[color_index+2]);
-          color_index = face.c * 4;
-          face.vertexColors[2].setRGB(left_color_array[color_index], left_color_array[color_index+1], left_color_array[color_index+2]);
-          if (face.d) {
-            color_index = face.d * 4;
-            face.vertexColors[3].setRGB(left_color_array[color_index], left_color_array[color_index+1], left_color_array[color_index+2]);
-          }
-        }
-        if (i < right_hem_faces_length) {
-          face = right_hem_faces[i];
-          color_index = face.a * 4;
-          face.vertexColors[0].setRGB(right_color_array[color_index], right_color_array[color_index+1], right_color_array[color_index+2]);
-          color_index = face.b * 4;
-          face.vertexColors[1].setRGB(right_color_array[color_index], right_color_array[color_index+1], right_color_array[color_index+2]);
-          color_index = face.c * 4;
-          face.vertexColors[2].setRGB(right_color_array[color_index], right_color_array[color_index+1], right_color_array[color_index+2]);
-          if (face.d) {
-            color_index = face.d * 4;
-            face.vertexColors[3].setRGB(right_color_array[color_index], right_color_array[color_index+1], right_color_array[color_index+2]);
-          }
-        }  
-      }
-  
-      left_hem.geometry.colorsNeedUpdate = true;
-      right_hem.geometry.colorsNeedUpdate = true;
-
+    if(that.model_data.num_hemispheres === 2) {
+      color_hemispheres(color_array);
     } else {
-      var color_buffer = [];
-      for (var i = 0; i + 2 < color_array.length; i += 4) {
-        var col = new THREE.Color()
-        col.setRGB(color_array[i], color_array[i+1], color_array[i+2]);
-        color_buffer.push(col);
-      }
-      var children = brain.children;
-      for (var i = 0; i < children.length; i++) {
-        var faces = children[i].geometry.faces;
-        for (var j = 0; j < faces.length; j++) {
-          var face = faces[j];
-          face.vertexColors[0] = color_buffer[face.a];
-          face.vertexColors[1] = color_buffer[face.b];
-          face.vertexColors[2] = color_buffer[face.c];
-          if (face.d) {
-            face.vertexColors[3] = color_buffer[face.d];
-          }
-        }
-        children[i].geometry.colorsNeedUpdate = true;
-      }
+      color_model(color_array);
     }
 
     if (afterUpdate) {
@@ -1378,10 +1300,100 @@ function BrainBrowser() {
     if (that.afterUpdateColors != null ) {
       that.afterUpdateColors(data, min, max, spectrum);
     }
-
-
-    return 1;
   };
+
+  function color_hemispheres(color_array) {
+    var color_array_length = color_array.length;
+    var left_color_array;
+    var right_color_array;
+    var left_color_buffer = [];
+    var right_color_buffer = [];
+    var left_hem = brain.getChildByName("left");
+    var left_hem_faces = left_hem.geometry.faces;
+    var right_hem = brain.getChildByName("right");
+    var right_hem_faces = right_hem.geometry.faces;
+    var right_hem_faces_length = right_hem_faces.length;
+    var left_hem_faces_length = left_hem_faces.length;
+    var face;
+    var i, count;
+    var color_index;
+    var vertexColors;
+    
+    left_color_array = color_array.slice(0, color_array_length/2);
+    right_color_array = color_array.slice(color_array_length/2, color_array_length);
+    
+    count = Math.max(left_hem_faces_length, right_hem_faces_length);
+    for (i = 0; i < count; i++) {
+      if (i < left_hem_faces_length) {
+        face = left_hem_faces[i];
+        vertexColors = face.vertexColors;
+        color_index = face.a * 4;
+        
+        vertexColors[0].setRGB(left_color_array[color_index], left_color_array[color_index+1], left_color_array[color_index+2]);
+        color_index = face.b * 4;
+        vertexColors[1].setRGB(left_color_array[color_index], left_color_array[color_index+1], left_color_array[color_index+2]);
+        color_index = face.c * 4;
+        vertexColors[2].setRGB(left_color_array[color_index], left_color_array[color_index+1], left_color_array[color_index+2]);
+        if (face.d) {
+          color_index = face.d * 4;
+          vertexColors[3].setRGB(left_color_array[color_index], left_color_array[color_index+1], left_color_array[color_index+2]);
+        }
+      }
+      if (i < right_hem_faces_length) {
+        face = right_hem_faces[i];
+        vertexColors = face.vertexColors;
+        color_index = face.a * 4;
+        
+        vertexColors[0].setRGB(right_color_array[color_index], right_color_array[color_index+1], right_color_array[color_index+2]);
+        color_index = face.b * 4;
+        vertexColors[1].setRGB(right_color_array[color_index], right_color_array[color_index+1], right_color_array[color_index+2]);
+        color_index = face.c * 4;
+        vertexColors[2].setRGB(right_color_array[color_index], right_color_array[color_index+1], right_color_array[color_index+2]);
+        if (face.d) {
+          color_index = face.d * 4;
+          vertexColors[3].setRGB(right_color_array[color_index], right_color_array[color_index+1], right_color_array[color_index+2]);
+        }
+      }  
+    }
+
+    left_hem.geometry.colorsNeedUpdate = true;
+    right_hem.geometry.colorsNeedUpdate = true;
+    
+  }
+  
+  function color_model(color_array) {
+    var color_array_length = color_array.length;
+    var color_buffer = [];    
+    var color_index;
+    var col;
+    var face, faces;
+    var children;
+    var vertexColors;
+    var i, j;
+    var count;
+    
+    children = brain.children;
+    for (i = 0, count = children.length; i < count; i++) {
+      faces = children[i].geometry.faces;
+      for (j = 0, count = faces.length; j < count; j++) {
+        face = faces[j];
+        vertexColors = face.vertexColors;
+        
+        color_index = face.a * 4;
+        vertexColors[0].setRGB(color_array[color_index], color_array[color_index+1], color_array[color_index+2]);
+        color_index = face.b * 4;
+        vertexColors[0].setRGB(color_array[color_index], color_array[color_index+1], color_array[color_index+2]);
+        color_index = face.c * 4;
+        vertexColors[0].setRGB(color_array[color_index], color_array[color_index+1], color_array[color_index+2]);
+
+        if (face.d) {
+          color_index = face.d * 4;
+          vertexColors[0].setRGB(color_array[color_index], color_array[color_index+1], color_array[color_index+2]);
+        }
+      }
+      children[i].geometry.colorsNeedUpdate = true;
+    }
+  }
 
   
   /*
@@ -1392,10 +1404,11 @@ function BrainBrowser() {
   this.rangeChange = function(min, max, clamped, opts) {
     var options = opts || {};
     var afterChange = options.afterChange;
+    var data = that.model_data.data;
     
-    that.model_data.data.rangeMin = min;
-    that.model_data.data.rangeMax = max;
-    that.updateColors(that.model_data.data, that.model_data.data.rangeMin, that.model_data.data.rangeMax, that.spectrum,that.flip, clamped);
+    data.rangeMin = min;
+    data.rangeMax = max;
+    that.updateColors(data, data.rangeMin, data.rangeMax, that.spectrum, that.flip, clamped);
 
     /*
      * This callback allows users to
@@ -1411,8 +1424,6 @@ function BrainBrowser() {
     if(that.afterRangeChange != null) {
       that.afterRangeChange(min, max);
     }
-
-
   };
 
 
@@ -1423,12 +1434,14 @@ function BrainBrowser() {
    */
   this.changeShapeTransparency = function(shape_name, alpha) {
     var shape = brain.getChildByName(shape_name);
+    var material;
     if (shape) {
-      shape.material.opacity = alpha;
-      if (alpha == 1) {
-        shape.material.transparent = false;
+      material = shape.material;
+      material.opacity = alpha;
+      if (alpha === 1) {
+        material.transparent = false;
       } else {
-        shape.material.transparent = true;
+        material.transparent = true;
       }
     }
   };
@@ -1441,23 +1454,23 @@ function BrainBrowser() {
   this.getImageUrl = function() {
     var canvas = document.createElement("canvas");
     var spectrumCanvas = document.getElementById("spectrum_canvas");
-    canvas.width = view_window.width();
-    canvas.height = view_window.height();
-            
     var context = canvas.getContext("2d");
     var img = new Image();
+    
+    canvas.width = view_window.width();
+    canvas.height = view_window.height();
 
     function getSpectrumImage() {
 	    var img = new Image();
 	    img.onload = function(){
-	      context.drawImage(img,0,0); // Or at whatever offset you like
+	      context.drawImage(img, 0, 0); // Or at whatever offset you like
 	      window.open(canvas.toDataURL(), "screenshot");
 	    };
 	    img.src = spectrumCanvas.toDataURL();
     }
       
     img.onload = function(){
-	    context.drawImage(img,0,0); // Or at whatever offset you like
+	    context.drawImage(img, 0, 0); // Or at whatever offset you like
 	    if (spectrumCanvas) {
   	    getSpectrumImage();	      
 	    } else {
@@ -1467,14 +1480,21 @@ function BrainBrowser() {
     
     img.src = renderer.domElement.toDataURL();
   };
-
-  window.onresize = function() {
-    view_window = $("#view-window");
-    effect.setSize(view_window.width(), view_window.height());
-    camera.aspect = view_window.width()/view_window.height();
-    camera.updateProjectionMatrix();
-  };
+  
+  function drawDot(x, y, z) {
+    var geometry = new THREE.SphereGeometry(2);
+    var material = new THREE.MeshBasicMaterial({color: 0xFF0000});
+  
+    var sphere = new THREE.Mesh(geometry, material);
+    sphere.position.set(x, y, z);
+  
+    scene.add(sphere);
+  }
+  
+  function degToRad(deg) {
+    return deg * Math.PI/180;
+  }
     
-  that.start();
-
+  this.init();
+  callback(this);
 }

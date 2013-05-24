@@ -15,13 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-var g_spectrum;
-
-//for Picking
-
-
-
 function MacaccObject(brainbrowser, path, dont_build_path) {
   var that = this;
   this.brainbrowser = brainbrowser;
@@ -45,17 +38,17 @@ function MacaccObject(brainbrowser, path, dont_build_path) {
   that.range_max; //Max of range bar
   that.range_min; //Min of range bar
   that.spectrum;
-  that.coordinates = jQuery("#coordinates");
+  that.coordinates = $("#coordinates");
   that.selectPoint = null;
 
   function setVertexCoord(vertex_data, value) {
     var vertex = vertex_data.vertex;
     if (vertex != undefined && value != undefined) {
-      jQuery("#x-coord").val(vertex_data.point.x);
-      jQuery("#y-coord").val(vertex_data.point.y);
-      jQuery("#z-coord").val(vertex_data.point.z);
-      jQuery("#v-coord").val(vertex);
-      jQuery("#value-coord").val(value);
+      $("#x-coord").val(vertex_data.point.x);
+      $("#y-coord").val(vertex_data.point.y);
+      $("#z-coord").val(vertex_data.point.z);
+      $("#v-coord").val(vertex);
+      $("#value-coord").val(value);
     }
   }
 
@@ -75,15 +68,16 @@ function MacaccObject(brainbrowser, path, dont_build_path) {
 	      brainbrowser.secondWindow.postMessage(that.vertex,"*");
       }
     }else {
-      jQuery(that.pickInfoElem).html('--nothing--');
+      $(that.pickInfoElem).html('--nothing--');
     }
   };
   
   this.change_model = function(event, options) {
-    var type = jQuery(event.target).val();
+    var type = $(event.target).val();
+    options.format = "MNIObject";
     
     brainbrowser.clearScreen();
-    brainbrowser.loadObjFromUrl('/data/surfaces/surf_reg_model_both_'+type+'.obj', options);
+    brainbrowser.loadModelFromUrl('/data/surfaces/surf_reg_model_both_'+type+'.obj', options);
   };
 
   this.flipXCoordinate = function() {
@@ -105,24 +99,27 @@ function MacaccObject(brainbrowser, path, dont_build_path) {
   };
 
   function get_data_controls() {
-    var data_modality = jQuery("[name=modality]:checked").val(); //CT,AREA or Volume
-    var data_sk = jQuery("#data-sk").val(); //Smoothing Kernel
-    var data_statistic = jQuery("[name=statistic]:checked").val();
+    var data_modality = $("[name=modality]:checked").val(); //CT,AREA or Volume
+    var data_sk = $("#data-sk").val(); //Smoothing Kernel
+    var data_statistic = $("[name=statistic]:checked").val();
 
 
     return {modality: data_modality, sk: data_sk, statistic: data_statistic };
   }
 
   this.update_model = function (dataset) {
+    var flip;
+    var clamped;
+    
     that.dataArray = dataset.current_data.values;
     brainbrowser.current_dataset = dataset;
-    if(jQuery("#fix_range").is(":checked")) {
-      if(!(that.data_min = parseFloat(jQuery("#data-range-min").val()))) {
+    if($("#fix_range").is(":checked")) {
+      if(!(that.data_min = parseFloat($("#data-range-min").val()))) {
 	      if(!that.data_min === 0 ) {
 	        that.data_min = dataset.current_data.min;
 	      }
       }
-      if(!(that.data_max = parseFloat(jQuery("#data-range-max").val()))) {
+      if(!(that.data_max = parseFloat($("#data-range-max").val()))) {
 	      if(!that.data_max === 0 ) {
 	        that.data_max = dataset.current_data.max;
 	      }
@@ -132,15 +129,15 @@ function MacaccObject(brainbrowser, path, dont_build_path) {
       that.data_max = dataset.current_data.max;
     }
 
-    var flip = jQuery("#flip_range").is(":checked");
-    var clamped = jQuery("#clamp_range").is(":checked");
-    if(get_data_controls().statistic == "T") {
+    flip = $("#flip_range").is(":checked");
+    clamped = $("#clamp_range").is(":checked");
+    if (get_data_controls().statistic == "T") {
       that.flipRange = flip;
       brainbrowser.updateColors(that.dataSet.current_data, that.data_min, that.data_max, brainbrowser.spectrum, flip, clamped);
-    }else {
+    } else {
       that.flipRange = !flip;
-      jQuery("#range-slider").slider("option", "min", "0");
-      jQuery("#range-slider").slider("option", "max", "1");
+      $("#range-slider").slider("option", "min", "0");
+      $("#range-slider").slider("option", "max", "1");
       brainbrowser.updateColors(that.dataSet.current_data, 0, 1, brainbrowser.spectrum, !flip, clamped);
     }
 
@@ -148,7 +145,7 @@ function MacaccObject(brainbrowser, path, dont_build_path) {
 
   function update_map() {
     that.dataSet.get_data(that.vertex, get_data_controls(), that.update_model);
-    jQuery(that.pickInfoElem).html("Viewing data for vertex: " + that.vertex  );
+    $(that.pickInfoElem).html("Viewing data for vertex: " + that.vertex  );
     
   }
 
@@ -157,18 +154,15 @@ function MacaccObject(brainbrowser, path, dont_build_path) {
   };
 
   function update_range(min,max) {
-    if(!jQuery("#fix_range").attr("checked")){
-      jQuery("#data-range-min").val(min);
-      jQuery("#data-range-max").val(max);
-      jQuery("#range-slider").slider("values", 0, min);
-      jQuery("#range-slider").slider("values", 1, max);
-
-
+    if (!$("#fix_range").is(":checked")) {
+      $("#data-range-min").val(min);
+      $("#data-range-max").val(max);
+      $("#range-slider").slider("values", 0, min);
+      $("#range-slider").slider("values", 1, max);
     }
-    if(that.afterRangeChange != undefined) {
+    if (that.afterRangeChange != undefined) {
       that.afterRangeChange(min,max);
     }
-
   }
 
   this.range_change = function() {
@@ -183,12 +177,11 @@ function MacaccObject(brainbrowser, path, dont_build_path) {
 
 
   this.data_control_change = function() {
- 
     var controls  = get_data_controls();
-    if(controls.modality == "AAL"){
-      that.show_atlas();
-      
-    }else if(that.vertex) {
+    
+    if (controls.modality == "AAL") {
+      that.show_atlas();  
+    } else if (that.vertex) {
       update_map();
     }
   };

@@ -18,7 +18,7 @@
 
 var surfview = (function() {
   
-  function init(model_url) {
+  function init(model_url, init_opts) {
     var view_window = document.getElementById("view-window");
     
     view_window.onselectstart = function() {
@@ -43,15 +43,15 @@ var surfview = (function() {
       };
 
       bb.afterLoadSpectrum = function (spectrum) {
-        var canvas = spectrum.createSpectrumCanvasWithScale(0,100,null);
-        canvas.id = "spectrum_canvas";
+        var canvas = spectrum.createSpectrumCanvasWithScale(0, 100, null);
         var spectrum_div = document.getElementById("color_bar");
-        if(!spectrum_div){
-          jQuery("<div id=\"color_bar\"></div>").html(canvas).appendTo("#data-range");      
-        }else {
-          jQuery(spectrum_div).html(canvas);
+        
+        canvas.id = "spectrum_canvas";
+        if (!spectrum_div) {
+          $("<div id=\"color_bar\"></div>").html(canvas).appendTo("#data-range");      
+        } else {
+          $(spectrum_div).html(canvas);
         }
-
 
         bb.spectrumObj = spectrum;
       };
@@ -100,15 +100,10 @@ var surfview = (function() {
       bb.clamped = true; //By default clamp range. 
       bb.flip = false;
       bb.clearScreen();
-      if(typeof model_url == 'string' && model_url != '') {
-        bb.loadObjFromUrl(model_url);      
-      }else if(typeof model_url == 'function'){
-        model_url(bb);
-      }
 
 
       //Add event handlers
-      jQuery("body").keydown(bb.keyPressedCallback);
+      $("body").keydown(bb.keyPressedCallback);
 
       /********************************************************
        * This section implements the range change events
@@ -120,7 +115,7 @@ var surfview = (function() {
        ********************************************************/
 
       //Create a range slider for the thresholds
-      jQuery("#range-slider").slider({
+      $("#range-slider").slider({
         range: true,
         min: -50,
         max: 50,
@@ -144,42 +139,42 @@ var surfview = (function() {
       function createDataUI(data) {
         var rangeBox = $("#data-range");
         var range_updating = false;
-        var html_string = "<div id=\"data_range_multiple\"><ul>";
+        var headers = ["<div id=\"data_range_multiple\"><ul>"];
+        var controls = [];
         var data = data.length ? data : [data];
+        var i, count;
 
         $(rangeBox).html("");
 
-        for(var i=0; i<data.length; i++) {
-  	      html_string += "<li><a href=\"#data_file"+i+"\">"+data[i].fileName+"</a></li>";
+        for(i = 0, count = data.length; i < count; i++) {
+  	      headers.push("<li><a href=\"#data_file" + i + "\">" + data[i].fileName + "</a></li>");
+  	      controls.push("<div id=\"data_file" + i + "\" class=\"box full_box\">");
+  	      controls.push("<h4>Thresholding</h4>");
+      	  controls.push("Min: <input class=\"range-box\" id=\"data-range-min\" type=\"text\" name=\"range_min\" size=\"5\" ><br />");
+      	  controls.push("<div id=\"range-slider+" + i + "\" data-blend-index=\"" + i + "\" class=\"slider\"></div>");
+      	  controls.push("Max: <input class=\"range-box\" id=\"data-range-max\" type=\"text\" name=\"range_max\" size=\"5\" >");
+      	  controls.push("<input type=\"checkbox\" class=\"button\" id=\"fix_range\"><label for=\"fix_range\">Fix Range</label>");
+      	  controls.push("<input type=\"checkbox\" class=\"button\" id=\"clamp_range\" checked=\"true\"><label for=\"clamp_range\">Clamp range</label>");
+      	  controls.push("<input type=\"checkbox\" class=\"button\" id=\"flip_range\"><label for=\"flip_range\">Flip Colors</label>");
+      	  controls.push("</div>");
         }
-        html_string +="</ul>";
-        for(var k=0; k<data.length; k++) {
-  	      html_string += "<div id=\"data_file"+k+"\" class=\"box full_box\">"
-      	  + "<h4>Thresholding</h4>"
-      	  +    "Min: <input class=\"range-box\" id=\"data-range-min\" type=\"text\" name=\"range_min\" size=\"5\" ><br />"
-      	  + "<div id=\"range-slider+"+k+"\" data-blend-index=\""+k+"\" class=\"slider\"></div>"
-      	  + "Max: <input class=\"range-box\" id=\"data-range-max\" type=\"text\" name=\"range_max\" size=\"5\" >"
-      	  + "<input type=\"checkbox\" class=\"button\" id=\"fix_range\"><label for=\"fix_range\">Fix Range</label>"
-      	  + "<input type=\"checkbox\" class=\"button\" id=\"clamp_range\" checked=\"true\"><label for=\"clamp_range\">Clamp range</label>"
-      	  + "<input type=\"checkbox\" class=\"button\" id=\"flip_range\"><label for=\"flip_range\">Flip Colors</label>"
-      	  + "</div>";
-        }
+        headers.push("</ul>");
+  
 
-        html_string += "</div>";
-        $(rangeBox).html(html_string);
+        $(rangeBox).html(headers.join("") + controls.join("") + "</div>");
         $(rangeBox).tabs();
 
-        $("#data_range").find(".slider").each(function(index,element) {
+        $("#data_range").find(".slider").each(function(index, element) {
           $(element).slider({
             range:true,
             min: data[0].values.min(),
             max: data[0].values.max(),
             values: [data[index].rangeMin,data[index].rangeMax],
             step: 0.1,
-            slide: function(event,ui) {
+            slide: function(event, ui) {
               if (!range_updating) {
-                range_updating = true;
                 var blend_id = $(this).attr("data-blend-index");
+                range_updating = true;
                 data[0].rangeMin = ui.values[0];
                 data[0].rangeMax = ui.values[1];
                 bb.model_data.data = data[0];
@@ -196,20 +191,20 @@ var surfview = (function() {
         function dataRangeChange(e) {
           var min = $("#data-range-min").val();
           var max = $("#data-range-max").val();
-          jQuery(e.target).siblings(".slider").slider('values', 0, min);
-          jQuery(e.target).siblings(".slider").slider('values', 1, max);
+          $(e.target).siblings(".slider").slider('values', 0, min);
+          $(e.target).siblings(".slider").slider('values', 1, max);
           bb.rangeChange(min,max,$(e.target).siblings("#clamp_range").is(":checked"));
 
         }
-        jQuery("#data-range-min").change(dataRangeChange);
+        $("#data-range-min").change(dataRangeChange);
 
-        jQuery("#data-range-max").change(dataRangeChange);
+        $("#data-range-max").change(dataRangeChange);
 
-        jQuery("#fix_range").click(function(event,ui) {
-          bb.fixRange = jQuery(e.target).is(":checked");
+        $("#fix_range").click(function(event,ui) {
+          bb.fixRange = $(e.target).is(":checked");
         });
 
-        jQuery("#clamp_range").change(function(e) {
+        $("#clamp_range").change(function(e) {
           var min = parseFloat($(e.target).siblings("#data-range-min").val());
           var max = parseFloat($(e.target).siblings("#data-range-max").val());
 
@@ -221,7 +216,7 @@ var surfview = (function() {
         });
 
 
-        jQuery("#flip_range").change(function(e) {
+        $("#flip_range").change(function(e) {
           bb.flip = $(e.target).is(":checked");
           bb.updateColors(bb.model_data.data,bb.model_data.data.rangeMin,bb.model_data.data.rangeMax,bb.spectrum,bb.flip,bb.clamped);
 
@@ -231,12 +226,12 @@ var surfview = (function() {
 
       bb.afterLoadData = function(min,max,data,multiple) {
 
-        if(multiple) {
+        if (multiple) {
           createDataUI(data);
-        }else {
+        } else {
           createDataUI(data);
-          jQuery("#range-slider").slider('values', 0, parseFloat(min));
-          jQuery("#range-slider").slider('values', 1, parseFloat(max));
+          $("#range-slider").slider('values', 0, parseFloat(min));
+          $("#range-slider").slider('values', 1, parseFloat(max));
           bb.afterRangeChange(min,max);
         }
 
@@ -258,25 +253,24 @@ var surfview = (function() {
         }
       });
 
-      jQuery('#clearshapes').click(function(e) {
+      $('#clearshapes').click(function(e) {
     	  bb.clearScreen();
     	});
 
 
 
-      jQuery("#openImage").click(function(e){
+      $("#openImage").click(function(e) {
     	  bb.getImageUrl();
     	});
 
 
       function changeAutoRotate(e) {
-        if($("#autorotate").is(":checked")){
+        if ($("#autorotate").is(":checked")) {
   	      bb.autoRotate = {};
   	      bb.autoRotate.x = $("#autorotateX").is(":checked");
   	      bb.autoRotate.y = $("#autorotateY").is(":checked");
   	      bb.autoRotate.z = $("#autorotateZ").is(":checked");
-
-        }else {
+        } else {
   	      bb.autoRotate = false;
         }
       }
@@ -285,7 +279,7 @@ var surfview = (function() {
 
       $(".range-box").keypress(function(e) {
   		  if(e.keyCode == '13'){
-  		    bb.rangeChange(parseFloat(jQuery("#data-range-min").val()),parseFloat(jQuery("#data-range-max").val()));
+  		    bb.rangeChange(parseFloat($("#data-range-min").val()),parseFloat($("#data-range-max").val()));
   		  }
   		});
 
@@ -295,13 +289,15 @@ var surfview = (function() {
   		});
 
       $("#examples").click(function(e) {
-        
   			var name = $(e.target).attr('data-example-name');
+  			var matrixRotX, matrixRotY;
+  			
   			switch(name) {
     			case	'basic':
     			  $("#loading").show();
     			  bb.clearScreen();
-    			  bb.loadObjFromUrl('/models/surf_reg_model_both.obj', { 
+    			  bb.loadModelFromUrl('/models/surf_reg_model_both.obj', {
+    			    format: "MNIObject",
      			    afterDisplay: function() {
      			      $("#loading").hide();
      			    }
@@ -310,19 +306,21 @@ var surfview = (function() {
     			case 'punkdti':
     			  $("#loading").show();
     			  bb.clearScreen();
-    			  bb.loadObjFromUrl('/models/dti.obj', { 
+    			  bb.loadModelFromUrl('/models/dti.obj', {
+    			    format: "MNIObject",
     			    renderDepth: 999,
     			    afterDisplay: function() {
     			      $("#loading").hide();
     			    }
     			  });
-       		  bb.loadObjFromUrl('/models/left_color.obj');
-       		  bb.loadObjFromUrl('/models/right_color.obj');
+       		  bb.loadModelFromUrl('/models/left_color.obj', { format: "MNIObject" });
+       		  bb.loadModelFromUrl('/models/right_color.obj', { format: "MNIObject" });
     			  break;
     			case 'realct':
     			  $("#loading").show();
     			  bb.clearScreen();
-    			  bb.loadObjFromUrl('/models/realct.obj', {
+    			  bb.loadModelFromUrl('/models/realct.obj', {
+    			    format: "MNIObject",
         	    afterDisplay: function() {
         	      bb.loadDataFromUrl('/models/realct.txt','cortical thickness'); 
         	      $("#loading").hide();
@@ -332,16 +330,17 @@ var surfview = (function() {
           case 'car':
             $("#loading").show();
     			  bb.clearScreen();
-    			  bb.loadWavefrontObjFromUrl('/models/car.obj', {
+    			  bb.loadModelFromUrl('/models/car.obj', {
+    			    format: "WavefrontObj",
          	    afterDisplay: function() {
          	      $("#loading").hide();
          	    }
          	  });
          	  bb.setCamera(0, 0, 100);			     
         
-      		  var matrixRotX = new THREE.Matrix4();
+      		  matrixRotX = new THREE.Matrix4();
             matrixRotX.makeRotationX(-0.25 * Math.PI)
-            var matrixRotY = new THREE.Matrix4();
+            matrixRotY = new THREE.Matrix4();
             matrixRotY.makeRotationY(0.4 * Math.PI)
         
             bb.getModel().applyMatrix(matrixRotY.multiply(matrixRotX));
@@ -349,23 +348,21 @@ var surfview = (function() {
     			case 'plane':
     			  $("#loading").show();
     			  bb.clearScreen();
-    			  bb.loadObjFromUrl('/models/dlr_bigger.streamlines.obj');
-    			  bb.loadObjFromUrl('/models/dlr.model.obj', {
+    			  bb.loadModelFromUrl('/models/dlr_bigger.streamlines.obj', { format: "MNIObject" });
+    			  bb.loadModelFromUrl('/models/dlr.model.obj', {
+    			    format: "MNIObject",
          	    afterDisplay: function() {
          	      $("#loading").hide();
          	    }
          	  });
          	  bb.setCamera(0, 0, 75);
         
-            var matrix = new THREE.Matrix4();
-            var matrixRotX = new THREE.Matrix4();
+            matrixRotX = new THREE.Matrix4();
             matrixRotX.makeRotationX(-0.25 * Math.PI)
-            var matrixRotY = new THREE.Matrix4();
+            matrixRotY = new THREE.Matrix4();
             matrixRotY.makeRotationY(0.4 * Math.PI)
-        
-            matrix.multiplyMatrices(matrixRotY, matrixRotX);
-        
-            bb.getModel().applyMatrix(matrix);
+                
+            bb.getModel().applyMatrix(matrixRotY.multiply(matrixRotX));
   			}
         
   			return false; 
@@ -383,7 +380,7 @@ var surfview = (function() {
       
       $("#obj_file_submit").click(function () {
         var format = $("#obj_file_format").closest("#obj_file_select").find("#obj_file_format option:selected").val();
-        bb.loadObjFromFile(document.getElementById("objfile"), { 
+        bb.loadModelFromFile(document.getElementById("objfile"), { 
           format: format, 
           beforeLoad: function() {
             $("#loading").show();
@@ -415,6 +412,12 @@ var surfview = (function() {
       $("#datablendfile").change(function() {
         bb.loadBlendDataFromFile(document.getElementById("datablendfile"));
       });
+      
+      if (typeof model_url == 'string' && model_url != '') {
+        bb.loadModelFromUrl(model_url, init_opts);      
+      } else if(typeof model_url == 'function'){
+        model_url(bb);
+      }
     });
    
   }

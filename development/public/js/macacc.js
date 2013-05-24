@@ -35,7 +35,8 @@ function initMacacc(path_prefix, dont_build_path) {
       bb.spectrumObj = spectrum;
     };
     
-    bb.loadObjFromUrl('/models/surf_reg_model_both.obj', { 
+    bb.loadModelFromUrl('/models/surf_reg_model_both.obj', { 
+      format: "MNIObject",
       afterDisplay: function() {
         $("#loading").hide();
         macacc = new MacaccObject(bb, path_prefix, dont_build_path);
@@ -46,8 +47,8 @@ function initMacacc(path_prefix, dont_build_path) {
         };
 
 
-        macacc.afterRangeChange= function(min,max) {
-          if(macacc.flipRange == true) {
+        macacc.afterRangeChange = function(min,max) {
+          if(macacc.flipRange) {
             var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null,true);
           }
           else {

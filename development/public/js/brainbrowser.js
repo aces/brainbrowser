@@ -28,10 +28,13 @@ function BrainBrowser(callback) {
   if(!(this instanceof BrainBrowser)) {
     return new BrainBrowser(callback);
   }
-  
+    
   var that = this; //Brainbrowser object. Makes sure that if "this" is remapped then we can still
                    // refer to original object. Also for local functions "this" is not available 
                    // but "that" is and can be used for special helper methods. 
+                   
+  var filetypes = BrainBrowser.filetypes;
+  
   
   var colorManager = new ColorManager();
   var view_window; //canvas element
@@ -910,48 +913,32 @@ function BrainBrowser(callback) {
   }
 
 
-  this.loadObjFromUrl = function(url, opts) {
+  this.loadModelFromUrl = function(url, opts) {
+    var options = opts || {};
     var parts;
     var filename;
+    var filetype = options.format || "MNIObject";
     loadFromUrl(url, opts, function(data) {
 		    parts = url.split("/");
 		    //last part of url will be shape name
 		    filename = parts[parts.length-1];
-		    that.displayObjectFile(new MNIObject(data), filename, opts);
+		    that.displayObjectFile(new filetypes[filetype](data), filename, options);
 		});
   };
 
-  this.loadWavefrontObjFromUrl = function(url, opts) {
-    var parts;
-    var filename;
-    loadFromUrl(url, opts, function(data) {
-		    parts = url.split("/");
-		    //last part of url will be shape name
-		    filename = parts[parts.length-1];
-		    that.displayObjectFile(new WavefrontObj(data), filename, opts);
-		});
-  };
-
-  this.loadObjFromFile = function(file_input, opts) {
+  this.loadModelFromFile = function(file_input, opts) {
     var options = opts || {};
     var parts;
     var filename;
     var obj;
+    var filetype = options.format || "MNIObject";
     
-    loadFromTextFile(file_input, options, function(result) {
+    loadFromTextFile(file_input, options, function(data) {
       parts = file_input.value.split("\\");
 			//last part of path will be shape name
 			filename = parts[parts.length-1];
-      switch (options.format) {
-        case "wavefront":
-          obj = new WavefrontObj(result);
-          break;
-        case "freesurfer":
-          obj = new FreeSurferAsc(result);
-          break;
-        default:
-          obj = new MNIObject(result);
-      }
+			obj = new filetypes[filetype](data)
+      
       if (obj.objectClass !== "__FAIL__") {
         that.displayObjectFile(obj, filename, options);
       } else if (options.onError != undefined) {
@@ -1498,3 +1485,7 @@ function BrainBrowser(callback) {
   this.init();
   callback(this);
 }
+
+BrainBrowser.filetypes = {};
+
+

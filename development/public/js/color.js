@@ -29,7 +29,6 @@ function ColorManager(){
    */
   function createColorMap(spectrum,canvaspixelarray,values,min,max,convert,brightness,contrast,alpha) {
     var spectrum = spectrum.colors;
-    
     //calculate a slice of the data per color
     var increment = ((max-min)+(max-min)/spectrum.length)/spectrum.length;
    

@@ -30,9 +30,9 @@
           <input type="file" name="objfile" id="objfile"><br>
           Format: 
           <select  id="obj_file_format" name="format">
-            <option value="mni">MNI OBJ</option>
-            <option value="wavefront">Wavefront OBJ</option>
-            <option value="freesurfer">Freesurfer ASC</option>
+            <option value="MNIObject">MNI OBJ</option>
+            <option value="WavefrontObj">Wavefront OBJ</option>
+            <option value="FreeSurferAsc">Freesurfer ASC</option>
           </select><br>
           <div id="format_hints"></div>
           <div id="obj_file_submit_div">
@@ -135,10 +135,10 @@
 	    <script type="text/javascript" src="/js/utils.js"></script> 
 	    <script type="text/javascript" src="/js/color.js"></script>
 	    <script type="text/javascript" src="/js/spectrum.js"></script> 
+	    <script type="text/javascript" src="/js/brainbrowser.js"></script>
 	    <script type="text/javascript" src="/js/mniobj.js"></script> 
 	    <script type="text/javascript" src="/js/wavefront_obj.js"></script>
-	    <script type="text/javascript" src="/js/freesurfer_asc.js"></script>
-	    <script type="text/javascript" src="/js/brainbrowser.js"></script> 
+	    <script type="text/javascript" src="/js/freesurfer_asc.js"></script> 
 	    <script type="text/javascript" src="/js/surfview.js"></script> 
 	    <script type="text/javascript" src="/js/jquery-ui-1.8.10.custom.min.js"></script>
     <% end %>
@@ -148,7 +148,7 @@
         $("#loading").show();
         surfview.init(function(bb) {
           bb.clearScreen();
-          bb.loadObjFromUrl('/models/realct.obj', {
+          bb.loadModelFromUrl('/models/realct.obj', {
             afterDisplay: function() {
               bb.loadSpectrumFromUrl('/assets/spectral_spectrum.txt', {
                 afterLoadSpectrum: function() {

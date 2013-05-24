@@ -22,7 +22,8 @@
  * needed to display the file.
  *
  */
-function MNIObject(string) {
+ 
+BrainBrowser.filetypes.MNIObject = function(string) {
 
   var stack;
 

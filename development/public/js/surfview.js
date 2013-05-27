@@ -343,7 +343,7 @@ var surfview = (function() {
             matrixRotY = new THREE.Matrix4();
             matrixRotY.makeRotationY(0.4 * Math.PI)
         
-            bb.getModel().applyMatrix(matrixRotY.multiply(matrixRotX));
+            bb.model.applyMatrix(matrixRotY.multiply(matrixRotX));
     			  break;
     			case 'plane':
     			  $("#loading").show();
@@ -362,7 +362,7 @@ var surfview = (function() {
             matrixRotY = new THREE.Matrix4();
             matrixRotY.makeRotationY(0.4 * Math.PI)
                 
-            bb.getModel().applyMatrix(matrixRotY.multiply(matrixRotX));
+            bb.model.applyMatrix(matrixRotY.multiply(matrixRotX));
   			}
         
   			return false; 

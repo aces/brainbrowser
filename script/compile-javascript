@@ -3,14 +3,15 @@
 APP_ROOT=`pwd`
 
 COMPRESSOR="java -jar $APP_ROOT/script/yuicompressor-2.4.7.jar"
+BB_MODULES="brainbrowser.js brainbrowser.rendering.js brainbrowser.color.js brainbrowser.data.js brainbrowser.models.js brainbrowser.picking.js brainbrowser.ui.js brainbrowser.views.js"
 
 cd $APP_ROOT/development/public/js
-cat data.js utils.js color.js spectrum.js wavefront_obj.js freesurfer_asc.js mniobj.js brainbrowser.js surfview.js > /tmp/surface-combined.js
+cat $APP_ROOT/license_header.txt data.js utils.js color.js spectrum.js $BB_MODULES surfview.js wavefront_obj.js freesurfer_asc.js mniobj.js > /tmp/surface-combined.js
 $COMPRESSOR /tmp/surface-combined.js -o $APP_ROOT/production/public/js/surfview-combined.min.js
 rm /tmp/surface-combined.js
-cat utils.js mniobj.js color.js spectrum.js data.js dataset.js brainbrowser.js macacc_collection.js macacc.js > /tmp/macacc-combined.js
+cat $APP_ROOT/license_header.txt utils.js color.js spectrum.js data.js dataset.js $BB_MODULES macacc_collection.js macacc.js mniobj.js > /tmp/macacc-combined.js
 $COMPRESSOR /tmp/macacc-combined.js -o $APP_ROOT/production/public/js/macacc-combined.min.js
 rm /tmp/macacc-combined.js
-cat utils.js minc.js color.js spectrum.js loader.js braincanvas.js > /tmp/html5-minc-viewer.js
+cat $APP_ROOT/license_header.txt utils.js minc.js color.js spectrum.js loader.js braincanvas.js > /tmp/html5-minc-viewer.js
 $COMPRESSOR /tmp/html5-minc-viewer.js -o $APP_ROOT/production/public/js/html5-minc-viewer.min.js
 

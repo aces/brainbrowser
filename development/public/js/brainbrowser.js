@@ -32,7 +32,7 @@ function BrainBrowser(callback) {
     
   var that = this;
                    
-  this.view_window = $("#view-window");
+  this.view_window = $("#brainbrowser");
   this.model = undefined; 
   this.scene = undefined;
   this.camera = undefined;
@@ -44,8 +44,6 @@ function BrainBrowser(callback) {
       BrainBrowser.modules[module](this);
     }
   }
-  
-  var colorManager = new ColorManager();
   
   /*! 
    * WebGL test taken from Detector.js by

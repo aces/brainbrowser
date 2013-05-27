@@ -19,7 +19,7 @@
 var surfview = (function() {
   
   function init(model_url, init_opts) {
-    var view_window = document.getElementById("view-window");
+    var view_window = document.getElementById("brainbrowser");
     
     view_window.onselectstart = function() {
       return false;

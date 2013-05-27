@@ -16,6 +16,8 @@
  */
 
 BrainBrowser.modules.color = function(bb) {
+
+   var colorManager = new ColorManager();
   
   /*
    * This updates the colors of the brain model

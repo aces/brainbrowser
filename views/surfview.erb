@@ -48,42 +48,11 @@
         <span id="clearshapes" class="button">Clear Shapes</span>
     </div>
     <div id="background_select" class="box full_box">
-      Background Color:
-      <select id="clear_color"> 
-        <option value="default">Gray</option>
-        <option value="white">White</option>
-        <option value="black">Black</option>
-        <option value="pink">HOT PINK!</option>
-      </select>
+      <%= erb :background_color %>
     </div>
     <div class="combo_box">
       <div id="views" class="box half_box" >
-        <h4>Views:</h4>
-        <div id="hem_views_1" class="half_box">
-          <input id="left_hem_visible" class="view_button" type="checkbox" checked="true">Left 
-          <br />
-          <input id="hem_superior" class="view_button" type="radio" name="hem_view" value="superior" checked="true">Superior
-
-          <br />
-          <input id="hem_medial" class="view_button" type="radio" name="hem_view" value="medial">Medial
-
-          <br />
-          <input id="hem_anterior" class="view_button" type="radio" name="hem_view" value="anterior">Anterior
-
-        </div>
-        <div id="hem_views_2" class="half_box">
-          <input id="right_hem_visible" class="view_button" type="checkbox" checked="true">Right<br />
-          <input id="hem_inferior" class="view_button" type="radio" name="hem_view" value="inferior">Inferior	     
-          <br />
-          <input id="hem_lateral" class="view_button" type="radio" name="hem_view" value="lateral">Lateral
-          <br />
-          <input id="hem_posterior" class="view_button" type="radio" name="hem_view" value="posterior">Posterior
-        </div>
-        <span class="button" id="resetview">Reset View</span>
-        <input type="checkbox" class="button" id="meshmode"><label for="meshmode">Mesh Mode</label>
-        <p>
-          <input type="checkbox" class="button" id="threedee"><label for="threedee">3D Glasses!</label>
-        </p>
+        <%= erb :view_controls %>
       </div>
       <div id="shape-cell" class="box half_box">
         <div id="shapes">
@@ -131,13 +100,12 @@
 	    <script type="text/javascript" src="/js/color.js"></script>
 	    <script type="text/javascript" src="/js/spectrum.js"></script> 
 	    <script type="text/javascript" src="/js/brainbrowser.js"></script>
-	    <script type="text/javascript" src="/js/brainbrowser.rendering.js"></script>
 	    <script type="text/javascript" src="/js/brainbrowser.color.js"></script>
-	    <script type="text/javascript" src="/js/brainbrowser.picking.js"></script>
 	    <script type="text/javascript" src="/js/brainbrowser.data.js"></script>
   	  <script type="text/javascript" src="/js/brainbrowser.models.js"></script>
-  	  <script type="text/javascript" src="/js/brainbrowser.ui.js"></script>
+  	  <script type="text/javascript" src="/js/brainbrowser.rendering.js"></script>
   	  <script type="text/javascript" src="/js/brainbrowser.views.js"></script>
+  	  <script type="text/javascript" src="/js/brainbrowser.ui.js"></script>
 	    <script type="text/javascript" src="/js/mniobj.js"></script> 
 	    <script type="text/javascript" src="/js/wavefront_obj.js"></script>
 	    <script type="text/javascript" src="/js/freesurfer_asc.js"></script> 

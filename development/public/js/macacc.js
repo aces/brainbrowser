@@ -20,14 +20,6 @@ function initMacacc(path_prefix, dont_build_path) {
   var macacc;
   
   BrainBrowser(function(bb) {
-    bb.getViewParams = function() {
-      return {
-        view: $('[name=hem_view]:checked').val(),
-        left: $('#left_hem_visible').is(":checked"),
-        right: $('#right_hem_visible').is(":checked")
-      };
-
-    };
 
     bb.afterLoadSpectrum = function (spectrum) {
       var canvas = spectrum.createSpectrumCanvasWithScale(0,5,null,false);
@@ -72,28 +64,6 @@ function initMacacc(path_prefix, dont_build_path) {
         });
       }
     });
-
-
-    $('#meshmode').change(function(e) {
-      if($(e.target).is(":checked")) {
-        bb.set_fill_mode_wireframe();
-      }else {
-        bb.set_fill_mode_solid();
-      }
-    });
-    
-    $('#threedee').change(function(e) {
-      if ($(e.target).is(":checked")) {
-        bb.anaglyphEffect();
-      } else {
-        bb.noEffect();
-      }
-    });
-    
-    $("#clear_color").change(function(e){
-		  var color_name = $(e.target).val();
-		  bb.updateClearColorFromName(color_name);
-		});
 
     $("#range-slider").slider({
       range: true,
@@ -171,13 +141,6 @@ function initMacacc(path_prefix, dont_build_path) {
       
       $("#flip_range").attr("checked", !$("#flip_range").attr("checked")).change();
     });
-    
-    $('#resetview').click(bb.setupView);
-
-    $('.view_button').change(bb.setupView);
-    $('[name=hem_view]').change(bb.setupView);
-    $(".button").button();
-    $(".button_set").buttonset();
 
     $("#secondWindow").click(function(e){
       bb.secondWindow=window.open('/macacc.html','secondWindow');

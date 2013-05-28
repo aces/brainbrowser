@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
  
-BrainBrowser.modules.ui = function(bb) {
+BrainBrowser.plugins.ui = function(bb) {
   
   var doc = document;
   
@@ -30,11 +30,11 @@ BrainBrowser.modules.ui = function(bb) {
 
     switch(event.which) {
       case 38:
-        bb.ZoomInOut(1.1);
+        bb.ZoomInOut(1/1.1);
         action_taken = true;
         break;
       case 40:
-        bb.ZoomInOut(1/1.1);
+        bb.ZoomInOut(1.1);
         action_taken = true;
         break;
       case 32:
@@ -103,4 +103,61 @@ BrainBrowser.modules.ui = function(bb) {
     
     img.src = renderer.domElement.toDataURL();
   };
+  
+  bb.getViewParams = function() {
+    return {
+      view: $('[name=hem_view]:checked').val(),
+      left: $('#left_hem_visible').is(":checked"),
+      right: $('#right_hem_visible').is(":checked")
+    };
+
+  };
+  
+  function changeAutoRotate(e) {
+    if ($("#autorotate").is(":checked")) {
+      bb.autoRotate = {};
+      bb.autoRotate.x = $("#autorotateX").is(":checked");
+      bb.autoRotate.y = $("#autorotateY").is(":checked");
+      bb.autoRotate.z = $("#autorotateZ").is(":checked");
+    } else {
+      bb.autoRotate = false;
+    }
+  }
+  
+  $("body").keydown(bb.keyPressedCallback);
+  
+  $("#clear_color").change(function(e){
+     var color_name = $(e.target).val();
+     bb.updateClearColorFromName(color_name);
+  });
+  
+  //Setups the view events and handlers
+  $('#resetview').click(bb.setupView);
+  $('.view_button').change(bb.setupView);
+  $('[name=hem_view]').change(bb.setupView);
+  
+  $('#meshmode').change(function(e) {
+    if ($(e.target).is(":checked")) {
+      bb.set_fill_mode_wireframe();
+    } else {
+      bb.set_fill_mode_solid();
+    }
+  });
+
+  $('#threedee').change(function(e) {
+    if ($(e.target).is(":checked")) {
+      bb.anaglyphEffect();
+    } else {
+      bb.noEffect();
+    }
+  });
+
+  $("#openImage").click(function(e) {
+    bb.getImageUrl();
+  });
+
+  $("#autorotate-controls").children().change(changeAutoRotate);
+  $("#autorotate").change(changeAutoRotate);
+  
+  
 };  

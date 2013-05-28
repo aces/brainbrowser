@@ -39,9 +39,21 @@ function BrainBrowser(callback) {
   
   var module;
   
+  for (module in BrainBrowser.core) {
+    if (BrainBrowser.core.hasOwnProperty(module)) {
+      BrainBrowser.core[module](this);
+    }
+  }
+  
   for (module in BrainBrowser.modules) {
     if (BrainBrowser.modules.hasOwnProperty(module)) {
       BrainBrowser.modules[module](this);
+    }
+  }
+  
+  for (module in BrainBrowser.plugins) {
+    if (BrainBrowser.plugins.hasOwnProperty(module)) {
+      BrainBrowser.plugins[module](this);
     }
   }
   
@@ -54,8 +66,10 @@ function BrainBrowser(callback) {
   callback(this);
 }
 
-BrainBrowser.filetypes = {};
+BrainBrowser.core = {};
 BrainBrowser.modules = {};
+BrainBrowser.plugins = {};
+BrainBrowser.filetypes = {};
 
 /*! 
  * WebGL test taken from Detector.js by

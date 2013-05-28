@@ -17,23 +17,14 @@
 
 
 $(function() {
-  var view_window = document.getElementById("brainbrowser");
   
-  if (!BrainBrowser.webgl_enabled()) {
-    $(view_window).html(BrainBrowser.webGLErrorMessage());
-    return;
-  }
-
-  view_window.onselectstart = function() {
-    return false;
-  };
-
-  view_window.onmousedown = function() {
-    return false;
-  };
-
   $(".button").button();
   $(".buttonset").buttonset();
+  
+  if (!BrainBrowser.webgl_enabled()) {
+    $("#brainbrowser").html(BrainBrowser.webGLErrorMessage());
+    return;
+  }
 
   BrainBrowser(function(bb) {
     $("#loading").show();
@@ -48,15 +39,10 @@ $(function() {
         $("#loading").hide();
       }
     });
-    
-    bb.getViewParams = function() {
-      return {
-        view: $('[name=hem_view]:checked').val(),
-        left: $('#left_hem_visible').is(":checked"),
-        right: $('#right_hem_visible').is(":checked")
-      };
-
-    };
+ 
+    //setting up some defaults 
+    bb.clamped = true; //By default clamp range. 
+    bb.flip = false;
 
     bb.afterLoadSpectrum = function (spectrum) {
       var canvas = spectrum.createSpectrumCanvasWithScale(0, 100, null);
@@ -106,20 +92,10 @@ $(function() {
         }
       });
     };
-
-    //Setups the view events and handlers
-    $('#resetview').click(bb.setupView);
-    $('.view_button').change(bb.setupView);
-    $('[name=hem_view]').change(bb.setupView);
-
-    //setting up some defaults 
-    bb.clamped = true; //By default clamp range. 
-    bb.flip = false;
-    bb.clearScreen();
-
-
-    //Add event handlers
-    $("body").keydown(bb.keyPressedCallback);
+    
+    $('#clearshapes').click(function(e) {
+      bb.clearScreen();
+    });
 
     /********************************************************
     * This section implements the range change events
@@ -253,55 +229,10 @@ $(function() {
 
     };
 
-    $('#meshmode').change(function(e) {
-      if ($(e.target).is(":checked")) {
-        bb.set_fill_mode_wireframe();
-      } else {
-        bb.set_fill_mode_solid();
-      }
-    });
-
-    $('#threedee').change(function(e) {
-      if ($(e.target).is(":checked")) {
-        bb.anaglyphEffect();
-      } else {
-        bb.noEffect();
-      }
-    });
-
-    $('#clearshapes').click(function(e) {
-      bb.clearScreen();
-    });
-
-
-
-    $("#openImage").click(function(e) {
-      bb.getImageUrl();
-    });
-
-
-    function changeAutoRotate(e) {
-      if ($("#autorotate").is(":checked")) {
-        bb.autoRotate = {};
-        bb.autoRotate.x = $("#autorotateX").is(":checked");
-        bb.autoRotate.y = $("#autorotateY").is(":checked");
-        bb.autoRotate.z = $("#autorotateZ").is(":checked");
-      } else {
-        bb.autoRotate = false;
-      }
-    }
-    $("#autorotate-controls").children().change(changeAutoRotate);
-    $("#autorotate").change(changeAutoRotate);
-
     $(".range-box").keypress(function(e) {
       if(e.keyCode == '13'){
         bb.rangeChange(parseFloat($("#data-range-min").val()),parseFloat($("#data-range-max").val()));
       }
-    });
-
-    $("#clear_color").change(function(e){
-      var color_name = $(e.target).val();
-      bb.updateClearColorFromName(color_name);
     });
 
     $("#examples").click(function(e) {

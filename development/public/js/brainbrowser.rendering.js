@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
  
-BrainBrowser.modules.rendering = function(bb) {
+BrainBrowser.core.rendering = function(bb) {
   var renderer; //THREE.js renderer
   var pointLight;
   var camera_controls;

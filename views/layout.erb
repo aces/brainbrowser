@@ -9,7 +9,6 @@
   </head>  
   <body>
     <div id="main">
-      <div id="webgl"></div>
       <div id="header">
 	<h1><a href="/">BrainBrowser</a></h1>
       </div>
@@ -28,28 +27,15 @@
     <script type="text/javascript" src="/js/jquery-ui.js"></script>
     <script type="text/javascript">
       $(function() { 
-      $(".button").button();
-      $(".tabs").tabs({ heigth: 800
-      });
+        $(".button").button();
+        $(".tabs").tabs({ heigth: 800 });
         $(".tablink").click(function(e) {
-      var tabs_object = $(e.target).attr('data-tabs');
-      var tab = $(e.target).attr('data-tab');
-      $("#"+tabs_object).tabs("select", tab);
+          var tabs_object = $(e.target).attr('data-tabs');
+          var tab = $(e.target).attr('data-tab');
+          $("#"+tabs_object).tabs("select", tab);
           return false;
         });
-        if(!Modernizr.webgl) {
-          $("#webgl").html("Your browser does not support WebGL. BrainBrowser requires WebGL to function. Please click one of the following links to obtain a WebGL browser: <a href='http://www.google.com/chrome'>Chrome</a> or <a href='http://www.mozilla.com/en-US/firefox/RC/'>Firefox 4 Release Candidate</a>");
-          $("#webgl").css("margin-top","20px");
-          $("#webgl").css("margin-bottom","0px");
-          $("#webgl").css("background","white");
-          $("#webgl").css("border-color","#FF2233");
-          $("#webgl").css("border-style","dashed");
-          $("#webgl").css("border-width","5px");
-          $("#webgl").css("padding","5px");
-        }
-
-       });
-      
+      });
     </script>
   </body>
 </html>

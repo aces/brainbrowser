@@ -45,35 +45,10 @@ function BrainBrowser(callback) {
     }
   }
   
-  /*! 
-   * WebGL test taken from Detector.js by
-   * alteredq / http://alteredqualia.com/
-   * mr.doob / http://mrdoob.com/
-  */
-  function webgl_enabled() { 
-    try { 
-      return !!window.WebGLRenderingContext && !!document.createElement('canvas').getContext('experimental-webgl'); 
-    } catch(e) { 
-      return false; 
-    } 
-  }
-
-  function webGLErrorMessage() {
-    var el;
-    var text = 'BrainBrowser requires <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">WebGL</a>.<br/>';
-    text += window.WebGLRenderingContext ? 'Your browser seems to support it, but it is <br/> disabled or unavailable.<br/>' : 
-            "Your browser does not seem to support it.<br/>";
-		text += 'Test your browser\'s WebGL support <a href="http://get.webgl.org/">here</a>.';
-		
-    el = $('<div id="webgl-error">' + text + '</div>');
-        
-    return el;
-  }
-  
-  if (webgl_enabled()) {
+  if (BrainBrowser.webgl_enabled()) {
     this.render();
   } else {
-    this.view_window.html(webGLErrorMessage());
+    alert("Can't get WebGL constext. Exiting.")
     return;
   }
   callback(this);
@@ -81,5 +56,32 @@ function BrainBrowser(callback) {
 
 BrainBrowser.filetypes = {};
 BrainBrowser.modules = {};
+
+/*! 
+ * WebGL test taken from Detector.js by
+ * alteredq / http://alteredqualia.com/
+ * mr.doob / http://mrdoob.com/
+*/
+
+BrainBrowser.webgl_enabled = function () { 
+  try { 
+    return !!window.WebGLRenderingContext && !!document.createElement('canvas').getContext('experimental-webgl'); 
+  } catch(e) { 
+    return false; 
+  } 
+}
+
+BrainBrowser.webGLErrorMessage = function() {
+  var el;
+  var text = 'BrainBrowser requires <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">WebGL</a>.<br/>';
+  text += window.WebGLRenderingContext ? 'Your browser seems to support it, but it is <br/> disabled or unavailable.<br/>' : 
+          "Your browser does not seem to support it.<br/>";
+	text += 'Test your browser\'s WebGL support <a href="http://get.webgl.org/">here</a>.';
+	
+  el = $('<div id="webgl-error">' + text + '</div>');
+      
+  return el;
+}
+
 
 

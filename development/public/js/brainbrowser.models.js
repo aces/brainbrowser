@@ -20,7 +20,7 @@ BrainBrowser.modules.models = function(bb) {
   /**
    * Display and MNI object file.
    * It uses different function depending on if it's a polygon(triange) shape denoted by P
-   * if it's a polygon shape and has exactly 81924 vertices than it's probably a braina and
+   * if it's a polygon shape and has exactly 81924 vertices than it's probably a brain and
    * we handle that specialy to seperate the hemispheres. 
    *
    * @param {Object} obj object of the parsed MNI Object file to be displayed
@@ -335,7 +335,7 @@ BrainBrowser.modules.models = function(bb) {
    * of the specific shape. 
    */
   bb.changeShapeTransparency = function(shape_name, alpha) {
-    var shape = brain.getChildByName(shape_name);
+    var shape = bb.model.getChildByName(shape_name);
     var material;
     if (shape) {
       material = shape.material;

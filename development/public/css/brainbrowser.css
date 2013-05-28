@@ -1,107 +1,113 @@
 body {
-    background: white;
-    font: arial;
-    font-size: 12px;
-    color: black;
-    height: 100%;
+  background: white;
+  font: arial;
+  font-size: 12px;
+  color: black;
+  height: 100%;
 }
 
 h4 {
-    margin-top: 0;
-    margin-bottom: 0;
-    font-size: 14px;
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 14px;
 }
 
 #controls {
-    width: 420px;
-    max-width: 400px;
-    height: 100%;
-    float:left;
+  width: 420px;
+  max-width: 400px;
+  height: 100%;
+  float:left;
 }
 
 #brainbrowser {
-    float: right;
-    height: 100%;
-    margin: 1px;
-    position: absolute;
-    left: 420px;
-    top: 0px;
-    bottom: 0px;
-    right: 0px;
+  float: right;
+  height: 100%;
+  margin: 1px;
+  position: absolute;
+  left: 420px;
+  top: 0px;
+  bottom: 0px;
+  right: 0px;
 }
 
 .box {
-    border-radius: 10px;
-    -moz-border-radius: 10px;
-    background: #555555;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-right: 5px;
-    padding-left: 5px;
-    margin: 2px;
-    color: #F0f0f0;
+  border-radius: 10px;
+  -moz-border-radius: 10px;
+  background: #555555;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-right: 5px;
+  padding-left: 5px;
+  margin: 2px;
+  color: #F0f0f0;
 }
 
 .half_box {
-    width: 45%;
-    float:left;
-    height: 100%;
+  display: table-cell;
+  width: 45%;
+  height: 100%;
 }
 .combo_box {
-    display: table;
+  display: table;
+  border-spacing: 5px 2px;
 }
 
 .full_box {
-    width: 100%;
+  width: 100%;
 }
 .quater_box {
-    width: 25%;
-    float: left;
+  width: 25%;
+  float: left;
 }
 
 .three_quater_box {
-    width:65%;
-    float:left;
+  width:65%;
+  float:left;
+}
+
+#shapes {
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .shape {
-    border-style: solid;
-    border-width: 1px;
-    border-color: black;
+  margin-bottom: 15px;
 }
 
 .ui-button-text {
-    font-size: 11px !important
+  font-size: 11px !important
 }
 
 a:link {
-    color: orange;
+  color: orange;
 }
 
 a:visited {
-    color: orange;
+  color: orange;
 }
 
 .slider {
-    width: 75%;
-    margin: auto;
+  display: inline-block;
+  margin-top: 1px;
+  width: 70%;
+  margin: auto;
 }
 
 
 select#clear_color {
-    width: 75%;
+  width: 75%;
 }
 
 #age_series {
-   font-size: 30px;
+  font-size: 30px;
 }
 
 .cfd_logo {
-   height: 150px;
-   background-color: white;
-   background-image:url('/img/airplane_logos.jpg');
-   background-repeat: no-repeat;
-   background-position: left top;
+  height: 150px;
+  background-color: white;
+  background-image:url('/img/airplane_logos.jpg');
+  background-repeat: no-repeat;
+  background-position: left top;
 }
 
 
@@ -137,7 +143,7 @@ div#obj_file_select {
   background-color: gray;
   padding: 0.5em;
   border-radius: 10px;
- 
+
 }
 
 div#obj_file_submit_div {
@@ -153,7 +159,7 @@ input[type=file] {
 }
 
 select#obj_file_format {
-    width: 85%;
+  width: 85%;
 }
 
 div#usage_notes {

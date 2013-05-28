@@ -20,7 +20,7 @@ function MacaccObject(brainbrowser, path, dont_build_path) {
   this.brainbrowser = brainbrowser;
   this.dataSet = new Dataset(path,dont_build_path);
 
-  //Defining constants I will use
+  //Defining properties I will use
   that.debugLineGroup;
   that.debugLine;
   that.selectedInfo = null;

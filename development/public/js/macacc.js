@@ -22,16 +22,16 @@ function initMacacc(path_prefix, dont_build_path) {
   BrainBrowser(function(bb) {
     bb.getViewParams = function() {
       return {
-        view: jQuery('[name=hem_view]:checked').val(),
-        left: jQuery('#left_hem_visible').is(":checked"),
-        right: jQuery('#right_hem_visible').is(":checked")
+        view: $('[name=hem_view]:checked').val(),
+        left: $('#left_hem_visible').is(":checked"),
+        right: $('#right_hem_visible').is(":checked")
       };
 
     };
 
     bb.afterLoadSpectrum = function (spectrum) {
       var canvas = spectrum.createSpectrumCanvasWithScale(0,5,null,false);
-      jQuery("#spectrum").html(jQuery(canvas));
+      $("#spectrum").html($(canvas));
       bb.spectrumObj = spectrum;
     };
     
@@ -54,15 +54,15 @@ function initMacacc(path_prefix, dont_build_path) {
           else {
             var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null,false);
           }
-          jQuery("#spectrum").html(jQuery(canvas));
+          $("#spectrum").html($(canvas));
         };
         
-        jQuery('.data_controls').change(macacc.data_control_change);
-        macacc.pickInfoElem=jQuery("#vertex_info");
+        $('.data_controls').change(macacc.data_control_change);
+        macacc.pickInfoElem=$("#vertex_info");
         
-        jQuery("#x-coord-flip").click(macacc.flipXCoordinate); //flip x from one hemisphere to the other.
+        $("#x-coord-flip").click(macacc.flipXCoordinate); //flip x from one hemisphere to the other.
         
-        jQuery("#model").change(function(event) {
+        $("#model").change(function(event) {
           $("#loading").show();
           macacc.change_model(event, {
             afterDisplay: function() {
@@ -75,7 +75,7 @@ function initMacacc(path_prefix, dont_build_path) {
 
 
     $('#meshmode').change(function(e) {
-      if(jQuery(e.target).is(":checked")) {
+      if($(e.target).is(":checked")) {
         bb.set_fill_mode_wireframe();
       }else {
         bb.set_fill_mode_solid();
@@ -101,8 +101,8 @@ function initMacacc(path_prefix, dont_build_path) {
       max: 15,
       values: [0, 5],
       slide: function(event, ui) {
-        jQuery("#data-range-min").val(ui.values[0]);
-        jQuery("#data-range-max").val(ui.values[1]);
+        $("#data-range-min").val(ui.values[0]);
+        $("#data-range-max").val(ui.values[1]);
         if(bb.current_dataset) {
           macacc.range_change();
         }
@@ -125,8 +125,8 @@ function initMacacc(path_prefix, dont_build_path) {
     });
 
     $("#data-range-max").change(function(e) {
-      jQuery("#range-slider").slider('values', 1, jQuery(this).val());
-      macacc.afterRangeChange(parseFloat(jQuery("#data-range-min").val()),parseFloat(jQuery("#data-range-max").val()));
+      $("#range-slider").slider('values', 1, $(this).val());
+      macacc.afterRangeChange(parseFloat($("#data-range-min").val()),parseFloat($("#data-range-max").val()));
     });
 
     $("[name=pointer]").change(function(e) {
@@ -137,10 +137,10 @@ function initMacacc(path_prefix, dont_build_path) {
 
     
 
-    jQuery('#screenshot').click(function(event) {jQuery(this).attr("href", bb.client.toDataUR());});
+    $('#screenshot').click(function(event) {$(this).attr("href", bb.client.toDataUR());});
     
-    $("#view-window").mousedown(function(e) {
-      var pointer_setting=jQuery('[name=pointer]:checked').val();
+    $("#brainbrowser").mousedown(function(e) {
+      var pointer_setting=$('[name=pointer]:checked').val();
       
       if(e.ctrlKey || pointer_setting == "check") {
         if(bb.valueAtPointCallback) {
@@ -153,33 +153,33 @@ function initMacacc(path_prefix, dont_build_path) {
       }
     });
 
-    jQuery("#flip_range").change(function(e) {
+    $("#flip_range").change(function(e) {
       macacc.update_model(bb.current_dataset);
     });
     
-    jQuery("#clamp_range").change(function(e) {
+    $("#clamp_range").change(function(e) {
       macacc.update_model(bb.current_dataset);
     });
     
 
 
-    jQuery("#flip_correlation").click(function(e) {
-      var min = -1*parseFloat(jQuery("#data-range-max").val());
-      var max = -1*parseFloat(jQuery("#data-range-min").val());
-      jQuery("#data-range-min").val(min).change();
-      jQuery("#data-range-max").val(max).change();
+    $("#flip_correlation").click(function(e) {
+      var min = -1*parseFloat($("#data-range-max").val());
+      var max = -1*parseFloat($("#data-range-min").val());
+      $("#data-range-min").val(min).change();
+      $("#data-range-max").val(max).change();
       
-      jQuery("#flip_range").attr("checked", !jQuery("#flip_range").attr("checked")).change();
+      $("#flip_range").attr("checked", !$("#flip_range").attr("checked")).change();
     });
     
-    jQuery('#resetview').click(bb.setupView);
+    $('#resetview').click(bb.setupView);
 
-    jQuery('.view_button').change(bb.setupView);
-    jQuery('[name=hem_view]').change(bb.setupView);
-    jQuery(".button").button();
-    jQuery(".button_set").buttonset();
+    $('.view_button').change(bb.setupView);
+    $('[name=hem_view]').change(bb.setupView);
+    $(".button").button();
+    $(".button_set").buttonset();
 
-    jQuery("#secondWindow").click(function(e){
+    $("#secondWindow").click(function(e){
       bb.secondWindow=window.open('/macacc.html','secondWindow');
     });
 

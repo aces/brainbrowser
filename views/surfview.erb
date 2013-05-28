@@ -56,8 +56,9 @@
         <option value="pink">HOT PINK!</option>
       </select>
     </div>
-    <div class="box full_box">
-        <h4>Views</h4>
+    <div class="combo_box">
+      <div id="views" class="box half_box" >
+        <h4>Views:</h4>
         <div id="hem_views_1" class="half_box">
           <input id="left_hem_visible" class="view_button" type="checkbox" checked="true">Left 
           <br />
@@ -78,22 +79,15 @@
           <br />
           <input id="hem_posterior" class="view_button" type="radio" name="hem_view" value="posterior">Posterior
         </div>
-        <p>
-          <a class="button" id="resetview">Reset View</a>
-          <input type="checkbox" class="button" id="meshmode"><label for="meshmode">Mesh Mode</label>
-          <span id="autorotate-controls" class="buttonset">
-            <input type="checkbox"  id="autorotate"><label for="autorotate">Autorotate</label>
-            <input type="checkbox"  id="autorotateX"><label for="autorotateX">X</label>
-            <input type="checkbox"  id="autorotateY"><label for="autorotateY">Y</label>
-            <input type="checkbox"  id="autorotateZ"><label for="autorotateZ">Z</label>
-          </span>
-        </p>
+        <span class="button" id="resetview">Reset View</span>
+        <input type="checkbox" class="button" id="meshmode"><label for="meshmode">Mesh Mode</label>
         <p>
           <input type="checkbox" class="button" id="threedee"><label for="threedee">3D Glasses!</label>
         </p>
-    </div>
-    <div class="box full_box" id="shapes-box">
-      <div id="shapes">
+      </div>
+      <div id="shape-cell" class="box half_box">
+        <div id="shapes">
+        </div>
       </div>
     </div>
     <div id="data_range" class="box full_box">
@@ -131,6 +125,7 @@
       <script type="text/javascript" src="/js/jquery-ui.js"></script>
     <% else %>
       <script type="text/javascript" src="/js/jquery-1.6.4.min.js"></script>
+      <script type="text/javascript" src="/js/jquery-ui-1.8.10.custom.min.js"></script>
       <script type="text/javascript" src="/js/data.js"></script> 
 	    <script type="text/javascript" src="/js/utils.js"></script> 
 	    <script type="text/javascript" src="/js/color.js"></script>
@@ -147,26 +142,6 @@
 	    <script type="text/javascript" src="/js/wavefront_obj.js"></script>
 	    <script type="text/javascript" src="/js/freesurfer_asc.js"></script> 
 	    <script type="text/javascript" src="/js/surfview.js"></script> 
-	    <script type="text/javascript" src="/js/jquery-ui-1.8.10.custom.min.js"></script>
     <% end %>
-	  
-    <script type="text/javascript">
-      $(function() {
-        $("#loading").show();
-        surfview.init(function(bb) {
-          bb.clearScreen();
-          bb.loadModelFromUrl('/models/realct.obj', {
-            afterDisplay: function() {
-              bb.loadSpectrumFromUrl('/assets/spectral_spectrum.txt', {
-                afterLoadSpectrum: function() {
-                  bb.loadDataFromUrl('/models/realct.txt','cortical thickness'); 
-                }
-              });
-              $("#loading").hide();
-            }
-          });
-        });
-      });
-    </script>
   </body>  
 </html>  

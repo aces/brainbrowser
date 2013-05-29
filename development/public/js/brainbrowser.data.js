@@ -17,6 +17,7 @@
  
 BrainBrowser.modules.data = function(bb) {
   
+  var Data = BrainBrowser.data.Data;
   var filetypes = BrainBrowser.filetypes;
 
   bb.loadModelFromUrl = function(url, opts) {
@@ -197,6 +198,30 @@ BrainBrowser.modules.data = function(bb) {
     bb.setupSeries();
   };
 
+  
+  function interpolateDataArray(first,second,percentage,blah) {
+    console.log(first.values.length);
+    //  if(first.length != second.length) {
+    //  console.log("can't interpolate different array size");
+      //throw "can't interpolate different array size";
+    // }
+    var i;
+    var count = first.values.length;  
+    var new_array = new Array(count);
+    console.log("Percentage: " + percentage);
+    
+    
+    for(i = 0; i < count; i++) {
+      if(blah){
+        new_array[i] = (first.values[i]*(100-percentage*100)+second.values[i]*(percentage*100))/100;            
+      }else {
+        new_array[i] = (first.values[i]*(100-percentage*100)+second.values[i]*(percentage*100))/100;            
+      }
+
+    }
+    console.log(new_array.length);
+    return new_array;
+  }
 
   /*
    * Setup for series data, creates a slider to switch between files. 

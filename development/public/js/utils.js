@@ -15,91 +15,25 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Array.prototype.min = function() {
-  var increment = 50000;
-  if(this.length > increment){
-    var reduced_array = [];
-    for(var i=0;i<this.length;i+=increment) {
-      reduced_array.push(Math.min.apply(Math, this.slice(i,i+increment-1)));
+if (!Array.prototype.min) {
+  Array.prototype.min = function() {
+    var min = this[0];
+    var i, count;
+    for (i = 1, count = this.length; i < count; i++) {
+      if (this[i] < min) min = this[i];
     }
-  }else {
-    return Math.min.apply(Math, this);
-  }
-  return reduced_array.min();
-
-};
-Array.prototype.max = function(array) {
-  var increment = 50000;
-  if(this.length > increment){
-    var reduced_array = [];
-    for(var i=0;i<this.length;i+=increment) {
-      reduced_array.push(Math.max.apply(Math, this.slice(i,i+increment-1)));
-    }
-  }else {
-    return Math.max.apply(Math, this);
-  }
-  return reduced_array.max();
-};
-
-/*
- * Only works with primitive. 
- */
-function cloneArray(original) {
-  var new_array = new Array(original.length);
-  for(var i=0; i< new_array.length; i++) {
-    new_array[i] = original[i];
-  }
-    
-  return new_array;
+    return min;
+  };
 }
 
-function rotateUint16Array90Left(array,width,height){
-  var new_array = new Uint16Array(width*height);
-  
-  for(var i = 0; i< width; i++){
-    for(var j=0; j< height; j++)  {
-      new_array[i*height+j] = array[j*width+(width-i)];
-
-      
+if (!Array.prototype.max) {
+  Array.prototype.max = function() {
+    var max = this[0];
+    var i, count;
+    for (i = 1, count = this.length; i < count; i++) {
+      if (this[i] > max) max = this[i];
     }
-  }
-  return new_array;
+    return max;
+  };
 }
 
-
-function rotateUint16Array90Right(array,width,height){
-  var new_array = new Uint16Array(width*height);
-  
-  for(var i = 0; i< width; i++){
-    for(var j=0; j< height; j++)  {
-      new_array[i*height+j] = array[(height-j)*width+i];
-
-      
-    }
-  }
-  return new_array;
-}
-
-function interpolateDataArray(first,second,percentage,blah) {
-  console.log(first.values.length);
-//  if(first.length != second.length) {
-  //  console.log("can't interpolate different array size");
-    //throw "can't interpolate different array size";
- // }
-  var length = first.values.length;  
-
-  var new_array = new Array(length);
-      console.log("Percentage: " + percentage);
-  for(var i = 0; i< length; i++) {
-    if(blah){
-      new_array[i] = (first.values[i]*(100-percentage*100)+second.values[i]*(percentage*100))/100;            
-    }else {
-      new_array[i] = (first.values[i]*(100-percentage*100)+second.values[i]*(percentage*100))/100;            
-    }
-
-      
-
-  }
-  console.log(new_array.length);
-  return new_array;
-}

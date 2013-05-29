@@ -319,6 +319,34 @@ function Minc(filename,extraArgs,callback) {
     }
     return new_array;
   };
+  
+  function rotateUint16Array90Left(array,width,height){
+    var new_array = new Uint16Array(width*height);
+    
+    for(var i = 0; i< width; i++){
+      for(var j=0; j< height; j++)  {
+        new_array[i*height+j] = array[j*width+(width-i)];
+  
+        
+      }
+    }
+    return new_array;
+  }
+  
+  
+  function rotateUint16Array90Right(array,width,height){
+    var new_array = new Uint16Array(width*height);
+    
+    for(var i = 0; i< width; i++){
+      for(var j=0; j< height; j++)  {
+        new_array[i*height+j] = array[(height-j)*width+i];
+  
+        
+      }
+    }
+    return new_array;
+  }
+
 
   /*
    * Scale a slice to be at a 1 instead of whatever step it is. 
@@ -338,20 +366,17 @@ function Minc(filename,extraArgs,callback) {
     //xspace should have yspace on the x axis and zspace on the y axis
     if(axis == "xspace" && that.xspace.height_space.name=="yspace"){
       if(that.zspace.step < 0){
-	slice = rotateUint16Array90Right(slice,new_width,new_height);      	
+        slice = rotateUint16Array90Right(slice,new_width,new_height);      	
       }else {
-	slice = rotateUint16Array90Left(slice,new_width,new_height);      	
+        slice = rotateUint16Array90Left(slice,new_width,new_height);      	
       }
-
-
-
     }
     //yspace should be XxZ
     if(axis == "yspace" && that.yspace.height_space.name=="xspace"){
       if(that.zspace.step < 0){
-	slice = rotateUint16Array90Right(slice,new_width,new_height);      	
+        slice = rotateUint16Array90Right(slice,new_width,new_height);      	
       }else {
-	slice = rotateUint16Array90Left(slice,new_width,new_height);      	
+        slice = rotateUint16Array90Left(slice,new_width,new_height);      	
       }
 
     }

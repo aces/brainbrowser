@@ -18,7 +18,7 @@
 function MacaccObject(brainbrowser, path, dont_build_path) {
   var that = this;
   this.brainbrowser = brainbrowser;
-  this.dataSet = new Dataset(path,dont_build_path);
+  this.dataSet = new BrainBrowser.data.Dataset(path, dont_build_path);
 
   //Defining properties I will use
   that.debugLineGroup;

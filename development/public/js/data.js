@@ -20,18 +20,22 @@
 * @constructor
 * @param {String} data data file in string format to parse 
 */
-function Data(data) {
+BrainBrowser.data.Data = function(data) {
   var that = this;
   that.parse = function(string) {
-    string = string.replace(/\s+$/, '');
-    string = string.replace(/^\s+/, '');
+    var i, count, min, max;
+  
+    string = string.replace(/^\s+/, '').replace(/\s+$/, '');
     that.values = string.split(/\s+/);
-    for(var i = 0; i < that.values.length; i++) {
+    min = that.values[0];
+    max = that.values[0];
+    for(i = 0, count = that.values.length; i < count; i++) {
       that.values[i] = parseFloat(that.values[i]);
+      min = Math.min(min, that.values[i]);
+      max = Math.max(max, that.values[i]);
     }
-    that.min = that.values.min();
-    that.max = that.values.max();
-
+    that.min = min;
+    that.max = max;
   };
 
   this.createColorArray = function(min, max, spectrum, flip, clamped, original_colors, model) {
@@ -39,43 +43,49 @@ function Data(data) {
     var colorArray = new Array();
     //calculate a slice of the data per color
     var increment = ((max-min)+(max-min)/spectrum.length)/spectrum.length;
+    var i, j, count;
+    var color_index;
+    var value;
+    var newColorArray;
+    
     //for each value, assign a color
-    for(var i=0; i<that.values.length; i++) {
-      if(that.values[i] <= min ) {
-        if(that.values[i] < min && !clamped) {
-          var color_index = -1;
-        }else {
-          var color_index = 0; 
+    for (i = 0, count = that.values.length; i < count; i++) {
+      value = that.values[i];
+      if(value <= min ) {
+        if (value < min && !clamped) {
+          color_index = -1;
+        } else {
+          color_index = 0; 
         }
-      }else if(that.values[i] > max){
-        if(!clamped){
-          var color_index = -1;
+      }else if (value > max){
+        if (!clamped){
+          color_index = -1;
         }else {
-          var color_index = spectrum.length-1;
+          color_index = spectrum.length - 1;
         }
       }else {
-        var color_index = parseInt((that.values[i]-min)/increment);
+        color_index = parseInt((value-min)/increment);
       }
       //This inserts the RGBA values (R,G,B,A) independently
-      if(flip && color_index != -1) {
+      if (flip && color_index != -1) {
         colorArray.push.apply(colorArray, spectrum[spectrum.length-1-color_index]);
-      }else {
-        if(color_index == -1) {
-          if(original_colors.length == 4){
-            colorArray.push.apply(colorArray, original_colors);	  
+      } else {
+        if(color_index === -1) {
+          if(original_colors.length === 4){
+            colorArray.push.apply(colorArray, original_colors);   
           }else {
-            colorArray.push.apply(colorArray, [original_colors[i*4], original_colors[i*4+1], original_colors[i*4+2], original_colors[i*4+3]]);	  
+            colorArray.push(original_colors[i*4], original_colors[i*4+1], original_colors[i*4+2], original_colors[i*4+3]);    
           }
         }else {
           colorArray.push.apply(colorArray, spectrum[color_index]);
-        }	
+        } 
       }
     }
 
     if(model.num_hemisphere != 2) {
-      var newColorArray = [];
-      var indexArrayLength = model.indexArray.length;
-      for(var j=0; j< indexArrayLength; j++ ) {
+      count = model.indexArray.length
+      newColorArray = new Array(count * 4);
+      for (j = 0; j < count; j++ ) {
         newColorArray[j*4]     = colorArray[model.indexArray[j]*4];
         newColorArray[j*4 + 1] = colorArray[model.indexArray[j]*4 + 1];
         newColorArray[j*4 + 2] = colorArray[model.indexArray[j]*4 + 2];
@@ -91,11 +101,11 @@ function Data(data) {
 
 
 
-  if(data) {
-    if(typeof data == "string") {
-      that.parse(data);      
-    }else if(data.values !=undefined){
-      this.values = cloneArray(data.values);
+  if (data) {
+    if (typeof data === "string") {
+      this.parse(data);      
+    } else if(data.values != undefined){
+      this.values = data.values.concat();
       this.min = this.values.min();
       this.max = this.values.max();
     }else {
@@ -106,7 +116,4 @@ function Data(data) {
     }
 
   }
-
-
-
 }

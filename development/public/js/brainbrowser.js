@@ -69,6 +69,7 @@ function BrainBrowser(callback) {
 BrainBrowser.core = {};
 BrainBrowser.modules = {};
 BrainBrowser.plugins = {};
+BrainBrowser.data = {};
 BrainBrowser.filetypes = {};
 
 /*! 

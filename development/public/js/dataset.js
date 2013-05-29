@@ -20,7 +20,7 @@
  * dataset from the server
  */
 
-function Dataset(path_prefix, dont_build_pathp) {
+BrainBrowser.data.Dataset = function(path_prefix, dont_build_pathp) {
 
   if(dont_build_pathp == null){
     /*
@@ -83,7 +83,7 @@ function Dataset(path_prefix, dont_build_pathp) {
       data: data_object,
       dataType: 'text',
       success: function(data) {
-	      that.current_data = new Data(data);
+	      that.current_data = new BrainBrowser.data.Data(data);
 	      callback(that);
       },
       error: function () {

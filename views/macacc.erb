@@ -112,18 +112,17 @@
     <!-- all the scripts and css -->
     <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.2.custom.css" rel="Stylesheet" />
     <link type="text/css" href="/css/brainbrowser.css" rel="Stylesheet" />
-    <script type="text/javascript" src="/js/jquery.js"></script>
     <script type="text/javascript" src="/js/three.min.js"></script>
     <script type="text/javascript" src="/js/TrackballControls.js"></script>
     <script type="text/javascript" src="/js/AnaglyphEffect.js"></script>
     <% if ENV["BRAINBROWSER_ENV"]  == "production" %>
+      <script type="text/javascript" src="/js/jquery.js"></script>
       <script type="text/javascript" src="/js/macacc-combined.min.js"></script>
     <% else %>
+      <script type="text/javascript" src="/js/jquery-1.6.4.min.js"></script>
       <script type="text/javascript" src="/js/utils.js"></script>
 	    <script type="text/javascript" src="/js/color.js"></script>
       <script type="text/javascript" src="/js/spectrum.js"></script>
-	    <script type="text/javascript" src="/js/data.js"></script>
-	    <script type="text/javascript" src="/js/dataset.js"></script>
 	    <script type="text/javascript" src="/js/brainbrowser.js"></script>
 	    <script type="text/javascript" src="/js/brainbrowser.js"></script>
 	    <script type="text/javascript" src="/js/brainbrowser.color.js"></script>
@@ -134,10 +133,11 @@
   	  <script type="text/javascript" src="/js/brainbrowser.views.js"></script>
   	  <script type="text/javascript" src="/js/brainbrowser.ui.js"></script>
 	    <script type="text/javascript" src="/js/mniobj.js"></script>
+	    <script type="text/javascript" src="/js/data.js"></script>
+	    <script type="text/javascript" src="/js/dataset.js"></script>
 	    <script type="text/javascript" src="/js/macacc_collection.js"></script>
 	    <script type="text/javascript" src="/js/macacc.js"></script>
-     <% end %>
-	    
+    <% end %> 
     <script type="text/javascript" src="/js/jquery-ui-1.8.10.custom.min.js"></script>
     <script type="text/javascript">
       $(function() {

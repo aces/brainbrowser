@@ -34,79 +34,85 @@ function Spectrum(data) {
   * full_height == height of the canvas
   * flip == boolean should the colors be reversed
   */
-  function createCanvas(colors,color_height,full_height,flip) {
+  function createCanvas(colors, color_height, full_height, flip) {
     var canvas = document.createElement("canvas");
+    var value_array  = new Array(256);
+    var i, k;
+    var context;
 
-    jQuery(canvas).attr("width",256);
-    jQuery(canvas).attr("height",full_height);
+    $(canvas).attr("width", 256);
+    $(canvas).attr("height", full_height);
 
     //using colorManager.createColorMap to create a array of 256 colors from the spectrum
-    var value_array  = new Array(256);
-    for(var i = 0; i < 256; i++){
-      if(flip) {
+    
+    for (i = 0; i < 256; i++) {
+      if (flip) {
         value_array[255-i] = i; 
-      }else {
+      } else {
         value_array[i] = i; 
       }
-
     }
-    colors = colorManager.createColorMap(that,[],value_array,0,255,true,0,1);
+    
+    colors = colorManager.createColorMap(that, [], value_array, 0, 255, true, 0, 1);
 
-    var context = canvas.getContext("2d");
-    for(var k = 0; k < 256; k++) {
-      context.fillStyle = "rgb(" + parseInt(colors[k*4]) + "," + parseInt(colors[k*4+1]) 
-      + "," + parseInt(colors[k*4+2] )
-      + ")"; 
-      context.fillRect(k,0,1,color_height);
-    };
+    context = canvas.getContext("2d");
+    for (k = 0; k < 256; k++) {
+      context.fillStyle = "rgb(" + parseInt(colors[k*4], 10) + ", " + parseInt(colors[k*4+1]) 
+        + ", " + parseInt(colors[k*4+2] )
+        + ")"; 
+      context.fillRect(k, 0, 1, color_height);
+    }
 
     return canvas;
 
   }
-
-
+  
   //Returns a html canvas element of the color bar from the colors
   that.createSpectrumCanvas = function(colors)  {
-    if(colors == null ) {
+    var canvas;
+    
+    if (colors === null ) {
       colors = that.colors;
     }
-
-    var canvas = createCanvas(colors,20,20,false);
+    
+    canvas = createCanvas(colors, 20, 20, false);
 
     return canvas;
   };
 
 
-  that.createSpectrumCanvasWithScale = function(min,max,colors,flip) {
-
-    if(colors == null) {
+  that.createSpectrumCanvasWithScale = function(min, max, colors, flip) {
+    var canvas;
+    var context;
+  
+    if (colors === null) {
       colors = that.colors;
     }
-    var canvas = createCanvas(colors,20,40,flip);
-    var context = canvas.getContext("2d");
+    canvas = createCanvas(colors, 20, 40, flip);
+    context = canvas.getContext("2d");
 
     context.fillStyle = "#FFA000";
 
     //min mark
-    context.fillRect(0.5,20,1,10);
+    context.fillRect(0.5, 20, 1, 10);
     context.fillText(min.toPrecision(3), 0.5, 40 );
 
     //quater mark
-    context.fillRect(canvas.width/4.0,20,1,10);
-    context.fillText(((min+max)/4.0).toPrecision(3), canvas.width/4.0, 40 );
+    context.fillRect(canvas.width/4.0, 20, 1, 10);
+    context.fillText(((min+max)/4.0).toPrecision(3), canvas.width/4.0, 40);
 
     //middle mark
-    context.fillRect(canvas.width/2.0,20,1,10);
-    context.fillText(((min+max)/2.0).toPrecision(3), canvas.width/2.0, 40 );
+    context.fillRect(canvas.width/2.0, 20, 1, 10);
+    context.fillText(((min+max)/2.0).toPrecision(3), canvas.width/2.0, 40);
 
     //3quater mark
-    context.fillRect(3*(canvas.width/4.0),20,1,10);
-    context.fillText((3*((min+max)/4.0)).toPrecision(3), 3*(canvas.width/4.0), 40 );
+    context.fillRect(3*(canvas.width/4.0), 20, 1, 10);
+    context.fillText((3*((min+max)/4.0)).toPrecision(3), 3*(canvas.width/4.0), 40);
 
 
     //max mark
-    context.fillRect(canvas.width-0.5,20,1,10);
-    context.fillText(max.toPrecision(3), canvas.width-20, 40 );
+    context.fillRect(canvas.width-0.5, 20, 1, 10);
+    context.fillText(max.toPrecision(3), canvas.width - 20, 40);
 
     return canvas;
   };
@@ -115,22 +121,26 @@ function Spectrum(data) {
   * Parse the spectrum data from a string
   */
   function parseSpectrum(data) {
-    data = data.replace(/\s+$/, '');
-    data = data.replace(/^\s+/, '');
+    data = data.replace(/^\s+/, '').replace(/\s+$/, '');
     var tmp = data.split(/\n/);
-    var colors = new Array();
-    for(var i=0;i<tmp.length;  i++) {
-      var tmp_color = tmp[i].replace(/\s+$/, '').split(/\s+/);
-      for(var k=0; k<tmp_color.length; k++) {
-        tmp_color[k]=parseFloat(tmp_color[k]);
+    var colors = [];
+    var i, k, count1, count2;
+    var tmp_color;
+    
+    for (i = 0, count1 = tmp.length; i < count1; i++) {
+      tmp_color = tmp[i].replace(/\s+$/, '').split(/\s+/);
+      count2 = tmp_color.length;
+      for (k=0; k < count2; k++) {
+        tmp_color[k] = parseFloat(tmp_color[k]);
       }
-      if(tmp_color.length < 4) {
+      if (count2 < 4) {
         tmp_color.push(1.0000); 
       }
 
       colors.push(tmp_color);
     }
     that.colors = colors;
+    
     return colors;
   }
 

@@ -21,7 +21,11 @@
 
       </div>
     </div>
-    <script type="text/javascript" src="/js/jquery-1.6.4.min.js"></script>
+    <% if ENV["BRAINBROWSER_ENV"]  == "production" %>
+      <script type="text/javascript" src="/js/jquery.js"></script>
+    <% else %>
+      <script type="text/javascript" src="/js/jquery-1.6.4.min.js"></script>
+    <% end %>
     <script type="text/javascript" src="/js/jquery-ui-1.8.10.custom.min.js"></script>
     <script type="text/javascript">
       $(function() { 

@@ -114,14 +114,9 @@ BrainBrowser.plugins.ui = function(bb) {
   };
   
   function changeAutoRotate(e) {
-    if ($("#autorotate").is(":checked")) {
-      bb.autoRotate = {};
-      bb.autoRotate.x = $("#autorotateX").is(":checked");
-      bb.autoRotate.y = $("#autorotateY").is(":checked");
-      bb.autoRotate.z = $("#autorotateZ").is(":checked");
-    } else {
-      bb.autoRotate = false;
-    }
+    bb.autoRotate.x = $("#autorotateX").is(":checked");
+    bb.autoRotate.y = $("#autorotateY").is(":checked");
+    bb.autoRotate.z = $("#autorotateZ").is(":checked");
   }
   
   $("body").keydown(bb.keyPressedCallback);

@@ -56,6 +56,8 @@ BrainBrowser.core.rendering = function(bb) {
     camera_controls.zoomSpeed = 2;                 
     light_controls.zoomSpeed = 2;
     
+    bb.autoRotate = {};
+    
     window.onresize = function() {
       effect.setSize(view_window.width(), view_window.height());
       bb.camera.aspect = view_window.width()/view_window.height();
@@ -202,19 +204,16 @@ BrainBrowser.core.rendering = function(bb) {
     delta = current_frame - last_frame;
     rotation = delta * 0.00015;
 
-    if(bb.autoRotate) {
-
-      if(bb.autoRotate.x){
-	       model.rotation.x += rotation;
-      }
-      if(bb.autoRotate.y){
-        model.rotation.y += rotation;
-      }
-      if(bb.autoRotate.z){
-	      model.rotation.z += rotation;
-      }
-
+    if (bb.autoRotate.x) {
+	     model.rotation.x += rotation;
     }
+    if (bb.autoRotate.y) {
+      model.rotation.y += rotation;
+    }
+    if (bb.autoRotate.z) {
+	    model.rotation.z += rotation;
+    }
+
     effect.render(bb.scene, bb.camera);
   }
   

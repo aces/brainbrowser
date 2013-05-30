@@ -29,9 +29,7 @@ function BrainBrowser(callback) {
   if(!(this instanceof BrainBrowser)) {
     return new BrainBrowser(callback);
   }
-    
-  var that = this;
-                   
+                       
   this.view_window = $("#brainbrowser");
   this.model = undefined; 
   this.scene = undefined;
@@ -63,6 +61,7 @@ function BrainBrowser(callback) {
     alert("Can't get WebGL constext. Exiting.")
     return;
   }
+  
   callback(this);
 }
 

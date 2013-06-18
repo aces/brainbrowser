@@ -17,15 +17,14 @@
  
 BrainBrowser.modules.models = function(bb) {
   
-  /**
-   * Display and MNI object file.
-   * It uses different function depending on if it's a polygon(triange) shape denoted by P
-   * if it's a polygon shape and has exactly 81924 vertices than it's probably a brain and
-   * we handle that specialy to seperate the hemispheres. 
-   *
-   * @param {Object} obj object of the parsed MNI Object file to be displayed
-   * @param {String} filename filename of the original object file   
-   */
+  
+  // Display an object file.
+  // Handles polygon-based and line-based models. Polygon models that have exactly
+  // 81924 vertices are assumed to be brain models and are handled separately so the
+  // hemispheres can be separated.
+  //
+  // @param {Object} obj object representing the model to be displayed
+  // @param {String} filename name of the original file   
   bb.displayObjectFile = function(obj, filename, opts) {
     var options = opts || {};
     var renderDepth = options.renderDepth;
@@ -47,6 +46,7 @@ BrainBrowser.modules.models = function(bb) {
     if (afterDisplay) afterDisplay();
   };
   
+  // Add a brain model to the scene.
   function addBrain(obj, renderDepth) {
     var model = bb.model;
     var left, right;
@@ -64,6 +64,7 @@ BrainBrowser.modules.models = function(bb) {
     bb.scene.add(model);
   }
   
+  // Add an individual brain hemisphere to the scene.
   function createHemisphere(obj) {
     var verts = obj.positionArray;
     var ind = obj.indexArray;
@@ -107,6 +108,7 @@ BrainBrowser.modules.models = function(bb) {
     return hemisphere;
   }
 
+  //Add a line model to the scene.
   function addLineObject(obj, filename, mesh, renderDepth) {
     var model = bb.model;
     var lineObject = createLineObject(obj, mesh);
@@ -120,6 +122,7 @@ BrainBrowser.modules.models = function(bb) {
     bb.scene.add(model);  
   }
 
+  //Create a line model.
   function createLineObject(obj, mesh) {
     var model_data = obj;
     var indices = [];
@@ -211,6 +214,7 @@ BrainBrowser.modules.models = function(bb) {
     return lineObject;
   }
   
+  // Add a polygon object to the scene.
   function addPolygonObject(obj, filename, renderDepth){
     var model = bb.model;
     var shape;
@@ -239,6 +243,7 @@ BrainBrowser.modules.models = function(bb) {
     bb.scene.add(model);
   }
   
+  // Create a polygon object.
   function createPolygonShape(model_data) {    
     var positionArray = model_data.positionArray;
     var indexArray  = model_data.indexArray;
@@ -255,23 +260,25 @@ BrainBrowser.modules.models = function(bb) {
     var data_faces_length;
     var data_face;
     var data_face_length;
-
+    var data_color_0, data_color_1, data_color_2;
     
-    if(model_data_color_array.length == 4) {
+    if(model_data_color_array.length === 4) {
       all_gray = true;
-      col = new THREE.Color();
-      col.setRGB(model_data_color_array[0], model_data_color_array[1], model_data_color_array[2]);
+      data_color_0 = model_data_color_array[0];
+      data_color_1 = model_data_color_array[1];
+      data_color_2 = model_data_color_array[2];
     }
     
     colors = [];
     geometry = new THREE.Geometry();
     for (i = 0, count = positionArray.length/3; i < count; i++) {
       geometry.vertices.push(new THREE.Vector3(positionArray[i*3], positionArray[i*3+1], positionArray[i*3+2]));
-                    
+      col = new THREE.Color();
       if (!all_gray) {
-        col = new THREE.Color();
         col.setRGB(model_data_color_array[i*4], model_data_color_array[i*4+1], model_data_color_array[i*4+2]);
-      } 
+      } else {
+        col.setRGB(data_color_0, data_color_1, data_color_2);
+      }
       colors.push(col);
     }
     
@@ -329,11 +336,7 @@ BrainBrowser.modules.models = function(bb) {
     return polygonShape;
   }
   
-  /*
-   * First this will lookup shape in the scenegraph whit it's name
-   * it then changes the value of for the alpha channel in the shaders
-   * of the specific shape. 
-   */
+  // Change the opacity of an object in the scene.
   bb.changeShapeTransparency = function(shape_name, alpha) {
     var shape = bb.model.getChildByName(shape_name);
     var material;
@@ -348,6 +351,8 @@ BrainBrowser.modules.models = function(bb) {
     }
   };
   
+  // Update current values of the bounding box of 
+  // an object.
   function boundingBoxUpdate(box, x, y, z) {
     if (!box.minX || box.minX > x) {
       box.minX = x;

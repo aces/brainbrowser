@@ -45,9 +45,7 @@ BrainBrowser.core.rendering = function(bb) {
     
     pointLight = new THREE.PointLight(0xFFFFFF);
 
-    pointLight.position.x = 0;
-    pointLight.position.y = 0;
-    pointLight.position.z = 500;
+    pointLight.position.set(0, 0, 500);
 
     bb.scene.add(pointLight);
     

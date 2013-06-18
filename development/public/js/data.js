@@ -47,7 +47,7 @@ BrainBrowser.data.Data = function(data) {
     var color_index;
     var value;
     var newColorArray;
-    
+
     //for each value, assign a color
     for (i = 0, count = that.values.length; i < count; i++) {
       value = that.values[i];

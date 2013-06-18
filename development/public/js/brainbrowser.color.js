@@ -15,12 +15,15 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+// Module for updating colours on models currently being displayed.
 BrainBrowser.modules.color = function(bb) {
 
    var colorManager = new ColorManager();
   
   /*
-   * This updates the colors of the brain model
+   * This updates the colors of the model. Will delegate to color_hemispheres() or color_model()
+   * depending on the type of model.
    */
   bb.updateColors = function(data, min, max, spectrum, flip, clamped, blend, shape, opts) {
     var options = opts || {};
@@ -50,6 +53,7 @@ BrainBrowser.modules.color = function(bb) {
     }
   };
 
+  //Coloring for brain models with two separate hemispheres.
   function color_hemispheres(color_array) {
     var model = bb.model;
     var color_array_length = color_array.length;
@@ -110,6 +114,7 @@ BrainBrowser.modules.color = function(bb) {
     
   }
   
+  //Coloring for regular models.
   function color_model(color_array) {
     var model = bb.model;
     var color_array_length = color_array.length;
@@ -120,27 +125,27 @@ BrainBrowser.modules.color = function(bb) {
     var children;
     var vertexColors;
     var i, j;
-    var count;
-    
+    var count1, count2;
     children = model.children;
-    for (i = 0, count = children.length; i < count; i++) {
+    for (i = 0, count1 = children.length; i < count1; i++) {
       faces = children[i].geometry.faces;
-      for (j = 0, count = faces.length; j < count; j++) {
+      for (j = 0, count2 = faces.length; j < count2; j++) {
         face = faces[j];
         vertexColors = face.vertexColors;
         
         color_index = face.a * 4;
         vertexColors[0].setRGB(color_array[color_index], color_array[color_index+1], color_array[color_index+2]);
         color_index = face.b * 4;
-        vertexColors[0].setRGB(color_array[color_index], color_array[color_index+1], color_array[color_index+2]);
+        vertexColors[1].setRGB(color_array[color_index], color_array[color_index+1], color_array[color_index+2]);
         color_index = face.c * 4;
-        vertexColors[0].setRGB(color_array[color_index], color_array[color_index+1], color_array[color_index+2]);
+        vertexColors[2].setRGB(color_array[color_index], color_array[color_index+1], color_array[color_index+2]);
 
         if (face.d) {
           color_index = face.d * 4;
-          vertexColors[0].setRGB(color_array[color_index], color_array[color_index+1], color_array[color_index+2]);
+          vertexColors[3].setRGB(color_array[color_index], color_array[color_index+1], color_array[color_index+2]);
         }
       }
+      console.log(faces);
       children[i].geometry.colorsNeedUpdate = true;
     }
   }

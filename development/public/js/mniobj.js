@@ -41,7 +41,7 @@ BrainBrowser.filetypes.MNIObject = function(string) {
   
     stack = string2.split(/\s+/).reverse();
     that.objectClass = stack.pop();
-    if( that.objectClass === 'P') {
+    if(that.objectClass === 'P') {
       parseSurfProp();
       that.numberVertices = parseInt(stack.pop());
       parsePositionArray();

@@ -14,12 +14,16 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
-BrainBrowser.modules.data = function(bb) {
+
+
+// BrainBrowser module for loading data from the server or from a 
+// file.
+BrainBrowser.modules.loader = function(bb) {
   
   var Data = BrainBrowser.data.Data;
   var filetypes = BrainBrowser.filetypes;
 
+  // Load a model from the given url.
   bb.loadModelFromUrl = function(url, opts) {
     var options = opts || {};
     var parts;
@@ -33,6 +37,7 @@ BrainBrowser.modules.data = function(bb) {
 		});
   };
 
+  //Load model from local file.
   bb.loadModelFromFile = function(file_input, opts) {
     var options = opts || {};
     var parts;
@@ -44,7 +49,7 @@ BrainBrowser.modules.data = function(bb) {
       parts = file_input.value.split("\\");
 			//last part of path will be shape name
 			filename = parts[parts.length-1];
-			obj = new filetypes[filetype](data)
+			obj = new filetypes[filetype](data);
       
       if (obj.objectClass !== "__FAIL__") {
         bb.displayObjectFile(obj, filename, options);
@@ -54,6 +59,7 @@ BrainBrowser.modules.data = function(bb) {
 	  });
   };
   
+  // Load a colour map from the server.
   bb.loadDataFromUrl = function(file_input, name) {
 
      loadFromUrl(file_input, null, function(text,file) {
@@ -72,9 +78,8 @@ BrainBrowser.modules.data = function(bb) {
  		});
    };
 
-   /*
-    * Load text data from file and update colors
-    */
+   
+   //Load text data from file and update colors
    bb.loadDataFromFile = function(file_input) {
      var filename = file_input.files[0].name;
      var model_data = bb.model_data;
@@ -90,14 +95,12 @@ BrainBrowser.modules.data = function(bb) {
  	    } else {
  	      model_data.data = data;
  	    }
-       initRange(data.min,
- 		    data.max);
-       if(bb.afterLoadData !=null) {
+      initRange(data.min, data.max);
+      if(bb.afterLoadData !=null) {
  	      bb.afterLoadData(data.rangeMin, data.rangeMax, data);
-       }
-
-
-       bb.updateColors(data, data.rangeMin, data.rangeMax, bb.spectrum, bb.flip, bb.clamped);
+      }
+      
+      bb.updateColors(data, data.rangeMin, data.rangeMax, bb.spectrum, bb.flip, bb.clamped);
      };
 
      if(filename.match(/.*.mnc|.*.nii/)) {
@@ -107,7 +110,8 @@ BrainBrowser.modules.data = function(bb) {
      }
    };
 
-  bb.loadSpectrumFromUrl  = function(url, opts) {
+   //Load spectrum data from the server.
+   bb.loadSpectrumFromUrl  = function(url, opts) {
     var options = opts || {};
     var afterLoadSpectrum = options.afterLoadSpectrum
     var spectrum;
@@ -164,9 +168,8 @@ BrainBrowser.modules.data = function(bb) {
     bb.updateColors(blendData, null, null, bb.spectrum, bb.flip, bb.clamped, true); //last parameter says to blend data.
   };
 
-  /*
-   * Load a series of data files to be viewed with a slider. 
-   */
+ 
+  //Load a series of data files to be viewed with a slider. 
   bb.loadSeriesDataFromFile = function(file_input) {
 		var numberFiles = file_input.files.length;
 		var files = file_input.files;
@@ -201,31 +204,24 @@ BrainBrowser.modules.data = function(bb) {
   
   function interpolateDataArray(first,second,percentage,blah) {
     console.log(first.values.length);
-    //  if(first.length != second.length) {
-    //  console.log("can't interpolate different array size");
-      //throw "can't interpolate different array size";
-    // }
     var i;
     var count = first.values.length;  
     var new_array = new Array(count);
     console.log("Percentage: " + percentage);
     
     
-    for(i = 0; i < count; i++) {
-      if(blah){
+    for (i = 0; i < count; i++) {
+      if (blah){
         new_array[i] = (first.values[i]*(100-percentage*100)+second.values[i]*(percentage*100))/100;            
-      }else {
+      } else {
         new_array[i] = (first.values[i]*(100-percentage*100)+second.values[i]*(percentage*100))/100;            
       }
-
     }
     console.log(new_array.length);
     return new_array;
   }
 
-  /*
-   * Setup for series data, creates a slider to switch between files. 
-   */
+  //Setup for series data, creates a slider to switch between files. 
   bb.setupSeries = function() {
     var model_data = bb.model_data;
     var seriesData = bb.seriesData;
@@ -280,11 +276,7 @@ BrainBrowser.modules.data = function(bb) {
   
   };
 
-  
-
-  /*
-   * Load files to blend 
-   */
+  //Load files to blend 
   bb.loadBlendDataFromFile = function(file_input) {
 		var numberFiles = file_input.files.length;
 	  var files = file_input.files;

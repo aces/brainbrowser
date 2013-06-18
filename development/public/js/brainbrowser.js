@@ -18,11 +18,21 @@
  */
 
 
-/**
- * Create new BrainBrowser viewer object
- * @constructor
- *  
- */
+// Core BrainBrowser object.
+//
+// BrainBrowser functionality is split across various modules. The modules
+// are split into three basic categories, which essentially just define the
+// order in which they will be loaded. BrainBrowser.core modules will be loaded
+// first. Core modules can include functionality like rendering that will likely be
+// required by all other modules. BrainBrowser.modules modules then loaded. In general,
+// they make up a central part of the application, but they require one or more core modules
+// to be loaded first in order function. Some examples include modules for requesting new data 
+// from the server, displaying a given model. Finally, the BrainBrowser.plugins modules 
+// are loaded. These modules are generally specific to the given instance of BrainBrowser and 
+// may include such functionality as UI behaviour.  
+//
+// BrainBrowser also maintains the model parsing objects in the BrainBrowser.filetypes module,
+// as well as helpers for colour management in BrainBrowser.data.
 function BrainBrowser(callback) {
 
   
@@ -30,10 +40,10 @@ function BrainBrowser(callback) {
     return new BrainBrowser(callback);
   }
                        
-  this.view_window = $("#brainbrowser");
-  this.model = undefined; 
-  this.scene = undefined;
-  this.camera = undefined;
+  this.view_window = $("#brainbrowser"); // Div where the canvas will be loaded.
+  this.model = undefined;  // The currently loaded model.
+  this.scene = undefined; // The currently actived THREE.Scene object.
+  this.camera = undefined; // The THREE.Camera object.
   
   var module;
   

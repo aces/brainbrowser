@@ -30,26 +30,27 @@ BrainBrowser.modules.color = function(bb) {
     var afterUpdate = options.afterUpdate;
     var color_array;
     
+    function applyColorArray(color_array) {
+      if(bb.model_data.num_hemispheres === 2) {
+        color_hemispheres(color_array);
+      } else {
+        color_model(color_array);
+      }
+
+      if (afterUpdate) {
+        afterUpdate();
+      }
+
+      if (bb.afterUpdateColors != null ) {
+        bb.afterUpdateColors(data, min, max, spectrum);
+      }
+    }
 
     bb.clamped = clamped;
     if (blend) {
-      color_array = colorManager.blendColorMap(spectrum, data, 0, 1);
+      applyColorArray(colorManager.blendColorMap(spectrum, data, 0, 1));
     } else {
-      color_array = data.createColorArray(min, max, spectrum, flip, clamped, bb.model_data.colorArray, bb.model_data);      
-    }
-
-    if(bb.model_data.num_hemispheres === 2) {
-      color_hemispheres(color_array);
-    } else {
-      color_model(color_array);
-    }
-
-    if (afterUpdate) {
-      afterUpdate();
-    }
-
-    if (bb.afterUpdateColors != null ) {
-      bb.afterUpdateColors(data, min, max, spectrum);
+      data.createColorArray(min, max, spectrum, flip, clamped, bb.model_data.colorArray, bb.model_data, applyColorArray);
     }
   };
 
@@ -145,7 +146,6 @@ BrainBrowser.modules.color = function(bb) {
           vertexColors[3].setRGB(color_array[color_index], color_array[color_index+1], color_array[color_index+2]);
         }
       }
-      console.log(faces);
       children[i].geometry.colorsNeedUpdate = true;
     }
   }

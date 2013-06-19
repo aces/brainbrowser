@@ -210,7 +210,7 @@ $(function() {
 
       $("#flip_range").change(function(e) {
         bb.flip = $(e.target).is(":checked");
-        bb.updateColors(bb.model_data.data,bb.model_data.data.rangeMin,bb.model_data.data.rangeMax,bb.spectrum,bb.flip,bb.clamped);
+        bb.updateColors(bb.model_data.data, bb.model_data.data.rangeMin, bb.model_data.data.rangeMax ,bb.spectrum, bb.flip, bb.clamped);
 
       });
 

@@ -6,12 +6,19 @@ COMPRESSOR="java -jar $APP_ROOT/script/yuicompressor-2.4.7.jar"
 BB_MODULES="brainbrowser.js brainbrowser.color.js brainbrowser.loader.js brainbrowser.models.js brainbrowser.picking.js brainbrowser.rendering.js brainbrowser.ui.js brainbrowser.views.js"
 
 cd $APP_ROOT/development/public/js
-cat $APP_ROOT/license_header.txt utils.js color.js spectrum.js $BB_MODULES  data.js surfview.js wavefront_obj.js freesurfer_asc.js mniobj.js > /tmp/surface-combined.js
+cat $APP_ROOT/license_header.txt utils.js color.js spectrum.js $BB_MODULES  data.js surfview.js filetype.parsing.js wavefront_obj.js freesurfer_asc.js mniobj.js > /tmp/surface-combined.js
 $COMPRESSOR /tmp/surface-combined.js -o $APP_ROOT/production/public/js/surfview-combined.min.js
 rm /tmp/surface-combined.js
-cat $APP_ROOT/license_header.txt utils.js color.js spectrum.js $BB_MODULES  data.js dataset.js macacc_collection.js macacc.js mniobj.js > /tmp/macacc-combined.js
+cat $APP_ROOT/license_header.txt utils.js color.js spectrum.js $BB_MODULES  data.js dataset.js macacc_collection.js macacc.js filetype.parsing.js mniobj.js > /tmp/macacc-combined.js
 $COMPRESSOR /tmp/macacc-combined.js -o $APP_ROOT/production/public/js/macacc-combined.min.js
 rm /tmp/macacc-combined.js
 cat $APP_ROOT/license_header.txt utils.js minc.js color.js spectrum.js loader.js braincanvas.js > /tmp/html5-minc-viewer.js
 $COMPRESSOR /tmp/html5-minc-viewer.js -o $APP_ROOT/production/public/js/html5-minc-viewer.min.js
-
+cat $APP_ROOT/license_header.txt mniobj.worker.js > /tmp/mniobj.worker.js
+$COMPRESSOR /tmp/mniobj.worker.js -o $APP_ROOT/production/public/js/mniobj.worker.js
+cat $APP_ROOT/license_header.txt wavefront_obj.worker.js > /tmp/wavefront_obj.worker.js
+$COMPRESSOR /tmp/wavefront_obj.worker.js -o $APP_ROOT/production/public/js/wavefront_obj.worker.js
+cat $APP_ROOT/license_header.txt freesurfer_asc.worker.js > /tmp/freesurfer_asc.worker.js
+$COMPRESSOR /tmp/freesurfer_asc.worker.js -o $APP_ROOT/production/public/js/freesurfer_asc.worker.js
+cat $APP_ROOT/license_header.txt data.worker.js > /tmp/data.worker.js
+$COMPRESSOR /tmp/data.worker.js -o $APP_ROOT/production/public/js/data.worker.js

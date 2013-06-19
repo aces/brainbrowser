@@ -124,14 +124,14 @@ function MacaccObject(brainbrowser, path, dont_build_path) {
 	        that.data_max = dataset.current_data.max;
 	      }
       }
-    } else if(get_data_controls().statistic == "T") {
+    } else if(get_data_controls().statistic === "T") {
       that.data_min = dataset.current_data.min;
       that.data_max = dataset.current_data.max;
     }
 
     flip = $("#flip_range").is(":checked");
     clamped = $("#clamp_range").is(":checked");
-    if (get_data_controls().statistic == "T") {
+    if (get_data_controls().statistic === "T") {
       that.flipRange = flip;
       brainbrowser.updateColors(that.dataSet.current_data, that.data_min, that.data_max, brainbrowser.spectrum, flip, clamped);
     } else {

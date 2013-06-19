@@ -20,90 +20,59 @@
 * @constructor
 * @param {String} data data file in string format to parse 
 */
-BrainBrowser.data.Data = function(data) {
-  var that = this;
-  that.parse = function(string) {
-    var i, count, min, max;
+BrainBrowser.data.Data = function(data, callback) {
+  if(!(this instanceof BrainBrowser.data.Data)) {
+    return new BrainBrowser.data.Data(data, callback);
+  }
+
+  var self = this;
   
-    string = string.replace(/^\s+/, '').replace(/\s+$/, '');
-    that.values = string.split(/\s+/);
-    min = that.values[0];
-    max = that.values[0];
-    for(i = 0, count = that.values.length; i < count; i++) {
-      that.values[i] = parseFloat(that.values[i]);
-      min = Math.min(min, that.values[i]);
-      max = Math.max(max, that.values[i]);
-    }
-    that.min = min;
-    that.max = max;
+  function parse() {
+    var worker = new Worker("js/data.worker.js");
+
+    worker.addEventListener("message", function(e) {
+      var result = e.data;
+      var prop;
+
+      for (prop in result) {
+        if (result.hasOwnProperty(prop)){
+          self[prop] = result[prop];
+        }
+      }
+      if (callback) callback(self);
+      worker.terminate();
+    });
+
+    worker.postMessage({ cmd: "parse", data: data });
   };
 
-  this.createColorArray = function(min, max, spectrum, flip, clamped, original_colors, model) {
-    var spectrum = spectrum.colors;
-    var colorArray = new Array();
-    //calculate a slice of the data per color
-    var increment = ((max-min)+(max-min)/spectrum.length)/spectrum.length;
-    var i, j, count;
-    var color_index;
-    var value;
-    var newColorArray;
+  self.createColorArray = function(min, max, spectrum, flip, clamped, original_colors, model, callback) {
+    var worker = new Worker("js/data.worker.js");
+    worker.addEventListener("message", function(e) {
+      var color_array = e.data;
+      var prop;
 
-    //for each value, assign a color
-    for (i = 0, count = that.values.length; i < count; i++) {
-      value = that.values[i];
-      if(value <= min ) {
-        if (value < min && !clamped) {
-          color_index = -1;
-        } else {
-          color_index = 0; 
-        }
-      }else if (value > max){
-        if (!clamped){
-          color_index = -1;
-        }else {
-          color_index = spectrum.length - 1;
-        }
-      }else {
-        color_index = parseInt((value-min)/increment);
-      }
-      //This inserts the RGBA values (R,G,B,A) independently
-      if (flip && color_index != -1) {
-        colorArray.push.apply(colorArray, spectrum[spectrum.length-1-color_index]);
-      } else {
-        if(color_index === -1) {
-          if(original_colors.length === 4){
-            colorArray.push.apply(colorArray, original_colors);   
-          }else {
-            colorArray.push(original_colors[i*4], original_colors[i*4+1], original_colors[i*4+2], original_colors[i*4+3]);    
-          }
-        }else {
-          colorArray.push.apply(colorArray, spectrum[color_index]);
-        } 
-      }
-    }
+      if (callback) callback(color_array);
+      worker.terminate();
+    });
 
-    if(model.num_hemisphere != 2) {
-      count = model.indexArray.length
-      newColorArray = new Array(count * 4);
-      for (j = 0; j < count; j++ ) {
-        newColorArray[j*4]     = colorArray[model.indexArray[j]*4];
-        newColorArray[j*4 + 1] = colorArray[model.indexArray[j]*4 + 1];
-        newColorArray[j*4 + 2] = colorArray[model.indexArray[j]*4 + 2];
-        newColorArray[j*4 + 3] = colorArray[model.indexArray[j]*4 + 3];
-      }
-      colorArray.nonIndexedColorArray = newColorArray;
-    }
-
-    return colorArray;
-
-
+    worker.postMessage({ cmd: "createColorArray", data: {
+      values: self.values,
+      min: min,
+      max: max,
+      spectrum: spectrum.colors,
+      flip: flip,
+      clamped: clamped,
+      original_colors: original_colors,
+      model: { num_hemisphere: model.num_hemisphere, indexArray: model.indexArray }
+    }});
   };
 
 
 
   if (data) {
     if (typeof data === "string") {
-      this.parse(data);      
+      parse(data);      
     } else if(data.values != undefined){
       this.values = data.values.concat();
       this.min = this.values.min();
@@ -114,6 +83,5 @@ BrainBrowser.data.Data = function(data) {
       this.min = data.min();
       this.max = data.max();
     }
-
   }
 }

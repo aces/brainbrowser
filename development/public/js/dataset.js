@@ -83,8 +83,10 @@ BrainBrowser.data.Dataset = function(path_prefix, dont_build_pathp) {
       data: data_object,
       dataType: 'text',
       success: function(data) {
-	      that.current_data = new BrainBrowser.data.Data(data);
-	      callback(that);
+	      BrainBrowser.data.Data(data, function(data) {
+	        that.current_data = data;
+	        callback(that);
+	      });
       },
       error: function () {
 	      jQuery(g_pickInfoElem).html("Error loading map");

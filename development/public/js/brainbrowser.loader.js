@@ -33,7 +33,13 @@ BrainBrowser.modules.loader = function(bb) {
 		    parts = url.split("/");
 		    //last part of url will be shape name
 		    filename = parts[parts.length-1];
-		    bb.displayObjectFile(new filetypes[filetype](data), filename, options);
+		    filetypes[filetype](data, function(obj) {
+  			  if (obj.objectClass !== "__FAIL__") {
+            bb.displayObjectFile(obj, filename, options);
+          } else if (options.onError != undefined) {
+            options.onError();
+          }
+  			});
 		});
   };
 
@@ -42,39 +48,37 @@ BrainBrowser.modules.loader = function(bb) {
     var options = opts || {};
     var parts;
     var filename;
-    var obj;
     var filetype = options.format || "MNIObject";
     
     loadFromTextFile(file_input, options, function(data) {
       parts = file_input.value.split("\\");
 			//last part of path will be shape name
 			filename = parts[parts.length-1];
-			obj = new filetypes[filetype](data);
+			filetypes[filetype](data, function(obj) {
+			  if (obj.objectClass !== "__FAIL__") {
+          bb.displayObjectFile(obj, filename, options);
+        } else if (options.onError != undefined) {
+          options.onError();
+        }
+			});
       
-      if (obj.objectClass !== "__FAIL__") {
-        bb.displayObjectFile(obj, filename, options);
-      } else if (options.onError != undefined) {
-        options.onError();
-      }
 	  });
   };
   
   // Load a colour map from the server.
   bb.loadDataFromUrl = function(file_input, name) {
 
-     loadFromUrl(file_input, null, function(text,file) {
-       var data;
+    loadFromUrl(file_input, null, function(text,file) {
+ 		  Data(text, function(data) {
+ 		    bb.model_data.data = data;
+ 		    data.fileName = name;
+   		  initRange(data.min, data.max);
+   		  if (bb.afterLoadData != undefined) {
+   		    bb.afterLoadData(data.rangeMin, data.rangeMax, data);
+   		  }
 
- 		  bb.model_data.data  = new Data(text);
- 		  data = bb.model_data.data;
-
- 		  data.fileName = name;
- 		  initRange(data.min, data.max);
- 		  if (bb.afterLoadData != undefined) {
- 		    bb.afterLoadData(data.rangeMin, data.rangeMax, data);
- 		  }
-
- 		  bb.updateColors(data, data.rangeMin, data.rangeMax, bb.spectrum);
+   		  bb.updateColors(data, data.rangeMin, data.rangeMax, bb.spectrum);
+ 		  });
  		});
    };
 
@@ -87,20 +91,21 @@ BrainBrowser.modules.loader = function(bb) {
      var positionArrayLength = positionArray.length;
 
      var onfinish = function(text) {
- 	    var data = new Data(text);
-       data.fileName = filename;
- 	    if (data.values.length < positionArrayLength/4) {
- 	      alert("Number of numbers in datafile lower than number of vertices Vertices" + positionArrayLength/3 + " data values:" + data.values.length );
- 	      return -1;
- 	    } else {
- 	      model_data.data = data;
- 	    }
-      initRange(data.min, data.max);
-      if(bb.afterLoadData !=null) {
- 	      bb.afterLoadData(data.rangeMin, data.rangeMax, data);
-      }
-      
-      bb.updateColors(data, data.rangeMin, data.rangeMax, bb.spectrum, bb.flip, bb.clamped);
+ 	    Data(text, function(data) {
+ 	      data.fileName = filename;
+   	    if (data.values.length < positionArrayLength/4) {
+   	      alert("Number of numbers in datafile lower than number of vertices Vertices" + positionArrayLength/3 + " data values:" + data.values.length );
+   	      return -1;
+   	    } else {
+   	      model_data.data = data;
+   	    }
+        initRange(data.min, data.max);
+        if(bb.afterLoadData !=null) {
+   	      bb.afterLoadData(data.rangeMin, data.rangeMax, data);
+        }
+
+        bb.updateColors(data, data.rangeMin, data.rangeMax, bb.spectrum, bb.flip, bb.clamped);
+ 	    });
      };
 
      if(filename.match(/.*.mnc|.*.nii/)) {
@@ -190,9 +195,11 @@ BrainBrowser.modules.loader = function(bb) {
 			  return function(e) {
 		   	  console.log(e.target.result.length);
 					console.log(num);
-					bb.seriesData[num] = new Data(e.target.result);
-				  bb.seriesData[num].fileName = file.name;
-							 
+					
+					Data(e.target.result, function(data) {
+					  bb.seriesData[num] = data;
+					  bb.seriesData[num].fileName = file.name; 
+					});	 
 				};
 			})(reader.file, i);
 		  
@@ -243,7 +250,7 @@ BrainBrowser.modules.loader = function(bb) {
              if (seriesData[0].fileName.match("pval.*")){
                model_data.data = new Data(interpolateDataArray(seriesData[Math.floor(ui.value)],
                seriesData[Math.floor(ui.value)+1],
-               (ui.value -  Math.floor(ui.value)),true));		
+               (ui.value -  Math.floor(ui.value)), true));		
              } else {
                model_data.data = new Data(interpolateDataArray(seriesData[Math.floor(ui.value)],
                seriesData[Math.floor(ui.value)+1],
@@ -296,29 +303,31 @@ BrainBrowser.modules.loader = function(bb) {
 		  */
 		  reader.onloadend = (function(file,num) {
 			  return function(e) {
-		   	  bb.blendData[num] = new Data(e.target.result);
-					bb.blendData.alpha = 1.0/numberFiles;
-					
-					bb.blendData[num].fileName = file.name;
-					for(k = 0; k < 2; k++) {
-					  if(bb.blendData[k] == undefined) {						     
-					    console.log("not done yet");
-					    return;
-					  }
-					 
-					}		 
-					initRange(bb.blendData[0].values.min(),
-					    bb.blendData[0].values.max(),
-					    bb.blendData[0]);
-					
-					initRange(bb.blendData[1].values.min(),
-					    bb.blendData[1].values.max(),
-					    bb.blendData[1]);
-					if(bb.afterLoadData !=null) {
-					  bb.afterLoadData(null, null, bb.blendData, true); //multiple set to true
-					}
-					
-					bb.blend($(".blend_slider").slider("value"));
+			    Data(e.target.result, function(data) {
+			      bb.blendData[num] = data; 
+  					bb.blendData.alpha = 1.0/numberFiles;
+
+  					bb.blendData[num].fileName = file.name;
+  					for(k = 0; k < 2; k++) {
+  					  if(bb.blendData[k] == undefined) {						     
+  					    console.log("not done yet");
+  					    return;
+  					  }
+
+  					}		 
+  					initRange(bb.blendData[0].values.min(),
+  					    bb.blendData[0].values.max(),
+  					    bb.blendData[0]);
+
+  					initRange(bb.blendData[1].values.min(),
+  					    bb.blendData[1].values.max(),
+  					    bb.blendData[1]);
+  					if(bb.afterLoadData !=null) {
+  					  bb.afterLoadData(null, null, bb.blendData, true); //multiple set to true
+  					}
+
+  					bb.blend($(".blend_slider").slider("value"));
+			    });
 				};
 			})(reader.file,i);
 		      

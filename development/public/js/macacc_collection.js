@@ -77,7 +77,7 @@ function MacaccObject(brainbrowser, path, dont_build_path) {
     options.format = "MNIObject";
     
     brainbrowser.clearScreen();
-    brainbrowser.loadModelFromUrl('/data/surfaces/surf_reg_model_both_'+type+'.obj', options);
+    brainbrowser.loadModelFromUrl('/data/surfaces/surf_reg_model_both_' + type + '.obj', options);
   };
 
   this.flipXCoordinate = function() {
@@ -111,6 +111,11 @@ function MacaccObject(brainbrowser, path, dont_build_path) {
     var flip;
     var clamped;
     
+    if (!dataset) {
+      $("#loading").hide();
+      return;
+    }
+    
     that.dataArray = dataset.current_data.values;
     brainbrowser.current_dataset = dataset;
     if($("#fix_range").is(":checked")) {
@@ -133,17 +138,26 @@ function MacaccObject(brainbrowser, path, dont_build_path) {
     clamped = $("#clamp_range").is(":checked");
     if (get_data_controls().statistic === "T") {
       that.flipRange = flip;
-      brainbrowser.updateColors(that.dataSet.current_data, that.data_min, that.data_max, brainbrowser.spectrum, flip, clamped);
+      brainbrowser.updateColors(that.dataSet.current_data, that.data_min, that.data_max, brainbrowser.spectrum, flip, clamped, false, {
+        afterUpdate: function() {
+          $("#loading").hide();
+        }
+      });
     } else {
       that.flipRange = !flip;
       $("#range-slider").slider("option", "min", "0");
       $("#range-slider").slider("option", "max", "1");
-      brainbrowser.updateColors(that.dataSet.current_data, 0, 1, brainbrowser.spectrum, !flip, clamped);
+      brainbrowser.updateColors(that.dataSet.current_data, 0, 1, brainbrowser.spectrum, !flip, clamped, false, {
+        afterUpdate: function() {
+          $("#loading").hide();
+        }
+      });
     }
 
   };
 
   function update_map() {
+    $("#loading").show();
     that.dataSet.get_data(that.vertex, get_data_controls(), that.update_model);
     $(that.pickInfoElem).html("Viewing data for vertex: " + that.vertex  );
     
@@ -168,9 +182,14 @@ function MacaccObject(brainbrowser, path, dont_build_path) {
   this.range_change = function() {
     var min = parseFloat($("#data-range-min").val());
     var max = parseFloat($("#data-range-max").val());
-    brainbrowser.updateColors(that.dataSet.current_data, min, max, brainbrowser.spectrum, $("#flip_range").is(":checked"), $("#clamp_range").is(":checked"));
+    $("#loading").show();
+    brainbrowser.updateColors(that.dataSet.current_data, min, max, brainbrowser.spectrum, $("#flip_range").is(":checked"), $("#clamp_range").is(":checked"), false, {
+      afterUpdate: function() {
+        $("#loading").hide();
+      }
+    });
 
-    if(that.afterRangeChange != undefined) {
+    if(that.afterRangeChange) {
       that.afterRangeChange(min, max);
     }
   };

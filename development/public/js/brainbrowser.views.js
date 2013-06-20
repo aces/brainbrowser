@@ -17,6 +17,22 @@
  
 BrainBrowser.modules.views = function(bb) {
   
+  
+  // Change the opacity of an object in the scene.
+  bb.changeShapeTransparency = function(shape_name, alpha) {
+    var shape = bb.model.getChildByName(shape_name);
+    var material;
+    if (shape) {
+      material = shape.material;
+      material.opacity = alpha;
+      if (alpha === 1) {
+        material.transparent = false;
+      } else {
+        material.transparent = true;
+      }
+    }
+  };
+  
   /**
    * Figures out what view has been selected and activates it
    */

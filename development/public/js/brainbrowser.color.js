@@ -25,24 +25,30 @@ BrainBrowser.modules.color = function(bb) {
    * This updates the colors of the model. Will delegate to color_hemispheres() or color_model()
    * depending on the type of model.
    */
-  bb.updateColors = function(data, min, max, spectrum, flip, clamped, blend, shape, opts) {
+  bb.updateColors = function(data, min, max, spectrum, flip, clamped, blend, opts) {
     var options = opts || {};
     var afterUpdate = options.afterUpdate;
     var color_array;
-    
+
     function applyColorArray(color_array) {
+      var shapes;
       if(bb.model_data.num_hemispheres === 2) {
         color_hemispheres(color_array);
       } else {
-        color_model(color_array);
+        if (data.apply_to_shape) {
+          shapes = [bb.model.getChildByName(data.apply_to_shape, true)];
+        } else {
+          shapes = bb.model.children
+        }
+        color_model(color_array, shapes);
+      }
+
+      if (bb.afterUpdateColors) {
+        bb.afterUpdateColors(data, min, max, spectrum);
       }
 
       if (afterUpdate) {
         afterUpdate();
-      }
-
-      if (bb.afterUpdateColors != null ) {
-        bb.afterUpdateColors(data, min, max, spectrum);
       }
     }
 
@@ -116,20 +122,18 @@ BrainBrowser.modules.color = function(bb) {
   }
   
   //Coloring for regular models.
-  function color_model(color_array) {
-    var model = bb.model;
+  function color_model(color_array, shapes) {
     var color_array_length = color_array.length;
     var color_buffer = [];    
     var color_index;
     var col;
     var face, faces;
-    var children;
     var vertexColors;
     var i, j;
     var count1, count2;
-    children = model.children;
-    for (i = 0, count1 = children.length; i < count1; i++) {
-      faces = children[i].geometry.faces;
+
+    for (i = 0, count1 = shapes.length; i < count1; i++) {
+      faces = shapes[i].geometry.faces;
       for (j = 0, count2 = faces.length; j < count2; j++) {
         face = faces[j];
         vertexColors = face.vertexColors;
@@ -146,7 +150,7 @@ BrainBrowser.modules.color = function(bb) {
           vertexColors[3].setRGB(color_array[color_index], color_array[color_index+1], color_array[color_index+2]);
         }
       }
-      children[i].geometry.colorsNeedUpdate = true;
+      shapes[i].geometry.colorsNeedUpdate = true;
     }
   }
 };

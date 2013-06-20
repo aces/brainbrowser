@@ -33,11 +33,14 @@ $(function() {
       afterDisplay: function() {
         bb.loadSpectrumFromUrl('/assets/spectral_spectrum.txt', {
           afterLoadSpectrum: function() {
-            bb.loadDataFromUrl('/models/realct.txt','cortical thickness'); 
+            bb.loadDataFromUrl('/models/realct.txt', 'cortical thickness', {
+              afterUpdate: function() {
+                $("#loading").hide();
+              }
+            }); 
           }
         });
-        $("#loading").hide();
-      }
+      } 
     });
  
     //setting up some defaults 
@@ -60,37 +63,42 @@ $(function() {
 
     bb.afterDisplayObject = function(object) {
       var shape;
+      var slider, slider_div;
       var i, count;
+      var children = object.children;
+      var elements = $("#shapes").children();
+      if(children.length - elements.length > 0 ) {
+        for (i = elements.length, count = children.length; i < count; i++) {
+          shape = children[i];
+          slider_div = $("<div id=\"shape_" + i + "\" class=\"shape\">"
+            + "<h4>Shape "+ (i + 1) + "</h4>"
+            + "Name: " + shape.name + "<br />" 
+            + "Opacity: "
+            + "</div>");
+          slider = $("<div class=\"opacity-slider slider\"  data-shape-name=\"" + shape.name + "\"></div>");  
+          slider.slider({
+              value: 100,
+              min: -1,
+              max: 101,
+              slide: function(event, ui) {
+                var target = event.target;
+                var shape_name = $(target).attr('data-shape-name');
+                var alpha = $(target).slider('value');
+                alpha = Math.min(100, Math.max(0, alpha)) / 100.0;
 
-      $("#shapes").html("");
-      if(object.children.length > 0 ) {
-        for(i = 0, count = object.children.length; i < count; i++) {
-          shape = object.children[i];
-          $("<div id=\"shape_"+i+"\" data-shape-name=\""+shape.name+"\" class=\"shape\">"
-          +"<h4>Shape "+ (i + 1) +"</h4>"
-          +"Name: " +shape.name + "<br />" 
-          + "Opacity: <div class=\"opacity-slider slider\"  data-shape-name="+shape.name+"></div>"
-          +"</div>").appendTo("#shapes");
+                bb.changeShapeTransparency(shape_name, alpha);
+              }
+          });
+          slider.appendTo(slider_div);
+          slider_div.appendTo("#shapes");
         }
       }
 
 
       bb.afterClearScreen = function() {
         $("#shapes").html("");
+        $("#data-range").html("");
       };
-
-      $(".opacity-slider").slider({
-        value: 100,
-        min: -1,
-        max: 101,
-        slide: function(event, ui) {
-          var shape_name = $(event.target).attr('data-shape-name');
-          var alpha = $(event.target).slider('value');
-          alpha = Math.min(100, Math.max(0, alpha)) / 100.0;
-
-          bb.changeShapeTransparency(shape_name,alpha);
-        }
-      });
     };
     
     $('#clearshapes').click(function(e) {
@@ -112,7 +120,7 @@ $(function() {
       min: -50,
       max: 50,
       value: [-10, 10],
-      slide: function(event, ui) {
+      slider: function(event, ui) {
         var min = parseFloat(ui.values[0]);
         var max = parseFloat(ui.values[1]);
         bb.rangeChange(min, max, $("#clamp_range").is(":checked"));
@@ -130,7 +138,6 @@ $(function() {
 
     function createDataUI(data) {
       var rangeBox = $("#data-range");
-      var range_updating = false;
       var headers = "<div id=\"data_range_multiple\"><ul>";
       var controls = "";
       var data = data.length ? data : [data];
@@ -157,35 +164,45 @@ $(function() {
       $(rangeBox).tabs();
 
       $("#data_range").find(".slider").each(function(index, element) {
+        var min = data[0].values.min();
+        var max = data[0].values.max()
         $(element).slider({
-          range:true,
-          min: data[0].values.min(),
-          max: data[0].values.max(),
+          range: true,
+          min: min,
+          max: max,
           values: [data[index].rangeMin,data[index].rangeMax],
-          step: 0.1,
+          step: (max - min) / 100.0,
           slide: function(event, ui) {
-            if (!range_updating) {
-              var blend_id = $(this).attr("data-blend-index");
-              range_updating = true;
-              data[0].rangeMin = ui.values[0];
-              data[0].rangeMax = ui.values[1];
-              bb.model_data.data = data[0];
-              bb.rangeChange(data[0].rangeMin, data[0].rangeMax, bb.clamped, {
-                afterChange: function () {
-                  range_updating = false;
-                }
-              });
-            }
+            $("#data-range-min").val(ui.values[0]);
+            $("#data-range-max").val(ui.values[1]);
+          },
+          stop: function(event, ui) {
+            $("#loading").show();
+            var blend_id = $(this).attr("data-blend-index");
+            range_updating = true;
+            data[0].rangeMin = ui.values[0];
+            data[0].rangeMax = ui.values[1];
+            bb.model_data.data = data[0];
+            bb.rangeChange(data[0].rangeMin, data[0].rangeMax, bb.clamped, {
+              afterUpdate: function () {
+                $("#loading").hide();
+              }
+            });
           }
         });
       });
 
       function dataRangeChange(e) {
+        $("#loading").show();
         var min = $("#data-range-min").val();
         var max = $("#data-range-max").val();
         $(e.target).siblings(".slider").slider('values', 0, min);
         $(e.target).siblings(".slider").slider('values', 1, max);
-        bb.rangeChange(min,max,$(e.target).siblings("#clamp_range").is(":checked"));
+        bb.rangeChange(min,max, $(e.target).siblings("#clamp_range").is(":checked"), {
+          afterUpdate: function () {
+            $("#loading").hide();
+          }
+        });
 
       }
       $("#data-range-min").change(dataRangeChange);
@@ -210,13 +227,17 @@ $(function() {
 
       $("#flip_range").change(function(e) {
         bb.flip = $(e.target).is(":checked");
-        bb.updateColors(bb.model_data.data, bb.model_data.data.rangeMin, bb.model_data.data.rangeMax ,bb.spectrum, bb.flip, bb.clamped);
-
+        $("#loading").show();
+        bb.updateColors(bb.model_data.data, bb.model_data.data.rangeMin, bb.model_data.data.rangeMax, bb.spectrum, bb.flip, bb.clamped, false, {
+          afterUpdate: function() {
+            $("#loading").hide();
+          }
+        });
       });
 
     }
 
-    bb.afterLoadData = function(min,max,data,multiple) {
+    bb.afterLoadData = function(min, max, data, multiple) {
 
       if (multiple) {
         createDataUI(data);
@@ -241,75 +262,103 @@ $(function() {
 
       switch(name) {
         case	'basic':
-        $("#loading").show();
-        bb.clearScreen();
-        bb.loadModelFromUrl('/models/surf_reg_model_both.obj', {
-          format: "MNIObject",
-          afterDisplay: function() {
-            $("#loading").hide();
-          }
-        });
-        break;
+          $("#loading").show();
+          bb.clearScreen();
+          bb.loadModelFromUrl('/models/surf_reg_model_both.obj', {
+            format: "MNIObject",
+            afterDisplay: function() {
+              $("#loading").hide();
+            }
+          });
+          break;
         case 'punkdti':
-        $("#loading").show();
-        bb.clearScreen();
-        bb.loadModelFromUrl('/models/dti.obj', {
-          format: "MNIObject",
-          renderDepth: 999,
-          afterDisplay: function() {
-            $("#loading").hide();
-          }
-        });
-        bb.loadModelFromUrl('/models/left_color.obj', { format: "MNIObject" });
-        bb.loadModelFromUrl('/models/right_color.obj', { format: "MNIObject" });
-        break;
+          $("#loading").show();
+          bb.clearScreen();
+          bb.loadModelFromUrl('/models/dti.obj', {
+            format: "MNIObject",
+            renderDepth: 999,
+            afterDisplay: function() {
+              $("#loading").hide();
+            }
+          });
+          bb.loadModelFromUrl('/models/left_color.obj', { format: "MNIObject" });
+          bb.loadModelFromUrl('/models/right_color.obj', { format: "MNIObject" });
+          break;
         case 'realct':
-        $("#loading").show();
-        bb.clearScreen();
-        bb.loadModelFromUrl('/models/realct.obj', {
-          format: "MNIObject",
-          afterDisplay: function() {
-            bb.loadDataFromUrl('/models/realct.txt','cortical thickness'); 
-            $("#loading").hide();
-          }
-        });    
-        break;
+          $("#loading").show();
+          bb.clearScreen();
+          bb.loadModelFromUrl('/models/realct.obj', {
+            format: "MNIObject",
+            afterDisplay: function() {
+              bb.loadDataFromUrl('/models/realct.txt','Cortical Thickness', {
+                afterUpdate: function() {
+                  $("#loading").hide();
+                }
+              }); 
+            }
+          });    
+          break;
         case 'car':
-        $("#loading").show();
-        bb.clearScreen();
-        bb.loadModelFromUrl('/models/car.obj', {
-          format: "WavefrontObj",
-          afterDisplay: function() {
-            $("#loading").hide();
-          }
-        });
-        bb.setCamera(0, 0, 100);			     
+          $("#loading").show();
+          bb.clearScreen();
+          bb.loadModelFromUrl('/models/car.obj', {
+            format: "WavefrontObj",
+            afterDisplay: function() {
+              $("#loading").hide();
+            }
+          });
+          bb.setCamera(0, 0, 100);			     
 
-        matrixRotX = new THREE.Matrix4();
-        matrixRotX.makeRotationX(-0.25 * Math.PI)
-        matrixRotY = new THREE.Matrix4();
-        matrixRotY.makeRotationY(0.4 * Math.PI)
+          matrixRotX = new THREE.Matrix4();
+          matrixRotX.makeRotationX(-0.25 * Math.PI)
+          matrixRotY = new THREE.Matrix4();
+          matrixRotY.makeRotationY(0.4 * Math.PI)
 
-        bb.model.applyMatrix(matrixRotY.multiply(matrixRotX));
-        break;
+          bb.model.applyMatrix(matrixRotY.multiply(matrixRotX));
+          break;
         case 'plane':
-        $("#loading").show();
-        bb.clearScreen();
-        bb.loadModelFromUrl('/models/dlr_bigger.streamlines.obj', { format: "MNIObject" });
-        bb.loadModelFromUrl('/models/dlr.model.obj', {
-          format: "MNIObject",
-          afterDisplay: function() {
-            $("#loading").hide();
-          }
-        });
-        bb.setCamera(0, 0, 75);
+          $("#loading").show();
+          bb.clearScreen();
+          bb.loadModelFromUrl('/models/dlr_bigger.streamlines.obj', { format: "MNIObject" });
+          bb.loadModelFromUrl('/models/dlr.model.obj', {
+            format: "MNIObject",
+            afterDisplay: function() {
+              $("#loading").hide();
+            }
+          });
+          bb.setCamera(0, 0, 75);
 
-        matrixRotX = new THREE.Matrix4();
-        matrixRotX.makeRotationX(-0.25 * Math.PI)
-        matrixRotY = new THREE.Matrix4();
-        matrixRotY.makeRotationY(0.4 * Math.PI)
+          matrixRotX = new THREE.Matrix4();
+          matrixRotX.makeRotationX(-0.25 * Math.PI)
+          matrixRotY = new THREE.Matrix4();
+          matrixRotY.makeRotationY(0.4 * Math.PI)
 
-        bb.model.applyMatrix(matrixRotY.multiply(matrixRotX));
+          bb.model.applyMatrix(matrixRotY.multiply(matrixRotX));
+          break;
+        case 'mouse':
+          $("#loading").show();
+          bb.clearScreen();
+          bb.loadModelFromUrl('/models/mouse_surf.obj', { 
+            format: "MNIObject",
+            afterDisplay: function() {
+              bb.loadDataFromUrl('/models/mouse_alzheimer_map.txt',
+                                  'Cortical Amyloid Burden of Tg AD Mouse Model at 18 Months Old', {
+                                    shape: "mouse_surf.obj",
+                                    afterUpdate: function() {
+                                      $("#loading").hide();
+                                    }
+                                  }
+              );
+            } 
+          });
+          bb.loadModelFromUrl('/models/mouse_brain_outline.obj', { 
+            format: "MNIObject",
+            afterDisplay: function() {
+              $(".opacity-slider[data-shape-name='mouse_brain_outline.obj']").slider("value", 50);
+              bb.changeShapeTransparency('mouse_brain_outline.obj', 0.5);
+            } 
+          });
+          bb.setCamera(0, 0, 40);
       }
 
       return false; 

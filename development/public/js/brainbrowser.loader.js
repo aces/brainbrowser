@@ -66,25 +66,28 @@ BrainBrowser.modules.loader = function(bb) {
   };
   
   // Load a colour map from the server.
-  bb.loadDataFromUrl = function(file_input, name) {
+  bb.loadDataFromUrl = function(file_input, name, opts) {
+    var options = opts || {};
 
     loadFromUrl(file_input, null, function(text,file) {
  		  Data(text, function(data) {
  		    bb.model_data.data = data;
  		    data.fileName = name;
+ 		    data.apply_to_shape = options.shape;
    		  initRange(data.min, data.max);
-   		  if (bb.afterLoadData != undefined) {
+   		  if (bb.afterLoadData) {
    		    bb.afterLoadData(data.rangeMin, data.rangeMax, data);
    		  }
 
-   		  bb.updateColors(data, data.rangeMin, data.rangeMax, bb.spectrum);
+   		  bb.updateColors(data, data.rangeMin, data.rangeMax, bb.spectrum, bb.flip, bb.clamped, false, options);
  		  });
  		});
    };
 
    
    //Load text data from file and update colors
-   bb.loadDataFromFile = function(file_input) {
+   bb.loadDataFromFile = function(file_input, opts) {
+     var options = opts || {};
      var filename = file_input.files[0].name;
      var model_data = bb.model_data;
      var positionArray = model_data.positionArray;
@@ -93,6 +96,7 @@ BrainBrowser.modules.loader = function(bb) {
      var onfinish = function(text) {
  	    Data(text, function(data) {
  	      data.fileName = filename;
+ 	      data.apply_to_shape = options.shape;
    	    if (data.values.length < positionArrayLength/4) {
    	      alert("Number of numbers in datafile lower than number of vertices Vertices" + positionArrayLength/3 + " data values:" + data.values.length );
    	      return -1;
@@ -100,11 +104,11 @@ BrainBrowser.modules.loader = function(bb) {
    	      model_data.data = data;
    	    }
         initRange(data.min, data.max);
-        if(bb.afterLoadData !=null) {
+        if(bb.afterLoadData) {
    	      bb.afterLoadData(data.rangeMin, data.rangeMax, data);
         }
 
-        bb.updateColors(data, data.rangeMin, data.rangeMax, bb.spectrum, bb.flip, bb.clamped);
+        bb.updateColors(data, data.rangeMin, data.rangeMax, bb.spectrum, bb.flip, bb.clamped, false, options);
  	    });
      };
 
@@ -247,6 +251,9 @@ BrainBrowser.modules.loader = function(bb) {
          if (ui.value -  Math.floor(ui.value) < 0.01) { //is it at an integer? then just return the array			
            model_data.data = seriesData[ui.value];											     
            } else { //interpolate
+             //////////////////////////////////////////////////////////////////////
+             //TODO: NOT SURE IF THIS PART WORKS WITH WEB WORKERS. NEED TEST DATA!
+             //////////////////////////////////////////////////////////////////////
              if (seriesData[0].fileName.match("pval.*")){
                model_data.data = new Data(interpolateDataArray(seriesData[Math.floor(ui.value)],
                seriesData[Math.floor(ui.value)+1],
@@ -348,7 +355,7 @@ BrainBrowser.modules.loader = function(bb) {
     
     data.rangeMin = min;
     data.rangeMax = max;
-    bb.updateColors(data, data.rangeMin, data.rangeMax, bb.spectrum, bb.flip, clamped);
+    bb.updateColors(data, data.rangeMin, data.rangeMax, bb.spectrum, bb.flip, clamped, false, options);
 
     /*
      * This callback allows users to

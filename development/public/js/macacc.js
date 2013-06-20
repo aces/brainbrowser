@@ -50,7 +50,7 @@ function initMacacc(path_prefix, dont_build_path) {
         };
         
         $('.data_controls').change(macacc.data_control_change);
-        macacc.pickInfoElem=$("#vertex_info");
+        macacc.pickInfoElem = $("#vertex_info");
         
         $("#x-coord-flip").click(macacc.flipXCoordinate); //flip x from one hemisphere to the other.
         
@@ -73,6 +73,8 @@ function initMacacc(path_prefix, dont_build_path) {
       slide: function(event, ui) {
         $("#data-range-min").val(ui.values[0]);
         $("#data-range-max").val(ui.values[1]);
+      },
+      stop: function(event, ui) {
         if(bb.current_dataset) {
           macacc.range_change();
         }
@@ -91,12 +93,12 @@ function initMacacc(path_prefix, dont_build_path) {
 
     $("#data-range-min").change(function(e) {
       $("#range-slider").slider('values', 0, $(this).val());
-      macacc.afterRangeChange(parseFloat($("#data-range-min").val()),parseFloat($("#data-range-max").val()));
+      macacc.afterRangeChange(parseFloat($("#data-range-min").val()), parseFloat($("#data-range-max").val()));
     });
 
     $("#data-range-max").change(function(e) {
       $("#range-slider").slider('values', 1, $(this).val());
-      macacc.afterRangeChange(parseFloat($("#data-range-min").val()),parseFloat($("#data-range-max").val()));
+      macacc.afterRangeChange(parseFloat($("#data-range-min").val()), parseFloat($("#data-range-max").val()));
     });
 
     $("[name=pointer]").change(function(e) {
@@ -124,22 +126,24 @@ function initMacacc(path_prefix, dont_build_path) {
     });
 
     $("#flip_range").change(function(e) {
+      $("#loading").show();
       macacc.update_model(bb.current_dataset);
     });
     
     $("#clamp_range").change(function(e) {
+      $("#loading").show();
       macacc.update_model(bb.current_dataset);
     });
     
 
 
     $("#flip_correlation").click(function(e) {
-      var min = -1*parseFloat($("#data-range-max").val());
-      var max = -1*parseFloat($("#data-range-min").val());
+      var min = -1 * parseFloat($("#data-range-max").val());
+      var max = -1 * parseFloat($("#data-range-min").val());
       $("#data-range-min").val(min).change();
       $("#data-range-max").val(max).change();
       
-      $("#flip_range").attr("checked", !$("#flip_range").attr("checked")).change();
+      $("#flip_range").attr("checked", !$("#flip_range").is(":checked")).change();
     });
 
     $("#secondWindow").click(function(e){

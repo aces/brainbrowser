@@ -39,7 +39,7 @@ BrainBrowser.modules.models = function(bb) {
     } else {
       alert("Object file not supported");
     }
-    if(bb.afterDisplayObject != undefined) {
+    if(bb.afterDisplayObject) {
       bb.afterDisplayObject(bb.model);      
     }
     
@@ -223,11 +223,10 @@ BrainBrowser.modules.models = function(bb) {
     var shapes = model_data.shapes;
     
     bb.model_data = model_data;
-    
     if (shapes){
       for (i = 0, count = shapes.length; i < count; i++){
 	      shape = createPolygonShape(bb.model_data.shapes[i]);
-	      shape.name = bb.model_data.shapes[i].name;
+	      shape.name = bb.model_data.shapes[i].name || (filename.split(".")[0] + "_" + i);
 	      model.add(shape);      	
       }
     }else {
@@ -335,21 +334,6 @@ BrainBrowser.modules.models = function(bb) {
     
     return polygonShape;
   }
-  
-  // Change the opacity of an object in the scene.
-  bb.changeShapeTransparency = function(shape_name, alpha) {
-    var shape = bb.model.getChildByName(shape_name);
-    var material;
-    if (shape) {
-      material = shape.material;
-      material.opacity = alpha;
-      if (alpha === 1) {
-        material.transparent = false;
-      } else {
-        material.transparent = true;
-      }
-    }
-  };
   
   // Update current values of the bounding box of 
   // an object.

@@ -128,13 +128,9 @@ select#clear_color {
   z-index: 999;
   position: relative;
   display: inline-block;
-  top: 1em;
+  top: 0.8em;
   left: 2em;
   font-size: 3em;
-  color: #FF4500;
-  background-color: white;
-  padding: 0.1em 0.3em;
-  border-radius: 0.5em;
 }
 
 div#obj_file_select {

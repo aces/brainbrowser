@@ -5,17 +5,15 @@ require 'minc'
 require 'json'
 require 'zlib'
 
-puts ENV["BRAINBROWSER_ENV"]
-
-
-
 if ENV["BRAINBROWSER_ENV"] == "production"
-  set :public, 'production/public'
+  puts "Starting BrainBrowser in production mode."
+  set :public_folder, 'production/public'
 else
-  set :public, 'development/public'
-  use Rack::Auth::Basic, "Restricted Area" do |username, password|
-    [username, password] == ['tsherif', 'sosecret']
-  end
+  set :public_folder, 'development/public'
+  puts "Starting BrainBrowser in development mode."
+  #use Rack::Auth::Basic, "Restricted Area" do |username, password|
+  #  [username, password] == ['tsherif', 'sosecret']
+  #end
 
 end
 

@@ -40,10 +40,10 @@ function BrainBrowser(callback) {
     return new BrainBrowser(callback);
   }
                        
-  this.view_window = $("#brainbrowser"); // Div where the canvas will be loaded.
-  this.model = undefined;  // The currently loaded model.
-  this.scene = undefined; // The currently actived THREE.Scene object.
-  this.camera = undefined; // The THREE.Camera object.
+  this.view_window = document.getElementById("brainbrowser"); // Div where the canvas will be loaded.
+  this.model = undefined;  // The currently loaded model. Should be set by rendering.
+  
+  BrainBrowser.rendering(this);
   
   var module;
   
@@ -102,7 +102,9 @@ BrainBrowser.webGLErrorMessage = function() {
           "Your browser does not seem to support it.<br/>";
 	text += 'Test your browser\'s WebGL support <a href="http://get.webgl.org/">here</a>.';
 	
-  el = $('<div id="webgl-error">' + text + '</div>');
+	el = document.createElement("div");
+	el.id = "webgl-error";
+	el.innerHTML = text;
       
   return el;
 }

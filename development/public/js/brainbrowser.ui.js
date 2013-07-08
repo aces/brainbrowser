@@ -67,6 +67,64 @@ BrainBrowser.plugins.ui = function(bb) {
 		    }
 	    }).appendTo(div);
   };
+  
+  //Setup for series data, creates a slider to switch between files. 
+  bb.setupSeries = function() {
+    var model_data = bb.model_data;
+    var seriesData = bb.seriesData;
+    var positionArray = bb.model_data.positionArray;
+    
+    $("<div id=\"series\">Series: </div>").appendTo("#surface_choice");
+    var div = $("#series");
+    $("<span id=\"series-value\">0</span>").appendTo(div);
+    $("<div id=\"series-slider\" width=\"100px\" + height=\"10\"></div>")
+     .slider({
+       value: 0,
+       min: 0,
+       max: seriesData.numberFiles-1,	       
+       step: 0.1,
+       slide: function(event,ui) {
+         if (ui.value -  Math.floor(ui.value) < 0.01) { //is it at an integer? then just return the array			
+           model_data.data = seriesData[ui.value];											     
+           } else { //interpolate
+             //////////////////////////////////////////////////////////////////////
+             //TODO: NOT SURE IF THIS PART WORKS WITH WEB WORKERS. NEED TEST DATA!
+             //////////////////////////////////////////////////////////////////////
+             if (seriesData[0].fileName.match("pval.*")){
+               model_data.data = new Data(interpolateDataArray(seriesData[Math.floor(ui.value)],
+               seriesData[Math.floor(ui.value)+1],
+               (ui.value -  Math.floor(ui.value)), true));		
+             } else {
+               model_data.data = new Data(interpolateDataArray(seriesData[Math.floor(ui.value)],
+               seriesData[Math.floor(ui.value)+1],
+               (ui.value -  Math.floor(ui.value))));
+             }    
+           }
+           if (seriesData[0].fileName.match("mt.*")) {
+             $("#age_series").html("Age: " + (ui.value*3+5).toFixed(1));
+  
+           } else if (seriesData[0].fileName.match("pval.*")) {
+             $("#age_series").html("Age: " + (ui.value*1+10));
+           }
+           $(div).children("#series-value").html(ui.value);
+           if (model_data.data.values.length < positionArray.length/4) {
+             console.log("Number of numbers in datafile lower than number of vertices Vertices" 
+             + positionArray.length/3 + " data values:" 
+             + model_data.data.values.length );
+             return -1;
+           }
+           initRange(model_data.data.min, model_data.data.max);
+           if (bb.afterLoadData !=null) {
+             bb.afterLoadData(model_data.data.rangeMin, model_data.data.rangeMax, model_data.data);
+           }
+  
+           bb.updateColors(model_data.data, model_data.data.rangeMin, model_data.data.rangeMax, bb.spectrum, bb.flip, bb.clamped);
+           
+           return null;
+         }
+     }).appendTo(div);
+  
+  };
 
   
   /*

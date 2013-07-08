@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
  
-BrainBrowser.modules.models = function(bb) {
+BrainBrowser.core.models = function(bb) {
   
   
   // Display an object file.
@@ -60,8 +60,6 @@ BrainBrowser.modules.models = function(bb) {
     right.model_num = 1;
     model.add(left);
     model.add(right);
-    
-    bb.scene.add(model);
   }
   
   // Add an individual brain hemisphere to the scene.
@@ -117,9 +115,7 @@ BrainBrowser.modules.models = function(bb) {
       lineObject.renderDepth = renderDepth;
     }
 
-    model.add(lineObject);
-    
-    bb.scene.add(model);  
+    model.add(lineObject);    
   }
 
   //Create a line model.
@@ -237,9 +233,7 @@ BrainBrowser.modules.models = function(bb) {
 
     if(bb.afterCreate != undefined) {
       bb.afterCreate(bb.model_data);
-    }
-    
-    bb.scene.add(model);
+    }    
   }
   
   // Create a polygon object.
@@ -325,12 +319,6 @@ BrainBrowser.modules.models = function(bb) {
     material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808, vertexColors: THREE.VertexColors});
     
     polygonShape = new THREE.Mesh(geometry, material);
-      
-    if(bb.loading){
-      $(bb.loading).html("Buffers Loaded");
-    }
-    
-    
     
     return polygonShape;
   }

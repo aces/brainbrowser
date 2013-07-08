@@ -17,7 +17,7 @@
 
 
 // Module for updating colours on models currently being displayed.
-BrainBrowser.modules.color = function(bb) {
+BrainBrowser.core.color = function(bb) {
 
    var colorManager = new ColorManager();
   

@@ -15,9 +15,11 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
  
-BrainBrowser.core.rendering = function(bb) {
+BrainBrowser.rendering = function(bb) {
   var renderer; //THREE.js renderer
+  var scene = new THREE.Scene();
   var pointLight;
+  var camera = new THREE.PerspectiveCamera(30, bb.view_window.offsetWidth/bb.view_window.offsetHeight, 0.1, 5000);
   var camera_controls;
   var light_controls;
   var current_frame;
@@ -26,40 +28,40 @@ BrainBrowser.core.rendering = function(bb) {
   var anaglyphEffect;
   
   bb.model = new THREE.Object3D();
-  bb.scene = new THREE.Scene();
-  bb.camera = new THREE.PerspectiveCamera(30, bb.view_window.width()/bb.view_window.height(), 0.1, 5000); 
+  
+  scene.add(bb.model);
   
   bb.render = function() {
     var view_window = bb.view_window;
     renderer = new THREE.WebGLRenderer({clearColor: 0x888888, clearAlpha: 1, preserveDrawingBuffer: true});
     
-    renderer.setSize(view_window.width(), view_window.height());
+    renderer.setSize(view_window.offsetWidth, view_window.offsetHeight);
     effect = renderer;
     
     anaglyphEffect = new THREE.AnaglyphEffect(renderer);
-    anaglyphEffect.setSize(view_window.width(), view_window.height());
+    anaglyphEffect.setSize(view_window.offsetWidth, view_window.offsetHeight);
   
-    view_window.append(renderer.domElement);  
+    view_window.appendChild(renderer.domElement);  
     
-    bb.camera.position.z = 500;
+    camera.position.z = 500;
     
     pointLight = new THREE.PointLight(0xFFFFFF);
 
     pointLight.position.set(0, 0, 500);
 
-    bb.scene.add(pointLight);
+    scene.add(pointLight);
     
-    camera_controls = new THREE.TrackballControls(bb.camera, view_window[0]);
-    light_controls = new THREE.TrackballControls(pointLight, view_window[0]);
+    camera_controls = new THREE.TrackballControls(camera, view_window);
+    light_controls = new THREE.TrackballControls(pointLight, view_window);
     camera_controls.zoomSpeed = 2;                 
     light_controls.zoomSpeed = 2;
     
     bb.autoRotate = {};
     
     window.onresize = function() {
-      effect.setSize(view_window.width(), view_window.height());
-      bb.camera.aspect = view_window.width()/view_window.height();
-      bb.camera.updateProjectionMatrix();
+      effect.setSize(view_window.offsetWidth, view_window.offsetHeight);
+      camera.aspect = view_window.offsetWidth/view_window.offsetHeight;
+      camera.updateProjectionMatrix();
     };
     
     window.onresize();      
@@ -76,7 +78,7 @@ BrainBrowser.core.rendering = function(bb) {
   }
   
   bb.setCamera = function(x, y, z) {
-    bb.camera.position.set(x, y, z);
+    camera.position.set(x, y, z);
   }
   
   /**
@@ -87,11 +89,13 @@ BrainBrowser.core.rendering = function(bb) {
      var model = bb.model;
      var child;
      var i, count;
+     var inv = new THREE.Matrix4();
+     inv.getInverse(model.matrix);
 
      camera_controls.reset();                 
      light_controls.reset();
-     model.position.set(0, 0, 0);
-     model.rotation.set(0, 0, 0);
+     model.applyMatrix(inv);
+     
      for (i = 0, count = bb.model.children.length; i < count; i++) {
        child = model.children[i];
        child.visible = true;
@@ -111,13 +115,13 @@ BrainBrowser.core.rendering = function(bb) {
    * Tip: when you remove a shape, the shapes array lenght will be decremented so if you need to count the number of shapes, you must save that length value before removing shapes. 
    */
   bb.clearScreen = function() {
-    if (bb.model) {
-      bb.scene.remove(bb.model)
+    var children = bb.model.children;    
+    
+    while (children.length > 0) {
+      bb.model.remove(children[0]);
     }
+        
     bb.resetView();
-    
-    bb.model = new THREE.Object3D();
-    
     if(bb.afterClearScreen != undefined) {
       bb.afterClearScreen();
     }
@@ -182,9 +186,56 @@ BrainBrowser.core.rendering = function(bb) {
    * The following methods implement the zoom in and out
    */
   bb.ZoomInOut = function(zoom) {
-    bb.camera.fov *= zoom;
-    bb.camera.updateProjectionMatrix();
+    camera.fov *= zoom;
+    camera.updateProjectionMatrix();
   };
+  
+  /*
+    * This method can be used to detect where the user clicked
+    * it takes a callback method which will receive the event and
+    * and info object.
+    *
+   */
+  bb.click = function(e, click_callback) {
+    var view_window = bb.view_window;
+    
+    var offset = getOffset(view_window);
+    var projector = new THREE.Projector();
+    var raycaster = new THREE.Raycaster();
+    var mouseX = ((e.clientX - offset.left + window.scrollX)/view_window.offsetWidth) * 2 - 1;
+    var mouseY = -((e.clientY - offset.top + window.scrollY)/view_window.offsetHeight) * 2 + 1;
+    var vector = new THREE.Vector3(mouseX, mouseY, 1);
+    var intersects, intersection, vertex_data;
+  
+    projector.unprojectVector(vector, camera);
+    raycaster.set(camera.position, vector.sub(camera.position).normalize() );
+    intersects = raycaster.intersectObject(bb.model, true);
+    if (intersects.length > 0) {      
+      intersection = intersects[0];
+      vertex_data = {
+        vertex: intersection.face.a,
+        point: new THREE.Vector3(intersection.point.x, intersection.point.y, intersection.point.z),
+        object: intersection.object
+      };
+      return click_callback(e, vertex_data);
+    } else {
+      return false;
+    }
+  };
+  
+  function getOffset(elem) {
+    var top = 0;
+    var left = 0;
+    
+    while (elem.offsetParent) {
+      top += elem.offsetTop;
+      left += elem.offsetLeft;
+      
+      elem = elem.offsetParent;
+    }
+    
+    return {top: top, left: left}
+  }
   
   
   function render_frame(timestamp) {
@@ -212,7 +263,7 @@ BrainBrowser.core.rendering = function(bb) {
 	    model.rotation.z += rotation;
     }
 
-    effect.render(bb.scene, bb.camera);
+    effect.render(scene, camera);
   }
   
   function drawDot(x, y, z) {
@@ -222,7 +273,7 @@ BrainBrowser.core.rendering = function(bb) {
     var sphere = new THREE.Mesh(geometry, material);
     sphere.position.set(x, y, z);
   
-    bb.scene.add(sphere);
+    scene.add(sphere);
   }
 };
  

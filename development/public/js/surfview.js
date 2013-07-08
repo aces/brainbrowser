@@ -406,7 +406,7 @@ $(function() {
     });
 
     $("#datablendfile").change(function() {
-      bb.loadBlendDataFromFile(document.getElementById("datablendfile"));
+      bb.loadBlendDataFromFile(document.getElementById("datablendfile"), $(".blend_slider").slider("value"));
     });
   });
 });

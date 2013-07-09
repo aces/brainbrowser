@@ -198,7 +198,7 @@ $(function() {
         var max = $("#data-range-max").val();
         $(e.target).siblings(".slider").slider('values', 0, min);
         $(e.target).siblings(".slider").slider('values', 1, max);
-        bb.rangeChange(min,max, $(e.target).siblings("#clamp_range").is(":checked"), {
+        bb.rangeChange(min, max, $(e.target).siblings("#clamp_range").is(":checked"), {
           afterUpdate: function () {
             $("#loading").hide();
           }
@@ -344,6 +344,8 @@ $(function() {
               bb.loadDataFromUrl('/models/mouse_alzheimer_map.txt',
                                   'Cortical Amyloid Burden of Tg AD Mouse Model at 18 Months Old', {
                                     shape: "mouse_surf.obj",
+                                    min: 0.0,
+                                    max: 0.25,
                                     afterUpdate: function() {
                                       $("#loading").hide();
                                     }

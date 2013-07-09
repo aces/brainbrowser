@@ -69,12 +69,16 @@ BrainBrowser.modules.loader = function(bb) {
   bb.loadDataFromUrl = function(file_input, name, opts) {
     var options = opts || {};
 
-    loadFromUrl(file_input, null, function(text,file) {
+    loadFromUrl(file_input, null, function(text, file) {
  		  Data(text, function(data) {
+ 		    var max = options.max === undefined ? data.max : options.max;
+        var min = options.min === undefined ? data.min : options.min;
+        
  		    bb.model_data.data = data;
  		    data.fileName = name;
  		    data.apply_to_shape = options.shape;
-   		  initRange(data.min, data.max);
+   		  initRange(min, max);
+   		  
    		  if (bb.afterLoadData) {
    		    bb.afterLoadData(data.rangeMin, data.rangeMax, data);
    		  }
@@ -95,6 +99,9 @@ BrainBrowser.modules.loader = function(bb) {
 
      var onfinish = function(text) {
  	    Data(text, function(data) {
+ 	      var max = options.max === undefined ? data.max : options.max;
+        var min = options.min === undefined ? data.min : options.min;
+        
  	      data.fileName = filename;
  	      data.apply_to_shape = options.shape;
    	    if (data.values.length < positionArrayLength/4) {
@@ -103,7 +110,7 @@ BrainBrowser.modules.loader = function(bb) {
    	    } else {
    	      model_data.data = data;
    	    }
-        initRange(data.min, data.max);
+        initRange(min, max);
         if(bb.afterLoadData) {
    	      bb.afterLoadData(data.rangeMin, data.rangeMax, data);
         }

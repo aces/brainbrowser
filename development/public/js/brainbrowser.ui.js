@@ -133,13 +133,14 @@ BrainBrowser.plugins.ui = function(bb) {
    * 
    */
   bb.getImageUrl = function() {
+    var view_window = bb.view_window;
     var canvas = doc.createElement("canvas");
     var spectrumCanvas = doc.getElementById("spectrum_canvas");
     var context = canvas.getContext("2d");
     var img = new Image();
     
-    canvas.width = view_window.width();
-    canvas.height = view_window.height();
+    canvas.width = view_window.offsetWidth;
+    canvas.height = view_window.offsetHeight;
 
     function getSpectrumImage() {
 	    var img = new Image();
@@ -159,7 +160,7 @@ BrainBrowser.plugins.ui = function(bb) {
 	    }
     };
     
-    img.src = renderer.domElement.toDataURL();
+    img.src = bb.canvasDataURL();
   };
   
   bb.getViewParams = function() {

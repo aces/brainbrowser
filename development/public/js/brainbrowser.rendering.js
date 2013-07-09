@@ -69,6 +69,10 @@ BrainBrowser.rendering = function(bb) {
     render_frame();
   };
   
+  bb.canvasDataURL = function() {
+    return renderer.domElement.toDataURL()
+  }
+  
   bb.anaglyphEffect = function() {
     effect = anaglyphEffect;
   }
@@ -85,28 +89,28 @@ BrainBrowser.rendering = function(bb) {
     * Resets the view of the scene by resetting its local matrix to the identity
     * matrix.
     */
-   bb.resetView = function() {
-     var model = bb.model;
-     var child;
-     var i, count;
-     var inv = new THREE.Matrix4();
-     inv.getInverse(model.matrix);
-
-     camera_controls.reset();                 
-     light_controls.reset();
-     model.applyMatrix(inv);
-     
-     for (i = 0, count = bb.model.children.length; i < count; i++) {
-       child = model.children[i];
-       child.visible = true;
-       if (child.centroid) {
-         child.position.set(child.centroid.x, child.centroid.y, child.centroid.z);
-       } else {
-         child.position.set(0, 0, 0);
-       }
-       child.rotation.set(0, 0, 0);
-     }
-   };
+  bb.resetView = function() {
+    var model = bb.model;
+    var child;
+    var i, count;
+    var inv = new THREE.Matrix4();
+    inv.getInverse(model.matrix);
+  
+    camera_controls.reset();                 
+    light_controls.reset();
+    model.applyMatrix(inv);
+    
+    for (i = 0, count = bb.model.children.length; i < count; i++) {
+      child = model.children[i];
+      child.visible = true;
+      if (child.centroid) {
+        child.position.set(child.centroid.x, child.centroid.y, child.centroid.z);
+      } else {
+        child.position.set(0, 0, 0);
+      }
+      child.rotation.set(0, 0, 0);
+    }
+  };
   
   /** 
    * Delete all the shapes on screen

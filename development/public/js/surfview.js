@@ -20,6 +20,7 @@ $(function() {
   
   $(".button").button();
   $(".buttonset").buttonset();
+  $("#data-range-box").hide();
   
   if (!BrainBrowser.webgl_enabled()) {
     $("#brainbrowser").html(BrainBrowser.webGLErrorMessage());
@@ -97,7 +98,7 @@ $(function() {
 
       bb.afterClearScreen = function() {
         $("#shapes").html("");
-        $("#data-range").html("");
+        $("#data-range-box").hide();
       };
     };
     
@@ -138,17 +139,16 @@ $(function() {
 
     function createDataUI(data) {
       var rangeBox = $("#data-range");
-      var headers = "<div id=\"data_range_multiple\"><ul>";
+      var headers = "<div id=\"data-range-multiple\"><ul>";
       var controls = "";
       var data = data.length ? data : [data];
       var i, count;
-
-      $(rangeBox).html("");
+      
+      rangeBox.html("");
 
       for(i = 0, count = data.length; i < count; i++) {
         headers += "<li><a href=\"#data_file" + i + "\">" + data[i].fileName + "</a></li>";
         controls += "<div id=\"data_file" + i + "\" class=\"box full_box\">";
-        controls += "<h4>Thresholding</h4>";
         controls += "Min: <input class=\"range-box\" id=\"data-range-min\" type=\"text\" name=\"range_min\" size=\"5\" ><br />";
         controls += "<div id=\"range-slider+" + i + "\" data-blend-index=\"" + i + "\" class=\"slider\"></div><br />";
         controls += "Max: <input class=\"range-box\" id=\"data-range-max\" type=\"text\" name=\"range_max\" size=\"5\" >";
@@ -160,10 +160,11 @@ $(function() {
       headers += "</ul>";
 
 
-      $(rangeBox).html(headers + controls + "</div>");
-      $(rangeBox).tabs();
+      rangeBox.html(headers + controls + "</div>");
+      $("#data-range-box").show();
+      rangeBox.find("#data-range-multiple").tabs();
 
-      $("#data_range").find(".slider").each(function(index, element) {
+      $("#data-range").find(".slider").each(function(index, element) {
         var min = data[0].values.min();
         var max = data[0].values.max()
         $(element).slider({
@@ -245,7 +246,7 @@ $(function() {
         createDataUI(data);
         $("#range-slider").slider('values', 0, parseFloat(min));
         $("#range-slider").slider('values', 1, parseFloat(max));
-        bb.afterRangeChange(min,max);
+        bb.afterRangeChange(min, max);
       }
 
     };
@@ -342,7 +343,7 @@ $(function() {
             format: "MNIObject",
             afterDisplay: function() {
               bb.loadDataFromUrl('/models/mouse_alzheimer_map.txt',
-                                  'Cortical Amyloid Burden of Tg AD Mouse Model at 18 Months Old', {
+                                  'Cortical Amyloid Burden, Tg AD Mouse, 18 Months Old', {
                                     shape: "mouse_surf.obj",
                                     min: 0.0,
                                     max: 0.25,

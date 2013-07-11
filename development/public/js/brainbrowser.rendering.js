@@ -46,9 +46,7 @@ BrainBrowser.rendering = function(bb) {
     camera.position.z = 500;
     
     pointLight = new THREE.PointLight(0xFFFFFF);
-
     pointLight.position.set(0, 0, 500);
-
     scene.add(pointLight);
     
     camera_controls = new THREE.TrackballControls(camera, view_window);

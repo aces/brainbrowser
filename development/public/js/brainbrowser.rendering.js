@@ -137,23 +137,6 @@ BrainBrowser.rendering = function(bb) {
   bb.updateClearColor = function(color)  {
     renderer.setClearColorHex(color, 1.0);
   };
-
-  /**
-   * Used to select some predefined colors
-   * @param {String} name name of color from pre defined list (white,black,pink)
-   */
-  bb.updateClearColorFromName = function(name) {
-    if (name == "white") {
-      bb.updateClearColor(0xFFFFFF);
-    }else if(name == "black") {
-      bb.updateClearColor(0x000000);
-    } else if(name == "pink"){
-      bb.updateClearColor(0xFF00FF);
-    }else{
-      bb.updateClearColor(0x888888);
-    }
-  };
-  
  
   /*
    * Sets the fillmode of the brain to wireframe or filled

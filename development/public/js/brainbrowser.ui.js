@@ -181,8 +181,7 @@ BrainBrowser.plugins.ui = function(bb) {
   $("body").keydown(bb.keyPressedCallback);
   
   $("#clear_color").change(function(e){
-     var color_name = $(e.target).val();
-     bb.updateClearColorFromName(color_name);
+     bb.updateClearColor(parseInt($(e.target).val(), 16));
   });
   
   //Setups the view events and handlers

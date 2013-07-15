@@ -35,7 +35,7 @@ BrainBrowser.modules.loader = function(bb) {
 		    filename = parts[parts.length-1];
 		    filetypes[filetype](data, function(obj) {
   			  if (obj.objectClass !== "__FAIL__") {
-            bb.displayObjectFile(obj, filename, options);
+            if (!cancelLoad(options)) bb.displayObjectFile(obj, filename, options);
           } else if (options.onError != undefined) {
             options.onError();
           }
@@ -69,8 +69,10 @@ BrainBrowser.modules.loader = function(bb) {
   bb.loadDataFromUrl = function(file_input, name, opts) {
     var options = opts || {};
 
-    loadFromUrl(file_input, null, function(text, file) {
+    loadFromUrl(file_input, options, function(text, file) {
  		  Data(text, function(data) {
+ 		    if (cancelLoad(options)) return;
+ 		    
  		    var max = options.max === undefined ? data.max : options.max;
         var min = options.min === undefined ? data.min : options.min;
         
@@ -143,7 +145,7 @@ BrainBrowser.modules.loader = function(bb) {
 		      bb.afterLoadSpectrum(spectrum);
 		    }
 
-		    if (bb.model_data.data) {
+		    if (bb.model_data && bb.model_data.data) {
 		      bb.updateColors(bb.model_data.data, bb.model_data.data.rangeMin, bb.model_data.data.rangeMax, bb.spectrum, bb.flip, bb.clamped);
 		    }
 
@@ -326,13 +328,16 @@ BrainBrowser.modules.loader = function(bb) {
   function loadFromUrl(url, opts, callback) {
     var options = opts || {};    
     var beforeLoad = options.beforeLoad;
+    
     if (beforeLoad) beforeLoad();
     
     jQuery.ajax({ type: 'GET',
       url: url ,
       dataType: 'text',
       success: function(data) {
-	      callback(data);
+        if (!cancelLoad(options)) {
+          callback(data);
+        }    
       },
       error: function(request,textStatus,e) {
 	      alert("Failure in loadFromURL: " +  textStatus);
@@ -406,6 +411,21 @@ BrainBrowser.modules.loader = function(bb) {
       file.rangeMin = min;
       file.rangeMax = max;
     }
+  }
+  
+  function cancelLoad(opts) {
+    var options = opts || {};    
+    var cancel_opts = options.cancel || {};
+    var cancelTest = cancel_opts.test
+    var cancelCleanup = cancel_opts.cleanup;
+    var cancelled = false;
+    
+    if (cancelTest && cancelTest()) {
+      cancelled = true;
+      if (cancelCleanup) cancelCleanup();
+    } 
+    
+    return cancelled;
   }
   
 };

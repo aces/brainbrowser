@@ -17,6 +17,10 @@
 
 
 $(function() {
+  var current_request = 0;
+  var current_request_name = "";
+  var loading_div = $("#loading");
+  
   
   $(".button").button();
   $(".buttonset").buttonset();
@@ -28,21 +32,7 @@ $(function() {
   }
 
   BrainBrowser(function(bb) {
-    $("#loading").show();
-    bb.clearScreen();
-    bb.loadModelFromUrl('/models/realct.obj', {
-      afterDisplay: function() {
-        bb.loadSpectrumFromUrl('/assets/spectral_spectrum.txt', {
-          afterLoadSpectrum: function() {
-            bb.loadDataFromUrl('/models/realct.txt', 'cortical thickness', {
-              afterUpdate: function() {
-                $("#loading").hide();
-              }
-            }); 
-          }
-        });
-      } 
-    });
+    bb.loadSpectrumFromUrl('/assets/spectral_spectrum.txt');
  
     //setting up some defaults 
     bb.clamped = true; //By default clamp range. 
@@ -104,6 +94,9 @@ $(function() {
     
     $('#clearshapes').click(function(e) {
       bb.clearScreen();
+      current_request = 0;
+      current_request_name = "";
+      loading_div.hide();
     });
 
     /********************************************************
@@ -178,7 +171,7 @@ $(function() {
             $("#data-range-max").val(ui.values[1]);
           },
           stop: function(event, ui) {
-            $("#loading").show();
+            loading_div.show();
             var blend_id = $(this).attr("data-blend-index");
             range_updating = true;
             data[0].rangeMin = ui.values[0];
@@ -186,7 +179,7 @@ $(function() {
             bb.model_data.data = data[0];
             bb.rangeChange(data[0].rangeMin, data[0].rangeMax, bb.clamped, {
               afterUpdate: function () {
-                $("#loading").hide();
+                loading_div.hide();
               }
             });
           }
@@ -194,14 +187,14 @@ $(function() {
       });
 
       function dataRangeChange(e) {
-        $("#loading").show();
+        loading_div.show();
         var min = $("#data-range-min").val();
         var max = $("#data-range-max").val();
         $(e.target).siblings(".slider").slider('values', 0, min);
         $(e.target).siblings(".slider").slider('values', 1, max);
         bb.rangeChange(min, max, $(e.target).siblings("#clamp_range").is(":checked"), {
           afterUpdate: function () {
-            $("#loading").hide();
+            loading_div.hide();
           }
         });
 
@@ -228,10 +221,10 @@ $(function() {
 
       $("#flip_range").change(function(e) {
         bb.flip = $(e.target).is(":checked");
-        $("#loading").show();
+        loading_div.show();
         bb.updateColors(bb.model_data.data, bb.model_data.data.rangeMin, bb.model_data.data.rangeMax, bb.spectrum, bb.flip, bb.clamped, false, {
           afterUpdate: function() {
-            $("#loading").hide();
+            loading_div.hide();
           }
         });
       });
@@ -258,55 +251,70 @@ $(function() {
     });
 
     $("#examples").click(function(e) {
+      current_request++;
+      
       var name = $(e.target).attr('data-example-name');
       var matrixRotX, matrixRotY;
+      
+      if (current_request_name === name) return;
+      current_request_name = name;
+      
+      //Create a closure to compare current request number to number
+      // at the time request was sent.
+      function default_cancel_opts(request_number) {
+        return {
+          test: function() { return request_number !== current_request; }
+        }
+      };
+      
+      function loadFinished() {
+        loading_div.hide();
+      }
+      
+      loading_div.show();
+      bb.clearScreen();
 
       switch(name) {
         case	'basic':
-          $("#loading").show();
-          bb.clearScreen();
           bb.loadModelFromUrl('/models/surf_reg_model_both.obj', {
             format: "MNIObject",
-            afterDisplay: function() {
-              $("#loading").hide();
-            }
+            afterDisplay: loadFinished,
+            cancel: default_cancel_opts(current_request)
           });
           break;
         case 'punkdti':
-          $("#loading").show();
-          bb.clearScreen();
           bb.loadModelFromUrl('/models/dti.obj', {
             format: "MNIObject",
             renderDepth: 999,
-            afterDisplay: function() {
-              $("#loading").hide();
-            }
+            afterDisplay: loadFinished,
+            cancel: default_cancel_opts(current_request)
           });
-          bb.loadModelFromUrl('/models/left_color.obj', { format: "MNIObject" });
-          bb.loadModelFromUrl('/models/right_color.obj', { format: "MNIObject" });
+          bb.loadModelFromUrl('/models/left_color.obj', { 
+            format: "MNIObject",
+            cancel: default_cancel_opts(current_request) 
+          });
+          bb.loadModelFromUrl('/models/right_color.obj', { 
+            format: "MNIObject",
+            cancel: default_cancel_opts(current_request)
+          });
           break;
         case 'realct':
-          $("#loading").show();
-          bb.clearScreen();
           bb.loadModelFromUrl('/models/realct.obj', {
             format: "MNIObject",
             afterDisplay: function() {
               bb.loadDataFromUrl('/models/realct.txt','Cortical Thickness', {
-                afterUpdate: function() {
-                  $("#loading").hide();
-                }
+                afterUpdate: loadFinished,
+                cancel: default_cancel_opts(current_request)
               }); 
-            }
-          });    
+            },
+            cancel: default_cancel_opts(current_request)
+          });
           break;
         case 'car':
-          $("#loading").show();
-          bb.clearScreen();
           bb.loadModelFromUrl('/models/car.obj', {
             format: "WavefrontObj",
-            afterDisplay: function() {
-              $("#loading").hide();
-            }
+            afterDisplay: loadFinished,
+            cancel: default_cancel_opts(current_request)
           });
           bb.setCamera(0, 0, 100);			     
 
@@ -318,14 +326,16 @@ $(function() {
           bb.model.applyMatrix(matrixRotY.multiply(matrixRotX));
           break;
         case 'plane':
-          $("#loading").show();
-          bb.clearScreen();
-          bb.loadModelFromUrl('/models/dlr_bigger.streamlines.obj', { format: "MNIObject" });
+          bb.loadModelFromUrl('/models/dlr_bigger.streamlines.obj', { 
+            format: "MNIObject",
+            cancel: default_cancel_opts(current_request) 
+          });
           bb.loadModelFromUrl('/models/dlr.model.obj', {
             format: "MNIObject",
             afterDisplay: function() {
-              $("#loading").hide();
-            }
+              loadFinished();
+            },
+            cancel: default_cancel_opts(current_request)
           });
           bb.setCamera(0, 0, 75);
 
@@ -337,29 +347,28 @@ $(function() {
           bb.model.applyMatrix(matrixRotY.multiply(matrixRotX));
           break;
         case 'mouse':
-          $("#loading").show();
-          bb.clearScreen();
           bb.loadModelFromUrl('/models/mouse_surf.obj', { 
             format: "MNIObject",
             afterDisplay: function() {
               bb.loadDataFromUrl('/models/mouse_alzheimer_map.txt',
-                                  'Cortical Amyloid Burden, Tg AD Mouse, 18 Months Old', {
-                                    shape: "mouse_surf.obj",
-                                    min: 0.0,
-                                    max: 0.25,
-                                    afterUpdate: function() {
-                                      $("#loading").hide();
-                                    }
-                                  }
+                'Cortical Amyloid Burden, Tg AD Mouse, 18 Months Old', {
+                  shape: "mouse_surf.obj",
+                  min: 0.0,
+                  max: 0.25,
+                  afterUpdate: loadFinished,
+                  cancel: default_cancel_opts(current_request)
+                }
               );
-            } 
+            },
+            cancel: default_cancel_opts(current_request) 
           });
           bb.loadModelFromUrl('/models/mouse_brain_outline.obj', { 
             format: "MNIObject",
             afterDisplay: function() {
               $(".opacity-slider[data-shape-name='mouse_brain_outline.obj']").slider("value", 50);
               bb.changeShapeTransparency('mouse_brain_outline.obj', 0.5);
-            } 
+            },
+            cancel: default_cancel_opts(current_request) 
           });
           bb.setCamera(0, 0, 40);
       }
@@ -382,13 +391,13 @@ $(function() {
       bb.loadModelFromFile(document.getElementById("objfile"), { 
         format: format, 
         beforeLoad: function() {
-          $("#loading").show();
+          loading_div.show();
         }, 
         afterDisplay: function() {
-          $("#loading").hide();
+          loading_div.hide();
         },
         onError: function() {
-          $("#loading").hide();
+          loading_div.hide();
         }
       });
 
@@ -412,5 +421,9 @@ $(function() {
       bb.loadBlendDataFromFile(document.getElementById("datablendfile"), $(".blend_slider").slider("value"));
     });
   });
+  
+  
+  //Load initial model.
+  $("a.example[data-example-name=realct]").click();
 });
 

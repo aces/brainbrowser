@@ -71,7 +71,7 @@ function BrainBrowser(callback) {
     alert("Can't get WebGL constext. Exiting.")
     return;
   }
-  
+    
   callback(this);
 }
 

@@ -26,7 +26,7 @@ BrainBrowser.rendering = function(bb) {
   var last_frame;
   var effect;
   var anaglyphEffect;
-  
+
   bb.model = new THREE.Object3D();
   
   scene.add(bb.model);
@@ -34,7 +34,7 @@ BrainBrowser.rendering = function(bb) {
   bb.render = function() {
     var view_window = bb.view_window;
     renderer = new THREE.WebGLRenderer({clearColor: 0x888888, clearAlpha: 1, preserveDrawingBuffer: true});
-    
+
     renderer.setSize(view_window.offsetWidth, view_window.offsetHeight);
     effect = renderer;
     
@@ -135,7 +135,7 @@ BrainBrowser.rendering = function(bb) {
     * 
    */
   bb.updateClearColor = function(color)  {
-    renderer.setClearColor(new THREE.Color(color));
+    renderer.setClearColorHex(color, 1.0);
   };
 
   /**

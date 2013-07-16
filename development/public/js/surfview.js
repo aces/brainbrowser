@@ -41,10 +41,10 @@ $(function() {
     bb.afterLoadSpectrum = function (spectrum) {
       var canvas = spectrum.createSpectrumCanvasWithScale(0, 100, null);
       var spectrum_div = document.getElementById("color-bar");
-
+      
       canvas.id = "spectrum-canvas";
       if (!spectrum_div) {
-        $("<div id=\"color-bar\"></div>").html(canvas).appendTo("#data-range");      
+        $("<div id=\"color-bar\"></div>").html(canvas).appendTo("#data-range-box");      
       } else {
         $(spectrum_div).html(canvas);
       }

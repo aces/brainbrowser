@@ -157,6 +157,12 @@ select#obj_file_format {
   width: 85%;
 }
 
+canvas#spectrum-canvas {
+  display: block;
+  margin-right: auto;
+  margin-left: auto;
+}
+
 div#usage_notes {
   padding: 0.3em;
   font-size: 1.2em;

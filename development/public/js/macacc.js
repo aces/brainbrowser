@@ -23,6 +23,7 @@ function initMacacc(path_prefix, dont_build_path) {
 
     bb.afterLoadSpectrum = function (spectrum) {
       var canvas = spectrum.createSpectrumCanvasWithScale(0,5,null,false);
+      canvas.id = "spectrum-canvas";
       $("#spectrum").html($(canvas));
       bb.spectrumObj = spectrum;
     };
@@ -40,12 +41,8 @@ function initMacacc(path_prefix, dont_build_path) {
 
 
         macacc.afterRangeChange = function(min,max) {
-          if(macacc.flipRange) {
-            var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null,true);
-          }
-          else {
-            var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null,false);
-          }
+          var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null, macacc.flipRange);
+          canvas.id = "spectrum-canvas";
           $("#spectrum").html($(canvas));
         };
         

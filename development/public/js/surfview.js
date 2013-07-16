@@ -40,11 +40,11 @@ $(function() {
 
     bb.afterLoadSpectrum = function (spectrum) {
       var canvas = spectrum.createSpectrumCanvasWithScale(0, 100, null);
-      var spectrum_div = document.getElementById("color_bar");
+      var spectrum_div = document.getElementById("color-bar");
 
-      canvas.id = "spectrum_canvas";
+      canvas.id = "spectrum-canvas";
       if (!spectrum_div) {
-        $("<div id=\"color_bar\"></div>").html(canvas).appendTo("#data-range");      
+        $("<div id=\"color-bar\"></div>").html(canvas).appendTo("#data-range");      
       } else {
         $(spectrum_div).html(canvas);
       }
@@ -126,8 +126,8 @@ $(function() {
       $("#data-range-min").val(min);
       $("#data-range-max").val(max);
       var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min, max, null);
-      canvas.id = "spectrum_canvas";
-      $("#color_bar").html($(canvas));
+      canvas.id = "spectrum-canvas";
+      $("#color-bar").html($(canvas));
     };
 
     function createDataUI(data) {

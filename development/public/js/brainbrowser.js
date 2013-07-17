@@ -34,6 +34,16 @@
 // BrainBrowser also maintains the model parsing objects in the BrainBrowser.filetypes module,
 // as well as helpers for colour management in BrainBrowser.data.
 function BrainBrowser(callback) {
+  
+  if (! BrainBrowser.webWorkersEnabled() ) {
+    alert("Can't find web workers. Exiting.")
+    return;
+  }
+  
+  if (!BrainBrowser.webglEnabled()) {
+    alert("Can't get WebGL context. Exiting.")
+    return;
+  }
 
   
   if(!(this instanceof BrainBrowser)) {
@@ -65,12 +75,7 @@ function BrainBrowser(callback) {
     }
   }
   
-  if (BrainBrowser.webgl_enabled()) {
-    this.render();
-  } else {
-    alert("Can't get WebGL constext. Exiting.")
-    return;
-  }
+  this.render();
     
   callback(this);
 }
@@ -87,7 +92,7 @@ BrainBrowser.filetypes = {};
  * mr.doob / http://mrdoob.com/
 */
 
-BrainBrowser.webgl_enabled = function () { 
+BrainBrowser.webglEnabled = function () { 
   try { 
     return !!window.WebGLRenderingContext && !!document.createElement('canvas').getContext('experimental-webgl'); 
   } catch(e) { 
@@ -95,6 +100,12 @@ BrainBrowser.webgl_enabled = function () {
   } 
 }
 
+BrainBrowser.webWorkersEnabled = function () {
+  return !!window.Worker;
+}
+
+
+// Simple error message for non-webgl browsers.
 BrainBrowser.webGLErrorMessage = function() {
   var el;
   var text = 'BrainBrowser requires <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">WebGL</a>.<br/>';

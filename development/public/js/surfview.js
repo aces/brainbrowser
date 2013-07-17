@@ -26,7 +26,7 @@ $(function() {
   $(".buttonset").buttonset();
   $("#data-range-box").hide();
   
-  if (!BrainBrowser.webgl_enabled()) {
+  if (!BrainBrowser.webglEnabled()) {
     $("#brainbrowser").html(BrainBrowser.webGLErrorMessage());
     return;
   }

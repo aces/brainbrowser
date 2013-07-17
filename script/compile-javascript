@@ -14,6 +14,10 @@ $COMPRESSOR /tmp/macacc-combined.js -o $APP_ROOT/production/public/js/macacc-com
 rm /tmp/macacc-combined.js
 cat $APP_ROOT/license_header.txt utils.js minc.js color.js spectrum.js loader.js braincanvas.js > /tmp/html5-minc-viewer.js
 $COMPRESSOR /tmp/html5-minc-viewer.js -o $APP_ROOT/production/public/js/html5-minc-viewer.min.js
+cat $APP_ROOT/license_header.txt layout.js > /tmp/layout.js
+$COMPRESSOR /tmp/layout.js -o $APP_ROOT/production/public/js/layout.js
+cat $APP_ROOT/license_header.txt brainbrowser.js > /tmp/brainbrowser.js
+$COMPRESSOR /tmp/brainbrowser.js -o $APP_ROOT/production/public/js/brainbrowser.js
 cat $APP_ROOT/license_header.txt mniobj.worker.js > /tmp/mniobj.worker.js
 $COMPRESSOR /tmp/mniobj.worker.js -o $APP_ROOT/production/public/js/mniobj.worker.js
 cat $APP_ROOT/license_header.txt wavefront_obj.worker.js > /tmp/wavefront_obj.worker.js

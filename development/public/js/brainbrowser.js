@@ -21,11 +21,12 @@
 // Core BrainBrowser object.
 //
 // BrainBrowser functionality is split across various modules. The modules
-// are split into three basic categories, which essentially just define the
-// order in which they will be loaded. BrainBrowser.core modules will be loaded
-// first. Core modules can include functionality like rendering that will likely be
-// required by all other modules. BrainBrowser.modules modules then loaded. In general,
-// they make up a central part of the application, but they require one or more core modules
+// are split into four basic categories, which essentially just define the
+// order in which they will be loaded. BrainBrowser.rendering is a module spefically for setting up
+// the WebGL context. It is considered separately from other modules as all others will require it.
+// BrainBrowser.core modules are loaded second and include functionality like model loading and colour manipulation 
+// that will likely be required by all subsequent modules. BrainBrowser.modules modules are then loaded. 
+// In general, they make up a central part of the application, but they require one or more core modules
 // to be loaded first in order function. Some examples include modules for requesting new data 
 // from the server, displaying a given model. Finally, the BrainBrowser.plugins modules 
 // are loaded. These modules are generally specific to the given instance of BrainBrowser and 
@@ -34,28 +35,38 @@
 // BrainBrowser also maintains the model parsing objects in the BrainBrowser.filetypes module,
 // as well as helpers for colour management in BrainBrowser.data.
 function BrainBrowser(callback) {
+
+  /////////////////////////////////
+  // Browser compatibility checks.
+  /////////////////////////////////
   
-  if (! BrainBrowser.webWorkersEnabled() ) {
+  if (! BrainBrowser.utils.webWorkersEnabled() ) {
     alert("Can't find web workers. Exiting.")
     return;
   }
   
-  if (!BrainBrowser.webglEnabled()) {
+  if (!BrainBrowser.utils.webglEnabled()) {
     alert("Can't get WebGL context. Exiting.")
     return;
   }
 
-  
+  // Make sure it's always used as a contructor.
   if(!(this instanceof BrainBrowser)) {
     return new BrainBrowser(callback);
   }
-                       
+  
+  
+  // Properties that will be used by other modules.
   this.view_window = document.getElementById("brainbrowser"); // Div where the canvas will be loaded.
   this.model = undefined;  // The currently loaded model. Should be set by rendering.
   
-  BrainBrowser.rendering(this);
+  //////////////////////////////
+  // Load modules.
+  //////////////////////////////
   
   var module;
+  
+  BrainBrowser.rendering(this);
   
   for (module in BrainBrowser.core) {
     if (BrainBrowser.core.hasOwnProperty(module)) {
@@ -75,50 +86,31 @@ function BrainBrowser(callback) {
     }
   }
   
+  
+  ///////////////////////////////////////////////////////////
+  // Start rendering the scene.
+  // This method should be defined in BrainBrowser.rendering.
+  ///////////////////////////////////////////////////////////
   this.render();
-    
+  
+  //////////////////////////////////////////////////////  
+  // Pass BrainBrowser instance to calling application. 
+  ////////////////////////////////////////////////////// 
   callback(this);
 }
-
+// Core modules.
 BrainBrowser.core = {};
+
+// Standard modules.
 BrainBrowser.modules = {};
+
+// Application specific plugins.
 BrainBrowser.plugins = {};
+
+// Color map data handlers.
 BrainBrowser.data = {};
+
+// 3D Model filetype handlers.
 BrainBrowser.filetypes = {};
-
-/*! 
- * WebGL test taken from Detector.js by
- * alteredq / http://alteredqualia.com/
- * mr.doob / http://mrdoob.com/
-*/
-
-BrainBrowser.webglEnabled = function () { 
-  try { 
-    return !!window.WebGLRenderingContext && !!document.createElement('canvas').getContext('experimental-webgl'); 
-  } catch(e) { 
-    return false; 
-  } 
-}
-
-BrainBrowser.webWorkersEnabled = function () {
-  return !!window.Worker;
-}
-
-
-// Simple error message for non-webgl browsers.
-BrainBrowser.webGLErrorMessage = function() {
-  var el;
-  var text = 'BrainBrowser requires <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">WebGL</a>.<br/>';
-  text += window.WebGLRenderingContext ? 'Your browser seems to support it, but it is <br/> disabled or unavailable.<br/>' : 
-          "Your browser does not seem to support it.<br/>";
-	text += 'Test your browser\'s WebGL support <a href="http://get.webgl.org/">here</a>.';
-	
-	el = document.createElement("div");
-	el.id = "webgl-error";
-	el.innerHTML = text;
-      
-  return el;
-}
-
 
 

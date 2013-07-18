@@ -123,7 +123,7 @@
 	    <script type="text/javascript" src="/js/color.js"></script>
       <script type="text/javascript" src="/js/spectrum.js"></script>
 	    <script type="text/javascript" src="/js/brainbrowser.js"></script>
-	    <script type="text/javascript" src="/js/brainbrowser.js"></script>
+      <script type="text/javascript" src="/js/brainbrowser.utils.js"></script>
 	    <script type="text/javascript" src="/js/brainbrowser.color.js"></script>
 	    <script type="text/javascript" src="/js/brainbrowser.loader.js"></script>
   	  <script type="text/javascript" src="/js/brainbrowser.models.js"></script>
@@ -143,8 +143,8 @@
         $(".button").button();
         $(".buttonset").buttonset();
         
-        if (!BrainBrowser.webglEnabled()) {
-          $("#brainbrowser").html(BrainBrowser.webGLErrorMessage());
+        if (!BrainBrowser.utils.webglEnabled()) {
+          $("#brainbrowser").html(BrainBrowser.utils.webGLErrorMessage());
           return;
         }
         $("#loading").show();

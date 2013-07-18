@@ -26,8 +26,8 @@ $(function() {
   $(".buttonset").buttonset();
   $("#data-range-box").hide();
   
-  if (!BrainBrowser.webglEnabled()) {
-    $("#brainbrowser").html(BrainBrowser.webGLErrorMessage());
+  if (!BrainBrowser.utils.webglEnabled()) {
+    $("#brainbrowser").html(BrainBrowser.utils.webGLErrorMessage());
     return;
   }
 
@@ -262,9 +262,7 @@ $(function() {
       //Create a closure to compare current request number to number
       // at the time request was sent.
       function default_cancel_opts(request_number) {
-        return {
-          test: function() { return request_number !== current_request; }
-        }
+        return function() { return request_number !== current_request; };
       };
       
       function loadFinished() {

@@ -20,11 +20,9 @@
 BrainBrowser.core.color = function(bb) {
 
    var colorManager = new ColorManager();
-  
-  /*
-   * This updates the colors of the model. Will delegate to color_hemispheres() or color_model()
-   * depending on the type of model.
-   */
+
+  // This updates the colors of the model. Will delegate to color_hemispheres() or color_model()
+  // depending on the type of model.  
   bb.updateColors = function(data, min, max, spectrum, flip, clamped, blend, opts) {
     var options = opts || {};
     var afterUpdate = options.afterUpdate;

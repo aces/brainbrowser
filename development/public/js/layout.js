@@ -28,11 +28,11 @@ $(function() {
   });
   var warnings = $("#html5-warnings");
   if (warnings) {
-    if (!BrainBrowser.webglEnabled()) {
+    if (!BrainBrowser.utils.webglEnabled()) {
       warnings.css("display", "inline-block");
       warnings.find("#webgl-warning").show();
     }
-    if (!BrainBrowser.webWorkersEnabled()) {
+    if (!BrainBrowser.utils.webWorkersEnabled()) {
       warnings.css("display", "inline-block");
       warnings.find("#webworker-warning").show();
     }

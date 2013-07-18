@@ -33,10 +33,12 @@ BrainBrowser.modules.loader = function(bb) {
 		    parts = url.split("/");
 		    //last part of url will be shape name
 		    filename = parts[parts.length-1];
+        // Parse model info based on the given file type.
 		    filetypes[filetype](data, function(obj) {
   			  if (obj.objectClass !== "__FAIL__") {
+            // Display model to the canvas after parsing.
             if (!cancelLoad(options)) bb.displayObjectFile(obj, filename, options);
-          } else if (options.onError != undefined) {
+          } else if (options.onError !== undefined) {
             options.onError();
           }
   			});
@@ -54,8 +56,10 @@ BrainBrowser.modules.loader = function(bb) {
       parts = file_input.value.split("\\");
 			//last part of path will be shape name
 			filename = parts[parts.length-1];
+      // Parse model info based on the given file type.
 			filetypes[filetype](data, function(obj) {
 			  if (obj.objectClass !== "__FAIL__") {
+          // Display model to the canvas after parsing.
           bb.displayObjectFile(obj, filename, options);
         } else if (options.onError != undefined) {
           options.onError();
@@ -154,7 +158,7 @@ BrainBrowser.modules.loader = function(bb) {
 
   
 
-  //Load a color bar spectrum definition file
+  // Load a color bar spectrum definition file.
   bb.loadSpectrumFromFile = function(file_input){
     var spectrum;
     var model_data = bb.model_data;
@@ -170,7 +174,7 @@ BrainBrowser.modules.loader = function(bb) {
 		    }
 		});
   };
-  
+  // Blend colours.
   bb.blend = function(value) {
     var blendData = bb.blendData;
     var blendDataLength = blendData.length;
@@ -187,7 +191,7 @@ BrainBrowser.modules.loader = function(bb) {
   };
 
  
-  //Load a series of data files to be viewed with a slider. 
+  // Load a series of data files to be viewed with a slider. 
   bb.loadSeriesDataFromFile = function(file_input) {
 		var numberFiles = file_input.files.length;
 		var files = file_input.files;
@@ -221,8 +225,9 @@ BrainBrowser.modules.loader = function(bb) {
     bb.setupSeries();
   };
 
-  
-  function interpolateDataArray(first,second,percentage,blah) {
+  // Interpolate data 
+  // TODO: NEED TO TEST THIS. WHAT IS THE BLAH ARGUMENT?
+  function interpolateDataArray(first, second, percentage, blah) {
     console.log(first.values.length);
     var i;
     var count = first.values.length;  
@@ -241,7 +246,8 @@ BrainBrowser.modules.loader = function(bb) {
     return new_array;
   }
 
-  //Load files to blend 
+  // Load files to blend 
+  // TODO: NEED TO TEST THIS.
   bb.loadBlendDataFromFile = function(file_input, alpha) {
 		var numberFiles = file_input.files.length;
 	  var files = file_input.files;
@@ -324,7 +330,8 @@ BrainBrowser.modules.loader = function(bb) {
     }
   };
   
-  
+  // General function for loading data from a url.
+  // Callback should interpret data as necessary.
   function loadFromUrl(url, opts, callback) {
     var options = opts || {};    
     var beforeLoad = options.beforeLoad;
@@ -342,12 +349,13 @@ BrainBrowser.modules.loader = function(bb) {
       error: function(request,textStatus,e) {
 	      alert("Failure in loadFromURL: " +  textStatus);
       },
-      data: {},
       timeout: 100000
     });
 
   }
-
+  
+  // General function for loading data from a local file.
+  // Callback should interpret data as necessary.
   function loadFromTextFile(file_input, opts, callback) {
     var files = file_input.files;
     if (files.length === 0) {
@@ -375,7 +383,6 @@ BrainBrowser.modules.loader = function(bb) {
    * have the server process it with volume_object_evaluate which projects the 
    * data on the surface file. 
   */
-  
   function evaluate_volume(filename, onfinish) {
     var xhr;
     var form;
@@ -413,9 +420,20 @@ BrainBrowser.modules.loader = function(bb) {
     }
   }
   
+  // Allows the loading of data to be cancelled after the request is sent
+  // or processing has begun (it must happen before the model begins to be
+  // loaded to the canvas though). 
+  // Argument 'opts' should either be a function that returns 'true' if the
+  // loading should be cancelled or a hash containting the test function in 
+  // the property 'test' and optionally, a function to do cleanup after the 
+  // cancellation in the property 'cleanup'.
   function cancelLoad(opts) {
-    var options = opts || {};    
+    var options = opts || {};
     var cancel_opts = options.cancel || {};
+    if (BrainBrowser.utils.isFunction(cancel_opts)) {
+      cancel_opts = { test: cancel_opts };
+    } 
+    
     var cancelTest = cancel_opts.test
     var cancelCleanup = cancel_opts.cleanup;
     var cancelled = false;

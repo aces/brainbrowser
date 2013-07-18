@@ -3,7 +3,7 @@
 APP_ROOT=`pwd`
 
 COMPRESSOR="java -jar $APP_ROOT/script/yuicompressor-2.4.7.jar"
-BB_MODULES="brainbrowser.js brainbrowser.color.js brainbrowser.loader.js brainbrowser.models.js brainbrowser.rendering.js brainbrowser.ui.js brainbrowser.views.js"
+BB_MODULES="brainbrowser.js brainbrowser.utils.js brainbrowser.color.js brainbrowser.loader.js brainbrowser.models.js brainbrowser.rendering.js brainbrowser.ui.js brainbrowser.views.js"
 
 cd $APP_ROOT/development/public/js
 cat $APP_ROOT/license_header.txt utils.js color.js spectrum.js $BB_MODULES  data.js surfview.js filetype.parsing.js wavefront_obj.js freesurfer_asc.js mniobj.js > /tmp/surface-combined.js
@@ -16,8 +16,8 @@ cat $APP_ROOT/license_header.txt utils.js minc.js color.js spectrum.js loader.js
 $COMPRESSOR /tmp/html5-minc-viewer.js -o $APP_ROOT/production/public/js/html5-minc-viewer.min.js
 cat $APP_ROOT/license_header.txt layout.js > /tmp/layout.js
 $COMPRESSOR /tmp/layout.js -o $APP_ROOT/production/public/js/layout.js
-cat $APP_ROOT/license_header.txt brainbrowser.js > /tmp/brainbrowser.js
-$COMPRESSOR /tmp/brainbrowser.js -o $APP_ROOT/production/public/js/brainbrowser.js
+cat $APP_ROOT/license_header.txt brainbrowser.utils.js > /tmp/brainbrowser.utils.js
+$COMPRESSOR /tmp/brainbrowser.utils.js -o $APP_ROOT/production/public/js/brainbrowser.utils.js
 cat $APP_ROOT/license_header.txt mniobj.worker.js > /tmp/mniobj.worker.js
 $COMPRESSOR /tmp/mniobj.worker.js -o $APP_ROOT/production/public/js/mniobj.worker.js
 cat $APP_ROOT/license_header.txt wavefront_obj.worker.js > /tmp/wavefront_obj.worker.js

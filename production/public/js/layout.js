@@ -14,4 +14,4 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-$(function(){$(".button").button();$(".tabs").tabs({heigth:800});$(".tablink").click(function(c){var d=$(c.target).attr("data-tabs");var b=$(c.target).attr("data-tab");$("#"+d).tabs("select",b);return false});var a=$("#html5-warnings");if(a){if(!BrainBrowser.webglEnabled()){a.css("display","inline-block");a.find("#webgl-warning").show()}if(!BrainBrowser.webWorkersEnabled()){a.css("display","inline-block");a.find("#webworker-warning").show()}}});
+$(function(){$(".button").button();$(".tabs").tabs({heigth:800});$(".tablink").click(function(c){var d=$(c.target).attr("data-tabs");var b=$(c.target).attr("data-tab");$("#"+d).tabs("select",b);return false});var a=$("#html5-warnings");if(a){if(!BrainBrowser.utils.webglEnabled()){a.css("display","inline-block");a.find("#webgl-warning").show()}if(!BrainBrowser.utils.webWorkersEnabled()){a.css("display","inline-block");a.find("#webworker-warning").show()}}});

@@ -21,7 +21,7 @@ BrainBrowser.filetypes.FreeSurferAsc = function(data, callback) {
     return new BrainBrowser.filetypes.FreeSurferAsc(data, callback);
   }
   
-  var self = this;
-    
-  BrainBrowser.filetypes.ParseWorker(self, data, "js/workers/freesurfer_asc.worker.js", callback);
+  BrainBrowser.filetypes.ParseWorker(this, data, "js/workers/freesurfer_asc.worker.js", callback);
 };
+
+BrainBrowser.filetypes.FreeSurferAsc.format_hint = 'You can use <a href="http://surfer.nmr.mgh.harvard.edu/fswiki/mris_convert" target="_blank">mris_convert</a> to convert your binary surface files into .asc format.';

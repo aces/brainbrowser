@@ -4,12 +4,12 @@
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">  
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <link rel="icon" type="image/png" href="img/brainbrowser.png">
-    <title>BrainBrowser Model Viewer</title>  
+    <title>BrainBrowser Surface Viewer</title>  
   </head>  
   <body>  
 
   <div id="controls">
-    <h1>Model Viewer</h1>
+    <h1>Surface Viewer</h1>
     <div id="examples" class="box full_box">
       <h3>Sample Models</h3>
       <ul>
@@ -84,32 +84,30 @@
     <!-- all the scripts and css -->
     <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.10.custom.css" rel="Stylesheet" />
     <link type="text/css" href="/css/brainbrowser.css" rel="Stylesheet" />
-    <script type="text/javascript" src="/js/three.min.js"></script>
-    <script type="text/javascript" src="/js/TrackballControls.js"></script>
-    <script type="text/javascript" src="/js/AnaglyphEffect.js"></script>
+    <script type="text/javascript" src="/js/lib/three.min.js"></script>
+    <script type="text/javascript" src="/js/lib/TrackballControls.js"></script>
+    <script type="text/javascript" src="/js/lib/AnaglyphEffect.js"></script>
+    <script type="text/javascript" src="/js/lib/jquery-1.6.4.min.js"></script>
+    <script type="text/javascript" src="/js/lib/jquery-ui-1.8.10.custom.min.js"></script>
     <% if ENV["BRAINBROWSER_ENV"] == "production" %>
-      <script type="text/javascript" src="/js/jquery.js"></script>
       <script type="text/javascript" src="/js/surfview-combined.min.js"></script>
-      <script type="text/javascript" src="/js/jquery-ui.js"></script>
     <% else %>
-      <script type="text/javascript" src="/js/jquery-1.6.4.min.js"></script>
-      <script type="text/javascript" src="/js/jquery-ui-1.8.10.custom.min.js"></script>
-	    <script type="text/javascript" src="/js/utils.js"></script> 
-	    <script type="text/javascript" src="/js/color.js"></script>
-	    <script type="text/javascript" src="/js/spectrum.js"></script> 
-	    <script type="text/javascript" src="/js/brainbrowser.js"></script>
-      <script type="text/javascript" src="/js/brainbrowser.utils.js"></script>
-	    <script type="text/javascript" src="/js/brainbrowser.color.js"></script>
-	    <script type="text/javascript" src="/js/brainbrowser.loader.js"></script>
-  	  <script type="text/javascript" src="/js/brainbrowser.models.js"></script>
-  	  <script type="text/javascript" src="/js/brainbrowser.rendering.js"></script>
-  	  <script type="text/javascript" src="/js/brainbrowser.views.js"></script>
-  	  <script type="text/javascript" src="/js/brainbrowser.ui.js"></script>
-  	  <script type="text/javascript" src="/js/filetype.parsing.js"></script> 
-	    <script type="text/javascript" src="/js/mniobj.js"></script> 
-	    <script type="text/javascript" src="/js/wavefront_obj.js"></script>
-	    <script type="text/javascript" src="/js/freesurfer_asc.js"></script> 
-      <script type="text/javascript" src="/js/data.js"></script> 
+	    <script type="text/javascript" src="/js/lib/utils.js"></script> 
+	    <script type="text/javascript" src="/js/lib/color.js"></script>
+	    <script type="text/javascript" src="/js/lib/spectrum.js"></script> 
+	    <script type="text/javascript" src="/js/brainbrowser/brainbrowser.js"></script>
+      <script type="text/javascript" src="/js/brainbrowser/modules/brainbrowser.utils.js"></script>
+	    <script type="text/javascript" src="/js/brainbrowser/modules/brainbrowser.color.js"></script>
+	    <script type="text/javascript" src="/js/brainbrowser/modules/brainbrowser.loader.js"></script>
+  	  <script type="text/javascript" src="/js/brainbrowser/modules/brainbrowser.models.js"></script>
+  	  <script type="text/javascript" src="/js/brainbrowser/modules/brainbrowser.rendering.js"></script>
+  	  <script type="text/javascript" src="/js/brainbrowser/modules/brainbrowser.views.js"></script>
+  	  <script type="text/javascript" src="/js/brainbrowser/modules/brainbrowser.ui.js"></script>
+  	  <script type="text/javascript" src="/js/brainbrowser/filetypes/parse_worker.js"></script> 
+	    <script type="text/javascript" src="/js/brainbrowser/filetypes/mniobj.js"></script> 
+	    <script type="text/javascript" src="/js/brainbrowser/filetypes/wavefront_obj.js"></script>
+	    <script type="text/javascript" src="/js/brainbrowser/filetypes/freesurfer_asc.js"></script> 
+      <script type="text/javascript" src="/js/brainbrowser/data/data.js"></script> 
 	    <script type="text/javascript" src="/js/surfview.js"></script> 
     <% end %>
   </body>  

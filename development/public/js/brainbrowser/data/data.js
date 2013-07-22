@@ -28,7 +28,7 @@ BrainBrowser.data.Data = function(data, callback) {
   var self = this;
   
   function parse() {
-    var worker = new Worker("js/data.worker.js");
+    var worker = new Worker("js/workers/data.worker.js");
 
     worker.addEventListener("message", function(e) {
       var result = e.data;
@@ -47,7 +47,7 @@ BrainBrowser.data.Data = function(data, callback) {
   };
 
   self.createColorArray = function(min, max, spectrum, flip, clamped, original_colors, model, callback) {
-    var worker = new Worker("js/data.worker.js");
+    var worker = new Worker("js/workers/data.worker.js");
     worker.addEventListener("message", function(e) {
       var color_array = e.data;
       var prop;

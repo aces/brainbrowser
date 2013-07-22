@@ -31,7 +31,7 @@ BrainBrowser.filetypes.MNIObject = function(data, callback) {
 
   var self = this;
 
-  BrainBrowser.filetypes.parsing(self, data, "js/mniobj.worker.js", callback);
+  BrainBrowser.filetypes.ParseWorker(self, data, "js/workers/mniobj.worker.js", callback);
 
   self.getVertexInfo = function(vertex) {
     var position_vector = [

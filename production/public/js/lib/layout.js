@@ -1,4 +1,4 @@
-/* 
+/*! 
  * Copyright (C) 2011 McGill University
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -14,14 +14,4 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-BrainBrowser.filetypes.FreeSurferAsc = function(data, callback) {
-  
-  if(!(this instanceof BrainBrowser.filetypes.FreeSurferAsc)) {
-    return new BrainBrowser.filetypes.FreeSurferAsc(data, callback);
-  }
-  
-  var self = this;
-    
-  BrainBrowser.filetypes.parsing(self, data, "js/freesurfer_asc.worker.js", callback);
-};
+$(function(){$(".button").button();$(".tabs").tabs({heigth:800});$(".tablink").click(function(c){var d=$(c.target).attr("data-tabs");var b=$(c.target).attr("data-tab");$("#"+d).tabs("select",b);return false});var a=$("#html5-warnings");if(a){if(!BrainBrowser.utils.webglEnabled()){a.css("display","inline-block");a.find("#webgl-warning").show()}if(!BrainBrowser.utils.webWorkersEnabled()){a.css("display","inline-block");a.find("#webworker-warning").show()}}});

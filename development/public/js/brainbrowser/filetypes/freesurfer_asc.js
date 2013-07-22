@@ -15,21 +15,13 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-BrainBrowser.filetypes.parsing = function(self, data, worker_file, callback) {
-  var worker = new Worker(worker_file);
+BrainBrowser.filetypes.FreeSurferAsc = function(data, callback) {
   
-  worker.addEventListener("message", function(e) {
-    var result = e.data;
-    var prop;
+  if(!(this instanceof BrainBrowser.filetypes.FreeSurferAsc)) {
+    return new BrainBrowser.filetypes.FreeSurferAsc(data, callback);
+  }
+  
+  var self = this;
     
-    for (prop in result) {
-      if (result.hasOwnProperty(prop)){
-        self[prop] = result[prop];
-      }
-    }
-    if (callback) callback(self);
-    worker.terminate();
-  });
-  
-  worker.postMessage(data);
+  BrainBrowser.filetypes.ParseWorker(self, data, "js/workers/freesurfer_asc.worker.js", callback);
 };

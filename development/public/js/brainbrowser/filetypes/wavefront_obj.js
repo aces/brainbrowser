@@ -23,5 +23,5 @@ BrainBrowser.filetypes.WavefrontObj = function(data, callback) {
   
   var self = this;
     
-  BrainBrowser.filetypes.parsing(self, data, "js/wavefront_obj.worker.js", callback);
+  BrainBrowser.filetypes.ParseWorker(self, data, "js/workers/wavefront_obj.worker.js", callback);
 };

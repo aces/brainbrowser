@@ -18,17 +18,17 @@
 
   <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.2.custom.css" rel="Stylesheet" />
   <link type="text/css" href="/css/braincanvas.css" rel="Stylesheet" />
-  <script type="text/javascript" src="/js/jquery.js"></script>
-  <script type="text/javascript" src="/js/jquery-ui-1.8.10.custom.min.js"></script>
-  <script type="text/javascript" src="/js/jquery.mousewheel.min.js"></script>
+  <script type="text/javascript" src="/js/lib/jquery-1.6.4.min.js"></script>
+  <script type="text/javascript" src="/js/lib/jquery-ui-1.8.10.custom.min.js"></script>
+  <script type="text/javascript" src="/js/lib/jquery.mousewheel.min.js"></script>
   <% if ENV["BRAINBROWSER_ENV"] == "production" %>
     <script type="text/javascript" src="/js/html5-minc-viewer.min.js"></script>
   <% else %>
-    <script type="text/javascript" src="/js/utils.js"></script>
-    <script type="text/javascript" src="/js/minc.js"></script>
-    <script type="text/javascript" src="/js/color.js"></script>
-    <script type="text/javascript" src="/js/spectrum.js"></script>
-    <script type="text/javascript" src="/js/loader.js"></script>
+    <script type="text/javascript" src="/js/lib/utils.js"></script>
+    <script type="text/javascript" src="/js/lib/color.js"></script>
+    <script type="text/javascript" src="/js/lib/spectrum.js"></script>
+    <script type="text/javascript" src="/js/braincanvas/minc.js"></script>
+    <script type="text/javascript" src="/js/braincanvas/loader.js"></script>
     <script type="text/javascript" src="/js/braincanvas.js"></script>
   <% end %>
   <script type="text/javascript">

@@ -98,7 +98,7 @@ BrainBrowser.core.models = function(bb) {
     geometry.computeFaceNormals();
     geometry.computeVertexNormals();
     
-    material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808, vertexColors: THREE.VertexColors});
+    material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0xFFFFFF, shininess: 100, vertexColors: THREE.VertexColors});
     hemisphere = new THREE.Mesh(geometry, material);
     hemisphere.centroid = centroid;
     hemisphere.position.set(centroid.x, centroid.y, centroid.z);
@@ -316,7 +316,7 @@ BrainBrowser.core.models = function(bb) {
     geometry.computeVertexNormals();
     geometry.colorsNeedUpdate = true;
 
-    material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0x080808, vertexColors: THREE.VertexColors});
+    material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0xFFFFFF, shininess: 100, vertexColors: THREE.VertexColors});
     
     polygonShape = new THREE.Mesh(geometry, material);
     

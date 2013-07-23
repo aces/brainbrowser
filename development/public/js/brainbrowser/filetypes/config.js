@@ -21,9 +21,9 @@ BrainBrowser.filetypes.config = {
     afterParse : function(obj) {
       obj.getVertexInfo = function(vertex) {
         var position_vector = [
-          self.positionArray[vertex*3],
-          self.positionArray[vertex*3+1],
-          self.positionArray[vertex*3+2]
+          obj.positionArray[vertex*3],
+          obj.positionArray[vertex*3+1],
+          obj.positionArray[vertex*3+2]
         ];
         return { vertex: vertex, position_vector: position_vector};
       };

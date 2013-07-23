@@ -22,9 +22,8 @@
 //
 // BrainBrowser functionality is split across various modules. The modules
 // are split into four basic categories, which essentially just define the
-// order in which they will be loaded. BrainBrowser.rendering is a module spefically for setting up
-// the WebGL context. It is considered separately from other modules as all others will require it.
-// BrainBrowser.core modules are loaded second and include functionality like model loading and colour manipulation 
+// order in which they will be loaded. BrainBrowser.core modules are loaded first and include functionality 
+// like general rendering setup, model loading and colour manipulation 
 // that will likely be required by all subsequent modules. BrainBrowser.modules modules are then loaded. 
 // In general, they make up a central part of the application, but they require one or more core modules
 // to be loaded first in order function. Some examples include modules for requesting new data 
@@ -66,7 +65,6 @@ function BrainBrowser(callback) {
   
   var module;
   
-  BrainBrowser.rendering(this);
   
   for (module in BrainBrowser.core) {
     if (BrainBrowser.core.hasOwnProperty(module)) {

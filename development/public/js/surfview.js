@@ -377,7 +377,7 @@ $(function() {
 
     $("#obj_file_format").change(function () {
       var format = $("#obj_file_format").closest("#obj_file_select").find("#obj_file_format option:selected").val();
-      $("#format_hint").html(BrainBrowser.filetypes[format].format_hint || "");
+      $("#format_hint").html(BrainBrowser.filetypes.config[format].format_hint || "");
     });
 
     $("#obj_file_submit").click(function () {

@@ -21,7 +21,6 @@
 BrainBrowser.modules.loader = function(bb) {
   
   var Data = BrainBrowser.data.Data;
-  var filetypes = BrainBrowser.filetypes;
 
   // Load a model from the given url.
   bb.loadModelFromUrl = function(url, opts) {
@@ -34,7 +33,7 @@ BrainBrowser.modules.loader = function(bb) {
 		    //last part of url will be shape name
 		    filename = parts[parts.length-1];
         // Parse model info based on the given file type.
-		    filetypes[filetype](data, function(obj) {
+		    BrainBrowser.filetypes.parse(filetype, data, function(obj) {
   			  if (obj.objectClass !== "__FAIL__") {
             // Display model to the canvas after parsing.
             if (!cancelLoad(options)) bb.displayObjectFile(obj, filename, options);
@@ -57,7 +56,7 @@ BrainBrowser.modules.loader = function(bb) {
 			//last part of path will be shape name
 			filename = parts[parts.length-1];
       // Parse model info based on the given file type.
-			filetypes[filetype](data, function(obj) {
+			BrainBrowser.filetypes.parse(filetype, data, function(obj) {
 			  if (obj.objectClass !== "__FAIL__") {
           // Display model to the canvas after parsing.
           bb.displayObjectFile(obj, filename, options);

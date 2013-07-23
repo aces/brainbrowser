@@ -94,7 +94,7 @@ function MacaccObject(brainbrowser, path, dont_build_path) {
 
   //Finds out what the value is at a certain point and displays it
   this.valueAtPoint = function(e, vertex_data) {
-    var value = that.dataArray[vertex_data.vertex];
+    var value = that.dataArray ? that.dataArray[vertex_data.vertex] : 0;
     setVertexCoord(vertex_data, value);
   };
 

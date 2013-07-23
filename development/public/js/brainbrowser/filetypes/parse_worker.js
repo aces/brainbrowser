@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-BrainBrowser.filetypes.ParseWorker = function(self, data, worker_file, callback) {
+BrainBrowser.filetypes.parseWorker = function(self, data, worker_file, callback) {
   var worker = new Worker(worker_file);
   
   worker.addEventListener("message", function(e) {

@@ -15,11 +15,22 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-BrainBrowser.filetypes.WavefrontObj = function(data, callback) {
+BrainBrowser.filetypes.parse = function(type, data, callback) {
   
-  if(!(this instanceof BrainBrowser.filetypes.WavefrontObj)) {
-    return new BrainBrowser.filetypes.WavefrontObj(data, callback);
+  var obj = {};
+  
+  var config = BrainBrowser.filetypes.config[type];
+  
+  if (config.parse) {
+    config.parse(obj, data, callback);
   }
   
-  BrainBrowser.filetypes.ParseWorker(this, data, "js/workers/wavefront_obj.worker.js", callback);
+  if (config.worker) {
+    BrainBrowser.filetypes.parseWorker(obj, data, config.worker, callback);
+  }
+  
+  if (config.afterParse) {
+    config.afterParse(obj, data);
+  }
 };
+

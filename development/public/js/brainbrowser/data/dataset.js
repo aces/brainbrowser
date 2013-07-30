@@ -31,20 +31,20 @@ BrainBrowser.data.Dataset = function(path_prefix, dont_build_pathp) {
       
       var sk =  "ICBM152_" + settings.sk;
       if(settings.modality == 'CT') {
-	      var modality = "ICBM152_"+settings.modality+"_MACACC_mean";
+        var modality = "ICBM152_"+settings.modality+"_MACACC_mean";
       }else {
-	      var modality = "ICBM152_"+settings.modality+"_MACACC_size";
+        var modality = "ICBM152_"+settings.modality+"_MACACC_size";
       }
       
       if(settings.statistic == 'T') {
-	      var statistic = "T_map/T_";
+        var statistic = "T_map/T_";
       } else if(settings.statistic == 'P1') {
-	      var statistic = "RTF_C_map/RTF_C_";
+        var statistic = "RTF_C_map/RTF_C_";
       } else if(settings.statistic == 'P2') {
-	      var statistic = "RTF_V_map/RTF_V_";
+        var statistic = "RTF_V_map/RTF_V_";
       }
       if(path_prefix == null) {
-	      path_prefix = '/data/';
+        path_prefix = '/data/';
       }
       
       return path_prefix+modality + "/" +sk+"/"+statistic+vertex+".txt";
@@ -69,10 +69,10 @@ BrainBrowser.data.Dataset = function(path_prefix, dont_build_pathp) {
 
     if(dont_build_pathp) {
       var data_object = {
-	      vertex: vertex,
-	      modality: settings.modality,
-	      sk: settings.sk,
-	      statistic: settings.statistic
+        vertex: vertex,
+        modality: settings.modality,
+        sk: settings.sk,
+        statistic: settings.statistic
       };
     };
 
@@ -83,13 +83,13 @@ BrainBrowser.data.Dataset = function(path_prefix, dont_build_pathp) {
       data: data_object,
       dataType: 'text',
       success: function(data) {
-	      BrainBrowser.data.Data(data, function(data) {
-	        that.current_data = data;
-	        callback(that);
-	      });
+        BrainBrowser.data.Data(data, function(data) {
+          that.current_data = data;
+          callback(that);
+        });
       },
       error: function () {
-	      jQuery(g_pickInfoElem).html("Error loading map");
+        jQuery(g_pickInfoElem).html("Error loading map");
       }
     });
 

@@ -89,10 +89,10 @@ function parse(data) {
               elem = line[k].split('/');
               face.push(parseInt(elem[0], 10) - 1);
               lastIndex = current_shape.indexArray.length;
-              indexArray.push(current_shape.indexArray[lastIndex - 1]);		
+              indexArray.push(current_shape.indexArray[lastIndex - 1]);   
               
-              indexArray.push(current_shape.indexArray[lastIndex - 3]);	
-              indexArray.push(elem[0] - 1);	
+              indexArray.push(current_shape.indexArray[lastIndex - 3]); 
+              indexArray.push(elem[0] - 1); 
               k++;
             }
           }

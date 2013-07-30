@@ -47,11 +47,11 @@ BrainBrowser.utils = (function() {
     var text = 'BrainBrowser requires <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">WebGL</a>.<br/>';
     text += window.WebGLRenderingContext ? 'Your browser seems to support it, but it is <br/> disabled or unavailable.<br/>' : 
             "Your browser does not seem to support it.<br/>";
-  	text += 'Test your browser\'s WebGL support <a href="http://get.webgl.org/">here</a>.';
-  	
-  	el = document.createElement("div");
-  	el.id = "webgl-error";
-  	el.innerHTML = text;
+    text += 'Test your browser\'s WebGL support <a href="http://get.webgl.org/">here</a>.';
+    
+    el = document.createElement("div");
+    el.id = "webgl-error";
+    el.innerHTML = text;
         
     return el;
   }

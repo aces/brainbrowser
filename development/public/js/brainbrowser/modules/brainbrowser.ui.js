@@ -56,22 +56,22 @@ BrainBrowser.plugins.ui = function(bb) {
     $("<span id=\"blend_value\">0.5</span>").appendTo(div);
     $("<div class=\"blend_slider\" id=\"blend_slider\" width=\"100px\" + height=\"10\"></div>")
       .slider({
-		    value: 0,
-		    min: 0.1,
-	      max: 0.99,
-		    value: 0.5,
-		    step: 0.01,
-	      /*
-		    * When the sliding the slider, change all the other sliders by the amount of this slider
-		    */
+        value: 0,
+        min: 0.1,
+        max: 0.99,
+        value: 0.5,
+        step: 0.01,
+        /*
+        * When the sliding the slider, change all the other sliders by the amount of this slider
+        */
         slide: function(event, ui) {
           var slider = $(this);
           slider.siblings("span").html(slider.slider("value"));
         },
-		    stop: function(event, ui) {
-		      bb.blend($(this).slider("value"));  
-		    }
-	    }).appendTo(div);
+        stop: function(event, ui) {
+          bb.blend($(this).slider("value"));  
+        }
+      }).appendTo(div);
   };
   
   //Setup for series data, creates a slider to switch between files. 
@@ -88,7 +88,7 @@ BrainBrowser.plugins.ui = function(bb) {
       .slider({
         value: 0,
         min: 0,
-        max: seriesData.numberFiles-1,	       
+        max: seriesData.numberFiles-1,         
         step: 0.1,
         slide: function(event, ui) {
           if (seriesData[0].fileName.match("mt.*")) {
@@ -102,9 +102,9 @@ BrainBrowser.plugins.ui = function(bb) {
           loading_div.show();
           $(div).children("#series-value").html(ui.value);
           
-          if (ui.value -  Math.floor(ui.value) < 0.01) { //is it at an integer? then just return the array			
+          if (ui.value -  Math.floor(ui.value) < 0.01) { //is it at an integer? then just return the array      
               model_data.data = seriesData[ui.value];
-              updateSeries(model_data.data);											     
+              updateSeries(model_data.data);                           
           } else { //interpolate
             //////////////////////////////////////////////////////////////////////
             //TODO: NOT SURE IF THIS PART WORKS WITH WEB WORKERS. NEED TEST DATA!
@@ -168,18 +168,18 @@ BrainBrowser.plugins.ui = function(bb) {
     canvas.height = view_window.offsetHeight;
 
     function getSpectrumImage() {
-	    var img = new Image();
-	    img.onload = function(){
-	      context.drawImage(img, 0, 0); // Or at whatever offset you like
-	    };
-	    img.src = spectrum_canvas.toDataURL();
+      var img = new Image();
+      img.onload = function(){
+        context.drawImage(img, 0, 0); // Or at whatever offset you like
+      };
+      img.src = spectrum_canvas.toDataURL();
     }
       
     img.onload = function(){
-	    context.drawImage(img, 0, 0); // Or at whatever offset you like
-	    if (spectrum_canvas) {
-  	    getSpectrumImage();	      
-	    }
+      context.drawImage(img, 0, 0); // Or at whatever offset you like
+      if (spectrum_canvas) {
+        getSpectrumImage();       
+      }
     };
     
     img.src = bb.canvasDataURL();

@@ -228,7 +228,7 @@ BrainBrowser.core.rendering = function(bb) {
     var delta;
     var rotation;
     
-  	requestAnimationFrame(render_frame);
+    requestAnimationFrame(render_frame);
     
     last_frame = current_frame || timestamp;
     current_frame = timestamp;
@@ -239,13 +239,13 @@ BrainBrowser.core.rendering = function(bb) {
     rotation = delta * 0.00015;
 
     if (bb.autoRotate.x) {
-	     model.rotation.x += rotation;
+       model.rotation.x += rotation;
     }
     if (bb.autoRotate.y) {
       model.rotation.y += rotation;
     }
     if (bb.autoRotate.z) {
-	    model.rotation.z += rotation;
+      model.rotation.z += rotation;
     }
 
     effect.render(scene, camera);

@@ -29,19 +29,19 @@ BrainBrowser.modules.loader = function(bb) {
     var filename;
     var filetype = options.format || "MNIObject";
     loadFromUrl(url, opts, function(data) {
-		    parts = url.split("/");
-		    //last part of url will be shape name
-		    filename = parts[parts.length-1];
+        parts = url.split("/");
+        //last part of url will be shape name
+        filename = parts[parts.length-1];
         // Parse model info based on the given file type.
-		    BrainBrowser.filetypes.parse(filetype, data, function(obj) {
-  			  if (obj.objectClass !== "__FAIL__") {
+        BrainBrowser.filetypes.parse(filetype, data, function(obj) {
+          if (obj.objectClass !== "__FAIL__") {
             // Display model to the canvas after parsing.
             if (!cancelLoad(options)) bb.displayObjectFile(obj, filename, options);
           } else if (options.onError !== undefined) {
             options.onError();
           }
-  			});
-		});
+        });
+    });
   };
 
   //Load model from local file.
@@ -53,19 +53,19 @@ BrainBrowser.modules.loader = function(bb) {
     
     loadFromTextFile(file_input, options, function(data) {
       parts = file_input.value.split("\\");
-			//last part of path will be shape name
-			filename = parts[parts.length-1];
+      //last part of path will be shape name
+      filename = parts[parts.length-1];
       // Parse model info based on the given file type.
-			BrainBrowser.filetypes.parse(filetype, data, function(obj) {
-			  if (obj.objectClass !== "__FAIL__") {
+      BrainBrowser.filetypes.parse(filetype, data, function(obj) {
+        if (obj.objectClass !== "__FAIL__") {
           // Display model to the canvas after parsing.
           bb.displayObjectFile(obj, filename, options);
         } else if (options.onError != undefined) {
           options.onError();
         }
-			});
+      });
       
-	  });
+    });
   };
   
   // Load a colour map from the server.
@@ -73,24 +73,24 @@ BrainBrowser.modules.loader = function(bb) {
     var options = opts || {};
 
     loadFromUrl(file_input, options, function(text, file) {
- 		  Data(text, function(data) {
- 		    if (cancelLoad(options)) return;
- 		    
- 		    var max = options.max === undefined ? data.max : options.max;
+      Data(text, function(data) {
+        if (cancelLoad(options)) return;
+        
+        var max = options.max === undefined ? data.max : options.max;
         var min = options.min === undefined ? data.min : options.min;
         
- 		    bb.model_data.data = data;
- 		    data.fileName = name;
- 		    data.apply_to_shape = options.shape;
-   		  initRange(min, max);
-   		  
-   		  if (bb.afterLoadData) {
-   		    bb.afterLoadData(data.rangeMin, data.rangeMax, data);
-   		  }
+        bb.model_data.data = data;
+        data.fileName = name;
+        data.apply_to_shape = options.shape;
+        initRange(min, max);
+        
+        if (bb.afterLoadData) {
+          bb.afterLoadData(data.rangeMin, data.rangeMax, data);
+        }
 
-   		  bb.updateColors(data, data.rangeMin, data.rangeMax, bb.spectrum, bb.flip, bb.clamped, false, options);
- 		  });
- 		});
+        bb.updateColors(data, data.rangeMin, data.rangeMax, bb.spectrum, bb.flip, bb.clamped, false, options);
+      });
+    });
    };
 
    
@@ -106,17 +106,17 @@ BrainBrowser.modules.loader = function(bb) {
      bb.blendData = bb.blendData || [];
 
      var onfinish = function(text) {
- 	    Data(text, function(data) {
- 	      var max = options.max === undefined ? data.max : options.max;
+      Data(text, function(data) {
+        var max = options.max === undefined ? data.max : options.max;
         var min = options.min === undefined ? data.min : options.min;
         
- 	      data.fileName = filename;
- 	      data.apply_to_shape = options.shape;
+        data.fileName = filename;
+        data.apply_to_shape = options.shape;
         data.applied = false;
-   	    if (data.values.length < positionArrayLength/4) {
-   	      alert("Not enough color points to cover vertices - " + data.values.length + " color points for "+ positionArrayLength/3 + " vertices." );
-   	      return -1;
-   	    }
+        if (data.values.length < positionArrayLength/4) {
+          alert("Not enough color points to cover vertices - " + data.values.length + " color points for "+ positionArrayLength/3 + " vertices." );
+          return -1;
+        }
         model_data.data = data;
         bb.blendData[blend_index] = data;
         initRange(min, max, data);
@@ -133,12 +133,12 @@ BrainBrowser.modules.loader = function(bb) {
           bb.setupBlendColors();
         } else {
           if(bb.afterLoadData) {
-   	        bb.afterLoadData(data.rangeMin, data.rangeMax, data);
+            bb.afterLoadData(data.rangeMin, data.rangeMax, data);
           }
           bb.updateColors(data, data.rangeMin, data.rangeMax, bb.spectrum, bb.flip, bb.clamped, false, options);
         }
         data.applied = true;
- 	    });
+      });
      };
 
      if(filename.match(/.*.mnc|.*.nii/)) {
@@ -151,30 +151,30 @@ BrainBrowser.modules.loader = function(bb) {
   // Load files to blend 
   // TODO: NEED TO TEST THIS.
   //bb.loadBlendDataFromFile = function(file_input, alpha) {
-	//	var numberFiles = file_input.files.length;
-	//  var files = file_input.files;
-	//  var reader;
-	//  var i, k;
+  //  var numberFiles = file_input.files.length;
+  //  var files = file_input.files;
+  //  var reader;
+  //  var i, k;
   //  var counter = 0;
-	//	
-	//	bb.blendData = new Array(numberFiles);
-	//	bb.blendData.numberFiles = numberFiles;
+  //  
+  //  bb.blendData = new Array(numberFiles);
+  //  bb.blendData.numberFiles = numberFiles;
   // 
- 	//	for(i = 0; i < numberFiles; i++) {
-	//	  
-	//	  reader = new FileReader();
-	//	  reader.file = files[i];
-	//	  /*
-	//	  * Using a closure to keep the value of i around to put the 
-	//	  * data in an array in order. 
-	//	  */
-	//	  reader.onloadend = (function(file, num) {
-	//		  return function(e) {
-	//		    Data(e.target.result, function(data) {
-	//		      bb.blendData[num] = data; 
-  //					bb.blendData.alpha = 1.0/numberFiles;
+  //  for(i = 0; i < numberFiles; i++) {
+  //    
+  //    reader = new FileReader();
+  //    reader.file = files[i];
+  //    /*
+  //    * Using a closure to keep the value of i around to put the 
+  //    * data in an array in order. 
+  //    */
+  //    reader.onloadend = (function(file, num) {
+  //      return function(e) {
+  //        Data(e.target.result, function(data) {
+  //          bb.blendData[num] = data; 
+  //          bb.blendData.alpha = 1.0/numberFiles;
   //
-  //					bb.blendData[num].fileName = file.name;
+  //          bb.blendData[num].fileName = file.name;
   //          counter++;
   //          
   //          if (counter < numberFiles) {
@@ -182,31 +182,31 @@ BrainBrowser.modules.loader = function(bb) {
   //            return;
   //          }
   //          console.log("Finishing");
-  //					//for(k = 0; k < 2; k++) {
-  //					//  if(bb.blendData[k] == undefined) {						     
-  //					//    console.log("not done yet");
-  //					//    return;
-  //					//  }
+  //          //for(k = 0; k < 2; k++) {
+  //          //  if(bb.blendData[k] == undefined) {                 
+  //          //    console.log("not done yet");
+  //          //    return;
+  //          //  }
   //
-  //					//}		 
-  //					initRange(bb.blendData[0].values.min(),
-  //					    bb.blendData[0].values.max(),
-  //					    bb.blendData[0]);
+  //          //}    
+  //          initRange(bb.blendData[0].values.min(),
+  //              bb.blendData[0].values.max(),
+  //              bb.blendData[0]);
   //
-  //					initRange(bb.blendData[1].values.min(),
-  //					    bb.blendData[1].values.max(),
-  //					    bb.blendData[1]);
-  //					if(bb.afterLoadData != null) {
-  //					  bb.afterLoadData(null, null, bb.blendData, true); //multiple set to true
-  //					}
+  //          initRange(bb.blendData[1].values.min(),
+  //              bb.blendData[1].values.max(),
+  //              bb.blendData[1]);
+  //          if(bb.afterLoadData != null) {
+  //            bb.afterLoadData(null, null, bb.blendData, true); //multiple set to true
+  //          }
   //
-  //					bb.blend(alpha);
+  //          bb.blend(alpha);
   //          bb.setupBlendColors();
-	//		    });
-	//			};
-	//		})(reader.file, i);
-	//	      
-	//	  reader.readAsText(files[i]);
+  //        });
+  //      };
+  //    })(reader.file, i);
+  //        
+  //    reader.readAsText(files[i]);
   //  }
   //}; 
   
@@ -257,47 +257,47 @@ BrainBrowser.modules.loader = function(bb) {
     var model_data = bb.model_data;
     
     loadFromTextFile(file_input, null, function(data) {
-		    spectrum = new Spectrum(data);
-		    bb.spectrum = spectrum;
-		    if(bb.afterLoadSpectrum != null) {
-		      bb.afterLoadSpectrum(spectrum);
-		    }
-		    if(model_data.data) {
-		      bb.updateColors(model_data.data, model_data.data.rangeMin, model_data.data.rangeMax, bb.spectrum, bb.flip, bb.clamped);
-		    }
-		});
+        spectrum = new Spectrum(data);
+        bb.spectrum = spectrum;
+        if(bb.afterLoadSpectrum != null) {
+          bb.afterLoadSpectrum(spectrum);
+        }
+        if(model_data.data) {
+          bb.updateColors(model_data.data, model_data.data.rangeMin, model_data.data.rangeMax, bb.spectrum, bb.flip, bb.clamped);
+        }
+    });
   };
  
   // Load a series of data files to be viewed with a slider. 
   bb.loadSeriesDataFromFile = function(file_input) {
-		var numberFiles = file_input.files.length;
-		var files = file_input.files;
-		var reader;
-		var i;
-		
-		bb.seriesData = new Array(numberFiles);
-		bb.seriesData.numberFiles = numberFiles;
-		
- 		for(i = 0; i < numberFiles; i++) {
-		  reader = new FileReader();
-		  reader.file = files[i];
-		  /*
-		  * Using a closure to keep the value of i around to put the 
-		  * data in an array in order. 
-		  */
-		  reader.onloadend = (function(file, num) {
-			  return function(e) {
-		   	  console.log(e.target.result.length);
-					console.log(num);
-					
-					Data(e.target.result, function(data) {
-					  bb.seriesData[num] = data;
-					  bb.seriesData[num].fileName = file.name; 
-					});	 
-				};
-			})(reader.file, i);
-		  
-		  reader.readAsText(files[i]);
+    var numberFiles = file_input.files.length;
+    var files = file_input.files;
+    var reader;
+    var i;
+    
+    bb.seriesData = new Array(numberFiles);
+    bb.seriesData.numberFiles = numberFiles;
+    
+    for(i = 0; i < numberFiles; i++) {
+      reader = new FileReader();
+      reader.file = files[i];
+      /*
+      * Using a closure to keep the value of i around to put the 
+      * data in an array in order. 
+      */
+      reader.onloadend = (function(file, num) {
+        return function(e) {
+          console.log(e.target.result.length);
+          console.log(num);
+          
+          Data(e.target.result, function(data) {
+            bb.seriesData[num] = data;
+            bb.seriesData[num].fileName = file.name; 
+          });  
+        };
+      })(reader.file, i);
+      
+      reader.readAsText(files[i]);
     }
     bb.setupSeries();
   };
@@ -351,7 +351,7 @@ BrainBrowser.modules.loader = function(bb) {
         }    
       },
       error: function(request,textStatus,e) {
-	      alert("Failure in loadFromURL: " +  textStatus);
+        alert("Failure in loadFromURL: " +  textStatus);
       },
       timeout: 100000
     });

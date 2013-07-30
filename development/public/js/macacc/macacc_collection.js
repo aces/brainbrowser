@@ -65,7 +65,7 @@ function MacaccObject(brainbrowser, path, dont_build_path) {
       update_map();
       setVertexCoord(vertex_data, 0);
       if(brainbrowser.secondWindow != undefined && true) {
-	      brainbrowser.secondWindow.postMessage(that.vertex,"*");
+        brainbrowser.secondWindow.postMessage(that.vertex,"*");
       }
     }else {
       $(that.pickInfoElem).html('--nothing--');
@@ -120,14 +120,14 @@ function MacaccObject(brainbrowser, path, dont_build_path) {
     brainbrowser.current_dataset = dataset;
     if($("#fix_range").is(":checked")) {
       if(!(that.data_min = parseFloat($("#data-range-min").val()))) {
-	      if(!that.data_min === 0 ) {
-	        that.data_min = dataset.current_data.min;
-	      }
+        if(!that.data_min === 0 ) {
+          that.data_min = dataset.current_data.min;
+        }
       }
       if(!(that.data_max = parseFloat($("#data-range-max").val()))) {
-	      if(!that.data_max === 0 ) {
-	        that.data_max = dataset.current_data.max;
-	      }
+        if(!that.data_max === 0 ) {
+          that.data_max = dataset.current_data.max;
+        }
       }
     } else if(get_data_controls().statistic === "T") {
       that.data_min = dataset.current_data.min;

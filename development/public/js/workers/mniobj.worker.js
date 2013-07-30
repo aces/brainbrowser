@@ -182,7 +182,7 @@ function split_hemispheres() {
   var i, count;
 
   num_vertices = result.positionArray.length;
-  left.positionArray = result.positionArray.slice(0, num_vertices/2);			
+  left.positionArray = result.positionArray.slice(0, num_vertices/2);     
   right.positionArray = result.positionArray.slice(num_vertices/2, num_vertices);
 
   num_indices = result.indexArray.length;

@@ -74,15 +74,15 @@ function BrainCanvas(opt) {
   this.update_space = function(axis,canvas,context, number, minc,time) {
     that.slices[axis] = number;
     that.slices[axis].space_height = Math.ceil(Math.abs(minc[axis].height_space.step)
-					  * minc[axis].height_space.space_length
-					  * canvas.zoom);
+            * minc[axis].height_space.space_length
+            * canvas.zoom);
 
     var width = Math.ceil(Math.abs(minc[axis].length_space.step)
-					      * minc[axis].length_space.space_length
-					      * canvas.zoom);
+                * minc[axis].length_space.space_length
+                * canvas.zoom);
     var height = Math.ceil(Math.abs(minc[axis].height_space.step)
-					       * minc[axis].height_space.space_length
-					       * canvas.zoom);
+                 * minc[axis].height_space.space_length
+                 * canvas.zoom);
     canvas.current_image = {width: width,
                              height: height};
     
@@ -119,16 +119,16 @@ function BrainCanvas(opt) {
     //Make sure that area uses the step of the axises
         
     slice_image_data.data = colorManager.createColorMap(spectrum
-							, slice_image_data.data
-							, slice,minc.min,minc.max
-							, true
-							, that.brightness
-							, that.contrast
-						       );
+              , slice_image_data.data
+              , slice,minc.min,minc.max
+              , true
+              , that.brightness
+              , that.contrast
+                   );
 
     context.putImageData(slice_image_data
-			 , canvas.translate_vector.x
-			 , canvas.translate_vector.y);  
+       , canvas.translate_vector.x
+       , canvas.translate_vector.y);  
 
   };
 
@@ -180,17 +180,17 @@ function BrainCanvas(opt) {
 
 
     drawCrosshair(xcontext,
-		  ywidth*xcanvas.zoom+xcanvas.translate_vector.x,
-		  zheight*xcanvas.zoom+xcanvas.translate_vector.y);
+      ywidth*xcanvas.zoom+xcanvas.translate_vector.x,
+      zheight*xcanvas.zoom+xcanvas.translate_vector.y);
        
     drawCrosshair(ycontext,
-		  xwidth*ycanvas.zoom+ycanvas.translate_vector.x,
-		  zheight*ycanvas.zoom+ycanvas.translate_vector.y);
+      xwidth*ycanvas.zoom+ycanvas.translate_vector.x,
+      zheight*ycanvas.zoom+ycanvas.translate_vector.y);
     
     
     drawCrosshair(zcontext,
-		  xwidth*zcanvas.zoom+zcanvas.translate_vector.x,
-		  yheight*zcanvas.zoom+zcanvas.translate_vector.y);
+      xwidth*zcanvas.zoom+zcanvas.translate_vector.x,
+      yheight*zcanvas.zoom+zcanvas.translate_vector.y);
     
     
 
@@ -216,9 +216,9 @@ function BrainCanvas(opt) {
       var slice_numbers = that.getSliceNumbersFromPosition(getCursorPosition(event));      
     }else {
       var slice_numbers = {
-	x: that.slices.xspace,
-	y: that.slices.yspace,
-	z: that.slices.zspace
+  x: that.slices.xspace,
+  y: that.slices.yspace,
+  z: that.slices.zspace
       };
     }
     //clear canvas
@@ -270,9 +270,9 @@ function BrainCanvas(opt) {
   };
   this.showMinc=function(minc){
     $(xcanvas).siblings("#mincinfo").append("Minc Information: <br>"+
-			  "order: "+ minc.order +
-			  "<br>xspace.height: " + minc.xspace.height + " yspace.height: " + minc.yspace.height + " zspace.height: " + minc.zspace.height + 
-			  "<br> xspace.length: " + minc.xspace.length + " yspace.length: " + minc.yspace.length + " zspace.length: " + minc.zspace.length + "xspace step: " + minc.xspace.step + "yspace step: " + minc.yspace.step + "zspace step: " + minc.zspace.step);
+        "order: "+ minc.order +
+        "<br>xspace.height: " + minc.xspace.height + " yspace.height: " + minc.yspace.height + " zspace.height: " + minc.zspace.height + 
+        "<br> xspace.length: " + minc.xspace.length + " yspace.length: " + minc.yspace.length + " zspace.length: " + minc.zspace.length + "xspace step: " + minc.xspace.step + "yspace step: " + minc.yspace.step + "zspace step: " + minc.zspace.step);
     
 
     that.slices.xspace = parseInt(minc.xspace.length/2);
@@ -295,13 +295,13 @@ function BrainCanvas(opt) {
     var x;
     var y;
     if (e.pageX != undefined && e.pageY != undefined) {
-	x = e.pageX;
-	y = e.pageY;
+  x = e.pageX;
+  y = e.pageY;
     }
     else {
-	x = e.clientX + document.body.scrollLeft +
+  x = e.clientX + document.body.scrollLeft +
             document.documentElement.scrollLeft;
-	y = e.clientY + document.body.scrollTop +
+  y = e.clientY + document.body.scrollTop +
             document.documentElement.scrollTop;
     }
     x -= e.target.offsetLeft;
@@ -338,56 +338,56 @@ function BrainCanvas(opt) {
     that.position = position;
     if(position.target.id == xcanvas.id) {
       var slices = {
-	x: that.slices.xspace,
-	y: parseInt((position.x-xcanvas.translate_vector.x)/Math.abs(that.current_minc.xspace.height_space.step)/xcanvas.zoom),
-	  //we have to adjust the y coordinate by the amount of difference between 
-	  //the canvas height and the image height since the image
-	  // is a little higher then the bottom of the canvas and y is counted up from the bottom
+  x: that.slices.xspace,
+  y: parseInt((position.x-xcanvas.translate_vector.x)/Math.abs(that.current_minc.xspace.height_space.step)/xcanvas.zoom),
+    //we have to adjust the y coordinate by the amount of difference between 
+    //the canvas height and the image height since the image
+    // is a little higher then the bottom of the canvas and y is counted up from the bottom
 
-	z: parseInt((position.y+xcanvas.translate_vector.y-(xcanvas.height-xcanvas.current_image.height))/Math.abs(that.current_minc.xspace.length_space.step)/xcanvas.zoom)
+  z: parseInt((position.y+xcanvas.translate_vector.y-(xcanvas.height-xcanvas.current_image.height))/Math.abs(that.current_minc.xspace.length_space.step)/xcanvas.zoom)
       };
       if(that.current_minc.yspace.step < 0 ) {
-	slices.y = that.current_minc.yspace.space_length - slices.y;
+  slices.y = that.current_minc.yspace.space_length - slices.y;
       }
       if(that.current_minc.zspace.step < 0 ) {
-	slices.z = that.current_minc.zspace.space_length - slices.z;
+  slices.z = that.current_minc.zspace.space_length - slices.z;
       }
 
 
     }else if(position.target.id == ycanvas.id ) {
       var slices = {
-	y: that.slices.yspace,
-	x: parseInt((position.x-ycanvas.translate_vector.x)
-		    / (Math.abs(that.current_minc.xspace.step)
-		       * ycanvas.zoom)),
-	  //we have to adjust the y coordinate by the amount of difference between 
-	  //the canvas height and the image height since the image
-	  // is a little higher then the bottom of the canvas and y is counted up from the bottom
+  y: that.slices.yspace,
+  x: parseInt((position.x-ycanvas.translate_vector.x)
+        / (Math.abs(that.current_minc.xspace.step)
+           * ycanvas.zoom)),
+    //we have to adjust the y coordinate by the amount of difference between 
+    //the canvas height and the image height since the image
+    // is a little higher then the bottom of the canvas and y is counted up from the bottom
 
-	z: parseInt((position.y+ycanvas.translate_vector.y - (ycanvas.height-ycanvas.current_image.height))/(Math.abs(that.current_minc.zspace.step)*ycanvas.zoom))
+  z: parseInt((position.y+ycanvas.translate_vector.y - (ycanvas.height-ycanvas.current_image.height))/(Math.abs(that.current_minc.zspace.step)*ycanvas.zoom))
       };  
       if(that.current_minc.xspace.step < 0 ) {
-	slices.x = that.current_minc.xspace.space_length - slices.x;
+  slices.x = that.current_minc.xspace.space_length - slices.x;
       }
       if(that.current_minc.zspace.step < 0 ) {
-	slices.z = that.current_minc.zspace.space_length - slices.z;
+  slices.z = that.current_minc.zspace.space_length - slices.z;
       }
       
     }else {
       var slices = {
-	  z:that.slices.zspace,
-	  x:parseInt((position.x-zcanvas.translate_vector.x)/(Math.abs(that.current_minc.zspace.length_space.step)*zcanvas.zoom)),
-	  
-	  //we have to adjust the y coordinate by the amount of difference between 
-	  //the canvas height and the image height since the image
-	  // is a little higher then the bottom of the canvas and y is counted up from the bottom
-	  y:parseInt((position.y+zcanvas.translate_vector.y - (zcanvas.height-zcanvas.current_image.height))/(Math.abs(that.current_minc.yspace.step)*zcanvas.zoom))
-	};
+    z:that.slices.zspace,
+    x:parseInt((position.x-zcanvas.translate_vector.x)/(Math.abs(that.current_minc.zspace.length_space.step)*zcanvas.zoom)),
+    
+    //we have to adjust the y coordinate by the amount of difference between 
+    //the canvas height and the image height since the image
+    // is a little higher then the bottom of the canvas and y is counted up from the bottom
+    y:parseInt((position.y+zcanvas.translate_vector.y - (zcanvas.height-zcanvas.current_image.height))/(Math.abs(that.current_minc.yspace.step)*zcanvas.zoom))
+  };
       if(that.current_minc.xspace.step < 0 ) {
-	slices.x = that.current_minc.xspace.space_length - slices.x;
+  slices.x = that.current_minc.xspace.space_length - slices.x;
       }
       if(that.current_minc.yspace.step < 0 ) {
-	slices.y = that.current_minc.yspace.space_length - slices.y;
+  slices.y = that.current_minc.yspace.space_length - slices.y;
       }
       
     }
@@ -410,8 +410,8 @@ function BrainCanvas(opt) {
     canvas.onmousedown = function(event) {
       that.drag = true;
       if(event.shiftKey) {
-	var position = getCursorPosition(event);
-	canvas.translate_origin = {x: canvas.translate_vector.x+position.x2, y: canvas.translate_vector.y + position.y};
+  var position = getCursorPosition(event);
+  canvas.translate_origin = {x: canvas.translate_vector.x+position.x2, y: canvas.translate_vector.y + position.y};
 
 
       }
@@ -425,23 +425,23 @@ function BrainCanvas(opt) {
 
     canvas.onmousemove = function(event) {
       if(that.drag) {
-	if(event.shiftKey) {
-	  that.translate(event,canvas);	  
-	}else {
-	  that.updateSlices(event);	  
-	}
+  if(event.shiftKey) {
+    that.translate(event,canvas);   
+  }else {
+    that.updateSlices(event);   
+  }
       }
     };
     
     jQuery(canvas).mousewheel(function(event,delta) {
-				if(delta > 0) {
-				  that.zoomIn(event,canvas,delta);
-				}else {
-				  that.zoomOut(event,canvas,delta);
-				}
-				
-				return false;
-			      });
+        if(delta > 0) {
+          that.zoomIn(event,canvas,delta);
+        }else {
+          that.zoomOut(event,canvas,delta);
+        }
+        
+        return false;
+            });
     
   };
   
@@ -467,23 +467,23 @@ function BrainCanvas(opt) {
     
 
     $("<div id=\"time-slider\" width=\""+xcanvas.width+"\" + height=\"10\"></div>").slider({
-						  value: 0,
-						  min: 0,
-						  max: that.current_minc.time.space_length,
-						  step: 1,
-						  change: function(event,ui) {
-						    console.log("BLAH!");
-					            that.updateSlices(null,ui.value);	    
+              value: 0,
+              min: 0,
+              max: that.current_minc.time.space_length,
+              step: 1,
+              change: function(event,ui) {
+                console.log("BLAH!");
+                      that.updateSlices(null,ui.value);     
 
-						    playStatus.position = ui.value;
-						    $(div).children("#time-value").html(ui.value);
-						  },
-	                                          slide: function(event,ui) {
-						    console.log("BLAH!");
-					            that.updateSlices(null,ui.value);
-						    playStatus.position = ui.value;	    
-						    $(div).children("#time-value").html(ui.value);
-						  }}).appendTo(div);
+                playStatus.position = ui.value;
+                $(div).children("#time-value").html(ui.value);
+              },
+                                            slide: function(event,ui) {
+                console.log("BLAH!");
+                      that.updateSlices(null,ui.value);
+                playStatus.position = ui.value;     
+                $(div).children("#time-value").html(ui.value);
+              }}).appendTo(div);
 
     //Play buttons
     $("<div class=\"toolbar\"><span id=\"time-toolbar\" class=\"ui-widget-header ui-corner-all\">"
@@ -493,18 +493,18 @@ function BrainCanvas(opt) {
      ).appendTo(div);
     
 
-											   
+                         
     
     function tick(){
       if(playStatus.playing) {
-	playStatus.position+=1;
-	if(playStatus.position > that.current_minc.time.space_length) {
-	  playStatus.position = 0;
-	};
-	$(div).children("#time-slider").slider("value", playStatus.position);
-	
-	
-	setTimeout(tick, 500);
+  playStatus.position+=1;
+  if(playStatus.position > that.current_minc.time.space_length) {
+    playStatus.position = 0;
+  };
+  $(div).children("#time-slider").slider("value", playStatus.position);
+  
+  
+  setTimeout(tick, 500);
       }
     }
 
@@ -525,50 +525,50 @@ function BrainCanvas(opt) {
     }
     
     $("#time-toolbar").children("#play").button({
-						    label: "play"
-						  , text: false
-						  , icons: {
-						      primary: "ui-icon-play"
-						  }
-						})
+                label: "play"
+              , text: false
+              , icons: {
+                  primary: "ui-icon-play"
+              }
+            })
     .click(function(){
-	     var options;
-			if ( $( this ).text() === "play" ) {
-				options = {
-					label: "pause",
-					icons: {
-						primary: "ui-icon-pause"
-					}
-				};
-			  play();
-			} else {
-				options = {
-					label: "play",
-					icons: {
-						primary: "ui-icon-play"
-					}
-				};
-			  pause();
-			}
-			$( this ).button( "option", options );
-	   });
+       var options;
+      if ( $( this ).text() === "play" ) {
+        options = {
+          label: "pause",
+          icons: {
+            primary: "ui-icon-pause"
+          }
+        };
+        play();
+      } else {
+        options = {
+          label: "play",
+          icons: {
+            primary: "ui-icon-play"
+          }
+        };
+        pause();
+      }
+      $( this ).button( "option", options );
+     });
     $("#time-toolbar").children("#stop").button({
-						    label: "stop"
-						  , text: false
-						  , icons: {
-						      primary: "ui-icon-stop"
-						  }
-						})
+                label: "stop"
+              , text: false
+              , icons: {
+                  primary: "ui-icon-stop"
+              }
+            })
 
       .click(function() {
-	       $( "#play" ).button( "option", {
-				      label: "play",
-				      icons: {
-					primary: "ui-icon-play"
-				      }
-				    });
-	       stop();
-	     });
+         $( "#play" ).button( "option", {
+              label: "play",
+              icons: {
+          primary: "ui-icon-play"
+              }
+            });
+         stop();
+       });
     
   };
 
@@ -578,16 +578,16 @@ function BrainCanvas(opt) {
     var div = $($(xcanvas).parent().children("#brightness"));
     $("<span id=\"brightness-value\">0%</span>").appendTo(div);
     $("<div id=\"brightness-slider\" width=\"100px\" + height=\"10\"></div>").slider({
-						  value: 0,
-						  min: -1,
-						  max:1,	       
+              value: 0,
+              min: -1,
+              max:1,         
                                                   step: .1,
-	                                          slide: function(event,ui) {
-						    that.brightness = ui.value;
-						    that.updateSlices(null,that.current_time);
-						    $(div).children("#brightness-value").html(ui.value*100 + "%");
-						  }
-						}).appendTo(div);
+                                            slide: function(event,ui) {
+                that.brightness = ui.value;
+                that.updateSlices(null,that.current_time);
+                $(div).children("#brightness-value").html(ui.value*100 + "%");
+              }
+            }).appendTo(div);
     
 
   };
@@ -598,16 +598,16 @@ function BrainCanvas(opt) {
     var div = $($(xcanvas).parent().children("#contrast"));
     $("<span id=\"contrast-value\">1</span>").appendTo(div);
     $("<div id=\"contrast-slider\" width=\"100px\" + height=\"10\"></div>").slider({
-						  value: 1,
-						  min: 1,
-						  max:5,	       
+              value: 1,
+              min: 1,
+              max:5,         
                                                   step: .1,
-	                                          slide: function(event,ui) {
-						    that.contrast = ui.value;
-						    that.updateSlices(null,that.current_time);
-						    $(div).children("#contrast-value").html(ui.value);
-						  }
-						}).appendTo(div);
+                                            slide: function(event,ui) {
+                that.contrast = ui.value;
+                that.updateSlices(null,that.current_time);
+                $(div).children("#contrast-value").html(ui.value);
+              }
+            }).appendTo(div);
     
 
   };
@@ -628,50 +628,50 @@ function BrainCanvas(opt) {
       +"<option value=\"grayscale\">Gray Scale</option>"
       + "</select>").appendTo(div);
     $(div).children("#spectrum-select").change(function(event){
-			    that.changeSpectrum($(event.target).val());
-			   });
+          that.changeSpectrum($(event.target).val());
+         });
   };
  
 
  //Open a Minc file, initiates the UI elements Basicly the main function. 
   this.openFile =function(filename) {
     this.current_minc = new Minc(filename, opt ,function(minc,extraArgs){
-				   /*
-				    * Height and Width of the canvas for each space
-				    * 
-				    * xspace: height is zspace; width is yspace
-				    * yspace: height is zspace; width is xspace
-				    * zspace: height is yspace; width is xspace
-				    *  
-				    */ 
-				   //Initializes the canvas to the right height width, and clears them
-				   var height = opt.canvasHeight || 256
-				   ,   width  = opt.canvasWidth  || 256;
-				  
-				   that.initCanvas(xcanvas, width, height);
-				   that.initCanvas(ycanvas, width, height);
-				   that.initCanvas(zcanvas, width, height);
-				   
-				   //Builds and displays the UI elements for each 
-				   that.showCoordinates();
-				   that.showMinc(minc);
-				   //if it's a 4D dataset time will be defined. 
-				   if(minc.time) {
-				     that.showTime();
-				   }
-				   that.showBrightness();
-				   that.showContrast();
+           /*
+            * Height and Width of the canvas for each space
+            * 
+            * xspace: height is zspace; width is yspace
+            * yspace: height is zspace; width is xspace
+            * zspace: height is yspace; width is xspace
+            *  
+            */ 
+           //Initializes the canvas to the right height width, and clears them
+           var height = opt.canvasHeight || 256
+           ,   width  = opt.canvasWidth  || 256;
+          
+           that.initCanvas(xcanvas, width, height);
+           that.initCanvas(ycanvas, width, height);
+           that.initCanvas(zcanvas, width, height);
+           
+           //Builds and displays the UI elements for each 
+           that.showCoordinates();
+           that.showMinc(minc);
+           //if it's a 4D dataset time will be defined. 
+           if(minc.time) {
+             that.showTime();
+           }
+           that.showBrightness();
+           that.showContrast();
                                    that.showSpectrum();
 
-				   //Binds events to all three elements
-				   that.addListeners(xcanvas);
-				   that.addListeners(ycanvas);
-				   that.addListeners(zcanvas);
+           //Binds events to all three elements
+           that.addListeners(xcanvas);
+           that.addListeners(ycanvas);
+           that.addListeners(zcanvas);
 
 
 
-				   
-				   ;});
+           
+           ;});
   };
 
 

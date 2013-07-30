@@ -271,7 +271,7 @@ $(function() {
       bb.clearScreen();
 
       switch(name) {
-        case	'basic':
+        case  'basic':
           bb.loadModelFromUrl('/models/surf_reg_model_both.obj', {
             format: "MNIObject",
             afterDisplay: loadFinished,
@@ -312,7 +312,7 @@ $(function() {
             afterDisplay: loadFinished,
             cancel: default_cancel_opts(current_request)
           });
-          bb.setCamera(0, 0, 100);			     
+          bb.setCamera(0, 0, 100);           
 
           matrixRotX = new THREE.Matrix4();
           matrixRotX.makeRotationX(-0.25 * Math.PI)

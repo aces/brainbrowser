@@ -33,7 +33,7 @@ BrainBrowser.core.models = function(bb) {
     if (obj.objectClass == 'P' && obj.numberVertices == 81924) {
       addBrain(obj, renderDepth);
     } else if(obj.objectClass == 'P') {
-	    addPolygonObject(obj,filename, renderDepth);	  
+      addPolygonObject(obj,filename, renderDepth);    
     } else if(obj.objectClass == 'L') {
       addLineObject(obj, filename, false, renderDepth);
     } else {
@@ -177,17 +177,17 @@ BrainBrowser.core.models = function(bb) {
       }
       
       if (model_data.colorArray.length === 4) {
-	      for (i = 0; i < numberVertices; i++) {
-	        colorArray.push(0.5, 0.5, 0.7, 1);
-	      }
+        for (i = 0; i < numberVertices; i++) {
+          colorArray.push(0.5, 0.5, 0.7, 1);
+        }
       } else {
-	      colorArray = bb.model_data.colorArray;
-	      
-	      for(j = 0, count = indices.length; j < count; j++) {
-	        col = new THREE.Color();
+        colorArray = bb.model_data.colorArray;
+        
+        for(j = 0, count = indices.length; j < count; j++) {
+          col = new THREE.Color();
           col.setRGB(colorArray[indices[j]*4], colorArray[indices[j]*4+1], colorArray[indices[j]*4+2]);
           colors.push(col);
-	      }
+        }
       }
       
     } else {
@@ -221,9 +221,9 @@ BrainBrowser.core.models = function(bb) {
     bb.model_data = model_data;
     if (shapes){
       for (i = 0, count = shapes.length; i < count; i++){
-	      shape = createPolygonShape(bb.model_data.shapes[i]);
-	      shape.name = bb.model_data.shapes[i].name || (filename.split(".")[0] + "_" + i);
-	      model.add(shape);      	
+        shape = createPolygonShape(bb.model_data.shapes[i]);
+        shape.name = bb.model_data.shapes[i].name || (filename.split(".")[0] + "_" + i);
+        model.add(shape);       
       }
     }else {
       shape = createPolygonShape(bb.model_data);

@@ -110,14 +110,14 @@ function ColorManager(){
       value_array = value_arrays[i];
       color_arrays[i] = this.createColorMap(
         spectrum,
-				new Array(value_array.values.length),
-				value_array.values,
-				value_array.rangeMin,
-				value_array.rangeMax,
-				false,
-				0,
-				1,
-				value_array.alpha
+        new Array(value_array.values.length),
+        value_array.values,
+        value_array.rangeMin,
+        value_array.rangeMax,
+        false,
+        0,
+        1,
+        value_array.alpha
       );
     }
     

@@ -18,6 +18,8 @@
 BrainBrowser.plugins.ui = function(bb) {
   
   var doc = document;
+  var Data = BrainBrowser.data.Data;
+  var loading_div = $("#loading");
   
   /**
    * Callback for the keypress event.
@@ -47,12 +49,12 @@ BrainBrowser.plugins.ui = function(bb) {
   };
   
   bb.setupBlendColors = function(){
-    console.log("Blend colors has run " + bb.blendData.numberFiles);
-    $("#blend").remove();
-    $("<div id=\"blend\">Blend ratios: </div>").appendTo("#surface_choice");
-    var div = $("#blend");
-    $("<span id=\"blend_value"+i+"\">0</span>").appendTo(div);
-    $("<div class=\"blend_slider\" id=\"blend_slider" + i + "\" width=\"100px\" + height=\"10\"></div>")
+    var div = $("#blend-box");
+    div.html("Blend Ratio: ");
+    //$("<div id=\"blend\">Blend ratios: </div>").appendTo("#surface_choice");
+    //var div = $("#blend");
+    $("<span id=\"blend_value\">0.5</span>").appendTo(div);
+    $("<div class=\"blend_slider\" id=\"blend_slider\" width=\"100px\" + height=\"10\"></div>")
       .slider({
 		    value: 0,
 		    min: 0.1,
@@ -62,7 +64,11 @@ BrainBrowser.plugins.ui = function(bb) {
 	      /*
 		    * When the sliding the slider, change all the other sliders by the amount of this slider
 		    */
-		    slide: function(event,ui) {
+        slide: function(event, ui) {
+          var slider = $(this);
+          slider.siblings("span").html(slider.slider("value"));
+        },
+		    stop: function(event, ui) {
 		      bb.blend($(this).slider("value"));  
 		    }
 	    }).appendTo(div);
@@ -73,58 +79,77 @@ BrainBrowser.plugins.ui = function(bb) {
     var model_data = bb.model_data;
     var seriesData = bb.seriesData;
     var positionArray = bb.model_data.positionArray;
+    var interpolatedData;
     
     $("<div id=\"series\">Series: </div>").appendTo("#surface_choice");
     var div = $("#series");
     $("<span id=\"series-value\">0</span>").appendTo(div);
     $("<div id=\"series-slider\" width=\"100px\" + height=\"10\"></div>")
-     .slider({
-       value: 0,
-       min: 0,
-       max: seriesData.numberFiles-1,	       
-       step: 0.1,
-       slide: function(event,ui) {
-         if (ui.value -  Math.floor(ui.value) < 0.01) { //is it at an integer? then just return the array			
-           model_data.data = seriesData[ui.value];											     
-           } else { //interpolate
-             //////////////////////////////////////////////////////////////////////
-             //TODO: NOT SURE IF THIS PART WORKS WITH WEB WORKERS. NEED TEST DATA!
-             //////////////////////////////////////////////////////////////////////
-             if (seriesData[0].fileName.match("pval.*")){
-               model_data.data = new Data(interpolateDataArray(seriesData[Math.floor(ui.value)],
-               seriesData[Math.floor(ui.value)+1],
-               (ui.value -  Math.floor(ui.value)), true));		
-             } else {
-               model_data.data = new Data(interpolateDataArray(seriesData[Math.floor(ui.value)],
-               seriesData[Math.floor(ui.value)+1],
-               (ui.value -  Math.floor(ui.value))));
-             }    
-           }
-           if (seriesData[0].fileName.match("mt.*")) {
-             $("#age_series").html("Age: " + (ui.value*3+5).toFixed(1));
-  
-           } else if (seriesData[0].fileName.match("pval.*")) {
-             $("#age_series").html("Age: " + (ui.value*1+10));
-           }
-           $(div).children("#series-value").html(ui.value);
-           if (model_data.data.values.length < positionArray.length/4) {
-             console.log("Number of numbers in datafile lower than number of vertices Vertices" 
-             + positionArray.length/3 + " data values:" 
-             + model_data.data.values.length );
-             return -1;
-           }
-           initRange(model_data.data.min, model_data.data.max);
-           if (bb.afterLoadData !=null) {
-             bb.afterLoadData(model_data.data.rangeMin, model_data.data.rangeMax, model_data.data);
-           }
-  
-           bb.updateColors(model_data.data, model_data.data.rangeMin, model_data.data.rangeMax, bb.spectrum, bb.flip, bb.clamped);
-           
-           return null;
-         }
+      .slider({
+        value: 0,
+        min: 0,
+        max: seriesData.numberFiles-1,	       
+        step: 0.1,
+        slide: function(event, ui) {
+          if (seriesData[0].fileName.match("mt.*")) {
+            $("#age_series").html("Age: " + (ui.value*3+5).toFixed(1));
+          
+          } else if (seriesData[0].fileName.match("pval.*")) {
+            $("#age_series").html("Age: " + (ui.value*1+10));
+          }
+        },
+        stop: function(event, ui) {
+          loading_div.show();
+          $(div).children("#series-value").html(ui.value);
+          
+          if (ui.value -  Math.floor(ui.value) < 0.01) { //is it at an integer? then just return the array			
+              model_data.data = seriesData[ui.value];
+              updateSeries(model_data.data);											     
+          } else { //interpolate
+            //////////////////////////////////////////////////////////////////////
+            //TODO: NOT SURE IF THIS PART WORKS WITH WEB WORKERS. NEED TEST DATA!
+            //////////////////////////////////////////////////////////////////////
+            interpolatedData = interpolateDataArray(seriesData[Math.floor(ui.value)], seriesData[Math.floor(ui.value)+1], ui.value -  Math.floor(ui.value));
+            Data(interpolatedData, updateSeries);
+          }
+        }
      }).appendTo(div);
   
   };
+  
+  function updateSeries(data) {
+    if (data.values.length < positionArray.length/4) {
+      console.log("Number of numbers in datafile lower than number of vertices Vertices" 
+      + positionArray.length/3 + " data values:" 
+      + data.values.length );
+      return -1;
+    }
+    //bb.initRange(model_data.data.min, model_data.data.max);
+    
+    if (bb.afterLoadData != null) {
+      bb.afterLoadData(data.rangeMin, data.rangeMax, data);
+    }
+    
+    bb.updateColors(data, data.rangeMin, data.rangeMax, bb.spectrum, bb.flip, bb.clamped, { 
+      afterUpdate: function () { loading_div.hide(); } 
+    });
+  }
+
+    // Interpolate data 
+  function interpolateDataArray(first, second, percentage) {
+    console.log(first.values.length);
+    var i;
+    var count = first.values.length;  
+    var new_array = new Array(count);
+    console.log("Percentage: " + percentage);
+    
+    
+    for (i = 0; i < count; i++) {
+      new_array[i] = (first.values[i]*(100-percentage*100)+second.values[i]*(percentage*100))/100;            
+    }
+    console.log(new_array.length);
+    return new_array;
+  }
 
   
   /*

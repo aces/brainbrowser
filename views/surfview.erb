@@ -45,12 +45,18 @@
           </div>
         </div>
         <p>
-          Data: <input type="file" name="datafile" id="datafile"><br />
+          Data 1: <input type="file" name="datafile1" id="datafile1" class="datafile"><br />
+          Data 2: <input type="file" name="datafile2" id="datafile2" class="datafile"> <br />
           Data Series (Multiple): <input type="file" name="dataseriesfile" id="dataseriesfile" multiple=true> <br />
-          Data Blend (Multiple): <input type="file" name="datablendfile" id="datablendfile" multiple=true> <br />
           Color Bar: <input type="file" name="spectrum" id="spectrum"><br />
         </p>
         <span id="clearshapes" class="button">Clear Shapes</span>
+    </div>
+    <div id="data-range-box" class="box full_box">
+      <h4>Thresholding</h4>
+      <div id="data-range">
+      </div>
+      <div id="blend-box"></div>
     </div>
     <div id="background_select" class="box full_box">
       <%= erb :background_color %>
@@ -62,11 +68,6 @@
       <div id="shape-cell" class="box half_box">
         <div id="shapes">
         </div>
-      </div>
-    </div>
-    <div id="data-range-box" class="box full_box">
-      <h4>Thresholding</h4>
-      <div id="data-range">
       </div>
     </div>
     <div id="logos" class="box full_box cfd_logo">

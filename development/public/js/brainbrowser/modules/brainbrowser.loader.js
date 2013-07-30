@@ -101,6 +101,9 @@ BrainBrowser.modules.loader = function(bb) {
      var model_data = bb.model_data;
      var positionArray = model_data.positionArray;
      var positionArrayLength = positionArray.length;
+     var blend_index = options.blend_index || 0;
+     var other_index = 1 - blend_index; // 1 or 0
+     bb.blendData = bb.blendData || [];
 
      var onfinish = function(text) {
  	    Data(text, function(data) {
@@ -109,18 +112,32 @@ BrainBrowser.modules.loader = function(bb) {
         
  	      data.fileName = filename;
  	      data.apply_to_shape = options.shape;
+        data.applied = false;
    	    if (data.values.length < positionArrayLength/4) {
-   	      alert("Number of numbers in datafile lower than number of vertices Vertices" + positionArrayLength/3 + " data values:" + data.values.length );
+   	      alert("Not enough color points to cover vertices - " + data.values.length + " color points for "+ positionArrayLength/3 + " vertices." );
    	      return -1;
-   	    } else {
-   	      model_data.data = data;
    	    }
-        initRange(min, max);
-        if(bb.afterLoadData) {
-   	      bb.afterLoadData(data.rangeMin, data.rangeMax, data);
-        }
+        model_data.data = data;
+        bb.blendData[blend_index] = data;
+        initRange(min, max, data);
+        if (bb.blendData[other_index] && bb.blendData[other_index].applied) {          
 
-        bb.updateColors(data, data.rangeMin, data.rangeMax, bb.spectrum, bb.flip, bb.clamped, false, options);
+          initRange(bb.blendData[other_index].values.min(),
+            bb.blendData[other_index].values.max(),
+            bb.blendData[other_index]);
+          if(bb.afterLoadData != null) {
+            bb.afterLoadData(null, null, bb.blendData, true); //multiple set to true
+          }
+
+          bb.blend(0.5);
+          bb.setupBlendColors();
+        } else {
+          if(bb.afterLoadData) {
+   	        bb.afterLoadData(data.rangeMin, data.rangeMax, data);
+          }
+          bb.updateColors(data, data.rangeMin, data.rangeMax, bb.spectrum, bb.flip, bb.clamped, false, options);
+        }
+        data.applied = true;
  	    });
      };
 
@@ -131,28 +148,105 @@ BrainBrowser.modules.loader = function(bb) {
      }
    };
 
-   //Load spectrum data from the server.
-   bb.loadSpectrumFromUrl  = function(url, opts) {
+  // Load files to blend 
+  // TODO: NEED TO TEST THIS.
+  //bb.loadBlendDataFromFile = function(file_input, alpha) {
+	//	var numberFiles = file_input.files.length;
+	//  var files = file_input.files;
+	//  var reader;
+	//  var i, k;
+  //  var counter = 0;
+	//	
+	//	bb.blendData = new Array(numberFiles);
+	//	bb.blendData.numberFiles = numberFiles;
+  // 
+ 	//	for(i = 0; i < numberFiles; i++) {
+	//	  
+	//	  reader = new FileReader();
+	//	  reader.file = files[i];
+	//	  /*
+	//	  * Using a closure to keep the value of i around to put the 
+	//	  * data in an array in order. 
+	//	  */
+	//	  reader.onloadend = (function(file, num) {
+	//		  return function(e) {
+	//		    Data(e.target.result, function(data) {
+	//		      bb.blendData[num] = data; 
+  //					bb.blendData.alpha = 1.0/numberFiles;
+  //
+  //					bb.blendData[num].fileName = file.name;
+  //          counter++;
+  //          
+  //          if (counter < numberFiles) {
+  //            console.log("Not done yet.");
+  //            return;
+  //          }
+  //          console.log("Finishing");
+  //					//for(k = 0; k < 2; k++) {
+  //					//  if(bb.blendData[k] == undefined) {						     
+  //					//    console.log("not done yet");
+  //					//    return;
+  //					//  }
+  //
+  //					//}		 
+  //					initRange(bb.blendData[0].values.min(),
+  //					    bb.blendData[0].values.max(),
+  //					    bb.blendData[0]);
+  //
+  //					initRange(bb.blendData[1].values.min(),
+  //					    bb.blendData[1].values.max(),
+  //					    bb.blendData[1]);
+  //					if(bb.afterLoadData != null) {
+  //					  bb.afterLoadData(null, null, bb.blendData, true); //multiple set to true
+  //					}
+  //
+  //					bb.blend(alpha);
+  //          bb.setupBlendColors();
+	//		    });
+	//			};
+	//		})(reader.file, i);
+	//	      
+	//	  reader.readAsText(files[i]);
+  //  }
+  //}; 
+  
+  // Blend colours.
+  bb.blend = function(value) {
+    var blendData = bb.blendData;
+    var blendDataLength = blendData.length;
+    var i;
+    
+    blendData[0].alpha = value;
+    blendData[1].alpha = 1.0 - value;
+    for(i = 2; i < blendDataLength; i++) {
+      blendData[i].alpha = 0.0;
+    }
+    
+
+    bb.updateColors(blendData, null, null, bb.spectrum, bb.flip, bb.clamped, true); //last parameter says to blend data.
+  };
+
+  //Load spectrum data from the server.
+  bb.loadSpectrumFromUrl  = function(url, opts) {
     var options = opts || {};
     var afterLoadSpectrum = options.afterLoadSpectrum
     var spectrum;
-    
-    //get the spectrum of colors
-    loadFromUrl(url, options, function (data) {
-		    spectrum = new Spectrum(data);
-		    bb.spectrum = spectrum;
-
-        if (afterLoadSpectrum) afterLoadSpectrum();
-
-		    if (bb.afterLoadSpectrum != null) {
-		      bb.afterLoadSpectrum(spectrum);
-		    }
-
-		    if (bb.model_data && bb.model_data.data) {
-		      bb.updateColors(bb.model_data.data, bb.model_data.data.rangeMin, bb.model_data.data.rangeMax, bb.spectrum, bb.flip, bb.clamped);
-		    }
-
-		});
+   
+   //get the spectrum of colors
+   loadFromUrl(url, options, function (data) {
+     spectrum = new Spectrum(data);
+     bb.spectrum = spectrum;
+   
+      if (afterLoadSpectrum) afterLoadSpectrum();
+   
+     if (bb.afterLoadSpectrum != null) {
+       bb.afterLoadSpectrum(spectrum);
+     }
+   
+     if (bb.model_data && bb.model_data.data) {
+       bb.updateColors(bb.model_data.data, bb.model_data.data.rangeMin, bb.model_data.data.rangeMax, bb.spectrum, bb.flip, bb.clamped);
+     }
+   });
   };
 
   
@@ -173,22 +267,6 @@ BrainBrowser.modules.loader = function(bb) {
 		    }
 		});
   };
-  // Blend colours.
-  bb.blend = function(value) {
-    var blendData = bb.blendData;
-    var blendDataLength = blendData.length;
-    var i;
-    
-    blendData[0].alpha = value;
-    blendData[1].alpha = 1.0 - value;
-    for(i = 2; i < blendDataLength; i++) {
-      blendData[i].alpha = 0.0;
-    }
-    
-
-    bb.updateColors(blendData, null, null, bb.spectrum, bb.flip, bb.clamped, true); //last parameter says to blend data.
-  };
-
  
   // Load a series of data files to be viewed with a slider. 
   bb.loadSeriesDataFromFile = function(file_input) {
@@ -224,80 +302,7 @@ BrainBrowser.modules.loader = function(bb) {
     bb.setupSeries();
   };
 
-  // Interpolate data 
-  // TODO: NEED TO TEST THIS. WHAT IS THE BLAH ARGUMENT?
-  function interpolateDataArray(first, second, percentage, blah) {
-    console.log(first.values.length);
-    var i;
-    var count = first.values.length;  
-    var new_array = new Array(count);
-    console.log("Percentage: " + percentage);
-    
-    
-    for (i = 0; i < count; i++) {
-      if (blah){
-        new_array[i] = (first.values[i]*(100-percentage*100)+second.values[i]*(percentage*100))/100;            
-      } else {
-        new_array[i] = (first.values[i]*(100-percentage*100)+second.values[i]*(percentage*100))/100;            
-      }
-    }
-    console.log(new_array.length);
-    return new_array;
-  }
 
-  // Load files to blend 
-  // TODO: NEED TO TEST THIS.
-  bb.loadBlendDataFromFile = function(file_input, alpha) {
-		var numberFiles = file_input.files.length;
-	  var files = file_input.files;
-	  var reader;
-	  var i, k;
-		
-		bb.blendData = new Array(numberFiles);
-		bb.blendData.numberFiles = numberFiles;
-   
- 		for(i = 0; i < numberFiles; i++) {
-		  
-		  reader = new FileReader();
-		  reader.file = files[i];
-		  /*
-		  * Using a closure to keep the value of i around to put the 
-		  * data in an array in order. 
-		  */
-		  reader.onloadend = (function(file,num) {
-			  return function(e) {
-			    Data(e.target.result, function(data) {
-			      bb.blendData[num] = data; 
-  					bb.blendData.alpha = 1.0/numberFiles;
-
-  					bb.blendData[num].fileName = file.name;
-  					for(k = 0; k < 2; k++) {
-  					  if(bb.blendData[k] == undefined) {						     
-  					    console.log("not done yet");
-  					    return;
-  					  }
-
-  					}		 
-  					initRange(bb.blendData[0].values.min(),
-  					    bb.blendData[0].values.max(),
-  					    bb.blendData[0]);
-
-  					initRange(bb.blendData[1].values.min(),
-  					    bb.blendData[1].values.max(),
-  					    bb.blendData[1]);
-  					if(bb.afterLoadData !=null) {
-  					  bb.afterLoadData(null, null, bb.blendData, true); //multiple set to true
-  					}
-
-  					bb.blend(alpha);
-			    });
-				};
-			})(reader.file,i);
-		      
-		  reader.readAsText(files[i]);
-    }
-    bb.setupBlendColors();
-  }; 
   
   /*
    * Called when the range of colors is changed in the interface

@@ -182,3 +182,7 @@ div#format_hints {
   line-height: 1.4;
   font-weight: bold;
 }
+
+#blend-box {
+  padding: 0.6em;
+}

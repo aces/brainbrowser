@@ -36,6 +36,7 @@ function ColorManager(){
     var color_index;
     var value;
     var scale;
+    var color = [];
 
     //for each value, assign a color
     for (i = 0, count = values.length; i < count; i++) {
@@ -55,11 +56,13 @@ function ColorManager(){
       } else {
         scale = 1;
       }
-
-      canvaspixelarray[i*4+0] = scale * spectrum[color_index][0] * contrast + brightness * scale;
-      canvaspixelarray[i*4+1] = scale * spectrum[color_index][1] * contrast + brightness * scale;      
-      canvaspixelarray[i*4+2] = scale * spectrum[color_index][2] * contrast + brightness * scale;
       
+      color = spectrum[color_index] || [0, 0, 0];
+
+      canvaspixelarray[i*4+0] = scale * color[0] * contrast + brightness * scale;
+      canvaspixelarray[i*4+1] = scale * color[1] * contrast + brightness * scale;      
+      canvaspixelarray[i*4+2] = scale * color[2] * contrast + brightness * scale;
+
       if (alpha) {
         canvaspixelarray[i*4+3] = scale * alpha;
       } else {
@@ -96,7 +99,7 @@ function ColorManager(){
   /**
    * Blends two or more arrays of values into one color array
    */
-  this.blendColorMap = function(spectrum, value_arrays, brightness,contrast) {
+  this.blendColorMap = function(spectrum, value_arrays, brightness, contrast) {
     var count = value_arrays.length;
     var color_arrays = new Array(count);
     var final_alpha = 0;
@@ -118,7 +121,7 @@ function ColorManager(){
       );
     }
     
-    return blendColors(color_arrays);
+    return this.blendColors(color_arrays);
   };
 
 }

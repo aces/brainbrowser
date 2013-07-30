@@ -136,9 +136,7 @@ $(function() {
       var controls = "";
       var data = data.length ? data : [data];
       var i, count;
-      
       rangeBox.html("");
-
       for(i = 0, count = data.length; i < count; i++) {
         headers += "<li><a href=\"#data_file" + i + "\">" + data[i].fileName + "</a></li>";
         controls += "<div id=\"data_file" + i + "\" class=\"box full_box\">";
@@ -398,8 +396,9 @@ $(function() {
       return false;
     });
 
-    $("#datafile").change(function() {
-      bb.loadDataFromFile(document.getElementById("datafile"));
+    $(".datafile").change(function() {
+      var filenum = parseInt(this.id.slice(-1), 10);
+      bb.loadDataFromFile(this, { blend_index : filenum - 1 });
     });
 
     $("#spectrum").change(function() {
@@ -409,10 +408,6 @@ $(function() {
 
     $("#dataseriesfile").change(function() {
       bb.loadSeriesDataFromFile(document.getElementById("dataseriesfile"));
-    });
-
-    $("#datablendfile").change(function() {
-      bb.loadBlendDataFromFile(document.getElementById("datablendfile"), $(".blend_slider").slider("value"));
     });
   });
   

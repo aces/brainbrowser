@@ -162,5 +162,13 @@ bb-tabs bb-tabs-nav li {
   display: none;
 }
 
+.maintenance {
+  background-color: red;
+  color: white;
+  padding: 0.4em 1em;
+  line-height: 1.4;
+  font-weight: bold;
+}
+
 
 

@@ -28,6 +28,7 @@ h4 {
   top: 0px;
   bottom: 0px;
   right: 0px;
+  z-index: -999;
 }
 
 .box {
@@ -46,6 +47,7 @@ h4 {
   display: table-cell;
   width: 45%;
   height: 100%;
+  white-space: nowrap;
 }
 .combo_box {
   display: table;
@@ -67,7 +69,7 @@ h4 {
 
 #shapes {
   max-height: 200px;
-  overflow-y: auto;
+  overflow: auto;
 }
 
 .shape {
@@ -171,4 +173,12 @@ div#usage_notes {
 div#format_hints {
   padding-left: 4em;
   padding-right: 2em;
+}
+
+.maintenance {
+  background-color: red;
+  color: white;
+  padding: 0.4em 1em;
+  line-height: 1.4;
+  font-weight: bold;
 }

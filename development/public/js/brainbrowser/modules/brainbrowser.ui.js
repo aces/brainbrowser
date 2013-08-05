@@ -18,7 +18,6 @@
 BrainBrowser.plugins.ui = function(bb) {
   
   var doc = document;
-  var Data = BrainBrowser.data.Data;
   var loading_div = $("#loading");
   
   /**
@@ -110,7 +109,7 @@ BrainBrowser.plugins.ui = function(bb) {
             //TODO: NOT SURE IF THIS PART WORKS WITH WEB WORKERS. NEED TEST DATA!
             //////////////////////////////////////////////////////////////////////
             interpolatedData = interpolateDataArray(seriesData[Math.floor(ui.value)], seriesData[Math.floor(ui.value)+1], ui.value -  Math.floor(ui.value));
-            Data(interpolatedData, updateSeries);
+            BrainBrowser.data(interpolatedData, updateSeries);
           }
         }
      }).appendTo(div);

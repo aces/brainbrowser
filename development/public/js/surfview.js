@@ -31,7 +31,7 @@ $(function() {
     return;
   }
 
-  BrainBrowser(function(bb) {
+  BrainBrowser.start(function(bb) {
     bb.loadSpectrumFromUrl('/assets/spectral_spectrum.txt');
  
     //setting up some defaults 

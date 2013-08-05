@@ -17,47 +17,44 @@
 
 
 /**
-* @constructor
 * @param {String} data data file in string format to parse 
 */
-BrainBrowser.data.Data = function(data, callback) {
-  if(!(this instanceof BrainBrowser.data.Data)) {
-    return new BrainBrowser.data.Data(data, callback);
-  }
-
-  var self = this;
+BrainBrowser.data = function(raw, callback) {
+  
+  // Allows a prototype to be defined for data object
+  var data_obj = {};
   
   function parse() {
     var worker = new Worker("js/workers/data.worker.js");
-
+  
     worker.addEventListener("message", function(e) {
       var result = e.data;
       var prop;
-
+  
       for (prop in result) {
         if (result.hasOwnProperty(prop)){
-          self[prop] = result[prop];
+          data_obj[prop] = result[prop];
         }
       }
-      if (callback) callback(self);
+      if (callback) callback(data_obj);
       worker.terminate();
     });
-
-    worker.postMessage({ cmd: "parse", data: data });
+  
+    worker.postMessage({ cmd: "parse", data: raw });
   };
-
-  self.createColorArray = function(min, max, spectrum, flip, clamped, original_colors, model, callback) {
+  
+  data_obj.createColorArray = function(min, max, spectrum, flip, clamped, original_colors, model, callback) {
     var worker = new Worker("js/workers/data.worker.js");
     worker.addEventListener("message", function(e) {
       var color_array = e.data;
       var prop;
-
+  
       if (callback) callback(color_array);
       worker.terminate();
     });
-
+  
     worker.postMessage({ cmd: "createColorArray", data: {
-      values: self.values,
+      values: data_obj.values,
       min: min,
       max: max,
       spectrum: spectrum.colors,
@@ -67,21 +64,22 @@ BrainBrowser.data.Data = function(data, callback) {
       model: { num_hemisphere: model.num_hemisphere, indexArray: model.indexArray }
     }});
   };
-
-
-
-  if (data) {
-    if (typeof data === "string") {
-      parse(data);      
-    } else if(data.values != undefined){
-      this.values = data.values.concat();
-      this.min = this.values.min();
-      this.max = this.values.max();
+  
+  
+  
+  if (raw) {
+    if (typeof raw === "string") {
+      parse(raw);      
+    } else if(raw.values != undefined){
+      data_obj.values = raw.values.concat();
+      data_obj.min = data_obj.values.min();
+      data_obj.max = data_obj.values.max();
     }else {
-      console.log("copying data length: " + data.length );
-      this.values = data;
-      this.min = data.min();
-      this.max = data.max();
+      console.log("copying data length: " + raw.length );
+      data_obj.values = raw;
+      data_obj.min = raw.min();
+      data_obj.max = raw.max();
     }
   }
-}
+  
+};

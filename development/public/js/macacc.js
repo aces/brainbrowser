@@ -16,10 +16,19 @@
  */
 
 
-function initMacacc(path_prefix, dont_build_path) {
+$(function() {
   var macacc;
+  var path_prefix = "/data/";
   
-  BrainBrowser(function(bb) {
+  $(".button").button();
+  $(".buttonset").buttonset();
+        
+  if (!BrainBrowser.utils.webglEnabled()) {
+    $("#brainbrowser").html(BrainBrowser.utils.webGLErrorMessage());
+    return;
+  }
+  
+  BrainBrowser.start(function(bb) {
 
     bb.afterLoadSpectrum = function (spectrum) {
       var canvas = spectrum.createSpectrumCanvasWithScale(0,5,null,false);
@@ -32,7 +41,7 @@ function initMacacc(path_prefix, dont_build_path) {
       format: "MNIObject",
       afterDisplay: function() {
         $("#loading").hide();
-        macacc = new MacaccObject(bb, path_prefix, dont_build_path);
+        macacc = BrainBrowser.macaccCollection(bb, path_prefix);
         bb.afterCreateBrain = function() {
           if(bb.current_dataset != undefined) {
             macacc.update_model(bb.current_dataset);
@@ -170,4 +179,4 @@ function initMacacc(path_prefix, dont_build_path) {
     }
   });
   
-};
+});

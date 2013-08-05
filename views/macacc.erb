@@ -138,18 +138,5 @@
       <script type="text/javascript" src="/js/macacc.js"></script>
     <% end %> 
     <script type="text/javascript" src="/js/lib/jquery-ui-1.8.10.custom.min.js"></script>
-    <script type="text/javascript">
-      $(function() {
-        $(".button").button();
-        $(".buttonset").buttonset();
-        
-        if (!BrainBrowser.utils.webglEnabled()) {
-          $("#brainbrowser").html(BrainBrowser.utils.webGLErrorMessage());
-        } else {
-          $("#loading").show();
-          initMacacc('/data/');
-        }
-     });
-    </script>
   </body>  
 </html>  

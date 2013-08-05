@@ -20,15 +20,16 @@
  * dataset from the server
  */
 
-BrainBrowser.data.Dataset = function(path_prefix, dont_build_pathp) {
+BrainBrowser.dataSet = function(path_prefix, dont_build_pathp) {
+  
+  var data_set = {};
 
-  if(dont_build_pathp == null){
-    /*
-     * This function generates the path to the data file on the server
-     * ex : /data/ICBM152_MACACC_Area/ICBM152_20mm_MACACC/T_map/T_2567.txt
-     */
-    this.path = function(vertex, settings) {
-      
+  data_set.path = (function() {
+    if (dont_build_pathp) {
+      return function(vertex,settings) { return path_prefix; };
+    }
+    
+    return function(vertex, settings) {
       var sk =  "ICBM152_" + settings.sk;
       if(settings.modality == 'CT') {
         var modality = "ICBM152_"+settings.modality+"_MACACC_mean";
@@ -49,22 +50,18 @@ BrainBrowser.data.Dataset = function(path_prefix, dont_build_pathp) {
       
       return path_prefix+modality + "/" +sk+"/"+statistic+vertex+".txt";
     };
-    
-  } else {
-    this.path  = function(vertex,settings) {
-      return path_prefix;
-    };
-  }
+  })();
+
 
   /*
    * Issues a request to the server for the data, sends it to parse and then calls
    * the callback
    */
-  this.get_data = function(vertex, settings, callback){
+  data_set.get_data = function(vertex, settings, callback){
     if(vertex=="aal_atlas"){
       var path="/assets/aal_atlas.txt";
     }else {
-      var path = this.path(vertex,settings);
+      var path = data_set.path(vertex,settings);
     }
 
     if(dont_build_pathp) {
@@ -76,16 +73,15 @@ BrainBrowser.data.Dataset = function(path_prefix, dont_build_pathp) {
       };
     };
 
-    var that = this;
     jQuery.ajax({
       type: 'GET',
       url: path,
       data: data_object,
       dataType: 'text',
-      success: function(data) {
-        BrainBrowser.data.Data(data, function(data) {
-          that.current_data = data;
-          callback(that);
+      success: function(result) {
+        BrainBrowser.data(result, function(data) {
+          data_set.current_data = data;
+          callback(data_set);
         });
       },
       error: function () {
@@ -94,5 +90,7 @@ BrainBrowser.data.Dataset = function(path_prefix, dont_build_pathp) {
     });
 
   };
+  
+  return data_set;
 
 };

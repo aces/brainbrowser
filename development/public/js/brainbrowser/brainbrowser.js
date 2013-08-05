@@ -33,69 +33,68 @@
 //
 // BrainBrowser also maintains the model parsing objects in the BrainBrowser.filetypes module,
 // as well as helpers for colour management in BrainBrowser.data.
-function BrainBrowser(callback) {
 
-  /////////////////////////////////
-  // Browser compatibility checks.
-  /////////////////////////////////
-  
-  if (! BrainBrowser.utils.webWorkersEnabled() ) {
-    alert("Can't find web workers. Exiting.")
-    return;
-  }
-  
-  if (!BrainBrowser.utils.webglEnabled()) {
-    alert("Can't get WebGL context. Exiting.")
-    return;
-  }
+var BrainBrowser = {
+    start: function(callback) {
 
-  // Make sure it's always used as a contructor.
-  if(!(this instanceof BrainBrowser)) {
-    return new BrainBrowser(callback);
-  }
-  
-  
-  // Properties that will be used by other modules.
-  this.view_window = document.getElementById("brainbrowser"); // Div where the canvas will be loaded.
-  this.model = undefined;  // The currently loaded model. Should be set by rendering.
-  
-  //////////////////////////////
-  // Load modules.
-  //////////////////////////////
-  
-  var module;
-  
-  
-  for (module in BrainBrowser.core) {
-    if (BrainBrowser.core.hasOwnProperty(module)) {
-      BrainBrowser.core[module](this);
+      /////////////////////////////////
+      // Browser compatibility checks.
+      /////////////////////////////////
+      
+      if (! BrainBrowser.utils.webWorkersEnabled() ) {
+        alert("Can't find web workers. Exiting.")
+        return;
+      }
+      
+      if (!BrainBrowser.utils.webglEnabled()) {
+        alert("Can't get WebGL context. Exiting.")
+        return;
+      }
+      // Allows a prototype to be defined for the browser.
+      var browser = Object.create(BrainBrowser.prototype || {});
+      
+      var module;
+      
+      // Properties that will be used by other modules.
+      browser.view_window = document.getElementById("brainbrowser"); // Div where the canvas will be loaded.
+      browser.model = undefined;  // The currently loaded model. Should be set by rendering.
+      
+      //////////////////////////////
+      // Load modules.
+      //////////////////////////////
+      
+      for (module in BrainBrowser.core) {
+        if (BrainBrowser.core.hasOwnProperty(module)) {
+          BrainBrowser.core[module](browser);
+        }
+      }
+      
+      for (module in BrainBrowser.modules) {
+        if (BrainBrowser.modules.hasOwnProperty(module)) {
+          BrainBrowser.modules[module](browser);
+        }
+      }
+      
+      for (module in BrainBrowser.plugins) {
+        if (BrainBrowser.plugins.hasOwnProperty(module)) {
+          BrainBrowser.plugins[module](browser);
+        }
+      }
+      
+      
+      ///////////////////////////////////////////////////////////
+      // Start rendering the scene.
+      // This method should be defined in BrainBrowser.rendering.
+      ///////////////////////////////////////////////////////////
+      browser.render();
+      
+      //////////////////////////////////////////////////////  
+      // Pass BrainBrowser instance to calling application. 
+      ////////////////////////////////////////////////////// 
+      callback(browser);
     }
-  }
-  
-  for (module in BrainBrowser.modules) {
-    if (BrainBrowser.modules.hasOwnProperty(module)) {
-      BrainBrowser.modules[module](this);
-    }
-  }
-  
-  for (module in BrainBrowser.plugins) {
-    if (BrainBrowser.plugins.hasOwnProperty(module)) {
-      BrainBrowser.plugins[module](this);
-    }
-  }
-  
-  
-  ///////////////////////////////////////////////////////////
-  // Start rendering the scene.
-  // This method should be defined in BrainBrowser.rendering.
-  ///////////////////////////////////////////////////////////
-  this.render();
-  
-  //////////////////////////////////////////////////////  
-  // Pass BrainBrowser instance to calling application. 
-  ////////////////////////////////////////////////////// 
-  callback(this);
-}
+};
+
 // Core modules.
 BrainBrowser.core = {};
 
@@ -104,9 +103,6 @@ BrainBrowser.modules = {};
 
 // Application specific plugins.
 BrainBrowser.plugins = {};
-
-// Color map data handlers.
-BrainBrowser.data = {};
 
 // 3D Model filetype handlers.
 BrainBrowser.filetypes = {};

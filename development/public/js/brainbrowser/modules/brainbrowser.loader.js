@@ -20,8 +20,6 @@
 // file.
 BrainBrowser.modules.loader = function(bb) {
   
-  var Data = BrainBrowser.data.Data;
-
   // Load a model from the given url.
   bb.loadModelFromUrl = function(url, opts) {
     var options = opts || {};
@@ -73,7 +71,7 @@ BrainBrowser.modules.loader = function(bb) {
     var options = opts || {};
 
     loadFromUrl(file_input, options, function(text, file) {
-      Data(text, function(data) {
+      BrainBrowser.data(text, function(data) {
         if (cancelLoad(options)) return;
         
         var max = options.max === undefined ? data.max : options.max;
@@ -106,7 +104,7 @@ BrainBrowser.modules.loader = function(bb) {
      bb.blendData = bb.blendData || [];
 
      var onfinish = function(text) {
-      Data(text, function(data) {
+      BrainBrowser.data(text, function(data) {
         var max = options.max === undefined ? data.max : options.max;
         var min = options.min === undefined ? data.min : options.min;
         
@@ -170,7 +168,7 @@ BrainBrowser.modules.loader = function(bb) {
   //    */
   //    reader.onloadend = (function(file, num) {
   //      return function(e) {
-  //        Data(e.target.result, function(data) {
+  //        BrainBrowser.data(e.target.result, function(data) {
   //          bb.blendData[num] = data; 
   //          bb.blendData.alpha = 1.0/numberFiles;
   //
@@ -290,7 +288,7 @@ BrainBrowser.modules.loader = function(bb) {
           console.log(e.target.result.length);
           console.log(num);
           
-          Data(e.target.result, function(data) {
+          BrainBrowser.data(e.target.result, function(data) {
             bb.seriesData[num] = data;
             bb.seriesData[num].fileName = file.name; 
           });  

@@ -18,8 +18,16 @@
 
 // Module for updating colours on models currently being displayed.
 BrainBrowser.core.color = function(bb) {
+  
+  ///////////////////////////
+  // PRIVATE DATA
+  ///////////////////////////
+  
+  var colorManager = new ColorManager();
 
-   var colorManager = new ColorManager();
+  ///////////////////////////
+  // INTERFACE
+  ///////////////////////////
 
   // This updates the colors of the model. Will delegate to color_hemispheres() or color_model()
   // depending on the type of model.  
@@ -57,6 +65,10 @@ BrainBrowser.core.color = function(bb) {
       data.createColorArray(min, max, spectrum, flip, clamped, bb.model_data.colorArray, bb.model_data, applyColorArray);
     }
   };
+
+  ///////////////////////////
+  // PRIVATE FUNCTIONS
+  ///////////////////////////
 
   //Coloring for brain models with two separate hemispheres.
   function color_hemispheres(color_array) {
@@ -151,5 +163,6 @@ BrainBrowser.core.color = function(bb) {
       shapes[i].geometry.colorsNeedUpdate = true;
     }
   }
+
 };
 

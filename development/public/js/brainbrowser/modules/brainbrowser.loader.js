@@ -20,6 +20,10 @@
 // file.
 BrainBrowser.modules.loader = function(bb) {
   
+  ////////////////////////////////////
+  // Interface
+  ////////////////////////////////////
+  
   // Load a model from the given url.
   bb.loadModelFromUrl = function(url, opts) {
     var options = opts || {};
@@ -112,7 +116,7 @@ BrainBrowser.modules.loader = function(bb) {
         data.apply_to_shape = options.shape;
         data.applied = false;
         if (data.values.length < positionArrayLength/4) {
-          alert("Not enough color points to cover vertices - " + data.values.length + " color points for "+ positionArrayLength/3 + " vertices." );
+          alert("Not enough color points to cover vertices - " + data.values.length + " color points for " + positionArrayLength/3 + " vertices." );
           return -1;
         }
         model_data.data = data;
@@ -129,6 +133,9 @@ BrainBrowser.modules.loader = function(bb) {
 
           bb.blend(0.5);
           bb.setupBlendColors();
+          if(bb.afterBlendData) {
+            bb.afterBlendData(data.rangeMin, data.rangeMax, data);
+          }
         } else {
           if(bb.afterLoadData) {
             bb.afterLoadData(data.rangeMin, data.rangeMax, data);
@@ -145,68 +152,6 @@ BrainBrowser.modules.loader = function(bb) {
        loadFromTextFile(file_input, null, onfinish);
      }
    };
-
-  // Load files to blend 
-  // TODO: NEED TO TEST THIS.
-  //bb.loadBlendDataFromFile = function(file_input, alpha) {
-  //  var numberFiles = file_input.files.length;
-  //  var files = file_input.files;
-  //  var reader;
-  //  var i, k;
-  //  var counter = 0;
-  //  
-  //  bb.blendData = new Array(numberFiles);
-  //  bb.blendData.numberFiles = numberFiles;
-  // 
-  //  for(i = 0; i < numberFiles; i++) {
-  //    
-  //    reader = new FileReader();
-  //    reader.file = files[i];
-  //    /*
-  //    * Using a closure to keep the value of i around to put the 
-  //    * data in an array in order. 
-  //    */
-  //    reader.onloadend = (function(file, num) {
-  //      return function(e) {
-  //        BrainBrowser.data(e.target.result, function(data) {
-  //          bb.blendData[num] = data; 
-  //          bb.blendData.alpha = 1.0/numberFiles;
-  //
-  //          bb.blendData[num].fileName = file.name;
-  //          counter++;
-  //          
-  //          if (counter < numberFiles) {
-  //            console.log("Not done yet.");
-  //            return;
-  //          }
-  //          console.log("Finishing");
-  //          //for(k = 0; k < 2; k++) {
-  //          //  if(bb.blendData[k] == undefined) {                 
-  //          //    console.log("not done yet");
-  //          //    return;
-  //          //  }
-  //
-  //          //}    
-  //          initRange(bb.blendData[0].values.min(),
-  //              bb.blendData[0].values.max(),
-  //              bb.blendData[0]);
-  //
-  //          initRange(bb.blendData[1].values.min(),
-  //              bb.blendData[1].values.max(),
-  //              bb.blendData[1]);
-  //          if(bb.afterLoadData != null) {
-  //            bb.afterLoadData(null, null, bb.blendData, true); //multiple set to true
-  //          }
-  //
-  //          bb.blend(alpha);
-  //          bb.setupBlendColors();
-  //        });
-  //      };
-  //    })(reader.file, i);
-  //        
-  //    reader.readAsText(files[i]);
-  //  }
-  //}; 
   
   // Blend colours.
   bb.blend = function(value) {
@@ -331,6 +276,12 @@ BrainBrowser.modules.loader = function(bb) {
       bb.afterRangeChange(min, max);
     }
   };
+  
+  
+  
+  ////////////////////////////////////
+  // PRIVATE FUNCTIONS
+  ////////////////////////////////////
   
   // General function for loading data from a url.
   // Callback should interpret data as necessary.

@@ -21,12 +21,15 @@ var BrainBrowser = BrainBrowser || {};
 // Module for updating colours on models currently being displayed.
 BrainBrowser.utils = (function() {
  
+  //////////////////////
+  // PRIVATE FUNCTIONS
+  //////////////////////
+ 
   /*! 
    * WebGL test taken from Detector.js by
    * alteredq / http://alteredqualia.com/
    * mr.doob / http://mrdoob.com/
   */
-  
   function webglEnabled() { 
     try { 
       return !!window.WebGLRenderingContext && !!document.createElement('canvas').getContext('experimental-webgl'); 
@@ -60,6 +63,10 @@ BrainBrowser.utils = (function() {
   function isFunction(obj) {
     return obj instanceof Function || typeof obj === "function"; 
   }
+  
+  //////////////////////
+  // EXPOSED INTERFACE
+  //////////////////////
   
   return {
     webglEnabled: webglEnabled,

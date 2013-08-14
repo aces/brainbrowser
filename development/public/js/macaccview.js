@@ -28,6 +28,8 @@ $(function() {
     return;
   }
   
+  $("#loading").show();
+  
   BrainBrowser.start(function(bb) {
 
     bb.afterLoadSpectrum = function (spectrum) {
@@ -41,7 +43,7 @@ $(function() {
       format: "MNIObject",
       afterDisplay: function() {
         $("#loading").hide();
-        macacc = BrainBrowser.macaccCollection(bb, path_prefix);
+        macacc = MACACC.collection(bb, path_prefix);
         bb.afterCreateBrain = function() {
           if(bb.current_dataset != undefined) {
             macacc.update_model(bb.current_dataset);

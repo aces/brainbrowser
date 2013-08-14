@@ -34,8 +34,8 @@ get '/credits' do
   erb :credits
 end
 
-get '/macacc.html' do
-  erb :macacc, :layout => false
+get '/macaccview.html' do
+  erb :macaccview, :layout => false
 end
 
 get '/surfview.html' do

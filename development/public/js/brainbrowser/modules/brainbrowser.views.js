@@ -17,6 +17,9 @@
  
 BrainBrowser.modules.views = function(bb) {
   
+  //////////////
+  // INTERFACE
+  //////////////
   
   // Change the opacity of an object in the scene.
   bb.changeShapeTransparency = function(shape_name, alpha) {
@@ -194,6 +197,10 @@ BrainBrowser.modules.views = function(bb) {
        bb.model.children[1].position.x += 1;
      }
    };
+   
+   ///////////////////////
+   // PRIVATE FUNCTIONS
+   ///////////////////////
    
    function degToRad(deg) {
      return deg * Math.PI/180;

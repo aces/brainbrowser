@@ -130,7 +130,7 @@ $(function() {
       $("#color-bar").html($(canvas));
     };
 
-    function createDataUI(data) {
+    bb.afterLoadData = function(min, max, data, multiple) {
       var rangeBox = $("#data-range");
       var headers = "<div id=\"data-range-multiple\"><ul>";
       var controls = "";
@@ -226,20 +226,39 @@ $(function() {
           }
         });
       });
-
-    }
-
-    bb.afterLoadData = function(min, max, data, multiple) {
-
-      if (multiple) {
-        createDataUI(data);
-      } else {
-        createDataUI(data);
+      
+      if (!multiple) {
         $("#range-slider").slider('values', 0, parseFloat(min));
         $("#range-slider").slider('values', 1, parseFloat(max));
         bb.afterRangeChange(min, max);
       }
 
+    }; // end afterLoadData
+    
+    bb.afterBlendData = function(){
+      var div = $("#blend-box");
+      div.html("Blend Ratio: ");
+      //$("<div id=\"blend\">Blend ratios: </div>").appendTo("#surface_choice");
+      //var div = $("#blend");
+      $("<span id=\"blend_value\">0.5</span>").appendTo(div);
+      $("<div class=\"blend_slider\" id=\"blend_slider\" width=\"100px\" + height=\"10\"></div>")
+        .slider({
+          value: 0,
+          min: 0.1,
+          max: 0.99,
+          value: 0.5,
+          step: 0.01,
+          /*
+          * When the sliding the slider, change all the other sliders by the amount of this slider
+          */
+          slide: function(event, ui) {
+            var slider = $(this);
+            slider.siblings("span").html(slider.slider("value"));
+          },
+          stop: function(event, ui) {
+            bb.blend($(this).slider("value"));  
+          }
+        }).appendTo(div);
     };
 
     $(".range-box").keypress(function(e) {
@@ -405,10 +424,6 @@ $(function() {
       bb.loadSpectrumFromFile(document.getElementById("spectrum"));
     });
 
-
-    $("#dataseriesfile").change(function() {
-      bb.loadSeriesDataFromFile(document.getElementById("dataseriesfile"));
-    });
   });
   
   

@@ -55,8 +55,8 @@
         <div id="statistic_choice" class="box half_box">
           <h4>Statistic</h4>  
           <input type="radio" class="data_controls" name="statistic"  VALUE="T" checked="true">T<br />
-          <input type="radio" class="data_controls" name="statistic"  VALUE="P1">RFT_P(Vertex)<br />
-          <input type="radio" class="data_controls" name="statistic"  VALUE="P2">RFT_P(Cluster)<br />
+          <input type="radio" class="data_controls" name="statistic"  VALUE="P1">RFT_P (Vertex)<br />
+          <input type="radio" class="data_controls" name="statistic"  VALUE="P2">RFT_P (Cluster)<br />
         </div>
       </div>
       <div class="combo_box full_box">
@@ -116,7 +116,7 @@
     <script type="text/javascript" src="/js/lib/AnaglyphEffect.js"></script>
     <script type="text/javascript" src="/js/lib/jquery-1.6.4.min.js"></script>
     <% if ENV["BRAINBROWSER_ENV"]  == "production" %>
-      <script type="text/javascript" src="/js/macacc-combined.min.js"></script>
+      <script type="text/javascript" src="/js/macaccview-combined.min.js"></script>
     <% else %>
       <script type="text/javascript" src="/js/lib/utils.js"></script>
       <script type="text/javascript" src="/js/lib/color.js"></script>
@@ -133,9 +133,8 @@
       <script type="text/javascript" src="/js/brainbrowser/filetypes/parse_worker.js"></script> 
       <script type="text/javascript" src="/js/brainbrowser/filetypes/config.js"></script>
       <script type="text/javascript" src="/js/brainbrowser/data/data.js"></script>
-      <script type="text/javascript" src="/js/brainbrowser/data/dataset.js"></script>
-      <script type="text/javascript" src="/js/macacc/macacc_collection.js"></script>
-      <script type="text/javascript" src="/js/macacc.js"></script>
+      <script type="text/javascript" src="/js/macacc/macacc.js"></script>
+      <script type="text/javascript" src="/js/macaccview.js"></script>
     <% end %> 
     <script type="text/javascript" src="/js/lib/jquery-ui-1.8.10.custom.min.js"></script>
   </body>  

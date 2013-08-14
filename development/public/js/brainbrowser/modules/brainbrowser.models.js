@@ -16,7 +16,10 @@
  */
  
 BrainBrowser.core.models = function(bb) {
-  
+    
+  //////////////////////////////
+  // INTERFACE
+  /////////////////////////////
   
   // Display an object file.
   // Handles polygon-based and line-based models. Polygon models that have exactly
@@ -44,7 +47,12 @@ BrainBrowser.core.models = function(bb) {
     }
     
     if (afterDisplay) afterDisplay();
-  };
+  };  
+    
+  //////////////////////////////
+  // PRIVATE FUNCTIONS
+  /////////////////////////////
+
   
   // Add a brain model to the scene.
   function addBrain(obj, renderDepth) {
@@ -345,4 +353,5 @@ BrainBrowser.core.models = function(bb) {
       box.maxZ = z;
     }
   }
+  
 };

@@ -19,6 +19,9 @@
 $(function() {
   var macacc;
   var path_prefix = "/data/";
+  var loading_div = $("#loading");
+  var showLoading = function() { loading_div.show(); };
+  var hideLoading = function() { loading_div.hide(); };
   
   $(".button").button();
   $(".buttonset").buttonset();
@@ -28,7 +31,7 @@ $(function() {
     return;
   }
   
-  $("#loading").show();
+  loading_div.show();
   
   BrainBrowser.start(function(bb) {
 
@@ -42,32 +45,71 @@ $(function() {
     bb.loadModelFromUrl('/models/surf_reg_model_both.obj', { 
       format: "MNIObject",
       afterDisplay: function() {
-        $("#loading").hide();
+        hideLoading();
         macacc = MACACC.collection(bb, path_prefix);
         bb.afterCreateBrain = function() {
           if(bb.current_dataset != undefined) {
-            macacc.update_model(bb.current_dataset);
+            macacc.updateMap(bb.current_dataset);
           }
         };
-
-
+        
+        bb.afterUpdateColors = hideLoading;
+        
+        macacc.dataOptions = function() {
+          return {
+            flip: $("#flip_range").is(":checked"),
+            clamped: $("#clamp_range").is(":checked"),
+            fix_range: $("#fix_range").is(":checked"),
+            data_range_min: parseFloat($("#data-range-min").val()),
+            data_range_max: parseFloat($("#data-range-max").val()),
+            afterInvalid: hideLoading
+          };
+        }
+        
+        macacc.afterUpdateModel = function(statistic) {
+          if (statistic !== "T") {
+            $("#range-slider").slider("option", "min", "0");
+            $("#range-slider").slider("option", "max", "1");
+          }
+        }
+        
+        macacc.afterVertexUpdate = function(vertex_data, value) {
+          var vertex = vertex_data.vertex;
+          if (vertex != undefined && value != undefined) {
+            $("#x-coord").val(vertex_data.point.x);
+            $("#y-coord").val(vertex_data.point.y);
+            $("#z-coord").val(vertex_data.point.z);
+            $("#v-coord").val(vertex);
+            $("#value-coord").val(value);
+          }
+        }
+        
+        macacc.beforeUpdateMap = showLoading;
+        macacc.beforeRangeChange = showLoading;
+        
         macacc.afterRangeChange = function(min,max) {
           var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null, macacc.flipRange);
           canvas.id = "spectrum-canvas";
           $("#spectrum").html($(canvas));
         };
         
-        $('.data_controls').change(macacc.data_control_change);
-        macacc.pickInfoElem = $("#vertex_info");
+        macacc.getDataControls = function() {
+          var data_modality = $("[name=modality]:checked").val(); //CT,AREA or Volume
+          var data_sk = $("#data-sk").val(); //Smoothing Kernel
+          var data_statistic = $("[name=statistic]:checked").val();
+        
+        
+          return {modality: data_modality, sk: data_sk, statistic: data_statistic };
+        }
+        
+        $('.data_controls').change(macacc.dataControlChange);
         
         $("#x-coord-flip").click(macacc.flipXCoordinate); //flip x from one hemisphere to the other.
         
         $("#model").change(function(event) {
-          $("#loading").show();
-          macacc.change_model(event, {
-            afterDisplay: function() {
-              $("#loading").hide();
-            }
+          showLoading();
+          macacc.changeModel($(event.target).val(), {
+            afterDisplay: hideLoading
           });
         });
       }
@@ -84,7 +126,7 @@ $(function() {
       },
       stop: function(event, ui) {
         if(bb.current_dataset) {
-          macacc.range_change();
+          macacc.rangeChange();
         }
       },
       step: 0.1    
@@ -94,7 +136,7 @@ $(function() {
 
     $(".range-box").keypress(function(e) {
        if(e.keyCode == '13'){
-         macacc.range_change(e);
+         macacc.rangeChange();
        }
      }
     );
@@ -111,7 +153,7 @@ $(function() {
 
     $("[name=pointer]").change(function(e) {
       if($("[name=pointer]:checked").val() == "AAL_atlas") {
-        macacc.show_atlas();
+        macacc.showAtlas();
       }
     });
 
@@ -134,13 +176,13 @@ $(function() {
     });
 
     $("#flip_range").change(function(e) {
-      $("#loading").show();
-      macacc.update_model(bb.current_dataset);
+      showLoading();
+      macacc.updateMap(bb.current_dataset);
     });
     
     $("#clamp_range").change(function(e) {
-      $("#loading").show();
-      macacc.update_model(bb.current_dataset);
+      showLoading();
+      macacc.updateMap(bb.current_dataset);
     });
     
 
@@ -167,18 +209,18 @@ $(function() {
        bb.model_data.positionArray[vertex*3+2]
       ];
 
-      macacc.pickClick(e,{
+      macacc.pickClick(e, {
              position_vector: position_vector,
              vertex: vertex,
              stop: true //tell pickClick to stop propagating the 
-                                    //click such that we don't get an infinite loop.
-             ,
+                        //click so we don't get an infinite loop.
            });
 
-      },false);
-    if(window.opener !=null)  {
-      bb.secondWindow = window.opener;
-    }
+      }, false);
+    
+      if (window.opener) {
+        bb.secondWindow = window.opener;
+      }
   });
   
 });

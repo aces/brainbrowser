@@ -45,6 +45,7 @@ var MACACC = (function() {
     // Main method for updating the displayed map based on the vertex selected
     // and other parameters.
     collection.updateMap = function (dataset, options) {
+      dataset = dataset || collection.dataset.current_data;
       options = options || (collection.dataOptions && collection.dataOptions()) || {};
       
       var flip = options.flip;
@@ -107,20 +108,12 @@ var MACACC = (function() {
       options = options || (collection.dataOptions && collection.dataOptions()) || {};
       var min = parseFloat(options.data_range_min);
       var max = parseFloat(options.data_range_max);
-      var flip = options.flip;
-      var clamped = options.clamped;
       
       if(collection.beforeRangeChange) {
         collection.beforeRangeChange(min, max);
       }
       
-      brainbrowser.updateColors(collection.dataset.current_data, {
-        min: min, 
-        max: max, 
-        spectrum: brainbrowser.spectrum, 
-        flip: flip, 
-        clamped: clamped
-      });
+      collection.updateMap(collection.dataset.current_data);
   
       if(collection.afterRangeChange) {
         collection.afterRangeChange(min, max);

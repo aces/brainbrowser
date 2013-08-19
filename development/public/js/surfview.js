@@ -202,7 +202,7 @@ $(function() {
       $("#data-range-max").change(dataRangeChange);
 
       $("#fix_range").click(function(event,ui) {
-        bb.fixRange = $(e.target).is(":checked");
+        bb.fixRange = $(event.target).is(":checked");
       });
 
       $("#clamp_range").change(function(e) {
@@ -220,7 +220,12 @@ $(function() {
       $("#flip_range").change(function(e) {
         bb.flip = $(e.target).is(":checked");
         loading_div.show();
-        bb.updateColors(bb.model_data.data, bb.model_data.data.rangeMin, bb.model_data.data.rangeMax, bb.spectrum, bb.flip, bb.clamped, false, {
+        bb.updateColors(bb.model_data.data, {
+          min: bb.model_data.data.rangeMin,
+          max: bb.model_data.data.rangeMax,
+          spectrum: bb.spectrum,
+          flip: bb.flip,
+          clamped: bb.clamped,
           afterUpdate: function() {
             loading_div.hide();
           }

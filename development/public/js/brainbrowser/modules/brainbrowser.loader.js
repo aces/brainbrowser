@@ -25,12 +25,12 @@ BrainBrowser.modules.loader = function(bb) {
   ////////////////////////////////////
   
   // Load a model from the given url.
-  bb.loadModelFromUrl = function(url, opts) {
-    var options = opts || {};
+  bb.loadModelFromUrl = function(url, options) {
+    options = options || {};
     var parts;
     var filename;
     var filetype = options.format || "MNIObject";
-    loadFromUrl(url, opts, function(data) {
+    loadFromUrl(url, options, function(data) {
         parts = url.split("/");
         //last part of url will be shape name
         filename = parts[parts.length-1];
@@ -47,8 +47,8 @@ BrainBrowser.modules.loader = function(bb) {
   };
 
   //Load model from local file.
-  bb.loadModelFromFile = function(file_input, opts) {
-    var options = opts || {};
+  bb.loadModelFromFile = function(file_input, options) {
+    options = options || {};
     var parts;
     var filename;
     var filetype = options.format || "MNIObject";
@@ -71,8 +71,8 @@ BrainBrowser.modules.loader = function(bb) {
   };
   
   // Load a colour map from the server.
-  bb.loadDataFromUrl = function(file_input, name, opts) {
-    var options = opts || {};
+  bb.loadDataFromUrl = function(file_input, name, options) {
+    options = options || {};
 
     loadFromUrl(file_input, options, function(text, file) {
       BrainBrowser.data(text, function(data) {
@@ -90,15 +90,22 @@ BrainBrowser.modules.loader = function(bb) {
           bb.afterLoadData(data.rangeMin, data.rangeMax, data);
         }
 
-        bb.updateColors(data, data.rangeMin, data.rangeMax, bb.spectrum, bb.flip, bb.clamped, false, options);
+        bb.updateColors(data, {
+          min: data.rangeMin, 
+          max: data.rangeMax, 
+          spectrum: bb.spectrum, 
+          flip: bb.flip, 
+          clamped: bb.clamped, 
+          afterUpdate: options.afterUpdate
+        });
       });
     });
    };
 
    
    //Load text data from file and update colors
-   bb.loadDataFromFile = function(file_input, opts) {
-     var options = opts || {};
+   bb.loadDataFromFile = function(file_input, options) {
+     options = options || {};
      var filename = file_input.files[0].name;
      var model_data = bb.model_data;
      var positionArray = model_data.positionArray;
@@ -123,7 +130,6 @@ BrainBrowser.modules.loader = function(bb) {
         bb.blendData[blend_index] = data;
         initRange(min, max, data);
         if (bb.blendData[other_index] && bb.blendData[other_index].applied) {          
-
           initRange(bb.blendData[other_index].values.min(),
             bb.blendData[other_index].values.max(),
             bb.blendData[other_index]);
@@ -132,7 +138,6 @@ BrainBrowser.modules.loader = function(bb) {
           }
 
           bb.blend(0.5);
-          bb.setupBlendColors();
           if(bb.afterBlendData) {
             bb.afterBlendData(data.rangeMin, data.rangeMax, data);
           }
@@ -140,7 +145,14 @@ BrainBrowser.modules.loader = function(bb) {
           if(bb.afterLoadData) {
             bb.afterLoadData(data.rangeMin, data.rangeMax, data);
           }
-          bb.updateColors(data, data.rangeMin, data.rangeMax, bb.spectrum, bb.flip, bb.clamped, false, options);
+          bb.updateColors(data, {
+            min: data.rangeMin, 
+            max: data.rangeMax, 
+            spectrum: bb.spectrum, 
+            flip: bb.flip, 
+            clamped: bb.clamped, 
+            afterUpdate: options.afterUpdate
+          });
         }
         data.applied = true;
       });
@@ -166,30 +178,41 @@ BrainBrowser.modules.loader = function(bb) {
     }
     
 
-    bb.updateColors(blendData, null, null, bb.spectrum, bb.flip, bb.clamped, true); //last parameter says to blend data.
+    bb.updateColors(blendData, {
+      spectrum: bb.spectrum, 
+      flip: bb.flip, 
+      clamped: bb.clamped, 
+      blend: true
+    });
   };
 
   //Load spectrum data from the server.
-  bb.loadSpectrumFromUrl  = function(url, opts) {
-    var options = opts || {};
+  bb.loadSpectrumFromUrl  = function(url, options) {
+    options = options || {};
     var afterLoadSpectrum = options.afterLoadSpectrum
     var spectrum;
-   
-   //get the spectrum of colors
-   loadFromUrl(url, options, function (data) {
-     spectrum = new Spectrum(data);
-     bb.spectrum = spectrum;
-   
-      if (afterLoadSpectrum) afterLoadSpectrum();
-   
-     if (bb.afterLoadSpectrum != null) {
-       bb.afterLoadSpectrum(spectrum);
-     }
-   
-     if (bb.model_data && bb.model_data.data) {
-       bb.updateColors(bb.model_data.data, bb.model_data.data.rangeMin, bb.model_data.data.rangeMax, bb.spectrum, bb.flip, bb.clamped);
-     }
-   });
+    
+    //get the spectrum of colors
+    loadFromUrl(url, options, function (data) {
+      spectrum = new Spectrum(data);
+      bb.spectrum = spectrum;
+    
+       if (afterLoadSpectrum) afterLoadSpectrum();
+    
+      if (bb.afterLoadSpectrum != null) {
+        bb.afterLoadSpectrum(spectrum);
+      }
+    
+      if (bb.model_data && bb.model_data.data) {
+        bb.updateColors(bb.model_data.data, {
+          min: bb.model_data.data.rangeMin, 
+          max: bb.model_data.data.rangeMax, 
+          spectrum: bb.spectrum, 
+          flip: bb.flip, 
+          clamped: bb.clamped
+        });
+      }
+    });
   };
 
   
@@ -206,7 +229,13 @@ BrainBrowser.modules.loader = function(bb) {
           bb.afterLoadSpectrum(spectrum);
         }
         if(model_data.data) {
-          bb.updateColors(model_data.data, model_data.data.rangeMin, model_data.data.rangeMax, bb.spectrum, bb.flip, bb.clamped);
+          bb.updateColors(model_data.data, {
+            min: model_data.data.rangeMin, 
+            max: model_data.data.rangeMax, 
+            spectrum: bb.spectrum, 
+            flip: bb.flip, 
+            clamped: bb.clamped
+          });
         }
     });
   };
@@ -252,14 +281,21 @@ BrainBrowser.modules.loader = function(bb) {
    * Clamped signifies that the range should be clamped and values above or bellow the 
    * thresholds should have the color of the maximum/mimimum.
    */
-  bb.rangeChange = function(min, max, clamped, opts) {
-    var options = opts || {};
+  bb.rangeChange = function(min, max, clamped, options) {
+    options = options || {};
     var afterChange = options.afterChange;
     var data = bb.model_data.data;
     
     data.rangeMin = min;
     data.rangeMax = max;
-    bb.updateColors(data, data.rangeMin, data.rangeMax, bb.spectrum, bb.flip, clamped, false, options);
+    bb.updateColors(data, {
+      min: data.rangeMin, 
+      max: data.rangeMax, 
+      spectrum: bb.spectrum, 
+      flip: bb.flip, 
+      clamped: clamped,
+      afterUpdate: options.afterUpdate
+    });
 
     /*
      * This callback allows users to
@@ -285,8 +321,8 @@ BrainBrowser.modules.loader = function(bb) {
   
   // General function for loading data from a url.
   // Callback should interpret data as necessary.
-  function loadFromUrl(url, opts, callback) {
-    var options = opts || {};    
+  function loadFromUrl(url, options, callback) {
+    options = options || {};    
     var beforeLoad = options.beforeLoad;
     
     if (beforeLoad) beforeLoad();
@@ -309,12 +345,12 @@ BrainBrowser.modules.loader = function(bb) {
   
   // General function for loading data from a local file.
   // Callback should interpret data as necessary.
-  function loadFromTextFile(file_input, opts, callback) {
+  function loadFromTextFile(file_input, options, callback) {
     var files = file_input.files;
     if (files.length === 0) {
       return;
     }
-    var options = opts || {};    
+    options = options || {};    
     var beforeLoad = options.beforeLoad;
     var reader = new FileReader();
     
@@ -376,12 +412,12 @@ BrainBrowser.modules.loader = function(bb) {
   // Allows the loading of data to be cancelled after the request is sent
   // or processing has begun (it must happen before the model begins to be
   // loaded to the canvas though). 
-  // Argument 'opts' should either be a function that returns 'true' if the
+  // Argument 'options' should either be a function that returns 'true' if the
   // loading should be cancelled or a hash containting the test function in 
   // the property 'test' and optionally, a function to do cleanup after the 
   // cancellation in the property 'cleanup'.
-  function cancelLoad(opts) {
-    var options = opts || {};
+  function cancelLoad(options) {
+    options = options || {};
     var cancel_opts = options.cancel || {};
     if (BrainBrowser.utils.isFunction(cancel_opts)) {
       cancel_opts = { test: cancel_opts };

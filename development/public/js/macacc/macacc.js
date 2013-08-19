@@ -54,6 +54,7 @@ var MACACC = (function() {
       var data_range_max = parseFloat(options.data_range_max);
       var statistic = collection.getDataControls().statistic;
       var afterInvalid = options.afterInvalid;
+      var min, max;
       
       
       if (!dataset) {
@@ -72,12 +73,22 @@ var MACACC = (function() {
       }
   
       if (statistic === "T") {
-        collection.flipRange = flip;
-        brainbrowser.updateColors(collection.dataset.current_data, collection.data_min, collection.data_max, brainbrowser.spectrum, flip, clamped, false );
+        min = collection.data_min;
+        max = collection.data_max;
       } else {
-        collection.flipRange = !flip;
-        brainbrowser.updateColors(collection.dataset.current_data, 0, 1, brainbrowser.spectrum, !flip, clamped, false );
+        flip = !flip;
+        min = 0;
+        max = 1;
       }
+      collection.flipRange = flip;
+      
+      brainbrowser.updateColors(collection.dataset.current_data, {
+        min: min, 
+        max: max, 
+        spectrum: brainbrowser.spectrum, 
+        flip: flip, 
+        clamped: clamped
+      });
       
       if (collection.afterUpdateModel) collection.afterUpdateModel(statistic);
   
@@ -103,7 +114,13 @@ var MACACC = (function() {
         collection.beforeRangeChange(min, max);
       }
       
-      brainbrowser.updateColors(collection.dataset.current_data, min, max, brainbrowser.spectrum, flip, clamped, false);
+      brainbrowser.updateColors(collection.dataset.current_data, {
+        min: min, 
+        max: max, 
+        spectrum: brainbrowser.spectrum, 
+        flip: flip, 
+        clamped: clamped
+      });
   
       if(collection.afterRangeChange) {
         collection.afterRangeChange(min, max);

@@ -23,11 +23,11 @@ function Loader() {
       url: url ,
       dataType: 'text',
       success: function(data) {
-	callback(data);
+        callback(data);
       },
       error: function(request,textStatus,e) {
-	//alert("Failure: " + "load data");
-	
+      //alert("Failure: " + "load data");
+  
       },
       data: {},
       async: sync,
@@ -52,46 +52,43 @@ function Loader() {
 
   that.loadObjFromUrl = function(url) {
     loadFromUrl(url, false,function(data) {
-		  that.createBrain(new MNIObject(data));
-		});
+      that.createBrain(new MNIObject(data));
+    });
   };
 
 
   that.loadObjFromFile = function(file_input) {
     loadFromTextFile(file_input, function(result) {
-		       that.createBrain(new MNIObject(result));
-		     });
+           that.createBrain(new MNIObject(result));
+         });
   };
 
   that.loadSpectrumFromUrl  = function(url) {
     var spectrum = [];
     //get the spectrum of colors
     loadFromUrl(url,false,function (data) {
-		    spectrum = new Spectrum(data)
+        spectrum = new Spectrum(data)
 
-		    if(that.afterLoadSpectrum != null) {
-		      that.afterLoadSpectrum(spectrum);
-		    }
-		});
+        if(that.afterLoadSpectrum != null) {
+          that.afterLoadSpectrum(spectrum);
+        }
+    });
     return spectrum;
   };
 
 
   that.loadSpectrumFromFile = function(file_input){
     loadFromTextFile(file_input,function (data) {
-		    var spectrum = new Spectrum(data);
-		    that.spectrum = spectrum;
+      var spectrum = new Spectrum(data);
+      that.spectrum = spectrum;
 
 
-		    if(that.afterLoadSpectrum != null) {
-		      that.afterLoadSpectrum(spectrum);
-		    }
-
-		    if(that.data) {
-		      that.updateColors(that.data,that.rangeMin, that.rangeMax,that.spectrum);
-		    }
-
-		});
-      
+      if(that.afterLoadSpectrum != null) {
+        that.afterLoadSpectrum(spectrum);
+      }
+      if(that.data) {
+        that.updateColors(that.data, that.rangeMin, that.rangeMax, that.spectrum);
+      }
+    });
   };
 };

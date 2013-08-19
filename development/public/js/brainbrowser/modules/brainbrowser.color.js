@@ -31,8 +31,14 @@ BrainBrowser.core.color = function(bb) {
 
   // This updates the colors of the model. Will delegate to color_hemispheres() or color_model()
   // depending on the type of model.  
-  bb.updateColors = function(data, min, max, spectrum, flip, clamped, blend, opts) {
-    var options = opts || {};
+  bb.updateColors = function(data, options) {
+    var options = options || {};
+    var min = options.min;
+    var max = options.max;
+    var spectrum = options.spectrum;
+    var flip = options.flip;
+    var clamped = options.clamped;
+    var blend = options.blend;
     var afterUpdate = options.afterUpdate;
     var color_array;
 

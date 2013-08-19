@@ -44,8 +44,8 @@ var MACACC = (function() {
   
     // Main method for updating the displayed map based on the vertex selected
     // and other parameters.
-    collection.updateMap = function (dataset, options) {
-      dataset = dataset || collection.dataset.current_data;
+    collection.updateMap = function(dataset, options) {
+      dataset = dataset || collection.dataset;
       options = options || (collection.dataOptions && collection.dataOptions()) || {};
       
       var flip = options.flip;
@@ -64,7 +64,6 @@ var MACACC = (function() {
       }
       
       collection.dataArray = dataset.current_data.values;
-      brainbrowser.current_dataset = dataset;
       if(fix_range) {
         collection.data_min = isFinite(data_range_min) ? data_range_min : dataset.current_data.min;
         collection.data_max = isFinite(data_range_max) ? data_range_max : dataset.current_data.max;
@@ -113,7 +112,7 @@ var MACACC = (function() {
         collection.beforeRangeChange(min, max);
       }
       
-      collection.updateMap(collection.dataset.current_data);
+      collection.updateMap();
   
       if(collection.afterRangeChange) {
         collection.afterRangeChange(min, max);

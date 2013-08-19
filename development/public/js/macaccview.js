@@ -48,9 +48,7 @@ $(function() {
         hideLoading();
         macacc = MACACC.collection(bb, path_prefix);
         bb.afterCreateBrain = function() {
-          if(bb.current_dataset != undefined) {
-            macacc.updateMap(bb.current_dataset);
-          }
+          macacc.updateMap();
         };
         
         bb.afterUpdateColors = hideLoading;
@@ -125,9 +123,7 @@ $(function() {
         $("#data-range-max").val(ui.values[1]);
       },
       stop: function(event, ui) {
-        if(bb.current_dataset) {
-          macacc.rangeChange();
-        }
+        macacc.rangeChange();
       },
       step: 0.1    
     });
@@ -177,12 +173,12 @@ $(function() {
 
     $("#flip_range").change(function(e) {
       showLoading();
-      macacc.updateMap(bb.current_dataset);
+      macacc.updateMap();
     });
     
     $("#clamp_range").change(function(e) {
       showLoading();
-      macacc.updateMap(bb.current_dataset);
+      macacc.updateMap();
     });
     
 

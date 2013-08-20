@@ -13,8 +13,7 @@ h4 {
 }
 
 #controls {
-  width: 420px;
-  max-width: 400px;
+  width: 400px;
   height: 100%;
   float:left;
 }
@@ -90,8 +89,12 @@ a:visited {
 .slider {
   display: inline-block;
   margin-top: 1px;
-  width: 70%;
+  width: 350px;
   margin: auto;
+}
+
+.half_box .slider {
+  width: 100px;
 }
 
 

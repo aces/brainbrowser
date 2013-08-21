@@ -25,15 +25,18 @@ h4 {
   position: absolute;
   top: 40px;
   right: 20px;
-  z-index: 99;
-  width: 420px;
-  height: 100%;
   background-color: white;
-  padding: 1em 2em 1em 1em;
   border-radius: 10px;
   height: 70%;
-  overflow-y: auto;
   border: 2px solid #777777;
+}
+
+#controls-content {
+  width: 420px;
+  overflow-y: auto;
+  margin: 5px;
+  padding: 10px 20px 10px 10px;
+  height: 95%;
 }
 
 #app-name {

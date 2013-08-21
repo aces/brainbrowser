@@ -60,7 +60,6 @@ $(function() {
             fix_range: $("#fix_range").is(":checked"),
             data_range_min: parseFloat($("#data-range-min").val()),
             data_range_max: parseFloat($("#data-range-max").val()),
-            afterInvalid: hideLoading
           };
         }
         
@@ -84,6 +83,7 @@ $(function() {
         
         macacc.beforeUpdateMap = showLoading;
         macacc.beforeRangeChange = showLoading;
+        macacc.afterInvalidMap = hideLoading;
         
         macacc.afterRangeChange = function(min,max) {
           var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min, max, null, macacc.flipRange);

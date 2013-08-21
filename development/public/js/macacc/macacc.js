@@ -54,12 +54,11 @@ var MACACC = (function() {
       var data_range_min = parseFloat(options.data_range_min);
       var data_range_max = parseFloat(options.data_range_max);
       var statistic = collection.getDataControls().statistic;
-      var afterInvalid = options.afterInvalid;
       var min, max;
       
       
       if (!dataset) {
-        if (afterInvalid) afterInvalid();
+        if (collection.afterInvalidMap) collection.afterInvalidMap();
         return;
       }
       
@@ -135,11 +134,11 @@ var MACACC = (function() {
     // Callback for changes in data controls.
     collection.dataControlChange = function() {
       var controls  = collection.getDataControls();
-      if (collection.beforeUpdateMap) collection.beforeUpdateMap();
       
-      if (controls.modality == "AAL") {
+      if (controls.modality === "AAL") {
+        if (collection.beforeUpdateMap) collection.beforeUpdateMap();
         collection.showAtlas();  
-      } else if (collection.vertex) {
+      } else {
         loadMap();
       }
     };
@@ -162,8 +161,10 @@ var MACACC = (function() {
     
     // Utility function to load a new datamap from the server and display it.
     function loadMap() {
-      if (collection.beforeUpdateMap) collection.beforeUpdateMap();
-      collection.dataset.getData(collection.vertex, collection.getDataControls(), collection.updateMap);
+      if (collection.vertex) {
+        if (collection.beforeUpdateMap) collection.beforeUpdateMap();
+        collection.dataset.getData(collection.vertex, collection.getDataControls(), collection.updateMap); 
+      }
     }
   
     brainbrowser.loadSpectrumFromUrl("/assets/spectral_spectrum.txt");
@@ -178,36 +179,26 @@ var MACACC = (function() {
   function createDataset(path_prefix, dont_build_pathp) {
     
     var dataset = {};
+    
   
-    dataset.path = dont_build_pathp ? function() { return path_prefix; } :
-                      function(vertex, settings) {
-                        var sk =  "ICBM152_" + settings.sk;
-                        var modality = "ICBM152_" + settings.modality + "_MACACC_" + (settings.modality === 'CT' ? "mean" : "size");
-                        var statistic = settings.statistic === "T"  ? "T_map/T_" :
-                                        settings.statistic === "P1" ? "RTF_C_map/RTF_C_" : 
-                                        settings.statistic === "P2" ? "RTF_V_map/RTF_V_" : "";
-                        
-                        
-                        return (path_prefix || "/data/") + modality + "/" + sk + "/" + statistic + vertex + ".txt";
-                      };
+    dataset.path = dont_build_pathp ? function() { return path_prefix; } 
+                      : function(vertex, settings) {
+                          var sk =  "ICBM152_" + settings.sk;
+                          var modality = "ICBM152_" + settings.modality + "_MACACC_" + (settings.modality === 'CT' ? "mean" : "size");
+                          var statistic = settings.statistic === "T"  ? "T_map/T_" :
+                                          settings.statistic === "P1" ? "RTF_C_map/RTF_C_" : 
+                                          settings.statistic === "P2" ? "RTF_V_map/RTF_V_" : "";
+                          
+                          
+                          return (path_prefix || "/data/") + modality + "/" + sk + "/" + statistic + vertex + ".txt";
+                        };
                       
     // Primary data set method.
     // Sends a request to the server and then parses the response.
     dataset.getData = function(vertex, settings, callback){
-      if (vertex === "aal_atlas") {
-        var path = "/assets/aal_atlas.txt";
-      } else {
-        var path = dataset.path(vertex,settings);
-      }
-  
-      if (dont_build_pathp) {
-        var data_object = {
-          vertex: vertex,
-          modality: settings.modality,
-          sk: settings.sk,
-          statistic: settings.statistic
-        };
-      };
+      var path = vertex === "aal_atlas" ? "/assets/aal_atlas.txt" : dataset.path(vertex, settings);
+      var data_object = dont_build_pathp ? { vertex: vertex, modality: settings.modality, sk: settings.sk, statistic: settings.statistic } 
+                                         : {};
   
       $.ajax({
         type: 'GET',

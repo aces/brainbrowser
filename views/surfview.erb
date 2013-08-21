@@ -7,78 +7,76 @@
     <title>BrainBrowser Surface Viewer</title>  
   </head>  
   <body>  
-
-  <div id="controls">
-    <h1>Surface Viewer</h1>
-    <div id="examples" class="box full_box">
-      <h3>Sample Models</h3>
-      <ul>
-         <li><a href="#" class="example" data-example-name="realct">Brain with Cortical Thickness Map</a></li>
-         <li><a href="#" span class="example" data-example-name="punkdti">DTI and Mesh Brain</a></li>
-         <li>
-           <a href="#" span class="example" data-example-name="mouse" title="Surface-Projected Cortical Amyloid Deposition of a Cohort of 18 Month-Old Transgenic Mice with Alzheimer's Disease">
-             Mouse Brain with Alzheimer's Disease
-          </a>
-        </li>
-         <li><a href="#" class="example" data-example-name="basic">Basic Brain Surface</a></li>
-         <li><a href="#" class="example" data-example-name="plane" title="DLR-F6 Geometry 2nd AIAA CFD Drag Prediction Workshop, 2003">Aeroplane with Air Density and Air Flow</a></li>
-         <li><a href="#" class="example" data-example-name="car">Automobile</a></li> 
-      </ul>
-    </div>
-    <div id="surface_choice" class="box full_box">
-      <h4>Load your own data!</h4>
-      <p>
-        (Note: your data will remain on your computer and will not be transferred to the BrainBrowser server.)
-      </p>     
-        <div id="obj_file_select">
-          Object File:
-          <input type="file" name="objfile" id="objfile"><br>
-          Format: 
-          <select  id="obj_file_format" name="format">
-            <option value="MNIObject">MNI OBJ</option>
-            <option value="WavefrontObj">Wavefront OBJ</option>
-            <option value="FreeSurferAsc">Freesurfer ASC</option>
-          </select><br>
-          <div id="format_hint"></div>
-          <div id="obj_file_submit_div">
-            <span id="obj_file_submit" class="button">Load</span><br>
-          </div>
-        </div>
-        <p>
-          Data 1: <input type="file" name="datafile1" id="datafile1" class="datafile"><br />
-          Data 2: <input type="file" name="datafile2" id="datafile2" class="datafile"> <br />
-          Color Bar: <input type="file" name="spectrum" id="spectrum"><br />
-        </p>
-        <span id="clearshapes" class="button">Clear Shapes</span>
-    </div>
-    <div id="data-range-box" class="box full_box">
-      <h4>Thresholding</h4>
-      <div id="data-range">
-      </div>
-      <div id="blend-box"></div>
-    </div>
-    <div id="background_select" class="box full_box">
-      <%= erb :background_color %>
-    </div>
-    <div class="combo_box">
-      <div id="views" class="box half_box" >
-        <%= erb :view_controls %>
-      </div>
-      <div id="shape-cell" class="box half_box">
-        <div id="shapes">
-        </div>
-      </div>
-    </div>
-    <div id="logos" class="box full_box cfd_logo">
-    </div>
-  </div>
-
-    <!-- The webgl window and loading messages if any -->
-    <div>
+      <!-- The webgl window and loading messages if any -->
+    <div id="display">
+      <h1 id="app-name">Surface Viewer</h1><a id="control-button" class="button">Hide Controls</a>
       <!-- Loading image from: http://www.ajaxload.info/ -->
       <div id="loading" style="display: none"><img src="/img/ajax-loader.gif" /></div>
       <center><span id="age_series"></span></center>
       <div id="brainbrowser"></div>
+      <div id="controls">
+        <div id="examples" class="box full_box">
+          <h3>Sample Models</h3>
+          <ul>
+             <li><a href="#" class="example" data-example-name="realct">Brain with Cortical Thickness Map</a></li>
+             <li><a href="#" span class="example" data-example-name="punkdti">DTI and Mesh Brain</a></li>
+             <li>
+               <a href="#" span class="example" data-example-name="mouse" title="Surface-Projected Cortical Amyloid Deposition of a Cohort of 18 Month-Old Transgenic Mice with Alzheimer's Disease">
+                 Mouse Brain with Alzheimer's Disease
+              </a>
+            </li>
+             <li><a href="#" class="example" data-example-name="basic">Basic Brain Surface</a></li>
+             <li><a href="#" class="example" data-example-name="plane" title="DLR-F6 Geometry 2nd AIAA CFD Drag Prediction Workshop, 2003">Aeroplane with Air Density and Air Flow</a></li>
+             <li><a href="#" class="example" data-example-name="car">Automobile</a></li> 
+          </ul>
+        </div>
+        <div id="surface_choice" class="box full_box">
+          <h4>Load your own data!</h4>
+          <p>
+            (Note: your data will remain on your computer and will not be transferred to the BrainBrowser server.)
+          </p>     
+            <div id="obj_file_select">
+              Object File:
+              <input type="file" name="objfile" id="objfile"><br>
+              Format: 
+              <select  id="obj_file_format" name="format">
+                <option value="MNIObject">MNI OBJ</option>
+                <option value="WavefrontObj">Wavefront OBJ</option>
+                <option value="FreeSurferAsc">Freesurfer ASC</option>
+              </select><br>
+              <div id="format_hint"></div>
+              <div id="obj_file_submit_div">
+                <span id="obj_file_submit" class="button">Load</span><br>
+              </div>
+            </div>
+            <p>
+              Data 1: <input type="file" name="datafile1" id="datafile1" class="datafile"><br />
+              Data 2: <input type="file" name="datafile2" id="datafile2" class="datafile"> <br />
+              Color Bar: <input type="file" name="spectrum" id="spectrum"><br />
+            </p>
+            <span id="clearshapes" class="button">Clear Shapes</span>
+        </div>
+        <div id="data-range-box" class="box full_box">
+          <h4>Thresholding</h4>
+          <div id="data-range">
+          </div>
+          <div id="blend-box"></div>
+        </div>
+        <div id="background_select" class="box full_box">
+          <%= erb :background_color %>
+        </div>
+        <div class="combo_box">
+          <div id="views" class="box half_box" >
+            <%= erb :view_controls %>
+          </div>
+          <div id="shape-cell" class="box half_box">
+            <div id="shapes">
+            </div>
+          </div>
+        </div>
+        <div id="logos" class="box full_box cfd_logo">
+        </div>
+      </div>
     </div>
 
     <!-- all the scripts and css -->

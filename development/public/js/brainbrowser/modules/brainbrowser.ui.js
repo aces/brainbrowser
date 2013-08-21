@@ -21,6 +21,18 @@ BrainBrowser.plugins.ui = function(bb) {
   
   var loading_div = $("#loading");
   
+  $("#control-button").click(function() {
+    var button_text = $(this).find("span");
+    var controls = $("#controls");
+    if (controls.is(":visible")) {
+      controls.hide();
+      button_text.text("Show Controls");
+    } else {
+      controls.show();
+      button_text.text("Hide Controls");
+    }
+  });
+  
   $("body").keydown(function(e) {
   
     switch(e.which) {

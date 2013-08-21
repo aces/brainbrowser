@@ -1,3 +1,7 @@
+html {
+  height: 100%;
+}
+
 body {
   background: white;
   font: arial;
@@ -12,31 +16,72 @@ h4 {
   font-size: 14px;
 }
 
-#controls {
-  width: 400px;
+#display {
+  position: relative;
   height: 100%;
-  float:left;
+}
+
+#controls {
+  position: absolute;
+  top: 40px;
+  right: 20px;
+  z-index: 99;
+  width: 420px;
+  height: 100%;
+  background-color: white;
+  padding: 1em 2em 1em 1em;
+  border-radius: 10px;
+  height: 70%;
+  overflow-y: auto;
+  border: 2px solid #777777;
+}
+
+#app-name {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  margin: 0;
+  padding: 0.4em;
+  color: white;
+  border-radius: 5px;
+  border: 3px solid darkorange;
+  background-image: linear-gradient(left bottom, rgb(51,51,51) 1%, rgb(30,143,255) 87%);
+  background-image: -o-linear-gradient(left bottom, rgb(51,51,51) 1%, rgb(30,143,255) 87%);
+  background-image: -moz-linear-gradient(left bottom, rgb(51,51,51) 1%, rgb(30,143,255) 87%);
+  background-image: -webkit-linear-gradient(left bottom, rgb(51,51,51) 1%, rgb(30,143,255) 87%);
+  background-image: -ms-linear-gradient(left bottom, rgb(51,51,51) 1%, rgb(30,143,255) 87%);
+  background-image: -webkit-gradient(
+  	linear,
+  	left bottom,
+  	right top,
+  	color-stop(0.01, rgb(51,51,51)),
+  	color-stop(0.87, rgb(30,143,255))
+  );
+}
+
+#loading {
+  z-index: 999;
+  position: absolute;
+  top: 65px;
+  left: 55px;
+  font-size: 3em;
+}
+
+#control-button {
+  position: absolute;
+  top: 10px;
+  right: 20px;
 }
 
 #brainbrowser {
-  float: right;
   height: 100%;
-  margin: 1px;
-  position: absolute;
-  left: 420px;
-  top: 0px;
-  bottom: 0px;
-  right: 0px;
+  width: 100%;
 }
 
 .box {
   border-radius: 10px;
-  -moz-border-radius: 10px;
   background: #555555;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  padding-right: 5px;
-  padding-left: 5px;
+  padding: 10px 5px;
   margin: 2px;
   color: #F0f0f0;
 }
@@ -53,15 +98,15 @@ h4 {
 }
 
 .full_box {
-  width: 100%;
+  width: 97%;
 }
-.quater_box {
-  width: 25%;
+.quarter_box {
+  width: 20%;
   float: left;
 }
 
-.three_quater_box {
-  width:65%;
+.three_quarter_box {
+  width:70%;
   float:left;
 }
 
@@ -128,15 +173,6 @@ select#clear_color {
   color: #FA5705;
 }
 
-#loading {
-  z-index: 999;
-  position: relative;
-  display: inline-block;
-  top: 0.8em;
-  left: 2em;
-  font-size: 3em;
-}
-
 div#obj_file_select {
   margin-bottom: 1.5em;
   background-color: gray;
@@ -159,6 +195,10 @@ input[type=file] {
 
 select#obj_file_format {
   width: 85%;
+}
+
+#spectrum {
+  margin-bottom: 5px;
 }
 
 canvas#spectrum-canvas {

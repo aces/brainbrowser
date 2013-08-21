@@ -135,6 +135,7 @@ var MACACC = (function() {
     // Callback for changes in data controls.
     collection.dataControlChange = function() {
       var controls  = collection.getDataControls();
+      if (collection.beforeUpdateMap) collection.beforeUpdateMap();
       
       if (controls.modality == "AAL") {
         collection.showAtlas();  

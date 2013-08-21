@@ -86,7 +86,7 @@ $(function() {
         macacc.beforeRangeChange = showLoading;
         
         macacc.afterRangeChange = function(min,max) {
-          var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min,max,null, macacc.flipRange);
+          var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min, max, null, macacc.flipRange);
           canvas.id = "spectrum-canvas";
           $("#spectrum").html($(canvas));
         };
@@ -146,14 +146,6 @@ $(function() {
       $("#range-slider").slider('values', 1, $(this).val());
       macacc.afterRangeChange(parseFloat($("#data-range-min").val()), parseFloat($("#data-range-max").val()));
     });
-
-    $("[name=pointer]").change(function(e) {
-      if($("[name=pointer]:checked").val() == "AAL_atlas") {
-        macacc.showAtlas();
-      }
-    });
-
-    
 
     $('#screenshot').click(function(event) {$(this).attr("href", bb.client.toDataUR());});
     

@@ -30,6 +30,7 @@ h4 {
   border-radius: 10px;
   height: 70%;
   border: 2px solid #777777;
+  overflow: hidden;
 }
 
 #controls-content {

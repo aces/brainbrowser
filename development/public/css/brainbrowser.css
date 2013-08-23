@@ -1,5 +1,6 @@
 html {
   height: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -29,16 +30,20 @@ h4 {
   background-color: white;
   border-radius: 10px;
   height: 70%;
+  width: 450px;
   border: 2px solid #777777;
   overflow: hidden;
 }
 
 #controls-content {
-  width: 420px;
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  left: 5px;
+  right: 5px;
   overflow-y: auto;
-  margin: 5px;
-  padding: 10px 20px 10px 10px;
-  height: 95%;
+  overflow-x: hidden;
+  padding-right: 8px;
 }
 
 #app-name {
@@ -137,14 +142,14 @@ a:visited {
 }
 
 .slider {
-  display: inline-block;
-  margin-top: 1px;
-  width: 350px;
-  margin: auto;
+  width: 320px;
+  margin: 5px auto;
 }
 
 .half_box .slider {
+  display: inline-block;
   width: 100px;
+  margin: 0;
 }
 
 

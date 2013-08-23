@@ -139,9 +139,9 @@ $(function() {
       rangeBox.html("");
       for(i = 0, count = data.length; i < count; i++) {
         headers += "<li><a href=\"#data_file" + i + "\">" + data[i].fileName + "</a></li>";
-        controls += "<div id=\"data_file" + i + "\" class=\"box full_box\">";
-        controls += "Min: <input class=\"range-box\" id=\"data-range-min\" type=\"text\" name=\"range_min\" size=\"5\" ><br />";
-        controls += "<div id=\"range-slider+" + i + "\" data-blend-index=\"" + i + "\" class=\"slider\"></div><br />";
+        controls += "<div id=\"data_file" + i + "\" class=\"box\">";
+        controls += "Min: <input class=\"range-box\" id=\"data-range-min\" type=\"text\" name=\"range_min\" size=\"5\" >";
+        controls += "<div id=\"range-slider+" + i + "\" data-blend-index=\"" + i + "\" class=\"slider\"></div>";
         controls += "Max: <input class=\"range-box\" id=\"data-range-max\" type=\"text\" name=\"range_max\" size=\"5\" >";
         controls += "<input type=\"checkbox\" class=\"button\" id=\"fix_range\"><label for=\"fix_range\">Fix Range</label>";
         controls += "<input type=\"checkbox\" class=\"button\" id=\"clamp_range\" checked=\"true\"><label for=\"clamp_range\">Clamp range</label>";

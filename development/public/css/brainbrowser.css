@@ -24,13 +24,14 @@ h4 {
 }
 
 #controls {
+  display: none;
   position: absolute;
   top: 40px;
   right: 20px;
   background-color: white;
   border-radius: 10px;
-  height: 70%;
-  width: 450px;
+  height: 30px;
+  width: 0;
   border: 2px solid #777777;
   overflow: hidden;
 }
@@ -47,6 +48,8 @@ h4 {
 }
 
 #app-name {
+  display: none;
+  white-space: nowrap;
   position: absolute;
   top: 15px;
   left: 15px;

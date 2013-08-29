@@ -22,9 +22,6 @@ $(function() {
   var loading_div = $("#loading");
   var showLoading = function() { loading_div.show(); };
   var hideLoading = function() { loading_div.hide(); };
-  
-  $(".button").button();
-  $(".buttonset").buttonset();
         
   if (!BrainBrowser.utils.webglEnabled()) {
     $("#brainbrowser").html(BrainBrowser.utils.webGLErrorMessage());
@@ -210,5 +207,4 @@ $(function() {
         bb.secondWindow = window.opener;
       }
   });
-  
 });

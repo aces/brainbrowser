@@ -15,6 +15,8 @@ cat $APP_ROOT/license_header.txt lib/utils.js lib/color.js lib/spectrum.js brain
 $COMPRESSOR /tmp/html5-minc-viewer.js -o $APP_ROOT/production/public/js/html5-minc-viewer.min.js
 cat $APP_ROOT/license_header.txt layout.js > /tmp/layout.js
 $COMPRESSOR /tmp/layout.js -o $APP_ROOT/production/public/js/layout.js
+cat $APP_ROOT/license_header.txt lib/ui.js > /tmp/ui.js
+$COMPRESSOR /tmp/ui.js -o $APP_ROOT/production/public/js/lib/ui.js
 cat $APP_ROOT/license_header.txt brainbrowser/modules/brainbrowser.utils.js > /tmp/brainbrowser.utils.js
 $COMPRESSOR /tmp/brainbrowser.utils.js -o $APP_ROOT/production/public/js/lib/brainbrowser.utils.js
 cat $APP_ROOT/license_header.txt workers/mniobj.worker.js > /tmp/mniobj.worker.js

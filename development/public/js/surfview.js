@@ -21,11 +21,6 @@ $(function() {
   var current_request_name = "";
   var loading_div = $("#loading");
   
-  
-  $(".button").button();
-  $(".buttonset").buttonset();
-  $("#data-range-box").hide();
-  
   if (!BrainBrowser.utils.webglEnabled()) {
     $("#brainbrowser").html(BrainBrowser.utils.webGLErrorMessage());
     return;
@@ -429,10 +424,8 @@ $(function() {
       bb.loadSpectrumFromFile(document.getElementById("spectrum"));
     });
 
+    // Load first model.
+    $("a.example[data-example-name=realct]").click();
   });
-  
-  
-  //Load initial model.
-  $("a.example[data-example-name=realct]").click();
 });
 

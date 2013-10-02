@@ -4,43 +4,49 @@
   <title>BrainBrowser Volume Viewer</title>
 </head>
 <body>
-  <h1>Volume Viewer</h1>
-  Click and drag the red dot to change slices. The red dot represents the location you are looking at. 
-  <br>
-  <div id="minc1" style="float: left">
-    <canvas id="viewport-zspace"></canvas>
-    <canvas id="viewport-xspace"></canvas>
-    <canvas id="viewport-yspace"></canvas>
-    <div id="mincinfo"></div>
+  <h1 id="app-name">Volume Viewer</h1>
+  <div id="braincanvas-container">
   </div>
+  
 
-
-
-  <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.2.custom.css" rel="Stylesheet" />
+  <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.10.custom.css" rel="Stylesheet" />
   <link type="text/css" href="/css/braincanvas.css" rel="Stylesheet" />
   <script type="text/javascript" src="/js/lib/jquery-1.6.4.min.js"></script>
   <script type="text/javascript" src="/js/lib/jquery-ui-1.8.10.custom.min.js"></script>
   <script type="text/javascript" src="/js/lib/jquery.mousewheel.min.js"></script>
+  <script src="/js/lib/oFactory.js"></script>
+  <script type="text/javascript" src="/js/lib/ui.js"></script>
   <% if ENV["BRAINBROWSER_ENV"] == "production" %>
     <script type="text/javascript" src="/js/html5-minc-viewer.min.js"></script>
   <% else %>
-    <script type="text/javascript" src="/js/lib/utils.js"></script>
-    <script type="text/javascript" src="/js/lib/color.js"></script>
-    <script type="text/javascript" src="/js/lib/spectrum.js"></script>
-    <script type="text/javascript" src="/js/braincanvas/minc.js"></script>
-    <script type="text/javascript" src="/js/braincanvas/loader.js"></script>
-    <script type="text/javascript" src="/js/braincanvas.js"></script>
+    <script src="/js/braincanvas.js"></script>
+    <script src="/js/braincanvas/braincanvas.display.js"></script>
+    <script src="/js/braincanvas/braincanvas.ui.js"></script>
+    <script src="/js/braincanvas/braincanvas.loader.js"></script>
+    <script src="/js/braincanvas/braincanvas.colorscale.js"></script>
+    <script src="/js/braincanvas/multivolume.js"></script>
+    <script src="/js/braincanvas/minclib.js"></script>
+    <script src="/js/braincanvas/minc.js"></script>
   <% end %>
-  <script type="text/javascript">
-    bc1 = new BrainCanvas({
-      xcanvas: document.getElementById('viewport-xspace'),
-      ycanvas: document.getElementById('viewport-yspace'),
-      zcanvas: document.getElementById('viewport-zspace'),
-      canvasWidth: 256,
-      canvasHeight: 256 
-    });
+  <script>
+      window.onload = function() {
 
-    bc1.openFile('/data/test.mnc');
-
-  </script>
+        BrainCanvas.viewer("braincanvas-container",
+          {
+            volumes: [
+              {
+                type: 'minc', 
+                filename: 'data/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_003.mnc'
+              }, 
+              {
+                type: 'minc', 
+                filename: 'data/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_004.mnc'
+              }
+            ], 
+            multi: true
+          }
+        ); 
+ 
+      }      
+    </script>
 </body>      

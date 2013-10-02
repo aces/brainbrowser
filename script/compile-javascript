@@ -11,7 +11,7 @@ rm /tmp/surface-combined.js
 cat $APP_ROOT/license_header.txt lib/utils.js lib/color.js lib/spectrum.js brainbrowser/brainbrowser.js brainbrowser/modules/* brainbrowser/data/data.js brainbrowser/filetypes/* macacc/macacc.js macaccview.js > /tmp/macaccview-combined.js
 $COMPRESSOR /tmp/macaccview-combined.js -o $APP_ROOT/production/public/js/macaccview-combined.min.js
 rm /tmp/macaccview-combined.js
-cat $APP_ROOT/license_header.txt lib/utils.js lib/color.js lib/spectrum.js braincanvas/* braincanvas.js > /tmp/html5-minc-viewer.js
+cat $APP_ROOT/license_header.txt braincanvas.js braincanvas/* > /tmp/html5-minc-viewer.js
 $COMPRESSOR /tmp/html5-minc-viewer.js -o $APP_ROOT/production/public/js/html5-minc-viewer.min.js
 cat $APP_ROOT/license_header.txt layout.js > /tmp/layout.js
 $COMPRESSOR /tmp/layout.js -o $APP_ROOT/production/public/js/layout.js

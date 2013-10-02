@@ -1,9 +1,102 @@
-.toolbar {
-   margin: 10px;
+body {
+  background-color: #888888;
 }
 
-#time-toolbar {
-                font-size: 50%;
-                margin-top: 5px;
-		padding: 10px 4px 10px 4px;
-	}
+#braincanvas-container {
+  width: 60em;
+  margin: 50px auto;
+}
+
+#braincanvas {
+  display: inline-block;
+  background-color: #FFFFFF;
+  padding: 0.5em;
+  border-radius: 10px;
+}
+
+#app-name {
+  display: none;
+  white-space: nowrap;
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  margin: 0;
+  padding: 0.4em;
+  color: white;
+  border-radius: 5px;
+  border: 3px solid darkorange;
+  background-image: linear-gradient(left bottom, rgb(51,51,51) 1%, rgb(30,143,255) 87%);
+  background-image: -o-linear-gradient(left bottom, rgb(51,51,51) 1%, rgb(30,143,255) 87%);
+  background-image: -moz-linear-gradient(left bottom, rgb(51,51,51) 1%, rgb(30,143,255) 87%);
+  background-image: -webkit-linear-gradient(left bottom, rgb(51,51,51) 1%, rgb(30,143,255) 87%);
+  background-image: -ms-linear-gradient(left bottom, rgb(51,51,51) 1%, rgb(30,143,255) 87%);
+  background-image: -webkit-gradient(
+  	linear,
+  	left bottom,
+  	right top,
+  	color-stop(0.01, rgb(51,51,51)),
+  	color-stop(0.87, rgb(30,143,255))
+  );
+}
+
+.volume-container {
+  display: table-cell;
+}
+
+.slice-display {
+  background-color: #000000;
+}
+
+.braincanvas-controls {
+  padding: 0.5em;
+  margin: 3px 5px;
+  padding-bottom: 18px; 
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 0 0 10px 10px;
+  background: #555555; /*white;*/
+  color: #F0F0F0;
+  width: 241px;
+  height: 150px;
+}
+
+.control-inputs {
+  border: none;
+  padding: 2px;
+  margin-left: 10px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  -moz-box-shadow: 1px 1px 0px 0px #787878;
+  -webkit-box-shadow: 1px 1px 0px 0px #787878;  /*2px 2px 3px #666;*/
+  box-shadow: 1px 1px 0px 0px #787878; /*2px 2px 3px #666;*/
+  width: 2em;
+}
+
+.braincanvas-threshold, .braincanvas-blend {
+  width: 80%;
+  margin: auto;
+}
+
+.ui-slider .ui-slider-handle .ui-state-default .ui-corner-all {
+  color: #777777 !important;
+  font-size: 10px;
+  padding: 3px;
+  text-shadow: 0 1px 0 #FFFFFF;
+  text-decoration:none;
+}
+
+.slider {
+  margin-top: 1em!important;
+}
+
+.threshold-input {
+  margin-bottom: 0.2em;
+  padding-left: 0.5em;
+}
+
+canvas.slice-display {
+  display: block;
+  margin: 3px 5px;
+}
+

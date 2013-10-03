@@ -61,8 +61,6 @@
 
   MultiVolumeData.prototype.updateBlendRatio = function(ratio) {
     ratio += 50;
-    console.log("RATIOOO");
-    console.log(ratio);
     this.blendRatios[0] = (100.0-ratio)/100.0;
     this.blendRatios[1] = parseFloat(ratio)/100.0;
 

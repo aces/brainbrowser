@@ -257,6 +257,9 @@
           volume.updateBlendRatio(newVal); 
           viewer.redrawVolume(volID);
           blend_val.val( newVal );
+        },
+        stop: function() {
+          $(this).find("a").blur();
         } 
       });
     
@@ -309,7 +312,6 @@
         thresSlider.slider({
           range: true,
           min: 0, max: 255, 
-          //scale: [0, '|', 85, '|', '170', '|', 255], 
           values: [0, 255],
           step: 1, 
           slide: function(event, ui){
@@ -319,7 +321,10 @@
             viewer.redrawVolumes();
             min_input.val( values[0] );
             max_input.val( values[1] );
-          } 
+          },
+          stop: function() {
+            $(this).find("a").blur();
+          }
         });
             
         //change min value based on user input and update slider

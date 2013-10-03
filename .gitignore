@@ -4,7 +4,9 @@ log/*
 .#*
 public/data
 .svn
-data
+data/*.mnc
+development/public/data
+production/public/data
 classes/*
 *.log
 tmp/*

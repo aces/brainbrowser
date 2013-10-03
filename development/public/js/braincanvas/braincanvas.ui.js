@@ -61,35 +61,19 @@
     });
   };
     
-  BrainCanvas.addCanvasUI = function(div, viewer, volume, volID, height, width) {
-    
-    
+  BrainCanvas.addCanvasUI = function(div, viewer, volume, volID) {
     var displays = [];
     var div = $(div);
     
     function captureMouse(canvas) {
       var c = $(canvas);
       var mouse = {x: 0, y: 0};
-      var offset = c.offset();
+      var position = c.offset();
       
       c.mousemove(function(e) {
-        var x, y;
-        
-        if (e.pageX !== undefined) {
-          x = e.pageX;
-          y = e.pageY;
-        } else {
-          x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-          y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
-        }
-        
-        x -= canvas.offsetLeft;
-        y -= canvas.offsetTop;
-        
-        mouse.x = x;
-        mouse.y = y;
+        mouse.x = e.offsetX;
+        mouse.y = e.offsetY;
       });
-      
       return mouse;
     }
     
@@ -121,125 +105,15 @@
       );
     }); 
     
-    var controls  = $("<div class=\"braincanvas-controls\"></div>");
-    div.append(controls);
-  
-    var syncButton = $("<input name=\"sync\" type=\"checkbox\" />");
-  
-    syncButton.change(function(event) {
-      viewer.synced[volID] = event.target.checked;
-    });
-    var sync = $("<span class=\"control-heading\">Sync</span>");
-    
-    sync.append(syncButton);
-    controls.append(sync);
-  
-    if(volume.type === "multivolume") {
-  
-      var blendSlider = $("<div id=\"blend-slider\" class=\"slider braincanvas-blend\"></div>");
-      var blend = $("<div class=\"control-heading\">Blend (-50 to 50): </div>");
-      var blend_val = $("<input class=\"control-inputs\" value=\"0\" id =\"blend-val\"/>");
-      blend.append(blend_val);
-  
-      blend.append(blendSlider);
-      controls.append(blend);
-  
-      blendSlider.slider({
-        min: -50, max: 50,
-        step: 1,
-        slide: function(event, ui) { 
-          var newVal = parseFloat(ui.value, 10);
-          volume.updateBlendRatio(newVal); 
-          viewer.redrawVolume(volID);
-          blend_val.val( newVal );
-        } 
-      });
-  
-      //change blend value based on user input in text field
-      blend_val.change(function () {
-        var value = this.value;
-        values = blendSlider.slider("value", value); 
-                volume.updateBlendRatio(value);
-                viewer.redrawVolume(volID);
-      });
-  
-    } else {
-      var list = "";
-      for(var i = 0; i < BrainCanvas.colorScales.length; i++) {
-        var name = BrainCanvas.colorScales[i].name;
-        if (viewer.defaultScale === BrainCanvas.colorScale) {
-          list += "<option value="+i+"\" SELECTED>"+name+"</option>";
-        } else {
-          list += "<option value="+i+"\">"+name+"</option>";
-        }
-      }
-      var colorScaleOption = $("<select></select>");
-      list = $(list);
-      colorScaleOption.append(list);
-  
-      //On change update color scale of volume and redraw.
-      colorScaleOption.change(function(event) {
-        var index = parseInt($(event.target).val());
-        volume.colorScale = BrainCanvas.colorScales[index];
-        viewer.redrawVolumes();
-      });
-  
-      controls.append($("<div class=\"control-heading\">Color Scale: </div>").append(colorScaleOption));
-      
-      /***********************************
-      * Thresholds
-      ***********************************/
-      if(volume.type !== "multivolume") {
-        var uniqueID = String(Math.floor(Math.random()*1000000));
-        var thresSlider = $('<div class="slider braincanvas-threshold"></div>');
-        var thres = $("<div class=\"control-heading\">Threshold: </div>");
-        var min_input = $('<input class="control-inputs min" "input-min" value="0"/>');
-        var max_input = $('<input class="control-inputs max" "input-max" value="255"/>');
-        thres.append($('<div class="threshold-input">Min </div>').append(min_input));  
-        thres.append($('<div class="threshold-input">Max </div>').append(max_input)); 
-  
-        controls.append(thres);
-        thres.append(thresSlider);
-        
-        thresSlider.slider({
-          range: true,
-          min: 0, max: 255, 
-          //scale: [0, '|', 85, '|', '170', '|', 255], 
-          values: [0, 255],
-          step: 1, 
-          slide: function(event, ui){
-            var values = ui.values;
-            volume.min = values[0]; 
-            volume.max = values[1]; 
-            viewer.redrawVolumes();
-            min_input.val( values[0] );
-            max_input.val( values[1] );
-          } 
+    if (BrainCanvas.volumeUIControls) {
+      var controls  = $("<div class=\"braincanvas-controls\"></div>");
+      if (BrainCanvas.volumeUIControls.defer_until_page_load) {
+        BrainCanvas.addEventListener("ready", function() {
+          div.append(controls);
+          BrainCanvas.volumeUIControls(controls, viewer, volume, volID);
         });
-            
-        //change min value based on user input and update slider
-        min_input.change(function () {
-          var value = this.value;
-          values = thresSlider.slider("value").split(";"); 
-          values[0] = value;
-          values = thresSlider.slider("value", value); 
-          volume.min = value;
-          viewer.redrawVolumes();
-        });
-  
-        //change max value based on user input and update slider
-        max_input.change(function () {
-          var newMaxValue = this.value;
-          var minValue = min_input.val();
-          values = thresSlider.slider("value").split(";"); 
-          values[1] = newMaxValue;
-          values[0] = minValue;
-          values = thresSlider.slider("value", '', newMaxValue); 
-          values = thresSlider.slider("value", minValue); 
-          volume.max = newMaxValue;
-          volume.min = minValue;
-          viewer.redrawVolumes();
-        });
+      } else {
+        BrainCanvas.volumeUIControls(controls, viewer, volume, volID);
       }
     }
   
@@ -349,6 +223,129 @@
     
     
     return displays;
+  };
+  
+  BrainCanvas.volumeUIControls = function(controls, viewer, volume, volID) {
+    "use strict";
+    
+    var syncButton = $("<input name=\"sync\" type=\"checkbox\" />");
+    
+    syncButton.change(function(event) {
+      viewer.synced[volID] = event.target.checked;
+    });
+    var sync = $("<span class=\"control-heading\">Sync</span>");
+    
+    sync.append(syncButton);
+    controls.append(sync);
+    
+    if(volume.type === "multivolume") {
+    
+      var blendSlider = $("<div id=\"blend-slider\" class=\"slider braincanvas-blend\"></div>");
+      var blend = $("<div class=\"control-heading\">Blend (-50 to 50): </div>");
+      var blend_val = $("<input class=\"control-inputs\" value=\"0\" id =\"blend-val\"/>");
+      blend.append(blend_val);
+    
+      blend.append(blendSlider);
+      controls.append(blend);
+    
+      blendSlider.slider({
+        min: -50, max: 50,
+        step: 1,
+        slide: function(event, ui) { 
+          var newVal = parseFloat(ui.value, 10);
+          volume.updateBlendRatio(newVal); 
+          viewer.redrawVolume(volID);
+          blend_val.val( newVal );
+        } 
+      });
+    
+      //change blend value based on user input in text field
+      blend_val.change(function () {
+        var value = this.value;
+        values = blendSlider.slider("value", value); 
+                volume.updateBlendRatio(value);
+                viewer.redrawVolume(volID);
+      });
+    
+    } else {
+      var list = "";
+      for(var i = 0; i < BrainCanvas.colorScales.length; i++) {
+        var name = BrainCanvas.colorScales[i].name;
+        if (viewer.defaultScale === BrainCanvas.colorScale) {
+          list += "<option value="+i+"\" SELECTED>"+name+"</option>";
+        } else {
+          list += "<option value="+i+"\">"+name+"</option>";
+        }
+      }
+      var colorScaleOption = $("<select></select>");
+      list = $(list);
+      colorScaleOption.append(list);
+    
+      //On change update color scale of volume and redraw.
+      colorScaleOption.change(function(event) {
+        var index = parseInt($(event.target).val());
+        volume.colorScale = BrainCanvas.colorScales[index];
+        viewer.redrawVolumes();
+      });
+    
+      controls.append($("<div class=\"control-heading\">Color Scale: </div>").append(colorScaleOption));
+      
+      /***********************************
+      * Thresholds
+      ***********************************/
+      if(volume.type !== "multivolume") {
+        var uniqueID = String(Math.floor(Math.random()*1000000));
+        var thresSlider = $('<div class="slider braincanvas-threshold"></div>');
+        var thres = $("<div class=\"control-heading\">Threshold: </div>");
+        var min_input = $('<input class="control-inputs min" "input-min" value="0"/>');
+        var max_input = $('<input class="control-inputs max" "input-max" value="255"/>');
+        thres.append($('<div class="threshold-input">Min </div>').append(min_input));  
+        thres.append($('<div class="threshold-input">Max </div>').append(max_input)); 
+    
+        controls.append(thres);
+        thres.append(thresSlider);
+        
+        thresSlider.slider({
+          range: true,
+          min: 0, max: 255, 
+          //scale: [0, '|', 85, '|', '170', '|', 255], 
+          values: [0, 255],
+          step: 1, 
+          slide: function(event, ui){
+            var values = ui.values;
+            volume.min = values[0]; 
+            volume.max = values[1]; 
+            viewer.redrawVolumes();
+            min_input.val( values[0] );
+            max_input.val( values[1] );
+          } 
+        });
+            
+        //change min value based on user input and update slider
+        min_input.change(function () {
+          var value = this.value;
+          values = thresSlider.slider("value").split(";"); 
+          values[0] = value;
+          values = thresSlider.slider("value", value); 
+          volume.min = value;
+          viewer.redrawVolumes();
+        });
+    
+        //change max value based on user input and update slider
+        max_input.change(function () {
+          var newMaxValue = this.value;
+          var minValue = min_input.val();
+          values = thresSlider.slider("value").split(";"); 
+          values[1] = newMaxValue;
+          values[0] = minValue;
+          values = thresSlider.slider("value", '', newMaxValue); 
+          values = thresSlider.slider("value", minValue); 
+          volume.max = newMaxValue;
+          volume.min = minValue;
+          viewer.redrawVolumes();
+        });
+      }
+    }
   };
 })();
 

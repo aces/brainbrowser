@@ -38,6 +38,23 @@
   BrainCanvas.utilities = {};
   BrainCanvas.volumeType = {};
   BrainCanvas.colorScales = [];
+  BrainCanvas.event_listeners = {};
+  
+  BrainCanvas.addEventListener = function(e, fn) {
+    if (!BrainCanvas.event_listeners[e]) {
+      BrainCanvas.event_listeners[e] = [];
+    }
+    
+    BrainCanvas.event_listeners[e].push(fn);
+  }; 
+  
+  BrainCanvas.triggerEvent = function(e) {
+    if (BrainCanvas.event_listeners[e]) {
+      BrainCanvas.event_listeners[e].forEach(function(fn) {
+        fn();
+      });
+    }
+  }; 
   
   BrainCanvas.viewer = function(containerID, opts) { 
     var viewer = {};
@@ -180,7 +197,7 @@
         
         div.classList.add("volume-container");
         braincanvas_element.appendChild(div);
-        viewer.displays.push(BrainCanvas.addCanvasUI(div, viewer, volumes[i], i, sliceHeight, sliceWidth));
+        viewer.displays.push(BrainCanvas.addCanvasUI(div, viewer, volumes[i], i));
         cachedSlices[i] = [];
         
         volume.position["xspace"] = volume.header.xspace.space_length/2;
@@ -201,8 +218,8 @@
         viewer.vols.push(slices);
         viewer.updateVolume(i, slices);
       }
-      
       container.appendChild(braincanvas_element);
+      BrainCanvas.triggerEvent("ready");
       
       viewer.draw();
     };

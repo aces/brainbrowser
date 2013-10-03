@@ -8,10 +8,14 @@
   <div id="braincanvas-container">
   </div>
   
-
   <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.10.custom.css" rel="Stylesheet" />
   <link type="text/css" href="/css/braincanvas.css" rel="Stylesheet" />
-  <script type="text/javascript" src="/js/lib/jquery-1.6.4.min.js"></script>
+  <% if ENV["BRAINBROWSER_ENV"] == "loris" %>
+    <link rel="stylesheet" href="css/loris/jslider.css" type="text/css">
+	  <link rel="stylesheet" href="css/loris/jslider.blue.css" type="text/css">
+    <link type="text/css" href="/css/loris/braincanvas.loris.css" rel="Stylesheet" />
+  <% end %>
+  <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
   <script type="text/javascript" src="/js/lib/jquery-ui-1.8.10.custom.min.js"></script>
   <script type="text/javascript" src="/js/lib/jquery.mousewheel.min.js"></script>
   <script src="/js/lib/oFactory.js"></script>
@@ -27,6 +31,15 @@
     <script src="/js/braincanvas/multivolume.js"></script>
     <script src="/js/braincanvas/minclib.js"></script>
     <script src="/js/braincanvas/minc.js"></script>
+    <% if ENV["BRAINBROWSER_ENV"] == "loris" %>
+      <script src="/js/braincanvas/loris/jshashtable-2.1_src.js"></script>
+      <script src="/js/braincanvas/loris/jquery.numberformatter-1.2.3.js"></script>
+      <script src="/js/braincanvas/loris/tmpl.js"></script>
+      <script src="/js/braincanvas/loris/jquery.dependClass-0.1.js"></script>
+      <script src="/js/braincanvas/loris/draggable-0.1.js"></script>
+      <script src="/js/braincanvas/loris/jquery.slider.js"></script>
+      <script src="/js/braincanvas/loris/braincanvas.loris_ui_controls.js"></script>   
+    <% end %>
   <% end %>
   <script>
       window.onload = function() {

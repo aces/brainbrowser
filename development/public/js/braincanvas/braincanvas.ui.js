@@ -114,6 +114,7 @@
         });
       } else {
         BrainCanvas.volumeUIControls(controls, viewer, volume, volID);
+        div.append(controls);
       }
     }
   

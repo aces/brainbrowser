@@ -330,9 +330,7 @@
         });
             
         //change min value based on user input and update slider
-        min_input.change(function () {
-          
-console.log("change");
+        min_input.change(function () {          
           var value = this.value;
           thresSlider.slider("values", 0, value);
           volume.min = value;

@@ -23,22 +23,30 @@ body {
 }
 
 .braincanvas-controls {
-  padding: 0.5em;
+  padding: 10px;
   margin: 3px 5px;
   padding-bottom: 18px; 
   background: #555555;
   color: #F0F0F0;
 }
 
+.braincanvas-controls > div {
+  margin-bottom: 10px;
+}
+
 .volume-controls {
   width: 241px;
-  height: 6em;
+  height: 190px;
 }
 
 #global-controls {
   -moz-border-radius: 0 0 10px 10px;
   -webkit-border-radius: 0 0 10px 10px;
   border-radius: 0 0 10px 10px;
+}
+
+.control-heading {
+  font-weight: bold;
 }
 
 .control-inputs {
@@ -52,6 +60,12 @@ body {
   -webkit-box-shadow: 1px 1px 0px 0px #787878;  /*2px 2px 3px #666;*/
   box-shadow: 1px 1px 0px 0px #787878; /*2px 2px 3px #666;*/
   width: 2em;
+}
+
+.coords .control-inputs {
+  margin-right: 0.6em;
+  width: 40px;
+  font-size: 10px;
 }
 
 .braincanvas-threshold, .braincanvas-blend {

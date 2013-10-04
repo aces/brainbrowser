@@ -96,6 +96,7 @@
       //What get parameter will be used in request to server
     var getRawDataParam = opt.getRawDataParam || "raw_data=true";
     var getHeaderParam = opt.getHeaderParam || "minc_headers=true";
+    var headers, data;
     
     volume.getScaledSlice = function(axis, number, zoom, time) {
       var slice = volume.data.getScaledSlice(axis, number, zoom, time);
@@ -109,7 +110,21 @@
       return slices;
     };
     
-    var headers, data;
+    volume.getVoxelCoords = function() {
+      return {
+        x: this.position.xspace,
+        y: this.position.yspace,
+        z: this.position.zspace
+      };
+    }
+    
+    volume.getWorldCoords = function() {
+      return {
+        x: this.data.xspace.start + this.position.xspace * this.data.xspace.step,
+        y: this.data.yspace.start + this.position.yspace * this.data.yspace.step,
+        z: this.data.zspace.start + this.position.zspace * this.data.zspace.step
+      };
+    }
     
     getHeaders(opt.filename,getHeaderParam, function(headerData) {
       headers = headerData;

@@ -242,6 +242,44 @@
   };
   
   BrainCanvas.volumeUIControls = function(controls, viewer, volume, volID) {    
+    var coords, world_coords_div, voxel_coords_div;
+    
+    if (volume.getWorldCoords) {
+      coords = $('<div class="coords"></div>');
+      world_coords_div = $(
+        '<div class="world-coords">' + 
+        '<div class="control-heading">World Coordinates</div>' +
+        'X:<input id="world-x" class="control-inputs"></input>' + 
+        'Y:<input id="world-y" class="control-inputs"></input>' +  
+        'Z:<input id="world-z" class="control-inputs"></input>' +  
+        '</div>'
+      );
+      
+      voxel_coords_div = $(
+        '<div class="voxel-coords">' + 
+        '<div class="control-heading">Voxel Coordinates</div>' +
+        'X:<input id="voxel-x" class="control-inputs"></input>' + 
+        'Y:<input id="voxel-y" class="control-inputs"></input>' +  
+        'Z:<input id="voxel-z" class="control-inputs"></input>' +  
+        '</div>'
+      );
+      
+      BrainCanvas.addEventListener("sliceupdate", function() {
+        var world_coords = volume.getWorldCoords();
+        var voxel_coords = volume.getVoxelCoords();
+        world_coords_div.find("#world-x").val(world_coords.x);
+        world_coords_div.find("#world-y").val(world_coords.y);
+        world_coords_div.find("#world-z").val(world_coords.z);  
+        
+        voxel_coords_div.find("#voxel-x").val(voxel_coords.x);
+        voxel_coords_div.find("#voxel-y").val(voxel_coords.y);
+        voxel_coords_div.find("#voxel-z").val(voxel_coords.z);  
+      });
+    }
+    
+    coords.append(world_coords_div);
+    coords.append(voxel_coords_div);
+    controls.append(coords);
     
     if(volume.type === "multivolume") {
     

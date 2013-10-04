@@ -245,6 +245,7 @@
       }
       container.appendChild(braincanvas_element);
       BrainCanvas.triggerEvent("ready");
+      BrainCanvas.triggerEvent("sliceupdate");    
       
       viewer.draw();
     };
@@ -294,6 +295,7 @@
       slice.max = volume.max;
       viewer.updateSlice(volID, slice.sliceNum, null, null, slice);
           
+      BrainCanvas.triggerEvent("sliceupdate");    
       viewer.draw();
     };
     

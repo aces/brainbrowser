@@ -97,7 +97,24 @@
     slices.y = slices[0].y;
     return slices;
   };
-
+  
+  MultiVolumeData.prototype.getVoxelCoords = function() {
+    return {
+      x: this.position.xspace,
+      y: this.position.yspace,
+      z: this.position.zspace
+    };
+  };
+  
+  MultiVolumeData.prototype.getWorldCoords = function() {
+    var reference = this.volumes[0];
+    
+    return {
+      x: reference.data.xspace.start + this.position.xspace * reference.data.xspace.step,
+      y: reference.data.yspace.start + this.position.yspace * reference.data.yspace.step,
+      z: reference.data.zspace.start + this.position.zspace * reference.data.zspace.step
+    };
+  };
 
   BrainCanvas.volumeType.multiVolume = function(opt, callback) {
     var volume = new MultiVolumeData(opt.volumes);

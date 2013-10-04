@@ -255,7 +255,7 @@
         min: -50, max: 50,
         step: 1,
         slide: function(event, ui) { 
-          var newVal = parseFloat(ui.value, 10);
+          var newVal = parseInt(ui.value, 10);
           volume.updateBlendRatio(newVal); 
           viewer.redrawVolume(volID);
           blend_val.val( newVal );
@@ -268,9 +268,9 @@
       //change blend value based on user input in text field
       blend_val.change(function () {
         var value = this.value;
-        values = blendSlider.slider("value", value); 
-                volume.updateBlendRatio(value);
-                viewer.redrawVolume(volID);
+        blendSlider.slider("value", value); 
+        volume.updateBlendRatio(value);
+        viewer.redrawVolume(volID);
       });
     
     } else {
@@ -331,25 +331,19 @@
             
         //change min value based on user input and update slider
         min_input.change(function () {
+          
+console.log("change");
           var value = this.value;
-          values = thresSlider.slider("value").split(";"); 
-          values[0] = value;
-          values = thresSlider.slider("value", value); 
+          thresSlider.slider("values", 0, value);
           volume.min = value;
           viewer.redrawVolumes();
         });
     
         //change max value based on user input and update slider
         max_input.change(function () {
-          var newMaxValue = this.value;
-          var minValue = min_input.val();
-          values = thresSlider.slider("value").split(";"); 
-          values[1] = newMaxValue;
-          values[0] = minValue;
-          values = thresSlider.slider("value", '', newMaxValue); 
-          values = thresSlider.slider("value", minValue); 
-          volume.max = newMaxValue;
-          volume.min = minValue;
+          var value = this.value;
+          thresSlider.slider("values", 1, value);
+          volume.max = value;
           viewer.redrawVolumes();
         });
       }

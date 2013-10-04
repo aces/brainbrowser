@@ -139,6 +139,10 @@ select#clear_color {
 #webgl-error a {
   color: #FA5705;
 }
+html {
+  height: 100%;
+  overflow: hidden;
+}
 
 div#obj_file_select {
   margin-bottom: 1.5em;

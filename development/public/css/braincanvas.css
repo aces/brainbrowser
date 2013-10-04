@@ -26,13 +26,19 @@ body {
   padding: 0.5em;
   margin: 3px 5px;
   padding-bottom: 18px; 
-  -moz-border-radius: 10px;
-  -webkit-border-radius: 10px;
-  border-radius: 0 0 10px 10px;
-  background: #555555; /*white;*/
+  background: #555555;
   color: #F0F0F0;
+}
+
+.volume-controls {
   width: 241px;
-  height: 150px;
+  height: 6em;
+}
+
+#global-controls {
+  -moz-border-radius: 0 0 10px 10px;
+  -webkit-border-radius: 0 0 10px 10px;
+  border-radius: 0 0 10px 10px;
 }
 
 .control-inputs {
@@ -65,9 +71,19 @@ body {
   margin-top: 1em!important;
 }
 
-.threshold-input {
-  margin-bottom: 0.2em;
-  padding-left: 0.5em;
+.thresh-inputs {
+  position: relative;
+  height: 1em;
+}
+
+.thresh-input-left {
+  position: absolute;
+  left: 3px;
+}
+
+.thresh-input-right {
+  position: absolute;
+  right: 10px;
 }
 
 canvas.slice-display {

@@ -51,11 +51,14 @@
       })[keyCode]();
       
       viewer.getSlices(cursor, volID, slice_num);
-      viewer.synced.forEach(function(synced, synced_vol_id) {
-        if (synced && synced_vol_id !== volID) {
-          viewer.getSlices(cursor, synced_vol_id, slice_num);
-        }
-      });
+      
+      if (viewer.synced){
+        viewer.displays.forEach(function(display, synced_vol_id) {
+          if (synced_vol_id !== volID) {
+            viewer.getSlices(cursor, synced_vol_id, slice_num);
+          }
+        });
+      }
       
       return false;
     });
@@ -106,7 +109,7 @@
     }); 
     
     if (BrainCanvas.volumeUIControls) {
-      var controls  = $("<div class=\"braincanvas-controls\"></div>");
+      var controls  = $("<div class=\"braincanvas-controls volume-controls\"></div>");
       if (BrainCanvas.volumeUIControls.defer_until_page_load) {
         BrainCanvas.addEventListener("ready", function() {
           div.append(controls);
@@ -151,18 +154,22 @@
           if(e.target === current_target) {
             if(e.shiftKey) {
               translate(display);
-              viewer.synced.forEach(function(synced, synced_vol_id) {
-                if (synced && synced_vol_id !== volID) {
-                  translate(viewer.displays[synced_vol_id][slice_num]);
-                }
-              });
+              if (viewer.synced){
+                viewer.displays.forEach(function(display, synced_vol_id) {
+                  if (synced_vol_id !== volID) {
+                    translate(display[slice_num]);
+                  }
+                });
+              }
             } else {
               viewer.getSlices(cursor, volID, slice_num);
-              viewer.synced.forEach(function(synced, synced_vol_id) {
-                if (synced && synced_vol_id !== volID) {
-                  viewer.getSlices(cursor, synced_vol_id, slice_num);
-                }
-              });
+              if (viewer.synced){
+                viewer.displays.forEach(function(display, synced_vol_id) {
+                  if (synced_vol_id !== volID) {
+                    viewer.getSlices(cursor, synced_vol_id, slice_num);
+                  }
+                });
+              }
               display.cursor = viewer.active_cursor = cursor;
             }
             viewer.draw();
@@ -184,20 +191,24 @@
           if(e.shiftKey) {
             display.last_cursor.x = cursor.x;
             display.last_cursor.y = cursor.y;
-            viewer.synced.forEach(function(synced, synced_vol_id) {
-              if (synced && synced_vol_id !== volID) {
-                var d = viewer.displays[synced_vol_id][slice_num];
-                d.last_cursor.x = cursor.x;
-                d.last_cursor.y = cursor.y;
-              }
-            });
+            if (viewer.synced){
+              viewer.displays.forEach(function(display, synced_vol_id) {
+                if (synced_vol_id !== volID) {
+                  var d = display[slice_num];
+                   d.last_cursor.x = cursor.x;
+                   d.last_cursor.y = cursor.y;
+                }
+              });
+            }
           } else {
             viewer.getSlices(cursor, volID, slice_num);
-            viewer.synced.forEach(function(synced, synced_vol_id) {
-              if (synced && synced_vol_id !== volID) {
-                viewer.getSlices(cursor, synced_vol_id, slice_num);
-              }
-            });
+            if (viewer.synced){
+              viewer.displays.forEach(function(display, synced_vol_id) {
+                if (synced_vol_id !== volID) {
+                  viewer.getSlices(cursor, synced_vol_id, slice_num);
+                }
+              });
+            }
             display.cursor = viewer.active_cursor = cursor;          
           }
           viewer.active_canvas = e.target;
@@ -211,13 +222,15 @@
           display.zoom = Math.max(display.zoom + delta * 0.05, 0.05);
           
           viewer.updateSlices(volID, ["xspace", "yspace", "zspace"][slice_num]);
-          viewer.synced.forEach(function(synced, synced_vol_id) {
-            if (synced && synced_vol_id !== volID) {
-              var d = viewer.displays[synced_vol_id][slice_num];
-              d.zoom = Math.max(d.zoom + delta * 0.05, 0.05);
-              viewer.updateSlices(synced_vol_id, ["xspace", "yspace", "zspace"][slice_num]);
-            }
-          });
+          if (viewer.synced){
+            viewer.displays.forEach(function(display, synced_vol_id) {
+              if (synced_vol_id !== volID) {
+                var d = display[slice_num];
+                d.zoom = Math.max(d.zoom + delta * 0.05, 0.05);
+                viewer.updateSlices(synced_vol_id, ["xspace", "yspace", "zspace"][slice_num]);
+              }
+            });
+          }
           return false;
         });
         
@@ -228,18 +241,7 @@
     return displays;
   };
   
-  BrainCanvas.volumeUIControls = function(controls, viewer, volume, volID) {
-    "use strict";
-    
-    var syncButton = $("<input name=\"sync\" type=\"checkbox\" />");
-    
-    syncButton.change(function(event) {
-      viewer.synced[volID] = event.target.checked;
-    });
-    var sync = $("<span class=\"control-heading\">Sync</span>");
-    
-    sync.append(syncButton);
-    controls.append(sync);
+  BrainCanvas.volumeUIControls = function(controls, viewer, volume, volID) {    
     
     if(volume.type === "multivolume") {
     
@@ -303,10 +305,11 @@
         var uniqueID = String(Math.floor(Math.random()*1000000));
         var thresSlider = $('<div class="slider braincanvas-threshold"></div>');
         var thres = $("<div class=\"control-heading\">Threshold: </div>");
-        var min_input = $('<input class="control-inputs min" "input-min" value="0"/>');
-        var max_input = $('<input class="control-inputs max" "input-max" value="255"/>');
-        thres.append($('<div class="threshold-input">Min </div>').append(min_input));  
-        thres.append($('<div class="threshold-input">Max </div>').append(max_input)); 
+        var min_input = $('<input class="control-inputs thresh-input-left" value="0"/>');
+        var max_input = $('<input class="control-inputs thresh-input-right" value="255"/>');
+        var inputs = $('<div class="thresh-inputs"></div>');
+        inputs.append(min_input).append(max_input);
+        thres.append(inputs);
     
         controls.append(thres);
         thres.append(thresSlider);
@@ -321,8 +324,8 @@
             volume.min = values[0]; 
             volume.max = values[1]; 
             viewer.redrawVolumes();
-            min_input.val( values[0] );
-            max_input.val( values[1] );
+            min_input.val(values[0]);
+            max_input.val(values[1]);
           },
           stop: function() {
             $(this).find("a").blur();

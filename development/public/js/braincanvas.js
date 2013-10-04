@@ -56,6 +56,25 @@
     }
   }; 
   
+  BrainCanvas.globalUIControls = function(element, viewer) {
+    var controls = document.createElement("div");
+    controls.id = "global-controls";
+    controls.classList.add("braincanvas-controls");
+    var syncButton = document.createElement("input");
+    syncButton.type = "checkbox";
+    
+    syncButton.addEventListener("change", function(event) {
+      viewer.synced = event.target.checked;
+    }, false);
+    var sync = document.createElement("span");
+    sync.classList.add("control-heading");
+    sync.innerHTML = "Sync Volumes ";
+    
+    sync.appendChild(syncButton);
+    controls.appendChild(sync);
+    element.appendChild(controls);
+  };
+  
   BrainCanvas.viewer = function(containerID, opts) { 
     var viewer = {};
     var volumes = [];
@@ -75,7 +94,7 @@
   
     viewer.volumes = volumes;
     viewer.displays = [];
-    viewer.synced = [];
+    viewer.synced = false;
     viewer.default_zoom_level = 1;
   
     /**
@@ -213,6 +232,16 @@
         }
         viewer.vols.push(slices);
         viewer.updateVolume(i, slices);
+      }
+      
+      if (BrainCanvas.globalUIControls) {
+        if (BrainCanvas.volumeUIControls.defer_until_page_load) {
+          BrainCanvas.addEventListener("ready", function() {
+            BrainCanvas.globalUIControls(braincanvas_element, viewer);
+          });
+        } else {
+          BrainCanvas.globalUIControls(braincanvas_element, viewer);
+        }
       }
       container.appendChild(braincanvas_element);
       BrainCanvas.triggerEvent("ready");

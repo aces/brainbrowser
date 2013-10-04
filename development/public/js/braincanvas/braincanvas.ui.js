@@ -209,6 +209,7 @@
         
         canvas.mousewheel(function(e, delta) {
           display.zoom = Math.max(display.zoom + delta * 0.05, 0.05);
+          
           viewer.updateSlices(volID, ["xspace", "yspace", "zspace"][slice_num]);
           viewer.synced.forEach(function(synced, synced_vol_id) {
             if (synced && synced_vol_id !== volID) {
@@ -219,6 +220,7 @@
           });
           return false;
         });
+        
       });
     })();
     

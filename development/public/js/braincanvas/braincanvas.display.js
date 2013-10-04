@@ -63,26 +63,26 @@
       var img = this.slice.image;
       var x = this.cursor.x;
       var y = this.cursor.y;
-      color = color || "#000000";
+      color = color || "#FF0000";
       
       context.save();
       
-      context.strokeStyle = "#FFFFFF";
+      context.strokeStyle = "rgba(255, 255, 255, 0.5)";
       context.lineWidth = 6;
       context.beginPath();
-      context.moveTo(x, y - 6);
-      context.lineTo(x, y + 6);
-      context.moveTo(x - 6, y);
-      context.lineTo(x + 6, y);
+      context.moveTo(x, y - 4);
+      context.lineTo(x, y + 4);
+      context.moveTo(x - 4, y);
+      context.lineTo(x + 4, y);
       context.stroke();
       
       context.strokeStyle = color;
       context.lineWidth = 2;
       context.beginPath();
-      context.moveTo(x, y - 6);
-      context.lineTo(x, y + 6);
-      context.moveTo(x - 6, y);
-      context.lineTo(x + 6, y);
+      context.moveTo(x, y - 4);
+      context.lineTo(x, y + 4);
+      context.moveTo(x - 4, y);
+      context.lineTo(x + 4, y);
       context.stroke();
       
       context.restore();

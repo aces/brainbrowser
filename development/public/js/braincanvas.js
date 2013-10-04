@@ -115,7 +115,6 @@
           '/color_scales/spectral.txt', 
           'Spectral',
           function(scale) {
-            scale.cross_hair_color = "#000000";
             viewer.defaultScale = scale;
             BrainCanvas.colorScales[0] = scale;
             
@@ -147,7 +146,6 @@
           '/color_scales/gray_scale.txt', 
           'Gray',
           function(scale){
-            scale.cross_hair_color = "#FF0000";
             BrainCanvas.colorScales[2] = scale;
         });
         
@@ -155,7 +153,6 @@
           '/color_scales/blue.txt', 
           'Blue',
           function(scale){
-            scale.cross_hair_color = "#FF0000";
             BrainCanvas.colorScales[3] = scale;
         });
         
@@ -163,7 +160,6 @@
           '/color_scales/green.txt', 
           'Green',
           function(scale){
-            scale.cross_hair_color = "#FF0000";
             BrainCanvas.colorScales[4] = scale;
         });
   

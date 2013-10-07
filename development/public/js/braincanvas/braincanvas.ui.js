@@ -283,7 +283,7 @@
     
     if(volume.type === "multivolume") {
       var blendSlider = $("<div id=\"blend-slider\" class=\"slider braincanvas-blend\"></div>");
-      var blend = $("<div></div><div class=\"control-heading\">Blend (-50 to 50): </div>");
+      var blend = $("<div class=\"control-heading\">Blend (-50 to 50): </div>");
       var blend_val = $("<input class=\"control-inputs\" value=\"0\" id =\"blend-val\"/>");
       blend.append(blend_val);
     
@@ -340,19 +340,16 @@
       * Thresholds
       ***********************************/
       if(volume.type !== "multivolume") {
-        var uniqueID = String(Math.floor(Math.random()*1000000));
         var thresSlider = $('<div class="slider braincanvas-threshold"></div>');
         var thres = $("<div class=\"control-heading\">Threshold: </div>");
         var min_input = $('<input class="control-inputs thresh-input-left" value="0"/>');
         var max_input = $('<input class="control-inputs thresh-input-right" value="255"/>');
         var inputs = $('<div class="thresh-inputs"></div>');
-   	var onOffTag = $('<p><div><label">Tag mode:&nbsp;</label><select name="tag-on-off" id="on-off" class="ui-toggle-switch" data-role="slider"> <option value="off">Off</option> <option value="on">On</option> </select></div>'); 
         inputs.append(min_input).append(max_input);
         thres.append(inputs);
     
         controls.append(thres);
         thres.append(thresSlider);
-        thres.append(onOffTag);
         
         thresSlider.slider({
           range: true,
@@ -387,18 +384,6 @@
           volume.max = value;
           viewer.redrawVolumes();
         });
-
-	//toggle for switch to enter tagging mode
-        onOffTag.toggleSwitch({
-           highlight: true, // default
-           width: 30,
-           change: function(e) {
-           },
-
-           stop: function(e,val) {
-           // default null
-          }
-       });
       }
     }
   };

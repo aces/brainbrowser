@@ -21,7 +21,6 @@
   <script type="text/javascript" src="/js/lib/jquery.mousewheel.min.js"></script>
   <script src="/js/lib/oFactory.js"></script>
   <script type="text/javascript" src="/js/lib/ui.js"></script>
-  <script type="text/javascript" src="/js/lib/jquery-ui.toggleSwitch.js"></script>
   <% if ENV["BRAINBROWSER_ENV"] == "production" %>
     <script type="text/javascript" src="/js/html5-minc-viewer.min.js"></script>
   <% else %>
@@ -34,6 +33,7 @@
     <script src="/js/braincanvas/minclib.js"></script>
     <script src="/js/braincanvas/minc.js"></script>
     <% if ENV["BRAINBROWSER_ENV"] == "loris" %>
+      <script src="/loris/js/jquery-ui.toggleSwitch.js"></script>
       <script src="/loris/js/jshashtable-2.1_src.js"></script>
       <script src="/loris/js/jquery.numberformatter-1.2.3.js"></script>
       <script src="/loris/js/tmpl.js"></script>

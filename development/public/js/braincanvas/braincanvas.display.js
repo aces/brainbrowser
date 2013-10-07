@@ -60,27 +60,24 @@
     },
     
     drawCrosshair: function(context, color, zoom) {
-      var x = this.cursor.x;
-      var y = this.cursor.y;
       var length = 8;
-      if (zoom>1) {
-         length *= (zoom/2);
-      }
       color = color || "#FF0000";
       
       context.save();
       
       context.strokeStyle = color;
+      context.translate(this.cursor.x, this.cursor.y);
+      context.scale(zoom, zoom);
       context.lineWidth = 2;
       context.beginPath();
-      context.moveTo(x, y - length);
-      context.lineTo(x, y - 2);
-      context.moveTo(x, y + 2);
-      context.lineTo(x, y + length);
-      context.moveTo(x - length, y);
-      context.lineTo(x - 2, y);
-      context.moveTo(x + 2, y);
-      context.lineTo(x + length, y);
+      context.moveTo(0, -length);
+      context.lineTo(0, -2);
+      context.moveTo(0, 2);
+      context.lineTo(0, length);
+      context.moveTo(-length, 0);
+      context.lineTo(-2, 0);
+      context.moveTo(2, 0);
+      context.lineTo(length, 0);
       context.stroke();
       
       context.restore();

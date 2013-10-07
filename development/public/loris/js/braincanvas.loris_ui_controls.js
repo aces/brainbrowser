@@ -105,10 +105,13 @@
         var max_input = $('<input class="control-inputs max" "input-max" value="255"/>');
         thres.append($('<div class="threshold-input">Min </div>').append(min_input));  
         thres.append($('<div class="threshold-input">Max </div>').append(max_input)); 
+        var onOffTag = $('<p><div><label">Tag mode:&nbsp;</label><select name="tag-on-off" id="on-off" class="ui-toggle-switch" data-role="slider"> <option value="off">Off</option> <option value="on">On</option> </select></div>'); 
+
     
         controls.append(thres);
         thres.append(thresSlider);
-        
+        thres.append(onOffTag);
+
         thresSlider.slider({
           from: 0, to: 255, 
           scale: [0, '|', 85, '|', '170', '|', 255], 
@@ -146,6 +149,18 @@
           volume.max = newMaxValue;
           volume.min = minValue;
           viewer.redrawVolumes();
+        });
+        
+        //toggle for switch to enter tagging mode
+        onOffTag.toggleSwitch({
+           highlight: true, // default
+           width: 30,
+           change: function(e) {
+           },
+
+           stop: function(e,val) {
+           // default null
+          }
         });
       }
     }

@@ -188,15 +188,15 @@
             y: mouse.y
           };          
           
-          if(e.shiftKey) {
+          if (e.shiftKey) {
             display.last_cursor.x = cursor.x;
             display.last_cursor.y = cursor.y;
             if (viewer.synced){
               viewer.displays.forEach(function(display, synced_vol_id) {
                 if (synced_vol_id !== volID) {
                   var d = display[slice_num];
-                   d.last_cursor.x = cursor.x;
-                   d.last_cursor.y = cursor.y;
+                  d.last_cursor.x = cursor.x;
+                  d.last_cursor.y = cursor.y;
                 }
               });
             }
@@ -253,7 +253,15 @@
         'Y:<input id="world-y" class="control-inputs"></input>' +  
         'Z:<input id="world-z" class="control-inputs"></input>' +  
         '</div>'
-      );
+      ).change(function() {
+        var world = {
+          x: +world_coords_div.find("#world-x").val(),
+          y: +world_coords_div.find("#world-y").val(),
+          z: +world_coords_div.find("#world-z").val()
+        };
+        volume.setWorldCoords(world.x, world.y, world.z);
+        viewer.redrawVolume(volID);
+      });
       
       voxel_coords_div = $(
         '<div class="voxel-coords">' + 
@@ -262,7 +270,15 @@
         'Y:<input id="voxel-y" class="control-inputs"></input>' +  
         'Z:<input id="voxel-z" class="control-inputs"></input>' +  
         '</div>'
-      );
+      ).change(function() {
+        var voxel = {
+          x: +voxel_coords_div.find("#voxel-x").val(),
+          y: +voxel_coords_div.find("#voxel-y").val(),
+          z: +voxel_coords_div.find("#voxel-z").val()
+        };
+        volume.setVoxelCoords(voxel.x, voxel.y, voxel.z);
+        viewer.redrawVolume(volID);
+      });
       
       BrainCanvas.addEventListener("sliceupdate", function() {
         var world_coords = volume.getWorldCoords();

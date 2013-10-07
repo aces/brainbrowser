@@ -116,6 +116,12 @@
         y: this.position.yspace,
         z: this.position.zspace
       };
+    };
+    
+    volume.setVoxelCoords = function(x, y, z) {
+      this.position.xspace = x;
+      this.position.yspace = y;
+      this.position.zspace = z;
     }
     
     volume.getWorldCoords = function() {
@@ -124,6 +130,12 @@
         y: this.data.yspace.start + this.position.yspace * this.data.yspace.step,
         z: this.data.zspace.start + this.position.zspace * this.data.zspace.step
       };
+    };
+    
+    volume.setWorldCoords = function(x, y, z) {
+      this.position.xspace = Math.floor((x - this.data.xspace.start) / this.data.xspace.step);
+      this.position.yspace = Math.floor((y - this.data.yspace.start) / this.data.yspace.step);
+      this.position.zspace = Math.floor((z - this.data.zspace.start) / this.data.zspace.step);
     }
     
     getHeaders(opt.filename,getHeaderParam, function(headerData) {

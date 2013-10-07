@@ -106,6 +106,12 @@
     };
   };
   
+  MultiVolumeData.prototype.setVoxelCoords = function(x, y, z) {
+    this.position.xspace = x;
+    this.position.yspace = y;
+    this.position.zspace = z;
+  }
+  
   MultiVolumeData.prototype.getWorldCoords = function() {
     var reference = this.volumes[0];
     
@@ -115,6 +121,13 @@
       z: reference.data.zspace.start + this.position.zspace * reference.data.zspace.step
     };
   };
+  
+  MultiVolumeData.prototype.setWorldCoords = function(x, y, z) {
+    var reference = this.volumes[0];
+    this.position.xspace = Math.floor((x - reference.data.xspace.start) / reference.data.xspace.step);
+    this.position.yspace = Math.floor((y - reference.data.yspace.start) / reference.data.yspace.step);
+    this.position.zspace = Math.floor((z - reference.data.zspace.start) / reference.data.zspace.step);
+  }
 
   BrainCanvas.volumeType.multiVolume = function(opt, callback) {
     var volume = new MultiVolumeData(opt.volumes);

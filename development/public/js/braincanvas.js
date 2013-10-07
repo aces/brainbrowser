@@ -539,12 +539,7 @@
       var display = viewer.displays[volID][sliceNum];
       var image_origin = display.getImageOrigin();
       var zoom = display.zoom;
-      var x;
-  
-      //Reverse the slice num since canvas coordinates start in the top left corner
-      // count positivily in going down. This is the opposite of a minc with positive step
-      // in the height space direction
-      var y;
+      var x, y;
       
       display.cursor.x = cursor.x;
       display.cursor.y = cursor.y;

@@ -157,7 +157,7 @@
            width: 30,
            change: function(e) {
            },
-
+        
            stop: function(e,val) {
            // default null
           }

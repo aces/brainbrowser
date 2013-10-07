@@ -173,6 +173,7 @@
           '/color_scales/blue.txt', 
           'Blue',
           function(scale){
+            scale.cross_hair_color = "#FFFFFF"; 
             BrainCanvas.colorScales[3] = scale;
         });
         
@@ -511,7 +512,7 @@
           if (slice){
             color_scale = volume.colorScale || viewer.defaultScale;
             display.drawSlice(context, slice);
-            display.drawCrosshair(context, color_scale.cross_hair_color);
+            display.drawCrosshair(context, color_scale.cross_hair_color, zoom);
           }
           if (canvas === viewer.active_canvas) {
             context.save();

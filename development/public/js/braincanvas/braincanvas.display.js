@@ -59,10 +59,13 @@
       context.putImageData(img, origin.x, origin.y);
     },
     
-    drawCrosshair: function(context, color) {
+    drawCrosshair: function(context, color, zoom) {
       var x = this.cursor.x;
       var y = this.cursor.y;
       var length = 8;
+      if (zoom>1) {
+         length *= (zoom/2);
+      }
       color = color || "#FF0000";
       
       context.save();

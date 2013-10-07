@@ -41,7 +41,6 @@
       var cursor = viewer.active_cursor;
       var volID = canvas.getAttribute("data-volume-id");
       var slice_num = canvas.getAttribute("data-slice-num");
-      var zoom = canvas.getAttribute("data-zoom");
       
       ({
         37: function() { cursor.x--; }, // Left
@@ -66,12 +65,11 @@
     
   BrainCanvas.addCanvasUI = function(div, viewer, volume, volID) {
     var displays = [];
-    var div = $(div);
+    div = $(div);
     
     function captureMouse(canvas) {
       var c = $(canvas);
       var mouse = {x: 0, y: 0};
-      var position = c.offset();
       
       c.mousemove(function(e) {
         mouse.x = e.offsetX;
@@ -95,18 +93,18 @@
           canvas: canvas,
           context: context,
           cursor: {
-            x: canvas.width / 2, 
+            x: canvas.width / 2,
             y: canvas.height / 2
           },
           image_center: {
-            x: canvas.width / 2, 
+            x: canvas.width / 2,
             y: canvas.height / 2
           },
           mouse: captureMouse(canvas),
           zoom: viewer.default_zoom_level,
         })
       );
-    }); 
+    });
     
     if (BrainCanvas.volumeUIControls) {
       var controls  = $("<div class=\"braincanvas-controls volume-controls\"></div>");
@@ -176,7 +174,7 @@
           }
         }
         
-        function stopDrag(e) {
+        function stopDrag() {
           $(document).unbind("mousemove", drag).unbind("mouseup", stopDrag);
           current_target = null;
         }
@@ -186,7 +184,7 @@
           var cursor = {
             x: mouse.x,
             y: mouse.y
-          };          
+          };
           
           if (e.shiftKey) {
             display.last_cursor.x = cursor.x;
@@ -209,7 +207,7 @@
                 }
               });
             }
-            display.cursor = viewer.active_cursor = cursor;          
+            display.cursor = viewer.active_cursor = cursor;
           }
           viewer.active_canvas = e.target;
           $(document).mousemove(drag).mouseup(stopDrag);
@@ -241,17 +239,17 @@
     return displays;
   };
   
-  BrainCanvas.volumeUIControls = function(controls, viewer, volume, volID) {    
+  BrainCanvas.volumeUIControls = function(controls, viewer, volume, volID) {
     var coords, world_coords_div, voxel_coords_div;
     
     if (volume.getWorldCoords) {
       coords = $('<div class="coords"></div>');
       world_coords_div = $(
-        '<div class="world-coords">' + 
+        '<div class="world-coords">' +
         '<div class="control-heading">World Coordinates</div>' +
-        'X:<input id="world-x" class="control-inputs"></input>' + 
-        'Y:<input id="world-y" class="control-inputs"></input>' +  
-        'Z:<input id="world-z" class="control-inputs"></input>' +  
+        'X:<input id="world-x" class="control-inputs"></input>' +
+        'Y:<input id="world-y" class="control-inputs"></input>' +
+        'Z:<input id="world-z" class="control-inputs"></input>' +
         '</div>'
       ).change(function() {
         var world = {
@@ -264,11 +262,11 @@
       });
       
       voxel_coords_div = $(
-        '<div class="voxel-coords">' + 
+        '<div class="voxel-coords">' +
         '<div class="control-heading">Voxel Coordinates</div>' +
-        'X:<input id="voxel-x" class="control-inputs"></input>' + 
-        'Y:<input id="voxel-y" class="control-inputs"></input>' +  
-        'Z:<input id="voxel-z" class="control-inputs"></input>' +  
+        'X:<input id="voxel-x" class="control-inputs"></input>' +
+        'Y:<input id="voxel-y" class="control-inputs"></input>' +
+        'Z:<input id="voxel-z" class="control-inputs"></input>' +
         '</div>'
       ).change(function() {
         var voxel = {
@@ -285,11 +283,11 @@
         var voxel_coords = volume.getVoxelCoords();
         world_coords_div.find("#world-x").val(world_coords.x);
         world_coords_div.find("#world-y").val(world_coords.y);
-        world_coords_div.find("#world-z").val(world_coords.z);  
-        
+        world_coords_div.find("#world-z").val(world_coords.z);
+
         voxel_coords_div.find("#voxel-x").val(voxel_coords.x);
         voxel_coords_div.find("#voxel-y").val(voxel_coords.y);
-        voxel_coords_div.find("#voxel-z").val(voxel_coords.z);  
+        voxel_coords_div.find("#voxel-z").val(voxel_coords.z);
       });
     }
     
@@ -308,23 +306,24 @@
     
 
       blendSlider.slider({
-        min: -50, max: 50,
+        min: -50,
+        max: 50,
         step: 1,
-        slide: function(event, ui) { 
+        slide: function(event, ui) {
           var newVal = parseInt(ui.value, 10);
-          volume.updateBlendRatio(newVal); 
+          volume.updateBlendRatio(newVal);
           viewer.redrawVolume(volID);
           blend_val.val( newVal );
         },
         stop: function() {
           $(this).find("a").blur();
-        } 
+        }
       });
     
       //change blend value based on user input in text field
       blend_val.change(function () {
         var value = this.value;
-        blendSlider.slider("value", value); 
+        blendSlider.slider("value", value);
         volume.updateBlendRatio(value);
         viewer.redrawVolume(volID);
       });
@@ -345,7 +344,7 @@
     
       //On change update color scale of volume and redraw.
       colorScaleOption.change(function(event) {
-        var index = parseInt($(event.target).val());
+        var index = +$(event.target).val();
         volume.colorScale = BrainCanvas.colorScales[index];
         viewer.redrawVolumes();
       });
@@ -369,13 +368,14 @@
         
         thresSlider.slider({
           range: true,
-          min: 0, max: 255, 
+          min: 0,
+          max: 255,
           values: [0, 255],
-          step: 1, 
+          step: 1,
           slide: function(event, ui){
             var values = ui.values;
-            volume.min = values[0]; 
-            volume.max = values[1]; 
+            volume.min = values[0];
+            volume.max = values[1];
             viewer.redrawVolumes();
             min_input.val(values[0]);
             max_input.val(values[1]);
@@ -386,7 +386,7 @@
         });
             
         //change min value based on user input and update slider
-        min_input.change(function () {          
+        min_input.change(function () {
           var value = this.value;
           thresSlider.slider("values", 0, value);
           volume.min = value;

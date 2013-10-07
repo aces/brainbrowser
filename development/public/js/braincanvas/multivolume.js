@@ -44,8 +44,8 @@
     data.volumes = [];
     var numVolumes = volumes.length;
     for(i = 0; i < numVolumes; i++) {
-      if(volumes[i] != this) {
-       data.volumes.push(volumes[i]);
+      if(volumes[i] !== this) {
+        data.volumes.push(volumes[i]);
       }
     }
     data.blendRatios = [];
@@ -57,7 +57,7 @@
       data.blendRatios[i] = blendRatio;
     }
 
-  };
+  }
 
   MultiVolumeData.prototype.updateBlendRatio = function(ratio) {
     ratio += 50;
@@ -67,11 +67,13 @@
   };
 
   MultiVolumeData.prototype.slice = function(axis, number, time) {
-    var numVolumes = this.volumes.length, i, k, slice, slices = [];
+    var numVolumes = this.volumes.length;
+    var i, slice;
+    var slices = [];
 
     for(i = 0; i < numVolumes; i++) {
       var volume = this.volumes[i];
-      if(volume != this) {
+      if(volume !== this) {
         slice = this.volumes[i].slice(axis,number,time)[0];
         slice.alpha = this.blendRatios[i];
         slices.push(slice);
@@ -83,11 +85,13 @@
   };
   
   MultiVolumeData.prototype.getScaledSlice = function(axis, number, time, zoom) {
-    var numVolumes = this.volumes.length, i, k, slice, slices = [];
+    var numVolumes = this.volumes.length;
+    var i, slice;
+    var slices = [];
 
     for(i = 0; i < numVolumes; i++) {
       var volume = this.volumes[i];
-      if(volume != this) {
+      if(volume !== this) {
         slice = this.volumes[i].getScaledSlice(axis,number,time, zoom)[0];
         slice.alpha = this.blendRatios[i];
         slices.push(slice);
@@ -110,7 +114,7 @@
     this.position.xspace = x;
     this.position.yspace = y;
     this.position.zspace = z;
-  }
+  };
   
   MultiVolumeData.prototype.getWorldCoords = function() {
     var reference = this.volumes[0];
@@ -127,7 +131,7 @@
     this.position.xspace = Math.floor((x - reference.data.xspace.start) / reference.data.xspace.step);
     this.position.yspace = Math.floor((y - reference.data.yspace.start) / reference.data.yspace.step);
     this.position.zspace = Math.floor((z - reference.data.zspace.start) / reference.data.zspace.step);
-  }
+  };
 
   BrainCanvas.volumeType.multiVolume = function(opt, callback) {
     var volume = new MultiVolumeData(opt.volumes);

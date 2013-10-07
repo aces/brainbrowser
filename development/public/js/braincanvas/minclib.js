@@ -29,20 +29,21 @@
  * Author: Nicolas Kassis <nic.kassis@gmail.com>
  */
 
-function MincJS(filename, headers, data) {
+BrainCanvas.MincJS = function(filename, headers, data) {
+  "use strict";
   
-  if( !( this instanceof MincJS ) ){
-    return new MincJS(filename,header,data);
+  if( !( this instanceof BrainCanvas.MincJS ) ){
+    return new BrainCanvas.MincJS(filename, headers, data);
   }
   
-  /* 
+  /*
    * some utilities
    */
   function rotateUint16Array90Left(array,width,height){
     var new_array = new Uint16Array(width*height);
     
     for(var i = 0; i< width; i++){
-      for(var j=0; j< height; j++)  {
+      for(var j = 0; j< height; j++)  {
         new_array[i*height+j] = array[j*width+(width-i)];
   
       }
@@ -63,10 +64,10 @@ function MincJS(filename, headers, data) {
   }
   
   var that = this;
-  this.parseHeader = function(data) {  
+  this.parseHeader = function(data) {
     that.header = data;
     that.order = data.order;
-    if(that.order.length == 4) {
+    if(that.order.length === 4) {
       that.order = that.order.slice(1,that.order.length);
       that.time = data.time;
     }
@@ -90,15 +91,15 @@ function MincJS(filename, headers, data) {
     that.zspace.step = parseFloat(that.zspace.step);
 
 
-    if(that.order.length == 4) {
+    if(that.order.length === 4) {
       that.time.space_length = parseFloat(that.time.space_length);
-      that.time.start = parseFloat(that.time.start);        
+      that.time.start = parseFloat(that.time.start);
       that.time.step = parseFloat(that.time.step);
     }
     
     //figure out height and length of each slices in each direction
     //width and length are the same, I'm doing this until I replace
-    //all references to length in code. Bad naming duh! :( 
+    //all references to length in code. Bad naming duh! :(
     that[that.order[0]].height        = parseFloat(that[that.order[1]].space_length);
     that[that.order[0]].height_space  = that[that.order[1]];
     that[that.order[0]].length        = parseFloat(that[that.order[2]].space_length);
@@ -128,124 +129,127 @@ function MincJS(filename, headers, data) {
   };
   
 
-  var cachedSlices = {};  
+  var cachedSlices = {};
   /*
    * Warning: This function can get a little crazy
    * We are trying to get a slice out of the array. To do this we need to be careful that
    * we check for the orientation of the slice (steps positive or negative affect the orientation)
-   * 
+   *
    */
   this.slice = function(axis, number, time) {
+    var slice;
+    
     cachedSlices[axis] = cachedSlices[axis] || [];
     cachedSlices[axis][time] =  cachedSlices[axis][time] || [];
     if(this[axis].step < 0) {
       number = this[axis].space_length - number;
     }
-    if(cachedSlices[axis][time][number] != undefined) {
-      var slice = cachedSlices[axis][time][number];
+    if(cachedSlices[axis][time][number] !== undefined) {
+      slice = cachedSlices[axis][time][number];
       slice.alpha = 1;
       slice.number = number;
       return slice;
     }
     
-    if(that.order == undefined ) {
+    if(that.order === undefined ) {
       return false;
     }
+    
+    var time_offset = 0;
+    
     if(that.time) {
       if(!time) {
         time = 0;
       }
-      var time_offset = time*that[that.order[0]].height*that[that.order[0]].length*parseFloat(that[that.order[0]].space_length);
-    } else {
-      var time_offset = 0;
+      time_offset = time*that[that.order[0]].height*that[that.order[0]].length*parseFloat(that[that.order[0]].space_length);
     }
-    var space_length = that[axis].space_length;
-    var step = that[axis].step;
     
     
-    var length_step = that[axis].length_space.step;      
+    var length_step = that[axis].length_space.step;
     var height_step = that[axis].height_space.step;
-    var slice = {};
+    slice = {};
     var slice_data;
+    var slice_length, height, row_length, element_offset, row_offset, slice_offset;
+    var i, j, k;
     
     if(that.order[0] === axis) {
-      var slice_length = that[axis].height*that[axis].length;
-      var height = that[axis].height;
-      var row_length = that[axis].length;
-      var element_offset = 1; 
-      var row_offset = row_length; 
-      var slice_offset = slice_length;
+      slice_length = that[axis].height*that[axis].length;
+      height = that[axis].height;
+      row_length = that[axis].length;
+      element_offset = 1;
+      row_offset = row_length;
+      slice_offset = slice_length;
       slice_data = new Uint16Array(slice_length);
       
       if(length_step > 0) {
         if(height_step > 0) {
-          for(var i=0; i< slice_length; i++) {
+          for (i = 0; i < slice_length; i++) {
             slice_data[i]=this.data[time_offset+ slice_offset*number+i];
           }
         } else {
-          for(var i=height; i > 0; i--) {
-            for(var j=0; j < row_length; j++) {
-              slice_data[(height-i)*row_length+j]=this.data[time_offset+slice_offset*number+i*row_length + j];
-            }     
+          for(i = height; i > 0; i--) {
+            for(j = 0; j < row_length; j++) {
+              slice_data[(height-i)*row_length+j] = this.data[time_offset+slice_offset*number+i*row_length + j];
+            }
           }
         }
       } else {
         if(height_step < 0) {
-          for(var i=0; i < height; i++) {
-            for(var j=0; j < row_length; j++) {
-              slice_data[i*row_length+j]=this.data[time_offset+slice_offset*number+i*row_length + row_length - j];
-            }     
+          for(i = 0; i < height; i++) {
+            for(j = 0; j < row_length; j++) {
+              slice_data[i*row_length+j] = this.data[time_offset+slice_offset*number+i*row_length + row_length - j];
+            }
           }
         } else {
-          for(var i=height; i > 0; i--) {
-            for(var j=0; j < row_length; j++) {
-              slice_data[(height-i)*row_length+j]=this.data[time_offset+slice_offset*number+i*row_length + row_length - j];
-            }     
+          for(i = height; i > 0; i--) {
+            for(j = 0; j < row_length; j++) {
+              slice_data[(height-i)*row_length+j] = this.data[time_offset+slice_offset*number+i*row_length + row_length - j];
+            }
           }
         }
       }
       
-    } else if (that.order[1] == axis ) {
+    } else if (that.order[1] === axis ) {
       
-      var height = that[axis].height;
-      var slice_length = that[axis].height*that[axis].length;
-      var row_length = that[axis].length;
-      var element_offset = 1; 
-      var row_offset = that[that.order[0]].slice_length;
-      var slice_offset = that[that.order[0]].length; 
+      height = that[axis].height;
+      slice_length = that[axis].height*that[axis].length;
+      row_length = that[axis].length;
+      element_offset = 1;
+      row_offset = that[that.order[0]].slice_length;
+      slice_offset = that[that.order[0]].length;
       slice_data = new Uint8Array(slice_length);
       
       
       if(height_step < 0) {
-        for(var j=0; j<height; j++) {
-          for(var k=0; k< row_length; k++){
-            slice_data[j*(row_length)+k] = that.data[time_offset+number*slice_offset+row_offset*k+j];    
+        for(j = 0; j<height; j++) {
+          for(k = 0; k< row_length; k++){
+            slice_data[j*(row_length)+k] = that.data[time_offset+number*slice_offset+row_offset*k+j];
           }
         }
       } else {
-        for (var j = height; j>=0; j--) {
-          for(var k=0; k< row_length; k++) {
-            slice_data[(height-j)*(row_length)+k] = that.data[time_offset+number*slice_offset+row_offset*k+j];    
+        for (j = height; j >= 0; j--) {
+          for(k = 0; k < row_length; k++) {
+            slice_data[(height-j)*(row_length)+k] = that.data[time_offset+number*slice_offset+row_offset*k+j];
           }
         }
       }
       
       
     } else {
-      var height = that[axis].height;
-      var slice_length = that[axis].height*that[axis].length;
-      var row_length = that[axis].length;
-      var element_offset = that[that.order[0]].slice_length;
-      var row_offset= that[that.order[0]].length; 
-      var slice_offset = 1;
+      height = that[axis].height;
+      slice_length = that[axis].height*that[axis].length;
+      row_length = that[axis].length;
+      element_offset = that[that.order[0]].slice_length;
+      row_offset= that[that.order[0]].length;
+      slice_offset = 1;
       slice_data = new Uint16Array(slice_length);
       
       
       
       
-      for(var j=0; j<height; j++) {
-        for(var k=0; k< row_length; k++){
-          slice_data[j*(row_length)+k] = that.data[time_offset+number+that[that.order[0]].length*j+k*that[that.order[0]].slice_length];    
+      for(j = 0; j<height; j++) {
+        for(k = 0; k< row_length; k++){
+          slice_data[j*(row_length)+k] = that.data[time_offset+number+that[that.order[0]].length*j+k*that[that.order[0]].slice_length];
         }
       }
     }
@@ -259,11 +263,11 @@ function MincJS(filename, headers, data) {
     
     //Checks if the slices are need to be rotated
     //xspace should have yspace on the x axis and zspace on the y axis
-    if(axis == "xspace" && that.xspace.height_space.name=="yspace"){
+    if(axis === "xspace" && that.xspace.height_space.name === "yspace"){
       if (that.zspace.step < 0){
-        slice_data = rotateUint16Array90Right(slice_data,slice.width,slice.height);        
+        slice_data = rotateUint16Array90Right(slice_data,slice.width,slice.height);
       } else {
-        slice_data = rotateUint16Array90Left(slice_data,slice.width,slice.height);       
+        slice_data = rotateUint16Array90Left(slice_data,slice.width,slice.height);
       }
       slice.x = that[axis].height_space;
       slice.y = that[axis].length_space;
@@ -272,11 +276,11 @@ function MincJS(filename, headers, data) {
       
     }
     //yspace should be XxZ
-    if(axis == "yspace" && that.yspace.height_space.name=="xspace"){
+    if(axis === "yspace" && that.yspace.height_space.name === "xspace"){
       if(that.zspace.step < 0){
-        slice_data = rotateUint16Array90Right(slice_data,slice.width,slice.height);        
+        slice_data = rotateUint16Array90Right(slice_data,slice.width,slice.height);
       }else {
-        slice_data = rotateUint16Array90Left(slice_data,slice.width,slice.height);       
+        slice_data = rotateUint16Array90Left(slice_data,slice.width,slice.height);
       }
       slice.x = that[axis].height_space;
       slice.y = that[axis].length_space;
@@ -284,15 +288,15 @@ function MincJS(filename, headers, data) {
       slice.height = row_length;
       
     }
-    //zspace should be XxY 
-    if(axis == "zspace" && that.zspace.height_space.name=="xspace"){
-      slice_data = rotateUint16Array90Left(slice_data,slice.width,slice.height);       
+    //zspace should be XxY
+    if(axis === "zspace" && that.zspace.height_space.name === "xspace"){
+      slice_data = rotateUint16Array90Left(slice_data,slice.width,slice.height);
       slice.x = that[axis].length_space;
       slice.y = that[axis].height_space;
       slice.width = height;
       slice.height = row_length;
       
-    } 
+    }
     
     slice.data = slice_data;
     //set the spaces on each axis
@@ -317,15 +321,15 @@ function MincJS(filename, headers, data) {
     
     for (var i = 0; i < new_height; i++) {
       for (var j = 0; j < new_width; j++)  {
-        var px = Math.floor(j * x_ratio);  
+        var px = Math.floor(j * x_ratio);
         var py = Math.floor(i * y_ratio);
         new_array[Math.floor(i * new_width + j)] = data[Math.floor(py * width + px)];
       }
     }
 
     new_slice.data = new_array;
-    new_slice.x = slice.x || that[axis].length_space;
-    new_slice.y = slice.y || that[axis].height_space;
+    new_slice.x = slice.x; //|| that[axis].length_space; axis not defined: copy and pasted?
+    new_slice.y = slice.y; //|| that[axis].height_space;
     new_slice.width = new_width;
     new_slice.height = new_height;
     
@@ -333,10 +337,10 @@ function MincJS(filename, headers, data) {
   };
 
   /*
-   * Scale a slice to be at a 1 instead of whatever step it is. 
+   * Scale a slice to be at a 1 instead of whatever step it is.
    */
-  //this.getScaledSlice = function(axis, number, zoom, time) { 
-  //  
+  //this.getScaledSlice = function(axis, number, zoom, time) {
+  //
   //  zoom = zoom || 1;
   //  var original_slice = that.slice(axis, number, time);
   //  var width      =  that[axis].length;
@@ -344,14 +348,14 @@ function MincJS(filename, headers, data) {
   //  var new_width  = Math.ceil(Math.abs(that[axis].length_space.step) * width * zoom);
   //  var new_height = Math.ceil(Math.abs(that[axis].height_space.step) * height * zoom);
   //  var slice = this.nearestNeighboor(original_slice, width, height, new_width, new_height);
-  //  
+  //
   //  //Checks if the slices are need to be rotated
   //  //xspace should have yspace on the x axis and zspace on the y axis
   //  if(axis === "xspace" && that.xspace.height_space.name === "yspace"){
   //    if(that.zspace.step < 0){
-  //      slice.data = rotateUint16Array90Right(slice.data, new_width,new_height);       
+  //      slice.data = rotateUint16Array90Right(slice.data, new_width,new_height);
   //    }else {
-  //      slice.data = rotateUint16Array90Left(slice.data, new_width,new_height);        
+  //      slice.data = rotateUint16Array90Left(slice.data, new_width,new_height);
   //    }
   //
   //    //set the spaces on each axis
@@ -368,9 +372,9 @@ function MincJS(filename, headers, data) {
   //  //yspace should be XxZ
   //  if (axis === "yspace" && that.yspace.height_space.name === "xspace"){
   //    if (that.zspace.step < 0){
-  //      slice.data = rotateUint16Array90Right(slice.data, new_width, new_height);       
+  //      slice.data = rotateUint16Array90Right(slice.data, new_width, new_height);
   //    } else {
-  //      slice.data = rotateUint16Array90Left(slice.data, new_width, new_height);        
+  //      slice.data = rotateUint16Array90Left(slice.data, new_width, new_height);
   //    }
   //
   //    //set the spaces on each axis
@@ -382,15 +386,15 @@ function MincJS(filename, headers, data) {
   //    slice.y.name = "zspace";
   //    slice.x.name = "xspace";
   //  }
-  //  //zspace should be XxY 
+  //  //zspace should be XxY
   //  if(axis === "zspace" && that.zspace.height_space.name === "xspace"){
-  //    slice.data = rotateUint16Array90Left(slice.data, new_width, new_height);        
-  //    
+  //    slice.data = rotateUint16Array90Left(slice.data, new_width, new_height);
+  //
   //    //set the spaces on each axis
   //    slice.y.name = "xspace";
   //    slice.x.name = "yspace";
   //  } else {
-  //    
+  //
   //    //set the spaces on each axis
   //    slice.y.name = "xspace";
   //    slice.x.name = "yspace";
@@ -402,13 +406,13 @@ function MincJS(filename, headers, data) {
   //  //slice.width = new_width;
   //  //slice.height = new_height;
   //  return slice;
-  //  
+  //
   //};
   
   /*
-   * Scale a slice to be at a 1 instead of whatever step it is. 
+   * Scale a slice to be at a 1 instead of whatever step it is.
    */
-  this.getScaledSlice = function(axis, number, zoom, time) { 
+  this.getScaledSlice = function(axis, number, zoom, time) {
     zoom = zoom || 1;
     var original_slice = that.slice(axis, number, time);
     
@@ -425,39 +429,28 @@ function MincJS(filename, headers, data) {
     //xspace should have yspace on the x axis and zspace on the y axis
     if(axis === "xspace" && that.xspace.height_space.name === "yspace"){
       if (that.zspace.step < 0) {
-        slice.data = rotateUint16Array90Right(slice.data,new_width,new_height);       
+        slice.data = rotateUint16Array90Right(slice.data,new_width,new_height);
       } else {
-        slice.data = rotateUint16Array90Left(slice.data,new_width,new_height);        
+        slice.data = rotateUint16Array90Left(slice.data,new_width,new_height);
       }
     }
 
     //yspace should be XxZ
     if (axis === "yspace" && that.yspace.height_space.name === "xspace"){
       if (that.zspace.step < 0){
-        slice.data = rotateUint16Array90Right(slice.data, new_width, new_height);       
+        slice.data = rotateUint16Array90Right(slice.data, new_width, new_height);
       } else {
-        slice.data = rotateUint16Array90Left(slice.data, new_width, new_height);        
+        slice.data = rotateUint16Array90Left(slice.data, new_width, new_height);
       }
     }
     
-    //zspace should be XxY 
+    //zspace should be XxY
     if (axis === "zspace" && that.zspace.height_space.name === "xspace"){
-      slice.data = rotateUint16Array90Left(slice.data, new_width, new_height);        
+      slice.data = rotateUint16Array90Left(slice.data, new_width, new_height);
     }
 
-    return slice;    
+    return slice;
   };
-  
-
-  /*
-   * Get the value of a point at location x,y,z and time index 
-   * This will be used for example by the graphing tool when viewing 4D data 
-   * to show intensity graphs
-   */
-  this.getValueAtLocation = function(x,y,z,time) {
-
-  };
-
 
   this.parseHeader(headers);
   this.data = data;

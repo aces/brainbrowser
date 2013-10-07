@@ -26,13 +26,13 @@
  */
 
 (function() {
-    "use strict";
+  "use strict";
     
-    /**
-   * Async load ArrayBuffer using XHR2
-   * @param {String} url
-   * @param {Function} callback
-   */
+  /**
+  * Async load ArrayBuffer using XHR2
+  * @param {String} url
+  * @param {Function} callback
+  */
   BrainCanvas.loader = {
     loadArrayBuffer: function(url, callback) {
       var request = new XMLHttpRequest();
@@ -41,8 +41,8 @@
       request.onreadystatechange = function() {
         if(request.readyState === 4) {
           if(request.status === 200) {
-            if(request.mozResponseArrayBuffer != undefined) {
-              callback(request.mozResponseArrayBuffer);	    
+            if(request.mozResponseArrayBuffer !== undefined) {
+              callback(request.mozResponseArrayBuffer);
             } else {
               callback(request.response);
             }
@@ -66,7 +66,7 @@
   
     loadFromUrl: function(url,callback,error) {
       $.ajax({
-    	  url: url,
+        url: url,
         type: "GET",
         success: callback,
         error : error
@@ -74,19 +74,19 @@
     },
     
     loadColorScaleFromFile: function(fileInput, name, callback) {
-     BrainCanvas.loader.loadFromTextFile(fileInput, function(string) {
-       var colorScale = new BrainCanvas.ColorScale(string);
-       colorScale.name = name;
-       callback(colorScale);
-     });
+      BrainCanvas.loader.loadFromTextFile(fileInput, function(string) {
+        var colorScale = new BrainCanvas.ColorScale(string);
+        colorScale.name = name;
+        callback(colorScale);
+      });
     },
 
     loadColorScaleFromUrl: function(url, name, callback) {
-     BrainCanvas.loader.loadFromUrl(url, function(string) {
-       var colorScale = new BrainCanvas.ColorScale(string);
-       colorScale.name = name;
-       callback(colorScale);
-     });
+      BrainCanvas.loader.loadFromUrl(url, function(string) {
+        var colorScale = new BrainCanvas.ColorScale(string);
+        colorScale.name = name;
+        callback(colorScale);
+      });
     }
   };
 })();

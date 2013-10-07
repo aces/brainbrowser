@@ -54,19 +54,19 @@
     dataArgs[param[0]] = param[1];
     
     $.ajax({
-	    url: filename,
-	    dataType: 'json',
-	    data: dataArgs,
-	    async: false,
-	    success: function(data){
-	      if (callback) callback(data);
-	    },
-	    error: function(request, textStatus) {
-	      throw {
-         request: request,
-         textStatus: textStatus
-	      };
-	    }
+      url: filename,
+      dataType: 'json',
+      data: dataArgs,
+      async: false,
+      success: function(data){
+        if (callback) callback(data);
+      },
+      error: function(request, textStatus) {
+        throw {
+          request: request,
+          textStatus: textStatus
+        };
+      }
     });
   };
 
@@ -76,9 +76,7 @@
    * @param {Function}  callback  function to call when data is done loading
    * @param {Object}    extraArgs with extraArgs to pass to callback when data is done loading
    */
-  var getData = function (filename, getRawDataParam, callback){  
-    var request = new XMLHttpRequest();
-    
+  var getData = function (filename, getRawDataParam, callback){
     if(filename.match(/\?/)) {
       filename = filename+'&'+ getRawDataParam;
     } else {
@@ -122,7 +120,7 @@
       this.position.xspace = x;
       this.position.yspace = y;
       this.position.zspace = z;
-    }
+    };
     
     volume.getWorldCoords = function() {
       return {
@@ -136,13 +134,13 @@
       this.position.xspace = Math.floor((x - this.data.xspace.start) / this.data.xspace.step);
       this.position.yspace = Math.floor((y - this.data.yspace.start) / this.data.yspace.step);
       this.position.zspace = Math.floor((z - this.data.zspace.start) / this.data.zspace.step);
-    }
+    };
     
     getHeaders(opt.filename,getHeaderParam, function(headerData) {
       headers = headerData;
       getData(opt.filename,getRawDataParam,function(arrayBuffer){
         data =  new Uint8Array(arrayBuffer);
-        volume.data = new MincJS(opt.filename, headers, data);
+        volume.data = new BrainCanvas.MincJS(opt.filename, headers, data);
         volume.header = volume.data.header;
         volume.min = 0;
         volume.max = 255;

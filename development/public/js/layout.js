@@ -18,6 +18,8 @@
  */
 
 $(function() { 
+  "use strict";
+  
   $(".button").button();
   $(".tabs").tabs({ heigth: 800 });
   $(".tablink").click(function(e) {

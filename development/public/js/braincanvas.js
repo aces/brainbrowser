@@ -46,7 +46,7 @@
     }
     
     BrainCanvas.event_listeners[e].push(fn);
-  }; 
+  };
   
   BrainCanvas.triggerEvent = function(e) {
     if (BrainCanvas.event_listeners[e]) {
@@ -54,7 +54,7 @@
         fn();
       });
     }
-  }; 
+  };
   
   BrainCanvas.globalUIControls = function(element, viewer) {
     var controls = document.createElement("div");
@@ -75,7 +75,7 @@
     element.appendChild(controls);
   };
   
-  BrainCanvas.viewer = function(containerID, opts) { 
+  BrainCanvas.viewer = function(containerID, opts) {
     var viewer = {};
     var volumes = [];
     var container;
@@ -124,17 +124,17 @@
       }
   
       if(opts.multi) {
-        var i = 0; 
+        var i = 0;
         var volumes = opts.volumes;
         var numVolumes = opts.volumes.length;
   
   
         multi = true;
         BrainCanvas.loader.loadColorScaleFromUrl(
-          '/color_scales/spectral.txt', 
+          '/color_scales/spectral.txt',
           'Spectral',
           function(scale) {
-            scale.cross_hair_color = "#FFFFFF"; 
+            scale.cross_hair_color = "#FFFFFF";
             viewer.defaultScale = scale;
             BrainCanvas.colorScales[0] = scale;
             
@@ -146,50 +146,54 @@
                 viewer.openVolume({
                     volumes: viewer.volumes,
                     type: 'multiVolume'
-                  }, 
+                  },
                   startViewer
                 );
               }
             })();
-        });
+          }
+        );
         
         BrainCanvas.loader.loadColorScaleFromUrl(
-          '/color_scales/thermal.txt', 
+          '/color_scales/thermal.txt',
           'Thermal',
           function(scale) {
-            scale.cross_hair_color = "#FFFFFF"; 
+            scale.cross_hair_color = "#FFFFFF";
             BrainCanvas.colorScales[1] = scale;
           }
         );
         
         BrainCanvas.loader.loadColorScaleFromUrl(
-          '/color_scales/gray_scale.txt', 
+          '/color_scales/gray_scale.txt',
           'Gray',
           function(scale){
             BrainCanvas.colorScales[2] = scale;
-        });
+          }
+        );
         
         BrainCanvas.loader.loadColorScaleFromUrl(
-          '/color_scales/blue.txt', 
+          '/color_scales/blue.txt',
           'Blue',
           function(scale){
-            scale.cross_hair_color = "#FFFFFF"; 
+            scale.cross_hair_color = "#FFFFFF";
             BrainCanvas.colorScales[3] = scale;
-        });
+          }
+        );
         
         BrainCanvas.loader.loadColorScaleFromUrl(
-          '/color_scales/green.txt', 
+          '/color_scales/green.txt',
           'Green',
           function(scale){
             BrainCanvas.colorScales[4] = scale;
-        });
+          }
+        );
   
       } else {
-        if(opts.volume){
+        if (opts.volume) {
           viewer.openVolume(opts.volume,startViewer);
         }
       }
-    };
+    }
   
     /*
      * Initialize the viewer with first slices
@@ -200,7 +204,6 @@
       var volume;
       var slices;
       var k;
-      var display_set;
       
       viewer.vols = [];
       numVolumes = volumes.length;
@@ -217,9 +220,9 @@
         viewer.displays.push(BrainCanvas.addCanvasUI(div, viewer, volumes[i], i));
         cachedSlices[i] = [];
         
-        volume.position["xspace"] = volume.header.xspace.space_length/2;
-        volume.position["yspace"] = volume.header.yspace.space_length/2;
-        volume.position["zspace"] = volume.header.zspace.space_length/2;
+        volume.position.xspace = volume.header.xspace.space_length/2;
+        volume.position.yspace = volume.header.yspace.space_length/2;
+        volume.position.zspace = volume.header.zspace.space_length/2;
   
         slices.push(volume.getScaledSlice('xspace', parseInt(volume.header.xspace.space_length/2, 10), viewer.default_zoom_level));
         slices.push(volume.getScaledSlice('yspace', parseInt(volume.header.yspace.space_length/2, 10), viewer.default_zoom_level));
@@ -247,7 +250,7 @@
       }
       container.appendChild(braincanvas_element);
       BrainCanvas.triggerEvent("ready");
-      BrainCanvas.triggerEvent("sliceupdate");    
+      BrainCanvas.triggerEvent("sliceupdate");
       
       viewer.draw();
     };
@@ -264,7 +267,7 @@
         volume.position = {};
         volumes.push(volume);
       } else {
-        throw Error("Unsuported Volume Type");
+        throw new Error("Unsuported Volume Type");
       }
     };
   
@@ -277,14 +280,13 @@
     viewer.updateSlices = function(volID, axis, slice_number) {
       var volume = volumes[volID];
       var slice;
-      var slice_number;
       var slice_id = axis_to_number[axis];
       var display = viewer.displays[volID][slice_id];
-      var zoom = display.zoom
+      var zoom = display.zoom;
       
-      if (slice_number == undefined) {
+      if (slice_number === undefined) {
         slice_number = volume.position[axis];
-      } 
+      }
       
       slice = volume.getScaledSlice(axis, slice_number, zoom);
       slice.volID = volID;
@@ -297,7 +299,7 @@
       slice.max = volume.max;
       viewer.updateSlice(volID, slice.sliceNum, null, null, slice);
           
-      BrainCanvas.triggerEvent("sliceupdate");    
+      BrainCanvas.triggerEvent("sliceupdate");
       viewer.draw();
     };
     
@@ -319,7 +321,7 @@
       var maxWidth, maxHeight;
       var finalImageData;
       var context = document.createElement("canvas").getContext("2d");
-      var cached_slice = cachedSlices[volumeNum][sliceNum] || {  
+      var cached_slice = cachedSlices[volumeNum][sliceNum] || {
         x: startx,
         y: starty,
         widthSpace: widthSpace,
@@ -331,7 +333,7 @@
   
         slice = intensityData[i];
   
-        var colorScale = slice.colorScale;        
+        var colorScale = slice.colorScale;
         var imageData = context.createImageData(slice.width, slice.height);
         colorScale.colorizeArray(slice.data, slice.min, slice.max, true, 0, 1, slice.alpha, imageData.data);
   
@@ -344,7 +346,7 @@
         images.push(imageData);
       }
       
-      //Getting the maximum width and height of all the images to output an images that cover them all. 
+      //Getting the maximum width and height of all the images to output an images that cover them all.
       maxWidth = Math.max.apply(null, images.map(function(image) { return image.width; }));
       maxHeight = Math.max.apply(null, images.map(function(image) { return image.height; }));
       
@@ -370,7 +372,7 @@
      * @param {Number} new_width new width
      * @param {Number} new_height new height
      * @param {Number} numElem number of elements per pixel (default 4 for RGBA)
-     * @return {Array} new_array output of the neighrest neighboor algo.  
+     * @return {Array} new_array output of the neighrest neighboor algo.
      */
     function nearestNeighboor(orig, new_width, new_height) {
       var data = orig.data;
@@ -391,16 +393,16 @@
       var y_ratio   = height/new_height;
       for (var i = 0; i < new_height; i++) {
         for (var j = 0; j <new_width; j++)  {
-          var px = Math.floor(j*x_ratio);  
+          var px = Math.floor(j*x_ratio);
           var py = Math.floor(i*y_ratio);
           for (var k = 0; k < numElem; k++) {
-            imageData[Math.floor(i*new_width+j)*numElem+k] = data[Math.floor(py*width+px)*numElem+k]; 
+            imageData[Math.floor(i*new_width+j)*numElem+k] = data[Math.floor(py*width+px)*numElem+k];
           }
         }
       }
       
       return image;
-    };
+    }
     
   
     viewer.updateVolume = function(volumeNum,slices) {
@@ -419,9 +421,9 @@
      *
      */
     viewer.redrawVolume = function(volNum) {
-        viewer.updateSlices(volNum, "xspace", volumes[volNum].position["xspace"]);
-        viewer.updateSlices(volNum, "yspace", volumes[volNum].position["yspace"]);
-        viewer.updateSlices(volNum, "zspace", volumes[volNum].position["zspace"]);
+      viewer.updateSlices(volNum, "xspace", volumes[volNum].position.xspace);
+      viewer.updateSlices(volNum, "yspace", volumes[volNum].position.yspace);
+      viewer.updateSlices(volNum, "zspace", volumes[volNum].position.zspace);
     };
   
     viewer.redrawVolumes = function() {
@@ -437,8 +439,6 @@
       var numImages = images.length;
       if(numImages > 1) {
         var finalImage = dest.data;
-        var numPixels  =  finalImage.length;
-        
         var numCol = dest.width;
         var numRow = dest.height;
         //This will be used to keep the position in each image of it's next pixel
@@ -454,24 +454,24 @@
                 var alpha = (finalImage[pixel  + 3] || 0)/255.0;
                 var current = imageIter[j];
           
-                finalImage[pixel] = (finalImage[pixel + 0] || 0)  //Red
-                                    * alpha + image.data[current+0] 
-                                    * (image.data[current+3]/255.0);
+                finalImage[pixel] = (finalImage[pixel + 0] || 0)  *  //Red
+                                    alpha + image.data[current+0] *
+                                    (image.data[current+3]/255.0);
           
-                finalImage[pixel + 1] = (finalImage[pixel + 1] || 0) //Green
-                                        * alpha + image.data[current+1] 
-                                        * (image.data[current+3]/255.0);
+                finalImage[pixel + 1] = (finalImage[pixel + 1] || 0)  *  //Green
+                                        alpha + image.data[current+1] *
+                                        (image.data[current+3]/255.0);
           
-                finalImage[pixel + 2] = (finalImage[pixel + 2] || 0) //Blue 
-                                        * alpha + image.data[current+2] 
-                                        * (image.data[current+3]/255.0);
+                finalImage[pixel + 2] = (finalImage[pixel + 2] || 0)  * //Blue
+                                        alpha + image.data[current+2] *
+                                        (image.data[current+3]/255.0);
           
-                finalImage[pixel + 3] = (finalImage[pixel + 3] || 0)  //combine alpha values
-                       + image.data[current+3];
+                finalImage[pixel + 3] = (finalImage[pixel + 3] || 0) + //combine alpha values
+                                        image.data[current+3];
                 imageIter[j] += 4;
               }
             }
-          }    
+          }
         }
         for(i = 3; i < finalImage.length; i+=4) {
           finalImage[i] = 255;
@@ -483,23 +483,16 @@
       }
     }
   
-    viewer.draw = function draw() {    
-      var i = 0;
-      var k = 0;
-      var l = 0;
-      var x = 0;
-      var y = 0;
+    viewer.draw = function draw() {
       var slice;
-      var numImages;
       var context;
       var canvas;
       var zoom;
-      var volume;
       var frame_width = 4;
       var half_frame_width = frame_width/2;
       var color_scale;
   
-      for (i = 0; i < numVolumes; i++) {
+      volumes.forEach(function(volume, i) {
         viewer.displays[i].forEach(function(display, display_num) {
           canvas = display.canvas;
           context = display.context;
@@ -519,15 +512,15 @@
             context.strokeStyle = "#EC2121";
             context.lineWidth = frame_width;
             context.strokeRect(
-              half_frame_width, 
               half_frame_width,
-              canvas.width - frame_width, 
+              half_frame_width,
+              canvas.width - frame_width,
               canvas.height - frame_width
             );
             context.restore();
           }
         });
-      }
+      });
     };
   
     /**

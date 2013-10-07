@@ -87,11 +87,11 @@
     context: null,
     slice: null,
     cursor: {
-      x: 0, 
+      x: 0,
       y: 0
     },
     last_cursor: {
-      x: 0, 
+      x: 0,
       y: 0
     },
     image_center: {

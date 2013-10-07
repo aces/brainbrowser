@@ -134,6 +134,7 @@
           '/color_scales/spectral.txt', 
           'Spectral',
           function(scale) {
+            scale.cross_hair_color = "#FFFFFF"; 
             viewer.defaultScale = scale;
             BrainCanvas.colorScales[0] = scale;
             
@@ -156,7 +157,7 @@
           '/color_scales/thermal.txt', 
           'Thermal',
           function(scale) {
-            scale.cross_hair_color = "#05BDFA";
+            scale.cross_hair_color = "#FFFFFF"; 
             BrainCanvas.colorScales[1] = scale;
           }
         );

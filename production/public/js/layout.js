@@ -1,4 +1,4 @@
-/*! 
+/*
  * Copyright (C) 2011 McGill University
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -14,4 +14,6 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-$(function(){$(".button").button();$(".tabs").tabs({heigth:800});$(".tablink").click(function(c){var d=$(c.target).attr("data-tabs");var b=$(c.target).attr("data-tab");$("#"+d).tabs("select",b);return false});var a=$("#html5-warnings");if(a){if(!BrainBrowser.utils.webglEnabled()){a.css("display","inline-block");a.find("#webgl-warning").show()}if(!BrainBrowser.utils.webWorkersEnabled()){a.css("display","inline-block");a.find("#webworker-warning").show()}}});
+
+/* brainbrowser v1.0.0 */
+$(function(){"use strict";$(".button").button(),$(".tabs").tabs({heigth:800}),$(".tablink").click(function(a){var b=$(a.target).attr("data-tabs"),c=$(a.target).attr("data-tab");return $("#"+b).tabs("select",c),!1});var a=$("#html5-warnings");a&&(BrainBrowser.utils.webglEnabled()||(a.css("display","inline-block"),a.find("#webgl-warning").show()),BrainBrowser.utils.webWorkersEnabled()||(a.css("display","inline-block"),a.find("#webworker-warning").show()))});

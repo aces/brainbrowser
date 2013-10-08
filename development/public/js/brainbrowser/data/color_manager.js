@@ -18,17 +18,21 @@
 
 /**
  * Utility object for doing stuff with colors
- *  
+ *
  * @constructor
  */
-function ColorManager(){
+BrainBrowser.colorManager = function(){
+  "use strict";
 
+  var color_manager = {};
+  
   /**
    * This create a color map for each value in the values array
    * This can be slow and memory intensive for large arrays
    */
-  this.createColorMap =  function(spectrum, canvaspixelarray, values, min, max, convert, brightness, contrast, alpha) {
-    var spectrum = spectrum.colors;
+  color_manager.createColorMap =  function(spectrum, canvaspixelarray, values, min, max, convert, brightness, contrast, alpha) {
+    spectrum = spectrum.colors;
+    
     var spectrum_length = spectrum.length;
     //calculate a slice of the data per color
     var increment = ((max-min)+(max-min)/spectrum_length)/spectrum_length;
@@ -46,7 +50,7 @@ function ColorManager(){
       } else if (values[i] > max){
         color_index = spectrum_length - 1;
       }else {
-        color_index = parseInt((value - min) / increment);
+        color_index = parseInt((value - min) / increment, 10);
       }
       //This inserts the RGBA values (R,G,B,A) independently
       
@@ -60,7 +64,7 @@ function ColorManager(){
       color = spectrum[color_index] || [0, 0, 0];
 
       canvaspixelarray[i*4+0] = scale * color[0] * contrast + brightness * scale;
-      canvaspixelarray[i*4+1] = scale * color[1] * contrast + brightness * scale;      
+      canvaspixelarray[i*4+1] = scale * color[1] * contrast + brightness * scale;
       canvaspixelarray[i*4+2] = scale * color[2] * contrast + brightness * scale;
 
       if (alpha) {
@@ -70,13 +74,13 @@ function ColorManager(){
       }
       
     }
-    return canvaspixelarray; 
+    return canvaspixelarray;
   };
 
   /**
    * Blend multiple color_arrays into one using their alpha values
    */
-  this.blendColors = function(color_arrays) {
+  color_manager.blendColors = function(color_arrays) {
     var final_color = color_arrays[0];
     var i, j, count1, count2;
     var old_alpha, new_alpha;
@@ -89,7 +93,7 @@ function ColorManager(){
         final_color[i*4+1] = final_color[i*4+1] * old_alpha+color_arrays[j][i*4+1] * new_alpha;
         final_color[i*4+2] = final_color[i*4+2] * old_alpha+color_arrays[j][i*4+2] * new_alpha;
         final_color[i*4+3] = old_alpha + new_alpha;
-      }   
+      }
     }
     return final_color;
     
@@ -99,16 +103,15 @@ function ColorManager(){
   /**
    * Blends two or more arrays of values into one color array
    */
-  this.blendColorMap = function(spectrum, value_arrays, brightness, contrast) {
+  color_manager.blendColorMap = function(spectrum, value_arrays) {
     var count = value_arrays.length;
     var color_arrays = new Array(count);
-    var final_alpha = 0;
     var i;
     var value_array;
     
     for(i = 0; i < count; i++){
       value_array = value_arrays[i];
-      color_arrays[i] = this.createColorMap(
+      color_arrays[i] = color_manager.createColorMap(
         spectrum,
         new Array(value_array.values.length),
         value_array.values,
@@ -121,7 +124,9 @@ function ColorManager(){
       );
     }
     
-    return this.blendColors(color_arrays);
+    return color_manager.blendColors(color_arrays);
   };
 
-}
+  return color_manager;
+  
+};

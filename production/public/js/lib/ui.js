@@ -1,4 +1,4 @@
-/*! 
+/*
  * Copyright (C) 2011 McGill University
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -14,4 +14,6 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-$(function(){var a=$("#controls");$(".button").button();$(".buttonset").buttonset();$("#data-range-box").hide();$("#control-button").click(function(){var b=$(this).find("span");if(a.is(":visible")){a.animate({height:30},300).animate({width:0},200,function(){a.hide()});b.text("Show Controls")}else{a.show().animate({width:450},200).animate({height:"70%"},300);b.text("Hide Controls")}});setTimeout(function(){$("#app-name").show("blind",{direction:"right"},500);$("#control-button").click()},0)});
+
+/* brainbrowser v1.0.0 */
+$(function(){"use strict";var a=$("#controls");$(".button").button(),$(".buttonset").buttonset(),$("#data-range-box").hide(),$("#control-button").click(function(){var b=$(this).find("span");a.is(":visible")?(a.animate({height:30},300).animate({width:0},200,function(){a.hide()}),b.text("Show Controls")):(a.show().animate({width:450},200).animate({height:"70%"},300),b.text("Hide Controls"))}),setTimeout(function(){$("#app-name").show("blind",{direction:"right"},500),$("#control-button").click()},0)});

@@ -18,18 +18,20 @@
 
 /**
 * Spectrum object constructor also called color bar
-*  
+*
 * @constructor
 * @param {String} data String of data from loaded color file to parse to make spectrum obj
 */
-function Spectrum(data) {
-  var that = this;
-  var colorManager = new ColorManager()
+BrainBrowser.spectrum = function(data) {
+  "use strict";
+  
+  var spectrum = {};
+  var colorManager = BrainBrowser.colorManager();
 
   /*
   * Creates an canvas with the spectrum of colors
   * from low(left) to high(right) values
-  * colors == array of colors 
+  * colors == array of colors
   * color_height  == height of the color bar
   * full_height == height of the canvas
   * flip == boolean should the colors be reversed
@@ -47,19 +49,19 @@ function Spectrum(data) {
     
     for (i = 0; i < 256; i++) {
       if (flip) {
-        value_array[255-i] = i; 
+        value_array[255-i] = i;
       } else {
-        value_array[i] = i; 
+        value_array[i] = i;
       }
     }
     
-    colors = colorManager.createColorMap(that, [], value_array, 0, 255, true, 0, 1);
+    colors = colorManager.createColorMap(spectrum, [], value_array, 0, 255, true, 0, 1);
 
     context = canvas.getContext("2d");
     for (k = 0; k < 256; k++) {
-      context.fillStyle = "rgb(" + parseInt(colors[k*4], 10) + ", " + parseInt(colors[k*4+1]) 
-        + ", " + parseInt(colors[k*4+2] )
-        + ")"; 
+      context.fillStyle = "rgb(" + parseInt(colors[k*4], 10) + ", " +
+                                   parseInt(colors[k*4+1], 10) + ", " +
+                                   parseInt(colors[k*4+2], 10) + ")";
       context.fillRect(k, 0, 1, color_height);
     }
 
@@ -68,11 +70,11 @@ function Spectrum(data) {
   }
   
   //Returns a html canvas element of the color bar from the colors
-  that.createSpectrumCanvas = function(colors)  {
+  spectrum.createSpectrumCanvas = function(colors)  {
     var canvas;
     
-    if (colors === null ) {
-      colors = that.colors;
+    if (!colors) {
+      colors = spectrum.colors;
     }
     
     canvas = createCanvas(colors, 20, 20, false);
@@ -81,12 +83,12 @@ function Spectrum(data) {
   };
 
 
-  that.createSpectrumCanvasWithScale = function(min, max, colors, flip) {
+  spectrum.createSpectrumCanvasWithScale = function(min, max, colors, flip) {
     var canvas;
     var context;
   
     if (colors === null) {
-      colors = that.colors;
+      colors = spectrum.colors;
     }
     canvas = createCanvas(colors, 20, 40, flip);
     context = canvas.getContext("2d");
@@ -134,19 +136,20 @@ function Spectrum(data) {
         tmp_color[k] = parseFloat(tmp_color[k]);
       }
       if (count2 < 4) {
-        tmp_color.push(1.0000); 
+        tmp_color.push(1.0000);
       }
 
       colors.push(tmp_color);
     }
-    that.colors = colors;
+    spectrum.colors = colors;
     
     return colors;
   }
 
-  if(data != undefined) {
+  if(data) {
     parseSpectrum(data);
   }
 
+  return spectrum;
 
-}
+};

@@ -1,11 +1,11 @@
-/* 
+/*
  * Copyright (C) 2011 McGill University
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  *   the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -16,6 +16,7 @@
  */
  
 BrainBrowser.core.models = function(bb) {
+  "use strict";
     
   //////////////////////////////
   // INTERFACE
@@ -27,27 +28,27 @@ BrainBrowser.core.models = function(bb) {
   // hemispheres can be separated.
   //
   // @param {Object} obj object representing the model to be displayed
-  // @param {String} filename name of the original file   
+  // @param {String} filename name of the original file
   bb.displayObjectFile = function(obj, filename, opts) {
     var options = opts || {};
     var renderDepth = options.renderDepth;
     var afterDisplay = options.afterDisplay;
     
-    if (obj.objectClass == 'P' && obj.numberVertices == 81924) {
+    if (obj.objectClass === 'P' && obj.numberVertices === 81924) {
       addBrain(obj, renderDepth);
-    } else if(obj.objectClass == 'P') {
-      addPolygonObject(obj,filename, renderDepth);    
-    } else if(obj.objectClass == 'L') {
+    } else if(obj.objectClass === 'P') {
+      addPolygonObject(obj,filename, renderDepth);
+    } else if(obj.objectClass === 'L') {
       addLineObject(obj, filename, false, renderDepth);
     } else {
       alert("Object file not supported");
     }
     if(bb.afterDisplayObject) {
-      bb.afterDisplayObject(bb.model);      
+      bb.afterDisplayObject(bb.model);
     }
     
     if (afterDisplay) afterDisplay();
-  };  
+  };
     
   //////////////////////////////
   // PRIVATE FUNCTIONS
@@ -55,7 +56,7 @@ BrainBrowser.core.models = function(bb) {
 
   
   // Add a brain model to the scene.
-  function addBrain(obj, renderDepth) {
+  function addBrain(obj) {
     var model = bb.model;
     var left, right;
     
@@ -64,7 +65,7 @@ BrainBrowser.core.models = function(bb) {
     left.name = "left";
     left.model_num = 0;
     right = createHemisphere(obj.right);
-    right.name = "right"
+    right.name = "right";
     right.model_num = 1;
     model.add(left);
     model.add(right);
@@ -118,19 +119,19 @@ BrainBrowser.core.models = function(bb) {
   function addLineObject(obj, filename, mesh, renderDepth) {
     var model = bb.model;
     var lineObject = createLineObject(obj, mesh);
-    lineObject.name = filename; 
+    lineObject.name = filename;
     if (renderDepth) {
       lineObject.renderDepth = renderDepth;
     }
 
-    model.add(lineObject);    
+    model.add(lineObject);
   }
 
   //Create a line model.
   function createLineObject(obj, mesh) {
     var model_data = obj;
     var indices = [];
-    var verts = []; 
+    var verts = [];
     var colors = [];
     var bounding_box = {};
     var centroid = {};
@@ -139,7 +140,6 @@ BrainBrowser.core.models = function(bb) {
     var start;
     var indexArray;
     var endIndex;
-    var endIndicesArray;
     var colorArray = [];
     var col;
     var geometry, material, lineObject;
@@ -161,7 +161,7 @@ BrainBrowser.core.models = function(bb) {
         indices.push(indexArray[k]);
       }
       indices.push(indexArray[endIndex-1]);
-    }   
+    }
     
     posArray = bb.model_data.positionArray;
   
@@ -175,7 +175,7 @@ BrainBrowser.core.models = function(bb) {
     centroid.y = bounding_box.minY + 0.5 * (bounding_box.maxY - bounding_box.minY);
     centroid.z = bounding_box.minY + 0.5 * (bounding_box.maxZ - bounding_box.minZ);
     
-    if (!mesh) {   
+    if (!mesh) {
       for (j = 0, count = indices.length; j < count; j++) {
         verts.push(new THREE.Vector3(
                       posArray[indices[j]*3] - centroid.x,
@@ -185,7 +185,7 @@ BrainBrowser.core.models = function(bb) {
       }
       
       if (model_data.colorArray.length === 4) {
-        for (i = 0; i < numberVertices; i++) {
+        for (i = 0; i < verts.length; i++) {
           colorArray.push(0.5, 0.5, 0.7, 1);
         }
       } else {
@@ -205,7 +205,7 @@ BrainBrowser.core.models = function(bb) {
 
     
     geometry = new THREE.Geometry();
-    geometry.vertices = verts; 
+    geometry.vertices = verts;
     geometry.colors = colors;
 
     geometry.colorsNeedUpdate = true;
@@ -219,7 +219,7 @@ BrainBrowser.core.models = function(bb) {
   }
   
   // Add a polygon object to the scene.
-  function addPolygonObject(obj, filename, renderDepth){
+  function addPolygonObject(obj, filename){
     var model = bb.model;
     var shape;
     var i, count;
@@ -231,24 +231,23 @@ BrainBrowser.core.models = function(bb) {
       for (i = 0, count = shapes.length; i < count; i++){
         shape = createPolygonShape(bb.model_data.shapes[i]);
         shape.name = bb.model_data.shapes[i].name || (filename.split(".")[0] + "_" + i);
-        model.add(shape);       
+        model.add(shape);
       }
     }else {
       shape = createPolygonShape(bb.model_data);
       shape.name = filename;
-      model.add(shape);      
+      model.add(shape);
     }
 
-    if(bb.afterCreate != undefined) {
+    if(bb.afterCreate) {
       bb.afterCreate(bb.model_data);
-    }    
+    }
   }
   
   // Create a polygon object.
-  function createPolygonShape(model_data) {    
+  function createPolygonShape(model_data) {
     var positionArray = model_data.positionArray;
     var indexArray  = model_data.indexArray;
-    var colorArray = [];
     var model_data_color_array = model_data.colorArray;
     var i, j, count;
     var col;
@@ -308,7 +307,7 @@ BrainBrowser.core.models = function(bb) {
             face.vertexColors = [colors[face.a], colors[face.b], colors[face.c]];
             faces.push(face);
           }
-        }      
+        }
       }
     } else {
       for(i = 0; i + 2 < indexArray.length; i+=3) {
@@ -331,24 +330,24 @@ BrainBrowser.core.models = function(bb) {
     return polygonShape;
   }
   
-  // Update current values of the bounding box of 
+  // Update current values of the bounding box of
   // an object.
   function boundingBoxUpdate(box, x, y, z) {
     if (!box.minX || box.minX > x) {
       box.minX = x;
-    } 
+    }
     if (!box.maxX || box.maxX < x) {
       box.maxX = x;
     }
     if (!box.minY || box.minY > y) {
       box.minY = y;
-    } 
+    }
     if (!box.maxY || box.maxY < y) {
       box.maxY = y;
     }
     if (!box.minZ || box.minZ > z) {
       box.minZ = z;
-    } 
+    }
     if (!box.maxZ || box.maxZ < z) {
       box.maxZ = z;
     }

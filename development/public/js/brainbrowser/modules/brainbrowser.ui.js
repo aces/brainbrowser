@@ -1,11 +1,11 @@
-/* 
+/*
  * Copyright (C) 2011 McGill University
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  *   the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -18,28 +18,27 @@
 // Plugin for UI functionality used by both
 // surface viewer and macacc.
 BrainBrowser.plugins.ui = function(bb) {
+  "use strict";
   
-  var loading_div = $("#loading");
-  
+    
   $("body").keydown(function(e) {
-  
-    switch(e.which) {
-      case 38:
-        bb.ZoomInOut(1/1.1);
-        return false;
-      case 40:
-        bb.ZoomInOut(1.1);
-        return false;
-      case 32:
-        bb.separateHemispheres();
-        return false;
+    var key_code = e.which;
+    var keys = {
+      38: function() { bb.ZoomInOut(1/1.1); },
+      40: function() { bb.ZoomInOut(1.1); },
+      32: function() { bb.separateHemispheres(); }
     };
+  
+    if (key_code in keys) {
+      keys[key_code]();
+      return false;
+    }
   
     return true; // If we got here, key was not captured.
   });
   
   $("#clear_color").change(function(e){
-      bb.updateClearColor(parseInt($(e.target).val(), 16));
+    bb.updateClearColor(parseInt($(e.target).val(), 16));
   });
   
   //Setups the view events and handlers
@@ -84,7 +83,7 @@ BrainBrowser.plugins.ui = function(bb) {
     img.onload = function(){
       context.drawImage(img, 0, 0); // Or at whatever offset you like
       if (spectrum_canvas) {
-        getSpectrumImage();       
+        getSpectrumImage();
       }
     };
     
@@ -105,11 +104,11 @@ BrainBrowser.plugins.ui = function(bb) {
     };
   };
   
-  $("#autorotate-controls").children().change(function (e) {
+  $("#autorotate-controls").children().change(function () {
     bb.autoRotate.x = $("#autorotateX").is(":checked");
     bb.autoRotate.y = $("#autorotateY").is(":checked");
     bb.autoRotate.z = $("#autorotateZ").is(":checked");
-  });  
+  });
     
     
-};  
+};

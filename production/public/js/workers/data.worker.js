@@ -1,4 +1,4 @@
-/*! 
+/*
  * Copyright (C) 2011 McGill University
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -14,4 +14,6 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-var result={};self.addEventListener("message",function(f){var b=f.data;var d=b.cmd;var c=b.data;var a;if(d==="parse"){parse(c);self.postMessage(result)}else{if(d=="createColorArray"){self.postMessage(createColorArray(c.values,c.min,c.max,c.spectrum,c.flip,c.clamped,c.original_colors,c.model))}else{self.terminate()}}});function parse(b){var d,e,c,a;b=b.replace(/^\s+/,"").replace(/\s+$/,"");result.values=b.split(/\s+/);c=result.values[0];a=result.values[0];for(d=0,e=result.values.length;d<e;d++){result.values[d]=parseFloat(result.values[d]);c=Math.min(c,result.values[d]);a=Math.max(a,result.values[d])}result.min=c;result.max=a}function createColorArray(q,c,l,k,e,p,a,f){var o=new Array();var n=((l-c)+(l-c)/k.length)/k.length;var d,b,h;var r;var m;var g;for(d=0,h=q.length;d<h;d++){m=q[d];if(m<=c){if(m<c&&!p){r=-1}else{r=0}}else{if(m>l){if(!p){r=-1}else{r=k.length-1}}else{r=parseInt((m-c)/n)}}if(e&&r!=-1){o.push.apply(o,k[k.length-1-r])}else{if(r===-1){if(a.length===4){o.push.apply(o,a)}else{o.push(a[d*4],a[d*4+1],a[d*4+2],a[d*4+3])}}else{o.push.apply(o,k[r])}}}if(f.num_hemisphere!=2){h=f.indexArray.length;g=new Array(h*4);for(b=0;b<h;b++){g[b*4]=o[f.indexArray[b]*4];g[b*4+1]=o[f.indexArray[b]*4+1];g[b*4+2]=o[f.indexArray[b]*4+2];g[b*4+3]=o[f.indexArray[b]*4+3]}o.nonIndexedColorArray=g}return o};
+
+/* brainbrowser v1.0.0 */
+!function(){"use strict";function a(a){var b,d,e,f;for(a=a.replace(/^\s+/,"").replace(/\s+$/,""),c.values=a.split(/\s+/),e=c.values[0],f=c.values[0],b=0,d=c.values.length;d>b;b++)c.values[b]=parseFloat(c.values[b]),e=Math.min(e,c.values[b]),f=Math.max(f,c.values[b]);c.min=e,c.max=f}function b(a,b,c,d,e,f,g,h){var i,j,k,l,m,n,o=[],p=(c-b+(c-b)/d.length)/d.length;for(i=0,k=a.length;k>i;i++)m=a[i],l=b>=m?b>m&&!f?-1:0:m>c?f?d.length-1:-1:parseInt((m-b)/p,10),e&&-1!==l?o.push.apply(o,d[d.length-1-l]):-1===l?4===g.length?o.push.apply(o,g):o.push(g[4*i],g[4*i+1],g[4*i+2],g[4*i+3]):o.push.apply(o,d[l]);if(2!==h.num_hemisphere){for(k=h.indexArray.length,n=new Array(4*k),j=0;k>j;j++)n[4*j]=o[4*h.indexArray[j]],n[4*j+1]=o[4*h.indexArray[j]+1],n[4*j+2]=o[4*h.indexArray[j]+2],n[4*j+3]=o[4*h.indexArray[j]+3];o.nonIndexedColorArray=n}return o}var c={};self.addEventListener("message",function(d){var e=d.data,f=e.cmd,g=e.data;"parse"===f?(a(g),self.postMessage(c)):"createColorArray"===f?self.postMessage(b(g.values,g.min,g.max,g.spectrum,g.flip,g.clamped,g.original_colors,g.model)):self.terminate()})}();

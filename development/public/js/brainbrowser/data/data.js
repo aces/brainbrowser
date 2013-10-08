@@ -17,9 +17,10 @@
 
 
 /**
-* @param {String} data data file in string format to parse 
+* @param {String} data data file in string format to parse
 */
 BrainBrowser.data = function(raw, callback) {
+  "use strict";
   
   // Allows a prototype to be defined for data object
   var data_obj = {};
@@ -41,13 +42,12 @@ BrainBrowser.data = function(raw, callback) {
     });
   
     worker.postMessage({ cmd: "parse", data: raw });
-  };
+  }
   
   data_obj.createColorArray = function(min, max, spectrum, flip, clamped, original_colors, model, callback) {
     var worker = new Worker("js/workers/data.worker.js");
     worker.addEventListener("message", function(e) {
       var color_array = e.data;
-      var prop;
   
       if (callback) callback(color_array);
       worker.terminate();
@@ -69,13 +69,12 @@ BrainBrowser.data = function(raw, callback) {
   
   if (raw) {
     if (typeof raw === "string") {
-      parse(raw);      
-    } else if(raw.values != undefined){
+      parse(raw);
+    } else if(raw.values){
       data_obj.values = raw.values.concat();
       data_obj.min = data_obj.values.min();
       data_obj.max = data_obj.values.max();
-    }else {
-      console.log("copying data length: " + raw.length );
+    } else {
       data_obj.values = raw;
       data_obj.min = raw.min();
       data_obj.max = raw.max();

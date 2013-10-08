@@ -1,11 +1,11 @@
-/* 
+/*
  * Copyright (C) 2011 McGill University
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  *   the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -16,6 +16,8 @@
  */
  
 BrainBrowser.core.rendering = function(bb) {
+  "use strict";
+  
   var renderer; //THREE.js renderer
   var scene = new THREE.Scene();
   var pointLight;
@@ -41,7 +43,7 @@ BrainBrowser.core.rendering = function(bb) {
     anaglyphEffect = new THREE.AnaglyphEffect(renderer);
     anaglyphEffect.setSize(view_window.offsetWidth, view_window.offsetHeight);
   
-    view_window.appendChild(renderer.domElement);  
+    view_window.appendChild(renderer.domElement);
     
     camera.position.z = 500;
     
@@ -51,7 +53,7 @@ BrainBrowser.core.rendering = function(bb) {
     
     camera_controls = new THREE.TrackballControls(camera, view_window);
     light_controls = new THREE.TrackballControls(pointLight, view_window);
-    camera_controls.zoomSpeed = 2;                 
+    camera_controls.zoomSpeed = 2;
     light_controls.zoomSpeed = 2;
     
     bb.autoRotate = {};
@@ -62,26 +64,26 @@ BrainBrowser.core.rendering = function(bb) {
       camera.updateProjectionMatrix();
     };
     
-    window.onresize();      
+    window.onresize();
     
     render_frame();
   };
   
   bb.canvasDataURL = function() {
-    return renderer.domElement.toDataURL()
-  }
+    return renderer.domElement.toDataURL();
+  };
   
   bb.anaglyphEffect = function() {
     effect = anaglyphEffect;
-  }
+  };
 
   bb.noEffect = function() {
     effect = renderer;
-  }
+  };
   
   bb.setCamera = function(x, y, z) {
     camera.position.set(x, y, z);
-  }
+  };
   
   /**
     * Resets the view of the scene by resetting its local matrix to the identity
@@ -94,7 +96,7 @@ BrainBrowser.core.rendering = function(bb) {
     var inv = new THREE.Matrix4();
     inv.getInverse(model.matrix);
   
-    camera_controls.reset();                 
+    camera_controls.reset();
     light_controls.reset();
     model.applyMatrix(inv);
     
@@ -110,29 +112,29 @@ BrainBrowser.core.rendering = function(bb) {
     }
   };
   
-  /** 
+  /**
    * Delete all the shapes on screen
    * For this the function travels down the scenegraph and removes every shape.
-   * 
-   * Tip: when you remove a shape, the shapes array lenght will be decremented so if you need to count the number of shapes, you must save that length value before removing shapes. 
+   *
+   * Tip: when you remove a shape, the shapes array lenght will be decremented so if you need to count the number of shapes, you must save that length value before removing shapes.
    */
   bb.clearScreen = function() {
-    var children = bb.model.children;    
+    var children = bb.model.children;
     
     while (children.length > 0) {
       bb.model.remove(children[0]);
     }
         
     bb.resetView();
-    if(bb.afterClearScreen != undefined) {
+    if(bb.afterClearScreen) {
       bb.afterClearScreen();
     }
   };
   
   /**
    * Updates the clear color or background of the view window
-   * @param {Number[]} color Takes an array with 4 elements, the color must be represented as for values from 0-1.0 [red,green,blue,alpha] 
-    * 
+   * @param {Number[]} color Takes an array with 4 elements, the color must be represented as for values from 0-1.0 [red,green,blue,alpha]
+    *
    */
   bb.updateClearColor = function(color)  {
     renderer.setClearColorHex(color, 1.0);
@@ -195,7 +197,7 @@ BrainBrowser.core.rendering = function(bb) {
     projector.unprojectVector(vector, camera);
     raycaster.set(camera.position, vector.sub(camera.position).normalize() );
     intersects = raycaster.intersectObject(bb.model, true);
-    if (intersects.length > 0) {      
+    if (intersects.length > 0) {
       intersection = intersects[0];
       vertex_data = {
         vertex: intersection.face.a,
@@ -219,7 +221,7 @@ BrainBrowser.core.rendering = function(bb) {
       elem = elem.offsetParent;
     }
     
-    return {top: top, left: left}
+    return {top: top, left: left};
   }
   
   
@@ -228,7 +230,7 @@ BrainBrowser.core.rendering = function(bb) {
     var delta;
     var rotation;
     
-    requestAnimationFrame(render_frame);
+    window.requestAnimationFrame(render_frame);
     
     last_frame = current_frame || timestamp;
     current_frame = timestamp;
@@ -239,7 +241,7 @@ BrainBrowser.core.rendering = function(bb) {
     rotation = delta * 0.00015;
 
     if (bb.autoRotate.x) {
-       model.rotation.x += rotation;
+      model.rotation.x += rotation;
     }
     if (bb.autoRotate.y) {
       model.rotation.y += rotation;
@@ -249,16 +251,6 @@ BrainBrowser.core.rendering = function(bb) {
     }
 
     effect.render(scene, camera);
-  }
-  
-  function drawDot(x, y, z) {
-    var geometry = new THREE.SphereGeometry(2);
-    var material = new THREE.MeshBasicMaterial({color: 0xFF0000});
-  
-    var sphere = new THREE.Mesh(geometry, material);
-    sphere.position.set(x, y, z);
-  
-    scene.add(sphere);
   }
 };
  

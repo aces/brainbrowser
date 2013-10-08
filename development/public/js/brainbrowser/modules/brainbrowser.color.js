@@ -1,11 +1,11 @@
-/* 
+/*
  * Copyright (C) 2011 McGill University
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  *   the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -18,21 +18,22 @@
 
 // Module for updating colours on models currently being displayed.
 BrainBrowser.core.color = function(bb) {
+  "use strict";
   
   ///////////////////////////
   // PRIVATE DATA
   ///////////////////////////
   
-  var colorManager = new ColorManager();
+  var colorManager = BrainBrowser.colorManager();
 
   ///////////////////////////
   // INTERFACE
   ///////////////////////////
 
   // This updates the colors of the model. Will delegate to color_hemispheres() or color_model()
-  // depending on the type of model.  
+  // depending on the type of model.
   bb.updateColors = function(data, options) {
-    var options = options || {};
+    options = options || {};
     var min = options.min;
     var max = options.max;
     var spectrum = options.spectrum;
@@ -40,7 +41,6 @@ BrainBrowser.core.color = function(bb) {
     var clamped = options.clamped;
     var blend = options.blend;
     var afterUpdate = options.afterUpdate;
-    var color_array;
 
     function applyColorArray(color_array) {
       var shapes;
@@ -50,7 +50,7 @@ BrainBrowser.core.color = function(bb) {
         if (data.apply_to_shape) {
           shapes = [bb.model.getChildByName(data.apply_to_shape, true)];
         } else {
-          shapes = bb.model.children
+          shapes = bb.model.children;
         }
         color_model(color_array, shapes);
       }
@@ -82,8 +82,6 @@ BrainBrowser.core.color = function(bb) {
     var color_array_length = color_array.length;
     var left_color_array;
     var right_color_array;
-    var left_color_buffer = [];
-    var right_color_buffer = [];
     var left_hem = model.getChildByName("left");
     var left_hem_faces = left_hem.geometry.faces;
     var right_hem = model.getChildByName("right");
@@ -129,7 +127,7 @@ BrainBrowser.core.color = function(bb) {
           color_index = face.d * 4;
           vertexColors[3].setRGB(right_color_array[color_index], right_color_array[color_index+1], right_color_array[color_index+2]);
         }
-      }  
+      }
     }
 
     left_hem.geometry.colorsNeedUpdate = true;
@@ -139,10 +137,7 @@ BrainBrowser.core.color = function(bb) {
   
   //Coloring for regular models.
   function color_model(color_array, shapes) {
-    var color_array_length = color_array.length;
-    var color_buffer = [];    
     var color_index;
-    var col;
     var face, faces;
     var vertexColors;
     var i, j;

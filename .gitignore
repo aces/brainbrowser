@@ -9,9 +9,10 @@ development/public/data
 production/public/data
 classes/*
 *.log
-tmp/*
+tmp
 config.yml
 rackup.ru
+node_modules
 braincanvas.erb
 braincloud.erb
 development/public/models/*.obj

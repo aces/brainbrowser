@@ -17,6 +17,8 @@
 
 
 $(function() {
+  "use strict";
+  
   var current_request = 0;
   var current_request_name = "";
   var loading_div = $("#loading");
@@ -29,8 +31,8 @@ $(function() {
   BrainBrowser.start(function(bb) {
     bb.loadSpectrumFromUrl('/assets/spectral_spectrum.txt');
  
-    //setting up some defaults 
-    bb.clamped = true; //By default clamp range. 
+    //setting up some defaults
+    bb.clamped = true; //By default clamp range.
     bb.flip = false;
 
     bb.afterLoadSpectrum = function (spectrum) {
@@ -39,7 +41,7 @@ $(function() {
       
       canvas.id = "spectrum-canvas";
       if (!spectrum_div) {
-        $("<div id=\"color-bar\"></div>").html(canvas).appendTo("#data-range-box");      
+        $("<div id=\"color-bar\"></div>").html(canvas).appendTo("#data-range-box");
       } else {
         $(spectrum_div).html(canvas);
       }
@@ -48,36 +50,33 @@ $(function() {
     };
 
     bb.afterDisplayObject = function(object) {
-      var shape;
       var slider, slider_div;
-      var i, count;
       var children = object.children;
-      var elements = $("#shapes").children();
-      if(children.length - elements.length > 0 ) {
-        for (i = elements.length, count = children.length; i < count; i++) {
-          shape = children[i];
-          slider_div = $("<div id=\"shape_" + i + "\" class=\"shape\">"
-            + "<h4>Shape "+ (i + 1) + "</h4>"
-            + "Name: " + shape.name + "<br />" 
-            + "Opacity: "
-            + "</div>");
-          slider = $("<div class=\"opacity-slider slider\"  data-shape-name=\"" + shape.name + "\"></div>");  
+      var current_count = $("#shapes").children().length;
+      if(children.length - current_count > 0 ) {
+        children.slice(current_count).forEach(function(shape, i) {
+          slider_div = $("<div id=\"shape_" + i + "\" class=\"shape\">" +
+            "<h4>Shape "+ (i + 1 + current_count) + "</h4>" +
+            "Name: " + shape.name + "<br />" +
+            "Opacity: " +
+            "</div>");
+          slider = $("<div class=\"opacity-slider slider\"  data-shape-name=\"" + shape.name + "\"></div>");
           slider.slider({
-              value: 100,
-              min: -1,
-              max: 101,
-              slide: function(event, ui) {
-                var target = event.target;
-                var shape_name = $(target).attr('data-shape-name');
-                var alpha = $(target).slider('value');
-                alpha = Math.min(100, Math.max(0, alpha)) / 100.0;
+            value: 100,
+            min: -1,
+            max: 101,
+            slide: function(event) {
+              var target = event.target;
+              var shape_name = $(target).attr('data-shape-name');
+              var alpha = $(target).slider('value');
+              alpha = Math.min(100, Math.max(0, alpha)) / 100.0;
 
-                bb.changeShapeTransparency(shape_name, alpha);
-              }
+              bb.changeShapeTransparency(shape_name, alpha);
+            }
           });
           slider.appendTo(slider_div);
           slider_div.appendTo("#shapes");
-        }
+        });
       }
 
 
@@ -87,7 +86,7 @@ $(function() {
       };
     };
     
-    $('#clearshapes').click(function(e) {
+    $('#clearshapes').click(function() {
       bb.clearScreen();
       current_request = 0;
       current_request_name = "";
@@ -129,7 +128,7 @@ $(function() {
       var rangeBox = $("#data-range");
       var headers = "<div id=\"data-range-multiple\"><ul>";
       var controls = "";
-      var data = data.length ? data : [data];
+      data = Array.isArray(data) ? data : [data];
       var i, count;
       rangeBox.html("");
       for(i = 0, count = data.length; i < count; i++) {
@@ -152,7 +151,7 @@ $(function() {
 
       $("#data-range").find(".slider").each(function(index, element) {
         var min = data[0].values.min();
-        var max = data[0].values.max()
+        var max = data[0].values.max();
         $(element).slider({
           range: true,
           min: min,
@@ -165,8 +164,6 @@ $(function() {
           },
           stop: function(event, ui) {
             loading_div.show();
-            var blend_id = $(this).attr("data-blend-index");
-            range_updating = true;
             data[0].rangeMin = ui.values[0];
             data[0].rangeMax = ui.values[1];
             bb.model_data.data = data[0];
@@ -196,7 +193,7 @@ $(function() {
 
       $("#data-range-max").change(dataRangeChange);
 
-      $("#fix_range").click(function(event,ui) {
+      $("#fix_range").click(function(event) {
         bb.fixRange = $(event.target).is(":checked");
       });
 
@@ -243,7 +240,6 @@ $(function() {
       $("<span id=\"blend_value\">0.5</span>").appendTo(div);
       $("<div class=\"blend_slider\" id=\"blend_slider\" width=\"100px\" + height=\"10\"></div>")
         .slider({
-          value: 0,
           min: 0.1,
           max: 0.99,
           value: 0.5,
@@ -251,18 +247,18 @@ $(function() {
           /*
           * When the sliding the slider, change all the other sliders by the amount of this slider
           */
-          slide: function(event, ui) {
+          slide: function() {
             var slider = $(this);
             slider.siblings("span").html(slider.slider("value"));
           },
-          stop: function(event, ui) {
-            bb.blend($(this).slider("value"));  
+          stop: function() {
+            bb.blend($(this).slider("value"));
           }
         }).appendTo(div);
     };
 
     $(".range-box").keypress(function(e) {
-      if(e.keyCode == '13'){
+      if(e.keyCode === '13'){
         bb.rangeChange(parseFloat($("#data-range-min").val()),parseFloat($("#data-range-max").val()));
       }
     });
@@ -280,7 +276,7 @@ $(function() {
       // at the time request was sent.
       function default_cancel_opts(request_number) {
         return function() { return request_number !== current_request; };
-      };
+      }
       
       function loadFinished() {
         loading_div.hide();
@@ -289,61 +285,61 @@ $(function() {
       loading_div.show();
       bb.clearScreen();
 
-      switch(name) {
-        case  'basic':
+      var examples = {
+        basic: function() {
           bb.loadModelFromUrl('/models/surf_reg_model_both.obj', {
             format: "MNIObject",
             afterDisplay: loadFinished,
             cancel: default_cancel_opts(current_request)
           });
-          break;
-        case 'punkdti':
+        },
+        punkdti: function() {
           bb.loadModelFromUrl('/models/dti.obj', {
             format: "MNIObject",
             renderDepth: 999,
             afterDisplay: loadFinished,
             cancel: default_cancel_opts(current_request)
           });
-          bb.loadModelFromUrl('/models/left_color.obj', { 
-            format: "MNIObject",
-            cancel: default_cancel_opts(current_request) 
-          });
-          bb.loadModelFromUrl('/models/right_color.obj', { 
+          bb.loadModelFromUrl('/models/left_color.obj', {
             format: "MNIObject",
             cancel: default_cancel_opts(current_request)
           });
-          break;
-        case 'realct':
+          bb.loadModelFromUrl('/models/right_color.obj', {
+            format: "MNIObject",
+            cancel: default_cancel_opts(current_request)
+          });
+        },
+        realct: function() {
           bb.loadModelFromUrl('/models/realct.obj', {
             format: "MNIObject",
             afterDisplay: function() {
               bb.loadDataFromUrl('/models/realct.txt','Cortical Thickness', {
                 afterUpdate: loadFinished,
                 cancel: default_cancel_opts(current_request)
-              }); 
+              });
             },
             cancel: default_cancel_opts(current_request)
           });
-          break;
-        case 'car':
+        },
+        car: function() {
           bb.loadModelFromUrl('/models/car.obj', {
             format: "WavefrontObj",
             afterDisplay: loadFinished,
             cancel: default_cancel_opts(current_request)
           });
-          bb.setCamera(0, 0, 100);           
+          bb.setCamera(0, 0, 100);
 
           matrixRotX = new THREE.Matrix4();
-          matrixRotX.makeRotationX(-0.25 * Math.PI)
+          matrixRotX.makeRotationX(-0.25 * Math.PI);
           matrixRotY = new THREE.Matrix4();
-          matrixRotY.makeRotationY(0.4 * Math.PI)
+          matrixRotY.makeRotationY(0.4 * Math.PI);
 
           bb.model.applyMatrix(matrixRotY.multiply(matrixRotX));
-          break;
-        case 'plane':
-          bb.loadModelFromUrl('/models/dlr_bigger.streamlines.obj', { 
+        },
+        plane: function() {
+          bb.loadModelFromUrl('/models/dlr_bigger.streamlines.obj', {
             format: "MNIObject",
-            cancel: default_cancel_opts(current_request) 
+            cancel: default_cancel_opts(current_request)
           });
           bb.loadModelFromUrl('/models/dlr.model.obj', {
             format: "MNIObject",
@@ -355,14 +351,14 @@ $(function() {
           bb.setCamera(0, 0, 75);
 
           matrixRotX = new THREE.Matrix4();
-          matrixRotX.makeRotationX(-0.25 * Math.PI)
+          matrixRotX.makeRotationX(-0.25 * Math.PI);
           matrixRotY = new THREE.Matrix4();
-          matrixRotY.makeRotationY(0.4 * Math.PI)
+          matrixRotY.makeRotationY(0.4 * Math.PI);
 
           bb.model.applyMatrix(matrixRotY.multiply(matrixRotX));
-          break;
-        case 'mouse':
-          bb.loadModelFromUrl('/models/mouse_surf.obj', { 
+        },
+        mouse: function() {
+          bb.loadModelFromUrl('/models/mouse_surf.obj', {
             format: "MNIObject",
             afterDisplay: function() {
               bb.loadDataFromUrl('/models/mouse_alzheimer_map.txt',
@@ -375,21 +371,26 @@ $(function() {
                 }
               );
             },
-            cancel: default_cancel_opts(current_request) 
+            cancel: default_cancel_opts(current_request)
           });
-          bb.loadModelFromUrl('/models/mouse_brain_outline.obj', { 
+          bb.loadModelFromUrl('/models/mouse_brain_outline.obj', {
             format: "MNIObject",
             afterDisplay: function() {
               $(".opacity-slider[data-shape-name='mouse_brain_outline.obj']").slider("value", 50);
               bb.changeShapeTransparency('mouse_brain_outline.obj', 0.5);
             },
-            cancel: default_cancel_opts(current_request) 
+            cancel: default_cancel_opts(current_request)
           });
           bb.setCamera(0, 0, 40);
+        }
+      };
+      
+      if (examples.hasOwnProperty(name)) {
+        examples[name]();
       }
-
-      return false; 
-
+      
+      return false;
+      
     });
 
     $("#obj_file_format").change(function () {
@@ -399,11 +400,11 @@ $(function() {
 
     $("#obj_file_submit").click(function () {
       var format = $("#obj_file_format").closest("#obj_file_select").find("#obj_file_format option:selected").val();
-      bb.loadModelFromFile(document.getElementById("objfile"), { 
-        format: format, 
+      bb.loadModelFromFile(document.getElementById("objfile"), {
+        format: format,
         beforeLoad: function() {
           loading_div.show();
-        }, 
+        },
         afterDisplay: function() {
           loading_div.hide();
         },

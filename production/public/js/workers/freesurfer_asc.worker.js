@@ -1,4 +1,4 @@
-/*! 
+/*
  * Copyright (C) 2011 McGill University
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -14,4 +14,6 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-var result={};self.addEventListener("message",function(b){var a=b.data;parse(a);self.postMessage(result)});function parse(g){var b;var c=[];var n=[];var j=[];var m;var a;var o;var p;var k,h;var d;var f,e;g=g.split("\n");result.shapes=[];b={name:g.name|"undefined",faces:[],positionArray:[],colorArray:[],indexArray:[],texIndexArray:[],normalIndexArray:[]};result.shapes.push(b);m=g[1].split(/\s+/);a=parseInt(m[0],10);o=parseInt(m[1],10);for(f=2;f<a+2;f++){p=g[f].split(/\s+/);c.push(parseFloat(p[0]));c.push(parseFloat(p[1]));c.push(parseFloat(p[2]))}for(f=a+2;f<a+o+2;f++){p=g[f].split(/\s+/);k=[];k.push(parseInt(p[0],10));k.push(parseInt(p[1],10));k.push(parseInt(p[2],10));b.faces.push(k)}d=result.shapes.length;for(e=0;e<d;e++){h=result.shapes[e];h.positionArray=c;if(h.colorArray.length==0){h.colorArray=[0.8,0.8,0.8,1]}}result.objectClass="P";result.vertexArray=c};
+
+/* brainbrowser v1.0.0 */
+!function(){"use strict";function a(a){var c,d,e,f,g,h,i,j,k,l,m=[];for(a=a.split("\n"),b.shapes=[],c={name:"undefined"|a.name,faces:[],positionArray:[],colorArray:[],indexArray:[],texIndexArray:[],normalIndexArray:[]},b.shapes.push(c),d=a[1].split(/\s+/),e=parseInt(d[0],10),f=parseInt(d[1],10),k=2;e+2>k;k++)g=a[k].split(/\s+/),m.push(parseFloat(g[0])),m.push(parseFloat(g[1])),m.push(parseFloat(g[2]));for(k=e+2;e+f+2>k;k++)g=a[k].split(/\s+/),h=[],h.push(parseInt(g[0],10)),h.push(parseInt(g[1],10)),h.push(parseInt(g[2],10)),c.faces.push(h);for(j=b.shapes.length,l=0;j>l;l++)i=b.shapes[l],i.positionArray=m,0===i.colorArray.length&&(i.colorArray=[.8,.8,.8,1]);b.objectClass="P",b.vertexArray=m}var b={};self.addEventListener("message",function(c){var d=c.data;a(d),self.postMessage(b)})}();

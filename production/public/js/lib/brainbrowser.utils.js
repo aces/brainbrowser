@@ -1,4 +1,4 @@
-/*! 
+/*
  * Copyright (C) 2011 McGill University
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -14,10 +14,6 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-var BrainBrowser=BrainBrowser||{};BrainBrowser.utils=(function(){
-/*! 
-   * WebGL test taken from Detector.js by
-   * alteredq / http://alteredqualia.com/
-   * mr.doob / http://mrdoob.com/
-  */
-function b(){try{return !!window.WebGLRenderingContext&&!!document.createElement("canvas").getContext("experimental-webgl")}catch(f){return false}}function a(){return !!window.Worker}function c(){var e;var f='BrainBrowser requires <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">WebGL</a>.<br/>';f+=window.WebGLRenderingContext?"Your browser seems to support it, but it is <br/> disabled or unavailable.<br/>":"Your browser does not seem to support it.<br/>";f+='Test your browser\'s WebGL support <a href="http://get.webgl.org/">here</a>.';e=document.createElement("div");e.id="webgl-error";e.innerHTML=f;return e}function d(e){return e instanceof Function||typeof e==="function"}return{webglEnabled:b,webWorkersEnabled:a,webGLErrorMessage:c,isFunction:d}})();
+
+/* brainbrowser v1.0.0 */
+var BrainBrowser=BrainBrowser||{};BrainBrowser.utils=function(){"use strict";function a(){try{return!!window.WebGLRenderingContext&&!!document.createElement("canvas").getContext("experimental-webgl")}catch(a){return!1}}function b(){return!!window.Worker}function c(){var a,b='BrainBrowser requires <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">WebGL</a>.<br/>';return b+=window.WebGLRenderingContext?"Your browser seems to support it, but it is <br/> disabled or unavailable.<br/>":"Your browser does not seem to support it.<br/>",b+='Test your browser\'s WebGL support <a href="http://get.webgl.org/">here</a>.',a=document.createElement("div"),a.id="webgl-error",a.innerHTML=b,a}function d(a){return a instanceof Function||"function"==typeof a}function e(a,b,c,d){var e=new THREE.SphereGeometry(2),f=new THREE.MeshBasicMaterial({color:16711680}),g=new THREE.Mesh(e,f);g.position.set(b,c,d),a.add(g)}return{webglEnabled:a,webWorkersEnabled:b,webGLErrorMessage:c,isFunction:d,drawDot:e}}();

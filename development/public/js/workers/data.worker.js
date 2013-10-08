@@ -15,92 +15,96 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var result = {};
+(function() {
+  "use strict";
 
-self.addEventListener("message", function(e) {
-  var message = e.data;
-  var cmd = message.cmd;
-  var data = message.data;
-  var colorArray;
-  if (cmd === "parse") {
-    parse(data);
-    self.postMessage(result);
-  } else if (cmd == "createColorArray") {
-    self.postMessage(createColorArray(data.values, data.min, data.max, data.spectrum, data.flip, data.clamped, data.original_colors, data.model));
-  } else {
-    self.terminate();
-  }
-});
-
-function parse(string) {
-  var i, count, min, max;
-
-  string = string.replace(/^\s+/, '').replace(/\s+$/, '');
-  result.values = string.split(/\s+/);
-  min = result.values[0];
-  max = result.values[0];
-  for(i = 0, count = result.values.length; i < count; i++) {
-    result.values[i] = parseFloat(result.values[i]);
-    min = Math.min(min, result.values[i]);
-    max = Math.max(max, result.values[i]);
-  }
-  result.min = min;
-  result.max = max;
-};
-
-function createColorArray(values, min, max, spectrum, flip, clamped, original_colors, model) {
-  var colorArray = new Array();
-  //calculate a slice of the data per color
-  var increment = ((max-min)+(max-min)/spectrum.length)/spectrum.length;
-  var i, j, count;
-  var color_index;
-  var value;
-  var newColorArray;
-  //for each value, assign a color
-  for (i = 0, count = values.length; i < count; i++) {
-    value = values[i];
-    if(value <= min ) {
-      if (value < min && !clamped) {
-        color_index = -1;
-      } else {
-        color_index = 0; 
-      }
-    }else if (value > max){
-      if (!clamped){
-        color_index = -1;
-      }else {
-        color_index = spectrum.length - 1;
-      }
-    }else {
-      color_index = parseInt((value-min)/increment);
-    }
-    //This inserts the RGBA values (R,G,B,A) independently
-    if (flip && color_index != -1) {
-      colorArray.push.apply(colorArray, spectrum[spectrum.length-1-color_index]);
+  var result = {};
+  
+  self.addEventListener("message", function(e) {
+    var message = e.data;
+    var cmd = message.cmd;
+    var data = message.data;
+    if (cmd === "parse") {
+      parse(data);
+      self.postMessage(result);
+    } else if (cmd === "createColorArray") {
+      self.postMessage(createColorArray(data.values, data.min, data.max, data.spectrum, data.flip, data.clamped, data.original_colors, data.model));
     } else {
-      if(color_index === -1) {
-        if(original_colors.length === 4){
-          colorArray.push.apply(colorArray, original_colors);   
+      self.terminate();
+    }
+  });
+  
+  function parse(string) {
+    var i, count, min, max;
+  
+    string = string.replace(/^\s+/, '').replace(/\s+$/, '');
+    result.values = string.split(/\s+/);
+    min = result.values[0];
+    max = result.values[0];
+    for(i = 0, count = result.values.length; i < count; i++) {
+      result.values[i] = parseFloat(result.values[i]);
+      min = Math.min(min, result.values[i]);
+      max = Math.max(max, result.values[i]);
+    }
+    result.min = min;
+    result.max = max;
+  }
+  
+  function createColorArray(values, min, max, spectrum, flip, clamped, original_colors, model) {
+    var colorArray = [];
+    //calculate a slice of the data per color
+    var increment = ((max-min)+(max-min)/spectrum.length)/spectrum.length;
+    var i, j, count;
+    var color_index;
+    var value;
+    var newColorArray;
+    //for each value, assign a color
+    for (i = 0, count = values.length; i < count; i++) {
+      value = values[i];
+      if(value <= min ) {
+        if (value < min && !clamped) {
+          color_index = -1;
+        } else {
+          color_index = 0;
+        }
+      }else if (value > max){
+        if (!clamped){
+          color_index = -1;
         }else {
-          colorArray.push(original_colors[i*4], original_colors[i*4+1], original_colors[i*4+2], original_colors[i*4+3]);    
+          color_index = spectrum.length - 1;
         }
       }else {
-        colorArray.push.apply(colorArray, spectrum[color_index]);
-      } 
+        color_index = parseInt((value-min)/increment, 10);
+      }
+      //This inserts the RGBA values (R,G,B,A) independently
+      if (flip && color_index !== -1) {
+        colorArray.push.apply(colorArray, spectrum[spectrum.length-1-color_index]);
+      } else {
+        if(color_index === -1) {
+          if(original_colors.length === 4){
+            colorArray.push.apply(colorArray, original_colors);
+          }else {
+            colorArray.push(original_colors[i*4], original_colors[i*4+1], original_colors[i*4+2], original_colors[i*4+3]);
+          }
+        }else {
+          colorArray.push.apply(colorArray, spectrum[color_index]);
+        }
+      }
     }
-  }
-
-  if(model.num_hemisphere != 2) {
-    count = model.indexArray.length
-    newColorArray = new Array(count * 4);
-    for (j = 0; j < count; j++ ) {
-      newColorArray[j*4]     = colorArray[model.indexArray[j]*4];
-      newColorArray[j*4 + 1] = colorArray[model.indexArray[j]*4 + 1];
-      newColorArray[j*4 + 2] = colorArray[model.indexArray[j]*4 + 2];
-      newColorArray[j*4 + 3] = colorArray[model.indexArray[j]*4 + 3];
+  
+    if(model.num_hemisphere !== 2) {
+      count = model.indexArray.length;
+      newColorArray = new Array(count * 4);
+      for (j = 0; j < count; j++ ) {
+        newColorArray[j*4]     = colorArray[model.indexArray[j]*4];
+        newColorArray[j*4 + 1] = colorArray[model.indexArray[j]*4 + 1];
+        newColorArray[j*4 + 2] = colorArray[model.indexArray[j]*4 + 2];
+        newColorArray[j*4 + 3] = colorArray[model.indexArray[j]*4 + 3];
+      }
+      colorArray.nonIndexedColorArray = newColorArray;
     }
-    colorArray.nonIndexedColorArray = newColorArray;
+  
+    return colorArray;
   }
+})();
 
-  return colorArray;
-};

@@ -16,6 +16,8 @@
  */
 
 BrainBrowser.filetypes.parseWorker = function(self, data, worker_file, callback) {
+  "use strict";
+  
   var worker = new Worker(worker_file);
   
   worker.addEventListener("message", function(e) {

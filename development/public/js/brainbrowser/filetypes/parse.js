@@ -16,6 +16,8 @@
  */
 
 BrainBrowser.filetypes.parse = function(type, data, callback) {
+  "use strict";
+  
   
   var obj = {};
   

@@ -17,6 +17,8 @@
 
 
 $(function() {
+  "use strict";
+  
   var macacc;
   var path_prefix = "/data/";
   var loading_div = $("#loading");
@@ -39,7 +41,7 @@ $(function() {
       bb.spectrumObj = spectrum;
     };
     
-    bb.loadModelFromUrl('/models/surf_reg_model_both.obj', { 
+    bb.loadModelFromUrl('/models/surf_reg_model_both.obj', {
       format: "MNIObject",
       afterDisplay: function() {
         hideLoading();
@@ -58,25 +60,25 @@ $(function() {
             data_range_min: parseFloat($("#data-range-min").val()),
             data_range_max: parseFloat($("#data-range-max").val()),
           };
-        }
+        };
         
         macacc.afterUpdateModel = function(statistic) {
           if (statistic !== "T") {
             $("#range-slider").slider("option", "min", "0");
             $("#range-slider").slider("option", "max", "1");
           }
-        }
+        };
         
         macacc.afterVertexUpdate = function(vertex_data, value) {
           var vertex = vertex_data.vertex;
-          if (vertex != undefined && value != undefined) {
+          if (vertex !== undefined && value !== undefined) {
             $("#x-coord").val(vertex_data.point.x);
             $("#y-coord").val(vertex_data.point.y);
             $("#z-coord").val(vertex_data.point.z);
             $("#v-coord").val(vertex);
             $("#value-coord").val(value);
           }
-        }
+        };
         
         macacc.beforeUpdateMap = showLoading;
         macacc.beforeRangeChange = showLoading;
@@ -95,7 +97,7 @@ $(function() {
         
         
           return {modality: data_modality, sk: data_sk, statistic: data_statistic };
-        }
+        };
         
         $('.data_controls').change(macacc.dataControlChange);
         
@@ -119,60 +121,59 @@ $(function() {
         $("#data-range-min").val(ui.values[0]);
         $("#data-range-max").val(ui.values[1]);
       },
-      stop: function(event, ui) {
+      stop: function() {
         macacc.rangeChange();
       },
-      step: 0.1    
+      step: 0.1
     });
 
 
 
     $(".range-box").keypress(function(e) {
-       if(e.keyCode == '13'){
-         macacc.rangeChange();
-       }
-     }
-    );
+      if(e.keyCode === '13'){
+        macacc.rangeChange();
+      }
+    });
 
-    $("#data-range-min").change(function(e) {
+    $("#data-range-min").change(function() {
       $("#range-slider").slider('values', 0, $(this).val());
       macacc.afterRangeChange(parseFloat($("#data-range-min").val()), parseFloat($("#data-range-max").val()));
     });
 
-    $("#data-range-max").change(function(e) {
+    $("#data-range-max").change(function() {
       $("#range-slider").slider('values', 1, $(this).val());
       macacc.afterRangeChange(parseFloat($("#data-range-min").val()), parseFloat($("#data-range-max").val()));
     });
 
-    $('#screenshot').click(function(event) {$(this).attr("href", bb.client.toDataUR());});
+    $('#screenshot').click(function() {$(this).attr("href", bb.client.toDataUR());});
     
     $("#brainbrowser").mousedown(function(e) {
       var pointer_setting=$('[name=pointer]:checked').val();
       
-      if(e.ctrlKey || pointer_setting == "check") {
+      if(e.ctrlKey || pointer_setting === "check") {
         if(bb.valueAtPointCallback) {
           bb.click(e, bb.valueAtPointCallback);
         }
-      } else if(e.shiftKey || pointer_setting == "select") {
+      } else if(e.shiftKey || pointer_setting === "select") {
         if(bb.clickCallback) {
           bb.click(e, bb.clickCallback);
         }
       }
     });
 
-    $("#flip_range").change(function(e) {
+    $("#flip_range").change(function() {
       showLoading();
       macacc.updateMap();
     });
     
-    $("#clamp_range").change(function(e) {
+    $("#clamp_range").change(function() {
       showLoading();
       macacc.updateMap();
     });
     
 
 
-    $("#flip_correlation").click(function(e) {
+    $("#flip_correlation").click(function() {
       var min = -1 * parseFloat($("#data-range-max").val());
       var max = -1 * parseFloat($("#data-range-min").val());
       $("#data-range-min").val(min).change();
@@ -181,30 +182,30 @@ $(function() {
       $("#flip_range").attr("checked", !$("#flip_range").is(":checked")).change();
     });
 
-    $("#secondWindow").click(function(e){
+    $("#secondWindow").click(function(){
       bb.secondWindow=window.open('/macacc.html','secondWindow');
     });
 
     window.addEventListener('message', function(e){
 
-      var vertex = parseInt(e.data);
+      var vertex = parseInt(e.data, 10);
       var position_vector = [
-       bb.model_data.positionArray[vertex*3],
-       bb.model_data.positionArray[vertex*3+1],
-       bb.model_data.positionArray[vertex*3+2]
+        bb.model_data.positionArray[vertex*3],
+        bb.model_data.positionArray[vertex*3+1],
+        bb.model_data.positionArray[vertex*3+2]
       ];
 
       macacc.pickClick(e, {
-             position_vector: position_vector,
-             vertex: vertex,
-             stop: true //tell pickClick to stop propagating the 
-                        //click so we don't get an infinite loop.
-           });
+        position_vector: position_vector,
+        vertex: vertex,
+        stop: true //tell pickClick to stop propagating the
+                   //click so we don't get an infinite loop.
+      });
 
-      }, false);
+    }, false);
     
-      if (window.opener) {
-        bb.secondWindow = window.opener;
-      }
+    if (window.opener) {
+      bb.secondWindow = window.opener;
+    }
   });
 });

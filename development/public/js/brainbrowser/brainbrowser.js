@@ -34,7 +34,11 @@
 // BrainBrowser also maintains the model parsing objects in the BrainBrowser.filetypes module,
 // as well as helpers for colour management in BrainBrowser.data.
 
-var BrainBrowser = {
+(function() {
+  "use strict";
+  
+  var BrainBrowser = window.BrainBrowser = {
+  
     start: function(callback) {
 
       /////////////////////////////////
@@ -42,12 +46,12 @@ var BrainBrowser = {
       /////////////////////////////////
       
       if (! BrainBrowser.utils.webWorkersEnabled() ) {
-        alert("Can't find web workers. Exiting.")
+        alert("Can't find web workers. Exiting.");
         return;
       }
       
       if (!BrainBrowser.utils.webglEnabled()) {
-        alert("Can't get WebGL context. Exiting.")
+        alert("Can't get WebGL context. Exiting.");
         return;
       }
       // Allows a prototype to be defined for the browser.
@@ -93,18 +97,20 @@ var BrainBrowser = {
       ////////////////////////////////////////////////////// 
       callback(browser);
     }
-};
+  };
 
-// Core modules.
-BrainBrowser.core = {};
-
-// Standard modules.
-BrainBrowser.modules = {};
-
-// Application specific plugins.
-BrainBrowser.plugins = {};
-
-// 3D Model filetype handlers.
-BrainBrowser.filetypes = {};
+  // Core modules.
+  BrainBrowser.core = {};
+  
+  // Standard modules.
+  BrainBrowser.modules = {};
+  
+  // Application specific plugins.
+  BrainBrowser.plugins = {};
+  
+  // 3D Model filetype handlers.
+  BrainBrowser.filetypes = {};
+  
+})();
 
 

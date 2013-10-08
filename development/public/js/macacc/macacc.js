@@ -1,11 +1,11 @@
-/* 
+/*
  * Copyright (C) 2011 McGill University
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  *   the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -17,9 +17,12 @@
 
 // Module for fetching MACACC data from the server and updating
 // the displayed map.
-var MACACC = (function() {
+(function() {
+  "use strict";
   
-  function createCollection (brainbrowser, path, dont_build_path) {
+  var MACACC = window.MACACC = {};
+  
+  MACACC.collection = function(brainbrowser, path, dont_build_path) {
     var collection = {
       brainbrowser: brainbrowser,
       dataset: createDataset(path, dont_build_path)
@@ -31,7 +34,7 @@ var MACACC = (function() {
       
       if (vertex_data.object && vertex_data.object.model_num) {
         collection.vertex += vertex_data.object.model_num * vertex_data.object.geometry.vertices.length;
-      } 
+      }
       
       if (collection.vertex) {
         loadMap();
@@ -82,10 +85,10 @@ var MACACC = (function() {
       collection.flipRange = flip;
       
       brainbrowser.updateColors(collection.dataset.current_data, {
-        min: min, 
-        max: max, 
-        spectrum: brainbrowser.spectrum, 
-        flip: flip, 
+        min: min,
+        max: max,
+        spectrum: brainbrowser.spectrum,
+        flip: flip,
         clamped: clamped
       });
       
@@ -137,7 +140,7 @@ var MACACC = (function() {
       
       if (controls.modality === "AAL") {
         if (collection.beforeUpdateMap) collection.beforeUpdateMap();
-        collection.showAtlas();  
+        collection.showAtlas();
       } else {
         loadMap();
       }
@@ -163,7 +166,7 @@ var MACACC = (function() {
     function loadMap() {
       if (collection.vertex) {
         if (collection.beforeUpdateMap) collection.beforeUpdateMap();
-        collection.dataset.getData(collection.vertex, collection.getDataControls(), collection.updateMap); 
+        collection.dataset.getData(collection.vertex, collection.getDataControls(), collection.updateMap);
       }
     }
   
@@ -172,7 +175,7 @@ var MACACC = (function() {
     brainbrowser.clickCallback = collection.pickClick; //associating pickClick for brainbrowser which handles events.
   
     return collection;
-  }
+  };
 
   // Create a data set object. This object encapsulates interactions
   // with the MACACC dataset on the server.
@@ -181,12 +184,12 @@ var MACACC = (function() {
     var dataset = {};
     
   
-    dataset.path = dont_build_pathp ? function() { return path_prefix; } 
+    dataset.path = dont_build_pathp ? function() { return path_prefix; }
                       : function(vertex, settings) {
                           var sk =  "ICBM152_" + settings.sk;
                           var modality = "ICBM152_" + settings.modality + "_MACACC_" + (settings.modality === 'CT' ? "mean" : "size");
                           var statistic = settings.statistic === "T"  ? "T_map/T_" :
-                                          settings.statistic === "P1" ? "RTF_C_map/RTF_C_" : 
+                                          settings.statistic === "P1" ? "RTF_C_map/RTF_C_" :
                                           settings.statistic === "P2" ? "RTF_V_map/RTF_V_" : "";
                           
                           
@@ -197,7 +200,7 @@ var MACACC = (function() {
     // Sends a request to the server and then parses the response.
     dataset.getData = function(vertex, settings, callback){
       var path = vertex === "aal_atlas" ? "/assets/aal_atlas.txt" : dataset.path(vertex, settings);
-      var data_object = dont_build_pathp ? { vertex: vertex, modality: settings.modality, sk: settings.sk, statistic: settings.statistic } 
+      var data_object = dont_build_pathp ? { vertex: vertex, modality: settings.modality, sk: settings.sk, statistic: settings.statistic }
                                          : {};
   
       $.ajax({
@@ -220,10 +223,6 @@ var MACACC = (function() {
     
     return dataset;
   }
-
-  return {
-    collection: createCollection
-  };
 })();
 
 

@@ -169,5 +169,12 @@ module.exports = function(grunt) {
 
   grunt.registerTask("compile", ["concat", "uglify"]);
 
-  grunt.registerTask("default", ["jshint", "concat", "uglify"]);
+  grunt.registerTask("default", [
+    "jshint:grunt",
+    "jshint:brainbrowser",
+    "jshint:workers",
+    "jshint:braincanvas",
+    "concat",
+    "uglify"
+  ]);
 };

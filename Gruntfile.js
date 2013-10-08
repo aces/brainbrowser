@@ -125,6 +125,17 @@ module.exports = function(grunt) {
           }
         },
         src: ["<%= concat.braincanvas.src %>"]
+      },
+      loris: {
+        options: {
+          browser: true,
+          jquery: true,
+          globals: {
+            BrainCanvas: true,
+            oFactory: true
+          }
+        },
+        src: ["development/public/loris/js/braincanvas.loris_ui_controls.js"]
       }
     },
     watch: {
@@ -144,6 +155,10 @@ module.exports = function(grunt) {
         files: ["<%= jshint.braincanvas.src %>"],
         tasks: ["jshint:braincanvas"]
       },
+      loris : {
+        files: ["<%= jshint.loris.src %>"],
+        tasks: ["jshint:loris"]
+      }
     }
   });
 

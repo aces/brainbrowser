@@ -51,22 +51,23 @@
       controls.append(blend);
     
       blendSlider.slider({
-        from: -50, to: 50,
+        from: -50,
+        to: 50,
         scale: [-50, '|', -25, '|', 0, '|', 25, '|', 50],
-        round: 1, 
+        round: 1,
         dimension: '',
-        callback: function(event, ui) { 
+        callback: function() {
           var newVal = parseFloat(this.inputNode.attr("value"));
-          volume.updateBlendRatio(newVal); 
+          volume.updateBlendRatio(newVal);
           viewer.redrawVolume(volID);
           blend_val.val( newVal );
-        } 
+        }
       });
     
       //change blend value based on user input in text field
       blend_val.change(function () {
         var value = this.value;
-        values = blendSlider.slider("value", value); 
+        values = blendSlider.slider("value", value);
         volume.updateBlendRatio(value);
         viewer.redrawVolume(volID);
       });
@@ -87,7 +88,7 @@
     
       //On change update color scale of volume and redraw.
       colorScaleOption.change(function(event) {
-        var index = parseInt($(event.target).val());
+        var index = parseInt($(event.target).val(), 10);
         volume.colorScale = BrainCanvas.colorScales[index];
         viewer.redrawVolumes();
       });
@@ -103,9 +104,9 @@
         var thres = $("<div class=\"control-heading\">Threshold: </div>");
         var min_input = $('<input class="control-inputs min" "input-min" value="0"/>');
         var max_input = $('<input class="control-inputs max" "input-max" value="255"/>');
-        thres.append($('<div class="threshold-input">Min </div>').append(min_input));  
-        thres.append($('<div class="threshold-input">Max </div>').append(max_input)); 
-        var onOffTag = $('<p><div><label">Tag mode:&nbsp;</label><select name="tag-on-off" id="on-off" class="ui-toggle-switch" data-role="slider"> <option value="off">Off</option> <option value="on">On</option> </select></div>'); 
+        thres.append($('<div class="threshold-input">Min </div>').append(min_input));
+        thres.append($('<div class="threshold-input">Max </div>').append(max_input));
+        var onOffTag = $('<p><div><label">Tag mode:&nbsp;</label><select name="tag-on-off" id="on-off" class="ui-toggle-switch" data-role="slider"> <option value="off">Off</option> <option value="on">On</option> </select></div>');
 
     
         controls.append(thres);
@@ -113,26 +114,28 @@
         thres.append(onOffTag);
 
         thresSlider.slider({
-          from: 0, to: 255, 
-          scale: [0, '|', 85, '|', '170', '|', 255], 
-          step: 1, dimension: '', 
-          skin: "blue", 
-          callback: function( event, ui){
+          from: 0,
+          to: 255,
+          scale: [0, '|', 85, '|', '170', '|', 255],
+          step: 1,
+          dimension: '',
+          skin: "blue",
+          callback: function(){
             var values = this.inputNode.attr("value").split(";");
-            volume.min = values[0]; 
-            volume.max = values[1]; 
+            volume.min = values[0];
+            volume.max = values[1];
             viewer.redrawVolumes();
             min_input.val( values[0] );
             max_input.val( values[1] );
-          } 
+          }
         });
             
         //change min value based on user input and update slider
         min_input.change(function () {
           var value = this.value;
-          values = thresSlider.slider("value").split(";"); 
+          values = thresSlider.slider("value").split(";");
           values[0] = value;
-          values = thresSlider.slider("value", value); 
+          values = thresSlider.slider("value", value);
           volume.min = value;
           viewer.redrawVolumes();
         });
@@ -141,11 +144,11 @@
         max_input.change(function () {
           var newMaxValue = this.value;
           var minValue = min_input.val();
-          values = thresSlider.slider("value").split(";"); 
+          values = thresSlider.slider("value").split(";");
           values[1] = newMaxValue;
           values[0] = minValue;
-          values = thresSlider.slider("value", '', newMaxValue); 
-          values = thresSlider.slider("value", minValue); 
+          values = thresSlider.slider("value", '', newMaxValue);
+          values = thresSlider.slider("value", minValue);
           volume.max = newMaxValue;
           volume.min = minValue;
           viewer.redrawVolumes();
@@ -153,13 +156,13 @@
         
         //toggle for switch to enter tagging mode
         onOffTag.toggleSwitch({
-           highlight: true, // default
-           width: 30,
-           change: function(e) {
-           },
+          highlight: true, // default
+          width: 30,
+          change: function(e) {
+          },
         
-           stop: function(e,val) {
-           // default null
+          stop: function(e,val) {
+          // default null
           }
         });
       }

@@ -106,7 +106,7 @@ module.exports = function(grunt) {
           "<%= dev_js %>/lib/ui.js",
           "<%= concat.surfview.src %>",
           "<%= dev_js %>/macacc/macacc.js",
-          "<%= dev_js %>/macaccview.js",
+          "<%= dev_js %>/macaccview.js"
         ]
       },
       workers: {
@@ -128,8 +128,22 @@ module.exports = function(grunt) {
       }
     },
     watch: {
-      files: ["<%= jshint.grunt.src %>", "<%= jshint.brainbrowser.src %>", "<%= jshint.workers.src %>", "<%= jshint.braincanvas.src %>", ],
-      tasks: ["jshint"]
+      grunt : {
+        files: ["<%= jshint.grunt.src %>"],
+        tasks: ["jshint:grunt"]
+      },
+      brainbrowser : {
+        files: ["<%= jshint.brainbrowser.src %>"],
+        tasks: ["jshint:brainbrowser"]
+      },
+      workers : {
+        files: ["<%= jshint.workers.src %>"],
+        tasks: ["jshint:workers"]
+      },
+      braincanvas : {
+        files: ["<%= jshint.braincanvas.src %>"],
+        tasks: ["jshint:braincanvas"]
+      },
     }
   });
 

@@ -3,8 +3,8 @@ module.exports = function(grunt) {
   
   grunt.initConfig({
     pkg: grunt.file.readJSON("package.json"),
-    dev_js: "public/development/js",
-    prod_js: "public/production/js",
+    dev_js: "development/public/js",
+    prod_js: "production/public/js",
     license: grunt.file.read("license_header.txt"),
     concat: {
       options: {
@@ -12,19 +12,17 @@ module.exports = function(grunt) {
       },
       surfview: {
         src: [
-          "<%= dev_js %>/lib/array.js",
+          "<%= dev_js %>/lib/utils.js",
           "<%= dev_js %>/brainbrowser/**/*.js",
-          "<%= dev_js %>/lib/brainbrowser.utils.js",
           "<%= dev_js %>/surfview.js"
         ],
         dest: "tmp/surfview-combined.js"
       },
       macacc: {
         src: [
-          "<%= dev_js %>/lib/array.js",
+          "<%= dev_js %>/lib/utils.js",
           "<%= dev_js %>/brainbrowser/**/*.js",
           "<%= dev_js %>/macacc/macacc.js",
-          "<%= dev_js %>/lib/brainbrowser.utils.js",
           "<%= dev_js %>/macaccview.js"
         ],
         dest: "tmp/macaccview-combined.js"
@@ -61,7 +59,7 @@ module.exports = function(grunt) {
         files: {
           "<%= prod_js %>/layout.js": "<%= dev_js %>/layout.js",
           "<%= prod_js %>/lib/ui.js": "<%= dev_js %>/lib/ui.js",
-          "<%= prod_js %>/lib/brainbrowser.utils.js": "<%= dev_js %>/lib/brainbrowser.utils.js"
+          "<%= prod_js %>/lib/brainbrowser.utils.js": "<%= dev_js %>/brainbrowser/modules/brainbrowser.utils.js"
         }
       },
       workers: {
@@ -92,12 +90,6 @@ module.exports = function(grunt) {
           node: true
         }
       },
-      server: {
-        src: ["brainbrowser.js", "lib/minc-server.js", "routes/routes.js"],
-        options: {
-          node: true
-        }
-      },
       brainbrowser: {
         options: {
           browser: true,
@@ -119,7 +111,7 @@ module.exports = function(grunt) {
       },
       workers: {
         options: {
-          worker: true
+          worker: true,
         },
         src: ["<%= dev_js %>/workers/*.js"]
       },
@@ -133,6 +125,17 @@ module.exports = function(grunt) {
           }
         },
         src: ["<%= concat.braincanvas.src %>"]
+      },
+      loris: {
+        options: {
+          browser: true,
+          jquery: true,
+          globals: {
+            BrainCanvas: true,
+            oFactory: true
+          }
+        },
+        src: ["development/public/loris/js/braincanvas.loris_ui_controls.js"]
       }
     },
     watch: {
@@ -167,7 +170,10 @@ module.exports = function(grunt) {
   grunt.registerTask("compile", ["concat", "uglify"]);
 
   grunt.registerTask("default", [
-    "jshint",
+    "jshint:grunt",
+    "jshint:brainbrowser",
+    "jshint:workers",
+    "jshint:braincanvas",
     "concat",
     "uglify"
   ]);

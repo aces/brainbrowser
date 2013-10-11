@@ -1,0 +1,70 @@
+<div id="menu">
+  <ul class="bb-tabs bb-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
+    <li class="bb-tab ui-state-default ui-corner-top"><a href="/">Home</a></li>
+    <li class="bb-tab ui-state-default ui-corner-top ui-tabs-selected ui-state-active"><a href="/about">About</a></li>
+    <li class="bb-tab ui-state-default ui-corner-top"><a href="/credits">Credits</a></li>
+  </ul>
+</div>
+<div id="text-box">
+  <div id="about">
+    <h2>Introduction</h2>
+    <p>
+      BrainBrowser is a collection of several tools primarily targeting brain imaging research, though in some cases general enough to potentially be of use in other fields. The BrainBrowser toolset includes:
+        <ul>
+          <li>The Surface Viewer: a general-purpose 3D viewer capable of displaying 3D surfaces and mapping various sorts of data to them.</li>
+          <li>The MACACC Dataset Viewer: a slightly modified version of the Surface Viewer, designed specifically to explore the <a href="http://www.sciencedirect.com/science?_ob=ArticleURL&_udi=B6WNP-4JS1MWF-1&_user=458507&_coverDate=07%2F01%2F2006&_rdoc=1&_fmt=high&_orig=gateway&_origin=gateway&_sort=d&_docanchor=&view=c&_searchStrId=1747460871&_rerunOrigin=google&_acct=C000022002&_version=1&_urlVersion=0&_userid=458507&md5=dc6bd372a8fee1ee776a3318d9966baf&searchtype=a">MACACC</a> Dataset.</li>
+          <li>The Volume Viewer: a viewer allowing slice-by-slice traversal of <a href="http://www.bic.mni.mcgill.ca/ServicesSoftware/MINC">MINC</a> volume data.</li>
+        </ul>
+    </p>
+    
+    <h2>Surface Viewer</h2>
+    <p>
+      The BrainBrowser Surface Viewer is a web-enabled 3D model viewer primarily used for realtime exploration of 3D brain maps, 
+      though capable of displaying any properly formatted 3D model. A typical brain map might be calculated using 3D statistical 
+      tools (e.g. SPM, fMRIstat) or surface-based statistical tools (e.g. Surfstat). It can then be texture-mapped onto either 
+      the default surface in stereotaxic space (Lyttelton O et al., 2007) or a surface provided by the user. The BrainBrowser 
+      Surface Viewer can be used in several ways. In the most straightforward usage, the user may choose to load a 3D model in 
+      <a href="http://www.bic.mni.mcgill.ca/users/mishkin/mni_obj_format.pdf" target="_blank">MNI object</a>,  
+      <a href="http://en.wikipedia.org/wiki/Wavefront_.obj_file" target="_blank">Wavefront object</a> or 
+      <a href="http://wideman-one.com/gw/brain/fs/surfacefileformats.htm" target="_blank">FreeSurfer ASCII surface</a> 
+      file formats, or use a sample model provided, and then apply a mapping of interest to the loaded model. 
+      <br><br>
+      Samples provided include:
+      <ul>
+        <li>An exploration of correlation structure for cortical thickness, cortical area or cortical volume, previously calculated at the MNI on a vertex-wise basis from the ICBM152 MRI database. This database was built using the MACACC (see following paragraph) approach to define cortical correlation structure (Lerch J et al., 2006). </li>
+        <li>3D fibre pathways derived from DTI.</li>
+        <li>Cortical amyloid deposition of a cohort of 18 month-old transgenic mice with Alzheimer's disease.</li>
+        <li>A basic cortical surface.</li>
+        <li>An aeroplane with with air density and flow mappings.</li>
+        <li>An automobile.</li>
+      </ul> 
+      
+    </p>
+    <h2>MACACC Dataset Viewer</h2>
+    <p>
+      BrainBrowser provides a means to explore the <a href="http://www.sciencedirect.com/science?_ob=ArticleURL&_udi=B6WNP-4JS1MWF-1&_user=458507&_coverDate=07%2F01%2F2006&_rdoc=1&_fmt=high&_orig=gateway&_origin=gateway&_sort=d&_docanchor=&view=c&_searchStrId=1747460871&_rerunOrigin=google&_acct=C000022002&_version=1&_urlVersion=0&_userid=458507&md5=dc6bd372a8fee1ee776a3318d9966baf&searchtype=a">MACACC</a> Dataset of structural correlations across the
+      cortex, derived in database of 152 young normal subjects from the International
+      Consortium for Brain Mapping (ICBM, Mazziotta J et al., 2001). Cortical thickness at
+      each of 80K 3D locations were calculated using the CLASP algorithm (MacDonald
+      D et al., 2000; Kim JS et al., 2005). This subject population is the same as used for
+      the MNI152 stereotaxic voxelwise templates used, for instance, in SPM. Structural
+      correlation maps are calculated according to the procedures in Lerch et al., (2005),
+      wherein the correlation across subjects, between the cortical thickness at a
+      seed vertex and at any other vertex, is measured. This yields a cortical thickness
+      correlation map for that seed vertex. The MACACC Dataset contains maps for
+      all cortical vertices for each of three vertexwise morphological variables (thickness,
+      area, volume). Furthermore, since the blurring kernel used will profoundly alter the
+      derived statistical map, the results are generated for 9 different surface-blurring
+      kernels and for three different statistics. In total, the BrainBrowser database
+      comprises ~6.3 Million maps for the following permutations:
+      
+      80K vertices x 9 blurring kernels x 3 morphological indices x 3 statistical
+      
+    </p>
+    <h2>Volume Viewer</h2>
+    <p>
+      The BrainBrowser Volume Viewer allows the user to explore 3D <a href="http://www.bic.mni.mcgill.ca/ServicesSoftware/MINC">MINC</a> imaging
+      data in a slice-by-slice manner.
+    </p>
+  </div>
+</div>

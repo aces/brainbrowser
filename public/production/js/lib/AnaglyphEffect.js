@@ -1,0 +1,1 @@
+../../../development/js/lib/AnaglyphEffect.js

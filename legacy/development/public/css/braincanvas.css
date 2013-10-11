@@ -1,0 +1,108 @@
+body {
+  background-color: #888888;
+}
+
+#braincanvas-container {
+  width: 60em;
+  margin: 50px auto;
+}
+
+#braincanvas {
+  display: inline-block;
+  background-color: #FFFFFF;
+  padding: 0.5em;
+  border-radius: 10px;
+}
+
+.volume-container {
+  display: table-cell;
+}
+
+.slice-display {
+  background-color: #000000;
+}
+
+.braincanvas-controls {
+  padding: 10px;
+  margin: 3px 5px;
+  padding-bottom: 18px; 
+  background: #555555;
+  color: #F0F0F0;
+}
+
+.braincanvas-controls > div {
+  margin-bottom: 10px;
+}
+
+.volume-controls {
+  width: 235px;
+  height: 210px;
+}
+
+#global-controls {
+  -moz-border-radius: 0 0 10px 10px;
+  -webkit-border-radius: 0 0 10px 10px;
+  border-radius: 0 0 10px 10px;
+}
+
+.control-heading {
+  font-weight: bold;
+}
+
+.control-inputs {
+  border: none;
+  padding: 2px;
+  margin-left: 10px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  -moz-box-shadow: 1px 1px 0px 0px #787878;
+  -webkit-box-shadow: 1px 1px 0px 0px #787878;  /*2px 2px 3px #666;*/
+  box-shadow: 1px 1px 0px 0px #787878; /*2px 2px 3px #666;*/
+  width: 2em;
+}
+
+.coords .control-inputs {
+  margin-right: 0.6em;
+  width: 40px;
+  font-size: 10px;
+}
+
+.braincanvas-threshold, .braincanvas-blend {
+  width: 80%;
+  margin: auto;
+}
+
+.ui-slider .ui-slider-handle .ui-state-default .ui-corner-all {
+  color: #777777 !important;
+  font-size: 10px;
+  padding: 3px;
+  text-shadow: 0 1px 0 #FFFFFF;
+  text-decoration:none;
+}
+
+.slider {
+  margin-top: 1em!important;
+}
+
+.thresh-inputs {
+  position: relative;
+  height: 1em;
+}
+
+.thresh-input-left {
+  position: absolute;
+  left: 3px;
+}
+
+.thresh-input-right {
+  position: absolute;
+  right: 10px;
+}
+
+canvas.slice-display {
+  display: block;
+  margin: 3px 5px;
+}
+
+

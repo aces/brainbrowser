@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">  
+  <head>  
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">  
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.10.custom.css" rel="Stylesheet" />
+    <link type="text/css" href="/css/common.css" rel="Stylesheet" />
+    <link type="text/css" href="/css/brainbrowser.css" rel="Stylesheet" />
+    <link rel="icon" type="image/png" href="img/brainbrowser.png">
+    <title>BrainBrowser Surface Viewer</title>  
+  </head>  
+  <body>  
+      <!-- The webgl window and loading messages if any -->
+    <div id="display">
+      <h1 id="app-name">Surface Viewer</h1><a id="control-button" class="button">Hide Controls</a>
+      <!-- Loading image from: http://www.ajaxload.info/ -->
+      <div id="loading" style="display: none"><img src="/img/ajax-loader.gif" /></div>
+      <center><span id="age_series"></span></center>
+      <div id="brainbrowser"></div>
+      <div id="controls">
+        <div id="controls-content">
+          <div id="examples" class="box full_box">
+            <h3>Sample Models</h3>
+            <ul>
+               <li><a href="#" class="example" data-example-name="realct">Brain with Cortical Thickness Map</a></li>
+               <li><a href="#" span class="example" data-example-name="punkdti">DTI and Mesh Brain</a></li>
+               <li>
+                 <a href="#" span class="example" data-example-name="mouse" title="Surface-Projected Cortical Amyloid Deposition of a Cohort of 18 Month-Old Transgenic Mice with Alzheimer's Disease">
+                   Mouse Brain with Alzheimer's Disease
+                </a>
+              </li>
+               <li><a href="#" class="example" data-example-name="basic">Basic Brain Surface</a></li>
+               <li><a href="#" class="example" data-example-name="plane" title="DLR-F6 Geometry 2nd AIAA CFD Drag Prediction Workshop, 2003">Aeroplane with Air Density and Air Flow</a></li>
+               <li><a href="#" class="example" data-example-name="car">Automobile</a></li> 
+            </ul>
+          </div>
+          <div id="surface_choice" class="box full_box">
+            <h4>Load your own data!</h4>
+            <p>
+              (Note: your data will remain on your computer and will not be transferred to the BrainBrowser server.)
+            </p>     
+              <div id="obj_file_select">
+                Object File:
+                <input type="file" name="objfile" id="objfile"><br>
+                Format: 
+                <select  id="obj_file_format" name="format">
+                  <option value="MNIObject">MNI OBJ</option>
+                  <option value="WavefrontObj">Wavefront OBJ</option>
+                  <option value="FreeSurferAsc">Freesurfer ASC</option>
+                </select><br>
+                <div id="format_hint"></div>
+                <div id="obj_file_submit_div">
+                  <span id="obj_file_submit" class="button">Load</span><br>
+                </div>
+              </div>
+              <p>
+                Data 1: <input type="file" name="datafile1" id="datafile1" class="datafile"><br />
+                Data 2: <input type="file" name="datafile2" id="datafile2" class="datafile"> <br />
+                Color Bar: <input type="file" name="spectrum" id="spectrum"><br />
+              </p>
+              <span id="clearshapes" class="button">Clear Shapes</span>
+          </div>
+          <div id="data-range-box" class="box full_box">
+            <h4>Thresholding</h4>
+            <div id="data-range">
+            </div>
+            <div id="blend-box"></div>
+          </div>
+          <div id="background_select" class="box full_box">
+            {{> background_color }}
+          </div>
+          <div class="combo_box">
+            <div id="views" class="box half_box" >
+              {{> view_controls }}
+            </div>
+            <div id="shape-cell" class="box half_box">
+              <div id="shapes">
+              </div>
+            </div>
+          </div>
+          <div id="logos" class="box full_box cfd_logo">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- all the scripts -->
+    <script type="text/javascript" src="/js/lib/jquery-1.6.4.min.js"></script>
+    <script type="text/javascript" src="/js/lib/jquery-ui-1.8.10.custom.min.js"></script>
+    <script type="text/javascript" src="/js/lib/ui.js"></script>
+    <script type="text/javascript" src="/js/lib/three.min.js"></script>
+    <script type="text/javascript" src="/js/lib/TrackballControls.js"></script>
+    <script type="text/javascript" src="/js/lib/AnaglyphEffect.js"></script>
+    {{#ifenv "BRAINBROWSER_ENV" "production"}}
+      <script type="text/javascript" src="/js/surfview-combined.min.js"></script>
+    {{else}}
+      <script type="text/javascript" src="/js/lib/array.js"></script> 
+      <script type="text/javascript" src="/js/brainbrowser/brainbrowser.js"></script>
+      <script type="text/javascript" src="/js/brainbrowser/modules/brainbrowser.color.js"></script>
+      <script type="text/javascript" src="/js/brainbrowser/modules/brainbrowser.loader.js"></script>
+      <script type="text/javascript" src="/js/brainbrowser/modules/brainbrowser.models.js"></script>
+      <script type="text/javascript" src="/js/brainbrowser/modules/brainbrowser.rendering.js"></script>
+      <script type="text/javascript" src="/js/brainbrowser/modules/brainbrowser.views.js"></script>
+      <script type="text/javascript" src="/js/brainbrowser/modules/brainbrowser.ui.js"></script>
+      <script type="text/javascript" src="/js/brainbrowser/filetypes/parse.js"></script> 
+      <script type="text/javascript" src="/js/brainbrowser/filetypes/parse_worker.js"></script> 
+      <script type="text/javascript" src="/js/brainbrowser/filetypes/config.js"></script> 
+      <script type="text/javascript" src="/js/brainbrowser/data/data.js"></script> 
+      <script type="text/javascript" src="/js/brainbrowser/data/color_manager.js"></script>
+      <script type="text/javascript" src="/js/brainbrowser/data/spectrum.js"></script> 
+      <script type="text/javascript" src="/js/lib/brainbrowser.utils.js"></script>
+      <script type="text/javascript" src="/js/surfview.js"></script> 
+    {{/ifenv}}
+  </body>  
+</html>  

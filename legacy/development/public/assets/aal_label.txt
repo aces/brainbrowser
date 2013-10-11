@@ -1,0 +1,78 @@
+'Left Gyrus Rectus'	27
+'Left Olfactory Cortex'	21
+'Left Supeiror frontal gyrus, orbital part'	5
+'Left Superior frontal gyrus, medial orbital'	25
+'Left Middle frontal gyrus orbital part'	9
+'Left Inferior frontal gyrus, orbital part'	15
+'Left Superior frontal gyrus, dorsolateral'	3
+'Left Middle frontal gyrus'	7
+'Left Inferior frontal gyrus, opercular part'	11
+'Left Inferior frontal gyrus, triangular part'	13
+'Left Superior frontal gyrus, medial'	23
+'Left Supplementary motor area'	19
+'Left Paracentral lobule'	69
+'Left Precentral gyrus'	1
+'Left Rolandic operculum'	17
+'Left Postcentral gyrus'	57
+'Left Superior parietal gyrus'	59
+'Left Inferior parietal, but supramarginal and angular gyri'	61
+'Left Supramarginal gyrus'	63
+'Left Angular gyrus'	65
+'Left Precuneus'	67
+'Left Superior occipital gyrus'	49
+'Left Middle occipital gyrus'	51
+'Left Inferior occipital gyrus'	53
+'Left Calcarine fissure and surrounding cortex'	43
+'Left Cuneus'	45
+'Left Lingual gyrus'	47
+'Left Fusiform gyrus'	55
+'Left Heschl gyrus'	79
+'Left Superior temporal gyrus'	81
+'Left Middle temporal gyrus'	85
+'Left Inferior temporal gyrus'	89
+'Left Temporal pole: superior temporal gyrus'	83
+'Left Temporal pole: middle temporal gyrus'	87
+'Left Parahippocampal gyrus'	39
+'Left Anterior cingulate and paracingulate gyri'	31
+'Left Median cingulate and paracingulate gyri'	33
+'Left Posterior cingulate gyrus'	35
+'Left Insula'	29
+'Right Gyrus Rectus'	28
+'Right Olfactory Cortex'	22
+'Right Supeiror frontal gyrus, orbital part'	6
+'Right Superior frontal gyrus, medial orbital'	26
+'Right Middle frontal gyrus orbital part'	10
+'Right Inferior frontal gyrus, orbital part'	16
+'Right Superior frontal gyrus, dorsolateral'	4
+'Right Middle frontal gyrus'	8
+'Right Inferior frontal gyrus, opercular part'	12
+'Right Inferior frontal gyrus, triangular part'	14
+'Right Superior frontal gyrus, medial'	24
+'Right Supplementary motor area'	20
+'Right Paracentral lobule'	70
+'Right Precentral gyrus'	2
+'Right Rolandic operculum'	18
+'Right Postcentral gyrus'	58
+'Right Superior parietal gyrus'	60
+'Right Inferior parietal, but supramarginal and angular gyri'	62
+'Right Supramarginal gyrus'	64
+'Right Angular gyrus'	66
+'Right Precuneus'	68
+'Right Superior occipital gyrus'	50
+'Right Middle occipital gyrus'	52
+'Right Inferior occipital gyrus'	54
+'Right Calcarine fissure and surrounding cortex'	44
+'Right Cuneus'	46
+'Right Lingual gyrus'	48
+'Right Fusiform gyrus'	56
+'Right Heschl gyrus'	80
+'Right Superior temporal gyrus'	82
+'Right Middle temporal gyrus'	86
+'Right Inferior temporal gyrus'	90
+'Right Temporal pole: superior temporal gyrus'	84
+'Right Temporal pole: middle temporal gyrus'	88
+'Right Parahippocampal gyrus'	40
+'Right Anterior cingulate and paracingulate gyri'	32
+'Right Median cingulate and paracingulate gyri'	34
+'Right Posterior cingulate gyrus'	36
+'Right Insula'	30

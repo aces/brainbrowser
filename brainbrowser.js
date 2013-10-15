@@ -9,6 +9,7 @@ var routes = require("./routes/routes");
 var http = require("http");
 var path = require("path");
 var hbs = require("hbs");
+var fs = require("fs");
 var minc = require('./lib/minc-server');
 var cluster = require("cluster");
 
@@ -59,35 +60,66 @@ if (cluster.isMaster) {
   app.get("/macaccview", routes.macaccview);
   app.get("/braincanvas", routes.braincanvas);
   app.get('/data/:filename', function(req,res) {
-    if(req.params.filename) {
-      var filename = req.params.filename;
-      filename = filename.match(/^[\w|-]*\.\w*$/) ?
-                 "./data/" + filename :
-                 "";
-      if (req.query.raw_data) {
-        if (filename) {
+    var filename = req.params.filename;
+    var raw_filename, header_filename;
+    
+    if(!filename) {
+      res.send('File name not provided.', 400);
+      return;
+    }
+  
+    if (!filename.match(/^[\w|-]*\.\w*$/)) {
+      res.send('Invalide file name: ' + filename, 400);
+      return;
+    }
+    
+    filename = "./data/" + filename;
+
+    if (req.query.raw_data) {
+      raw_filename = filename + ".raw";
+      
+      fs.exists(raw_filename, function(exists) {
+        if (exists) {
+          console.log("Sending cached raw file.");
+          fs.readFile(raw_filename, function(err, data) {
+            res.contentType('text/plain');
+            res.end(data, 'binary');
+          });
+        } else {
+          console.log("Creating raw file.");
           minc.getRawData(filename,function(data) {
             if (data) {
               res.contentType('text/plain');
               res.end(data, 'binary');
+              fs.writeFile(raw_filename, data, {encoding: "binary"});
             } else {
               res.send('Error occured getting the raw data from minc file', 500);
             }
           });
         }
-      } else if (req.query.minc_headers) {
-        minc.getHeaders(filename,function(headers) {
-          console.log("finish building headers");
-          res.send(headers);
-        },
-        function(err) {
-          res.send(err, 500);
-        });
-      } else {
-        res.send('Bad resquest', 400);
-      }
+      
+      });
     } else {
-      res.send('Bad filename', 400);
+      header_filename = filename + ".headers";
+      
+      fs.exists(header_filename, function(exists) {
+        if (exists) {
+          console.log("Sending cached headers.");
+          fs.readFile(header_filename, function(err, headers) {
+            res.send(headers);
+          });
+        } else {
+          console.log("Creating headers.");
+          minc.getHeaders(filename, function(headers) {
+            res.send(headers);
+            fs.writeFile(header_filename, JSON.stringify(headers));
+          },
+          function(err) {
+            res.send(err, 500);
+          });
+        }
+      
+      });
     }
   });
   

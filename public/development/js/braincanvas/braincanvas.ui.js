@@ -72,8 +72,9 @@
       var mouse = {x: 0, y: 0};
       
       c.mousemove(function(e) {
-        mouse.x = e.offsetX;
-        mouse.y = e.offsetY;
+        var offset = c.offset();
+        mouse.x = e.pageX - offset.left;
+        mouse.y = e.pageY - offset.top;
       });
       return mouse;
     }

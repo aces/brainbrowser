@@ -10,6 +10,8 @@ var http = require("http");
 var path = require("path");
 var hbs = require("hbs");
 var fs = require("fs");
+var zlib = require("zlib");
+var gzip = zlib.createGzip({ flush: zlib.Z_FULL_FLUSH });
 var minc = require('./lib/minc-server');
 var cluster = require("cluster");
 
@@ -61,15 +63,15 @@ if (cluster.isMaster) {
   app.get("/braincanvas", routes.braincanvas);
   app.get('/data/:filename', function(req,res) {
     var filename = req.params.filename;
-    var raw_filename, header_filename;
+    var raw_filename, gz_raw_filename, header_filename;
     
     if(!filename) {
       res.send('File name not provided.', 400);
       return;
     }
   
-    if (!filename.match(/^[\w|-]*\.\w*$/)) {
-      res.send('Invalide file name: ' + filename, 400);
+    if (!filename.match(/^[\w-\.]+\.mnc$/i)) {
+      res.send('Invalid file name: ' + filename, 400);
       return;
     }
     
@@ -77,12 +79,13 @@ if (cluster.isMaster) {
 
     if (req.query.raw_data) {
       raw_filename = filename + ".raw";
+      gz_raw_filename = raw_filename + ".gz";
       
-      fs.exists(raw_filename, function(exists) {
+      fs.exists(gz_raw_filename, function(exists) {
         if (exists) {
           console.log("Sending cached raw file.");
-          fs.readFile(raw_filename, function(err, data) {
-            res.contentType('text/plain');
+          fs.readFile(gz_raw_filename, function(err, data) {
+            res.set('Content-Encoding', 'gzip');
             res.end(data, 'binary');
           });
         } else {
@@ -91,13 +94,13 @@ if (cluster.isMaster) {
             if (data) {
               res.contentType('text/plain');
               res.end(data, 'binary');
-              fs.writeFile(raw_filename, data, {encoding: "binary"});
+              gzip.pipe(fs.createWriteStream(gz_raw_filename));
+              gzip.end(data, "binary");
             } else {
               res.send('Error occured getting the raw data from minc file', 500);
             }
           });
         }
-      
       });
     } else {
       header_filename = filename + ".headers";
@@ -118,7 +121,6 @@ if (cluster.isMaster) {
             res.send(err, 500);
           });
         }
-      
       });
     }
   });

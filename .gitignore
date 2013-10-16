@@ -5,8 +5,8 @@ log/*
 public/data
 .svn
 data/*.mnc
-data/*.raw
-data/*.headers
+data/*.raw*
+data/*.headers*
 development/public/data
 production/public/data
 classes/*

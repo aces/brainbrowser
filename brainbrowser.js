@@ -11,7 +11,6 @@ var path = require("path");
 var hbs = require("hbs");
 var fs = require("fs");
 var zlib = require("zlib");
-var gzip = zlib.createGzip({ flush: zlib.Z_FULL_FLUSH });
 var minc = require('./lib/minc-server');
 var cluster = require("cluster");
 
@@ -64,6 +63,7 @@ if (cluster.isMaster) {
   app.get('/data/:filename', function(req,res) {
     var filename = req.params.filename;
     var raw_filename, gz_raw_filename, header_filename;
+    var gzip = zlib.createGzip();
     
     if(!filename) {
       res.send('File name not provided.', 400);

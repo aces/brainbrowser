@@ -29,16 +29,7 @@
   "use strict";
   
   BrainCanvas.volumeUIControls = function(controls, viewer, volume, volID) {
-  
-    var syncButton = $("<input name=\"sync\" type=\"checkbox\" />");
-    
-    syncButton.change(function(event) {
-      viewer.synced[volID] = event.target.checked;
-    });
-    var sync = $("<span class=\"control-heading\">Sync</span>");
-    
-    sync.append(syncButton);
-    controls.append(sync);
+    BrainCanvas._coordinateUI(controls, viewer, volume, volID);
     
     if(volume.type === "multivolume") {
     
@@ -67,33 +58,13 @@
       //change blend value based on user input in text field
       blend_val.change(function () {
         var value = this.value;
-        values = blendSlider.slider("value", value);
         volume.updateBlendRatio(value);
         viewer.redrawVolume(volID);
       });
     
     } else {
-      var list = "";
-      for(var i = 0; i < BrainCanvas.colorScales.length; i++) {
-        var name = BrainCanvas.colorScales[i].name;
-        if (viewer.defaultScale === BrainCanvas.colorScale) {
-          list += "<option value="+i+"\" SELECTED>"+name+"</option>";
-        } else {
-          list += "<option value="+i+"\">"+name+"</option>";
-        }
-      }
-      var colorScaleOption = $("<select></select>");
-      list = $(list);
-      colorScaleOption.append(list);
-    
-      //On change update color scale of volume and redraw.
-      colorScaleOption.change(function(event) {
-        var index = parseInt($(event.target).val(), 10);
-        volume.colorScale = BrainCanvas.colorScales[index];
-        viewer.redrawVolumes();
-      });
-    
-      controls.append($("<div class=\"control-heading\">Color Scale: </div>").append(colorScaleOption));
+      
+      BrainCanvas._colorScaleUI(controls, viewer, volume, volID);
       
       /***********************************
       * Thresholds
@@ -133,7 +104,7 @@
         //change min value based on user input and update slider
         min_input.change(function () {
           var value = this.value;
-          values = thresSlider.slider("value").split(";");
+          var values = thresSlider.slider("value").split(";");
           values[0] = value;
           values = thresSlider.slider("value", value);
           volume.min = value;
@@ -144,7 +115,7 @@
         max_input.change(function () {
           var newMaxValue = this.value;
           var minValue = min_input.val();
-          values = thresSlider.slider("value").split(";");
+          var values = thresSlider.slider("value").split(";");
           values[1] = newMaxValue;
           values[0] = minValue;
           values = thresSlider.slider("value", '', newMaxValue);
@@ -155,16 +126,16 @@
         });
         
         //toggle for switch to enter tagging mode
-        onOffTag.toggleSwitch({
-          highlight: true, // default
-          width: 30,
-          change: function(e) {
-          },
-        
-          stop: function(e,val) {
-          // default null
-          }
-        });
+        //onOffTag.toggleSwitch({
+        //  highlight: true, // default
+        //  width: 30,
+        //  change: function(e) {
+        //  },
+        //
+        //  stop: function(e,val) {
+        //  // default null
+        //  }
+        //});
       }
     }
   };

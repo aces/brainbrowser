@@ -33,3 +33,7 @@ select.ui-toggle-switch {
 .ui-toggle-switch .ui-slider { 
   margin: 0 8px; 
 }
+
+.volume-controls {
+  height: 250px;
+}

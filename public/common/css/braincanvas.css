@@ -36,13 +36,13 @@ body {
 
 .volume-controls {
   width: 235px;
-  height: 210px;
+  height: 260px;
 }
 
 #global-controls {
-  -moz-border-radius: 0 0 10px 10px;
-  -webkit-border-radius: 0 0 10px 10px;
-  border-radius: 0 0 10px 10px;
+  -moz-border-radius: 10px 10px 0 0;
+  -webkit-border-radius: 10px 10px 0 0;
+  border-radius: 10px 10px 0 0;
 }
 
 .control-heading {
@@ -57,8 +57,8 @@ body {
   -webkit-border-radius: 3px;
   border-radius: 3px;
   -moz-box-shadow: 1px 1px 0px 0px #787878;
-  -webkit-box-shadow: 1px 1px 0px 0px #787878;  /*2px 2px 3px #666;*/
-  box-shadow: 1px 1px 0px 0px #787878; /*2px 2px 3px #666;*/
+  -webkit-box-shadow: 1px 1px 0px 0px #787878;
+  box-shadow: 1px 1px 0px 0px #787878;
   width: 2em;
 }
 

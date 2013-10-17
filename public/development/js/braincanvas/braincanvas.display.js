@@ -32,10 +32,9 @@
     updateCursor: function(volume) {
       var slice = this.slice;
       var origin = this.getImageOrigin();
-      
       if (volume && slice) {
-        this.cursor.x = (volume.position[slice.widthSpace.name] * this.zoom) + origin.x;
-        this.cursor.y = (slice.heightSpace.space_length - volume.position[slice.heightSpace.name]) * this.zoom  + origin.y;
+        this.cursor.x = (volume.position[slice.widthSpace.name] * Math.abs(slice.widthSpace.step) * this.zoom) + origin.x;
+        this.cursor.y = (slice.heightSpace.space_length - volume.position[slice.heightSpace.name]) * Math.abs(slice.heightSpace.step) * this.zoom  + origin.y;
       }
     },
     

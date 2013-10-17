@@ -252,6 +252,9 @@
     } else {
       BrainCanvas._colorScaleUI(controls, viewer, volume, volID);
       BrainCanvas._thresholdUI(controls, viewer, volume, volID);
+      if (volume.data.time) {
+        BrainCanvas._timeUI(controls, viewer, volume, volID);
+      }
     }
   };
   
@@ -365,18 +368,18 @@
   };
   
   BrainCanvas._thresholdUI = function(controls, viewer, volume) {
-    var thresSlider = $('<div class="slider braincanvas-threshold"></div>');
-    var thres = $("<div class=\"control-heading\" class=\"slider-div\">Threshold: </div>");
+    var thresh_slider = $('<div class="slider braincanvas-threshold"></div>');
+    var thresholds = $("<div class=\"control-heading\" class=\"slider-div\">Threshold: </div>");
     var min_input = $('<input class="control-inputs thresh-input-left" value="0"/>');
     var max_input = $('<input class="control-inputs thresh-input-right" value="255"/>');
     var inputs = $('<div class="thresh-inputs"></div>');
     inputs.append(min_input).append(max_input);
-    thres.append(inputs);
+    thresholds.append(inputs);
     
-    controls.append(thres);
-    thres.append(thresSlider);
+    controls.append(thresholds);
+    thresholds.append(thresh_slider);
     
-    thresSlider.slider({
+    thresh_slider.slider({
       range: true,
       min: 0,
       max: 255,
@@ -398,7 +401,7 @@
     //change min value based on user input and update slider
     min_input.change(function () {
       var value = this.value;
-      thresSlider.slider("values", 0, value);
+      thresh_slider.slider("values", 0, value);
       volume.min = value;
       viewer.redrawVolumes();
     });
@@ -406,10 +409,32 @@
     //change max value based on user input and update slider
     max_input.change(function () {
       var value = this.value;
-      thresSlider.slider("values", 1, value);
+      thresh_slider.slider("values", 1, value);
       volume.max = value;
       viewer.redrawVolumes();
     });
+  };
+  
+  BrainCanvas._timeUI = function(controls, viewer, volume, volID) {
+    var time_controls = $("<div class=\"control-heading\" class=\"slider-div\">Time: </div>");
+    var time_slider = $('<div class="slider braincanvas-threshold"></div>');
+    
+    time_slider.slider({
+      min: 0,
+      max: volume.data.time.space_length - 1,
+      values: 0,
+      step: 1,
+      slide: function(event, ui) {
+        volume.current_time = +ui.value;
+        viewer.redrawVolume(volID);
+      },
+      stop: function() {
+        $(this).find("a").blur();
+      }
+    });
+    
+    time_controls.append(time_slider);
+    controls.append(time_controls);
   };
   
 })();

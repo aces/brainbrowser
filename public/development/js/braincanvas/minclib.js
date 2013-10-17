@@ -138,6 +138,7 @@ BrainCanvas.MincJS = function(filename, headers, data) {
    */
   this.slice = function(axis, number, time) {
     var slice;
+    time = time || 0;
     
     cachedSlices[axis] = cachedSlices[axis] || [];
     cachedSlices[axis][time] =  cachedSlices[axis][time] || [];
@@ -158,9 +159,6 @@ BrainCanvas.MincJS = function(filename, headers, data) {
     var time_offset = 0;
     
     if(that.time) {
-      if(!time) {
-        time = 0;
-      }
       time_offset = time*that[that.order[0]].height*that[that.order[0]].length*parseFloat(that[that.order[0]].space_length);
     }
     
@@ -312,145 +310,72 @@ BrainCanvas.MincJS = function(filename, headers, data) {
   /*
    * Interpolates the slice data using nearest neighboor interpolation
    */
-  this.nearestNeighboor = function(slice, width, height, new_width, new_height) {
-    var data = slice.data;
-    var new_slice = {};
-    var new_array = new Uint16Array(new_width * new_height);
-    var x_ratio = width/new_width;
-    var y_ratio = height/new_height;
-    
-    for (var i = 0; i < new_height; i++) {
-      for (var j = 0; j < new_width; j++)  {
-        var px = Math.floor(j * x_ratio);
-        var py = Math.floor(i * y_ratio);
-        new_array[Math.floor(i * new_width + j)] = data[Math.floor(py * width + px)];
-      }
-    }
-
-    new_slice.data = new_array;
-    new_slice.x = slice.x; //|| that[axis].length_space; axis not defined: copy and pasted?
-    new_slice.y = slice.y; //|| that[axis].height_space;
-    new_slice.width = new_width;
-    new_slice.height = new_height;
-    
-    return new_slice;
-  };
-
-  /*
-   * Scale a slice to be at a 1 instead of whatever step it is.
-   */
-  //this.getScaledSlice = function(axis, number, zoom, time) {
-  //
-  //  zoom = zoom || 1;
-  //  var original_slice = that.slice(axis, number, time);
-  //  var width      =  that[axis].length;
-  //  var height     = that[axis].height;
-  //  var new_width  = Math.ceil(Math.abs(that[axis].length_space.step) * width * zoom);
-  //  var new_height = Math.ceil(Math.abs(that[axis].height_space.step) * height * zoom);
-  //  var slice = this.nearestNeighboor(original_slice, width, height, new_width, new_height);
-  //
-  //  //Checks if the slices are need to be rotated
-  //  //xspace should have yspace on the x axis and zspace on the y axis
-  //  if(axis === "xspace" && that.xspace.height_space.name === "yspace"){
-  //    if(that.zspace.step < 0){
-  //      slice.data = rotateUint16Array90Right(slice.data, new_width,new_height);
-  //    }else {
-  //      slice.data = rotateUint16Array90Left(slice.data, new_width,new_height);
+  //this.nearestNeighboor = function(slice, width, height, new_width, new_height) {
+  //  var data = slice.data;
+  //  var new_slice = {};
+  //  var new_array = new Uint16Array(new_width * new_height);
+  //  var x_ratio = width/new_width;
+  //  var y_ratio = height/new_height;
+  //  
+  //  for (var i = 0; i < new_height; i++) {
+  //    for (var j = 0; j < new_width; j++)  {
+  //      var px = Math.floor(j * x_ratio);
+  //      var py = Math.floor(i * y_ratio);
+  //      new_array[Math.floor(i * new_width + j)] = data[Math.floor(py * width + px)];
   //    }
-  //
-  //    //set the spaces on each axis
-  //    slice.y.name = "yspace";
-  //    slice.x.name = "zspace";
-  //
-  //  } else {
-  //
-  //    //set the spaces on each axis
-  //    slice.y.name = "zspace";
-  //    slice.x.name = "yspace";
-  //
-  //  }
-  //  //yspace should be XxZ
-  //  if (axis === "yspace" && that.yspace.height_space.name === "xspace"){
-  //    if (that.zspace.step < 0){
-  //      slice.data = rotateUint16Array90Right(slice.data, new_width, new_height);
-  //    } else {
-  //      slice.data = rotateUint16Array90Left(slice.data, new_width, new_height);
-  //    }
-  //
-  //    //set the spaces on each axis
-  //    slice.y.name = "xspace";
-  //    slice.x.name = "zspace";
-  //
-  //  } else {
-  //    //set the spaces on each axis
-  //    slice.y.name = "zspace";
-  //    slice.x.name = "xspace";
-  //  }
-  //  //zspace should be XxY
-  //  if(axis === "zspace" && that.zspace.height_space.name === "xspace"){
-  //    slice.data = rotateUint16Array90Left(slice.data, new_width, new_height);
-  //
-  //    //set the spaces on each axis
-  //    slice.y.name = "xspace";
-  //    slice.x.name = "yspace";
-  //  } else {
-  //
-  //    //set the spaces on each axis
-  //    slice.y.name = "xspace";
-  //    slice.x.name = "yspace";
-  //
   //  }
   //
-  //  //slice.alpha = 1;
-  //  //slice.number = number;
-  //  //slice.width = new_width;
-  //  //slice.height = new_height;
-  //  return slice;
-  //
+  //  new_slice.data = new_array;
+  //  new_slice.x = slice.x; //|| that[axis].length_space; axis not defined: copy and pasted?
+  //  new_slice.y = slice.y; //|| that[axis].height_space;
+  //  new_slice.width = new_width;
+  //  new_slice.height = new_height;
+  //  
+  //  return new_slice;
   //};
+
   
   /*
    * Scale a slice to be at a 1 instead of whatever step it is.
    */
-  this.getScaledSlice = function(axis, number, zoom, time) {
-    zoom = zoom || 1;
-    var original_slice = that.slice(axis, number, time);
-    
-    if (zoom === 1) return original_slice;
-    
-    var width      = that[axis].length;
-    var height     = that[axis].height;
-    var new_width  = Math.ceil(Math.abs(that[axis].length_space.step) * width * zoom);
-    var new_height = Math.ceil(Math.abs(that[axis].height_space.step) * height * zoom);
-    var slice = this.nearestNeighboor(original_slice, width, height, new_width, new_height);
-
-   
-    //Checks if the slices are need to be rotated
-    //xspace should have yspace on the x axis and zspace on the y axis
-    if(axis === "xspace" && that.xspace.height_space.name === "yspace"){
-      if (that.zspace.step < 0) {
-        slice.data = rotateUint16Array90Right(slice.data,new_width,new_height);
-      } else {
-        slice.data = rotateUint16Array90Left(slice.data,new_width,new_height);
-      }
-    }
-
-    //yspace should be XxZ
-    if (axis === "yspace" && that.yspace.height_space.name === "xspace"){
-      if (that.zspace.step < 0){
-        slice.data = rotateUint16Array90Right(slice.data, new_width, new_height);
-      } else {
-        slice.data = rotateUint16Array90Left(slice.data, new_width, new_height);
-      }
-    }
-    
-    //zspace should be XxY
-    if (axis === "zspace" && that.zspace.height_space.name === "xspace"){
-      slice.data = rotateUint16Array90Left(slice.data, new_width, new_height);
-    }
-
-    return slice;
-  };
+  //this.getScaledSlice = function(axis, number, zoom, time) {
+  //  zoom = zoom || 1;
+  //  var original_slice = that.slice(axis, number, time);
+  //  
+  //  if (zoom === 1) return original_slice;
+  //  
+  //  var width      = that[axis].length;
+  //  var height     = that[axis].height;
+  //  var new_width  = Math.ceil(Math.abs(that[axis].length_space.step) * width * zoom);
+  //  var new_height = Math.ceil(Math.abs(that[axis].height_space.step) * height * zoom);
+  //  var slice = original_slice; //this.nearestNeighboor(original_slice, width, height, new_width, new_height);
+  //
+  //  //Checks if the slices are need to be rotated
+  //  //xspace should have yspace on the x axis and zspace on the y axis
+  //  //if(axis === "xspace" && that.xspace.height_space.name === "yspace"){
+  //  //  if (that.zspace.step < 0) {
+  //  //    slice.data = rotateUint16Array90Right(slice.data,new_width,new_height);
+  //  //  } else {
+  //  //    slice.data = rotateUint16Array90Left(slice.data,new_width,new_height);
+  //  //  }
+  //  //}
+  //  //
+  //  ////yspace should be XxZ
+  //  //if (axis === "yspace" && that.yspace.height_space.name === "xspace"){
+  //  //  if (that.zspace.step < 0){
+  //  //    slice.data = rotateUint16Array90Right(slice.data, new_width, new_height);
+  //  //  } else {
+  //  //    slice.data = rotateUint16Array90Left(slice.data, new_width, new_height);
+  //  //  }
+  //  //}
+  //  //
+  //  ////zspace should be XxY
+  //  //if (axis === "zspace" && that.zspace.height_space.name === "xspace"){
+  //  //  slice.data = rotateUint16Array90Left(slice.data, new_width, new_height);
+  //  //}
+  //
+  //  return slice;
+  //};
 
   this.parseHeader(headers);
   this.data = data;

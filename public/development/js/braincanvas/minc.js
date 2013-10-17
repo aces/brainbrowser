@@ -89,15 +89,16 @@
   };
   
 
-  BrainCanvas.volumeType.minc = function(opt,callback) {
+  BrainCanvas.volumeType.minc = function(opt, callback) {
     var volume = {};
       //What get parameter will be used in request to server
     var getRawDataParam = opt.getRawDataParam || "raw_data=true";
     var getHeaderParam = opt.getHeaderParam || "minc_headers=true";
     var headers, data;
+    volume.current_time = 0;
     
-    volume.getScaledSlice = function(axis, number, zoom, time) {
-      var slice = volume.data.getScaledSlice(axis, number, zoom, time);
+    volume.slice = function(axis, number, time) {
+      var slice = volume.data.slice(axis, number, time);
       slice.colorScale = volume.colorScale || BrainCanvas.colorScales[0];
       slice.min   = volume.min;
       slice.max   = volume.max;

@@ -81,7 +81,6 @@
     var container;
     var braincanvas_element;
     var horizontal; //Should the volume be displayed horizontally or vertically.
-    var multi = false;
     var sliceHeight;
     var sliceWidth;
     var numVolumes;
@@ -122,77 +121,70 @@
       if(opts.horizontal) {
         horizontal = true;
       }
-  
-      if(opts.multi) {
-        var i = 0;
-        var volumes = opts.volumes;
-        var numVolumes = opts.volumes.length;
-  
-  
-        multi = true;
-        BrainCanvas.loader.loadColorScaleFromUrl(
-          '/color_scales/spectral.txt',
-          'Spectral',
-          function(scale) {
-            scale.cross_hair_color = "#FFFFFF";
-            viewer.defaultScale = scale;
-            BrainCanvas.colorScales[0] = scale;
-            
-            (function loadVolume() {
-              if (i < numVolumes) {
-                viewer.openVolume(volumes[i], loadVolume);
-                i++;
-              } else {
-                viewer.openVolume({
-                    volumes: viewer.volumes,
-                    type: 'multiVolume'
-                  },
-                  startViewer
-                );
-              }
-            })();
-          }
-        );
-        
-        BrainCanvas.loader.loadColorScaleFromUrl(
-          '/color_scales/thermal.txt',
-          'Thermal',
-          function(scale) {
-            scale.cross_hair_color = "#FFFFFF";
-            BrainCanvas.colorScales[1] = scale;
-          }
-        );
-        
-        BrainCanvas.loader.loadColorScaleFromUrl(
-          '/color_scales/gray_scale.txt',
-          'Gray',
-          function(scale){
-            BrainCanvas.colorScales[2] = scale;
-          }
-        );
-        
-        BrainCanvas.loader.loadColorScaleFromUrl(
-          '/color_scales/blue.txt',
-          'Blue',
-          function(scale){
-            scale.cross_hair_color = "#FFFFFF";
-            BrainCanvas.colorScales[3] = scale;
-          }
-        );
-        
-        BrainCanvas.loader.loadColorScaleFromUrl(
-          '/color_scales/green.txt',
-          'Green',
-          function(scale){
-            BrainCanvas.colorScales[4] = scale;
-          }
-        );
-  
-      } else {
-        if (opts.volume) {
-          viewer.openVolume(opts.volume,startViewer);
+      
+      var i = 0;
+      var volumes = opts.volumes;
+      var numVolumes = opts.volumes.length;
+    
+      BrainCanvas.loader.loadColorScaleFromUrl(
+        '/color_scales/spectral.txt',
+        'Spectral',
+        function(scale) {
+          scale.cross_hair_color = "#FFFFFF";
+          viewer.defaultScale = scale;
+          BrainCanvas.colorScales[0] = scale;
+          
+          (function loadVolume() {
+            if (i < numVolumes) {
+              viewer.openVolume(volumes[i++], loadVolume);
+            } else if (opts.overlay) {
+              viewer.openVolume({
+                  volumes: viewer.volumes,
+                  type: 'multiVolume'
+                },
+                startViewer
+              );
+              
+            } else {
+              startViewer();
+            }
+          })();
         }
-      }
+      );
+      
+      BrainCanvas.loader.loadColorScaleFromUrl(
+        '/color_scales/thermal.txt',
+        'Thermal',
+        function(scale) {
+          scale.cross_hair_color = "#FFFFFF";
+          BrainCanvas.colorScales[1] = scale;
+        }
+      );
+      
+      BrainCanvas.loader.loadColorScaleFromUrl(
+        '/color_scales/gray_scale.txt',
+        'Gray',
+        function(scale){
+          BrainCanvas.colorScales[2] = scale;
+        }
+      );
+      
+      BrainCanvas.loader.loadColorScaleFromUrl(
+        '/color_scales/blue.txt',
+        'Blue',
+        function(scale){
+          scale.cross_hair_color = "#FFFFFF";
+          BrainCanvas.colorScales[3] = scale;
+        }
+      );
+      
+      BrainCanvas.loader.loadColorScaleFromUrl(
+        '/color_scales/green.txt',
+        'Green',
+        function(scale){
+          BrainCanvas.colorScales[4] = scale;
+        }
+      );
     }
   
     /*
@@ -209,6 +201,17 @@
       numVolumes = volumes.length;
       sliceWidth = 300;
       sliceHeight = 300;
+      
+      if (BrainCanvas.globalUIControls) {
+        if (BrainCanvas.volumeUIControls.defer_until_page_load) {
+          BrainCanvas.addEventListener("ready", function() {
+            BrainCanvas.globalUIControls(braincanvas_element, viewer);
+          });
+        } else {
+          BrainCanvas.globalUIControls(braincanvas_element, viewer);
+        }
+      }
+      
       BrainCanvas.setupUI(viewer);
       for(i = 0; i < numVolumes; i++) {
         div = document.createElement("div");
@@ -224,9 +227,9 @@
         volume.position.yspace = volume.header.yspace.space_length/2;
         volume.position.zspace = volume.header.zspace.space_length/2;
   
-        slices.push(volume.getScaledSlice('xspace', parseInt(volume.header.xspace.space_length/2, 10), viewer.default_zoom_level));
-        slices.push(volume.getScaledSlice('yspace', parseInt(volume.header.yspace.space_length/2, 10), viewer.default_zoom_level));
-        slices.push(volume.getScaledSlice('zspace', parseInt(volume.header.zspace.space_length/2, 10), viewer.default_zoom_level));
+        slices.push(volume.slice('xspace', parseInt(volume.header.xspace.space_length/2, 10)));
+        slices.push(volume.slice('yspace', parseInt(volume.header.yspace.space_length/2, 10)));
+        slices.push(volume.slice('zspace', parseInt(volume.header.zspace.space_length/2, 10)));
         for ( k = 0; k < 3; k++ ) {
           slices[k].volID = i;
           slices[k].sliceNum = k;
@@ -239,15 +242,6 @@
         viewer.updateVolume(i, slices);
       }
       
-      if (BrainCanvas.globalUIControls) {
-        if (BrainCanvas.volumeUIControls.defer_until_page_load) {
-          BrainCanvas.addEventListener("ready", function() {
-            BrainCanvas.globalUIControls(braincanvas_element, viewer);
-          });
-        } else {
-          BrainCanvas.globalUIControls(braincanvas_element, viewer);
-        }
-      }
       container.appendChild(braincanvas_element);
       BrainCanvas.triggerEvent("ready");
       BrainCanvas.triggerEvent("sliceupdate");
@@ -281,14 +275,12 @@
       var volume = volumes[volID];
       var slice;
       var slice_id = axis_to_number[axis];
-      var display = viewer.displays[volID][slice_id];
-      var zoom = display.zoom;
       
       if (slice_number === undefined) {
         slice_number = volume.position[axis];
       }
       
-      slice = volume.getScaledSlice(axis, slice_number, zoom);
+      slice = volume.slice(axis, slice_number, volume.current_time);
       slice.volID = volID;
       slice.sliceNum = slice_id;
       volume.position[axis] = slice_number;
@@ -327,7 +319,7 @@
         widthSpace: widthSpace,
         heightSpace: heightSpace,
       };
-      var display;
+      var display = viewer.displays[volumeNum][sliceNum];
       
       for (i = 0; i < numSlices; i++) {
   
@@ -337,11 +329,11 @@
         var imageData = context.createImageData(slice.width, slice.height);
         colorScale.colorizeArray(slice.data, slice.min, slice.max, true, 0, 1, slice.alpha, imageData.data);
   
-        var xstep  = Math.abs(slice.x.step);
-        var ystep =  Math.abs(slice.y.step);
+        var xstep = slice.x.step;
+        var ystep = slice.y.step;
         //console.log("xstep: " +xstep);
         //console.log("ystep: " +ystep);
-        imageData = nearestNeighboor(imageData, Math.floor(slice.width * (xstep)), Math.floor(slice.height * (ystep)));
+        imageData = nearestNeighboor(imageData, Math.floor(slice.width * xstep * display.zoom), Math.floor(slice.height * ystep * display.zoom));
         
         images.push(imageData);
       }
@@ -358,11 +350,29 @@
       cached_slice.image = finalImageData;
       cachedSlices[volumeNum][sliceNum] = cached_slice;
       
-      display = viewer.displays[volumeNum][sliceNum];
       display.slice = cachedSlices[volumeNum][sliceNum];
       display.updateCursor(volumes[volumeNum]);
       
     };
+  
+    function flipImage(src, width, height, flipx, flipy, block_size) {
+      var dest = [];
+      var i, j, k;
+      var x, y;
+      block_size = block_size || 1;
+
+      for (i = 0; i < width; i++) {
+        for (j = 0; j < height; j++) {
+          x = flipx ? width - i - 1 : i;
+          y = flipy ? height - j - 1 : j;
+          for (k = 0; k < block_size; k++) {
+            dest[(j * width + i) * block_size + k] = src[(y * width + x) * block_size + k];
+          }
+        }
+      }
+      
+      return dest;
+    }
   
     /**
      * Interpolates the slice data using nearest neighboor interpolation
@@ -379,24 +389,32 @@
       var width = orig.width;
       var height = orig.height;
       var context = document.createElement("canvas").getContext("2d");
-  
+      var numElem   = 4;
       //Do nothing if height is the same
       if(width === new_width && height === new_height) {
         return orig;
       }
+      
+      if (new_width < 0 && new_height > 0) {
+        data = flipImage(data, width, height, true, false, numElem);
+      }
+      
+      new_width = Math.abs(new_width);
+      new_height = Math.abs(new_height);
+        
       //console.log("neighbor");
       //else execute nearest neighboor (NED FLANDERS)
-      var numElem   = 4;
+      
       var image     = context.createImageData(new_width, new_height);
       var imageData = image.data;
-      var x_ratio   = width/new_width;
-      var y_ratio   = height/new_height;
+      var x_ratio   = width / new_width;
+      var y_ratio   = height / new_height;
       for (var i = 0; i < new_height; i++) {
-        for (var j = 0; j <new_width; j++)  {
-          var px = Math.floor(j*x_ratio);
-          var py = Math.floor(i*y_ratio);
+        for (var j = 0; j < new_width; j++)  {
+          var px = Math.floor(j * x_ratio);
+          var py = Math.floor(i * y_ratio);
           for (var k = 0; k < numElem; k++) {
-            imageData[Math.floor(i*new_width+j)*numElem+k] = data[Math.floor(py*width+px)*numElem+k];
+            imageData[Math.floor(i * new_width + j) * numElem + k] = data[Math.floor( py * width + px) * numElem + k];
           }
         }
       }
@@ -404,7 +422,6 @@
       return image;
     }
     
-  
     viewer.updateVolume = function(volumeNum,slices) {
       var i, slice;
       
@@ -527,7 +544,6 @@
      * Slice updating on click
      */
     viewer.getSlices = function(cursor, volID, sliceNum) {
-      
       var slice = cachedSlices[volID][sliceNum];
       var display = viewer.displays[volID][sliceNum];
       var image_origin = display.getImageOrigin();
@@ -539,15 +555,14 @@
       
   
       if (cursor) {
-        x =  Math.floor((cursor.x - image_origin.x) / zoom);
-        y  = Math.floor(slice.heightSpace.space_length - (cursor.y - image_origin.y) / zoom);
+        x =  Math.floor((cursor.x - image_origin.x) / zoom / Math.abs(slice.widthSpace.step));
+        y  = Math.floor(slice.heightSpace.space_length - (cursor.y - image_origin.y) / zoom  / Math.abs(slice.heightSpace.step));
       } else {
         x = null;
         y = null;
       }
   
       viewer.updateSlices(volID, slice.widthSpace.name, x);
-      
       viewer.updateSlices(volID, slice.heightSpace.name, y);
   
     };

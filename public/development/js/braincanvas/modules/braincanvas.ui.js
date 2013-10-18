@@ -246,15 +246,45 @@
   
   BrainCanvas.globalUIControls = function(element, viewer) {
     var controls = $('<div id="global-controls" class="braincanvas-controls"></div>');
-    var sync_button = $('<input type="checkbox" />');
+    var sync_button = $('<input type="checkbox" class="button" id="sync"><label for="sync">Sync Volumes</label>');
     
     sync_button.change(function() {
       viewer.synced = $(this).is(":checked");
     });
-    var sync = $('<span class="control-heading">Sync Volumes </span>');
     
-    sync.append(sync_button);
-    controls.append(sync);
+    controls.append(sync_button);
+    
+    var image_button = $('<span id="capture" class="button">Capture Slices</label>');
+    
+    image_button.click(function() {
+      var width = viewer.displays[0][0].canvas.width;
+      var height = viewer.displays[0][0].canvas.height;
+      
+      var canvas = document.createElement("canvas");
+      var context = canvas.getContext("2d");
+      var img = new Image();
+      canvas.width = width * viewer.displays.length;
+      canvas.height = height * 3;
+      
+      viewer.displays.forEach(function(display, x) {
+        display.forEach(function(panel, y) {
+          context.drawImage(panel.canvas, x * width, y * height);
+        });
+      });
+      
+      img.onload = function() {
+        $("<div></div>").append(img).dialog({
+          title: "Slices",
+          height: img.height,
+          width: img.width
+        });
+      };
+      
+      img.src = canvas.toDataURL();
+    });
+    
+    controls.append(image_button);
+    
     $(element).append(controls);
   };
   

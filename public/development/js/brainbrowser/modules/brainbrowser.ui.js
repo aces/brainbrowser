@@ -72,10 +72,25 @@ BrainBrowser.plugins.ui = function(bb) {
     canvas.width = view_window.offsetWidth;
     canvas.height = view_window.offsetHeight;
   
+    function displayImage() {
+      var img = new Image();
+      
+      img.onload = function() {
+        $("<div></div>").append(img).dialog({
+          title: "Screenshot",
+          height: img.height,
+          width: img.width
+        });
+      };
+      
+      img.src = canvas.toDataURL();
+    }
+  
     function getSpectrumImage() {
       var img = new Image();
       img.onload = function(){
         context.drawImage(img, 0, 0); // Or at whatever offset you like
+        displayImage();
       };
       img.src = spectrum_canvas.toDataURL();
     }
@@ -84,16 +99,12 @@ BrainBrowser.plugins.ui = function(bb) {
       context.drawImage(img, 0, 0); // Or at whatever offset you like
       if (spectrum_canvas) {
         getSpectrumImage();
+      } else {
+        displayImage();
       }
     };
     
     img.src = bb.canvasDataURL();
-    
-    $("<div></div>").append(canvas).dialog({
-      title: "Screenshot",
-      height: canvas.height,
-      width: canvas.width
-    });
   });
   
   bb.getViewParams = function() {

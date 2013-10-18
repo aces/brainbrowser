@@ -10,12 +10,12 @@ module.exports = function(grunt) {
       options: {
         separator: ";"
       },
-      surfview: {
+      surface: {
         src: [
           "<%= dev_js %>/lib/array.js",
           "<%= dev_js %>/brainbrowser/**/*.js",
           "<%= dev_js %>/lib/brainbrowser.utils.js",
-          "<%= dev_js %>/surfview.js"
+          "<%= dev_js %>/surface-viewer.js"
         ],
         dest: "tmp/surfview-combined.js"
       },
@@ -25,16 +25,16 @@ module.exports = function(grunt) {
           "<%= dev_js %>/brainbrowser/**/*.js",
           "<%= dev_js %>/macacc/macacc.js",
           "<%= dev_js %>/lib/brainbrowser.utils.js",
-          "<%= dev_js %>/macaccview.js"
+          "<%= dev_js %>/macacc-viewer.js"
         ],
-        dest: "tmp/macaccview-combined.js"
+        dest: "tmp/macacc-viewer-combined.js"
       },
-      braincanvas: {
+      volume: {
         src: [
-          "<%= dev_js %>/braincanvas.js",
-          "<%= dev_js %>/braincanvas/*"
+          "<%= dev_js %>/volume-viewer.js",
+          "<%= dev_js %>/braincanvas/**/*.js"
         ],
-        dest: "tmp/html5-minc-viewer.js"
+        dest: "tmp/volume-viewer-combined.js"
       }
     },
     uglify: {
@@ -42,19 +42,19 @@ module.exports = function(grunt) {
         report: "min",
         banner: "<%= license %>\n/* <%= pkg.name %> v<%= pkg.version %> */\n"
       },
-      surfview: {
+      surface: {
         files: {
-          "<%= prod_js %>/surfview-combined.min.js": ["<%= concat.surfview.dest %>"]
+          "<%= prod_js %>/surface-viewer-combined.min.js": ["<%= concat.surface.dest %>"]
         }
       },
       macacc: {
         files: {
-          "<%= prod_js %>/macaccview-combined.min.js": ["<%= concat.macacc.dest %>"]
+          "<%= prod_js %>/macacc-viewer-combined.min.js": ["<%= concat.macacc.dest %>"]
         }
       },
-      braincanvas: {
+      volume: {
         files: {
-          "<%= prod_js %>/html5-minc-viewer.min.js": ["<%= concat.braincanvas.dest %>"]
+          "<%= prod_js %>/volume-viewer-combined.min.js": ["<%= concat.volume.dest %>"]
         }
       },
       libs : {
@@ -112,9 +112,9 @@ module.exports = function(grunt) {
         src: [
           "<%= dev_js %>/layout.js",
           "<%= dev_js %>/lib/ui.js",
-          "<%= concat.surfview.src %>",
+          "<%= concat.surface.src %>",
           "<%= dev_js %>/macacc/macacc.js",
-          "<%= dev_js %>/macaccview.js"
+          "<%= dev_js %>/macacc-viewer.js"
         ]
       },
       workers: {
@@ -123,7 +123,7 @@ module.exports = function(grunt) {
         },
         src: ["<%= dev_js %>/workers/*.js"]
       },
-      braincanvas: {
+      volume: {
         options: {
           browser: true,
           jquery: true,
@@ -132,7 +132,7 @@ module.exports = function(grunt) {
             oFactory: true
           }
         },
-        src: ["<%= concat.braincanvas.src %>"]
+        src: ["<%= concat.volume.src %>"]
       },
       loris: {
         options: {
@@ -158,8 +158,8 @@ module.exports = function(grunt) {
         files: ["<%= jshint.workers.src %>"],
         tasks: ["jshint:workers"]
       },
-      braincanvas : {
-        files: ["<%= jshint.braincanvas.src %>"],
+      volume : {
+        files: ["<%= jshint.volume.src %>"],
         tasks: ["jshint:braincanvas"]
       },
       loris : {

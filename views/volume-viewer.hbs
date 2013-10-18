@@ -22,16 +22,16 @@
   <script src="/js/lib/oFactory.min.js"></script>
   <script type="text/javascript" src="/js/lib/ui.js"></script>
   {{#ifenv "BRAINBROWSER_ENV" "production"}}
-    <script type="text/javascript" src="/js/html5-minc-viewer.min.js"></script>
+    <script type="text/javascript" src="/js/volume-viewer-combined.min.js"></script>
   {{else}}
-    <script src="/js/braincanvas.js"></script>
-    <script src="/js/braincanvas/braincanvas.display.js"></script>
-    <script src="/js/braincanvas/braincanvas.ui.js"></script>
-    <script src="/js/braincanvas/braincanvas.loader.js"></script>
-    <script src="/js/braincanvas/braincanvas.colorscale.js"></script>
-    <script src="/js/braincanvas/multivolume.js"></script>
-    <script src="/js/braincanvas/minclib.js"></script>
-    <script src="/js/braincanvas/minc.js"></script>
+    <script src="/js/braincanvas/braincanvas.js"></script>
+    <script src="/js/braincanvas/modules/braincanvas.display.js"></script>
+    <script src="/js/braincanvas/modules/braincanvas.ui.js"></script>
+    <script src="/js/braincanvas/modules/braincanvas.loader.js"></script>
+    <script src="/js/braincanvas/modules/braincanvas.colorscale.js"></script>
+    <script src="/js/braincanvas/lib/multivolume.js"></script>
+    <script src="/js/braincanvas/lib/minclib.js"></script>
+    <script src="/js/braincanvas/lib/minc.js"></script>
     {{#ifenv "BRAINBROWSER_ENV" "loris"}}
       <script src="/loris/js/jquery-ui.toggleSwitch.js"></script>
       <script src="/loris/js/jshashtable-2.1_src.js"></script>
@@ -40,40 +40,8 @@
       <script src="/loris/js/jquery.dependClass-0.1.js"></script>
       <script src="/loris/js/draggable-0.1.js"></script>
       <script src="/loris/js/jquery.slider.js"></script>
-      <script src="/loris/js/braincanvas.loris_ui_controls.js"></script>   
+      <script src="/loris/js/braincanvas.loris_ui_controls.js"></script>
     {{/ifenv}}
+    <script src="/js/volume-viewer.js"></script>   
   {{/ifenv}}
-  <script>
-      window.onload = function() {
-        var loading_div = $("#loading");
-        
-        BrainCanvas.addEventListener("ready", function() {
-          loading_div.hide();
-          $("#braincanvas-container").slideDown({duration: 600});
-        });
-        
-        loading_div.show();
-        
-        BrainCanvas.viewer("braincanvas-container",
-          {
-            volumes: [
-              {
-                type: 'minc', 
-                filename: 'data/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_003.mnc'
-              }, 
-              {
-                type: 'minc', 
-                filename: 'data/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_004.mnc'
-              }, 
-              //{
-              //  type: 'minc', 
-              //  filename: 'data/PreventAD_122650_PREBL00_Resting_001.mnc'
-              //}
-            ], 
-            overlay: true
-          }
-        ); 
- 
-      }      
-    </script>
 </body>      

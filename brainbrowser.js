@@ -57,9 +57,9 @@ if (cluster.isMaster) {
   app.get("/", routes.index);
   app.get("/about", routes.about);
   app.get("/credits", routes.credits);
-  app.get("/surfview", routes.surfview);
-  app.get("/macaccview", routes.macaccview);
-  app.get("/braincanvas", routes.braincanvas);
+  app.get("/surface-viewer", routes.surface);
+  app.get("/macacc-viewer", routes.macacc);
+  app.get("/volume-viewer", routes.volume);
   app.get('/data/:filename', function(req,res) {
     var filename = req.params.filename;
     var raw_filename, gz_raw_filename, header_filename;

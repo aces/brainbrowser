@@ -16,16 +16,16 @@ exports.credits = function(req, res){
   res.render('credits');
 };
 
-exports.surfview = function(req, res){
-  res.render('surfview', {layout: false});
+exports.surface = function(req, res){
+  res.render('surface-viewer', {layout: false});
 };
 
-exports.macaccview = function(req, res){
-  res.render('macaccview', {layout: false});
+exports.macacc = function(req, res){
+  res.render('macacc-viewer', {layout: false});
 };
 
-exports.braincanvas = function(req, res){
-  res.render('braincanvas', {layout: false});
+exports.volume = function(req, res){
+  res.render('volume-viewer', {layout: false});
 };
 
 

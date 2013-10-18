@@ -41,6 +41,14 @@ $(function() {
         //{
         //  type: 'minc',
         //  filename: 'data/PreventAD_122650_PREBL00_Resting_001.mnc'
+        //},
+        //{
+        //  type: 'minc',
+        //  filename: 'data/PreventAD_122650_PREBL00_ASL_001.mnc'
+        //},
+        //{
+        //  type: 'minc',
+        //  filename: 'data/PreventAD_122650_PREEN00_DTI_001.mnc'
         //}
       ],
       overlay: true

@@ -139,8 +139,9 @@
     volume.min = 0;
     volume.max = 255;
     volume.header = opt.volumes[0].header;
-    setTimeout(callback,1);
-    return volume;
+    setTimeout(function() {
+      callback(volume);
+    }, 0);
   };
 }());
 

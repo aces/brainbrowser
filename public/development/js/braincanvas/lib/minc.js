@@ -47,7 +47,7 @@
    * Fetch the parameters of the minc file. sends a request to http://filename/?minc_headers=true or whatever getHeadersParams says
    * @param {String} filename url/filename of the file to load minc headers
    */
-  var getHeaders = function(filename,getParam,callback) {
+  var getHeaders = function(filename, getParam, callback) {
     var param = getParam.split('=');
     var dataArgs = {};
     
@@ -57,7 +57,6 @@
       url: filename,
       dataType: 'json',
       data: dataArgs,
-      async: false,
       success: function(data){
         if (callback) callback(data);
       },
@@ -77,11 +76,9 @@
    * @param {Object}    extraArgs with extraArgs to pass to callback when data is done loading
    */
   var getData = function (filename, getRawDataParam, callback){
-    if(filename.match(/\?/)) {
-      filename = filename+'&'+ getRawDataParam;
-    } else {
-      filename = filename+'?'+ getRawDataParam;
-    }
+    filename += filename.match(/\?/) ? "&" : "?";
+    filename += getRawDataParam;
+    
     BrainCanvas.loader.loadArrayBuffer(filename, function(data) {
       callback(data);
     });
@@ -149,10 +146,6 @@
       });
       
     });
-
-    return volume;
   };
-  
-  
    
 }());

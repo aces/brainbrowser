@@ -56,31 +56,11 @@
     }
   };
   
-  BrainCanvas.globalUIControls = function(element, viewer) {
-    var controls = document.createElement("div");
-    controls.id = "global-controls";
-    controls.classList.add("braincanvas-controls");
-    var syncButton = document.createElement("input");
-    syncButton.type = "checkbox";
-    
-    syncButton.addEventListener("change", function(event) {
-      viewer.synced = event.target.checked;
-    }, false);
-    var sync = document.createElement("span");
-    sync.classList.add("control-heading");
-    sync.innerHTML = "Sync Volumes ";
-    
-    sync.appendChild(syncButton);
-    controls.appendChild(sync);
-    element.appendChild(controls);
-  };
-  
   BrainCanvas.viewer = function(containerID, opts) {
     var viewer = {};
     var volumes = [];
     var container;
     var braincanvas_element;
-    var horizontal; //Should the volume be displayed horizontally or vertically.
     var sliceHeight;
     var sliceWidth;
     var numVolumes;
@@ -96,6 +76,20 @@
     viewer.synced = false;
     viewer.default_zoom_level = 1;
   
+     /**
+     * Open volume using appropriate volume loader
+     * @param {Object} Volume description of the volume to load
+     */
+    function openVolume(volume, callback){
+      var loader = BrainCanvas.volumeType[volume.type];
+      if(loader){
+        loader(volume, callback);
+      } else {
+        throw new Error("Unsuported Volume Type");
+      }
+    }
+  
+  
     /**
      * Initialize viewer instance
      * @param container Id of the element to contain the viewer
@@ -106,49 +100,53 @@
      *   horizontal: should the volume be displayer horizontally (default: false)
      */
     function init(containerID, opts) {
-      container = document.getElementById(containerID);
+      opts = opts || {};
       
+      container = document.getElementById(containerID);
       braincanvas_element = document.createElement("div");
       braincanvas_element.id = "braincanvas";
       
-      if(!opts){
-        opts={};
-      }
-  
-      /*
-       * Set the viewer options
-       */
-      if(opts.horizontal) {
-        horizontal = true;
-      }
-      
-      var i = 0;
-      var volumes = opts.volumes;
-      var numVolumes = opts.volumes.length;
+      var volume_descriptions = opts.volumes;
+      var num_descriptions = opts.volumes.length;
     
       BrainCanvas.loader.loadColorScaleFromUrl(
         '/color_scales/spectral.txt',
         'Spectral',
         function(scale) {
+          var num_loaded = 0;
+          var i;
+          
           scale.cross_hair_color = "#FFFFFF";
           viewer.defaultScale = scale;
           BrainCanvas.colorScales[0] = scale;
           
-          (function loadVolume() {
-            if (i < numVolumes) {
-              viewer.openVolume(volumes[i++], loadVolume);
-            } else if (opts.overlay) {
-              viewer.openVolume({
-                  volumes: viewer.volumes,
-                  type: 'multiVolume'
-                },
-                startViewer
-              );
-              
-            } else {
-              startViewer();
-            }
-          })();
+          function loadVolume(i) {
+            openVolume(volume_descriptions[i], function(volume) {
+              volume.position = {};
+              volumes[i] = volume;
+              if (++num_loaded < num_descriptions) {
+                return;
+              }
+              if (opts.overlay) {
+                openVolume({
+                    volumes: viewer.volumes,
+                    type: 'multiVolume'
+                  },
+                  function(volume) {
+                    volume.position = {};
+                    volumes.push(volume);
+                    startViewer();
+                  }
+                );
+              } else {
+                startViewer();
+              }
+            });
+          }
+          
+          for (i = 0; i < num_descriptions; i++) {
+            loadVolume(i);
+          }
         }
       );
       
@@ -214,6 +212,7 @@
       
       BrainCanvas.setupUI(viewer);
       for(i = 0; i < numVolumes; i++) {
+
         div = document.createElement("div");
         volume = volumes[i];
         slices = [];
@@ -248,23 +247,6 @@
       
       viewer.draw();
     };
-  
-    /**
-     * Open volume using appropriate volume loader
-     * @param {Object} Volume description of the volume to load
-     */
-    viewer.openVolume = function(volume, callback){
-  
-      var loader = BrainCanvas.volumeType[volume.type];
-      if(loader){
-        volume = loader(volume, callback);
-        volume.position = {};
-        volumes.push(volume);
-      } else {
-        throw new Error("Unsuported Volume Type");
-      }
-    };
-  
   
     /**
      * update slice for volume
@@ -543,9 +525,9 @@
     /**
      * Slice updating on click
      */
-    viewer.getSlices = function(cursor, volID, sliceNum) {
-      var slice = cachedSlices[volID][sliceNum];
-      var display = viewer.displays[volID][sliceNum];
+    viewer.getSlices = function(cursor, volID, axis_num) {
+      var slice = cachedSlices[volID][axis_num];
+      var display = viewer.displays[volID][axis_num];
       var image_origin = display.getImageOrigin();
       var zoom = display.zoom;
       var x, y;

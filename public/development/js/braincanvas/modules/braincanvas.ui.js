@@ -240,9 +240,23 @@
     return displays;
   };
   
-  //////////////////////////////////////
-  // UI Controls for individual volumes
-  //////////////////////////////////////
+  /////////////////
+  // UI Controls
+  /////////////////
+  
+  BrainCanvas.globalUIControls = function(element, viewer) {
+    var controls = $('<div id="global-controls" class="braincanvas-controls"></div>');
+    var sync_button = $('<input type="checkbox" />');
+    
+    sync_button.change(function() {
+      viewer.synced = $(this).is(":checked");
+    });
+    var sync = $('<span class="control-heading">Sync Volumes </span>');
+    
+    sync.append(sync_button);
+    controls.append(sync);
+    $(element).append(controls);
+  };
   
   BrainCanvas.volumeUIControls = function(controls, viewer, volume, volID) {
     BrainCanvas._coordinateUI(controls, viewer, volume, volID);

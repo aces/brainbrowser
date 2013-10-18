@@ -259,6 +259,7 @@
     image_button.click(function() {
       var width = viewer.displays[0][0].canvas.width;
       var height = viewer.displays[0][0].canvas.height;
+      var active_canvas = viewer.active_canvas;
       
       var canvas = document.createElement("canvas");
       var context = canvas.getContext("2d");
@@ -266,11 +267,15 @@
       canvas.width = width * viewer.displays.length;
       canvas.height = height * 3;
       
+      viewer.active_canvas = null;
+      viewer.draw();
       viewer.displays.forEach(function(display, x) {
         display.forEach(function(panel, y) {
           context.drawImage(panel.canvas, x * width, y * height);
         });
       });
+      viewer.active_canvas = active_canvas;
+      viewer.draw();
       
       img.onload = function() {
         $("<div></div>").append(img).dialog({

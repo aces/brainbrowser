@@ -157,8 +157,7 @@
       } else if(data[i] >= max) {
         colors_index = colors.length-1;
       } else {
-        var value = data[i];
-        colors_index = parseInt((value-min) / increment, 10);
+        colors_index = parseInt((data[i]-min) / increment, 10);
       }
       //This inserts the RGBA data (R,G,B,A) independently
 

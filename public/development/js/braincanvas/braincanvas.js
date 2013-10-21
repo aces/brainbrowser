@@ -195,7 +195,6 @@
       var slices;
       var k;
       
-      viewer.vols = [];
       numVolumes = volumes.length;
       sliceWidth = 300;
       sliceHeight = 300;
@@ -222,22 +221,19 @@
         viewer.displays.push(BrainCanvas.addCanvasUI(div, viewer, volumes[i], i));
         cachedSlices[i] = [];
         
-        volume.position.xspace = volume.header.xspace.space_length/2;
-        volume.position.yspace = volume.header.yspace.space_length/2;
-        volume.position.zspace = volume.header.zspace.space_length/2;
+        volume.position.xspace = parseInt(volume.header.xspace.space_length/2, 10);
+        volume.position.yspace = parseInt(volume.header.yspace.space_length/2, 10);
+        volume.position.zspace = parseInt(volume.header.zspace.space_length/2, 10);
   
-        slices.push(volume.slice('xspace', parseInt(volume.header.xspace.space_length/2, 10)));
-        slices.push(volume.slice('yspace', parseInt(volume.header.yspace.space_length/2, 10)));
-        slices.push(volume.slice('zspace', parseInt(volume.header.zspace.space_length/2, 10)));
+        slices.push(volume.slice('xspace', volume.position.xspace));
+        slices.push(volume.slice('yspace', volume.position.yspace));
+        slices.push(volume.slice('zspace', volume.position.zspace));
         for ( k = 0; k < 3; k++ ) {
           slices[k].volID = i;
-          slices[k].sliceNum = k;
-          slices[k].startx = 0;
-          slices[k].starty = 0;
+          slices[k].axis_number = k;
           slices[k].min = volume.min;
           slices[k].max = volume.max;
         }
-        viewer.vols.push(slices);
         viewer.updateVolume(i, slices);
       }
       
@@ -246,6 +242,33 @@
       BrainCanvas.triggerEvent("sliceupdate");
       
       viewer.draw();
+    };
+    
+    viewer.updateVolume = function(volumeNum, slices) {
+      var i, slice;
+      
+      for (i = 0; i < 3; i++) {
+        slice = slices[i];
+        viewer.updateSlice(volumeNum, i, slice);
+      }
+    };
+  
+    /**
+     * Redraw volume with current position
+     *
+     * @param {Number} volNum
+     *
+     */
+    viewer.redrawVolume = function(volNum) {
+      viewer.updateSlices(volNum, "xspace", volumes[volNum].position.xspace);
+      viewer.updateSlices(volNum, "yspace", volumes[volNum].position.yspace);
+      viewer.updateSlices(volNum, "zspace", volumes[volNum].position.zspace);
+    };
+  
+    viewer.redrawVolumes = function() {
+      for(var i = 0; i < volumes.length; i++) {
+        viewer.redrawVolume(i);
+      }
     };
   
     /**
@@ -256,7 +279,7 @@
     viewer.updateSlices = function(volID, axis, slice_number) {
       var volume = volumes[volID];
       var slice;
-      var slice_id = axis_to_number[axis];
+      var axis_number = axis_to_number[axis];
       
       if (slice_number === undefined) {
         slice_number = volume.position[axis];
@@ -264,14 +287,14 @@
       
       slice = volume.slice(axis, slice_number, volume.current_time);
       slice.volID = volID;
-      slice.sliceNum = slice_id;
+      slice.axis_number = axis_number;
       volume.position[axis] = slice_number;
   
-      slice.startx = 0;
-      slice.starty = 0;
+      //slice.startx = 0;
+      //slice.starty = 0;
       slice.min = volume.min;
       slice.max = volume.max;
-      viewer.updateSlice(volID, slice.sliceNum, null, null, slice);
+      viewer.updateSlice(volID, slice.axis_number, slice);
           
       BrainCanvas.triggerEvent("sliceupdate");
       viewer.draw();
@@ -285,27 +308,25 @@
      * @param {BrainBrowser.ColorScale} colorScale colors to use for the image
      * @param {Array} imageData intensity data for the slice
      */
-    viewer.updateSlice = function(volumeNum, sliceNum, startx, starty, intensityData) {
+    viewer.updateSlice = function(volumeNum, axis_number, slice_set) {
       var i = 0;
-      var numSlices = intensityData.length;
+      var numSlices = slice_set.length;
       var images = [];
-      var widthSpace = intensityData.x;
-      var heightSpace = intensityData.y;
+      var widthSpace = slice_set.x;
+      var heightSpace = slice_set.y;
       var slice;
       var maxWidth, maxHeight;
       var finalImageData;
       var context = document.createElement("canvas").getContext("2d");
-      var cached_slice = cachedSlices[volumeNum][sliceNum] || {
-        x: startx,
-        y: starty,
+      var cached_slice = cachedSlices[volumeNum][axis_number] || {
         widthSpace: widthSpace,
         heightSpace: heightSpace,
       };
-      var display = viewer.displays[volumeNum][sliceNum];
+      var display = viewer.displays[volumeNum][axis_number];
       
       for (i = 0; i < numSlices; i++) {
   
-        slice = intensityData[i];
+        slice = slice_set[i];
   
         var colorScale = slice.colorScale;
         var imageData = context.createImageData(slice.width, slice.height);
@@ -330,9 +351,9 @@
       finalImageData = blendImages(images, finalImageData);
       
       cached_slice.image = finalImageData;
-      cachedSlices[volumeNum][sliceNum] = cached_slice;
+      cachedSlices[volumeNum][axis_number] = cached_slice;
       
-      display.slice = cachedSlices[volumeNum][sliceNum];
+      display.slice = cached_slice;
       display.updateCursor(volumes[volumeNum]);
       
     };
@@ -403,33 +424,6 @@
       
       return image;
     }
-    
-    viewer.updateVolume = function(volumeNum,slices) {
-      var i, slice;
-      
-      for (i = 0; i < 3; i++) {
-        slice = slices[i];
-        viewer.updateSlice(volumeNum, i, slice.startx, slice.starty, slice);
-      }
-    };
-  
-    /**
-     * Redraw volume with current position
-     *
-     * @param {Number} volNum
-     *
-     */
-    viewer.redrawVolume = function(volNum) {
-      viewer.updateSlices(volNum, "xspace", volumes[volNum].position.xspace);
-      viewer.updateSlices(volNum, "yspace", volumes[volNum].position.yspace);
-      viewer.updateSlices(volNum, "zspace", volumes[volNum].position.zspace);
-    };
-  
-    viewer.redrawVolumes = function() {
-      for(var i =0; i < volumes.length; i++) {
-        viewer.redrawVolume(i);
-      }
-    };
   
     /*
      * Blend the pixels of two images using the alpha value of each

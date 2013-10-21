@@ -507,7 +507,7 @@
           time_val.val(value);
           time_slider.slider("value", value);
           viewer.redrawVolume(volID);
-        }, 0);
+        }, 200);
       } else {
         clearInterval(play_interval);
       }

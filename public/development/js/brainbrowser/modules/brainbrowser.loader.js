@@ -415,7 +415,7 @@ BrainBrowser.modules.loader = function(bb) {
   function cancelLoad(options) {
     options = options || {};
     var cancel_opts = options.cancel || {};
-    if (BrainBrowser.utils.isFunction(cancel_opts)) {
+    if (utils.isFunction(cancel_opts)) {
       cancel_opts = { test: cancel_opts };
     }
     

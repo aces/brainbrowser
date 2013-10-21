@@ -307,7 +307,7 @@
     }
   };
   
-  BrainCanvas.coordinateUI = function(controls, viewer, volume, volID) {
+  BrainCanvas.coordinateUI = function(controls, viewer, volume) {
     var coords, world_coords_div, voxel_coords_div;
     
     if (volume.getWorldCoords) {
@@ -326,7 +326,7 @@
           z: +world_coords_div.find("#world-z").val()
         };
         volume.setWorldCoords(world.x, world.y, world.z);
-        viewer.redrawVolume(volID);
+        viewer.redrawVolumes();
       });
       
       voxel_coords_div = $(
@@ -343,7 +343,7 @@
           z: +voxel_coords_div.find("#voxel-z").val()
         };
         volume.setVoxelCoords(voxel.x, voxel.y, voxel.z);
-        viewer.redrawVolume(volID);
+        viewer.redrawVolumes();
       });
       
       BrainCanvas.addEventListener("sliceupdate", function() {
@@ -364,7 +364,7 @@
     controls.append(coords);
   };
   
-  BrainCanvas.blendUI = function(controls, viewer, volume, volID) {
+  BrainCanvas.blendUI = function(controls, viewer, volume) {
     var blendSlider = $("<div id=\"blend-slider\" class=\"slider braincanvas-blend\"></div>");
     var blend = $("<div class=\"control-heading\">Blend (-50 to 50): </div>");
     var blend_val = $("<input class=\"control-inputs\" value=\"0\" id =\"blend-val\"/>");
@@ -380,7 +380,7 @@
       slide: function(event, ui) {
         var newVal = parseInt(ui.value, 10);
         volume.updateBlendRatio(newVal);
-        viewer.redrawVolume(volID);
+        viewer.redrawVolumes();
         blend_val.val( newVal );
       },
       stop: function() {
@@ -393,11 +393,11 @@
       var value = this.value;
       blendSlider.slider("value", value);
       volume.updateBlendRatio(value);
-      viewer.redrawVolume(volID);
+      viewer.redrawVolumes();
     });
   };
   
-  BrainCanvas.colorScaleUI = function(controls, viewer, volume, volID) {
+  BrainCanvas.colorScaleUI = function(controls, viewer, volume) {
     var colorScaleOption = $("<select></select>");
     var list = "";
     BrainCanvas.colorScales.forEach(function(scale, i) {
@@ -410,13 +410,13 @@
     //On change update color scale of volume and redraw.
     colorScaleOption.change(function(event) {
       volume.colorScale = BrainCanvas.colorScales[+$(event.target).val()];
-      viewer.redrawVolume(volID);
+      viewer.redrawVolumes();
     });
     
     controls.append($("<div class=\"control-heading\">Color Scale: </div>").append(colorScaleOption));
   };
   
-  BrainCanvas.thresholdUI = function(controls, viewer, volume, volID) {
+  BrainCanvas.thresholdUI = function(controls, viewer, volume) {
     var thresh_slider = $('<div class="slider braincanvas-threshold"></div>');
     var thresholds = $("<div class=\"control-heading\" class=\"slider-div\">Threshold: </div>");
     var min_input = $('<input class="control-inputs thresh-input-left" value="0"/>');
@@ -438,7 +438,7 @@
         var values = ui.values;
         volume.min = values[0];
         volume.max = values[1];
-        viewer.redrawVolume(volID);
+        viewer.redrawVolumes();
         min_input.val(values[0]);
         max_input.val(values[1]);
       },
@@ -452,7 +452,7 @@
       var value = this.value;
       thresh_slider.slider("values", 0, value);
       volume.min = value;
-      viewer.redrawVolume(volID);
+      viewer.redrawVolumes();
     });
     
     //change max value based on user input and update slider
@@ -460,7 +460,7 @@
       var value = this.value;
       thresh_slider.slider("values", 1, value);
       volume.max = value;
-      viewer.redrawVolume(volID);
+      viewer.redrawVolumes();
     });
   };
   
@@ -482,7 +482,7 @@
         var value = +ui.value;
         time_val.val(value);
         volume.current_time = value;
-        viewer.redrawVolume(volID);
+        viewer.redrawVolumes();
       },
       stop: function() {
         $(this).find("a").blur();
@@ -494,7 +494,7 @@
       time_val.val(value);
       time_slider.slider("value", value);
       volume.current_time = value;
-      viewer.redrawVolume(volID);
+      viewer.redrawVolumes();
     });
     
     play_button.change(function() {
@@ -506,7 +506,7 @@
           volume.current_time = value;
           time_val.val(value);
           time_slider.slider("value", value);
-          viewer.redrawVolume(volID);
+          viewer.redrawVolumes();
         }, 200);
       } else {
         clearInterval(play_interval);

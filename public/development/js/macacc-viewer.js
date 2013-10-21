@@ -25,8 +25,8 @@ $(function() {
   var showLoading = function() { loading_div.show(); };
   var hideLoading = function() { loading_div.hide(); };
         
-  if (!BrainBrowser.utils.webglEnabled()) {
-    $("#brainbrowser").html(BrainBrowser.utils.webGLErrorMessage());
+  if (!utils.webglEnabled()) {
+    $("#brainbrowser").html(utils.webGLErrorMessage());
     return;
   }
   

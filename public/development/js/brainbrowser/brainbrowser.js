@@ -45,12 +45,12 @@
       // Browser compatibility checks.
       /////////////////////////////////
       
-      if (! BrainBrowser.utils.webWorkersEnabled() ) {
+      if (!utils.webWorkersEnabled() ) {
         alert("Can't find web workers. Exiting.");
         return;
       }
       
-      if (!BrainBrowser.utils.webglEnabled()) {
+      if (!utils.webglEnabled()) {
         alert("Can't get WebGL context. Exiting.");
         return;
       }

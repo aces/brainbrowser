@@ -58,6 +58,57 @@
     }
 
   }
+  
+  /*
+   * Blend the pixels of two images using the alpha value of each
+   */
+  function blendImages(images, dest) {
+    var numImages = images.length;
+    if(numImages > 1) {
+      var finalImage = dest.data;
+      var numCol = dest.width;
+      var numRow = dest.height;
+      //This will be used to keep the position in each image of it's next pixel
+      var imageIter = [];
+  
+      for (var i = 0; i < numRow; i += 1) {
+        for (var k = 0; k < numCol; k += 1) {
+          for (var j = 0; j < numImages; j += 1) {
+            imageIter[j] = imageIter[j] || 0;
+            var image = images[j];
+            if(i < image.height &&  k < image.width) {
+              var pixel = (i*numCol + k) * 4;
+              var alpha = (finalImage[pixel  + 3] || 0)/255.0;
+              var current = imageIter[j];
+        
+              finalImage[pixel] = (finalImage[pixel + 0] || 0)  *  //Red
+                                  alpha + image.data[current+0] *
+                                  (image.data[current+3]/255.0);
+        
+              finalImage[pixel + 1] = (finalImage[pixel + 1] || 0)  *  //Green
+                                      alpha + image.data[current+1] *
+                                      (image.data[current+3]/255.0);
+        
+              finalImage[pixel + 2] = (finalImage[pixel + 2] || 0)  * //Blue
+                                      alpha + image.data[current+2] *
+                                      (image.data[current+3]/255.0);
+        
+              finalImage[pixel + 3] = (finalImage[pixel + 3] || 0) + //combine alpha values
+                                      image.data[current+3];
+              imageIter[j] += 4;
+            }
+          }
+        }
+      }
+      for(i = 3; i < finalImage.length; i+=4) {
+        finalImage[i] = 255;
+      }
+  
+      return dest;
+    } else {
+      return images[0];
+    }
+  }
 
   MultiVolumeData.prototype.updateBlendRatio = function(ratio) {
     ratio += 50;
@@ -74,32 +125,49 @@
     for(i = 0; i < numVolumes; i++) {
       var volume = this.volumes[i];
       if(volume !== this) {
-        slice = this.volumes[i].slice(axis,number,time)[0];
+        slice = this.volumes[i].slice(axis,number,time);
         slice.alpha = this.blendRatios[i];
         slices.push(slice);
       }
     }
-    slices.x = slices[0].x;
-    slices.y = slices[0].y;
-    return slices;
-  };
-  
-  MultiVolumeData.prototype.getScaledSlice = function(axis, number, time, zoom) {
-    var numVolumes = this.volumes.length;
-    var i, slice;
-    var slices = [];
-
-    for(i = 0; i < numVolumes; i++) {
-      var volume = this.volumes[i];
-      if(volume !== this) {
-        slice = this.volumes[i].getScaledSlice(axis,number,time, zoom)[0];
-        slice.alpha = this.blendRatios[i];
-        slices.push(slice);
+    
+    return {
+      x: slices[0].x,
+      y: slices[0].y,
+      getImage: function(zoom) {
+        var context = document.createElement("canvas").getContext("2d");
+        var images = [];
+        var maxWidth, maxHeight;
+        var finalImageData;
+        var i;
+        
+        for (i = 0; i < numVolumes; i++) {
+        
+          slice = slices[i];
+        
+          var colorScale = slice.colorScale;
+          var imageData = context.createImageData(slice.width, slice.height);
+          colorScale.colorizeArray(slice.data, slice.min, slice.max, true, 0, 1, slice.alpha, imageData.data);
+        
+          var xstep = slice.x.step;
+          var ystep = slice.y.step;
+          //console.log("xstep: " +xstep);
+          //console.log("ystep: " +ystep);
+          imageData = BrainCanvas.utils.nearestNeighboor(imageData, Math.floor(slice.width * xstep * zoom), Math.floor(slice.height * ystep * zoom));
+          
+          images.push(imageData);
+        }
+        
+        //Getting the maximum width and height of all the images to output an images that cover them all.
+        maxWidth = Math.max.apply(null, images.map(function(image) { return image.width; }));
+        maxHeight = Math.max.apply(null, images.map(function(image) { return image.height; }));
+        
+        
+        finalImageData = context.createImageData(maxWidth, maxHeight);
+        
+        return blendImages(images, finalImageData);
       }
-    }
-    slices.x = slices[0].x;
-    slices.y = slices[0].y;
-    return slices;
+    };
   };
   
   MultiVolumeData.prototype.getVoxelCoords = function() {

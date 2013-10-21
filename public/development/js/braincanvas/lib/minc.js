@@ -99,11 +99,20 @@
       slice.colorScale = volume.colorScale || BrainCanvas.colorScales[0];
       slice.min   = volume.min;
       slice.max   = volume.max;
-      var slices  = [slice];
-      slices.axis = axis;
-      slices.x    = slice.x;
-      slices.y     = slice.y;
-      return slices;
+      slice.axis = axis;
+
+      slice.getImage = function(zoom) {
+        var context = document.createElement("canvas").getContext("2d");
+        var colorScale = this.colorScale;
+        var imageData = context.createImageData(this.width, this.height);
+        colorScale.colorizeArray(this.data, this.min, this.max, true, 0, 1, this.alpha, imageData.data);
+  
+        var xstep = this.x.step;
+        var ystep = this.y.step;
+        return BrainCanvas.utils.nearestNeighboor(imageData, Math.floor(this.width * xstep * zoom), Math.floor(this.height * ystep * zoom));
+      };
+      
+      return slice;
     };
     
     volume.getVoxelCoords = function() {

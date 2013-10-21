@@ -23,8 +23,8 @@ $(function() {
   var current_request_name = "";
   var loading_div = $("#loading");
   
-  if (!BrainBrowser.utils.webglEnabled()) {
-    $("#brainbrowser").html(BrainBrowser.utils.webGLErrorMessage());
+  if (!utils.webglEnabled()) {
+    $("#brainbrowser").html(utils.webGLErrorMessage());
     return;
   }
 

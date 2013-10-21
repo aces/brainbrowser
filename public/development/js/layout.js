@@ -30,11 +30,11 @@ $(function() {
   });
   var warnings = $("#html5-warnings");
   if (warnings) {
-    if (!BrainBrowser.utils.webglEnabled()) {
+    if (!utils.webglEnabled()) {
       warnings.css("display", "inline-block");
       warnings.find("#webgl-warning").show();
     }
-    if (!BrainBrowser.utils.webWorkersEnabled()) {
+    if (!utils.webWorkersEnabled()) {
       warnings.css("display", "inline-block");
       warnings.find("#webworker-warning").show();
     }

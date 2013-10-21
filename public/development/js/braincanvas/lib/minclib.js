@@ -159,7 +159,7 @@ BrainCanvas.MincJS = function(filename, headers, data) {
     var time_offset = 0;
     
     if(that.time) {
-      time_offset = time * that[that.order[0]].height*that[that.order[0]].length*parseFloat(that[that.order[0]].space_length);
+      time_offset = time * that[that.order[0]].height*that[that.order[0]].length * parseFloat(that[that.order[0]].space_length);
     }
     
     

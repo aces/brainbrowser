@@ -35,7 +35,6 @@
   
   var BrainCanvas = window.BrainCanvas = {};
 
-  BrainCanvas.utilities = {};
   BrainCanvas.volumeType = {};
   BrainCanvas.colorScales = [];
   BrainCanvas.event_listeners = {};
@@ -308,173 +307,23 @@
      * @param {BrainBrowser.ColorScale} colorScale colors to use for the image
      * @param {Array} imageData intensity data for the slice
      */
-    viewer.updateSlice = function(volumeNum, axis_number, slice_set) {
-      var i = 0;
-      var numSlices = slice_set.length;
-      var images = [];
-      var widthSpace = slice_set.x;
-      var heightSpace = slice_set.y;
-      var slice;
-      var maxWidth, maxHeight;
-      var finalImageData;
-      var context = document.createElement("canvas").getContext("2d");
+    viewer.updateSlice = function(volumeNum, axis_number, slice) {
+      var widthSpace = slice.x;
+      var heightSpace = slice.y;
+      
       var cached_slice = cachedSlices[volumeNum][axis_number] || {
         widthSpace: widthSpace,
         heightSpace: heightSpace,
       };
       var display = viewer.displays[volumeNum][axis_number];
       
-      for (i = 0; i < numSlices; i++) {
-  
-        slice = slice_set[i];
-  
-        var colorScale = slice.colorScale;
-        var imageData = context.createImageData(slice.width, slice.height);
-        colorScale.colorizeArray(slice.data, slice.min, slice.max, true, 0, 1, slice.alpha, imageData.data);
-  
-        var xstep = slice.x.step;
-        var ystep = slice.y.step;
-        //console.log("xstep: " +xstep);
-        //console.log("ystep: " +ystep);
-        imageData = nearestNeighboor(imageData, Math.floor(slice.width * xstep * display.zoom), Math.floor(slice.height * ystep * display.zoom));
-        
-        images.push(imageData);
-      }
-      
-      //Getting the maximum width and height of all the images to output an images that cover them all.
-      maxWidth = Math.max.apply(null, images.map(function(image) { return image.width; }));
-      maxHeight = Math.max.apply(null, images.map(function(image) { return image.height; }));
-      
-      
-      finalImageData = context.createImageData(maxWidth, maxHeight);
-      
-      finalImageData = blendImages(images, finalImageData);
-      
-      cached_slice.image = finalImageData;
+      cached_slice.image = slice.getImage(display.zoom);
       cachedSlices[volumeNum][axis_number] = cached_slice;
       
       display.slice = cached_slice;
       display.updateCursor(volumes[volumeNum]);
       
     };
-  
-    function flipImage(src, width, height, flipx, flipy, block_size) {
-      var dest = [];
-      var i, j, k;
-      var x, y;
-      block_size = block_size || 1;
-
-      for (i = 0; i < width; i++) {
-        for (j = 0; j < height; j++) {
-          x = flipx ? width - i - 1 : i;
-          y = flipy ? height - j - 1 : j;
-          for (k = 0; k < block_size; k++) {
-            dest[(j * width + i) * block_size + k] = src[(y * width + x) * block_size + k];
-          }
-        }
-      }
-      
-      return dest;
-    }
-  
-    /**
-     * Interpolates the slice data using nearest neighboor interpolation
-     * @param {Array} data original data
-     * @param {Number} width original width
-     * @param {Number} height original height
-     * @param {Number} new_width new width
-     * @param {Number} new_height new height
-     * @param {Number} numElem number of elements per pixel (default 4 for RGBA)
-     * @return {Array} new_array output of the neighrest neighboor algo.
-     */
-    function nearestNeighboor(orig, new_width, new_height) {
-      var data = orig.data;
-      var width = orig.width;
-      var height = orig.height;
-      var context = document.createElement("canvas").getContext("2d");
-      var numElem   = 4;
-      //Do nothing if height is the same
-      if(width === new_width && height === new_height) {
-        return orig;
-      }
-      
-      if (new_width < 0 && new_height > 0) {
-        data = flipImage(data, width, height, true, false, numElem);
-      }
-      
-      new_width = Math.abs(new_width);
-      new_height = Math.abs(new_height);
-        
-      //console.log("neighbor");
-      //else execute nearest neighboor (NED FLANDERS)
-      
-      var image     = context.createImageData(new_width, new_height);
-      var imageData = image.data;
-      var x_ratio   = width / new_width;
-      var y_ratio   = height / new_height;
-      for (var i = 0; i < new_height; i++) {
-        for (var j = 0; j < new_width; j++)  {
-          var px = Math.floor(j * x_ratio);
-          var py = Math.floor(i * y_ratio);
-          for (var k = 0; k < numElem; k++) {
-            imageData[Math.floor(i * new_width + j) * numElem + k] = data[Math.floor( py * width + px) * numElem + k];
-          }
-        }
-      }
-      
-      return image;
-    }
-  
-    /*
-     * Blend the pixels of two images using the alpha value of each
-     */
-    function blendImages(images, dest) {
-      var numImages = images.length;
-      if(numImages > 1) {
-        var finalImage = dest.data;
-        var numCol = dest.width;
-        var numRow = dest.height;
-        //This will be used to keep the position in each image of it's next pixel
-        var imageIter = [];
-  
-        for (var i = 0; i < numRow; i += 1) {
-          for (var k = 0; k < numCol; k += 1) {
-            for (var j = 0; j < numImages; j += 1) {
-              imageIter[j] = imageIter[j] || 0;
-              var image = images[j];
-              if(i < image.height &&  k < image.width) {
-                var pixel = (i*numCol + k) * 4;
-                var alpha = (finalImage[pixel  + 3] || 0)/255.0;
-                var current = imageIter[j];
-          
-                finalImage[pixel] = (finalImage[pixel + 0] || 0)  *  //Red
-                                    alpha + image.data[current+0] *
-                                    (image.data[current+3]/255.0);
-          
-                finalImage[pixel + 1] = (finalImage[pixel + 1] || 0)  *  //Green
-                                        alpha + image.data[current+1] *
-                                        (image.data[current+3]/255.0);
-          
-                finalImage[pixel + 2] = (finalImage[pixel + 2] || 0)  * //Blue
-                                        alpha + image.data[current+2] *
-                                        (image.data[current+3]/255.0);
-          
-                finalImage[pixel + 3] = (finalImage[pixel + 3] || 0) + //combine alpha values
-                                        image.data[current+3];
-                imageIter[j] += 4;
-              }
-            }
-          }
-        }
-        for(i = 3; i < finalImage.length; i+=4) {
-          finalImage[i] = 255;
-        }
-  
-        return dest;
-      } else {
-        return images[0];
-      }
-    }
   
     viewer.draw = function draw() {
       var slice;

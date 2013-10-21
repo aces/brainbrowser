@@ -23,6 +23,7 @@ body {
 }
 
 .braincanvas-controls {
+  font-size: 12px;
   padding: 10px;
   margin: 3px 5px;
   padding-bottom: 18px; 
@@ -40,13 +41,13 @@ body {
 }
 
 #global-controls {
-  font-size: 12px;
   -moz-border-radius: 10px 10px 0 0;
   -webkit-border-radius: 10px 10px 0 0;
   border-radius: 10px 10px 0 0;
 }
 
 .control-heading {
+  font-size: 14px;
   font-weight: bold;
 }
 

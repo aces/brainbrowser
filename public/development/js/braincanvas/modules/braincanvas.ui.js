@@ -249,7 +249,7 @@
     var sync_button = $('<input type="checkbox" class="button" id="sync"><label for="sync">Sync Volumes</label>');
     
     sync_button.change(function() {
-      viewer.synced = $(this).is(":checked");
+      viewer.synced = sync_button.is(":checked");
     });
     
     controls.append(sync_button);
@@ -294,20 +294,20 @@
   };
   
   BrainCanvas.volumeUIControls = function(controls, viewer, volume, volID) {
-    BrainCanvas._coordinateUI(controls, viewer, volume, volID);
+    BrainCanvas.coordinateUI(controls, viewer, volume, volID);
     
     if(volume.type === "multivolume") {
-      BrainCanvas._blendUI(controls, viewer, volume, volID);
+      BrainCanvas.blendUI(controls, viewer, volume, volID);
     } else {
-      BrainCanvas._colorScaleUI(controls, viewer, volume, volID);
-      BrainCanvas._thresholdUI(controls, viewer, volume, volID);
+      BrainCanvas.colorScaleUI(controls, viewer, volume, volID);
+      BrainCanvas.thresholdUI(controls, viewer, volume, volID);
       if (volume.data.time) {
-        BrainCanvas._timeUI(controls, viewer, volume, volID);
+        BrainCanvas.timeUI(controls, viewer, volume, volID);
       }
     }
   };
   
-  BrainCanvas._coordinateUI = function(controls, viewer, volume, volID) {
+  BrainCanvas.coordinateUI = function(controls, viewer, volume, volID) {
     var coords, world_coords_div, voxel_coords_div;
     
     if (volume.getWorldCoords) {
@@ -364,7 +364,7 @@
     controls.append(coords);
   };
   
-  BrainCanvas._blendUI = function(controls, viewer, volume, volID) {
+  BrainCanvas.blendUI = function(controls, viewer, volume, volID) {
     var blendSlider = $("<div id=\"blend-slider\" class=\"slider braincanvas-blend\"></div>");
     var blend = $("<div class=\"control-heading\">Blend (-50 to 50): </div>");
     var blend_val = $("<input class=\"control-inputs\" value=\"0\" id =\"blend-val\"/>");
@@ -397,7 +397,7 @@
     });
   };
   
-  BrainCanvas._colorScaleUI = function(controls, viewer, volume) {
+  BrainCanvas.colorScaleUI = function(controls, viewer, volume, volID) {
     var colorScaleOption = $("<select></select>");
     var list = "";
     BrainCanvas.colorScales.forEach(function(scale, i) {
@@ -410,13 +410,13 @@
     //On change update color scale of volume and redraw.
     colorScaleOption.change(function(event) {
       volume.colorScale = BrainCanvas.colorScales[+$(event.target).val()];
-      viewer.redrawVolumes();
+      viewer.redrawVolume(volID);
     });
     
     controls.append($("<div class=\"control-heading\">Color Scale: </div>").append(colorScaleOption));
   };
   
-  BrainCanvas._thresholdUI = function(controls, viewer, volume) {
+  BrainCanvas.thresholdUI = function(controls, viewer, volume, volID) {
     var thresh_slider = $('<div class="slider braincanvas-threshold"></div>');
     var thresholds = $("<div class=\"control-heading\" class=\"slider-div\">Threshold: </div>");
     var min_input = $('<input class="control-inputs thresh-input-left" value="0"/>');
@@ -438,7 +438,7 @@
         var values = ui.values;
         volume.min = values[0];
         volume.max = values[1];
-        viewer.redrawVolumes();
+        viewer.redrawVolume(volID);
         min_input.val(values[0]);
         max_input.val(values[1]);
       },
@@ -452,7 +452,7 @@
       var value = this.value;
       thresh_slider.slider("values", 0, value);
       volume.min = value;
-      viewer.redrawVolumes();
+      viewer.redrawVolume(volID);
     });
     
     //change max value based on user input and update slider
@@ -460,21 +460,28 @@
       var value = this.value;
       thresh_slider.slider("values", 1, value);
       volume.max = value;
-      viewer.redrawVolumes();
+      viewer.redrawVolume(volID);
     });
   };
   
-  BrainCanvas._timeUI = function(controls, viewer, volume, volID) {
+  BrainCanvas.timeUI = function(controls, viewer, volume, volID) {
     var time_controls = $("<div class=\"control-heading\" class=\"slider-div\">Time: </div>");
     var time_slider = $('<div class="slider braincanvas-threshold"></div>');
+    var time_val = $("<input class=\"control-inputs\" value=\"0\" id =\"time-val\"/>");
+    var play_button = $('<input type="checkbox" class="button" id="play-' + volID +'"><label for="play-' + volID + '">Play</label>');
+    var min = 0;
+    var max = volume.data.time.space_length - 1;
+    var play_interval;
     
     time_slider.slider({
-      min: 0,
-      max: volume.data.time.space_length - 1,
-      values: 0,
+      min: min,
+      max: max,
+      value: 0,
       step: 1,
       slide: function(event, ui) {
-        volume.current_time = +ui.value;
+        var value = +ui.value;
+        time_val.val(value);
+        volume.current_time = value;
         viewer.redrawVolume(volID);
       },
       stop: function() {
@@ -482,8 +489,34 @@
       }
     });
     
+    time_val.change(function () {
+      var value = Math.max(min, Math.min(max, parseInt(this.value, 10)));
+      time_val.val(value);
+      time_slider.slider("value", value);
+      volume.current_time = value;
+      viewer.redrawVolume(volID);
+    });
+    
+    play_button.change(function() {
+      if(play_button.is(":checked")){
+        clearInterval(play_interval);
+        play_interval = setInterval(function() {
+          var value = volume.current_time + 1;
+          value = value > max ? 0 : value;
+          volume.current_time = value;
+          time_val.val(value);
+          time_slider.slider("value", value);
+          viewer.redrawVolume(volID);
+        }, 0);
+      } else {
+        clearInterval(play_interval);
+      }
+    });
+    
+    time_controls.append(time_val);
     time_controls.append(time_slider);
     controls.append(time_controls);
+    controls.append(play_button);
   };
   
 })();

@@ -147,7 +147,7 @@
       headers = headerData;
       getData(opt.filename,getRawDataParam,function(arrayBuffer){
         data =  new Uint8Array(arrayBuffer);
-        volume.data = new BrainCanvas.MincJS(opt.filename, headers, data);
+        volume.data = BrainCanvas.mincData(opt.filename, headers, data);
         volume.header = volume.data.header;
         volume.min = 0;
         volume.max = 255;

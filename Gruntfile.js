@@ -161,7 +161,7 @@ module.exports = function(grunt) {
       },
       volume : {
         files: ["<%= jshint.volume.src %>"],
-        tasks: ["jshint:braincanvas"]
+        tasks: ["jshint:volume"]
       },
       loris : {
         files: ["<%= jshint.loris.src %>"],

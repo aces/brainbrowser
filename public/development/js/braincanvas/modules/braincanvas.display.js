@@ -27,79 +27,91 @@
 
 (function() {
   "use strict";
-  
-  BrainCanvas.display = oFactory({
-    updateCursor: function(volume) {
-      var slice = this.slice;
-      var origin = this.getImageOrigin();
-      if (volume && slice) {
-        this.cursor.x = (volume.position[slice.widthSpace.name] * Math.abs(slice.widthSpace.step) * this.zoom) + origin.x;
-        this.cursor.y = (slice.heightSpace.space_length - volume.position[slice.heightSpace.name]) * Math.abs(slice.heightSpace.step) * this.zoom  + origin.y;
+    
+  BrainCanvas.display = function(options) {
+    options = options || {};
+
+    var defaults = {
+      cursor: {
+        x: 0,
+        y: 0
+      },
+      last_cursor: {
+        x: 0,
+        y: 0
+      },
+      image_center: {
+        x: 0,
+        y: 0
+      },
+      zoom: 1
+    };
+
+    var display = Object.create({
+      updateCursor: function(volume) {
+        var slice = this.slice;
+        var origin = this.getImageOrigin();
+        if (volume && slice) {
+          this.cursor.x = (volume.position[slice.widthSpace.name] * Math.abs(slice.widthSpace.step) * this.zoom) + origin.x;
+          this.cursor.y = (slice.heightSpace.space_length - volume.position[slice.heightSpace.name]) * Math.abs(slice.heightSpace.step) * this.zoom  + origin.y;
+        }
+      },
+      
+      getVolumePosition: function() {
+        return {
+          x: this.cursor.x / this.zoom,
+          y: this.cursor.y / this.zoom
+        };
+      },
+      
+      getImageOrigin: function() {
+        return {
+          x: this.image_center.x - this.slice.image.width / 2,
+          y: this.image_center.y - this.slice.image.height / 2
+        };
+      },
+      
+      drawSlice: function(context) {
+        var img = this.slice.image;
+        var origin = this.getImageOrigin();
+        context.putImageData(img, origin.x, origin.y);
+      },
+      
+      drawCrosshair: function(context, color, zoom) {
+        var length = 8;
+        color = color || "#FF0000";
+        
+        context.save();
+        
+        context.strokeStyle = color;
+        context.translate(this.cursor.x, this.cursor.y);
+        context.scale(zoom, zoom);
+        context.lineWidth = 2;
+        context.beginPath();
+        context.moveTo(0, -length);
+        context.lineTo(0, -2);
+        context.moveTo(0, 2);
+        context.lineTo(0, length);
+        context.moveTo(-length, 0);
+        context.lineTo(-2, 0);
+        context.moveTo(2, 0);
+        context.lineTo(length, 0);
+        context.stroke();
+        
+        context.restore();
       }
-    },
+    });
     
-    getVolumePosition: function() {
-      return {
-        x: this.cursor.x / this.zoom,
-        y: this.cursor.y / this.zoom
-      };
-    },
-    
-    getImageOrigin: function() {
-      return {
-        x: this.image_center.x - this.slice.image.width / 2,
-        y: this.image_center.y - this.slice.image.height / 2
-      };
-    },
-    
-    drawSlice: function(context) {
-      var img = this.slice.image;
-      var origin = this.getImageOrigin();
-      context.putImageData(img, origin.x, origin.y);
-    },
-    
-    drawCrosshair: function(context, color, zoom) {
-      var length = 8;
-      color = color || "#FF0000";
-      
-      context.save();
-      
-      context.strokeStyle = color;
-      context.translate(this.cursor.x, this.cursor.y);
-      context.scale(zoom, zoom);
-      context.lineWidth = 2;
-      context.beginPath();
-      context.moveTo(0, -length);
-      context.lineTo(0, -2);
-      context.moveTo(0, 2);
-      context.lineTo(0, length);
-      context.moveTo(-length, 0);
-      context.lineTo(-2, 0);
-      context.moveTo(2, 0);
-      context.lineTo(length, 0);
-      context.stroke();
-      
-      context.restore();
-    }
-  }).mixin({
-    canvas: null,
-    context: null,
-    slice: null,
-    cursor: {
-      x: 0,
-      y: 0
-    },
-    last_cursor: {
-      x: 0,
-      y: 0
-    },
-    image_center: {
-      x: 0,
-      y: 0
-    },
-    mouse: null,
-    zoom: 1,
-  });
+    Object.keys(defaults).forEach(function(k) {
+      display[k] = defaults[k];
+    });
+
+    Object.keys(options).forEach(function(k) {
+      display[k] = options[k];
+    });
+
+    return display;
+  };
 
 })();
 

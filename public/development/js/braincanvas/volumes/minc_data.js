@@ -31,8 +31,6 @@
 
 BrainCanvas.mincData = (function() {
   "use strict";
-    
-  var cachedSlices = {};
 
   /*
    * some utilities
@@ -133,6 +131,7 @@ BrainCanvas.mincData = (function() {
      */
     slice: function(axis, number, time) {
       var slice;
+      var cachedSlices = this.cachedSlices;
       time = time || 0;
       
       cachedSlices[axis] = cachedSlices[axis] || [];
@@ -307,7 +306,7 @@ BrainCanvas.mincData = (function() {
   return function(filename, headers, data) {
     
     var minc_data = Object.create(minc_data_proto);
-    
+    minc_data.cachedSlices = {};
     minc_data.parseHeader(headers);
     minc_data.data = data;
 

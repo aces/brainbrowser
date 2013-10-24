@@ -35,6 +35,13 @@ module.exports = function(grunt) {
           "<%= dev_js %>/braincanvas/**/*.js"
         ],
         dest: "tmp/volume-viewer-combined.js"
+      },
+      fmri: {
+        src: [
+          "<%= dev_js %>/fmri-viewer.js",
+          "<%= dev_js %>/braincanvas/**/*.js"
+        ],
+        dest: "tmp/fmri-viewer-combined.js"
       }
     },
     uglify: {
@@ -55,6 +62,11 @@ module.exports = function(grunt) {
       volume: {
         files: {
           "<%= prod_js %>/volume-viewer-combined.min.js": ["<%= concat.volume.dest %>"]
+        }
+      },
+      fmri: {
+        files: {
+          "<%= prod_js %>/fmri-viewer-combined.min.js": ["<%= concat.fmri.dest %>"]
         }
       },
       libs : {
@@ -124,7 +136,7 @@ module.exports = function(grunt) {
         },
         src: ["<%= dev_js %>/workers/*.js"]
       },
-      volume: {
+      braincanvas: {
         options: {
           browser: true,
           jquery: true,
@@ -133,7 +145,7 @@ module.exports = function(grunt) {
             oFactory: true
           }
         },
-        src: ["<%= concat.volume.src %>"]
+        src: ["<%= concat.volume.src %>", "<%= dev_js %>/fmri-viewer.js"]
       },
       loris: {
         options: {
@@ -159,9 +171,9 @@ module.exports = function(grunt) {
         files: ["<%= jshint.workers.src %>"],
         tasks: ["jshint:workers"]
       },
-      volume : {
-        files: ["<%= jshint.volume.src %>"],
-        tasks: ["jshint:volume"]
+      braincanvas : {
+        files: ["<%= jshint.braincanvas.src %>"],
+        tasks: ["jshint:braincanvas"]
       },
       loris : {
         files: ["<%= jshint.loris.src %>"],

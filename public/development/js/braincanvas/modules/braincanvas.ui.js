@@ -49,12 +49,12 @@
         40: function() { cursor.y++; }  // Down
       })[keyCode]();
       
-      viewer.getSlices(cursor, volID, slice_num);
+      viewer.setCursor(cursor, volID, slice_num);
       
       if (viewer.synced){
         viewer.displays.forEach(function(display, synced_vol_id) {
           if (synced_vol_id !== volID) {
-            viewer.getSlices(cursor, synced_vol_id, slice_num);
+            viewer.setCursor(cursor, synced_vol_id, slice_num);
           }
         });
       }
@@ -161,11 +161,11 @@
                 });
               }
             } else {
-              viewer.getSlices(cursor, volID, slice_num);
+              viewer.setCursor(cursor, volID, slice_num);
               if (viewer.synced){
                 viewer.displays.forEach(function(display, synced_vol_id) {
                   if (synced_vol_id !== volID) {
-                    viewer.getSlices(cursor, synced_vol_id, slice_num);
+                    viewer.setCursor(cursor, synced_vol_id, slice_num);
                   }
                 });
               }
@@ -200,11 +200,11 @@
               });
             }
           } else {
-            viewer.getSlices(cursor, volID, slice_num);
+            viewer.setCursor(cursor, volID, slice_num);
             if (viewer.synced){
               viewer.displays.forEach(function(display, synced_vol_id) {
                 if (synced_vol_id !== volID) {
-                  viewer.getSlices(cursor, synced_vol_id, slice_num);
+                  viewer.setCursor(cursor, synced_vol_id, slice_num);
                 }
               });
             }
@@ -220,13 +220,13 @@
         canvas.mousewheel(function(e, delta) {
           display.zoom = Math.max(display.zoom + delta * 0.05, 0.05);
           
-          viewer.updateSlices(volID, ["xspace", "yspace", "zspace"][slice_num]);
+          viewer.renderSlice(volID, ["xspace", "yspace", "zspace"][slice_num]);
           if (viewer.synced){
             viewer.displays.forEach(function(display, synced_vol_id) {
               if (synced_vol_id !== volID) {
                 var d = display[slice_num];
                 d.zoom = Math.max(d.zoom + delta * 0.05, 0.05);
-                viewer.updateSlices(synced_vol_id, ["xspace", "yspace", "zspace"][slice_num]);
+                viewer.renderSlice(synced_vol_id, ["xspace", "yspace", "zspace"][slice_num]);
               }
             });
           }
@@ -254,7 +254,7 @@
     
     controls.append(sync_button);
     
-    var image_button = $('<span id="capture" class="button">Capture Slices</label>');
+    var image_button = $('<span id="capture" class="button">Capture Slices</span>');
     
     image_button.click(function() {
       var width = viewer.displays[0][0].canvas.width;
@@ -304,6 +304,7 @@
       if (volume.data.time) {
         BrainCanvas.timeUI(controls, viewer, volume, volID);
       }
+      BrainCanvas.sliceSeriesUI(controls, viewer, volume, volID);
     }
   };
   
@@ -313,8 +314,9 @@
     if (volume.getWorldCoords) {
       coords = $('<div class="coords"></div>');
       world_coords_div = $(
+        '<div class="control-heading">World Coordinates: </div>' +
         '<div class="world-coords">' +
-        '<div class="control-heading">World Coordinates</div>' +
+        
         'X:<input id="world-x" class="control-inputs"></input>' +
         'Y:<input id="world-y" class="control-inputs"></input>' +
         'Z:<input id="world-z" class="control-inputs"></input>' +
@@ -330,8 +332,9 @@
       });
       
       voxel_coords_div = $(
+        '<div class="control-heading">Voxel Coordinates: </div>' +
         '<div class="voxel-coords">' +
-        '<div class="control-heading">Voxel Coordinates</div>' +
+        
         'X:<input id="voxel-x" class="control-inputs"></input>' +
         'Y:<input id="voxel-y" class="control-inputs"></input>' +
         'Z:<input id="voxel-z" class="control-inputs"></input>' +
@@ -519,5 +522,59 @@
     controls.append(play_button);
   };
   
+  BrainCanvas.sliceSeriesUI = function(controls, viewer, volume) {
+    var slice_controls = $("<div class=\"control-heading\">All slices: </div>");
+    var button_div = $("<div></div>");
+    var xspace_button = $('<span class="slice-series button" data-axis="xspace" style="font-size: 11px">Sagittal</span>');
+    var yspace_button = $('<span class="slice-series button" data-axis="yspace" style="font-size: 11px">Coronal</span>');
+    var zspace_button = $('<span class="slice-series button" data-axis="zspace" style="font-size: 11px">Transverse</span>');
+    var space_names = {
+      xspace: "Sagittal",
+      yspace: "Coronal",
+      zspace: "Transverse"
+    };
+    
+    button_div.append((xspace_button));
+    button_div.append((yspace_button));
+    button_div.append((zspace_button));
+
+    button_div.find(".slice-series").click(function() {
+      var axis_name = $(this).data("axis");
+      var axis = volume.data[axis_name];
+      var zoom = 1;
+      var space_length = axis.space_length;
+      var i, x, y;
+      var time = volume.current_time;
+      var image_data = volume.slice(axis_name, 0, time).getImage(zoom);
+      var per_column = 5;
+
+      var canvas = document.createElement("canvas");
+      var context = canvas.getContext("2d");
+      var img = new Image();
+      canvas.width = per_column * image_data.width;
+      canvas.height = (space_length / per_column + 1) * image_data.height;
+
+      for (i = 0; i < space_length; i++) {
+        image_data = volume.slice(axis_name, i, time).getImage(zoom);
+        x = i % per_column * image_data.width;
+        y = parseInt(i / per_column, 10) * image_data.height;
+        context.putImageData(image_data, x, y);
+      }
+
+      img.onload = function() {
+        $("<div></div>").append(img).dialog({
+          title: space_names[axis_name] + " Slices",
+          height: 600,
+          width: img.width
+        });
+      };
+      
+      img.src = canvas.toDataURL();
+    });
+
+    slice_controls.append(button_div);
+
+    controls.append(slice_controls);
+  };
 })();
 

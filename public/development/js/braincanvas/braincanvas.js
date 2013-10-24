@@ -259,9 +259,9 @@
      *
      */
     viewer.redrawVolume = function(volNum) {
-      viewer.updateSlices(volNum, "xspace", volumes[volNum].position.xspace);
-      viewer.updateSlices(volNum, "yspace", volumes[volNum].position.yspace);
-      viewer.updateSlices(volNum, "zspace", volumes[volNum].position.zspace);
+      viewer.renderSlice(volNum, "xspace", volumes[volNum].position.xspace);
+      viewer.renderSlice(volNum, "yspace", volumes[volNum].position.yspace);
+      viewer.renderSlice(volNum, "zspace", volumes[volNum].position.zspace);
     };
   
     viewer.redrawVolumes = function() {
@@ -271,11 +271,11 @@
     };
   
     /**
-     * update slice for volume
+     * Render a new slice to canvas
      * @param {Number} VolID id of the volume
      * @param {Object} coord
      */
-    viewer.updateSlices = function(volID, axis, slice_number) {
+    viewer.renderSlice = function(volID, axis, slice_number) {
       var volume = volumes[volID];
       var slice;
       var axis_number = axis_to_number[axis];
@@ -296,11 +296,12 @@
       viewer.updateSlice(volID, slice.axis_number, slice);
           
       BrainCanvas.triggerEvent("sliceupdate");
+
       viewer.draw();
     };
     
     /**
-     * Update a slice to canvas
+     * Update slice in volume.
      * @param {VolumeNum} VolumeNum number of the volume to which the slice belongs
      * @param {Number} startx initial x position of the slice (if translated) default 0
      * @param {Number} starty initial y position of the slice (if translated) default 0
@@ -322,7 +323,6 @@
       
       display.slice = cached_slice;
       display.updateCursor(volumes[volumeNum]);
-      
     };
   
     viewer.draw = function draw() {
@@ -365,10 +365,8 @@
       });
     };
   
-    /**
-     * Slice updating on click
-     */
-    viewer.getSlices = function(cursor, volID, axis_num) {
+    // Update cursor position in volume.
+    viewer.setCursor = function(cursor, volID, axis_num) {
       var slice = cachedSlices[volID][axis_num];
       var display = viewer.displays[volID][axis_num];
       var image_origin = display.getImageOrigin();
@@ -380,15 +378,15 @@
       
   
       if (cursor) {
-        x =  Math.floor((cursor.x - image_origin.x) / zoom / Math.abs(slice.widthSpace.step));
-        y  = Math.floor(slice.heightSpace.space_length - (cursor.y - image_origin.y) / zoom  / Math.abs(slice.heightSpace.step));
+        x = Math.floor((cursor.x - image_origin.x) / zoom / Math.abs(slice.widthSpace.step));
+        y = Math.floor(slice.heightSpace.space_length - (cursor.y - image_origin.y) / zoom  / Math.abs(slice.heightSpace.step));
       } else {
         x = null;
         y = null;
       }
   
-      viewer.updateSlices(volID, slice.widthSpace.name, x);
-      viewer.updateSlices(volID, slice.heightSpace.name, y);
+      viewer.renderSlice(volID, slice.widthSpace.name, x);
+      viewer.renderSlice(volID, slice.heightSpace.name, y);
   
     };
   

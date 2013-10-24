@@ -60,6 +60,7 @@ if (cluster.isMaster) {
   app.get("/surface-viewer", routes.surface);
   app.get("/macacc-viewer", routes.macacc);
   app.get("/volume-viewer", routes.volume);
+  app.get("/fmri-viewer", routes.fmri);
   app.get('/data/:filename', function(req,res) {
     var filename = req.params.filename;
     var raw_filename, gz_raw_filename, header_filename;

@@ -37,7 +37,7 @@ body {
 
 .volume-controls {
   width: 235px;
-  height: 260px;
+  height: 350px;
 }
 
 #global-controls {
@@ -49,6 +49,10 @@ body {
 .control-heading {
   font-size: 14px;
   font-weight: bold;
+}
+
+.control-heading:not(:first-child) {
+  margin-top: 12px;
 }
 
 .control-inputs {

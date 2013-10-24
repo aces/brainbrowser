@@ -33,14 +33,13 @@ $(function() {
       volumes: [
         {
           type: 'minc',
-          filename: 'data/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_003.mnc'
+          filename: 'data/ibis_410023_LIVING_PHANTOM_STL_SD_HOS_20121212_SCAN1_ep2d_bold_001.mnc'
         },
         {
           type: 'minc',
-          filename: 'data/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_004.mnc'
+          filename: 'data/ibis_410023_LIVING_PHANTOM_STL_SD_HOS_20121212_SCAN1_dti_001.mnc'
         }
-      ],
-      overlay: true
+      ]
     }
   );
 

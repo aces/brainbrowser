@@ -28,4 +28,8 @@ exports.volume = function(req, res){
   res.render('volume-viewer', {layout: false});
 };
 
+exports.fmri = function(req, res){
+  res.render('volume-viewer', {layout: false, fmri: true});
+};
+
 

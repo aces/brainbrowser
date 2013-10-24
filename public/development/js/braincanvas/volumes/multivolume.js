@@ -112,6 +112,8 @@
         x: slices[0].x,
         y: slices[0].y,
         getImage: function(zoom) {
+          zoom = zoom || 1;
+          
           var context = document.createElement("canvas").getContext("2d");
           var images = [];
           var maxWidth, maxHeight;

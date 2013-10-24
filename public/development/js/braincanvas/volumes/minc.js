@@ -95,6 +95,8 @@
       slice.axis = axis;
 
       slice.getImage = function(zoom) {
+        zoom = zoom || 1;
+
         var context = document.createElement("canvas").getContext("2d");
         var colorScale = this.colorScale;
         var imageData = context.createImageData(this.width, this.height);

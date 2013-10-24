@@ -15,5 +15,5 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* brainbrowser v1.1.0 */
+/* brainbrowser v1.1.1 */
 $(function(){"use strict";$(".button").button(),$(".tabs").tabs({heigth:800}),$(".tablink").click(function(a){var b=$(a.target).attr("data-tabs"),c=$(a.target).attr("data-tab");return $("#"+b).tabs("select",c),!1});var a=$("#html5-warnings");a&&(utils.webglEnabled()||(a.css("display","inline-block"),a.find("#webgl-warning").show()),utils.webWorkersEnabled()||(a.css("display","inline-block"),a.find("#webworker-warning").show()))});

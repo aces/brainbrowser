@@ -38,19 +38,19 @@ $(function() {
         {
           type: 'minc',
           filename: 'data/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_004.mnc'
-        },
-        //{
-        //  type: 'minc',
-        //  filename: 'data/PreventAD_122650_PREBL00_Resting_001.mnc'
-        //},
-        //{
-        //  type: 'minc',
-        //  filename: 'data/PreventAD_122650_PREBL00_ASL_001.mnc'
-        //},
-        //{
-        //  type: 'minc',
-        //  filename: 'data/PreventAD_122650_PREEN00_DTI_001.mnc'
-        //}
+        }
+        // {
+        //   type: 'minc',
+        //   filename: 'data/PreventAD_122650_PREBL00_Resting_001.mnc'
+        // },
+        // {
+        //   type: 'minc',
+        //   filename: 'data/PreventAD_122650_PREBL00_ASL_001.mnc'
+        // },
+        // {
+        //   type: 'minc',
+        //   filename: 'data/PreventAD_122650_PREEN00_DTI_001.mnc'
+        // }
       ],
       overlay: true
     }

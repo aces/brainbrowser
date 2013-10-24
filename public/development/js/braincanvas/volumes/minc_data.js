@@ -64,7 +64,7 @@ BrainCanvas.mincData = (function() {
       this.header = data;
       this.order = data.order;
       if(this.order.length === 4) {
-        this.order = this.order.slice(1,this.order.length);
+        this.order = this.order.slice(1);
         this.time = data.time;
       }
       this.xspace = data.xspace;
@@ -93,35 +93,32 @@ BrainCanvas.mincData = (function() {
         this.time.step = parseFloat(this.time.step);
       }
       
-      //figure out height and length of each slices in each direction
-      //width and length are the same, I'm doing this until I replace
-      //all references to length in code. Bad naming duh! :(
-      this[this.order[0]].height        = parseFloat(this[this.order[1]].space_length);
-      this[this.order[0]].height_space  = this[this.order[1]];
-      this[this.order[0]].length        = parseFloat(this[this.order[2]].space_length);
-      this[this.order[0]].length_space  = this[this.order[2]];
-      this[this.order[0]].width         = parseFloat(this[this.order[2]].space_length);
-      this[this.order[0]].width_space   = this[this.order[2]];
+      //figure out height and width of each slices in each direction
+      var order0 = this[this.order[0]];
+      var order1 = this[this.order[1]];
+      var order2 = this[this.order[2]];
 
-      this[this.order[1]].height=parseFloat(this[this.order[2]].space_length);
-      this[this.order[1]].height_space=this[this.order[2]];
-      this[this.order[1]].length=parseFloat(this[this.order[0]].space_length);
-      this[this.order[1]].length_space = this[this.order[0]];
-      this[this.order[1]].width=parseFloat(this[this.order[0]].space_length);
-      this[this.order[1]].width_space = this[this.order[0]];
 
-      this[this.order[2]].height=parseFloat(this[this.order[1]].space_length);
-      this[this.order[2]].height_space=this[this.order[1]];
-      this[this.order[2]].length=parseFloat(this[this.order[0]].space_length);
-      this[this.order[2]].length_space = this[this.order[0]];
-      this[this.order[2]].width=parseFloat(this[this.order[0]].space_length);
-      this[this.order[2]].width_space = this[this.order[0]];
+      order0.height        = parseFloat(order1.space_length);
+      order0.height_space  = order1;
+      order0.width         = parseFloat(order2.space_length);
+      order0.width_space   = order2;
+
+      order1.height=parseFloat(order2.space_length);
+      order1.height_space=order2;
+      order1.width=parseFloat(order0.space_length);
+      order1.width_space = order0;
+
+      order2.height=parseFloat(order1.space_length);
+      order2.height_space=order1;
+      order2.width=parseFloat(order0.space_length);
+      order2.width_space = order0;
 
       //calculate the offsets for each element of a slice
-      this[this.order[0]].offset=parseFloat(this[this.order[1]].space_length)*parseFloat(this[this.order[2]].space_length);
-      this[this.order[1]].offset=parseFloat(this[this.order[0]].space_length);
-      this[this.order[2]].offset=parseFloat(this[this.order[0]].space_length);
-      this[this.order[0]].slice_length = this[this.order[0]].height*this[this.order[0]].length;
+      order0.offset=parseFloat(order1.space_length)*parseFloat(order2.space_length);
+      order1.offset=parseFloat(order0.space_length);
+      order2.offset=parseFloat(order0.space_length);
+      order0.slice_length = order0.height * order0.width;
     },
     /*
      * Warning: This function can get a little crazy
@@ -132,6 +129,7 @@ BrainCanvas.mincData = (function() {
     slice: function(axis, number, time) {
       var slice;
       var cachedSlices = this.cachedSlices;
+      var order0 = this[this.order[0]];
       time = time || 0;
       
       cachedSlices[axis] = cachedSlices[axis] || [];
@@ -153,11 +151,11 @@ BrainCanvas.mincData = (function() {
       var time_offset = 0;
       
       if(this.time) {
-        time_offset = time * this[this.order[0]].height*this[this.order[0]].length * parseFloat(this[this.order[0]].space_length);
+        time_offset = time * order0.height * order0.width * parseFloat(order0.space_length);
       }
       
       
-      var length_step = this[axis].length_space.step;
+      var length_step = this[axis].width_space.step;
       var height_step = this[axis].height_space.step;
       slice = {};
       var slice_data;
@@ -165,9 +163,9 @@ BrainCanvas.mincData = (function() {
       var i, j, k;
       
       if(this.order[0] === axis) {
-        slice_length = this[axis].height*this[axis].length;
+        slice_length = this[axis].height*this[axis].width;
         height = this[axis].height;
-        row_length = this[axis].length;
+        row_length = this[axis].width;
         element_offset = 1;
         row_offset = row_length;
         slice_offset = slice_length;
@@ -204,11 +202,11 @@ BrainCanvas.mincData = (function() {
       } else if (this.order[1] === axis ) {
         
         height = this[axis].height;
-        slice_length = this[axis].height*this[axis].length;
-        row_length = this[axis].length;
+        slice_length = this[axis].height*this[axis].width;
+        row_length = this[axis].width;
         element_offset = 1;
-        row_offset = this[this.order[0]].slice_length;
-        slice_offset = this[this.order[0]].length;
+        row_offset = order0.slice_length;
+        slice_offset = order0.width;
         slice_data = new Uint8Array(slice_length);
         
         
@@ -229,10 +227,10 @@ BrainCanvas.mincData = (function() {
         
       } else {
         height = this[axis].height;
-        slice_length = this[axis].height*this[axis].length;
-        row_length = this[axis].length;
-        element_offset = this[this.order[0]].slice_length;
-        row_offset= this[this.order[0]].length;
+        slice_length = this[axis].height*this[axis].width;
+        row_length = this[axis].width;
+        element_offset = order0.slice_length;
+        row_offset= order0.width;
         slice_offset = 1;
         slice_data = new Uint16Array(slice_length);
         
@@ -241,13 +239,13 @@ BrainCanvas.mincData = (function() {
         
         for ( j = 0; j < height; j++) {
           for( k = 0; k < row_length; k++){
-            slice_data[j*row_length+k] = this.data[time_offset+number+this[this.order[0]].length*j+k*this[this.order[0]].slice_length];
+            slice_data[j*row_length+k] = this.data[time_offset+number+order0.width*j+k*order0.slice_length];
           }
         }
       }
       
       //set the spaces on each axis
-      slice.x = this[axis].length_space;
+      slice.x = this[axis].width_space;
       slice.y = this[axis].height_space;
       slice.width = row_length;
       slice.height = height;
@@ -262,7 +260,7 @@ BrainCanvas.mincData = (function() {
           slice_data = rotateUint16Array90Left(slice_data,slice.width,slice.height);
         }
         slice.x = this[axis].height_space;
-        slice.y = this[axis].length_space;
+        slice.y = this[axis].width_space;
         slice.width = height;
         slice.height = row_length;
         
@@ -275,7 +273,7 @@ BrainCanvas.mincData = (function() {
           slice_data = rotateUint16Array90Left(slice_data,slice.width,slice.height);
         }
         slice.x = this[axis].height_space;
-        slice.y = this[axis].length_space;
+        slice.y = this[axis].width_space;
         slice.width = height;
         slice.height = row_length;
         
@@ -283,7 +281,7 @@ BrainCanvas.mincData = (function() {
       //zspace should be XxY
       if(axis === "zspace" && this.zspace.height_space.name === "xspace"){
         slice_data = rotateUint16Array90Left(slice_data,slice.width,slice.height);
-        slice.x = this[axis].length_space;
+        slice.x = this[axis].width_space;
         slice.y = this[axis].height_space;
         slice.width = height;
         slice.height = row_length;
@@ -292,11 +290,12 @@ BrainCanvas.mincData = (function() {
       
       slice.data = slice_data;
       //set the spaces on each axis
-      slice.x = slice.x || this[axis].length_space;
+      slice.x = slice.x || this[axis].width_space;
       slice.y = slice.y || this[axis].height_space;
       slice.width = slice.width || row_length;
       slice.height = slice.height || height;
       cachedSlices[axis][time][number] = slice;
+
       return slice;
     }
   };

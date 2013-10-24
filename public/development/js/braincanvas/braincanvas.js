@@ -129,7 +129,7 @@
               if (opts.overlay) {
                 openVolume({
                     volumes: viewer.volumes,
-                    type: 'multiVolume'
+                    type: 'multivolume'
                   },
                   function(volume) {
                     volume.position = {};

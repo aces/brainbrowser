@@ -47,7 +47,7 @@
    * Fetch the parameters of the minc file. sends a request to http://filename/?minc_headers=true or whatever getHeadersParams says
    * @param {String} filename url/filename of the file to load minc headers
    */
-  var getHeaders = function(filename, getParam, callback) {
+  function getHeaders(filename, getParam, callback) {
     var param = getParam.split('=');
     var dataArgs = {};
     
@@ -67,7 +67,7 @@
         };
       }
     });
-  };
+  }
 
   /**
    * Make request to server for Minc file's data block. 
@@ -75,7 +75,7 @@
    * @param {Function}  callback  function to call when data is done loading
    * @param {Object}    extraArgs with extraArgs to pass to callback when data is done loading
    */
-  var getData = function (filename, getRawDataParam, callback){
+  function getData(filename, getRawDataParam, callback){
     filename += filename.match(/\?/) ? "&" : "?";
     filename += getRawDataParam;
     
@@ -83,22 +83,15 @@
       callback(data);
     });
     
-  };
+  }
   
-
-  BrainCanvas.volumeType.minc = function(opt, callback) {
-    var volume = {};
-      //What get parameter will be used in request to server
-    var getRawDataParam = opt.getRawDataParam || "raw_data=true";
-    var getHeaderParam = opt.getHeaderParam || "minc_headers=true";
-    var headers, data;
-    volume.current_time = 0;
-    
-    volume.slice = function(axis, number, time) {
-      var slice = volume.data.slice(axis, number, time);
-      slice.colorScale = volume.colorScale || BrainCanvas.colorScales[0];
-      slice.min   = volume.min;
-      slice.max   = volume.max;
+  // Prototype for minc volume.
+  var minc_volume_proto = {
+    slice: function(axis, number, time) {
+      var slice = this.data.slice(axis, number, time);
+      slice.colorScale = this.colorScale || BrainCanvas.colorScales[0];
+      slice.min   = this.min;
+      slice.max   = this.max;
       slice.axis = axis;
 
       slice.getImage = function(zoom) {
@@ -113,39 +106,47 @@
       };
       
       return slice;
-    };
+    },
     
-    volume.getVoxelCoords = function() {
+    getVoxelCoords: function() {
       return {
         x: this.position.xspace,
         y: this.position.yspace,
         z: this.position.zspace
       };
-    };
+    },
     
-    volume.setVoxelCoords = function(x, y, z) {
+    setVoxelCoords: function(x, y, z) {
       this.position.xspace = x;
       this.position.yspace = y;
       this.position.zspace = z;
-    };
+    },
     
-    volume.getWorldCoords = function() {
+    getWorldCoords: function() {
       return {
         x: this.data.xspace.start + this.position.xspace * this.data.xspace.step,
         y: this.data.yspace.start + this.position.yspace * this.data.yspace.step,
         z: this.data.zspace.start + this.position.zspace * this.data.zspace.step
       };
-    };
-    
-    volume.setWorldCoords = function(x, y, z) {
+    },
+    setWorldCoords: function(x, y, z) {
       this.position.xspace = Math.floor((x - this.data.xspace.start) / this.data.xspace.step);
       this.position.yspace = Math.floor((y - this.data.yspace.start) / this.data.yspace.step);
       this.position.zspace = Math.floor((z - this.data.zspace.start) / this.data.zspace.step);
-    };
+    }
+  };
+
+  BrainCanvas.volumeType.minc = function(opt, callback) {
+    var volume = Object.create(minc_volume_proto);
+      //What get parameter will be used in request to server
+    var getRawDataParam = opt.getRawDataParam || "raw_data=true";
+    var getHeaderParam = opt.getHeaderParam || "minc_headers=true";
+    var data;
+    volume.current_time = 0;
     
-    getHeaders(opt.filename,getHeaderParam, function(headerData) {
-      headers = headerData;
-      getData(opt.filename,getRawDataParam,function(arrayBuffer){
+    
+    getHeaders(opt.filename,getHeaderParam, function(headers) {
+      getData(opt.filename,getRawDataParam, function(arrayBuffer){
         data =  new Uint8Array(arrayBuffer);
         volume.data = BrainCanvas.mincData(opt.filename, headers, data);
         volume.header = volume.data.header;
@@ -153,7 +154,6 @@
         volume.max = 255;
         if (callback) callback(volume);
       });
-      
     });
   };
    

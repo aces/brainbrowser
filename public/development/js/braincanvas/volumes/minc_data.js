@@ -35,11 +35,11 @@ BrainCanvas.mincData = (function() {
   /*
    * some utilities
    */
-  function rotateUint16Array90Left(array,width,height){
+  function rotateUint16Array90Left(array, width, height){
     var new_array = new Uint16Array(width*height);
     
-    for(var i = 0; i< width; i++){
-      for(var j = 0; j< height; j++)  {
+    for(var i = 0; i < width; i++){
+      for(var j = 0; j < height; j++)  {
         new_array[i*height+j] = array[j*width+(width-i)];
   
       }
@@ -48,11 +48,11 @@ BrainCanvas.mincData = (function() {
   }
   
   
-  function rotateUint16Array90Right(array,width,height){
+  function rotateUint16Array90Right(array, width, height){
     var new_array = new Uint16Array(width*height);
     
-    for(var i = 0; i< width; i++){
-      for(var j=0; j< height; j++)  {
+    for(var i = 0; i < width; i++){
+      for(var j = 0; j < height; j++)  {
         new_array[i*height+j] = array[(height-j)*width+i];
       }
     }
@@ -239,9 +239,9 @@ BrainCanvas.mincData = (function() {
         
         
         
-        for(j = 0; j<height; j++) {
-          for(k = 0; k< row_length; k++){
-            slice_data[j*(row_length)+k] = this.data[time_offset+number+this[this.order[0]].length*j+k*this[this.order[0]].slice_length];
+        for ( j = 0; j < height; j++) {
+          for( k = 0; k < row_length; k++){
+            slice_data[j*row_length+k] = this.data[time_offset+number+this[this.order[0]].length*j+k*this[this.order[0]].slice_length];
           }
         }
       }

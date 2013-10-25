@@ -17,16 +17,16 @@
 
 // Plugin for UI functionality used by both
 // surface viewer and macacc.
-BrainBrowser.plugins.ui = function(bb) {
+BrainBrowser.SurfaceViewer.plugins.ui = function(sv) {
   "use strict";
   
     
   $("body").keydown(function(e) {
     var key_code = e.which;
     var keys = {
-      38: function() { bb.ZoomInOut(1/1.1); },
-      40: function() { bb.ZoomInOut(1.1); },
-      32: function() { bb.separateHemispheres(); }
+      38: function() { sv.ZoomInOut(1/1.1); },
+      40: function() { sv.ZoomInOut(1.1); },
+      32: function() { sv.separateHemispheres(); }
     };
   
     if (key_code in keys) {
@@ -38,32 +38,32 @@ BrainBrowser.plugins.ui = function(bb) {
   });
   
   $("#clear_color").change(function(e){
-    bb.updateClearColor(parseInt($(e.target).val(), 16));
+    sv.updateClearColor(parseInt($(e.target).val(), 16));
   });
   
   //Setups the view events and handlers
-  $('#resetview').click(bb.setupView);
-  $('.view_button').change(bb.setupView);
-  $('[name=hem_view]').change(bb.setupView);
+  $('#resetview').click(sv.setupView);
+  $('.view_button').change(sv.setupView);
+  $('[name=hem_view]').change(sv.setupView);
   
   $('#meshmode').change(function(e) {
     if ($(e.target).is(":checked")) {
-      bb.set_fill_mode_wireframe();
+      sv.set_fill_mode_wireframe();
     } else {
-      bb.set_fill_mode_solid();
+      sv.set_fill_mode_solid();
     }
   });
   
   $('#threedee').change(function(e) {
     if ($(e.target).is(":checked")) {
-      bb.anaglyphEffect();
+      sv.anaglyphEffect();
     } else {
-      bb.noEffect();
+      sv.noEffect();
     }
   });
   
   $("#openImage").click(function() {
-    var view_window = bb.view_window;
+    var view_window = sv.view_window;
     var canvas = document.createElement("canvas");
     var spectrum_canvas = document.getElementById("spectrum-canvas");
     var context = canvas.getContext("2d");
@@ -104,10 +104,10 @@ BrainBrowser.plugins.ui = function(bb) {
       }
     };
     
-    img.src = bb.canvasDataURL();
+    img.src = sv.canvasDataURL();
   });
   
-  bb.getViewParams = function() {
+  sv.getViewParams = function() {
     return {
       view: $('[name=hem_view]:checked').val(),
       left: $('#left_hem_visible').is(":checked"),
@@ -116,9 +116,9 @@ BrainBrowser.plugins.ui = function(bb) {
   };
   
   $("#autorotate-controls").children().change(function () {
-    bb.autoRotate.x = $("#autorotateX").is(":checked");
-    bb.autoRotate.y = $("#autorotateY").is(":checked");
-    bb.autoRotate.z = $("#autorotateZ").is(":checked");
+    sv.autoRotate.x = $("#autorotateX").is(":checked");
+    sv.autoRotate.y = $("#autorotateY").is(":checked");
+    sv.autoRotate.z = $("#autorotateZ").is(":checked");
   });
     
     

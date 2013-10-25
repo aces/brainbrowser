@@ -18,7 +18,7 @@
 (function() {
   "use strict";
   
-  BrainBrowser.filetypes.config = {
+  BrainBrowser.SurfaceViewer.filetypes.config = {
     MNIObject: {
       worker: "js/workers/mniobj.worker.js",
       afterParse : function(obj) {

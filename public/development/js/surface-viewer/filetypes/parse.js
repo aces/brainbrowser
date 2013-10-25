@@ -15,23 +15,24 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-BrainBrowser.filetypes.parseWorker = function(self, data, worker_file, callback) {
+BrainBrowser.SurfaceViewer.filetypes.parse = function(type, data, callback) {
   "use strict";
   
-  var worker = new Worker(worker_file);
+  var SurfaceViewer = BrainBrowser.SurfaceViewer;
+  var obj = {};
   
-  worker.addEventListener("message", function(e) {
-    var result = e.data;
-    var prop;
-    
-    for (prop in result) {
-      if (result.hasOwnProperty(prop)){
-        self[prop] = result[prop];
-      }
-    }
-    if (callback) callback(self);
-    worker.terminate();
-  });
+  var config = SurfaceViewer.filetypes.config[type];
   
-  worker.postMessage(data);
+  if (config.parse) {
+    config.parse(obj, data, callback);
+  }
+  
+  if (config.worker) {
+    SurfaceViewer.filetypes.parseWorker(obj, data, config.worker, callback);
+  }
+  
+  if (config.afterParse) {
+    config.afterParse(obj, data);
+  }
 };
+

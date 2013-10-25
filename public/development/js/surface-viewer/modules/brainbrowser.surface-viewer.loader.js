@@ -18,15 +18,17 @@
 
 // BrainBrowser module for loading data from the server or from a
 // file.
-BrainBrowser.modules.loader = function(bb) {
+BrainBrowser.SurfaceViewer.modules.loader = function(sv) {
   "use strict";
   
+  var SurfaceViewer = BrainBrowser.SurfaceViewer;
+
   ////////////////////////////////////
   // Interface
   ////////////////////////////////////
   
   // Load a model from the given url.
-  bb.loadModelFromUrl = function(url, options) {
+  sv.loadModelFromUrl = function(url, options) {
     options = options || {};
     var parts;
     var filename;
@@ -36,10 +38,10 @@ BrainBrowser.modules.loader = function(bb) {
       //last part of url will be shape name
       filename = parts[parts.length-1];
       // Parse model info based on the given file type.
-      BrainBrowser.filetypes.parse(filetype, data, function(obj) {
+      SurfaceViewer.filetypes.parse(filetype, data, function(obj) {
         if (obj.objectClass !== "__FAIL__") {
           // Display model to the canvas after parsing.
-          if (!cancelLoad(options)) bb.displayObjectFile(obj, filename, options);
+          if (!cancelLoad(options)) sv.displayObjectFile(obj, filename, options);
         } else if (options.onError !== undefined) {
           options.onError();
         }
@@ -48,7 +50,7 @@ BrainBrowser.modules.loader = function(bb) {
   };
 
   //Load model from local file.
-  bb.loadModelFromFile = function(file_input, options) {
+  sv.loadModelFromFile = function(file_input, options) {
     options = options || {};
     var parts;
     var filename;
@@ -59,10 +61,10 @@ BrainBrowser.modules.loader = function(bb) {
       //last part of path will be shape name
       filename = parts[parts.length-1];
       // Parse model info based on the given file type.
-      BrainBrowser.filetypes.parse(filetype, data, function(obj) {
+      SurfaceViewer.filetypes.parse(filetype, data, function(obj) {
         if (obj.objectClass !== "__FAIL__") {
           // Display model to the canvas after parsing.
-          bb.displayObjectFile(obj, filename, options);
+          sv.displayObjectFile(obj, filename, options);
         } else if (options.onError) {
           options.onError();
         }
@@ -72,31 +74,31 @@ BrainBrowser.modules.loader = function(bb) {
   };
   
   // Load a colour map from the server.
-  bb.loadDataFromUrl = function(file_input, name, options) {
+  sv.loadDataFromUrl = function(file_input, name, options) {
     options = options || {};
     
     loadFromUrl(file_input, options, function(text) {
-      BrainBrowser.data(text, function(data) {
+      SurfaceViewer.data(text, function(data) {
         if (cancelLoad(options)) return;
         
         var max = options.max === undefined ? data.max : options.max;
         var min = options.min === undefined ? data.min : options.min;
         
-        bb.model_data.data = data;
+        sv.model_data.data = data;
         data.fileName = name;
         data.apply_to_shape = options.shape;
         initRange(min, max);
         
-        if (bb.afterLoadData) {
-          bb.afterLoadData(data.rangeMin, data.rangeMax, data);
+        if (sv.afterLoadData) {
+          sv.afterLoadData(data.rangeMin, data.rangeMax, data);
         }
     
-        bb.updateColors(data, {
+        sv.updateColors(data, {
           min: data.rangeMin,
           max: data.rangeMax,
-          spectrum: bb.spectrum,
-          flip: bb.flip,
-          clamped: bb.clamped,
+          spectrum: sv.spectrum,
+          flip: sv.flip,
+          clamped: sv.clamped,
           afterUpdate: options.afterUpdate
         });
       });
@@ -105,18 +107,18 @@ BrainBrowser.modules.loader = function(bb) {
   
   
   //Load text data from file and update colors
-  bb.loadDataFromFile = function(file_input, options) {
+  sv.loadDataFromFile = function(file_input, options) {
     options = options || {};
     var filename = file_input.files[0].name;
-    var model_data = bb.model_data;
+    var model_data = sv.model_data;
     var positionArray = model_data.positionArray;
     var positionArrayLength = positionArray.length;
     var blend_index = options.blend_index || 0;
     var other_index = 1 - blend_index; // 1 or 0
-    bb.blendData = bb.blendData || [];
+    sv.blendData = sv.blendData || [];
 
     var onfinish = function(text) {
-      BrainBrowser.data(text, function(data) {
+      SurfaceViewer.data(text, function(data) {
         var max = options.max === undefined ? data.max : options.max;
         var min = options.min === undefined ? data.min : options.min;
         
@@ -128,30 +130,30 @@ BrainBrowser.modules.loader = function(bb) {
           return -1;
         }
         model_data.data = data;
-        bb.blendData[blend_index] = data;
+        sv.blendData[blend_index] = data;
         initRange(min, max, data);
-        if (bb.blendData[other_index] && bb.blendData[other_index].applied) {
-          initRange(bb.blendData[other_index].values.min(),
-            bb.blendData[other_index].values.max(),
-            bb.blendData[other_index]);
-          if(bb.afterLoadData) {
-            bb.afterLoadData(null, null, bb.blendData, true); //multiple set to true
+        if (sv.blendData[other_index] && sv.blendData[other_index].applied) {
+          initRange(sv.blendData[other_index].values.min(),
+            sv.blendData[other_index].values.max(),
+            sv.blendData[other_index]);
+          if(sv.afterLoadData) {
+            sv.afterLoadData(null, null, sv.blendData, true); //multiple set to true
           }
       
-          bb.blend(0.5);
-          if(bb.afterBlendData) {
-            bb.afterBlendData(data.rangeMin, data.rangeMax, data);
+          sv.blend(0.5);
+          if(sv.afterBlendData) {
+            sv.afterBlendData(data.rangeMin, data.rangeMax, data);
           }
         } else {
-          if(bb.afterLoadData) {
-            bb.afterLoadData(data.rangeMin, data.rangeMax, data);
+          if(sv.afterLoadData) {
+            sv.afterLoadData(data.rangeMin, data.rangeMax, data);
           }
-          bb.updateColors(data, {
+          sv.updateColors(data, {
             min: data.rangeMin,
             max: data.rangeMax,
-            spectrum: bb.spectrum,
-            flip: bb.flip,
-            clamped: bb.clamped,
+            spectrum: sv.spectrum,
+            flip: sv.flip,
+            clamped: sv.clamped,
             afterUpdate: options.afterUpdate
           });
         }
@@ -167,8 +169,8 @@ BrainBrowser.modules.loader = function(bb) {
   };
   
   // Blend colours.
-  bb.blend = function(value) {
-    var blendData = bb.blendData;
+  sv.blend = function(value) {
+    var blendData = sv.blendData;
     var blendDataLength = blendData.length;
     var i;
     
@@ -179,38 +181,38 @@ BrainBrowser.modules.loader = function(bb) {
     }
     
 
-    bb.updateColors(blendData, {
-      spectrum: bb.spectrum,
-      flip: bb.flip,
-      clamped: bb.clamped,
+    sv.updateColors(blendData, {
+      spectrum: sv.spectrum,
+      flip: sv.flip,
+      clamped: sv.clamped,
       blend: true
     });
   };
 
   //Load spectrum data from the server.
-  bb.loadSpectrumFromUrl  = function(url, options) {
+  sv.loadSpectrumFromUrl  = function(url, options) {
     options = options || {};
     var afterLoadSpectrum = options.afterLoadSpectrum;
     var spectrum;
     
     //get the spectrum of colors
     loadFromUrl(url, options, function (data) {
-      spectrum = BrainBrowser.spectrum(data);
-      bb.spectrum = spectrum;
+      spectrum = SurfaceViewer.spectrum(data);
+      sv.spectrum = spectrum;
     
       if (afterLoadSpectrum) afterLoadSpectrum();
     
-      if (bb.afterLoadSpectrum) {
-        bb.afterLoadSpectrum(spectrum);
+      if (sv.afterLoadSpectrum) {
+        sv.afterLoadSpectrum(spectrum);
       }
     
-      if (bb.model_data && bb.model_data.data) {
-        bb.updateColors(bb.model_data.data, {
-          min: bb.model_data.data.rangeMin,
-          max: bb.model_data.data.rangeMax,
-          spectrum: bb.spectrum,
-          flip: bb.flip,
-          clamped: bb.clamped
+      if (sv.model_data && sv.model_data.data) {
+        sv.updateColors(sv.model_data.data, {
+          min: sv.model_data.data.rangeMin,
+          max: sv.model_data.data.rangeMax,
+          spectrum: sv.spectrum,
+          flip: sv.flip,
+          clamped: sv.clamped
         });
       }
     });
@@ -219,37 +221,37 @@ BrainBrowser.modules.loader = function(bb) {
   
 
   // Load a color bar spectrum definition file.
-  bb.loadSpectrumFromFile = function(file_input){
+  sv.loadSpectrumFromFile = function(file_input){
     var spectrum;
-    var model_data = bb.model_data;
+    var model_data = sv.model_data;
     
     loadFromTextFile(file_input, null, function(data) {
-      spectrum = BrainBrowser.spectrum(data);
-      bb.spectrum = spectrum;
-      if(bb.afterLoadSpectrum) {
-        bb.afterLoadSpectrum(spectrum);
+      spectrum = SurfaceViewer.spectrum(data);
+      sv.spectrum = spectrum;
+      if(sv.afterLoadSpectrum) {
+        sv.afterLoadSpectrum(spectrum);
       }
       if(model_data.data) {
-        bb.updateColors(model_data.data, {
+        sv.updateColors(model_data.data, {
           min: model_data.data.rangeMin,
           max: model_data.data.rangeMax,
-          spectrum: bb.spectrum,
-          flip: bb.flip,
-          clamped: bb.clamped
+          spectrum: sv.spectrum,
+          flip: sv.flip,
+          clamped: sv.clamped
         });
       }
     });
   };
  
   // Load a series of data files to be viewed with a slider.
-  bb.loadSeriesDataFromFile = function(file_input) {
+  sv.loadSeriesDataFromFile = function(file_input) {
     var numberFiles = file_input.files.length;
     var files = file_input.files;
     var reader;
     var i;
     
-    bb.seriesData = new Array(numberFiles);
-    bb.seriesData.numberFiles = numberFiles;
+    sv.seriesData = new Array(numberFiles);
+    sv.seriesData.numberFiles = numberFiles;
     
     files.forEach(function(file, num) {
       reader = new FileReader();
@@ -260,15 +262,15 @@ BrainBrowser.modules.loader = function(bb) {
       */
       reader.onloadend = function(e) {
         
-        BrainBrowser.data(e.target.result, function(data) {
-          bb.seriesData[num] = data;
-          bb.seriesData[num].fileName = file.name;
+        SurfaceViewer.data(e.target.result, function(data) {
+          sv.seriesData[num] = data;
+          sv.seriesData[num].fileName = file.name;
         });
       };
       
       reader.readAsText(files[i]);
     });
-    bb.setupSeries();
+    sv.setupSeries();
   };
 
 
@@ -278,18 +280,18 @@ BrainBrowser.modules.loader = function(bb) {
    * Clamped signifies that the range should be clamped and values above or bellow the
    * thresholds should have the color of the maximum/mimimum.
    */
-  bb.rangeChange = function(min, max, clamped, options) {
+  sv.rangeChange = function(min, max, clamped, options) {
     options = options || {};
     var afterChange = options.afterChange;
-    var data = bb.model_data.data;
+    var data = sv.model_data.data;
     
     data.rangeMin = min;
     data.rangeMax = max;
-    bb.updateColors(data, {
+    sv.updateColors(data, {
       min: data.rangeMin,
       max: data.rangeMax,
-      spectrum: bb.spectrum,
-      flip: bb.flip,
+      spectrum: sv.spectrum,
+      flip: sv.flip,
       clamped: clamped,
       afterUpdate: options.afterUpdate
     });
@@ -305,8 +307,8 @@ BrainBrowser.modules.loader = function(bb) {
       afterChange();
     }
 
-    if(bb.afterRangeChange) {
-      bb.afterRangeChange(min, max);
+    if(sv.afterRangeChange) {
+      sv.afterRangeChange(min, max);
     }
   };
   
@@ -397,7 +399,7 @@ BrainBrowser.modules.loader = function(bb) {
   function initRange(min, max, file) {
     
     if (!file) {
-      file = bb.model_data.data;
+      file = sv.model_data.data;
     }
     if (!file.fixRange) {
       file.rangeMin = min;
@@ -415,7 +417,7 @@ BrainBrowser.modules.loader = function(bb) {
   function cancelLoad(options) {
     options = options || {};
     var cancel_opts = options.cancel || {};
-    if (utils.isFunction(cancel_opts)) {
+    if (BrainBrowser.utils.isFunction(cancel_opts)) {
       cancel_opts = { test: cancel_opts };
     }
     

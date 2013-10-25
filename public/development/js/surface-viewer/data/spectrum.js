@@ -22,11 +22,11 @@
 * @constructor
 * @param {String} data String of data from loaded color file to parse to make spectrum obj
 */
-BrainBrowser.spectrum = function(data) {
+BrainBrowser.SurfaceViewer.spectrum = function(data) {
   "use strict";
   
   var spectrum = {};
-  var colorManager = BrainBrowser.colorManager();
+  var colorManager = BrainBrowser.SurfaceViewer.colorManager();
 
   /*
   * Creates an canvas with the spectrum of colors

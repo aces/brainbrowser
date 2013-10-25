@@ -21,7 +21,7 @@
  *
  * @constructor
  */
-BrainBrowser.colorManager = function(){
+BrainBrowser.SurfaceViewer.colorManager = function(){
   "use strict";
 
   var color_manager = {};

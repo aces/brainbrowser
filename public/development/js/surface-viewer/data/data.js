@@ -19,7 +19,7 @@
 /**
 * @param {String} data data file in string format to parse
 */
-BrainBrowser.data = function(raw, callback) {
+BrainBrowser.SurfaceViewer.data = function(raw, callback) {
   "use strict";
   
   // Allows a prototype to be defined for data object

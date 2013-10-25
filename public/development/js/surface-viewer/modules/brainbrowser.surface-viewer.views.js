@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
  
-BrainBrowser.modules.views = function(bb) {
+BrainBrowser.SurfaceViewer.modules.views = function(sv) {
   "use strict";
   
   //////////////
@@ -23,8 +23,8 @@ BrainBrowser.modules.views = function(bb) {
   //////////////
   
   // Change the opacity of an object in the scene.
-  bb.changeShapeTransparency = function(shape_name, alpha) {
-    var shape = bb.model.getChildByName(shape_name);
+  sv.changeShapeTransparency = function(shape_name, alpha) {
+    var shape = sv.model.getChildByName(shape_name);
     var material;
     if (shape) {
       material = shape.material;
@@ -40,26 +40,26 @@ BrainBrowser.modules.views = function(bb) {
   /**
    * Figures out what view has been selected and activates it
    */
-  bb.setupView = function() {
-    var params = bb.getViewParams(); //Must be defined by calling app
+  sv.setupView = function() {
+    var params = sv.getViewParams(); //Must be defined by calling app
     var method_name = params.view + "View";
-    bb.resetView();
-    if(bb.model_data && bb.model_data.num_hemispheres === 2) {
-      if (typeof bb[method_name] === "function") {
-        bb[method_name]();
+    sv.resetView();
+    if(sv.model_data && sv.model_data.num_hemispheres === 2) {
+      if (typeof sv[method_name] === "function") {
+        sv[method_name]();
       } else {
-        bb.superiorView();
+        sv.superiorView();
       }
     }
 
     /*
      * Decides if the hemispheres need to be shown
      */
-    if (bb.model.getChildByName("left")) {
-      bb.leftHemisphereVisible(params.left);
+    if (sv.model.getChildByName("left")) {
+      sv.leftHemisphereVisible(params.left);
     }
-    if (bb.model.getChildByName("right")) {
-      bb.rightHemisphereVisible(params.right);
+    if (sv.model.getChildByName("right")) {
+      sv.rightHemisphereVisible(params.right);
     }
   };
   
@@ -69,8 +69,8 @@ BrainBrowser.modules.views = function(bb) {
    * functions turn the left hemisphere shapes visibility on off
    * @param {Bool} state  boolean (true == visible, false == not visible)
    */
-  bb.leftHemisphereVisible = function(state)  {
-    bb.model.getChildByName("left").visible = state;
+  sv.leftHemisphereVisible = function(state)  {
+    sv.model.getChildByName("left").visible = state;
   };
   
 
@@ -78,16 +78,16 @@ BrainBrowser.modules.views = function(bb) {
    * functions turn the right hemisphere shapes visibility on off
    * @param {Bool} state  boolean (true == visible, false == not visible)
    */
-  bb.rightHemisphereVisible = function(state)  {
-    bb.model.getChildByName("right").visible = state;
+  sv.rightHemisphereVisible = function(state)  {
+    sv.model.getChildByName("right").visible = state;
   };
 
   //Returns the position and info about a vertex
   //currently a wrapper for model.getVertexInfo
   //Should theoretically return thei same infor as click and
   //click should use this to build that info object
-  bb.getInfoForVertex = function(vertex) {
-    var model_data = bb.model_data.getVertexInfo(vertex);
+  sv.getInfoForVertex = function(vertex) {
+    var model_data = sv.model_data.getVertexInfo(vertex);
     var vertex_data = {
       vertex: model_data.vertex,
       point: new THREE.Vector3(model_data.position_vector[0], model_data.position_vector[1], model_data.position_vector[2])
@@ -99,10 +99,10 @@ BrainBrowser.modules.views = function(bb) {
    * function to handle to preset views of the system.
    *
    */
-  bb.medialView = function() {
-    var model = bb.model;
+  sv.medialView = function() {
+    var model = sv.model;
 
-    if(bb.model_data.num_hemispheres === 2 ) {
+    if(sv.model_data.num_hemispheres === 2 ) {
       model.getChildByName("left").position.x -= 100;
       model.getChildByName("left").rotation.z -= degToRad(90);
       model.getChildByName("right").position.x += 100;
@@ -114,11 +114,11 @@ BrainBrowser.modules.views = function(bb) {
   /**
    * function to handle to preset views of the system.
    */
-  bb.lateralView = function() {
-    var model = bb.model;
+  sv.lateralView = function() {
+    var model = sv.model;
     var left_child, right_child;
 
-    if(bb.model_data.num_hemispheres === 2 ) {
+    if(sv.model_data.num_hemispheres === 2 ) {
       left_child = model.getChildByName("left");
       right_child = model.getChildByName("right");
 
@@ -134,42 +134,42 @@ BrainBrowser.modules.views = function(bb) {
   /**
    * function to handle to preset views of the system.
    */
-  bb.superiorView = function() {
+  sv.superiorView = function() {
     //nothing should be already done with reset view, placeholder
   };
 
   /**
    * function to handle to preset views of the system.
    */
-  bb.inferiorView = function() {
-    bb.model.rotation.y += degToRad(180);
+  sv.inferiorView = function() {
+    sv.model.rotation.y += degToRad(180);
   };
 
   /**
    * function to handle to preset views of the system.
    */
-  bb.anteriorView = function() {
-    bb.resetView();
-    bb.model.rotation.x += degToRad(-90);
-    bb.model.rotation.z += degToRad(180);
+  sv.anteriorView = function() {
+    sv.resetView();
+    sv.model.rotation.x += degToRad(-90);
+    sv.model.rotation.z += degToRad(180);
   };
 
   /**
    * function to handle to preset views of the system.
    */
-  bb.posteriorView = function() {
-    bb.resetView();
-    bb.model.rotation.x += degToRad(-90);
+  sv.posteriorView = function() {
+    sv.resetView();
+    sv.model.rotation.x += degToRad(-90);
   };
 
 
   /**
    * Adds space between the hemispheres
    */
-  bb.separateHemispheres = function() {
-    if(bb.model_data.num_hemispheres === 2 ) {
-      bb.model.children[0].position.x -= 1;
-      bb.model.children[1].position.x += 1;
+  sv.separateHemispheres = function() {
+    if(sv.model_data.num_hemispheres === 2 ) {
+      sv.model.children[0].position.x -= 1;
+      sv.model.children[1].position.x += 1;
     }
   };
   

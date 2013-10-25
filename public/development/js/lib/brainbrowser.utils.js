@@ -19,7 +19,9 @@
 (function() {
   "use strict";
  
-  window.utils = {
+  var BrainBrowser = window.BrainBrowser = window.BrainBrowser || {};
+
+  BrainBrowser.utils = {
  
     /*!
      * WebGL test taken from Detector.js by

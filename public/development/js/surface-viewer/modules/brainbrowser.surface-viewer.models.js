@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
  
-BrainBrowser.core.models = function(bb) {
+BrainBrowser.SurfaceViewer.core.models = function(sv) {
   "use strict";
     
   //////////////////////////////
@@ -29,7 +29,7 @@ BrainBrowser.core.models = function(bb) {
   //
   // @param {Object} obj object representing the model to be displayed
   // @param {String} filename name of the original file
-  bb.displayObjectFile = function(obj, filename, opts) {
+  sv.displayObjectFile = function(obj, filename, opts) {
     var options = opts || {};
     var renderDepth = options.renderDepth;
     var afterDisplay = options.afterDisplay;
@@ -43,8 +43,8 @@ BrainBrowser.core.models = function(bb) {
     } else {
       alert("Object file not supported");
     }
-    if(bb.afterDisplayObject) {
-      bb.afterDisplayObject(bb.model);
+    if(sv.afterDisplayObject) {
+      sv.afterDisplayObject(sv.model);
     }
     
     if (afterDisplay) afterDisplay();
@@ -57,10 +57,10 @@ BrainBrowser.core.models = function(bb) {
   
   // Add a brain model to the scene.
   function addBrain(obj) {
-    var model = bb.model;
+    var model = sv.model;
     var left, right;
     
-    bb.model_data = obj;
+    sv.model_data = obj;
     left = createHemisphere(obj.left);
     left.name = "left";
     left.model_num = 0;
@@ -117,7 +117,7 @@ BrainBrowser.core.models = function(bb) {
 
   //Add a line model to the scene.
   function addLineObject(obj, filename, mesh, renderDepth) {
-    var model = bb.model;
+    var model = sv.model;
     var lineObject = createLineObject(obj, mesh);
     lineObject.name = filename;
     if (renderDepth) {
@@ -145,7 +145,7 @@ BrainBrowser.core.models = function(bb) {
     var geometry, material, lineObject;
     var posArray;
     
-    bb.model_data = model_data;
+    sv.model_data = model_data;
 
     for (i = 0; i < nitems; i++){
       if (i === 0){
@@ -163,7 +163,7 @@ BrainBrowser.core.models = function(bb) {
       indices.push(indexArray[endIndex-1]);
     }
     
-    posArray = bb.model_data.positionArray;
+    posArray = sv.model_data.positionArray;
   
     //Calculate center so positions of objects relative to each other can be determined.
     //Mainly for transparency.
@@ -189,7 +189,7 @@ BrainBrowser.core.models = function(bb) {
           colorArray.push(0.5, 0.5, 0.7, 1);
         }
       } else {
-        colorArray = bb.model_data.colorArray;
+        colorArray = sv.model_data.colorArray;
         
         for(j = 0, count = indices.length; j < count; j++) {
           col = new THREE.Color();
@@ -199,8 +199,8 @@ BrainBrowser.core.models = function(bb) {
       }
       
     } else {
-      verts = bb.model_data.meshPositionArray;
-      colors = bb.model_data.meshColorArray;
+      verts = sv.model_data.meshPositionArray;
+      colors = sv.model_data.meshColorArray;
     }
 
     
@@ -220,27 +220,27 @@ BrainBrowser.core.models = function(bb) {
   
   // Add a polygon object to the scene.
   function addPolygonObject(obj, filename){
-    var model = bb.model;
+    var model = sv.model;
     var shape;
     var i, count;
     var model_data = obj;
     var shapes = model_data.shapes;
     
-    bb.model_data = model_data;
+    sv.model_data = model_data;
     if (shapes){
       for (i = 0, count = shapes.length; i < count; i++){
-        shape = createPolygonShape(bb.model_data.shapes[i]);
-        shape.name = bb.model_data.shapes[i].name || (filename.split(".")[0] + "_" + i);
+        shape = createPolygonShape(sv.model_data.shapes[i]);
+        shape.name = sv.model_data.shapes[i].name || (filename.split(".")[0] + "_" + i);
         model.add(shape);
       }
     }else {
-      shape = createPolygonShape(bb.model_data);
+      shape = createPolygonShape(sv.model_data);
       shape.name = filename;
       model.add(shape);
     }
 
-    if(bb.afterCreate) {
-      bb.afterCreate(bb.model_data);
+    if(sv.afterCreate) {
+      sv.afterCreate(sv.model_data);
     }
   }
   

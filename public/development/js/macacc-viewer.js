@@ -25,32 +25,32 @@ $(function() {
   var showLoading = function() { loading_div.show(); };
   var hideLoading = function() { loading_div.hide(); };
         
-  if (!utils.webglEnabled()) {
-    $("#brainbrowser").html(utils.webGLErrorMessage());
+  if (!BrainBrowser.utils.webglEnabled()) {
+    $("#brainbrowser").html(BrainBrowser.utils.webGLErrorMessage());
     return;
   }
   
   loading_div.show();
   
-  BrainBrowser.start(function(bb) {
+  BrainBrowser.SurfaceViewer.start(function(sv) {
 
-    bb.afterLoadSpectrum = function (spectrum) {
+    sv.afterLoadSpectrum = function (spectrum) {
       var canvas = spectrum.createSpectrumCanvasWithScale(0,5,null,false);
       canvas.id = "spectrum-canvas";
       $("#spectrum").html($(canvas));
-      bb.spectrumObj = spectrum;
+      sv.spectrumObj = spectrum;
     };
     
-    bb.loadModelFromUrl('/models/surf_reg_model_both.obj', {
+    sv.loadModelFromUrl('/models/surf_reg_model_both.obj', {
       format: "MNIObject",
       afterDisplay: function() {
         hideLoading();
-        macacc = MACACC.collection(bb, path_prefix);
-        bb.afterCreateBrain = function() {
+        macacc = MACACC.collection(sv, path_prefix);
+        sv.afterCreateBrain = function() {
           macacc.updateMap();
         };
         
-        bb.afterUpdateColors = hideLoading;
+        sv.afterUpdateColors = hideLoading;
         
         macacc.dataOptions = function() {
           return {
@@ -85,7 +85,7 @@ $(function() {
         macacc.afterInvalidMap = hideLoading;
         
         macacc.afterRangeChange = function(min,max) {
-          var canvas = bb.spectrumObj.createSpectrumCanvasWithScale(min, max, null, macacc.flipRange);
+          var canvas = sv.spectrumObj.createSpectrumCanvasWithScale(min, max, null, macacc.flipRange);
           canvas.id = "spectrum-canvas";
           $("#spectrum").html($(canvas));
         };
@@ -145,18 +145,18 @@ $(function() {
       macacc.afterRangeChange(parseFloat($("#data-range-min").val()), parseFloat($("#data-range-max").val()));
     });
 
-    $('#screenshot').click(function() {$(this).attr("href", bb.client.toDataUR());});
+    $('#screenshot').click(function() {$(this).attr("href", sv.client.toDataUR());});
     
     $("#brainbrowser").mousedown(function(e) {
       var pointer_setting=$('[name=pointer]:checked').val();
       
       if(e.ctrlKey || pointer_setting === "check") {
-        if(bb.valueAtPointCallback) {
-          bb.click(e, bb.valueAtPointCallback);
+        if(sv.valueAtPointCallback) {
+          sv.click(e, sv.valueAtPointCallback);
         }
       } else if(e.shiftKey || pointer_setting === "select") {
-        if(bb.clickCallback) {
-          bb.click(e, bb.clickCallback);
+        if(sv.clickCallback) {
+          sv.click(e, sv.clickCallback);
         }
       }
     });
@@ -183,16 +183,16 @@ $(function() {
     });
 
     $("#secondWindow").click(function(){
-      bb.secondWindow=window.open('/macacc.html','secondWindow');
+      sv.secondWindow=window.open('/macacc.html','secondWindow');
     });
 
     window.addEventListener('message', function(e){
 
       var vertex = parseInt(e.data, 10);
       var position_vector = [
-        bb.model_data.positionArray[vertex*3],
-        bb.model_data.positionArray[vertex*3+1],
-        bb.model_data.positionArray[vertex*3+2]
+        sv.model_data.positionArray[vertex*3],
+        sv.model_data.positionArray[vertex*3+1],
+        sv.model_data.positionArray[vertex*3+2]
       ];
 
       macacc.pickClick(e, {
@@ -205,7 +205,7 @@ $(function() {
     }, false);
     
     if (window.opener) {
-      bb.secondWindow = window.opener;
+      sv.secondWindow = window.opener;
     }
   });
 });

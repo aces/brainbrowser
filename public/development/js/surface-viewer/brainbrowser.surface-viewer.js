@@ -37,79 +37,82 @@
 (function() {
   "use strict";
   
-  var BrainBrowser = window.BrainBrowser = {
+
+
+  var BrainBrowser = window.BrainBrowser = window.BrainBrowser || {};
   
+  var SurfaceViewer = BrainBrowser.SurfaceViewer = {
     start: function(callback) {
 
       /////////////////////////////////
       // Browser compatibility checks.
       /////////////////////////////////
       
-      if (!utils.webWorkersEnabled() ) {
+      if (!BrainBrowser.utils.webWorkersEnabled() ) {
         alert("Can't find web workers. Exiting.");
         return;
       }
       
-      if (!utils.webglEnabled()) {
+      if (!BrainBrowser.utils.webglEnabled()) {
         alert("Can't get WebGL context. Exiting.");
         return;
       }
       // Allows a prototype to be defined for the browser.
-      var browser = Object.create(BrainBrowser.prototype || {});
+      var surface_viewer = Object.create(SurfaceViewer.prototype || {});
       
       var module;
       
       // Properties that will be used by other modules.
-      browser.view_window = document.getElementById("brainbrowser"); // Div where the canvas will be loaded.
-      browser.model = undefined;  // The currently loaded model. Should be set by rendering.
+      surface_viewer.view_window = document.getElementById("brainbrowser"); // Div where the canvas will be loaded.
+      surface_viewer.model = undefined;  // The currently loaded model. Should be set by rendering.
       
       //////////////////////////////
       // Load modules.
       //////////////////////////////
       
-      for (module in BrainBrowser.core) {
-        if (BrainBrowser.core.hasOwnProperty(module)) {
-          BrainBrowser.core[module](browser);
+      for (module in SurfaceViewer.core) {
+        if (SurfaceViewer.core.hasOwnProperty(module)) {
+          SurfaceViewer.core[module](surface_viewer);
         }
       }
       
-      for (module in BrainBrowser.modules) {
-        if (BrainBrowser.modules.hasOwnProperty(module)) {
-          BrainBrowser.modules[module](browser);
+      for (module in SurfaceViewer.modules) {
+        if (SurfaceViewer.modules.hasOwnProperty(module)) {
+          SurfaceViewer.modules[module](surface_viewer);
         }
       }
       
-      for (module in BrainBrowser.plugins) {
-        if (BrainBrowser.plugins.hasOwnProperty(module)) {
-          BrainBrowser.plugins[module](browser);
+      for (module in SurfaceViewer.plugins) {
+        if (SurfaceViewer.plugins.hasOwnProperty(module)) {
+          SurfaceViewer.plugins[module](surface_viewer);
         }
       }
       
       
       ///////////////////////////////////////////////////////////
       // Start rendering the scene.
-      // This method should be defined in BrainBrowser.rendering.
+      // This method should be defined in SurfaceViewer.rendering.
       ///////////////////////////////////////////////////////////
-      browser.render();
+      surface_viewer.render();
       
       //////////////////////////////////////////////////////  
-      // Pass BrainBrowser instance to calling application. 
+      // Pass SurfaceViewer instance to calling application. 
       ////////////////////////////////////////////////////// 
-      callback(browser);
+      callback(surface_viewer);
     }
   };
 
   // Core modules.
-  BrainBrowser.core = {};
+  SurfaceViewer.core = {};
   
   // Standard modules.
-  BrainBrowser.modules = {};
+  SurfaceViewer.modules = {};
   
   // Application specific plugins.
-  BrainBrowser.plugins = {};
+  SurfaceViewer.plugins = {};
   
   // 3D Model filetype handlers.
-  BrainBrowser.filetypes = {};
+  SurfaceViewer.filetypes = {};
   
 })();
 

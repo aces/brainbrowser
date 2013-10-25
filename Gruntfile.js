@@ -13,18 +13,14 @@ module.exports = function(grunt) {
       surface: {
         src: [
           "<%= dev_js %>/lib/array.js",
-          "<%= dev_js %>/brainbrowser/**/*.js",
-          "<%= dev_js %>/lib/utils.js",
-          "<%= dev_js %>/surface-viewer.js"
+          "<%= dev_js %>/surface-viewer/**/*.js",
+          "<%= dev_js %>/lib/brainbrowser.utils.js"
         ],
-        dest: "tmp/surfview-combined.js"
+        dest: "tmp/brainbrowser.surface-viewer.js"
       },
       macacc: {
         src: [
-          "<%= dev_js %>/lib/array.js",
-          "<%= dev_js %>/brainbrowser/**/*.js",
           "<%= dev_js %>/macacc/macacc.js",
-          "<%= dev_js %>/lib/utils.js",
           "<%= dev_js %>/macacc-viewer.js"
         ],
         dest: "tmp/macacc-viewer-combined.js"
@@ -51,7 +47,12 @@ module.exports = function(grunt) {
       },
       surface: {
         files: {
-          "<%= prod_js %>/surface-viewer-combined.min.js": ["<%= concat.surface.dest %>"]
+          "build/brainbrowser.surface-viewer-<%= pkg.version %>.min.js": ["<%= concat.surface.dest %>"]
+        }
+      },
+      surface_demo: {
+        files: {
+          "<%= prod_js %>/surface-viewer.js": "<%= dev_js %>/surface-viewer.js",
         }
       },
       macacc: {
@@ -73,7 +74,7 @@ module.exports = function(grunt) {
         files: {
           "<%= prod_js %>/layout.js": "<%= dev_js %>/layout.js",
           "<%= prod_js %>/lib/ui.js": "<%= dev_js %>/lib/ui.js",
-          "<%= prod_js %>/lib/utils.js": "<%= dev_js %>/lib/utils.js"
+          "<%= prod_js %>/lib/brainbrowser.utils.js": "<%= dev_js %>/lib/brainbrowser.utils.js"
         }
       },
       workers: {
@@ -126,6 +127,7 @@ module.exports = function(grunt) {
           "<%= dev_js %>/layout.js",
           "<%= dev_js %>/lib/ui.js",
           "<%= concat.surface.src %>",
+          "<%= dev_js %>/surface-viewer.js",
           "<%= dev_js %>/macacc/macacc.js",
           "<%= dev_js %>/macacc-viewer.js"
         ]
@@ -158,6 +160,13 @@ module.exports = function(grunt) {
         src: ["public/development/loris/js/braincanvas.loris_ui_controls.js"]
       }
     },
+    symlink: {
+      explicit: {
+        files: {
+          "<%= prod_js %>/brainbrowser.surface-viewer.min.js": "build/brainbrowser.surface-viewer-<%= pkg.version %>.min.js"
+        }
+      }
+    },
     watch: {
       grunt : {
         files: ["<%= jshint.grunt.src %>"],
@@ -186,12 +195,14 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-jshint");
   grunt.loadNpmTasks("grunt-contrib-watch");
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-symlink');
 
-  grunt.registerTask("compile", ["concat", "uglify"]);
+  grunt.registerTask("compile", ["concat", "uglify", "symlink"]);
 
   grunt.registerTask("default", [
     "jshint",
     "concat",
-    "uglify"
+    "uglify",
+    "symlink"
   ]);
 };

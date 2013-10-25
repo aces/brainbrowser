@@ -541,15 +541,15 @@
     button_div.find(".slice-series").click(function() {
       var axis_name = $(this).data("axis");
       var axis = volume.data[axis_name];
-      var zoom = 1;
       var space_length = axis.space_length;
-      var i, x, y;
       var time = volume.current_time;
-      var image_data = volume.slice(axis_name, 0, time).getImage(zoom);
-      var per_column = 5;
+      var per_column = 10;
+      var zoom = 0.5;
+      var i, x, y;
 
       var canvas = document.createElement("canvas");
       var context = canvas.getContext("2d");
+      var image_data = volume.slice(axis_name, 0, time).getImage(zoom);
       var img = new Image();
       canvas.width = per_column * image_data.width;
       canvas.height = (space_length / per_column + 1) * image_data.height;

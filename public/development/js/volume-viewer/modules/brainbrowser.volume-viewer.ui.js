@@ -29,8 +29,10 @@
 
 (function() {
   "use strict";
+
+  var VolumeViewer = BrainBrowser.VolumeViewer;
   
-  BrainCanvas.setupUI = function(viewer) {
+  VolumeViewer.setupUI = function(viewer) {
     $(document).keydown(function(e) {
       if (!viewer.active_canvas) return;
       var canvas = viewer.active_canvas;
@@ -63,7 +65,7 @@
     });
   };
     
-  BrainCanvas.addCanvasUI = function(div, viewer, volume, volID) {
+  VolumeViewer.addCanvasUI = function(div, viewer, volume, volID) {
     var displays = [];
     div = $(div);
     
@@ -90,7 +92,7 @@
       div.append(canvas);
       context.clearRect(0, 0, canvas.width, canvas.height);
       displays.push(
-        BrainCanvas.display({
+        VolumeViewer.display({
           canvas: canvas,
           context: context,
           cursor: {
@@ -107,15 +109,15 @@
       );
     });
     
-    if (BrainCanvas.volumeUIControls) {
-      var controls  = $("<div class=\"braincanvas-controls volume-controls\"></div>");
-      if (BrainCanvas.volumeUIControls.defer_until_page_load) {
-        BrainCanvas.addEventListener("ready", function() {
+    if (VolumeViewer.volumeUIControls) {
+      var controls  = $("<div class=\"volume-viewer-controls volume-controls\"></div>");
+      if (VolumeViewer.volumeUIControls.defer_until_page_load) {
+        VolumeViewer.addEventListener("ready", function() {
           div.append(controls);
-          BrainCanvas.volumeUIControls(controls, viewer, volume, volID);
+          VolumeViewer.volumeUIControls(controls, viewer, volume, volID);
         });
       } else {
-        BrainCanvas.volumeUIControls(controls, viewer, volume, volID);
+        VolumeViewer.volumeUIControls(controls, viewer, volume, volID);
         div.append(controls);
       }
     }
@@ -244,8 +246,8 @@
   // UI Controls
   /////////////////
   
-  BrainCanvas.globalUIControls = function(element, viewer) {
-    var controls = $('<div id="global-controls" class="braincanvas-controls"></div>');
+  VolumeViewer.globalUIControls = function(element, viewer) {
+    var controls = $('<div id="global-controls" class="volume-viewer-controls"></div>');
     var sync_button = $('<input type="checkbox" class="button" id="sync"><label for="sync">Sync Volumes</label>');
     
     sync_button.change(function() {
@@ -293,22 +295,22 @@
     $(element).append(controls);
   };
   
-  BrainCanvas.volumeUIControls = function(controls, viewer, volume, volID) {
-    BrainCanvas.coordinateUI(controls, viewer, volume, volID);
+  VolumeViewer.volumeUIControls = function(controls, viewer, volume, volID) {
+    VolumeViewer.coordinateUI(controls, viewer, volume, volID);
     
     if(volume.type === "multivolume") {
-      BrainCanvas.blendUI(controls, viewer, volume, volID);
+      VolumeViewer.blendUI(controls, viewer, volume, volID);
     } else {
-      BrainCanvas.colorScaleUI(controls, viewer, volume, volID);
-      BrainCanvas.thresholdUI(controls, viewer, volume, volID);
+      VolumeViewer.colorScaleUI(controls, viewer, volume, volID);
+      VolumeViewer.thresholdUI(controls, viewer, volume, volID);
       if (volume.data.time) {
-        BrainCanvas.timeUI(controls, viewer, volume, volID);
+        VolumeViewer.timeUI(controls, viewer, volume, volID);
       }
-      BrainCanvas.sliceSeriesUI(controls, viewer, volume, volID);
+      VolumeViewer.sliceSeriesUI(controls, viewer, volume, volID);
     }
   };
   
-  BrainCanvas.coordinateUI = function(controls, viewer, volume) {
+  VolumeViewer.coordinateUI = function(controls, viewer, volume) {
     var coords, world_coords_div, voxel_coords_div;
     
     if (volume.getWorldCoords) {
@@ -349,7 +351,7 @@
         viewer.redrawVolumes();
       });
       
-      BrainCanvas.addEventListener("sliceupdate", function() {
+      VolumeViewer.addEventListener("sliceupdate", function() {
         var world_coords = volume.getWorldCoords();
         var voxel_coords = volume.getVoxelCoords();
         world_coords_div.find("#world-x").val(world_coords.x);
@@ -367,8 +369,8 @@
     controls.append(coords);
   };
   
-  BrainCanvas.blendUI = function(controls, viewer, volume) {
-    var blendSlider = $("<div id=\"blend-slider\" class=\"slider braincanvas-blend\"></div>");
+  VolumeViewer.blendUI = function(controls, viewer, volume) {
+    var blendSlider = $("<div id=\"blend-slider\" class=\"slider volume-viewer-blend\"></div>");
     var blend = $("<div class=\"control-heading\">Blend (-50 to 50): </div>");
     var blend_val = $("<input class=\"control-inputs\" value=\"0\" id =\"blend-val\"/>");
     blend.append(blend_val);
@@ -400,10 +402,10 @@
     });
   };
   
-  BrainCanvas.colorScaleUI = function(controls, viewer, volume) {
+  VolumeViewer.colorScaleUI = function(controls, viewer, volume) {
     var colorScaleOption = $("<select></select>");
     var list = "";
-    BrainCanvas.colorScales.forEach(function(scale, i) {
+    VolumeViewer.colorScales.forEach(function(scale, i) {
       list += "<option value=\"" + i + "\"" +
               (viewer.defaultScale === scale ? " SELECTED" : "") +
               ">" + scale.name + "</option>";
@@ -412,15 +414,15 @@
     
     //On change update color scale of volume and redraw.
     colorScaleOption.change(function(event) {
-      volume.colorScale = BrainCanvas.colorScales[+$(event.target).val()];
+      volume.colorScale = VolumeViewer.colorScales[+$(event.target).val()];
       viewer.redrawVolumes();
     });
     
     controls.append($("<div class=\"control-heading\">Color Scale: </div>").append(colorScaleOption));
   };
   
-  BrainCanvas.thresholdUI = function(controls, viewer, volume) {
-    var thresh_slider = $('<div class="slider braincanvas-threshold"></div>');
+  VolumeViewer.thresholdUI = function(controls, viewer, volume) {
+    var thresh_slider = $('<div class="slider volume-viewer-threshold"></div>');
     var thresholds = $("<div class=\"control-heading\" class=\"slider-div\">Threshold: </div>");
     var min_input = $('<input class="control-inputs thresh-input-left" value="0"/>');
     var max_input = $('<input class="control-inputs thresh-input-right" value="255"/>');
@@ -467,9 +469,9 @@
     });
   };
   
-  BrainCanvas.timeUI = function(controls, viewer, volume, volID) {
+  VolumeViewer.timeUI = function(controls, viewer, volume, volID) {
     var time_controls = $("<div class=\"control-heading\" class=\"slider-div\">Time: </div>");
-    var time_slider = $('<div class="slider braincanvas-threshold"></div>');
+    var time_slider = $('<div class="slider volume-viewer-threshold"></div>');
     var time_val = $("<input class=\"control-inputs\" value=\"0\" id =\"time-val\"/>");
     var play_button = $('<input type="checkbox" class="button" id="play-' + volID +'"><label for="play-' + volID + '">Play</label>');
     var min = 0;
@@ -522,7 +524,7 @@
     controls.append(play_button);
   };
   
-  BrainCanvas.sliceSeriesUI = function(controls, viewer, volume) {
+  VolumeViewer.sliceSeriesUI = function(controls, viewer, volume) {
     var slice_controls = $("<div class=\"control-heading\">All slices: </div>");
     var button_div = $("<div></div>");
     var xspace_button = $('<span class="slice-series button" data-axis="xspace" style="font-size: 11px">Sagittal</span>');

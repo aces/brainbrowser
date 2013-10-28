@@ -37,6 +37,8 @@
 (function() {
   "use strict";
   
+  var VolumeViewer = BrainBrowser.VolumeViewer;
+
   /*
    * Blend the pixels of two images using the alpha value of each
    */
@@ -131,7 +133,7 @@
             var ystep = slice.y.step;
             // console.log("xstep: " +xstep);
             // console.log("ystep: " +ystep);
-            imageData = BrainCanvas.utils.nearestNeighboor(imageData, Math.floor(slice.width * xstep * zoom), Math.floor(slice.height * ystep * zoom));
+            imageData = VolumeViewer.utils.nearestNeighboor(imageData, Math.floor(slice.width * xstep * zoom), Math.floor(slice.height * ystep * zoom));
             
             images.push(imageData);
           }
@@ -202,7 +204,7 @@
     return data;
   }
 
-  BrainCanvas.volumeType.multivolume = function(opt, callback) {
+  VolumeViewer.volumeType.multivolume = function(opt, callback) {
     var volume = multivolumeData(opt.volumes);
     volume.type = "multivolume";
     volume.min = 0;

@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.10.custom.css" rel="Stylesheet" />
     <link type="text/css" href="/css/common.css" rel="Stylesheet" />
-    <link type="text/css" href="/css/brainbrowser.css" rel="Stylesheet" />
+    <link type="text/css" href="/css/surface-viewer-demo.css" rel="Stylesheet" />
     <link rel="icon" type="image/png" href="img/brainbrowser.png">
     <title>BrainBrowser Surface Viewer</title>  
   </head>  
@@ -91,7 +91,7 @@
     <script type="text/javascript" src="/js/lib/three.min.js"></script>
     <script type="text/javascript" src="/js/lib/TrackballControls.js"></script>
     <script type="text/javascript" src="/js/lib/AnaglyphEffect.js"></script>
-    {{#ifenv "BRAINBROWSER_ENV" "production"}}
+    {{#ifenv "production"}}
       <script type="text/javascript" src="/js/brainbrowser.surface-viewer.min.js"></script>
     {{else}}
       <script type="text/javascript" src="/js/lib/array.js"></script> 
@@ -110,6 +110,6 @@
       <script type="text/javascript" src="/js/surface-viewer/data/spectrum.js"></script> 
       <script type="text/javascript" src="/js/lib/brainbrowser.utils.js"></script>
     {{/ifenv}}
-    <script type="text/javascript" src="/js/surface-viewer.js"></script> 
+    <script type="text/javascript" src="/js/surface-viewer-demo.js"></script> 
   </body>  
 </html>  

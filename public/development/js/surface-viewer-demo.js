@@ -28,7 +28,7 @@ $(function() {
     return;
   }
 
-  BrainBrowser.SurfaceViewer.start(function(sv) {
+  BrainBrowser.SurfaceViewer.start("brainbrowser", function(sv) {
     sv.loadSpectrumFromUrl('/assets/spectral_spectrum.txt');
  
     //setting up some defaults

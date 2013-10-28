@@ -32,7 +32,7 @@ $(function() {
   
   loading_div.show();
   
-  BrainBrowser.SurfaceViewer.start(function(sv) {
+  BrainBrowser.SurfaceViewer.start("brainbrowser", function(sv) {
 
     sv.afterLoadSpectrum = function (spectrum) {
       var canvas = spectrum.createSpectrumCanvasWithScale(0,5,null,false);

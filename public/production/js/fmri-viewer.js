@@ -16,4 +16,4 @@
  */
 
 /* brainbrowser v0.8.0 */
-$(function(){"use strict";$(".button").button(),$(".tabs").tabs({heigth:800}),$(".tablink").click(function(a){var b=$(a.target).attr("data-tabs"),c=$(a.target).attr("data-tab");return $("#"+b).tabs("select",c),!1});var a=$("#html5-warnings");a&&(BrainBrowser.utils.webglEnabled()||(a.css("display","inline-block"),a.find("#webgl-warning").show()),BrainBrowser.utils.webWorkersEnabled()||(a.css("display","inline-block"),a.find("#webworker-warning").show()))});
+$(function(){"use strict";var a=$("#loading");BrainBrowser.VolumeViewer.addEventListener("ready",function(){a.hide(),$("#brainbrowser").slideDown({duration:600}),$(".button").button()}),a.show(),BrainBrowser.VolumeViewer.start("brainbrowser",{volumes:[{type:"minc",filename:"data/ibis_410023_LIVING_PHANTOM_STL_SD_HOS_20121212_SCAN1_ep2d_bold_001.mnc"},{type:"minc",filename:"data/ibis_410023_LIVING_PHANTOM_STL_SD_HOS_20121212_SCAN1_dti_001.mnc"}]})});

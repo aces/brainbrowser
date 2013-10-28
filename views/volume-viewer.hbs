@@ -10,8 +10,8 @@
   </title>
   <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.10.custom.css" rel="Stylesheet" />
   <link type="text/css" href="/css/common.css" rel="Stylesheet" />
-  <link type="text/css" href="/css/braincanvas.css" rel="Stylesheet" />
-  {{#ifenv "BRAINBROWSER_ENV" "loris"}}
+  <link type="text/css" href="/css/volume-viewer-demo.css" rel="Stylesheet" />
+  {{#ifenv "loris"}}
     <link rel="stylesheet" href="/loris/css/jslider.css" type="text/css" />
 	  <link rel="stylesheet" href="/loris/css/jslider.blue.css" type="text/css" />
     <link rel="Stylesheet" href="/loris/css/braincanvas.loris.css" type="text/css"/>
@@ -24,29 +24,24 @@
     <h1 id="app-name">Volume Viewer</h1>
   {{/if}}
   <div id="loading" style="display: none"><img src="/img/ajax-loader.gif" /></div>
-  <div id="braincanvas-container" style="display:none">
-  </div>
+  <div id="brainbrowser" style="display:none"></div>
   <script type="text/javascript" src="//code.jquery.com/jquery-1.7.2.min.js"></script>
   <script type="text/javascript" src="/js/lib/jquery-ui-1.8.10.custom.min.js"></script>
   <script type="text/javascript" src="/js/lib/jquery.mousewheel.min.js"></script>
   <script type="text/javascript" src="/js/lib/ui.js"></script>
-  {{#ifenv "BRAINBROWSER_ENV" "production"}}
-    {{#if fmri}}
-      <script type="text/javascript" src="/js/fmri-viewer-combined.min.js"></script>
-    {{else}}
-      <script type="text/javascript" src="/js/volume-viewer-combined.min.js"></script>
-    {{/if}}
+  {{#ifenv "production"}}
+    <script type="text/javascript" src="/js/brainbrowser.volume-viewer.min.js"></script>
   {{else}}
-    <script src="/js/braincanvas/braincanvas.js"></script>
-    <script src="/js/braincanvas/modules/braincanvas.display.js"></script>
-    <script src="/js/braincanvas/modules/braincanvas.ui.js"></script>
-    <script src="/js/braincanvas/modules/braincanvas.loader.js"></script>
-    <script src="/js/braincanvas/modules/braincanvas.colorscale.js"></script>
-    <script src="/js/braincanvas/modules/braincanvas.utils.js"></script>
-    <script src="/js/braincanvas/volumes/multivolume.js"></script>
-    <script src="/js/braincanvas/volumes/minc_data.js"></script>
-    <script src="/js/braincanvas/volumes/minc.js"></script>
-    {{#ifenv "BRAINBROWSER_ENV" "loris"}}
+    <script src="/js/volume-viewer/brainbrowser.volume-viewer.js"></script>
+    <script src="/js/volume-viewer/modules/brainbrowser.volume-viewer.display.js"></script>
+    <script src="/js/volume-viewer/modules/brainbrowser.volume-viewer.ui.js"></script>
+    <script src="/js/volume-viewer/modules/brainbrowser.volume-viewer.loader.js"></script>
+    <script src="/js/volume-viewer/modules/brainbrowser.volume-viewer.colorscale.js"></script>
+    <script src="/js/volume-viewer/modules/brainbrowser.volume-viewer.utils.js"></script>
+    <script src="/js/volume-viewer/volumes/multivolume.js"></script>
+    <script src="/js/volume-viewer/volumes/minc_data.js"></script>
+    <script src="/js/volume-viewer/volumes/minc.js"></script>
+    {{#ifenv "loris"}}
       <script src="/loris/js/jquery-ui.toggleSwitch.js"></script>
       <script src="/loris/js/jshashtable-2.1_src.js"></script>
       <script src="/loris/js/jquery.numberformatter-1.2.3.js"></script>
@@ -56,10 +51,10 @@
       <script src="/loris/js/jquery.slider.js"></script>
       <script src="/loris/js/braincanvas.loris_ui_controls.js"></script>
     {{/ifenv}}
-    {{#if fmri}}
-      <script src="/js/fmri-viewer.js"></script> 
-    {{else}}
-      <script src="/js/volume-viewer.js"></script> 
-    {{/if}}  
   {{/ifenv}}
+  {{#if fmri}}
+    <script src="/js/fmri-viewer.js"></script> 
+  {{else}}
+    <script src="/js/volume-viewer-demo.js"></script> 
+  {{/if}}  
 </body>      

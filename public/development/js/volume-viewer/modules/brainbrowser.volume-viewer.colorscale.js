@@ -7,9 +7,9 @@
 (function() {
   "use strict";
   
-  BrainCanvas.ColorScale = function(data) {
-    if(!(this instanceof BrainCanvas.ColorScale)){
-      return new BrainCanvas.ColorScale(data);
+  var ColorScale = BrainBrowser.VolumeViewer.ColorScale = function(data) {
+    if(!(this instanceof ColorScale)){
+      return new ColorScale(data);
     }
     var that = this;
 
@@ -89,7 +89,7 @@
   /**
    * Returns a html canvas element of the color bar from the colors
    */
-  BrainCanvas.ColorScale.prototype.createColorScaleCanvas = function()  {
+  ColorScale.prototype.createColorScaleCanvas = function()  {
     var canvas = createCanvas(this,20,20,false);
     return canvas;
   };
@@ -103,7 +103,7 @@
    * @param {Number} max maximum value of scale
    * @param {Boolean} flip flip the colors to show flipped scale
    */
-  BrainCanvas.ColorScale.prototype.createColorScaleCanvasWithScale = function(min,max,flip) {
+  ColorScale.prototype.createColorScaleCanvasWithScale = function(min,max,flip) {
     var canvas = createCanvas(this,20,40,flip);
     var context = canvas.getContext("2d");
 
@@ -135,7 +135,7 @@
 
 
 
-  BrainCanvas.ColorScale.prototype.colorizeArray = function(data, min, max, convert, brightness, contrast, alpha, dest){
+  ColorScale.prototype.colorizeArray = function(data, min, max, convert, brightness, contrast, alpha, dest){
     //dest can be a pixel array or just null and a new one will be created
     if(!dest) {
       dest = [];

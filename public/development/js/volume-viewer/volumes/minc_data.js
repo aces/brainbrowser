@@ -29,7 +29,7 @@
  * Author: Nicolas Kassis <nic.kassis@gmail.com>
  */
 
-BrainCanvas.mincData = (function() {
+BrainBrowser.VolumeViewer.mincData = (function() {
   "use strict";
 
   /*

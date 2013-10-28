@@ -20,15 +20,15 @@ $(function() {
   
   var loading_div = $("#loading");
   
-  BrainCanvas.addEventListener("ready", function() {
+  BrainBrowser.VolumeViewer.addEventListener("ready", function() {
     loading_div.hide();
-    $("#braincanvas-container").slideDown({duration: 600});
+    $("#brainbrowser").slideDown({duration: 600});
     $(".button").button();
   });
   
   loading_div.show();
   
-  BrainCanvas.viewer("braincanvas-container",
+  BrainBrowser.VolumeViewer.start("brainbrowser",
     {
       volumes: [
         {

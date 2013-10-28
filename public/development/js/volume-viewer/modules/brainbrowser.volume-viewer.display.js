@@ -28,7 +28,7 @@
 (function() {
   "use strict";
     
-  BrainCanvas.display = function(options) {
+  BrainBrowser.VolumeViewer.display = function(options) {
     options = options || {};
 
     var defaults = {

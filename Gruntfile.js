@@ -27,17 +27,9 @@ module.exports = function(grunt) {
       },
       volume: {
         src: [
-          "<%= dev_js %>/volume-viewer.js",
-          "<%= dev_js %>/braincanvas/**/*.js"
+          "<%= dev_js %>/volume-viewer/**/*.js"
         ],
-        dest: "tmp/volume-viewer-combined.js"
-      },
-      fmri: {
-        src: [
-          "<%= dev_js %>/fmri-viewer.js",
-          "<%= dev_js %>/braincanvas/**/*.js"
-        ],
-        dest: "tmp/fmri-viewer-combined.js"
+        dest: "tmp/brainbrowser.volume-viewer.js"
       }
     },
     uglify: {
@@ -52,7 +44,7 @@ module.exports = function(grunt) {
       },
       surface_demo: {
         files: {
-          "<%= prod_js %>/surface-viewer.js": "<%= dev_js %>/surface-viewer.js",
+          "<%= prod_js %>/surface-viewer-demo.js": "<%= dev_js %>/surface-viewer-demo.js",
         }
       },
       macacc: {
@@ -62,12 +54,17 @@ module.exports = function(grunt) {
       },
       volume: {
         files: {
-          "<%= prod_js %>/volume-viewer-combined.min.js": ["<%= concat.volume.dest %>"]
+          "build/brainbrowser.volume-viewer-<%= pkg.version %>.min.js": ["<%= concat.volume.dest %>"]
+        }
+      },
+      volume_demo: {
+        files: {
+          "<%= prod_js %>/volume-viewer-demo.js": "<%= dev_js %>/volume-viewer-demo.js"
         }
       },
       fmri: {
         files: {
-          "<%= prod_js %>/fmri-viewer-combined.min.js": ["<%= concat.fmri.dest %>"]
+          "<%= prod_js %>/fmri-viewer.js": "<%= dev_js %>/fmri-viewer.js"
         }
       },
       libs : {
@@ -129,7 +126,9 @@ module.exports = function(grunt) {
           "<%= concat.surface.src %>",
           "<%= dev_js %>/surface-viewer.js",
           "<%= dev_js %>/macacc/macacc.js",
-          "<%= dev_js %>/macacc-viewer.js"
+          "<%= dev_js %>/macacc-viewer.js",
+          "<%= concat.volume.src %>",
+          "<%= dev_js %>/fmri-viewer.js"
         ]
       },
       workers: {
@@ -137,17 +136,6 @@ module.exports = function(grunt) {
           worker: true
         },
         src: ["<%= dev_js %>/workers/*.js"]
-      },
-      braincanvas: {
-        options: {
-          browser: true,
-          jquery: true,
-          globals: {
-            BrainCanvas: true,
-            oFactory: true
-          }
-        },
-        src: ["<%= concat.volume.src %>", "<%= dev_js %>/fmri-viewer.js"]
       },
       loris: {
         options: {
@@ -160,10 +148,23 @@ module.exports = function(grunt) {
         src: ["public/development/loris/js/braincanvas.loris_ui_controls.js"]
       }
     },
+    clean: {
+      build :[
+        "<%= prod_js %>/brainbrowser.surface-viewer.min.js",
+        "<%= prod_js %>/brainbrowser.volume-viewer.min.js",
+        "build/brainbrowser.surface-viewer-*.min.js",
+        "build/brainbrowser.volume-viewer-*.min.js"
+      ],
+      tmp: "tmp/*.js"
+    },
     symlink: {
       explicit: {
+        options: {
+          overwrite: true
+        },
         files: {
-          "<%= prod_js %>/brainbrowser.surface-viewer.min.js": "build/brainbrowser.surface-viewer-<%= pkg.version %>.min.js"
+          "<%= prod_js %>/brainbrowser.surface-viewer.min.js": "build/brainbrowser.surface-viewer-<%= pkg.version %>.min.js",
+          "<%= prod_js %>/brainbrowser.volume-viewer.min.js": "build/brainbrowser.volume-viewer-<%= pkg.version %>.min.js"
         }
       }
     },
@@ -180,10 +181,6 @@ module.exports = function(grunt) {
         files: ["<%= jshint.workers.src %>"],
         tasks: ["jshint:workers"]
       },
-      braincanvas : {
-        files: ["<%= jshint.braincanvas.src %>"],
-        tasks: ["jshint:braincanvas"]
-      },
       loris : {
         files: ["<%= jshint.loris.src %>"],
         tasks: ["jshint:loris"]
@@ -196,13 +193,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-watch");
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-symlink');
+  grunt.loadNpmTasks('grunt-contrib-clean');
 
-  grunt.registerTask("compile", ["concat", "uglify", "symlink"]);
+  grunt.registerTask("compile", ["clean", "concat", "uglify", "symlink"]);
 
   grunt.registerTask("default", [
     "jshint",
-    "concat",
-    "uglify",
-    "symlink"
+    "compile"
   ]);
 };

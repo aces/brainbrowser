@@ -33,33 +33,35 @@
 (function() {
   "use strict";
   
-  var BrainCanvas = window.BrainCanvas = {};
+  var BrainBrowser = window.BrainBrowser = window.BrainBrowser || {};
 
-  BrainCanvas.volumeType = {};
-  BrainCanvas.colorScales = [];
-  BrainCanvas.event_listeners = {};
+  var VolumeViewer = BrainBrowser.VolumeViewer = {};
+
+  VolumeViewer.volumeType = {};
+  VolumeViewer.colorScales = [];
+  VolumeViewer.event_listeners = {};
   
-  BrainCanvas.addEventListener = function(e, fn) {
-    if (!BrainCanvas.event_listeners[e]) {
-      BrainCanvas.event_listeners[e] = [];
+  VolumeViewer.addEventListener = function(e, fn) {
+    if (!VolumeViewer.event_listeners[e]) {
+      VolumeViewer.event_listeners[e] = [];
     }
     
-    BrainCanvas.event_listeners[e].push(fn);
+    VolumeViewer.event_listeners[e].push(fn);
   };
   
-  BrainCanvas.triggerEvent = function(e) {
-    if (BrainCanvas.event_listeners[e]) {
-      BrainCanvas.event_listeners[e].forEach(function(fn) {
+  VolumeViewer.triggerEvent = function(e) {
+    if (VolumeViewer.event_listeners[e]) {
+      VolumeViewer.event_listeners[e].forEach(function(fn) {
         fn();
       });
     }
   };
   
-  BrainCanvas.viewer = function(containerID, opts) {
+  VolumeViewer.start = function(containerID, opts) {
     var viewer = {};
     var volumes = [];
     var container;
-    var braincanvas_element;
+    var viewer_element;
     var sliceHeight;
     var sliceWidth;
     var numVolumes;
@@ -80,7 +82,7 @@
      * @param {Object} Volume description of the volume to load
      */
     function openVolume(volume, callback){
-      var loader = BrainCanvas.volumeType[volume.type];
+      var loader = VolumeViewer.volumeType[volume.type];
       if(loader){
         loader(volume, callback);
       } else {
@@ -102,13 +104,13 @@
       opts = opts || {};
       
       container = document.getElementById(containerID);
-      braincanvas_element = document.createElement("div");
-      braincanvas_element.id = "braincanvas";
+      viewer_element = document.createElement("div");
+      viewer_element.id = "volume-viewer";
       
       var volume_descriptions = opts.volumes;
       var num_descriptions = opts.volumes.length;
     
-      BrainCanvas.loader.loadColorScaleFromUrl(
+      VolumeViewer.loader.loadColorScaleFromUrl(
         '/color_scales/spectral.txt',
         'Spectral',
         function(scale) {
@@ -117,7 +119,7 @@
           
           scale.cross_hair_color = "#FFFFFF";
           viewer.defaultScale = scale;
-          BrainCanvas.colorScales[0] = scale;
+          VolumeViewer.colorScales[0] = scale;
           
           function loadVolume(i) {
             openVolume(volume_descriptions[i], function(volume) {
@@ -149,37 +151,37 @@
         }
       );
       
-      BrainCanvas.loader.loadColorScaleFromUrl(
+      VolumeViewer.loader.loadColorScaleFromUrl(
         '/color_scales/thermal.txt',
         'Thermal',
         function(scale) {
           scale.cross_hair_color = "#FFFFFF";
-          BrainCanvas.colorScales[1] = scale;
+          VolumeViewer.colorScales[1] = scale;
         }
       );
       
-      BrainCanvas.loader.loadColorScaleFromUrl(
+      VolumeViewer.loader.loadColorScaleFromUrl(
         '/color_scales/gray_scale.txt',
         'Gray',
         function(scale){
-          BrainCanvas.colorScales[2] = scale;
+          VolumeViewer.colorScales[2] = scale;
         }
       );
       
-      BrainCanvas.loader.loadColorScaleFromUrl(
+      VolumeViewer.loader.loadColorScaleFromUrl(
         '/color_scales/blue.txt',
         'Blue',
         function(scale){
           scale.cross_hair_color = "#FFFFFF";
-          BrainCanvas.colorScales[3] = scale;
+          VolumeViewer.colorScales[3] = scale;
         }
       );
       
-      BrainCanvas.loader.loadColorScaleFromUrl(
+      VolumeViewer.loader.loadColorScaleFromUrl(
         '/color_scales/green.txt',
         'Green',
         function(scale){
-          BrainCanvas.colorScales[4] = scale;
+          VolumeViewer.colorScales[4] = scale;
         }
       );
     }
@@ -198,17 +200,17 @@
       sliceWidth = 300;
       sliceHeight = 300;
       
-      if (BrainCanvas.globalUIControls) {
-        if (BrainCanvas.volumeUIControls.defer_until_page_load) {
-          BrainCanvas.addEventListener("ready", function() {
-            BrainCanvas.globalUIControls(braincanvas_element, viewer);
+      if (VolumeViewer.globalUIControls) {
+        if (VolumeViewer.volumeUIControls.defer_until_page_load) {
+          VolumeViewer.addEventListener("ready", function() {
+            VolumeViewer.globalUIControls(viewer_element, viewer);
           });
         } else {
-          BrainCanvas.globalUIControls(braincanvas_element, viewer);
+          VolumeViewer.globalUIControls(viewer_element, viewer);
         }
       }
       
-      BrainCanvas.setupUI(viewer);
+      VolumeViewer.setupUI(viewer);
       for(i = 0; i < numVolumes; i++) {
 
         div = document.createElement("div");
@@ -216,8 +218,8 @@
         slices = [];
         
         div.classList.add("volume-container");
-        braincanvas_element.appendChild(div);
-        viewer.displays.push(BrainCanvas.addCanvasUI(div, viewer, volumes[i], i));
+        viewer_element.appendChild(div);
+        viewer.displays.push(VolumeViewer.addCanvasUI(div, viewer, volumes[i], i));
         cachedSlices[i] = [];
         
         volume.position.xspace = parseInt(volume.header.xspace.space_length/2, 10);
@@ -236,9 +238,9 @@
         viewer.updateVolume(i, slices);
       }
       
-      container.appendChild(braincanvas_element);
-      BrainCanvas.triggerEvent("ready");
-      BrainCanvas.triggerEvent("sliceupdate");
+      container.appendChild(viewer_element);
+      VolumeViewer.triggerEvent("ready");
+      VolumeViewer.triggerEvent("sliceupdate");
       
       viewer.draw();
     };
@@ -295,7 +297,7 @@
       slice.max = volume.max;
       viewer.updateSlice(volID, slice.axis_number, slice);
           
-      BrainCanvas.triggerEvent("sliceupdate");
+      VolumeViewer.triggerEvent("sliceupdate");
 
       viewer.draw();
     };

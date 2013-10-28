@@ -2,12 +2,12 @@ body {
   background-color: #888888;
 }
 
-#braincanvas-container {
+#brainbrowser {
   width: 60em;
   margin: 50px auto;
 }
 
-#braincanvas {
+#volume-viewer {
   display: inline-block;
   background-color: #FFFFFF;
   padding: 0.5em;
@@ -22,7 +22,7 @@ body {
   background-color: #000000;
 }
 
-.braincanvas-controls {
+.volume-viewer-controls {
   font-size: 12px;
   padding: 10px;
   margin: 3px 5px;
@@ -31,7 +31,7 @@ body {
   color: #F0F0F0;
 }
 
-.braincanvas-controls > div {
+.volume-viewer-controls > div {
   margin-bottom: 10px;
 }
 
@@ -74,7 +74,7 @@ body {
   font-size: 10px;
 }
 
-.braincanvas-threshold, .braincanvas-blend {
+.volume-viewer-threshold, .volume-viewer-blend {
   width: 80%;
   margin: auto;
 }

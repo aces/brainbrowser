@@ -42,7 +42,7 @@
   var BrainBrowser = window.BrainBrowser = window.BrainBrowser || {};
   
   var SurfaceViewer = BrainBrowser.SurfaceViewer = {
-    start: function(callback) {
+    start: function(element_id, callback) {
 
       /////////////////////////////////
       // Browser compatibility checks.
@@ -63,7 +63,7 @@
       var module;
       
       // Properties that will be used by other modules.
-      surface_viewer.view_window = document.getElementById("brainbrowser"); // Div where the canvas will be loaded.
+      surface_viewer.view_window = document.getElementById(element_id); // Div where the canvas will be loaded.
       surface_viewer.model = undefined;  // The currently loaded model. Should be set by rendering.
       
       //////////////////////////////

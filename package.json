@@ -1,6 +1,6 @@
 {
   "name": "brainbrowser",
-  "version": "1.2.0",
+  "version": "0.8.0",
   "private": true,
   "scripts": {
     "start": "node brainbrowser.js"
@@ -15,6 +15,7 @@
     "grunt-contrib-uglify": "~0.2.4",
     "grunt-contrib-concat": "~0.3.0",
     "grunt-contrib-watch": "~0.5.3",
-    "grunt-contrib-symlink": "~0.2.0"
+    "grunt-contrib-symlink": "~0.2.0",
+    "grunt-contrib-clean": "~0.5.0"
   }
 }

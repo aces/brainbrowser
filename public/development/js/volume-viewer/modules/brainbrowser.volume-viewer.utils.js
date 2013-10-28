@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-BrainCanvas.utils = (function() {
+BrainBrowser.VolumeViewer.utils = (function() {
   "use strict";
   
   function flipImage(src, width, height, flipx, flipy, block_size) {

@@ -28,12 +28,14 @@
 (function() {
   "use strict";
     
+  var VolumeViewer = BrainBrowser.VolumeViewer;
+
   /**
   * Async load ArrayBuffer using XHR2
   * @param {String} url
   * @param {Function} callback
   */
-  BrainCanvas.loader = {
+  VolumeViewer.loader = {
     loadArrayBuffer: function(url, callback) {
       var request = new XMLHttpRequest();
       request.open('GET', url ,true);
@@ -74,16 +76,16 @@
     },
     
     loadColorScaleFromFile: function(fileInput, name, callback) {
-      BrainCanvas.loader.loadFromTextFile(fileInput, function(string) {
-        var colorScale = new BrainCanvas.ColorScale(string);
+      VolumeViewer.loader.loadFromTextFile(fileInput, function(string) {
+        var colorScale = new VolumeViewer.ColorScale(string);
         colorScale.name = name;
         callback(colorScale);
       });
     },
 
     loadColorScaleFromUrl: function(url, name, callback) {
-      BrainCanvas.loader.loadFromUrl(url, function(string) {
-        var colorScale = new BrainCanvas.ColorScale(string);
+      VolumeViewer.loader.loadFromUrl(url, function(string) {
+        var colorScale = new VolumeViewer.ColorScale(string);
         colorScale.name = name;
         callback(colorScale);
       });

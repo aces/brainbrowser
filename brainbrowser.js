@@ -130,7 +130,7 @@ if (cluster.isMaster) {
   
   hbs.registerPartials(__dirname + '/views/partials');
   
-  hbs.registerHelper("ifenv", function(env, val, options) {
+  hbs.registerHelper("ifenv", function(val, options) {
     if (app.get("env") === val) {
       return options.fn(this);
     } else {

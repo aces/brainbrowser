@@ -43,6 +43,8 @@
 (function() {
   "use strict";
      
+  var VolumeViewer = BrainBrowser.VolumeViewer;
+
   /**
    * Fetch the parameters of the minc file. sends a request to http://filename/?minc_headers=true or whatever getHeadersParams says
    * @param {String} filename url/filename of the file to load minc headers
@@ -79,7 +81,7 @@
     filename += filename.match(/\?/) ? "&" : "?";
     filename += getRawDataParam;
     
-    BrainCanvas.loader.loadArrayBuffer(filename, function(data) {
+    VolumeViewer.loader.loadArrayBuffer(filename, function(data) {
       callback(data);
     });
     
@@ -89,7 +91,7 @@
   var minc_volume_proto = {
     slice: function(axis, number, time) {
       var slice = this.data.slice(axis, number, time);
-      slice.colorScale = this.colorScale || BrainCanvas.colorScales[0];
+      slice.colorScale = this.colorScale || VolumeViewer.colorScales[0];
       slice.min   = this.min;
       slice.max   = this.max;
       slice.axis = axis;
@@ -104,7 +106,7 @@
   
         var xstep = this.x.step;
         var ystep = this.y.step;
-        return BrainCanvas.utils.nearestNeighboor(imageData, Math.floor(this.width * xstep * zoom), Math.floor(this.height * ystep * zoom));
+        return VolumeViewer.utils.nearestNeighboor(imageData, Math.floor(this.width * xstep * zoom), Math.floor(this.height * ystep * zoom));
       };
       
       return slice;
@@ -138,7 +140,7 @@
     }
   };
 
-  BrainCanvas.volumeType.minc = function(opt, callback) {
+  VolumeViewer.volumeType.minc = function(opt, callback) {
     var volume = Object.create(minc_volume_proto);
       //What get parameter will be used in request to server
     var getRawDataParam = opt.getRawDataParam || "raw_data=true";
@@ -150,7 +152,7 @@
     getHeaders(opt.filename,getHeaderParam, function(headers) {
       getData(opt.filename,getRawDataParam, function(arrayBuffer){
         data =  new Uint8Array(arrayBuffer);
-        volume.data = BrainCanvas.mincData(opt.filename, headers, data);
+        volume.data = VolumeViewer.mincData(opt.filename, headers, data);
         volume.header = volume.data.header;
         volume.min = 0;
         volume.max = 255;

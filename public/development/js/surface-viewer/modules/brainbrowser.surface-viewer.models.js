@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
  
-BrainBrowser.SurfaceViewer.core.models = function(sv) {
+BrainBrowser.SurfaceViewer.core.models = function(viewer) {
   "use strict";
     
   //////////////////////////////
@@ -29,7 +29,7 @@ BrainBrowser.SurfaceViewer.core.models = function(sv) {
   //
   // @param {Object} obj object representing the model to be displayed
   // @param {String} filename name of the original file
-  sv.displayObjectFile = function(obj, filename, opts) {
+  viewer.displayObjectFile = function(obj, filename, opts) {
     var options = opts || {};
     var renderDepth = options.renderDepth;
     var afterDisplay = options.afterDisplay;
@@ -43,8 +43,8 @@ BrainBrowser.SurfaceViewer.core.models = function(sv) {
     } else {
       alert("Object file not supported");
     }
-    if(sv.afterDisplayObject) {
-      sv.afterDisplayObject(sv.model);
+    if(viewer.afterDisplayObject) {
+      viewer.afterDisplayObject(viewer.model);
     }
     
     if (afterDisplay) afterDisplay();
@@ -57,10 +57,10 @@ BrainBrowser.SurfaceViewer.core.models = function(sv) {
   
   // Add a brain model to the scene.
   function addBrain(obj) {
-    var model = sv.model;
+    var model = viewer.model;
     var left, right;
     
-    sv.model_data = obj;
+    viewer.model_data = obj;
     left = createHemisphere(obj.left);
     left.name = "left";
     left.model_num = 0;
@@ -117,7 +117,7 @@ BrainBrowser.SurfaceViewer.core.models = function(sv) {
 
   //Add a line model to the scene.
   function addLineObject(obj, filename, mesh, renderDepth) {
-    var model = sv.model;
+    var model = viewer.model;
     var lineObject = createLineObject(obj, mesh);
     lineObject.name = filename;
     if (renderDepth) {
@@ -145,7 +145,7 @@ BrainBrowser.SurfaceViewer.core.models = function(sv) {
     var geometry, material, lineObject;
     var posArray;
     
-    sv.model_data = model_data;
+    viewer.model_data = model_data;
 
     for (i = 0; i < nitems; i++){
       if (i === 0){
@@ -163,7 +163,7 @@ BrainBrowser.SurfaceViewer.core.models = function(sv) {
       indices.push(indexArray[endIndex-1]);
     }
     
-    posArray = sv.model_data.positionArray;
+    posArray = viewer.model_data.positionArray;
   
     //Calculate center so positions of objects relative to each other can be determined.
     //Mainly for transparency.
@@ -189,7 +189,7 @@ BrainBrowser.SurfaceViewer.core.models = function(sv) {
           colorArray.push(0.5, 0.5, 0.7, 1);
         }
       } else {
-        colorArray = sv.model_data.colorArray;
+        colorArray = viewer.model_data.colorArray;
         
         for(j = 0, count = indices.length; j < count; j++) {
           col = new THREE.Color();
@@ -199,8 +199,8 @@ BrainBrowser.SurfaceViewer.core.models = function(sv) {
       }
       
     } else {
-      verts = sv.model_data.meshPositionArray;
-      colors = sv.model_data.meshColorArray;
+      verts = viewer.model_data.meshPositionArray;
+      colors = viewer.model_data.meshColorArray;
     }
 
     
@@ -220,27 +220,27 @@ BrainBrowser.SurfaceViewer.core.models = function(sv) {
   
   // Add a polygon object to the scene.
   function addPolygonObject(obj, filename){
-    var model = sv.model;
+    var model = viewer.model;
     var shape;
     var i, count;
     var model_data = obj;
     var shapes = model_data.shapes;
     
-    sv.model_data = model_data;
+    viewer.model_data = model_data;
     if (shapes){
       for (i = 0, count = shapes.length; i < count; i++){
-        shape = createPolygonShape(sv.model_data.shapes[i]);
-        shape.name = sv.model_data.shapes[i].name || (filename.split(".")[0] + "_" + i);
+        shape = createPolygonShape(viewer.model_data.shapes[i]);
+        shape.name = viewer.model_data.shapes[i].name || (filename.split(".")[0] + "_" + i);
         model.add(shape);
       }
     }else {
-      shape = createPolygonShape(sv.model_data);
+      shape = createPolygonShape(viewer.model_data);
       shape.name = filename;
       model.add(shape);
     }
 
-    if(sv.afterCreate) {
-      sv.afterCreate(sv.model_data);
+    if(viewer.afterCreate) {
+      viewer.afterCreate(viewer.model_data);
     }
   }
   

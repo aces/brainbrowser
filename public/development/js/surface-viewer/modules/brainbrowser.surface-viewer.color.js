@@ -17,7 +17,7 @@
 
 
 // Module for updating colours on models currently being displayed.
-BrainBrowser.SurfaceViewer.core.color = function(sv) {
+BrainBrowser.SurfaceViewer.core.color = function(viewer) {
   "use strict";
   
   var SurfaceViewer = BrainBrowser.SurfaceViewer;
@@ -34,7 +34,7 @@ BrainBrowser.SurfaceViewer.core.color = function(sv) {
 
   // This updates the colors of the model. Will delegate to color_hemispheres() or color_model()
   // depending on the type of model.
-  sv.updateColors = function(data, options) {
+  viewer.updateColors = function(data, options) {
     options = options || {};
     var min = options.min;
     var max = options.max;
@@ -46,19 +46,19 @@ BrainBrowser.SurfaceViewer.core.color = function(sv) {
 
     function applyColorArray(color_array) {
       var shapes;
-      if(sv.model_data.num_hemispheres === 2) {
+      if(viewer.model_data.num_hemispheres === 2) {
         color_hemispheres(color_array);
       } else {
         if (data.apply_to_shape) {
-          shapes = [sv.model.getChildByName(data.apply_to_shape, true)];
+          shapes = [viewer.model.getChildByName(data.apply_to_shape, true)];
         } else {
-          shapes = sv.model.children;
+          shapes = viewer.model.children;
         }
         color_model(color_array, shapes);
       }
 
-      if (sv.afterUpdateColors) {
-        sv.afterUpdateColors(data, min, max, spectrum);
+      if (viewer.afterUpdateColors) {
+        viewer.afterUpdateColors(data, min, max, spectrum);
       }
 
       if (afterUpdate) {
@@ -66,11 +66,11 @@ BrainBrowser.SurfaceViewer.core.color = function(sv) {
       }
     }
 
-    sv.clamped = clamped;
+    viewer.clamped = clamped;
     if (blend) {
       applyColorArray(colorManager.blendColorMap(spectrum, data, 0, 1));
     } else {
-      data.createColorArray(min, max, spectrum, flip, clamped, sv.model_data.colorArray, sv.model_data, applyColorArray);
+      data.createColorArray(min, max, spectrum, flip, clamped, viewer.model_data.colorArray, viewer.model_data, applyColorArray);
     }
   };
 
@@ -80,7 +80,7 @@ BrainBrowser.SurfaceViewer.core.color = function(sv) {
 
   //Coloring for brain models with two separate hemispheres.
   function color_hemispheres(color_array) {
-    var model = sv.model;
+    var model = viewer.model;
     var color_array_length = color_array.length;
     var left_color_array;
     var right_color_array;

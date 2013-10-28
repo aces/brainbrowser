@@ -112,7 +112,7 @@
     if (VolumeViewer.volumeUIControls) {
       var controls  = $("<div class=\"volume-viewer-controls volume-controls\"></div>");
       if (VolumeViewer.volumeUIControls.defer_until_page_load) {
-        VolumeViewer.addEventListener("ready", function() {
+        viewer.addEventListener("ready", function() {
           div.append(controls);
           VolumeViewer.volumeUIControls(controls, viewer, volume, volID);
         });
@@ -351,7 +351,7 @@
         viewer.redrawVolumes();
       });
       
-      VolumeViewer.addEventListener("sliceupdate", function() {
+      viewer.addEventListener("sliceupdate", function() {
         var world_coords = volume.getWorldCoords();
         var voxel_coords = volume.getVoxelCoords();
         world_coords_div.find("#world-x").val(world_coords.x);

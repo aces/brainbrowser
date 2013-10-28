@@ -39,25 +39,8 @@
 
   VolumeViewer.volumeType = {};
   VolumeViewer.colorScales = [];
-  VolumeViewer.event_listeners = {};
   
-  VolumeViewer.addEventListener = function(e, fn) {
-    if (!VolumeViewer.event_listeners[e]) {
-      VolumeViewer.event_listeners[e] = [];
-    }
-    
-    VolumeViewer.event_listeners[e].push(fn);
-  };
-  
-  VolumeViewer.triggerEvent = function(e) {
-    if (VolumeViewer.event_listeners[e]) {
-      VolumeViewer.event_listeners[e].forEach(function(fn) {
-        fn();
-      });
-    }
-  };
-  
-  VolumeViewer.start = function(containerID, opts) {
+  VolumeViewer.start = function(containerID, callback) {
     var viewer = {};
     var volumes = [];
     var container;
@@ -76,6 +59,8 @@
     viewer.displays = [];
     viewer.synced = false;
     viewer.default_zoom_level = 1;
+    viewer.event_listeners = {};
+
   
      /**
      * Open volume using appropriate volume loader
@@ -90,17 +75,90 @@
       }
     }
   
+    /*
+     * Initialize the viewer with first slices
+     */
+    function startViewer() {
+      var i;
+      var div;
+      var volume;
+      var slices;
+      var k;
+      
+      numVolumes = volumes.length;
+      sliceWidth = 300;
+      sliceHeight = 300;
+      
+      if (VolumeViewer.globalUIControls) {
+        if (VolumeViewer.volumeUIControls.defer_until_page_load) {
+          viewer.addEventListener("ready", function() {
+            VolumeViewer.globalUIControls(viewer_element, viewer);
+          });
+        } else {
+          VolumeViewer.globalUIControls(viewer_element, viewer);
+        }
+      }
+      
+      VolumeViewer.setupUI(viewer);
+      for(i = 0; i < numVolumes; i++) {
+
+        div = document.createElement("div");
+        volume = volumes[i];
+        slices = [];
+        
+        div.classList.add("volume-container");
+        viewer_element.appendChild(div);
+        viewer.displays.push(VolumeViewer.addCanvasUI(div, viewer, volumes[i], i));
+        cachedSlices[i] = [];
+        
+        volume.position.xspace = parseInt(volume.header.xspace.space_length/2, 10);
+        volume.position.yspace = parseInt(volume.header.yspace.space_length/2, 10);
+        volume.position.zspace = parseInt(volume.header.zspace.space_length/2, 10);
   
+        slices.push(volume.slice('xspace', volume.position.xspace));
+        slices.push(volume.slice('yspace', volume.position.yspace));
+        slices.push(volume.slice('zspace', volume.position.zspace));
+        for ( k = 0; k < 3; k++ ) {
+          slices[k].volID = i;
+          slices[k].axis_number = k;
+          slices[k].min = volume.min;
+          slices[k].max = volume.max;
+        }
+        viewer.updateVolume(i, slices);
+      }
+      
+      container.appendChild(viewer_element);
+      viewer.triggerEvent("ready");
+      viewer.triggerEvent("sliceupdate");
+      
+      viewer.draw();
+    }
+
+    viewer.addEventListener = function(e, fn) {
+      if (!viewer.event_listeners[e]) {
+        viewer.event_listeners[e] = [];
+      }
+      
+      viewer.event_listeners[e].push(fn);
+    };
+    
+    viewer.triggerEvent = function(e) {
+      if (viewer.event_listeners[e]) {
+        viewer.event_listeners[e].forEach(function(fn) {
+          fn();
+        });
+      }
+    };
+
     /**
-     * Initialize viewer instance
+     * Initial load of volumes
      * @param container Id of the element to contain the viewer
      * @param{Object} Options options
      *
      * Options:
      *   multi: used to view multiple volumes at a time (default: false)
-     *   horizontal: should the volume be displayer horizontally (default: false)
      */
-    function init(containerID, opts) {
+    viewer.loadVolumes = function(opts) {
       opts = opts || {};
       
       container = document.getElementById(containerID);
@@ -184,65 +242,6 @@
           VolumeViewer.colorScales[4] = scale;
         }
       );
-    }
-  
-    /*
-     * Initialize the viewer with first slices
-     */
-    var startViewer = function() {
-      var i;
-      var div;
-      var volume;
-      var slices;
-      var k;
-      
-      numVolumes = volumes.length;
-      sliceWidth = 300;
-      sliceHeight = 300;
-      
-      if (VolumeViewer.globalUIControls) {
-        if (VolumeViewer.volumeUIControls.defer_until_page_load) {
-          VolumeViewer.addEventListener("ready", function() {
-            VolumeViewer.globalUIControls(viewer_element, viewer);
-          });
-        } else {
-          VolumeViewer.globalUIControls(viewer_element, viewer);
-        }
-      }
-      
-      VolumeViewer.setupUI(viewer);
-      for(i = 0; i < numVolumes; i++) {
-
-        div = document.createElement("div");
-        volume = volumes[i];
-        slices = [];
-        
-        div.classList.add("volume-container");
-        viewer_element.appendChild(div);
-        viewer.displays.push(VolumeViewer.addCanvasUI(div, viewer, volumes[i], i));
-        cachedSlices[i] = [];
-        
-        volume.position.xspace = parseInt(volume.header.xspace.space_length/2, 10);
-        volume.position.yspace = parseInt(volume.header.yspace.space_length/2, 10);
-        volume.position.zspace = parseInt(volume.header.zspace.space_length/2, 10);
-  
-        slices.push(volume.slice('xspace', volume.position.xspace));
-        slices.push(volume.slice('yspace', volume.position.yspace));
-        slices.push(volume.slice('zspace', volume.position.zspace));
-        for ( k = 0; k < 3; k++ ) {
-          slices[k].volID = i;
-          slices[k].axis_number = k;
-          slices[k].min = volume.min;
-          slices[k].max = volume.max;
-        }
-        viewer.updateVolume(i, slices);
-      }
-      
-      container.appendChild(viewer_element);
-      VolumeViewer.triggerEvent("ready");
-      VolumeViewer.triggerEvent("sliceupdate");
-      
-      viewer.draw();
     };
     
     viewer.updateVolume = function(volumeNum, slices) {
@@ -297,7 +296,7 @@
       slice.max = volume.max;
       viewer.updateSlice(volID, slice.axis_number, slice);
           
-      VolumeViewer.triggerEvent("sliceupdate");
+      viewer.triggerEvent("sliceupdate");
 
       viewer.draw();
     };
@@ -391,8 +390,8 @@
       viewer.renderSlice(volID, slice.heightSpace.name, y);
   
     };
-  
-    init(containerID, opts);
+
+    callback(viewer);
   };
 })();
 

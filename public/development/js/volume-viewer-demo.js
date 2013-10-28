@@ -18,18 +18,18 @@
 $(function() {
   "use strict";
   
-  var loading_div = $("#loading");
+  BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
+    var loading_div = $("#loading");
   
-  BrainBrowser.VolumeViewer.addEventListener("ready", function() {
-    loading_div.hide();
-    $("#brainbrowser").slideDown({duration: 600});
-    $(".button").button();
-  });
-  
-  loading_div.show();
-  
-  BrainBrowser.VolumeViewer.start("brainbrowser",
-    {
+    viewer.addEventListener("ready", function() {
+      loading_div.hide();
+      $("#brainbrowser").slideDown({duration: 600});
+      $(".button").button();
+    });
+    
+    loading_div.show();
+
+    viewer.loadVolumes({
       volumes: [
         {
           type: 'minc',
@@ -41,8 +41,8 @@ $(function() {
         }
       ],
       overlay: true
-    }
-  );
+    });
+  });
 
 });
 

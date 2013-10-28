@@ -18,7 +18,7 @@
 
 // BrainBrowser module for loading data from the server or from a
 // file.
-BrainBrowser.SurfaceViewer.modules.loader = function(sv) {
+BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
   "use strict";
   
   var SurfaceViewer = BrainBrowser.SurfaceViewer;
@@ -28,7 +28,7 @@ BrainBrowser.SurfaceViewer.modules.loader = function(sv) {
   ////////////////////////////////////
   
   // Load a model from the given url.
-  sv.loadModelFromUrl = function(url, options) {
+  viewer.loadModelFromUrl = function(url, options) {
     options = options || {};
     var parts;
     var filename;
@@ -41,7 +41,7 @@ BrainBrowser.SurfaceViewer.modules.loader = function(sv) {
       SurfaceViewer.filetypes.parse(filetype, data, function(obj) {
         if (obj.objectClass !== "__FAIL__") {
           // Display model to the canvas after parsing.
-          if (!cancelLoad(options)) sv.displayObjectFile(obj, filename, options);
+          if (!cancelLoad(options)) viewer.displayObjectFile(obj, filename, options);
         } else if (options.onError !== undefined) {
           options.onError();
         }
@@ -50,7 +50,7 @@ BrainBrowser.SurfaceViewer.modules.loader = function(sv) {
   };
 
   //Load model from local file.
-  sv.loadModelFromFile = function(file_input, options) {
+  viewer.loadModelFromFile = function(file_input, options) {
     options = options || {};
     var parts;
     var filename;
@@ -64,7 +64,7 @@ BrainBrowser.SurfaceViewer.modules.loader = function(sv) {
       SurfaceViewer.filetypes.parse(filetype, data, function(obj) {
         if (obj.objectClass !== "__FAIL__") {
           // Display model to the canvas after parsing.
-          sv.displayObjectFile(obj, filename, options);
+          viewer.displayObjectFile(obj, filename, options);
         } else if (options.onError) {
           options.onError();
         }
@@ -74,7 +74,7 @@ BrainBrowser.SurfaceViewer.modules.loader = function(sv) {
   };
   
   // Load a colour map from the server.
-  sv.loadDataFromUrl = function(file_input, name, options) {
+  viewer.loadDataFromUrl = function(file_input, name, options) {
     options = options || {};
     
     loadFromUrl(file_input, options, function(text) {
@@ -84,21 +84,21 @@ BrainBrowser.SurfaceViewer.modules.loader = function(sv) {
         var max = options.max === undefined ? data.max : options.max;
         var min = options.min === undefined ? data.min : options.min;
         
-        sv.model_data.data = data;
+        viewer.model_data.data = data;
         data.fileName = name;
         data.apply_to_shape = options.shape;
         initRange(min, max);
         
-        if (sv.afterLoadData) {
-          sv.afterLoadData(data.rangeMin, data.rangeMax, data);
+        if (viewer.afterLoadData) {
+          viewer.afterLoadData(data.rangeMin, data.rangeMax, data);
         }
     
-        sv.updateColors(data, {
+        viewer.updateColors(data, {
           min: data.rangeMin,
           max: data.rangeMax,
-          spectrum: sv.spectrum,
-          flip: sv.flip,
-          clamped: sv.clamped,
+          spectrum: viewer.spectrum,
+          flip: viewer.flip,
+          clamped: viewer.clamped,
           afterUpdate: options.afterUpdate
         });
       });
@@ -107,15 +107,15 @@ BrainBrowser.SurfaceViewer.modules.loader = function(sv) {
   
   
   //Load text data from file and update colors
-  sv.loadDataFromFile = function(file_input, options) {
+  viewer.loadDataFromFile = function(file_input, options) {
     options = options || {};
     var filename = file_input.files[0].name;
-    var model_data = sv.model_data;
+    var model_data = viewer.model_data;
     var positionArray = model_data.positionArray;
     var positionArrayLength = positionArray.length;
     var blend_index = options.blend_index || 0;
     var other_index = 1 - blend_index; // 1 or 0
-    sv.blendData = sv.blendData || [];
+    viewer.blendData = viewer.blendData || [];
 
     var onfinish = function(text) {
       SurfaceViewer.data(text, function(data) {
@@ -130,30 +130,30 @@ BrainBrowser.SurfaceViewer.modules.loader = function(sv) {
           return -1;
         }
         model_data.data = data;
-        sv.blendData[blend_index] = data;
+        viewer.blendData[blend_index] = data;
         initRange(min, max, data);
-        if (sv.blendData[other_index] && sv.blendData[other_index].applied) {
-          initRange(sv.blendData[other_index].values.min(),
-            sv.blendData[other_index].values.max(),
-            sv.blendData[other_index]);
-          if(sv.afterLoadData) {
-            sv.afterLoadData(null, null, sv.blendData, true); //multiple set to true
+        if (viewer.blendData[other_index] && viewer.blendData[other_index].applied) {
+          initRange(viewer.blendData[other_index].values.min(),
+            viewer.blendData[other_index].values.max(),
+            viewer.blendData[other_index]);
+          if(viewer.afterLoadData) {
+            viewer.afterLoadData(null, null, viewer.blendData, true); //multiple set to true
           }
       
-          sv.blend(0.5);
-          if(sv.afterBlendData) {
-            sv.afterBlendData(data.rangeMin, data.rangeMax, data);
+          viewer.blend(0.5);
+          if(viewer.afterBlendData) {
+            viewer.afterBlendData(data.rangeMin, data.rangeMax, data);
           }
         } else {
-          if(sv.afterLoadData) {
-            sv.afterLoadData(data.rangeMin, data.rangeMax, data);
+          if(viewer.afterLoadData) {
+            viewer.afterLoadData(data.rangeMin, data.rangeMax, data);
           }
-          sv.updateColors(data, {
+          viewer.updateColors(data, {
             min: data.rangeMin,
             max: data.rangeMax,
-            spectrum: sv.spectrum,
-            flip: sv.flip,
-            clamped: sv.clamped,
+            spectrum: viewer.spectrum,
+            flip: viewer.flip,
+            clamped: viewer.clamped,
             afterUpdate: options.afterUpdate
           });
         }
@@ -169,8 +169,8 @@ BrainBrowser.SurfaceViewer.modules.loader = function(sv) {
   };
   
   // Blend colours.
-  sv.blend = function(value) {
-    var blendData = sv.blendData;
+  viewer.blend = function(value) {
+    var blendData = viewer.blendData;
     var blendDataLength = blendData.length;
     var i;
     
@@ -181,16 +181,16 @@ BrainBrowser.SurfaceViewer.modules.loader = function(sv) {
     }
     
 
-    sv.updateColors(blendData, {
-      spectrum: sv.spectrum,
-      flip: sv.flip,
-      clamped: sv.clamped,
+    viewer.updateColors(blendData, {
+      spectrum: viewer.spectrum,
+      flip: viewer.flip,
+      clamped: viewer.clamped,
       blend: true
     });
   };
 
   //Load spectrum data from the server.
-  sv.loadSpectrumFromUrl  = function(url, options) {
+  viewer.loadSpectrumFromUrl  = function(url, options) {
     options = options || {};
     var afterLoadSpectrum = options.afterLoadSpectrum;
     var spectrum;
@@ -198,21 +198,21 @@ BrainBrowser.SurfaceViewer.modules.loader = function(sv) {
     //get the spectrum of colors
     loadFromUrl(url, options, function (data) {
       spectrum = SurfaceViewer.spectrum(data);
-      sv.spectrum = spectrum;
+      viewer.spectrum = spectrum;
     
       if (afterLoadSpectrum) afterLoadSpectrum();
     
-      if (sv.afterLoadSpectrum) {
-        sv.afterLoadSpectrum(spectrum);
+      if (viewer.afterLoadSpectrum) {
+        viewer.afterLoadSpectrum(spectrum);
       }
     
-      if (sv.model_data && sv.model_data.data) {
-        sv.updateColors(sv.model_data.data, {
-          min: sv.model_data.data.rangeMin,
-          max: sv.model_data.data.rangeMax,
-          spectrum: sv.spectrum,
-          flip: sv.flip,
-          clamped: sv.clamped
+      if (viewer.model_data && viewer.model_data.data) {
+        viewer.updateColors(viewer.model_data.data, {
+          min: viewer.model_data.data.rangeMin,
+          max: viewer.model_data.data.rangeMax,
+          spectrum: viewer.spectrum,
+          flip: viewer.flip,
+          clamped: viewer.clamped
         });
       }
     });
@@ -221,37 +221,37 @@ BrainBrowser.SurfaceViewer.modules.loader = function(sv) {
   
 
   // Load a color bar spectrum definition file.
-  sv.loadSpectrumFromFile = function(file_input){
+  viewer.loadSpectrumFromFile = function(file_input){
     var spectrum;
-    var model_data = sv.model_data;
+    var model_data = viewer.model_data;
     
     loadFromTextFile(file_input, null, function(data) {
       spectrum = SurfaceViewer.spectrum(data);
-      sv.spectrum = spectrum;
-      if(sv.afterLoadSpectrum) {
-        sv.afterLoadSpectrum(spectrum);
+      viewer.spectrum = spectrum;
+      if(viewer.afterLoadSpectrum) {
+        viewer.afterLoadSpectrum(spectrum);
       }
       if(model_data.data) {
-        sv.updateColors(model_data.data, {
+        viewer.updateColors(model_data.data, {
           min: model_data.data.rangeMin,
           max: model_data.data.rangeMax,
-          spectrum: sv.spectrum,
-          flip: sv.flip,
-          clamped: sv.clamped
+          spectrum: viewer.spectrum,
+          flip: viewer.flip,
+          clamped: viewer.clamped
         });
       }
     });
   };
  
   // Load a series of data files to be viewed with a slider.
-  sv.loadSeriesDataFromFile = function(file_input) {
+  viewer.loadSeriesDataFromFile = function(file_input) {
     var numberFiles = file_input.files.length;
     var files = file_input.files;
     var reader;
     var i;
     
-    sv.seriesData = new Array(numberFiles);
-    sv.seriesData.numberFiles = numberFiles;
+    viewer.seriesData = new Array(numberFiles);
+    viewer.seriesData.numberFiles = numberFiles;
     
     files.forEach(function(file, num) {
       reader = new FileReader();
@@ -263,14 +263,14 @@ BrainBrowser.SurfaceViewer.modules.loader = function(sv) {
       reader.onloadend = function(e) {
         
         SurfaceViewer.data(e.target.result, function(data) {
-          sv.seriesData[num] = data;
-          sv.seriesData[num].fileName = file.name;
+          viewer.seriesData[num] = data;
+          viewer.seriesData[num].fileName = file.name;
         });
       };
       
       reader.readAsText(files[i]);
     });
-    sv.setupSeries();
+    viewer.setupSeries();
   };
 
 
@@ -280,18 +280,18 @@ BrainBrowser.SurfaceViewer.modules.loader = function(sv) {
    * Clamped signifies that the range should be clamped and values above or bellow the
    * thresholds should have the color of the maximum/mimimum.
    */
-  sv.rangeChange = function(min, max, clamped, options) {
+  viewer.rangeChange = function(min, max, clamped, options) {
     options = options || {};
     var afterChange = options.afterChange;
-    var data = sv.model_data.data;
+    var data = viewer.model_data.data;
     
     data.rangeMin = min;
     data.rangeMax = max;
-    sv.updateColors(data, {
+    viewer.updateColors(data, {
       min: data.rangeMin,
       max: data.rangeMax,
-      spectrum: sv.spectrum,
-      flip: sv.flip,
+      spectrum: viewer.spectrum,
+      flip: viewer.flip,
       clamped: clamped,
       afterUpdate: options.afterUpdate
     });
@@ -307,8 +307,8 @@ BrainBrowser.SurfaceViewer.modules.loader = function(sv) {
       afterChange();
     }
 
-    if(sv.afterRangeChange) {
-      sv.afterRangeChange(min, max);
+    if(viewer.afterRangeChange) {
+      viewer.afterRangeChange(min, max);
     }
   };
   
@@ -399,7 +399,7 @@ BrainBrowser.SurfaceViewer.modules.loader = function(sv) {
   function initRange(min, max, file) {
     
     if (!file) {
-      file = sv.model_data.data;
+      file = viewer.model_data.data;
     }
     if (!file.fixRange) {
       file.rangeMin = min;

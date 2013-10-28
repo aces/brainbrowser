@@ -15,13 +15,13 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
  
-BrainBrowser.SurfaceViewer.core.rendering = function(sv) {
+BrainBrowser.SurfaceViewer.core.rendering = function(viewer) {
   "use strict";
   
   var renderer; //THREE.js renderer
   var scene = new THREE.Scene();
   var pointLight;
-  var camera = new THREE.PerspectiveCamera(30, sv.view_window.offsetWidth/sv.view_window.offsetHeight, 0.1, 5000);
+  var camera = new THREE.PerspectiveCamera(30, viewer.view_window.offsetWidth/viewer.view_window.offsetHeight, 0.1, 5000);
   var camera_controls;
   var light_controls;
   var current_frame;
@@ -29,12 +29,12 @@ BrainBrowser.SurfaceViewer.core.rendering = function(sv) {
   var effect;
   var anaglyphEffect;
 
-  sv.model = new THREE.Object3D();
+  viewer.model = new THREE.Object3D();
   
-  scene.add(sv.model);
+  scene.add(viewer.model);
   
-  sv.render = function() {
-    var view_window = sv.view_window;
+  viewer.render = function() {
+    var view_window = viewer.view_window;
     renderer = new THREE.WebGLRenderer({clearColor: 0x888888, clearAlpha: 1, preserveDrawingBuffer: true});
 
     renderer.setSize(view_window.offsetWidth, view_window.offsetHeight);
@@ -56,7 +56,7 @@ BrainBrowser.SurfaceViewer.core.rendering = function(sv) {
     camera_controls.zoomSpeed = 2;
     light_controls.zoomSpeed = 2;
     
-    sv.autoRotate = {};
+    viewer.autoRotate = {};
     
     window.onresize = function() {
       effect.setSize(view_window.offsetWidth, view_window.offsetHeight);
@@ -69,19 +69,19 @@ BrainBrowser.SurfaceViewer.core.rendering = function(sv) {
     render_frame();
   };
   
-  sv.canvasDataURL = function() {
+  viewer.canvasDataURL = function() {
     return renderer.domElement.toDataURL();
   };
   
-  sv.anaglyphEffect = function() {
+  viewer.anaglyphEffect = function() {
     effect = anaglyphEffect;
   };
 
-  sv.noEffect = function() {
+  viewer.noEffect = function() {
     effect = renderer;
   };
   
-  sv.setCamera = function(x, y, z) {
+  viewer.setCamera = function(x, y, z) {
     camera.position.set(x, y, z);
   };
   
@@ -89,8 +89,8 @@ BrainBrowser.SurfaceViewer.core.rendering = function(sv) {
     * Resets the view of the scene by resetting its local matrix to the identity
     * matrix.
     */
-  sv.resetView = function() {
-    var model = sv.model;
+  viewer.resetView = function() {
+    var model = viewer.model;
     var child;
     var i, count;
     var inv = new THREE.Matrix4();
@@ -100,7 +100,7 @@ BrainBrowser.SurfaceViewer.core.rendering = function(sv) {
     light_controls.reset();
     model.applyMatrix(inv);
     
-    for (i = 0, count = sv.model.children.length; i < count; i++) {
+    for (i = 0, count = viewer.model.children.length; i < count; i++) {
       child = model.children[i];
       child.visible = true;
       if (child.centroid) {
@@ -118,16 +118,16 @@ BrainBrowser.SurfaceViewer.core.rendering = function(sv) {
    *
    * Tip: when you remove a shape, the shapes array lenght will be decremented so if you need to count the number of shapes, you must save that length value before removing shapes.
    */
-  sv.clearScreen = function() {
-    var children = sv.model.children;
+  viewer.clearScreen = function() {
+    var children = viewer.model.children;
     
     while (children.length > 0) {
-      sv.model.remove(children[0]);
+      viewer.model.remove(children[0]);
     }
         
-    sv.resetView();
-    if(sv.afterClearScreen) {
-      sv.afterClearScreen();
+    viewer.resetView();
+    if(viewer.afterClearScreen) {
+      viewer.afterClearScreen();
     }
   };
   
@@ -136,15 +136,15 @@ BrainBrowser.SurfaceViewer.core.rendering = function(sv) {
    * @param {Number[]} color Takes an array with 4 elements, the color must be represented as for values from 0-1.0 [red,green,blue,alpha]
     *
    */
-  sv.updateClearColor = function(color)  {
+  viewer.updateClearColor = function(color)  {
     renderer.setClearColorHex(color, 1.0);
   };
  
   /*
    * Sets the fillmode of the brain to wireframe or filled
    */
-  sv.set_fill_mode_wireframe = function() {
-    var children = sv.model.children;
+  viewer.set_fill_mode_wireframe = function() {
+    var children = viewer.model.children;
     var material;
     
     for (var i = 0; i < children.length; i++) {
@@ -156,8 +156,8 @@ BrainBrowser.SurfaceViewer.core.rendering = function(sv) {
     }
   };
   
-  sv.set_fill_mode_solid = function() {
-    var children = sv.model.children;
+  viewer.set_fill_mode_solid = function() {
+    var children = viewer.model.children;
     var material;
     
     for (var i = 0; i < children.length; i++) {
@@ -172,7 +172,7 @@ BrainBrowser.SurfaceViewer.core.rendering = function(sv) {
   /**
    * The following methods implement the zoom in and out
    */
-  sv.ZoomInOut = function(zoom) {
+  viewer.ZoomInOut = function(zoom) {
     camera.fov *= zoom;
     camera.updateProjectionMatrix();
   };
@@ -183,8 +183,8 @@ BrainBrowser.SurfaceViewer.core.rendering = function(sv) {
     * and info object.
     *
    */
-  sv.click = function(e, click_callback) {
-    var view_window = sv.view_window;
+  viewer.click = function(e, click_callback) {
+    var view_window = viewer.view_window;
     
     var offset = getOffset(view_window);
     var projector = new THREE.Projector();
@@ -196,7 +196,7 @@ BrainBrowser.SurfaceViewer.core.rendering = function(sv) {
   
     projector.unprojectVector(vector, camera);
     raycaster.set(camera.position, vector.sub(camera.position).normalize() );
-    intersects = raycaster.intersectObject(sv.model, true);
+    intersects = raycaster.intersectObject(viewer.model, true);
     if (intersects.length > 0) {
       intersection = intersects[0];
       vertex_data = {
@@ -226,7 +226,7 @@ BrainBrowser.SurfaceViewer.core.rendering = function(sv) {
   
   
   function render_frame(timestamp) {
-    var model = sv.model;
+    var model = viewer.model;
     var delta;
     var rotation;
     
@@ -240,13 +240,13 @@ BrainBrowser.SurfaceViewer.core.rendering = function(sv) {
     delta = current_frame - last_frame;
     rotation = delta * 0.00015;
 
-    if (sv.autoRotate.x) {
+    if (viewer.autoRotate.x) {
       model.rotation.x += rotation;
     }
-    if (sv.autoRotate.y) {
+    if (viewer.autoRotate.y) {
       model.rotation.y += rotation;
     }
-    if (sv.autoRotate.z) {
+    if (viewer.autoRotate.z) {
       model.rotation.z += rotation;
     }
 

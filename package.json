@@ -1,9 +1,9 @@
 {
   "name": "brainbrowser",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "private": true,
   "scripts": {
-    "start": "node brainbrowser.js"
+    "start": "node app.js"
   },
   "dependencies": {
     "express": "3.4.0",

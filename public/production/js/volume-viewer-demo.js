@@ -15,5 +15,5 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* brainbrowser v0.8.0 */
-$(function(){"use strict";var a=$("#loading");BrainBrowser.VolumeViewer.addEventListener("ready",function(){a.hide(),$("#brainbrowser").slideDown({duration:600}),$(".button").button()}),a.show(),BrainBrowser.VolumeViewer.start("brainbrowser",{volumes:[{type:"minc",filename:"data/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_003.mnc"},{type:"minc",filename:"data/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_004.mnc"}],overlay:!0})});
+/* brainbrowser v0.8.1 */
+$(function(){"use strict";BrainBrowser.VolumeViewer.start("brainbrowser",function(a){var b=$("#loading");a.addEventListener("ready",function(){b.hide(),$("#brainbrowser").slideDown({duration:600}),$(".button").button()}),b.show(),a.loadVolumes({volumes:[{type:"minc",filename:"data/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_003.mnc"},{type:"minc",filename:"data/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_004.mnc"}],overlay:!0})})});

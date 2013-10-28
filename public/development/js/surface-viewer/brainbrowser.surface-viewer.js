@@ -36,8 +36,6 @@
 
 (function() {
   "use strict";
-  
-
 
   var BrainBrowser = window.BrainBrowser = window.BrainBrowser || {};
   
@@ -58,13 +56,13 @@
         return;
       }
       // Allows a prototype to be defined for the browser.
-      var surface_viewer = Object.create(SurfaceViewer.prototype || {});
+      var viewer = Object.create(SurfaceViewer.prototype || {});
       
       var module;
       
       // Properties that will be used by other modules.
-      surface_viewer.view_window = document.getElementById(element_id); // Div where the canvas will be loaded.
-      surface_viewer.model = undefined;  // The currently loaded model. Should be set by rendering.
+      viewer.view_window = document.getElementById(element_id); // Div where the canvas will be loaded.
+      viewer.model = undefined;  // The currently loaded model. Should be set by rendering.
       
       //////////////////////////////
       // Load modules.
@@ -72,19 +70,19 @@
       
       for (module in SurfaceViewer.core) {
         if (SurfaceViewer.core.hasOwnProperty(module)) {
-          SurfaceViewer.core[module](surface_viewer);
+          SurfaceViewer.core[module](viewer);
         }
       }
       
       for (module in SurfaceViewer.modules) {
         if (SurfaceViewer.modules.hasOwnProperty(module)) {
-          SurfaceViewer.modules[module](surface_viewer);
+          SurfaceViewer.modules[module](viewer);
         }
       }
       
       for (module in SurfaceViewer.plugins) {
         if (SurfaceViewer.plugins.hasOwnProperty(module)) {
-          SurfaceViewer.plugins[module](surface_viewer);
+          SurfaceViewer.plugins[module](viewer);
         }
       }
       
@@ -93,12 +91,12 @@
       // Start rendering the scene.
       // This method should be defined in SurfaceViewer.rendering.
       ///////////////////////////////////////////////////////////
-      surface_viewer.render();
+      viewer.render();
       
       //////////////////////////////////////////////////////  
       // Pass SurfaceViewer instance to calling application. 
       ////////////////////////////////////////////////////// 
-      callback(surface_viewer);
+      callback(viewer);
     }
   };
 

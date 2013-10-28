@@ -32,25 +32,22 @@ $(function() {
   
   loading_div.show();
   
-  BrainBrowser.SurfaceViewer.start("brainbrowser", function(sv) {
+  BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
 
-    sv.afterLoadSpectrum = function (spectrum) {
+    viewer.addEventListener("loadspectrum", function (spectrum) {
       var canvas = spectrum.createSpectrumCanvasWithScale(0,5,null,false);
       canvas.id = "spectrum-canvas";
       $("#spectrum").html($(canvas));
-      sv.spectrumObj = spectrum;
-    };
+      viewer.spectrumObj = spectrum;
+    });
     
-    sv.loadModelFromUrl('/models/surf_reg_model_both.obj', {
+    viewer.loadModelFromUrl('/models/surf_reg_model_both.obj', {
       format: "MNIObject",
       afterDisplay: function() {
         hideLoading();
-        macacc = MACACC.collection(sv, path_prefix);
-        sv.afterCreateBrain = function() {
-          macacc.updateMap();
-        };
+        macacc = MACACC.collection(viewer, path_prefix);
         
-        sv.afterUpdateColors = hideLoading;
+        viewer.addEventListener("updatecolors", hideLoading);
         
         macacc.dataOptions = function() {
           return {
@@ -85,7 +82,7 @@ $(function() {
         macacc.afterInvalidMap = hideLoading;
         
         macacc.afterRangeChange = function(min,max) {
-          var canvas = sv.spectrumObj.createSpectrumCanvasWithScale(min, max, null, macacc.flipRange);
+          var canvas = viewer.spectrumObj.createSpectrumCanvasWithScale(min, max, null, macacc.flipRange);
           canvas.id = "spectrum-canvas";
           $("#spectrum").html($(canvas));
         };
@@ -145,18 +142,18 @@ $(function() {
       macacc.afterRangeChange(parseFloat($("#data-range-min").val()), parseFloat($("#data-range-max").val()));
     });
 
-    $('#screenshot').click(function() {$(this).attr("href", sv.client.toDataUR());});
+    $('#screenshot').click(function() {$(this).attr("href", viewer.client.toDataUR());});
     
     $("#brainbrowser").mousedown(function(e) {
       var pointer_setting=$('[name=pointer]:checked').val();
       
       if(e.ctrlKey || pointer_setting === "check") {
-        if(sv.valueAtPointCallback) {
-          sv.click(e, sv.valueAtPointCallback);
+        if(viewer.valueAtPointCallback) {
+          viewer.click(e, viewer.valueAtPointCallback);
         }
       } else if(e.shiftKey || pointer_setting === "select") {
-        if(sv.clickCallback) {
-          sv.click(e, sv.clickCallback);
+        if(viewer.clickCallback) {
+          viewer.click(e, viewer.clickCallback);
         }
       }
     });
@@ -183,16 +180,16 @@ $(function() {
     });
 
     $("#secondWindow").click(function(){
-      sv.secondWindow=window.open('/macacc.html','secondWindow');
+      viewer.secondWindow=window.open('/macacc.html','secondWindow');
     });
 
     window.addEventListener('message', function(e){
 
       var vertex = parseInt(e.data, 10);
       var position_vector = [
-        sv.model_data.positionArray[vertex*3],
-        sv.model_data.positionArray[vertex*3+1],
-        sv.model_data.positionArray[vertex*3+2]
+        viewer.model_data.positionArray[vertex*3],
+        viewer.model_data.positionArray[vertex*3+1],
+        viewer.model_data.positionArray[vertex*3+2]
       ];
 
       macacc.pickClick(e, {
@@ -205,7 +202,7 @@ $(function() {
     }, false);
     
     if (window.opener) {
-      sv.secondWindow = window.opener;
+      viewer.secondWindow = window.opener;
     }
   });
 });

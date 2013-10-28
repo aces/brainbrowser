@@ -43,9 +43,8 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
     } else {
       alert("Object file not supported");
     }
-    if(viewer.afterDisplayObject) {
-      viewer.afterDisplayObject(viewer.model);
-    }
+
+    viewer.triggerEvent("displayobject", viewer.model);
     
     if (afterDisplay) afterDisplay();
   };
@@ -237,10 +236,6 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
       shape = createPolygonShape(viewer.model_data);
       shape.name = filename;
       model.add(shape);
-    }
-
-    if(viewer.afterCreate) {
-      viewer.afterCreate(viewer.model_data);
     }
   }
   

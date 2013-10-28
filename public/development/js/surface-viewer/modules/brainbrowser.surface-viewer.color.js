@@ -57,9 +57,7 @@ BrainBrowser.SurfaceViewer.core.color = function(viewer) {
         color_model(color_array, shapes);
       }
 
-      if (viewer.afterUpdateColors) {
-        viewer.afterUpdateColors(data, min, max, spectrum);
-      }
+      viewer.triggerEvent("updatecolors", data, min, max, spectrum);
 
       if (afterUpdate) {
         afterUpdate();

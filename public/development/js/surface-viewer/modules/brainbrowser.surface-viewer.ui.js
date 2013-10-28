@@ -120,6 +120,4 @@ BrainBrowser.SurfaceViewer.plugins.ui = function(viewer) {
     viewer.autoRotate.y = $("#autorotateY").is(":checked");
     viewer.autoRotate.z = $("#autorotateZ").is(":checked");
   });
-    
-    
 };

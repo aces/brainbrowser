@@ -89,9 +89,7 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
         data.apply_to_shape = options.shape;
         initRange(min, max);
         
-        if (viewer.afterLoadData) {
-          viewer.afterLoadData(data.rangeMin, data.rangeMax, data);
-        }
+        viewer.triggerEvent("loaddata", data.rangeMin, data.rangeMax, data);
     
         viewer.updateColors(data, {
           min: data.rangeMin,
@@ -135,19 +133,14 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
         if (viewer.blendData[other_index] && viewer.blendData[other_index].applied) {
           initRange(viewer.blendData[other_index].values.min(),
             viewer.blendData[other_index].values.max(),
-            viewer.blendData[other_index]);
-          if(viewer.afterLoadData) {
-            viewer.afterLoadData(null, null, viewer.blendData, true); //multiple set to true
-          }
+            viewer.blendData[other_index]
+          );
+          viewer.triggerEvent("loaddata", null, null, viewer.blendData, true); //multiple set to true
       
           viewer.blend(0.5);
-          if(viewer.afterBlendData) {
-            viewer.afterBlendData(data.rangeMin, data.rangeMax, data);
-          }
+          viewer.triggerEvent("blenddata", data.rangeMin, data.rangeMax, data);
         } else {
-          if(viewer.afterLoadData) {
-            viewer.afterLoadData(data.rangeMin, data.rangeMax, data);
-          }
+          viewer.triggerEvent("loaddata", data.rangeMin, data.rangeMax, data);
           viewer.updateColors(data, {
             min: data.rangeMin,
             max: data.rangeMax,
@@ -192,19 +185,14 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
   //Load spectrum data from the server.
   viewer.loadSpectrumFromUrl  = function(url, options) {
     options = options || {};
-    var afterLoadSpectrum = options.afterLoadSpectrum;
     var spectrum;
     
     //get the spectrum of colors
     loadFromUrl(url, options, function (data) {
       spectrum = SurfaceViewer.spectrum(data);
       viewer.spectrum = spectrum;
-    
-      if (afterLoadSpectrum) afterLoadSpectrum();
-    
-      if (viewer.afterLoadSpectrum) {
-        viewer.afterLoadSpectrum(spectrum);
-      }
+        
+      viewer.triggerEvent("loadspectrum", spectrum);
     
       if (viewer.model_data && viewer.model_data.data) {
         viewer.updateColors(viewer.model_data.data, {
@@ -228,9 +216,9 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
     loadFromTextFile(file_input, null, function(data) {
       spectrum = SurfaceViewer.spectrum(data);
       viewer.spectrum = spectrum;
-      if(viewer.afterLoadSpectrum) {
-        viewer.afterLoadSpectrum(spectrum);
-      }
+      
+      viewer.triggerEvent("loadspectrum", spectrum);
+
       if(model_data.data) {
         viewer.updateColors(model_data.data, {
           min: model_data.data.rangeMin,
@@ -307,9 +295,7 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
       afterChange();
     }
 
-    if(viewer.afterRangeChange) {
-      viewer.afterRangeChange(min, max);
-    }
+    viewer.triggerEvent("rangechange", min, max);
   };
   
   

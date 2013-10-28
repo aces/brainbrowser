@@ -126,9 +126,7 @@ BrainBrowser.SurfaceViewer.core.rendering = function(viewer) {
     }
         
     viewer.resetView();
-    if(viewer.afterClearScreen) {
-      viewer.afterClearScreen();
-    }
+    viewer.triggerEvent("clearscreen");
   };
   
   /**

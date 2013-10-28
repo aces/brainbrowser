@@ -28,14 +28,17 @@ $(function() {
     return;
   }
 
-  BrainBrowser.SurfaceViewer.start("brainbrowser", function(sv) {
-    sv.loadSpectrumFromUrl('/assets/spectral_spectrum.txt');
+  BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
  
     //setting up some defaults
-    sv.clamped = true; //By default clamp range.
-    sv.flip = false;
+    viewer.clamped = true; //By default clamp range.
+    viewer.flip = false;
 
-    sv.afterLoadSpectrum = function (spectrum) {
+    ///////////////////////////////////
+    // Event Listeners
+    ///////////////////////////////////
+
+    viewer.addEventListener("loadspectrum", function (spectrum) {
       var canvas = spectrum.createSpectrumCanvasWithScale(0, 100, null);
       var spectrum_div = document.getElementById("color-bar");
       
@@ -46,10 +49,10 @@ $(function() {
         $(spectrum_div).html(canvas);
       }
 
-      sv.spectrumObj = spectrum;
-    };
+      viewer.spectrumObj = spectrum;
+    });
 
-    sv.afterDisplayObject = function(object) {
+    viewer.addEventListener("displayobject", function(object) {
       var slider, slider_div;
       var children = object.children;
       var current_count = $("#shapes").children().length;
@@ -71,60 +74,29 @@ $(function() {
               var alpha = $(target).slider('value');
               alpha = Math.min(100, Math.max(0, alpha)) / 100.0;
 
-              sv.changeShapeTransparency(shape_name, alpha);
+              viewer.changeShapeTransparency(shape_name, alpha);
             }
           });
           slider.appendTo(slider_div);
           slider_div.appendTo("#shapes");
         });
       }
-
-
-      sv.afterClearScreen = function() {
-        $("#shapes").html("");
-        $("#data-range-box").hide();
-      };
-    };
-    
-    $('#clearshapes').click(function() {
-      sv.clearScreen();
-      current_request = 0;
-      current_request_name = "";
-      loading_div.hide();
     });
 
-    /********************************************************
-    * This section implements the range change events
-    * It takes care of updating the UI elements related to
-    * the threshold range
-    * It also defines the BrainBrowser::afterRangeChange
-    * callback which is called in the BrainBrowser::rangeChange
-    * Method.
-    ********************************************************/
-
-    //Create a range slider for the thresholds
-    $("#range-slider").slider({
-      range: true,
-      min: -50,
-      max: 50,
-      value: [-10, 10],
-      slider: function(event, ui) {
-        var min = parseFloat(ui.values[0]);
-        var max = parseFloat(ui.values[1]);
-        sv.rangeChange(min, max, $("#clamp_range").is(":checked"));
-      },
-      step: 0.1
+    viewer.addEventListener("clearscreen", function() {
+      $("#shapes").html("");
+      $("#data-range-box").hide();
     });
 
-    sv.afterRangeChange = function(min,max) {
+    viewer.addEventListener("rangechange", function(min, max) {
       $("#data-range-min").val(min);
       $("#data-range-max").val(max);
-      var canvas = sv.spectrumObj.createSpectrumCanvasWithScale(min, max, null);
+      var canvas = viewer.spectrumObj.createSpectrumCanvasWithScale(min, max, null);
       canvas.id = "spectrum-canvas";
       $("#color-bar").html($(canvas));
-    };
+    });
 
-    sv.afterLoadData = function(min, max, data, multiple) {
+    viewer.addEventListener("loaddata", function(min, max, data, multiple) {
       var rangeBox = $("#data-range");
       var headers = "<div id=\"data-range-multiple\"><ul>";
       var controls = "";
@@ -166,8 +138,8 @@ $(function() {
             loading_div.show();
             data[0].rangeMin = ui.values[0];
             data[0].rangeMax = ui.values[1];
-            sv.model_data.data = data[0];
-            sv.rangeChange(data[0].rangeMin, data[0].rangeMax, sv.clamped, {
+            viewer.model_data.data = data[0];
+            viewer.rangeChange(data[0].rangeMin, data[0].rangeMax, viewer.clamped, {
               afterUpdate: function () {
                 loading_div.hide();
               }
@@ -182,7 +154,7 @@ $(function() {
         var max = $("#data-range-max").val();
         $(e.target).siblings(".slider").slider('values', 0, min);
         $(e.target).siblings(".slider").slider('values', 1, max);
-        sv.rangeChange(min, max, $(e.target).siblings("#clamp_range").is(":checked"), {
+        viewer.rangeChange(min, max, $(e.target).siblings("#clamp_range").is(":checked"), {
           afterUpdate: function () {
             loading_div.hide();
           }
@@ -194,7 +166,7 @@ $(function() {
       $("#data-range-max").change(dataRangeChange);
 
       $("#fix_range").click(function(event) {
-        sv.fixRange = $(event.target).is(":checked");
+        viewer.fixRange = $(event.target).is(":checked");
       });
 
       $("#clamp_range").change(function(e) {
@@ -202,22 +174,22 @@ $(function() {
         var max = parseFloat($(e.target).siblings("#data-range-max").val());
 
         if($(e.target).is(":checked")) {
-          sv.rangeChange(min,max,true);
+          viewer.rangeChange(min,max,true);
         }else {
-          sv.rangeChange(min,max,false);
+          viewer.rangeChange(min,max,false);
         }
       });
 
 
       $("#flip_range").change(function(e) {
-        sv.flip = $(e.target).is(":checked");
+        viewer.flip = $(e.target).is(":checked");
         loading_div.show();
-        sv.updateColors(sv.model_data.data, {
-          min: sv.model_data.data.rangeMin,
-          max: sv.model_data.data.rangeMax,
-          spectrum: sv.spectrum,
-          flip: sv.flip,
-          clamped: sv.clamped,
+        viewer.updateColors(viewer.model_data.data, {
+          min: viewer.model_data.data.rangeMin,
+          max: viewer.model_data.data.rangeMax,
+          spectrum: viewer.spectrum,
+          flip: viewer.flip,
+          clamped: viewer.clamped,
           afterUpdate: function() {
             loading_div.hide();
           }
@@ -227,12 +199,12 @@ $(function() {
       if (!multiple) {
         $("#range-slider").slider('values', 0, parseFloat(min));
         $("#range-slider").slider('values', 1, parseFloat(max));
-        sv.afterRangeChange(min, max);
+        viewer.triggerEvent("rangechange", min, max);
       }
 
-    }; // end afterLoadData
+    }); // end loaddata listener
     
-    sv.afterBlendData = function(){
+    viewer.addEventListener("blenddata", function(){
       var div = $("#blend-box");
       div.html("Blend Ratio: ");
       //$("<div id=\"blend\">Blend ratios: </div>").appendTo("#surface_choice");
@@ -252,14 +224,51 @@ $(function() {
             slider.siblings("span").html(slider.slider("value"));
           },
           stop: function() {
-            sv.blend($(this).slider("value"));
+            viewer.blend($(this).slider("value"));
           }
         }).appendTo(div);
-    };
+    });
+
+
+    ///////////////////////////////////
+    // UI
+    ///////////////////////////////////
+
+    viewer.loadSpectrumFromUrl('/assets/spectral_spectrum.txt');
+
+    $('#clearshapes').click(function() {
+      viewer.clearScreen();
+      current_request = 0;
+      current_request_name = "";
+      loading_div.hide();
+    });
+
+    /********************************************************
+    * This section implements the range change events
+    * It takes care of updating the UI elements related to
+    * the threshold range
+    * It also defines the BrainBrowser::afterRangeChange
+    * callback which is called in the BrainBrowser::rangeChange
+    * Method.
+    ********************************************************/
+
+    //Create a range slider for the thresholds
+    $("#range-slider").slider({
+      range: true,
+      min: -50,
+      max: 50,
+      value: [-10, 10],
+      slider: function(event, ui) {
+        var min = parseFloat(ui.values[0]);
+        var max = parseFloat(ui.values[1]);
+        viewer.rangeChange(min, max, $("#clamp_range").is(":checked"));
+      },
+      step: 0.1
+    });
 
     $(".range-box").keypress(function(e) {
       if(e.keyCode === '13'){
-        sv.rangeChange(parseFloat($("#data-range-min").val()),parseFloat($("#data-range-max").val()));
+        viewer.rangeChange(parseFloat($("#data-range-min").val()),parseFloat($("#data-range-max").val()));
       }
     });
 
@@ -283,37 +292,37 @@ $(function() {
       }
       
       loading_div.show();
-      sv.clearScreen();
+      viewer.clearScreen();
 
       var examples = {
         basic: function() {
-          sv.loadModelFromUrl('/models/surf_reg_model_both.obj', {
+          viewer.loadModelFromUrl('/models/surf_reg_model_both.obj', {
             format: "MNIObject",
             afterDisplay: loadFinished,
             cancel: default_cancel_opts(current_request)
           });
         },
         punkdti: function() {
-          sv.loadModelFromUrl('/models/dti.obj', {
+          viewer.loadModelFromUrl('/models/dti.obj', {
             format: "MNIObject",
             renderDepth: 999,
             afterDisplay: loadFinished,
             cancel: default_cancel_opts(current_request)
           });
-          sv.loadModelFromUrl('/models/left_color.obj', {
+          viewer.loadModelFromUrl('/models/left_color.obj', {
             format: "MNIObject",
             cancel: default_cancel_opts(current_request)
           });
-          sv.loadModelFromUrl('/models/right_color.obj', {
+          viewer.loadModelFromUrl('/models/right_color.obj', {
             format: "MNIObject",
             cancel: default_cancel_opts(current_request)
           });
         },
         realct: function() {
-          sv.loadModelFromUrl('/models/realct.obj', {
+          viewer.loadModelFromUrl('/models/realct.obj', {
             format: "MNIObject",
             afterDisplay: function() {
-              sv.loadDataFromUrl('/models/realct.txt','Cortical Thickness', {
+              viewer.loadDataFromUrl('/models/realct.txt','Cortical Thickness', {
                 afterUpdate: loadFinished,
                 cancel: default_cancel_opts(current_request)
               });
@@ -322,46 +331,46 @@ $(function() {
           });
         },
         car: function() {
-          sv.loadModelFromUrl('/models/car.obj', {
+          viewer.loadModelFromUrl('/models/car.obj', {
             format: "WavefrontObj",
             afterDisplay: loadFinished,
             cancel: default_cancel_opts(current_request)
           });
-          sv.setCamera(0, 0, 100);
+          viewer.setCamera(0, 0, 100);
 
           matrixRotX = new THREE.Matrix4();
           matrixRotX.makeRotationX(-0.25 * Math.PI);
           matrixRotY = new THREE.Matrix4();
           matrixRotY.makeRotationY(0.4 * Math.PI);
 
-          sv.model.applyMatrix(matrixRotY.multiply(matrixRotX));
+          viewer.model.applyMatrix(matrixRotY.multiply(matrixRotX));
         },
         plane: function() {
-          sv.loadModelFromUrl('/models/dlr_bigger.streamlines.obj', {
+          viewer.loadModelFromUrl('/models/dlr_bigger.streamlines.obj', {
             format: "MNIObject",
             cancel: default_cancel_opts(current_request)
           });
-          sv.loadModelFromUrl('/models/dlr.model.obj', {
+          viewer.loadModelFromUrl('/models/dlr.model.obj', {
             format: "MNIObject",
             afterDisplay: function() {
               loadFinished();
             },
             cancel: default_cancel_opts(current_request)
           });
-          sv.setCamera(0, 0, 75);
+          viewer.setCamera(0, 0, 75);
 
           matrixRotX = new THREE.Matrix4();
           matrixRotX.makeRotationX(-0.25 * Math.PI);
           matrixRotY = new THREE.Matrix4();
           matrixRotY.makeRotationY(0.4 * Math.PI);
 
-          sv.model.applyMatrix(matrixRotY.multiply(matrixRotX));
+          viewer.model.applyMatrix(matrixRotY.multiply(matrixRotX));
         },
         mouse: function() {
-          sv.loadModelFromUrl('/models/mouse_surf.obj', {
+          viewer.loadModelFromUrl('/models/mouse_surf.obj', {
             format: "MNIObject",
             afterDisplay: function() {
-              sv.loadDataFromUrl('/models/mouse_alzheimer_map.txt',
+              viewer.loadDataFromUrl('/models/mouse_alzheimer_map.txt',
                 'Cortical Amyloid Burden, Tg AD Mouse, 18 Months Old', {
                   shape: "mouse_surf.obj",
                   min: 0.0,
@@ -373,15 +382,15 @@ $(function() {
             },
             cancel: default_cancel_opts(current_request)
           });
-          sv.loadModelFromUrl('/models/mouse_brain_outline.obj', {
+          viewer.loadModelFromUrl('/models/mouse_brain_outline.obj', {
             format: "MNIObject",
             afterDisplay: function() {
               $(".opacity-slider[data-shape-name='mouse_brain_outline.obj']").slider("value", 50);
-              sv.changeShapeTransparency('mouse_brain_outline.obj', 0.5);
+              viewer.changeShapeTransparency('mouse_brain_outline.obj', 0.5);
             },
             cancel: default_cancel_opts(current_request)
           });
-          sv.setCamera(0, 0, 40);
+          viewer.setCamera(0, 0, 40);
         }
       };
       
@@ -400,7 +409,7 @@ $(function() {
 
     $("#obj_file_submit").click(function () {
       var format = $("#obj_file_format").closest("#obj_file_select").find("#obj_file_format option:selected").val();
-      sv.loadModelFromFile(document.getElementById("objfile"), {
+      viewer.loadModelFromFile(document.getElementById("objfile"), {
         format: format,
         beforeLoad: function() {
           loading_div.show();
@@ -418,11 +427,11 @@ $(function() {
 
     $(".datafile").change(function() {
       var filenum = parseInt(this.id.slice(-1), 10);
-      sv.loadDataFromFile(this, { blend_index : filenum - 1 });
+      viewer.loadDataFromFile(this, { blend_index : filenum - 1 });
     });
 
     $("#spectrum").change(function() {
-      sv.loadSpectrumFromFile(document.getElementById("spectrum"));
+      viewer.loadSpectrumFromFile(document.getElementById("spectrum"));
     });
 
     // Load first model.

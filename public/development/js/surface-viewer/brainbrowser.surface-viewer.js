@@ -56,8 +56,27 @@
         return;
       }
       // Allows a prototype to be defined for the browser.
-      var viewer = Object.create(SurfaceViewer.prototype || {});
+      var viewer = {};
+
+      viewer.event_listeners = [];
+
+      viewer.addEventListener = function(e, fn) {
+        if (!viewer.event_listeners[e]) {
+          viewer.event_listeners[e] = [];
+        }
+        
+        viewer.event_listeners[e].push(fn);
+      };
       
+      viewer.triggerEvent = function(e) {
+        var args = Array.prototype.slice.call(arguments, 1);
+        if (viewer.event_listeners[e]) {
+          viewer.event_listeners[e].forEach(function(fn) {
+            fn.apply(viewer, args);
+          });
+        }
+      };
+
       var module;
       
       // Properties that will be used by other modules.

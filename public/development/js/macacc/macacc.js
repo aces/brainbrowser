@@ -22,9 +22,9 @@
   
   var MACACC = window.MACACC = {};
   
-  MACACC.collection = function(brainbrowser, path, dont_build_path) {
+  MACACC.collection = function(viewer, path, dont_build_path) {
     var collection = {
-      brainbrowser: brainbrowser,
+      viewer: viewer,
       dataset: createDataset(path, dont_build_path)
     };
     
@@ -39,8 +39,8 @@
       if (collection.vertex) {
         loadMap();
         if (collection.afterVertexUpdate) collection.afterVertexUpdate(vertex_data, 0);
-        if (brainbrowser.secondWindow) {
-          brainbrowser.secondWindow.postMessage(collection.vertex, "*");
+        if (viewer.secondWindow) {
+          viewer.secondWindow.postMessage(collection.vertex, "*");
         }
       }
     };
@@ -84,10 +84,10 @@
       }
       collection.flipRange = flip;
       
-      brainbrowser.updateColors(collection.dataset.current_data, {
+      viewer.updateColors(collection.dataset.current_data, {
         min: min,
         max: max,
-        spectrum: brainbrowser.spectrum,
+        spectrum: viewer.spectrum,
         flip: flip,
         clamped: clamped
       });
@@ -100,8 +100,8 @@
     collection.changeModel = function(type, options) {
       options.format = "MNIObject";
       
-      brainbrowser.clearScreen();
-      brainbrowser.loadModelFromUrl('/data/surfaces/surf_reg_model_both_' + type + '.obj', options);
+      viewer.clearScreen();
+      viewer.loadModelFromUrl('/data/surfaces/surf_reg_model_both_' + type + '.obj', options);
     };
   
     // Callback to update map after a change in range.
@@ -130,7 +130,7 @@
       }else {
         collection.vertex += collection.dataArray.length/2;
       }
-      if (collection.afterVertexUpdate) collection.afterVertexUpdate(brainbrowser.getInfoForVertex(collection.vertex), 0);
+      if (collection.afterVertexUpdate) collection.afterVertexUpdate(viewer.getInfoForVertex(collection.vertex), 0);
       loadMap();
     };
   
@@ -154,7 +154,7 @@
     
     // Show the atlas.
     collection.showAtlas = function() {
-      brainbrowser.loadDataFromUrl("/assets/aal_atlas.txt");
+      viewer.loadDataFromUrl("/assets/aal_atlas.txt");
     };
     
     // Default should be redefined by appliction.
@@ -170,9 +170,9 @@
       }
     }
   
-    brainbrowser.loadSpectrumFromUrl("/assets/spectral_spectrum.txt");
-    brainbrowser.valueAtPointCallback = collection.valueAtPoint;
-    brainbrowser.clickCallback = collection.pickClick; //associating pickClick for brainbrowser which handles events.
+    viewer.loadSpectrumFromUrl("/assets/spectral_spectrum.txt");
+    viewer.valueAtPointCallback = collection.valueAtPoint;
+    viewer.clickCallback = collection.pickClick; //associating pickClick for viewer which handles events.
   
     return collection;
   };
@@ -209,7 +209,7 @@
         data: data_object,
         dataType: 'text',
         success: function(result) {
-          BrainBrowser.data(result, function(data) {
+          BrainBrowser.SurfaceViewer.data(result, function(data) {
             dataset.current_data = data;
             callback(dataset);
           });

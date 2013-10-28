@@ -143,13 +143,14 @@
     };
     
     viewer.triggerEvent = function(e) {
+      var args = Array.prototype.slice.call(arguments, 1);
       if (viewer.event_listeners[e]) {
         viewer.event_listeners[e].forEach(function(fn) {
-          fn();
+          fn.apply(viewer, args);
         });
       }
     };
-
+    
     /**
      * Initial load of volumes
      * @param container Id of the element to contain the viewer

@@ -40,6 +40,9 @@
       var keyCode = e.which;
       if (keyCode < 37 || keyCode > 40) return;
       
+      e.preventDefault();
+      e.stopPropagation();
+
       var cursor = viewer.active_cursor;
       var volID = canvas.getAttribute("data-volume-id");
       var slice_num = canvas.getAttribute("data-slice-num");

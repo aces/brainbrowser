@@ -12,9 +12,8 @@ module.exports = function(grunt) {
       },
       surface: {
         src: [
-          "<%= dev_js %>/lib/array.js",
-          "<%= dev_js %>/surface-viewer/**/*.js",
-          "<%= dev_js %>/lib/brainbrowser.utils.js"
+          "<%= dev_js %>/lib/brainbrowser.utils.js",
+          "<%= dev_js %>/surface-viewer/**/*.js"
         ],
         dest: "tmp/brainbrowser.surface-viewer.js"
       },
@@ -27,6 +26,7 @@ module.exports = function(grunt) {
       },
       volume: {
         src: [
+          "<%= dev_js %>/lib/brainbrowser.utils.js",
           "<%= dev_js %>/volume-viewer/**/*.js"
         ],
         dest: "tmp/brainbrowser.volume-viewer.js"

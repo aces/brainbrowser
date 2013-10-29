@@ -131,8 +131,8 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
         viewer.blendData[blend_index] = data;
         initRange(min, max, data);
         if (viewer.blendData[other_index] && viewer.blendData[other_index].applied) {
-          initRange(viewer.blendData[other_index].values.min(),
-            viewer.blendData[other_index].values.max(),
+          initRange(BrainBrowser.utils.min(viewer.blendData[other_index].values),
+            BrainBrowser.utils.max(viewer.blendData[other_index].values),
             viewer.blendData[other_index]
           );
           viewer.triggerEvent("loaddata", null, null, viewer.blendData, true); //multiple set to true

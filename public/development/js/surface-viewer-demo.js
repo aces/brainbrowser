@@ -122,8 +122,8 @@ $(function() {
       rangeBox.find("#data-range-multiple").tabs();
 
       $("#data-range").find(".slider").each(function(index, element) {
-        var min = data[0].values.min();
-        var max = data[0].values.max();
+        var min = BrainBrowser.utils.min(data[0].values);
+        var max = BrainBrowser.utils.max(data[0].values);
         $(element).slider({
           range: true,
           min: min,

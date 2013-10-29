@@ -69,6 +69,52 @@
       sphere.position.set(x, y, z);
     
       scene.add(sphere);
+    },
+
+    eventModel: function(viewer) {
+
+      viewer.event_listeners = [];
+
+      viewer.addEventListener = function(e, fn) {
+        if (!viewer.event_listeners[e]) {
+          viewer.event_listeners[e] = [];
+        }
+        
+        viewer.event_listeners[e].push(fn);
+      };
+      
+      viewer.triggerEvent = function(e) {
+        var args = Array.prototype.slice.call(arguments, 1);
+        if (viewer.event_listeners[e]) {
+          viewer.event_listeners[e].forEach(function(fn) {
+            fn.apply(viewer, args);
+          });
+        }
+      };
+    },
+
+    min: function() {
+      var array = Array.prototype.slice.call(arguments);
+      array = array.length === 1 && Array.isArray(array[0]) ? array[0] : array;
+
+      var min = array[0];
+      var i, count;
+      for (i = 1, count = array.length; i < count; i++) {
+        if (array[i] < min) min = array[i];
+      }
+      return min;
+    },
+
+    max: function() {
+      var array = Array.prototype.slice.call(arguments);
+      array = array.length === 1 && Array.isArray(array[0]) ? array[0] : array;
+      
+      var max = array[0];
+      var i, count;
+      for (i = 1, count = array.length; i < count; i++) {
+        if (array[i] > max) max = array[i];
+      }
+      return max;
     }
   
   };

@@ -72,12 +72,12 @@ BrainBrowser.SurfaceViewer.data = function(raw, callback) {
       parse(raw);
     } else if(raw.values){
       data_obj.values = raw.values.concat();
-      data_obj.min = data_obj.values.min();
-      data_obj.max = data_obj.values.max();
+      data_obj.min = BrainBrowser.utils.min(data_obj.values);
+      data_obj.max = BrainBrowser.utils.max(data_obj.values);
     } else {
       data_obj.values = raw;
-      data_obj.min = raw.min();
-      data_obj.max = raw.max();
+      data_obj.min = BrainBrowser.utils.min(raw);
+      data_obj.max = BrainBrowser.utils.max(raw);
     }
   }
   

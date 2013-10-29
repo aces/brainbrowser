@@ -59,7 +59,6 @@
     viewer.displays = [];
     viewer.synced = false;
     viewer.default_zoom_level = 1;
-    viewer.event_listeners = {};
 
   
      /**
@@ -134,22 +133,7 @@
       viewer.draw();
     }
 
-    viewer.addEventListener = function(e, fn) {
-      if (!viewer.event_listeners[e]) {
-        viewer.event_listeners[e] = [];
-      }
-      
-      viewer.event_listeners[e].push(fn);
-    };
-    
-    viewer.triggerEvent = function(e) {
-      var args = Array.prototype.slice.call(arguments, 1);
-      if (viewer.event_listeners[e]) {
-        viewer.event_listeners[e].forEach(function(fn) {
-          fn.apply(viewer, args);
-        });
-      }
-    };
+    BrainBrowser.utils.eventModel(viewer);
     
     /**
      * Initial load of volumes

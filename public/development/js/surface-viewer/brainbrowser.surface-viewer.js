@@ -1,6 +1,4 @@
-/* 
- * BrainBrowser.js
- * 
+/*  
  * Copyright (C) 2011 McGill University
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -58,35 +56,24 @@
       // Allows a prototype to be defined for the browser.
       var viewer = {};
 
-      viewer.event_listeners = [];
-
-      viewer.addEventListener = function(e, fn) {
-        if (!viewer.event_listeners[e]) {
-          viewer.event_listeners[e] = [];
-        }
-        
-        viewer.event_listeners[e].push(fn);
-      };
-      
-      viewer.triggerEvent = function(e) {
-        var args = Array.prototype.slice.call(arguments, 1);
-        if (viewer.event_listeners[e]) {
-          viewer.event_listeners[e].forEach(function(fn) {
-            fn.apply(viewer, args);
-          });
-        }
-      };
-
       var module;
       
       // Properties that will be used by other modules.
       viewer.view_window = document.getElementById(element_id); // Div where the canvas will be loaded.
-      viewer.model = undefined;  // The currently loaded model. Should be set by rendering.
+      viewer.model = null;  // The currently loaded model. Should be set by rendering.
       
       //////////////////////////////
       // Load modules.
       //////////////////////////////
-      
+
+      BrainBrowser.utils.eventModel(viewer);
+
+      for (module in SurfaceViewer.core) {
+        if (SurfaceViewer.core.hasOwnProperty(module)) {
+          SurfaceViewer.core[module](viewer);
+        }
+      }
+
       for (module in SurfaceViewer.core) {
         if (SurfaceViewer.core.hasOwnProperty(module)) {
           SurfaceViewer.core[module](viewer);

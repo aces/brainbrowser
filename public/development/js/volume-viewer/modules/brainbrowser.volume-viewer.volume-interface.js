@@ -32,7 +32,7 @@
 
   var VolumeViewer = BrainBrowser.VolumeViewer;
   
-  VolumeViewer.setupUI = function(viewer) {
+  VolumeViewer.setupInterface = function(viewer) {
     document.addEventListener("keydown", function(e) {
       if (!viewer.active_canvas) return;
       var canvas = viewer.active_canvas;
@@ -68,7 +68,7 @@
     }, false);
   };
     
-  VolumeViewer.addCanvasUI = function(div, viewer, volume, volID) {
+  VolumeViewer.addVolumeInterface = function(div, viewer, volume, volID) {
     var displays = [];
     
     function captureMouse(canvas) {

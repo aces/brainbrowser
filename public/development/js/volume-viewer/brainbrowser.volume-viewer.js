@@ -98,7 +98,7 @@
         }
       }
       
-      VolumeViewer.setupUI(viewer);
+      VolumeViewer.setupInterface(viewer);
       for(i = 0; i < numVolumes; i++) {
 
         div = document.createElement("div");
@@ -107,7 +107,7 @@
         
         div.classList.add("volume-container");
         viewer_element.appendChild(div);
-        viewer.displays.push(VolumeViewer.addCanvasUI(div, viewer, volumes[i], i));
+        viewer.displays.push(VolumeViewer.addVolumeInterface(div, viewer, volumes[i], i));
         cachedSlices[i] = [];
         
         volume.position.xspace = parseInt(volume.header.xspace.space_length/2, 10);

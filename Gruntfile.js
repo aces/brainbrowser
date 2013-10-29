@@ -13,7 +13,11 @@ module.exports = function(grunt) {
       surface: {
         src: [
           "<%= dev_js %>/lib/brainbrowser.utils.js",
-          "<%= dev_js %>/surface-viewer/**/*.js"
+          "<%= dev_js %>/surface-viewer/brainbrowser.surface-viewer.js",
+          "<%= dev_js %>/surface-viewer/modules/*",
+          "<%= dev_js %>/surface-viewer/data/*",
+          "<%= dev_js %>/surface-viewer/filetypes/*",
+
         ],
         dest: "tmp/brainbrowser.surface-viewer.js"
       },
@@ -44,6 +48,11 @@ module.exports = function(grunt) {
           "build/brainbrowser.surface-viewer-<%= pkg.version %>.min.js": "<%= concat.surface.dest %>"
         }
       },
+      surface_ui: {
+        files: {
+          "<%= prod_js %>/brainbrowser.surface-viewer.ui.min.js": "<%= dev_js %>/surface-viewer/ui/brainbrowser.surface-viewer.ui.js"
+        }
+      },
       surface_demo: {
         files: {
           "<%= prod_js %>/surface-viewer-demo.js": "<%= dev_js %>/surface-viewer-demo.js"
@@ -61,7 +70,7 @@ module.exports = function(grunt) {
       },
       volume_ui: {
         files: {
-          "build/brainbrowser.volume-viewer.ui-controls-<%= pkg.version %>.min.js": "<%= dev_js %>/volume-viewer/ui-controls/brainbrowser.volume-viewer.ui-controls.js"
+          "build/brainbrowser.volume-viewer.ui-controls-<%= pkg.version %>.min.js": "<%= dev_js %>/volume-viewer/ui/brainbrowser.volume-viewer.ui-controls.js"
         }
       },
       volume_demo: {

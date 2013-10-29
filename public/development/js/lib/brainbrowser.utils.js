@@ -115,6 +115,20 @@
         if (array[i] > max) max = array[i];
       }
       return max;
+    },
+
+    getOffset: function(elem) {
+      var top = 0;
+      var left = 0;
+      
+      while (elem.offsetParent) {
+        top += elem.offsetTop;
+        left += elem.offsetLeft;
+        
+        elem = elem.offsetParent;
+      }
+      
+      return {top: top, left: left};
     }
   
   };

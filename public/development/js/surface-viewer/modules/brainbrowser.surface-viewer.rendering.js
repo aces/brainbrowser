@@ -170,7 +170,7 @@ BrainBrowser.SurfaceViewer.core.rendering = function(viewer) {
   /**
    * The following methods implement the zoom in and out
    */
-  viewer.ZoomInOut = function(zoom) {
+  viewer.zoom = function(zoom) {
     camera.fov *= zoom;
     camera.updateProjectionMatrix();
   };
@@ -184,7 +184,7 @@ BrainBrowser.SurfaceViewer.core.rendering = function(viewer) {
   viewer.click = function(e, click_callback) {
     var view_window = viewer.view_window;
     
-    var offset = getOffset(view_window);
+    var offset = BrainBrowser.utils.getOffset(view_window);
     var projector = new THREE.Projector();
     var raycaster = new THREE.Raycaster();
     var mouseX = ((e.clientX - offset.left + window.scrollX)/view_window.offsetWidth) * 2 - 1;
@@ -207,21 +207,6 @@ BrainBrowser.SurfaceViewer.core.rendering = function(viewer) {
       return false;
     }
   };
-  
-  function getOffset(elem) {
-    var top = 0;
-    var left = 0;
-    
-    while (elem.offsetParent) {
-      top += elem.offsetTop;
-      left += elem.offsetLeft;
-      
-      elem = elem.offsetParent;
-    }
-    
-    return {top: top, left: left};
-  }
-  
   
   function render_frame(timestamp) {
     var model = viewer.model;

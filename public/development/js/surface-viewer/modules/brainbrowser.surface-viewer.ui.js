@@ -24,8 +24,8 @@ BrainBrowser.SurfaceViewer.plugins.ui = function(viewer) {
   $("body").keydown(function(e) {
     var key_code = e.which;
     var keys = {
-      38: function() { viewer.ZoomInOut(1/1.1); },
-      40: function() { viewer.ZoomInOut(1.1); },
+      38: function() { viewer.zoom(1/1.1); },
+      40: function() { viewer.zoom(1.1); },
       32: function() { viewer.separateHemispheres(); }
     };
   

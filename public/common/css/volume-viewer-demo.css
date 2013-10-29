@@ -18,8 +18,9 @@ body {
   display: table-cell;
 }
 
-.slice-display {
-  background-color: #000000;
+canvas.slice-display {
+  display: block;
+  margin: 3px 5px;
 }
 
 .volume-viewer-controls {
@@ -104,11 +105,6 @@ body {
 .thresh-input-right {
   position: absolute;
   right: 10px;
-}
-
-canvas.slice-display {
-  display: block;
-  margin: 3px 5px;
 }
 
 

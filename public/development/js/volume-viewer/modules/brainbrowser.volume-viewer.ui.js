@@ -100,6 +100,7 @@
       canvas.setAttribute("data-volume-id", volID);
       canvas.setAttribute("data-slice-num", slice_num);
       canvas.classList.add("slice-display");
+      canvas.style.backgroundColor = "#000000";
       div.appendChild(canvas);
       context.clearRect(0, 0, canvas.width, canvas.height);
       displays.push(

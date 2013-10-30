@@ -5,18 +5,21 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON("package.json"),
     dev_js: "public/development/js",
     prod_js: "public/production/js",
+    build_dir: "build/brainbrowser-<%= pkg.version %>",
     license: grunt.file.read("license_header.txt"),
     concat: {
       options: {
         separator: ";"
       },
+      config: {
+        src: "<%= dev_js %>/brainbrowser/config.js",
+        dest: "<%= build_dir %>/config.js"
+      },
       surface: {
         src: [
-          "<%= dev_js %>/lib/brainbrowser.utils.js",
-          "<%= dev_js %>/surface-viewer/brainbrowser.surface-viewer.js",
-          "<%= dev_js %>/surface-viewer/modules/*",
-          "<%= dev_js %>/surface-viewer/data/*",
-          "<%= dev_js %>/surface-viewer/filetypes/*",
+          "<%= dev_js %>/brainbrowser/lib/utils.js",
+          "<%= dev_js %>/brainbrowser/surface-viewer.js",
+          "<%= dev_js %>/brainbrowser/surface-viewer/**/*.js"
 
         ],
         dest: "tmp/brainbrowser.surface-viewer.js"
@@ -30,10 +33,9 @@ module.exports = function(grunt) {
       },
       volume: {
         src: [
-          "<%= dev_js %>/lib/brainbrowser.utils.js",
-          "<%= dev_js %>/volume-viewer/brainbrowser.volume-viewer.js",
-          "<%= dev_js %>/volume-viewer/modules/*",
-          "<%= dev_js %>/volume-viewer/volumes/*"
+          "<%= dev_js %>/brainbrowser/lib/utils.js",
+          "<%= dev_js %>/brainbrowser/volume-viewer.js",
+          "<%= dev_js %>/brainbrowser/volume-viewer/**/*.js"
         ],
         dest: "tmp/brainbrowser.volume-viewer.js"
       }
@@ -45,12 +47,12 @@ module.exports = function(grunt) {
       },
       surface: {
         files: {
-          "build/brainbrowser.surface-viewer-<%= pkg.version %>.min.js": "<%= concat.surface.dest %>"
+          "<%= build_dir %>/brainbrowser.surface-viewer.min.js": "<%= concat.surface.dest %>"
         }
       },
       surface_ui: {
         files: {
-          "<%= prod_js %>/brainbrowser.surface-viewer.ui.min.js": "<%= dev_js %>/surface-viewer/ui/brainbrowser.surface-viewer.ui.js"
+          "<%= prod_js %>/brainbrowser.surface-viewer.ui.min.js": "<%= dev_js %>/ui/brainbrowser.surface-viewer.ui.js"
         }
       },
       surface_demo: {
@@ -65,12 +67,12 @@ module.exports = function(grunt) {
       },
       volume: {
         files: {
-          "build/brainbrowser.volume-viewer-<%= pkg.version %>.min.js": "<%= concat.volume.dest %>"
+          "<%= build_dir %>/brainbrowser.volume-viewer.min.js": "<%= concat.volume.dest %>"
         }
       },
       volume_ui: {
         files: {
-          "build/brainbrowser.volume-viewer.ui-controls-<%= pkg.version %>.min.js": "<%= dev_js %>/volume-viewer/ui/brainbrowser.volume-viewer.ui-controls.js"
+          "<%= build_dir %>/brainbrowser.volume-viewer.ui-controls.min.js": "<%= dev_js %>/ui/brainbrowser.volume-viewer.ui-controls.js"
         }
       },
       volume_demo: {
@@ -86,16 +88,16 @@ module.exports = function(grunt) {
       libs : {
         files: {
           "<%= prod_js %>/layout.js": "<%= dev_js %>/layout.js",
-          "<%= prod_js %>/lib/ui.js": "<%= dev_js %>/lib/ui.js",
-          "<%= prod_js %>/lib/brainbrowser.utils.js": "<%= dev_js %>/lib/brainbrowser.utils.js"
+          "<%= prod_js %>/ui/common.js": "<%= dev_js %>/ui/common.js",
+          "<%= prod_js %>/lib/brainbrowser.utils.js": "<%= dev_js %>/brainbrowser/lib/utils.js"
         }
       },
       workers: {
         files: {
-          "<%= prod_js %>/workers/mniobj.worker.js": "<%= dev_js %>/workers/mniobj.worker.js",
-          "<%= prod_js %>/workers/wavefront_obj.worker.js": "<%= dev_js %>/workers/wavefront_obj.worker.js",
-          "<%= prod_js %>/workers/freesurfer_asc.worker.js": "<%= dev_js %>/workers/freesurfer_asc.worker.js",
-          "<%= prod_js %>/workers/data.worker.js": "<%= dev_js %>/workers/data.worker.js"
+          "<%= build_dir %>/workers/mniobj.worker.js": "<%= dev_js %>/brainbrowser/workers/mniobj.worker.js",
+          "<%= build_dir %>/workers/wavefront_obj.worker.js": "<%= dev_js %>/brainbrowser/workers/wavefront_obj.worker.js",
+          "<%= build_dir %>/workers/freesurfer_asc.worker.js": "<%= dev_js %>/brainbrowser/workers/freesurfer_asc.worker.js",
+          "<%= build_dir %>/workers/data.worker.js": "<%= dev_js %>/brainbrowser/workers/data.worker.js"
         }
       }
     },
@@ -151,7 +153,7 @@ module.exports = function(grunt) {
         options: {
           worker: true
         },
-        src: ["<%= dev_js %>/workers/*.js"]
+        src: ["<%= dev_js %>/brainbrowser/workers/*.js"]
       },
       loris: {
         options: {
@@ -166,22 +168,15 @@ module.exports = function(grunt) {
     },
     clean: {
       build :[
-        "<%= prod_js %>/brainbrowser.surface-viewer.min.js",
-        "<%= prod_js %>/brainbrowser.volume-viewer.min.js",
-        "<%= prod_js %>/brainbrowser.volume-viewer.ui-controls.min.js",
-        "build/*.min.js"
+        "<%= prod_js %>/brainbrowser",
+        "build/*"
       ],
       tmp: "tmp/*.js"
     },
     symlink: {
       explicit: {
-        options: {
-          overwrite: true
-        },
         files: {
-          "<%= prod_js %>/brainbrowser.surface-viewer.min.js": "build/brainbrowser.surface-viewer-<%= pkg.version %>.min.js",
-          "<%= prod_js %>/brainbrowser.volume-viewer.min.js": "build/brainbrowser.volume-viewer-<%= pkg.version %>.min.js",
-          "<%= prod_js %>/brainbrowser.volume-viewer.ui-controls.min.js": "build/brainbrowser.volume-viewer.ui-controls-<%= pkg.version %>.min.js"
+          "<%= prod_js %>/brainbrowser": "<%= build_dir %>"
         }
       }
     },

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2011 McGill University
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -15,24 +15,5 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-BrainBrowser.SurfaceViewer.filetypes.parse = function(type, data, callback) {
-  "use strict";
-  
-  var SurfaceViewer = BrainBrowser.SurfaceViewer;
-  var obj = {};
-  
-  var config = SurfaceViewer.filetypes.config[type];
-  
-  if (config.parse) {
-    config.parse(obj, data, callback);
-  }
-  
-  if (config.worker) {
-    SurfaceViewer.filetypes.parseWorker(obj, data, config.worker, callback);
-  }
-  
-  if (config.afterParse) {
-    config.afterParse(obj, data);
-  }
-};
-
+/* brainbrowser v0.8.4 */
+$(function(){"use strict";var a=$("#controls");$(".button").button(),$(".buttonset").buttonset(),$("#data-range-box").hide(),$("#control-button").click(function(){var b=$(this).find("span");a.is(":visible")?(a.animate({height:30},300).animate({width:0},200,function(){a.hide()}),b.text("Show Controls")):(a.show().animate({width:450},200).animate({height:"70%"},300),b.text("Hide Controls"))}),setTimeout(function(){$("#app-name").show("blind",{direction:"right"},500),$("#control-button").click()},0)});

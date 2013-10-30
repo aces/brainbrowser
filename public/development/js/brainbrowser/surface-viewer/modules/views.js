@@ -87,12 +87,13 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   //Should theoretically return thei same infor as click and
   //click should use this to build that info object
   viewer.getInfoForVertex = function(vertex) {
-    var model_data = viewer.model_data.getVertexInfo(vertex);
-    var vertex_data = {
-      vertex: model_data.vertex,
-      point: new THREE.Vector3(model_data.position_vector[0], model_data.position_vector[1], model_data.position_vector[2])
+    var positions = viewer.model_data.positionArray;
+    var i = vertex * 3;
+    
+    return {
+      vertex: vertex,
+      point: new THREE.Vector3(positions[i], positions[i+1], positions[i+2])
     };
-    return vertex_data;
   };
 
   /**

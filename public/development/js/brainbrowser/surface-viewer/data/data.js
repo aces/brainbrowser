@@ -24,9 +24,10 @@ BrainBrowser.SurfaceViewer.data = function(raw, callback) {
   
   // Allows a prototype to be defined for data object
   var data_obj = {};
+  var worker_url = BrainBrowser.config.surface_viewer.data.worker;
   
   function parse() {
-    var worker = new Worker("js/workers/data.worker.js");
+    var worker = new Worker(worker_url);
   
     worker.addEventListener("message", function(e) {
       var result = e.data;
@@ -45,7 +46,7 @@ BrainBrowser.SurfaceViewer.data = function(raw, callback) {
   }
   
   data_obj.createColorArray = function(min, max, spectrum, flip, clamped, original_colors, model, callback) {
-    var worker = new Worker("js/workers/data.worker.js");
+    var worker = new Worker(worker_url);
     worker.addEventListener("message", function(e) {
       var color_array = e.data;
   

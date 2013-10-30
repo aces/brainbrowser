@@ -28,22 +28,22 @@
   <script type="text/javascript" src="//code.jquery.com/jquery-1.7.2.min.js"></script>
   <script type="text/javascript" src="/js/lib/jquery-ui-1.8.10.custom.min.js"></script>
   <script type="text/javascript" src="/js/lib/jquery.mousewheel.min.js"></script>
-  <script type="text/javascript" src="/js/lib/ui.js"></script>
+  <script type="text/javascript" src="/js/ui/common.js"></script>
   {{#ifenv "production"}}
-    <script type="text/javascript" src="/js/brainbrowser.volume-viewer.min.js"></script>
-    <script type="text/javascript" src="/js/brainbrowser.volume-viewer.ui-controls.min.js"></script>
+    <script type="text/javascript" src="/js/brainbrowser/brainbrowser.volume-viewer.min.js"></script>
+    <script type="text/javascript" src="/js/brainbrowser/brainbrowser.volume-viewer.ui-controls.min.js"></script>
   {{else}}
-    <script type="text/javascript" src="/js/lib/brainbrowser.utils.js"></script>
-    <script src="/js/volume-viewer/brainbrowser.volume-viewer.js"></script>
-    <script src="/js/volume-viewer/modules/brainbrowser.volume-viewer.display.js"></script>
-    <script src="/js/volume-viewer/modules/brainbrowser.volume-viewer.volume-interface.js"></script>
-    <script src="/js/volume-viewer/modules/brainbrowser.volume-viewer.loader.js"></script>
-    <script src="/js/volume-viewer/modules/brainbrowser.volume-viewer.colorscale.js"></script>
-    <script src="/js/volume-viewer/modules/brainbrowser.volume-viewer.utils.js"></script>
-    <script src="/js/volume-viewer/volumes/multivolume.js"></script>
-    <script src="/js/volume-viewer/volumes/minc_data.js"></script>
-    <script src="/js/volume-viewer/volumes/minc.js"></script>
-    <script src="/js/volume-viewer/ui-controls/brainbrowser.volume-viewer.ui-controls.js"></script>
+    <script type="text/javascript" src="/js/brainbrowser/lib/utils.js"></script>
+    <script src="/js/brainbrowser/volume-viewer.js"></script>
+    <script src="/js/brainbrowser/volume-viewer/modules/display.js"></script>
+    <script src="/js/brainbrowser/volume-viewer/modules/volume-interface.js"></script>
+    <script src="/js/brainbrowser/volume-viewer/modules/loader.js"></script>
+    <script src="/js/brainbrowser/volume-viewer/modules/colorscale.js"></script>
+    <script src="/js/brainbrowser/volume-viewer/modules/utils.js"></script>
+    <script src="/js/brainbrowser/volume-viewer/volumes/multivolume.js"></script>
+    <script src="/js/brainbrowser/volume-viewer/volumes/minc_data.js"></script>
+    <script src="/js/brainbrowser/volume-viewer/volumes/minc.js"></script>
+    <script src="/js/ui/brainbrowser.volume-viewer.ui-controls.js"></script>
     {{#ifenv "loris"}}
       <script src="/loris/js/jquery-ui.toggleSwitch.js"></script>
       <script src="/loris/js/jshashtable-2.1_src.js"></script>

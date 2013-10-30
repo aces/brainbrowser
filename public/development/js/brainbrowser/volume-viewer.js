@@ -39,6 +39,7 @@
 
   VolumeViewer.volumeType = {};
   VolumeViewer.colorScales = [];
+  VolumeViewer.modules = {};
   
   VolumeViewer.start = function(containerID, callback) {
     var viewer = {};
@@ -98,7 +99,7 @@
         }
       }
       
-      VolumeViewer.setupInterface(viewer);
+      viewer.setupInterface();
       for(i = 0; i < numVolumes; i++) {
 
         div = document.createElement("div");
@@ -107,7 +108,7 @@
         
         div.classList.add("volume-container");
         viewer_element.appendChild(div);
-        viewer.displays.push(VolumeViewer.addVolumeInterface(div, viewer, volumes[i], i));
+        viewer.displays.push(viewer.addVolumeInterface(div, volumes[i], i));
         cachedSlices[i] = [];
         
         volume.position.xspace = parseInt(volume.header.xspace.space_length/2, 10);
@@ -135,6 +136,10 @@
 
     BrainBrowser.utils.eventModel(viewer);
     
+    Object.keys(VolumeViewer.modules).forEach(function(m) {
+      VolumeViewer.modules[m](viewer);
+    });
+
     /**
      * Initial load of volumes
      * @param container Id of the element to contain the viewer

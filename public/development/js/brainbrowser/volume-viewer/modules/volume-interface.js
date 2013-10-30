@@ -27,12 +27,12 @@
 
 
 
-(function() {
+BrainBrowser.VolumeViewer.modules.ui = function(viewer) {
   "use strict";
 
   var VolumeViewer = BrainBrowser.VolumeViewer;
   
-  VolumeViewer.setupInterface = function(viewer) {
+  viewer.setupInterface = function() {
     document.addEventListener("keydown", function(e) {
       if (!viewer.active_canvas) return;
       var canvas = viewer.active_canvas;
@@ -68,7 +68,7 @@
     }, false);
   };
     
-  VolumeViewer.addVolumeInterface = function(div, viewer, volume, volID) {
+  viewer.addVolumeInterface = function(div, volume, volID) {
     var displays = [];
     
     function captureMouse(canvas) {
@@ -265,5 +265,5 @@
     
     return displays;
   };
-})();
+};
 

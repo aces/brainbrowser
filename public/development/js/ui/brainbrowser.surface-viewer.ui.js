@@ -20,6 +20,14 @@
 BrainBrowser.SurfaceViewer.plugins.ui = function(viewer) {
   "use strict";
   
+  viewer.getViewParams = function() {
+    return {
+      view: $('[name=hem_view]:checked').val(),
+      left: $('#left_hem_visible').is(":checked"),
+      right: $('#right_hem_visible').is(":checked")
+    };
+  };  
+
     
   $("body").keydown(function(e) {
     var key_code = e.which;
@@ -106,14 +114,6 @@ BrainBrowser.SurfaceViewer.plugins.ui = function(viewer) {
     
     img.src = viewer.canvasDataURL();
   });
-  
-  viewer.getViewParams = function() {
-    return {
-      view: $('[name=hem_view]:checked').val(),
-      left: $('#left_hem_visible').is(":checked"),
-      right: $('#right_hem_visible').is(":checked")
-    };
-  };
   
   $("#autorotate-controls").children().change(function () {
     viewer.autoRotate.x = $("#autorotateX").is(":checked");

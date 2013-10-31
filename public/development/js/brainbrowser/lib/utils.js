@@ -22,7 +22,12 @@
   var BrainBrowser = window.BrainBrowser = window.BrainBrowser || {};
 
   BrainBrowser.utils = {
- 
+    
+    // Test for canvas element support.
+    canvasEnabled: function() {
+      return document.createElement("canvas");
+    },
+
     /*!
      * WebGL test taken from Detector.js by
      * alteredq / http://alteredqualia.com/

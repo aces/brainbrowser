@@ -30,6 +30,10 @@ $(function() {
   });
   var warnings = $("#html5-warnings");
   if (warnings) {
+    if (!BrainBrowser.utils.canvasEnabled()) {
+      warnings.css("display", "inline-block");
+      warnings.find("#canvas-warning").show();
+    }
     if (!BrainBrowser.utils.webglEnabled()) {
       warnings.css("display", "inline-block");
       warnings.find("#webgl-warning").show();

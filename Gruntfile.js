@@ -55,16 +55,6 @@ module.exports = function(grunt) {
           "<%= prod_js %>/brainbrowser.surface-viewer.ui.min.js": "<%= dev_js %>/ui/brainbrowser.surface-viewer.ui.js"
         }
       },
-      surface_demo: {
-        files: {
-          "<%= prod_js %>/surface-viewer-demo.js": "<%= dev_js %>/surface-viewer-demo.js"
-        }
-      },
-      macacc: {
-        files: {
-          "<%= prod_js %>/macacc-viewer-combined.min.js": "<%= concat.macacc.dest %>"
-        }
-      },
       volume: {
         files: {
           "<%= build_dir %>/brainbrowser.volume-viewer.min.js": "<%= concat.volume.dest %>"
@@ -75,13 +65,11 @@ module.exports = function(grunt) {
           "<%= build_dir %>/brainbrowser.volume-viewer.ui-controls.min.js": "<%= dev_js %>/ui/brainbrowser.volume-viewer.ui-controls.js"
         }
       },
-      volume_demo: {
+      demos: {
         files: {
-          "<%= prod_js %>/volume-viewer-demo.js": "<%= dev_js %>/volume-viewer-demo.js"
-        }
-      },
-      fmri: {
-        files: {
+          "<%= prod_js %>/surface-viewer-demo.js": "<%= dev_js %>/surface-viewer-demo.js",
+          "<%= prod_js %>/macacc-viewer-combined.min.js": "<%= concat.macacc.dest %>",
+          "<%= prod_js %>/volume-viewer-demo.js": "<%= dev_js %>/volume-viewer-demo.js",
           "<%= prod_js %>/fmri-viewer.js": "<%= dev_js %>/fmri-viewer.js"
         }
       },
@@ -208,9 +196,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean');
 
   grunt.registerTask("compile", ["clean", "concat", "uglify", "symlink"]);
-
-  grunt.registerTask("default", [
-    "jshint",
-    "compile"
-  ]);
+  grunt.registerTask("build", ["jshint", "compile"]);
+  grunt.registerTask("default", "jshint");
 };

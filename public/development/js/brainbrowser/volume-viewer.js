@@ -169,7 +169,7 @@
           var num_loaded = 0;
           var i;
           
-          scale.cross_hair_color = color_scale.cross_hair_color;
+          scale.crosshair_color = color_scale.crosshair_color;
           viewer.defaultScale = scale;
           VolumeViewer.colorScales[0] = scale;
           
@@ -208,7 +208,7 @@
           cs.url,
           cs.name,
           function(scale) {
-            scale.cross_hair_color = cs.cross_hair_color;
+            scale.crosshair_color = cs.crosshair_color;
             VolumeViewer.colorScales[i+1] = scale;
           }
         );
@@ -319,7 +319,7 @@
           if (slice){
             color_scale = volume.colorScale || viewer.defaultScale;
             display.drawSlice(context, slice);
-            display.drawCrosshair(context, color_scale.cross_hair_color, zoom);
+            display.drawCrosshair(context, color_scale.crosshair_color, zoom);
           }
           if (canvas === viewer.active_canvas) {
             context.save();

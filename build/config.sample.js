@@ -15,6 +15,31 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+///////////////////////////////////////////////////////////////////////////
+//
+// This is a sample configuration file for brainbrowser
+// Modify it to match the congiguration of your installation.
+//
+// Options include:
+// suface_viewer: options for Surface Viewer
+//   - filetypes: options for supported model file types
+//     Each file type can define the following:
+//     - worker: url of the web worker used to parse the file.
+//     - format_hint: html to be displayed to aid the user when 
+//       uploading that type of file
+//   - data: options for parsing color data files
+//     - worker: url of the web worker used to parse the file.
+// 
+// volume_viewer:
+//   - color_scales: an array of color scale definitions
+//     - name: name to be display for the color scale in the UI
+//     - url: url of the color scale file
+//     - crosshair_color: color of the crosshair to be used when 
+//       the color scale is active.
+//
+///////////////////////////////////////////////////////////////////////////
+
+
 (function() {
   "use strict";
   
@@ -46,27 +71,27 @@
         {
           name: "Spectral",
           url: "/color_scales/spectral.txt",
-          cross_hair_color: "#FFFFFF"
+          crosshair_color: "#FFFFFF"
         },
         {
           name: "Thermal",
           url: "/color_scales/thermal.txt",
-          cross_hair_color: "#FFFFFF"
+          crosshair_color: "#FFFFFF"
         },
         {
           name: "Gray",
           url: "/color_scales/gray_scale.txt",
-          cross_hair_color: "#FF0000"
+          crosshair_color: "#FF0000"
         },
         {
           name: "Blue",
           url: "/color_scales/blue.txt",
-          cross_hair_color: "#FFFFFF"
+          crosshair_color: "#FFFFFF"
         },
         {
           name: "Green",
           url: "/color_scales/green.txt",
-          cross_hair_color: "#FF0000"
+          crosshair_color: "#FF0000"
         }
       ]
     }

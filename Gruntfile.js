@@ -13,10 +13,6 @@ module.exports = function(grunt) {
         separator: ";",
         process: true
       },
-      config: {
-        src: "<%= dev_js %>/brainbrowser/config.js",
-        dest: "<%= build_dir %>/config.js"
-      },
       surface: {
         src: [
           "<%= dev_js %>/brainbrowser/lib/utils.js",

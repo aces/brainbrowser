@@ -58,7 +58,8 @@
       var img = new Image();
       canvas.width = width * viewer.displays.length;
       canvas.height = height * 3;
-      canvas.backgroundColor = "#000000";
+      context.fillStyle = "#000000";
+      context.fillRect(0, 0, canvas.width, canvas.height);
       
       viewer.active_canvas = null;
       viewer.draw();

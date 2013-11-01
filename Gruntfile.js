@@ -156,7 +156,7 @@ module.exports = function(grunt) {
     clean: {
       build :[
         "<%= prod_js %>/brainbrowser",
-        "build/*"
+        "<%= build_dir %>"
       ],
       tmp: "tmp/*.js"
     },

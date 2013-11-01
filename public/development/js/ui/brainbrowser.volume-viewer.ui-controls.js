@@ -78,7 +78,7 @@
           width: img.width
         });
       };
-      
+
       img.src = canvas.toDataURL();
     });
     
@@ -349,6 +349,8 @@
       var img = new Image();
       canvas.width = per_column * image_data.width;
       canvas.height = (space_length / per_column + 1) * image_data.height;
+      context.fillStyle = "#000000";
+      context.fillRect(0, 0, canvas.width, canvas.height);
 
       for (i = 0; i < space_length; i++) {
         image_data = volume.slice(axis_name, i, time).getImage(zoom);

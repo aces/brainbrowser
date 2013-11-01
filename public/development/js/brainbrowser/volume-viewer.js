@@ -61,15 +61,16 @@
     viewer.synced = false;
     viewer.default_zoom_level = 1;
 
-  
+    console.log("BrainBrowser Volume Viewer v" + BrainBrowser.version);
+
      /**
      * Open volume using appropriate volume loader
      * @param {Object} Volume description of the volume to load
      */
-    function openVolume(volume, callback){
-      var loader = VolumeViewer.volumeType[volume.type];
+    function openVolume(volume_description, callback){
+      var loader = VolumeViewer.volumeType[volume_description.type];
       if(loader){
-        loader(volume, callback);
+        loader(volume_description, callback);
       } else {
         throw new Error("Unsuported Volume Type");
       }
@@ -157,15 +158,18 @@
       
       var volume_descriptions = opts.volumes;
       var num_descriptions = opts.volumes.length;
-    
+
+      var config = BrainBrowser.config.volume_viewer;
+      var color_scale = config.color_scales[0];
+
       VolumeViewer.loader.loadColorScaleFromUrl(
-        '/color_scales/spectral.txt',
-        'Spectral',
+        color_scale.url,
+        color_scale.name,
         function(scale) {
           var num_loaded = 0;
           var i;
           
-          scale.cross_hair_color = "#FFFFFF";
+          scale.cross_hair_color = color_scale.cross_hair_color;
           viewer.defaultScale = scale;
           VolumeViewer.colorScales[0] = scale;
           
@@ -198,40 +202,17 @@
           }
         }
       );
-      
-      VolumeViewer.loader.loadColorScaleFromUrl(
-        '/color_scales/thermal.txt',
-        'Thermal',
-        function(scale) {
-          scale.cross_hair_color = "#FFFFFF";
-          VolumeViewer.colorScales[1] = scale;
-        }
-      );
-      
-      VolumeViewer.loader.loadColorScaleFromUrl(
-        '/color_scales/gray_scale.txt',
-        'Gray',
-        function(scale){
-          VolumeViewer.colorScales[2] = scale;
-        }
-      );
-      
-      VolumeViewer.loader.loadColorScaleFromUrl(
-        '/color_scales/blue.txt',
-        'Blue',
-        function(scale){
-          scale.cross_hair_color = "#FFFFFF";
-          VolumeViewer.colorScales[3] = scale;
-        }
-      );
-      
-      VolumeViewer.loader.loadColorScaleFromUrl(
-        '/color_scales/green.txt',
-        'Green',
-        function(scale){
-          VolumeViewer.colorScales[4] = scale;
-        }
-      );
+
+      config.color_scales.slice(1).forEach(function(cs, i) {
+        VolumeViewer.loader.loadColorScaleFromUrl(
+          cs.url,
+          cs.name,
+          function(scale) {
+            scale.cross_hair_color = cs.cross_hair_color;
+            VolumeViewer.colorScales[i+1] = scale;
+          }
+        );
+      });
     };
     
     viewer.updateVolume = function(volumeNum, slices) {

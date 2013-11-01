@@ -3,13 +3,15 @@ module.exports = function(grunt) {
   
   grunt.initConfig({
     pkg: grunt.file.readJSON("package.json"),
+    BRAINBROWSER_VERSION: "<%= pkg.version %>",
     dev_js: "public/development/js",
     prod_js: "public/production/js",
-    build_dir: "build/brainbrowser-<%= pkg.version %>",
+    build_dir: "build/brainbrowser-<%= BRAINBROWSER_VERSION %>",
     license: grunt.file.read("license_header.txt"),
     concat: {
       options: {
-        separator: ";"
+        separator: ";",
+        process: true
       },
       config: {
         src: "<%= dev_js %>/brainbrowser/config.js",
@@ -123,7 +125,8 @@ module.exports = function(grunt) {
             BrainBrowser: true,
             MACACC: true,
             utils: true,
-            alert: true
+            alert: true,
+            console: true
           }
         },
         src: [

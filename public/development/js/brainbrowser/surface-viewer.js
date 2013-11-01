@@ -40,6 +40,8 @@
   var SurfaceViewer = BrainBrowser.SurfaceViewer = {
     start: function(element_id, callback) {
 
+      console.log("BrainBrowser Surface Viewer v" + BrainBrowser.version);
+
       /////////////////////////////////
       // Browser compatibility checks.
       /////////////////////////////////
@@ -53,6 +55,7 @@
         alert("Can't get WebGL context. Exiting.");
         return;
       }
+
       // Allows a prototype to be defined for the browser.
       var viewer = {};
 

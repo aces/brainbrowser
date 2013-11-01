@@ -49,16 +49,11 @@
    * Fetch the parameters of the minc file. sends a request to http://filename/?minc_headers=true or whatever getHeadersParams says
    * @param {String} filename url/filename of the file to load minc headers
    */
-  function getHeaders(filename, getParam, callback) {
-    var param = getParam.split('=');
-    var dataArgs = {};
-    
-    dataArgs[param[0]] = param[1];
-    
+  function getHeaders(filename, header_params, callback) {
     $.ajax({
       url: filename,
       dataType: 'json',
-      data: dataArgs,
+      data: header_params,
       success: function(data){
         if (callback) callback(data);
       },
@@ -77,14 +72,14 @@
    * @param {Function}  callback  function to call when data is done loading
    * @param {Object}    extraArgs with extraArgs to pass to callback when data is done loading
    */
-  function getData(filename, getRawDataParam, callback){
-    filename += filename.match(/\?/) ? "&" : "?";
-    filename += getRawDataParam;
-    
+  function getData(filename, raw_data_params, callback){
+    Object.keys(raw_data_params).forEach(function(k) {
+      filename += filename.match(/\?/) ? "&" : "?" +
+                  k + "=" + raw_data_params[k];
+    });
     VolumeViewer.loader.loadArrayBuffer(filename, function(data) {
       callback(data);
     });
-    
   }
   
   // Prototype for minc volume.
@@ -140,19 +135,19 @@
     }
   };
 
-  VolumeViewer.volumeType.minc = function(opt, callback) {
+  VolumeViewer.volumeType.minc = function(description, callback) {
     var volume = Object.create(minc_volume_proto);
       //What get parameter will be used in request to server
-    var getRawDataParam = opt.getRawDataParam || "raw_data=true";
-    var getHeaderParam = opt.getHeaderParam || "minc_headers=true";
+    var raw_data_params = description.raw_data_params || { raw_data: true };
+    var header_params = description.header_params || { minc_headers : true };
     var data;
     volume.current_time = 0;
     
     
-    getHeaders(opt.filename,getHeaderParam, function(headers) {
-      getData(opt.filename,getRawDataParam, function(arrayBuffer){
+    getHeaders(description.filename, header_params, function(headers) {
+      getData(description.filename, raw_data_params, function(arrayBuffer){
         data =  new Uint8Array(arrayBuffer);
-        volume.data = VolumeViewer.mincData(opt.filename, headers, data);
+        volume.data = VolumeViewer.mincData(description.filename, headers, data);
         volume.header = volume.data.header;
         volume.min = 0;
         volume.max = 255;

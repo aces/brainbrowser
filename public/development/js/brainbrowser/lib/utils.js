@@ -21,6 +21,9 @@
  
   var BrainBrowser = window.BrainBrowser = window.BrainBrowser || {};
 
+  // This gets set during the build process.
+  BrainBrowser.version = "<%= BRAINBROWSER_VERSION %>";
+
   BrainBrowser.utils = {
     
     // Test for canvas element support.

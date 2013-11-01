@@ -22,7 +22,8 @@
   var BrainBrowser = window.BrainBrowser = window.BrainBrowser || {};
 
   // This gets set during the build process.
-  BrainBrowser.version = "<%= BRAINBROWSER_VERSION %>";
+  var version = "<%= BRAINBROWSER_VERSION %>";
+  BrainBrowser.version = version.indexOf("BRAINBROWSER_VERSION") > 0 ? "D.E.V" : version;
 
   BrainBrowser.utils = {
     

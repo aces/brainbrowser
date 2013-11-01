@@ -149,15 +149,15 @@
      * Options:
      *   multi: used to view multiple volumes at a time (default: false)
      */
-    viewer.loadVolumes = function(opts) {
-      opts = opts || {};
+    viewer.loadVolumes = function(options) {
+      options = options || {};
       
       container = document.getElementById(containerID);
       viewer_element = document.createElement("div");
       viewer_element.id = "volume-viewer";
       
-      var volume_descriptions = opts.volumes;
-      var num_descriptions = opts.volumes.length;
+      var volume_descriptions = options.volumes;
+      var num_descriptions = options.volumes.length;
 
       var config = BrainBrowser.config.volume_viewer;
       var color_scale = config.color_scales[0];
@@ -180,7 +180,7 @@
               if (++num_loaded < num_descriptions) {
                 return;
               }
-              if (opts.overlay) {
+              if (options.overlay && num_descriptions > 1) {
                 openVolume({
                     volumes: viewer.volumes,
                     type: 'multivolume'

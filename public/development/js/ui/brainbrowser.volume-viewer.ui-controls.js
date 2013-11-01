@@ -34,15 +34,19 @@
   
   VolumeViewer.globalUIControls = function(element, viewer) {
     var controls = $('<div id="global-controls" class="volume-viewer-controls"></div>');
-    var sync_button = $('<input type="checkbox" class="button" id="sync"><label for="sync">Sync Volumes</label>');
+    var sync_button, image_button;
+
+    if (viewer.volumes.length > 1) {
+      sync_button = $('<input type="checkbox" class="button" id="sync"><label for="sync">Sync Volumes</label>');
     
-    sync_button.change(function() {
-      viewer.synced = sync_button.is(":checked");
-    });
+      sync_button.change(function() {
+        viewer.synced = sync_button.is(":checked");
+      });
+      
+      controls.append(sync_button);
+    }
     
-    controls.append(sync_button);
-    
-    var image_button = $('<span id="capture" class="button">Capture Slices</span>');
+    image_button = $('<span id="capture" class="button">Capture Slices</span>');
     
     image_button.click(function() {
       var width = viewer.displays[0][0].canvas.width;
@@ -54,6 +58,7 @@
       var img = new Image();
       canvas.width = width * viewer.displays.length;
       canvas.height = height * 3;
+      canvas.backgroundColor = "#000000";
       
       viewer.active_canvas = null;
       viewer.draw();

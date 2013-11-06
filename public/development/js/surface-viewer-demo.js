@@ -74,7 +74,7 @@ $(function() {
               var alpha = $(target).slider('value');
               alpha = Math.min(100, Math.max(0, alpha)) / 100.0;
 
-              viewer.changeShapeTransparency(shape_name, alpha);
+              viewer.setTransparency(shape_name, alpha);
             }
           });
           slider.appendTo(slider_div);
@@ -382,7 +382,7 @@ $(function() {
             format: "MNIObject",
             afterDisplay: function() {
               $(".opacity-slider[data-shape-name='mouse_brain_outline.obj']").slider("value", 50);
-              viewer.changeShapeTransparency('mouse_brain_outline.obj', 0.5);
+              viewer.setTransparency('mouse_brain_outline.obj', 0.5);
             },
             cancel: default_cancel_opts(current_request)
           });

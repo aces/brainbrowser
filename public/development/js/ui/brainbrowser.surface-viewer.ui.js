@@ -51,14 +51,28 @@ BrainBrowser.SurfaceViewer.plugins.ui = function(viewer) {
   
   //Setups the view events and handlers
   $('#resetview').click(viewer.setupView);
-  $('.view_button').change(viewer.setupView);
+
+  $('.visibility').change(function() {
+    var input  = $(this);
+    var hemisphere = input.data("hemisphere");
+    var shape = viewer.model.getObjectByName(hemisphere);
+
+    if (!shape) return;
+
+    if (shape.wireframe_active) {
+      shape = shape.getObjectByName("__wireframe__") || shape;
+    }
+
+    shape.visible = input.is(":checked");  
+  });
+  
   $('[name=hem_view]').change(viewer.setupView);
   
   $('#meshmode').change(function(e) {
     if ($(e.target).is(":checked")) {
-      viewer.set_fill_mode_wireframe();
+      viewer.fillModeWireframe();
     } else {
-      viewer.set_fill_mode_solid();
+      viewer.fillModeSolid();
     }
   });
   

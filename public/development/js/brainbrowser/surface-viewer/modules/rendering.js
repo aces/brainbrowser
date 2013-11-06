@@ -92,7 +92,7 @@ BrainBrowser.SurfaceViewer.core.rendering = function(viewer) {
     */
   viewer.resetView = function() {
     var model = viewer.model;
-    var child;
+    var child, wireframe;
     var i, count;
     var inv = new THREE.Matrix4();
     inv.getInverse(model.matrix);
@@ -103,15 +103,22 @@ BrainBrowser.SurfaceViewer.core.rendering = function(viewer) {
     
     for (i = 0, count = viewer.model.children.length; i < count; i++) {
       child = model.children[i];
-      child.visible = true;
       if (child.centroid) {
         child.position.set(child.centroid.x, child.centroid.y, child.centroid.z);
       } else {
         child.position.set(0, 0, 0);
       }
       child.rotation.set(0, 0, 0);
+
+      wireframe = child.getObjectByName("__wireframe__");
     }
   };
+
+  viewer.zoom = function(zoom) {
+    camera.fov *= zoom;
+    camera.updateProjectionMatrix();
+  };
+
   
   /**
    * Delete all the shapes on screen
@@ -137,43 +144,6 @@ BrainBrowser.SurfaceViewer.core.rendering = function(viewer) {
    */
   viewer.updateClearColor = function(color)  {
     renderer.setClearColor(color, 1.0);
-  };
- 
-  /*
-   * Sets the fillmode of the brain to wireframe or filled
-   */
-  viewer.set_fill_mode_wireframe = function() {
-    var children = viewer.model.children;
-    var material;
-    
-    for (var i = 0; i < children.length; i++) {
-      material = children[i].material;
-      material.wireframe = true;
-      if (material.emissive) {
-        material.emissive.setHex(0x7777777);
-      }
-    }
-  };
-  
-  viewer.set_fill_mode_solid = function() {
-    var children = viewer.model.children;
-    var material;
-    
-    for (var i = 0; i < children.length; i++) {
-      material = children[i].material;
-      material.wireframe = false;
-      if (material.emissive) {
-        material.emissive.setHex(0x000000);
-      }
-    }
-  };
-
-  /**
-   * The following methods implement the zoom in and out
-   */
-  viewer.zoom = function(zoom) {
-    camera.fov *= zoom;
-    camera.updateProjectionMatrix();
   };
   
   /*

@@ -23,9 +23,9 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   //////////////
   
   // Change the opacity of an object in the scene.
-  viewer.changeShapeTransparency = function(shape_name, alpha) {
+  viewer.setTransparency = function(shape_name, alpha) {
     var shape = viewer.model.getObjectByName(shape_name);
-    var material;
+    var material, wireframe;
     if (shape) {
       material = shape.material;
       material.opacity = alpha;
@@ -33,6 +33,62 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
         material.transparent = false;
       } else {
         material.transparent = true;
+      }
+      wireframe = shape.getObjectByName("__wireframe__");
+      if (wireframe) {
+        wireframe.material.opacity = material.opacity;
+        wireframe.material.transparent = material.transparent;
+      }
+    }
+  };
+  
+  viewer.activateWireframe = function(shape) {
+    var wireframe = shape.getObjectByName("__wireframe__");
+    if (wireframe) {
+      shape.visible = false;
+      wireframe.visible = true;
+      shape.wireframe_active = true;
+    }
+  };
+
+  viewer.deactivateWireframe = function(shape) {
+    var wireframe = shape.getObjectByName("__wireframe__");
+    if (wireframe) {
+      shape.visible = true;
+      wireframe.visible = false;
+      shape.wireframe_active = false;
+    }
+  };
+
+  /*
+   * Sets the fillmode of the brain to wireframe or filled
+   */
+  viewer.fillModeWireframe = function() {
+    var children = viewer.model.children;
+    var child, wireframe;
+    
+    for (var i = 0; i < children.length; i++) {
+      child = children[i];
+      wireframe = child.getObjectByName("__wireframe__");
+      if (wireframe) {
+        child.visible = false;
+        wireframe.visible = true;
+        child.wireframe_active = true;
+      }
+    }
+  };
+  
+  viewer.fillModeSolid = function() {
+    var children = viewer.model.children;
+    var child, wireframe;
+    
+    for (var i = 0; i < children.length; i++) {
+      child = children[i];
+      wireframe = child.getObjectByName("__wireframe__");
+      if (wireframe) {
+        child.visible = true;
+        wireframe.visible = false;
+        child.wireframe_active = false;
       }
     }
   };
@@ -51,35 +107,6 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
         viewer.superiorView();
       }
     }
-
-    /*
-     * Decides if the hemispheres need to be shown
-     */
-    if (viewer.model.getObjectByName("left")) {
-      viewer.leftHemisphereVisible(params.left);
-    }
-    if (viewer.model.getObjectByName("right")) {
-      viewer.rightHemisphereVisible(params.right);
-    }
-  };
-  
-
-
-  /**
-   * functions turn the left hemisphere shapes visibility on off
-   * @param {Bool} state  boolean (true == visible, false == not visible)
-   */
-  viewer.leftHemisphereVisible = function(state)  {
-    viewer.model.getObjectByName("left").visible = state;
-  };
-  
-
-  /**
-   * functions turn the right hemisphere shapes visibility on off
-   * @param {Bool} state  boolean (true == visible, false == not visible)
-   */
-  viewer.rightHemisphereVisible = function(state)  {
-    viewer.model.getObjectByName("right").visible = state;
   };
 
   //Returns the position and info about a vertex

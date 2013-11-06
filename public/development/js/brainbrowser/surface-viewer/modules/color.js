@@ -116,6 +116,7 @@ BrainBrowser.SurfaceViewer.core.color = function(viewer) {
     var left_hem = model.getObjectByName("left");
     var right_hem = model.getObjectByName("right");
     var i, count;
+    var ic, iwc;
 
     left_color_array = color_array.slice(0, color_array_length/2);
     right_color_array = color_array.slice(color_array_length/2);
@@ -127,19 +128,117 @@ BrainBrowser.SurfaceViewer.core.color = function(viewer) {
     var left_color_attribute_array = left_color_attribute.array;
     var right_color_attribute = right_hem.geometry.attributes.color;
     var right_color_attribute_array = right_color_attribute.array;
-     
-    for (i = 0, count = left_indices.length; i < count; i++) {
-      left_color_attribute_array[i*4] = left_color_array[left_indices[i]*4];
-      left_color_attribute_array[i*4+1] = left_color_array[left_indices[i]*4+1];
-      left_color_attribute_array[i*4+2] = left_color_array[left_indices[i]*4+2];
-      right_color_attribute_array[i*4] = right_color_array[right_indices[i]*4];
-      right_color_attribute_array[i*4+1] = right_color_array[right_indices[i]*4+1];
-      right_color_attribute_array[i*4+2] = right_color_array[right_indices[i]*4+2];
+
+    var left_wireframe = left_hem.getObjectByName("__wireframe__");
+    var right_wireframe = right_hem.getObjectByName("__wireframe__");
+    var left_wireframe_color;
+    var right_wireframe_color;
+
+    var has_wireframe = !!left_wireframe;
+
+    if (has_wireframe) {
+      left_wireframe_color = left_wireframe.geometry.attributes.color.array;
+      right_wireframe_color = right_wireframe.geometry.attributes.color.array;
+    }
+
+    for (i = 0, count = left_indices.length; i < count; i += 3) {
+      ic = i * 4;
+      iwc = ic * 2;
+
+
+      // This is a little messy but it's just going from an indexed color map
+      // to an unindexed geometry.
+      // And it's skipping the alphas (every 4th element).
+      left_color_attribute_array[ic]    = left_color_array[left_indices[i]*4];
+      left_color_attribute_array[ic+1]  = left_color_array[left_indices[i]*4+1];
+      left_color_attribute_array[ic+2]  = left_color_array[left_indices[i]*4+2];
+      left_color_attribute_array[ic+4]  = left_color_array[left_indices[i+1]*4];
+      left_color_attribute_array[ic+5]  = left_color_array[left_indices[i+1]*4+1];
+      left_color_attribute_array[ic+6]  = left_color_array[left_indices[i+1]*4+2];
+      left_color_attribute_array[ic+8]  = left_color_array[left_indices[i+2]*4];
+      left_color_attribute_array[ic+9]  = left_color_array[left_indices[i+2]*4+1];
+      left_color_attribute_array[ic+10] = left_color_array[left_indices[i+2]*4+2];
+
+      right_color_attribute_array[ic]    = right_color_array[right_indices[i]*4];
+      right_color_attribute_array[ic+1]  = right_color_array[right_indices[i]*4+1];
+      right_color_attribute_array[ic+2]  = right_color_array[right_indices[i]*4+2];
+      right_color_attribute_array[ic+4]  = right_color_array[right_indices[i+1]*4];
+      right_color_attribute_array[ic+5]  = right_color_array[right_indices[i+1]*4+1];
+      right_color_attribute_array[ic+6]  = right_color_array[right_indices[i+1]*4+2];
+      right_color_attribute_array[ic+8]  = right_color_array[right_indices[i+2]*4];
+      right_color_attribute_array[ic+9]  = right_color_array[right_indices[i+2]*4+1];
+      right_color_attribute_array[ic+10] = right_color_array[right_indices[i+2]*4+2];
+
+      if (has_wireframe) {
+        // v1 -v2
+        left_wireframe_color[iwc] = left_color_attribute_array[ic];
+        left_wireframe_color[iwc + 1] = left_color_attribute_array[ic + 1];
+        left_wireframe_color[iwc + 2] = left_color_attribute_array[ic + 2];
+        left_wireframe_color[iwc + 3] = left_color_attribute_array[ic + 3];
+        left_wireframe_color[iwc + 4] = left_color_attribute_array[ic + 4];
+        left_wireframe_color[iwc + 5] = left_color_attribute_array[ic + 5];
+        left_wireframe_color[iwc + 6] = left_color_attribute_array[ic + 6];
+        left_wireframe_color[iwc + 7] = left_color_attribute_array[ic + 7];
+
+        // v2 - v3
+        left_wireframe_color[iwc + 8] = left_color_attribute_array[ic + 4];
+        left_wireframe_color[iwc + 9] = left_color_attribute_array[ic + 5];
+        left_wireframe_color[iwc + 10] = left_color_attribute_array[ic + 6];
+        left_wireframe_color[iwc + 11] = left_color_attribute_array[ic + 7];
+        left_wireframe_color[iwc + 12] = left_color_attribute_array[ic + 8];
+        left_wireframe_color[iwc + 13] = left_color_attribute_array[ic + 9];
+        left_wireframe_color[iwc + 14] = left_color_attribute_array[ic + 10];
+        left_wireframe_color[iwc + 15] = left_color_attribute_array[ic + 11];
+        
+        // v3 - v1
+        left_wireframe_color[iwc + 16] = left_color_attribute_array[ic + 8];
+        left_wireframe_color[iwc + 17] = left_color_attribute_array[ic + 9];
+        left_wireframe_color[iwc + 18] = left_color_attribute_array[ic + 10];
+        left_wireframe_color[iwc + 19] = left_color_attribute_array[ic + 11];
+        left_wireframe_color[iwc + 20] = left_color_attribute_array[ic];
+        left_wireframe_color[iwc + 21] = left_color_attribute_array[ic + 1];
+        left_wireframe_color[iwc + 22] = left_color_attribute_array[ic + 2];
+        left_wireframe_color[iwc + 23] = left_color_attribute_array[ic + 3];
+
+        // v1 -v2
+        right_wireframe_color[iwc]     = right_color_attribute_array[ic];
+        right_wireframe_color[iwc + 1] = right_color_attribute_array[ic + 1];
+        right_wireframe_color[iwc + 2] = right_color_attribute_array[ic + 2];
+        right_wireframe_color[iwc + 3] = right_color_attribute_array[ic + 3];
+        right_wireframe_color[iwc + 4] = right_color_attribute_array[ic + 4];
+        right_wireframe_color[iwc + 5] = right_color_attribute_array[ic + 5];
+        right_wireframe_color[iwc + 6] = right_color_attribute_array[ic + 6];
+        right_wireframe_color[iwc + 7] = right_color_attribute_array[ic + 7];
+
+        // v2 - v3
+        right_wireframe_color[iwc + 8]  = right_color_attribute_array[ic + 4];
+        right_wireframe_color[iwc + 9]  = right_color_attribute_array[ic + 5];
+        right_wireframe_color[iwc + 10] = right_color_attribute_array[ic + 6];
+        right_wireframe_color[iwc + 11] = right_color_attribute_array[ic + 7];
+        right_wireframe_color[iwc + 12] = right_color_attribute_array[ic + 8];
+        right_wireframe_color[iwc + 13] = right_color_attribute_array[ic + 9];
+        right_wireframe_color[iwc + 14] = right_color_attribute_array[ic + 10];
+        right_wireframe_color[iwc + 15] = right_color_attribute_array[ic + 11];
+        
+        // v3 - v1
+        right_wireframe_color[iwc + 16] = right_color_attribute_array[ic + 8];
+        right_wireframe_color[iwc + 17] = right_color_attribute_array[ic + 9];
+        right_wireframe_color[iwc + 18] = right_color_attribute_array[ic + 10];
+        right_wireframe_color[iwc + 19] = right_color_attribute_array[ic + 11];
+        right_wireframe_color[iwc + 20] = right_color_attribute_array[ic];
+        right_wireframe_color[iwc + 21] = right_color_attribute_array[ic + 1];
+        right_wireframe_color[iwc + 22] = right_color_attribute_array[ic + 2];
+        right_wireframe_color[iwc + 23] = right_color_attribute_array[ic + 3];
+      }
+
     }
 
     left_color_attribute.needsUpdate = true;
     right_color_attribute.needsUpdate = true;
-    
+    if (has_wireframe) {
+      left_wireframe.geometry.attributes.color.needsUpdate = true;
+      right_wireframe.geometry.attributes.color.needsUpdate = true;
+    }
   }
   
   //Coloring for regular models.
@@ -147,20 +246,78 @@ BrainBrowser.SurfaceViewer.core.color = function(viewer) {
     var geometry, shape, indices;
     var color_attribute, colors;
     var i, count;
+    var wireframe;
+    var wireframe_color;
+    var ic, iwc;
+
+    var has_wireframe;
 
     for (i = 0, count = shapes.length; i < count; i++) {
       shape = shapes[i];
+      wireframe = shape.getObjectByName("__wireframe__");
+
+      has_wireframe = !!wireframe;
+
+      if (has_wireframe) {
+        wireframe_color = wireframe.geometry.attributes.color.array;
+      }
+
       geometry = shape.geometry;
       indices = shape.geometry.original_data.indices;
       color_attribute = geometry.attributes.color;
       colors = color_attribute.array;
-      for (i = 0, count = indices.length; i < count; i++) {
-        colors[i*4] = color_array[indices[i]*4];
-        colors[i*4+1] = color_array[indices[i]*4+1];
-        colors[i*4+2] = color_array[indices[i]*4+2];
+      for (i = 0, count = indices.length; i < count; i += 3) {
+        ic = i * 4;
+        iwc = ic * 2;
+
+        colors[ic]    = color_array[indices[i]*4];
+        colors[ic+1]  = color_array[indices[i]*4+1];
+        colors[ic+2]  = color_array[indices[i]*4+2];
+        colors[ic+4]  = color_array[indices[i+1]*4];
+        colors[ic+5]  = color_array[indices[i+1]*4+1];
+        colors[ic+6]  = color_array[indices[i+1]*4+2];
+        colors[ic+8]  = color_array[indices[i+2]*4];
+        colors[ic+9]  = color_array[indices[i+2]*4+1];
+        colors[ic+10] = color_array[indices[i+2]*4+2];
+
+        if (has_wireframe) {
+          // v1 -v2
+          wireframe_color[iwc] = colors[ic];
+          wireframe_color[iwc + 1] = colors[ic + 1];
+          wireframe_color[iwc + 2] = colors[ic + 2];
+          wireframe_color[iwc + 3] = colors[ic + 3];
+          wireframe_color[iwc + 4] = colors[ic + 4];
+          wireframe_color[iwc + 5] = colors[ic + 5];
+          wireframe_color[iwc + 6] = colors[ic + 6];
+          wireframe_color[iwc + 7] = colors[ic + 7];
+
+          // v2 - v3
+          wireframe_color[iwc + 8] = colors[ic + 4];
+          wireframe_color[iwc + 9] = colors[ic + 5];
+          wireframe_color[iwc + 10] = colors[ic + 6];
+          wireframe_color[iwc + 11] = colors[ic + 7];
+          wireframe_color[iwc + 12] = colors[ic + 8];
+          wireframe_color[iwc + 13] = colors[ic + 9];
+          wireframe_color[iwc + 14] = colors[ic + 10];
+          wireframe_color[iwc + 15] = colors[ic + 11];
+          
+          // v3 - v1
+          wireframe_color[iwc + 16] = colors[ic + 8];
+          wireframe_color[iwc + 17] = colors[ic + 9];
+          wireframe_color[iwc + 18] = colors[ic + 10];
+          wireframe_color[iwc + 19] = colors[ic + 11];
+          wireframe_color[iwc + 20] = colors[ic];
+          wireframe_color[iwc + 21] = colors[ic + 1];
+          wireframe_color[iwc + 22] = colors[ic + 2];
+          wireframe_color[iwc + 23] = colors[ic + 3];
+        }
       }
 
       color_attribute.needsUpdate = true;
+
+      if (has_wireframe) {
+        wireframe.geometry.attributes.color.needsUpdate = true;
+      }
     }
 
   }

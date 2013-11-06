@@ -35,7 +35,8 @@ BrainBrowser.SurfaceViewer.core.rendering = function(viewer) {
   
   viewer.render = function() {
     var view_window = viewer.view_window;
-    renderer = new THREE.WebGLRenderer({clearColor: 0x888888, clearAlpha: 1, preserveDrawingBuffer: true});
+    renderer = new THREE.WebGLRenderer({preserveDrawingBuffer: true});
+    renderer.setClearColor(0x888888);
 
     renderer.setSize(view_window.offsetWidth, view_window.offsetHeight);
     effect = renderer;
@@ -135,7 +136,7 @@ BrainBrowser.SurfaceViewer.core.rendering = function(viewer) {
     *
    */
   viewer.updateClearColor = function(color)  {
-    renderer.setClearColorHex(color, 1.0);
+    renderer.setClearColor(color, 1.0);
   };
  
   /*
@@ -191,17 +192,35 @@ BrainBrowser.SurfaceViewer.core.rendering = function(viewer) {
     var mouseY = -((e.clientY - offset.top + window.scrollY)/view_window.offsetHeight) * 2 + 1;
     var vector = new THREE.Vector3(mouseX, mouseY, 1);
     var intersects, intersection, vertex_data;
+    var intersect_object, intersect_point, intersect_vertex_index, min_distance;
+    var verts, distance;
+    var i, count;
   
     projector.unprojectVector(vector, camera);
     raycaster.set(camera.position, vector.sub(camera.position).normalize() );
     intersects = raycaster.intersectObject(viewer.model, true);
     if (intersects.length > 0) {
+      
+      // Find closest point to intersection.
       intersection = intersects[0];
+      intersect_object = intersection.object;
+      intersect_point = intersection.point;
+      verts = intersect_object.geometry.original_data.vertices;
+      min_distance = intersect_point.distanceTo(new THREE.Vector3(verts[0], verts[1], verts[2]));
+      for (i = 1, count = verts.length; i < count; i++) {
+        distance = intersect_point.distanceTo(new THREE.Vector3(verts[i*3], verts[i*3+1], verts[i*3+2]));
+        if ( distance < min_distance) {
+          intersect_vertex_index = i;
+          min_distance = distance;
+        }
+      }
+
       vertex_data = {
-        vertex: intersection.face.a,
+        vertex: intersect_vertex_index,
         point: new THREE.Vector3(intersection.point.x, intersection.point.y, intersection.point.z),
         object: intersection.object
       };
+
       return click_callback(e, vertex_data);
     } else {
       return false;

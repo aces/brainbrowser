@@ -14,14 +14,14 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 BrainBrowser.SurfaceViewer.core.models = function(viewer) {
   "use strict";
-    
+
   //////////////////////////////
   // INTERFACE
   /////////////////////////////
-  
+
   // Display an object file.
   // Handles polygon-based and line-based models. Polygon models that have exactly
   // 81924 vertices are assumed to be brain models and are handled separately so the
@@ -29,36 +29,36 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
   //
   // @param {Object} obj object representing the model to be displayed
   // @param {String} filename name of the original file
-  viewer.displayObjectFile = function(obj, filename, opts) {
-    var options = opts || {};
+  viewer.displayObjectFile = function(obj, filename, options) {
+    options = options || {};
     var renderDepth = options.renderDepth;
     var afterDisplay = options.afterDisplay;
-    
+
     if (obj.objectClass === 'P' && obj.numberVertices === 81924) {
       addBrain(obj, renderDepth);
     } else if(obj.objectClass === 'P') {
       addPolygonObject(obj,filename, renderDepth);
     } else if(obj.objectClass === 'L') {
-      addLineObject(obj, filename, false, renderDepth);
+      addLineObject(obj, filename, renderDepth);
     } else {
       alert("Object file not supported");
     }
 
     viewer.triggerEvent("displayobject", viewer.model);
-    
+
     if (afterDisplay) afterDisplay();
   };
-    
+
   //////////////////////////////
   // PRIVATE FUNCTIONS
   /////////////////////////////
 
-  
+
   // Add a brain model to the scene.
   function addBrain(obj) {
     var model = viewer.model;
     var left, right;
-    
+
     viewer.model_data = obj;
     left = createHemisphere(obj.left);
     left.name = "left";
@@ -69,17 +69,24 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
     model.add(left);
     model.add(right);
   }
-  
+
   // Add an individual brain hemisphere to the scene.
   function createHemisphere(obj) {
     var verts = obj.positionArray;
-    var ind = obj.indexArray;
+    var indices = obj.indexArray;
+    var norms = obj.normalArray;
     var bounding_box = {};
     var centroid = {};
-    var face;
     var i, count;
-    var geometry, vertices, faces, material, hemisphere;
-    
+    var geometry = new THREE.BufferGeometry();
+    var material, hemisphere;
+
+    var num_vertices = indices.length; // number of unindexed vertices.
+    var num_coords = num_vertices * 3;
+    var num_color_coords = num_vertices * 4;
+
+    var position_attribute_array, normal_attribute_array, color_attribute_array;
+
     //Calculate center so positions of objects relative to each other can
     // defined (mainly for transparency).
     for(i = 0, count = verts.length; i + 2 < count; i += 3) {
@@ -88,36 +95,66 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
     centroid.x = bounding_box.minX + 0.5 * (bounding_box.maxX - bounding_box.minX);
     centroid.y = bounding_box.minY + 0.5 * (bounding_box.maxY - bounding_box.minY);
     centroid.z = bounding_box.minY + 0.5 * (bounding_box.maxZ - bounding_box.minZ);
-    
-    geometry = new THREE.Geometry();
-    vertices = geometry.vertices;
-    
-    for (i = 0, count = verts.length; i + 2 < count; i += 3) {
-      vertices.push(new THREE.Vector3(verts[i]-centroid.x, verts[i+1]-centroid.y, verts[i+2]-centroid.z));
+
+    geometry.dynamic = true;
+
+    geometry.attributes.position = {
+      itemSize: 3,
+      array: new Float32Array(num_coords),
+      numItems: num_coords
+    };
+
+    geometry.attributes.normal = {
+      itemSize: 3,
+      array: new Float32Array(num_coords),
+      numItems: num_coords
+    };
+
+    geometry.attributes.color = {
+      itemSize: 4,
+      array: new Float32Array(num_color_coords),
+      numItems: num_color_coords
+    };
+
+    geometry.original_data = {
+      vertices: verts,
+      indices: indices,
+      norms: norms,
+      colors: null
+    };
+
+    position_attribute_array = geometry.attributes.position.array;
+    normal_attribute_array = geometry.attributes.normal.array;
+    color_attribute_array = geometry.attributes.color.array;
+
+    for (i = 0, count = geometry.attributes.color.array.length; i < count; i++) {
+      geometry.attributes.color.array[i] = 1.0;
     }
-    
-    faces = geometry.faces;
-    for (i = 0, count = ind.length; i + 2 < count; i += 3) {
-      face = new THREE.Face3(ind[i], ind[i+1], ind[i+2]);
-      face.vertexColors = [new THREE.Color(), new THREE.Color(), new THREE.Color()];
-      faces.push(face);
+
+    // "Unravel" the vertex and normal arrays so we don't have to use indices
+    // (Avoids WebGL's 16 bit limit on indices)
+    for (i = 0, count = num_vertices; i < count; i++) {
+      position_attribute_array[i*3] = verts[indices[i] * 3] - centroid.x;
+      position_attribute_array[i*3 + 1] = verts[indices[i] * 3 + 1] - centroid.y;
+      position_attribute_array[i*3 + 2] = verts[indices[i] * 3 + 2] - centroid.z;
+      normal_attribute_array[i*3] = norms[indices[i] * 3];
+      normal_attribute_array[i*3 + 1] = norms[indices[i] * 3 + 1];
+      normal_attribute_array[i*3 + 2] = norms[indices[i] * 3 + 2];
     }
-    
-    geometry.computeFaceNormals();
-    geometry.computeVertexNormals();
-    
+
     material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0xFFFFFF, shininess: 100, vertexColors: THREE.VertexColors});
     hemisphere = new THREE.Mesh(geometry, material);
+
     hemisphere.centroid = centroid;
     hemisphere.position.set(centroid.x, centroid.y, centroid.z);
-    
+
     return hemisphere;
   }
 
   //Add a line model to the scene.
-  function addLineObject(obj, filename, mesh, renderDepth) {
+  function addLineObject(obj, filename, renderDepth) {
     var model = viewer.model;
-    var lineObject = createLineObject(obj, mesh);
+    var lineObject = createLineObject(obj);
     lineObject.name = filename;
     if (renderDepth) {
       lineObject.renderDepth = renderDepth;
@@ -127,24 +164,24 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
   }
 
   //Create a line model.
-  function createLineObject(obj, mesh) {
+  function createLineObject(obj) {
     var model_data = obj;
     var indices = [];
-    var verts = [];
-    var colors = [];
+    var verts = model_data.positionArray;
+    var colors = model_data.colorArray;
     var bounding_box = {};
     var centroid = {};
     var i, j, k, count;
     var nitems = model_data.nitems;
+    var geometry = new THREE.BufferGeometry();
     var start;
     var indexArray;
     var endIndex;
-    var colorArray = [];
-    var col;
-    var geometry, material, lineObject;
-    var posArray;
-    
-    viewer.model_data = model_data;
+    var material, lineObject;
+
+    var position_attribute_array, color_attribute_array;
+    var num_vertices, num_coords, num_color_coords;
+
 
     for (i = 0; i < nitems; i++){
       if (i === 0){
@@ -161,62 +198,67 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
       }
       indices.push(indexArray[endIndex-1]);
     }
-    
-    posArray = viewer.model_data.positionArray;
-  
+
+    num_vertices = indices.length;  // number of unindexed vertices.
+    num_coords = num_vertices * 3;
+    num_color_coords = num_vertices * 4;
+
     //Calculate center so positions of objects relative to each other can be determined.
     //Mainly for transparency.
-    for (j = 0, count = indices.length; j < count; j++) {
-      boundingBoxUpdate(bounding_box, posArray[indices[j]*3], posArray[indices[j]*3+1], posArray[indices[j]*3+2]);
+    for (j = 0, count = num_vertices; j < count; j++) {
+      boundingBoxUpdate(bounding_box, verts[indices[j]*3], verts[indices[j]*3+1], verts[indices[j]*3+2]);
     }
-    
+
     centroid.x = bounding_box.minX + 0.5 * (bounding_box.maxX - bounding_box.minX);
     centroid.y = bounding_box.minY + 0.5 * (bounding_box.maxY - bounding_box.minY);
     centroid.z = bounding_box.minY + 0.5 * (bounding_box.maxZ - bounding_box.minZ);
-    
-    if (!mesh) {
-      for (j = 0, count = indices.length; j < count; j++) {
-        verts.push(new THREE.Vector3(
-                      posArray[indices[j]*3] - centroid.x,
-                      posArray[indices[j]*3+1] - centroid.y,
-                      posArray[indices[j]*3+2] - centroid.z
-                    ));
-      }
-      
-      if (model_data.colorArray.length === 4) {
-        for (i = 0; i < verts.length; i++) {
-          colorArray.push(0.5, 0.5, 0.7, 1);
-        }
-      } else {
-        colorArray = viewer.model_data.colorArray;
-        
-        for(j = 0, count = indices.length; j < count; j++) {
-          col = new THREE.Color();
-          col.setRGB(colorArray[indices[j]*4], colorArray[indices[j]*4+1], colorArray[indices[j]*4+2]);
-          colors.push(col);
-        }
-      }
-      
-    } else {
-      verts = viewer.model_data.meshPositionArray;
-      colors = viewer.model_data.meshColorArray;
+
+
+
+    geometry.dynamic = true;
+
+    geometry.attributes.position = {
+      itemSize: 3,
+      array: new Float32Array(num_coords),
+      numItems: num_coords
+    };
+
+    geometry.attributes.color = {
+      itemSize: 4,
+      array: new Float32Array(num_color_coords),
+      numItems: num_color_coords
+    };
+
+    geometry.original_data = {
+      vertices: verts,
+      indices: indices,
+      norms: null,
+      colors: colors
+    };
+
+    position_attribute_array = geometry.attributes.position.array;
+    color_attribute_array = geometry.attributes.color.array;
+
+    // "Unravel" the vertex and normal arrays so we don't have to use indices
+    // (Avoids WebGL's 16 bit limit on indices)
+    for (i = 0, count = num_vertices; i < count; i++) {
+      position_attribute_array[i*3] = verts[indices[i] * 3] - centroid.x;
+      position_attribute_array[i*3 + 1] = verts[indices[i] * 3 + 1] - centroid.y;
+      position_attribute_array[i*3 + 2] = verts[indices[i] * 3 + 2] - centroid.z;
+      color_attribute_array[i*4] = colors[indices[i] * 4];
+      color_attribute_array[i*4 + 1] = colors[indices[i] * 4 + 1];
+      color_attribute_array[i*4 + 2] = colors[indices[i] * 4 + 2];
+      color_attribute_array[i*4 + 3] = 1.0;
     }
 
-    
-    geometry = new THREE.Geometry();
-    geometry.vertices = verts;
-    geometry.colors = colors;
-
-    geometry.colorsNeedUpdate = true;
-    
     material = new THREE.LineBasicMaterial({vertexColors: THREE.VertexColors});
     lineObject = new THREE.Line(geometry, material, THREE.LinePieces);
     lineObject.position.set(centroid.x, centroid.y, centroid.z);
     lineObject.centroid = centroid;
-    
+
     return lineObject;
   }
-  
+
   // Add a polygon object to the scene.
   function addPolygonObject(obj, filename){
     var model = viewer.model;
@@ -224,7 +266,7 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
     var i, count;
     var model_data = obj;
     var shapes = model_data.shapes;
-    
+
     viewer.model_data = model_data;
     if (shapes){
       for (i = 0, count = shapes.length; i < count; i++){
@@ -238,93 +280,109 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
       model.add(shape);
     }
   }
-  
+
   // Create a polygon object.
   function createPolygonShape(model_data) {
-    var positionArray = model_data.positionArray;
-    var indexArray  = model_data.indexArray;
-    var model_data_color_array = model_data.colorArray;
-    var i, j, count;
-    var col;
+    var verts = model_data.positionArray;
+    var indices  = model_data.indexArray;
+    var colors = model_data.colorArray;
+    var norms = model_data.normalArray;
+    var normals_given = (norms.length > 0);
     var all_gray = false;
-    var geometry, material, polygonShape;
-    var colors = [];
-    var face;
-    var faces;
-    var data_faces = model_data.faces;
-    var data_faces_length;
-    var data_face;
-    var data_face_length;
+    var geometry = new THREE.BufferGeometry();
+    var material, polygonShape;
     var data_color_0, data_color_1, data_color_2;
-    
-    if(model_data_color_array.length === 4) {
-      all_gray = true;
-      data_color_0 = model_data_color_array[0];
-      data_color_1 = model_data_color_array[1];
-      data_color_2 = model_data_color_array[2];
-    }
-    
-    colors = [];
-    geometry = new THREE.Geometry();
-    for (i = 0, count = positionArray.length/3; i < count; i++) {
-      geometry.vertices.push(new THREE.Vector3(positionArray[i*3], positionArray[i*3+1], positionArray[i*3+2]));
-      col = new THREE.Color();
-      if (!all_gray) {
-        col.setRGB(model_data_color_array[i*4], model_data_color_array[i*4+1], model_data_color_array[i*4+2]);
-      } else {
-        col.setRGB(data_color_0, data_color_1, data_color_2);
-      }
-      colors.push(col);
-    }
-    
-    faces = geometry.faces;
-    if (data_faces && data_faces.length > 0) {
-      data_faces_length = data_faces.length;
-      for(i = 0; i < data_faces_length; i++) {
-        data_face = data_faces[i];
-        data_face_length = data_face.length;
-        if (data_face_length < 3) continue;
-        if (data_face_length <= 4){
-          if (data_face_length <= 3) {
-            face = new THREE.Face3(data_face[0], data_face[1], data_face[2]);
-          } else if (data_face_length === 4){
-            face = new THREE.Face4(data_face[0], data_face[1], data_face[2], data_face[3]);
-          }
 
-          face.vertexColors = [colors[face.a], colors[face.b], colors[face.c]];
-          if (data_face_length > 3) {
-            face.vertexColors[3] = colors[face.d];
-          }
-          faces.push(face);
-        } else {
-          for (j = 1; j + 1 < data_face_length; j++) {
-            face = new THREE.Face3(data_face[0], data_face[j], data_face[j+1]);
-            face.vertexColors = [colors[face.a], colors[face.b], colors[face.c]];
-            faces.push(face);
-          }
-        }
-      }
-    } else {
-      for(i = 0; i + 2 < indexArray.length; i+=3) {
-        face = new THREE.Face3(indexArray[i], indexArray[i+1], indexArray[i+2]);
-        face.vertexColors[0] = colors[face.a];
-        face.vertexColors[1] = colors[face.b];
-        face.vertexColors[2] = colors[face.c];
-        geometry.faces.push(face);
-      }
+    var position_attribute_array, normal_attribute_array, color_attribute_array;
+    var num_vertices = indices.length; // number of unindexed vertices.
+    var num_coords = num_vertices * 3;
+    var num_color_coords = num_vertices * 4;
+
+    var i, count;
+
+
+    if(colors.length === 4) {
+      all_gray = true;
+      data_color_0 = colors[0];
+      data_color_1 = colors[1];
+      data_color_2 = colors[2];
     }
-    
-    geometry.computeFaceNormals();
-    geometry.computeVertexNormals();
-    geometry.colorsNeedUpdate = true;
+
+    geometry.dynamic = true;
+
+    geometry.attributes.position = {
+      itemSize: 3,
+      array: new Float32Array(num_coords),
+      numItems: num_coords
+    };
+
+
+    if (normals_given) {
+      geometry.attributes.normal = {
+        itemSize: 3,
+        array: new Float32Array(num_coords),
+        numItems: num_coords
+      };
+    }
+
+    geometry.attributes.color = {
+      itemSize: 4,
+      array: new Float32Array(num_color_coords),
+      numItems: num_color_coords
+    };
+
+    geometry.original_data = {
+      vertices: verts,
+      indices: indices,
+      norms: norms || null,
+      colors: colors
+    };
+
+    position_attribute_array = geometry.attributes.position.array;
+    if (normals_given) {
+      normal_attribute_array = geometry.attributes.normal.array;
+    }
+    color_attribute_array = geometry.attributes.color.array;
+
+    for (i = 0, count = geometry.attributes.color.array.length; i < count; i++) {
+      geometry.attributes.color.array[i] = 1.0;
+    }
+
+    // "Unravel" the vertex, normal and color arrays so we don't have to use indices
+    // (Avoids WebGL's 16 bit limit on indices)
+    for (i = 0, count = indices.length; i < count; i++) {
+      position_attribute_array[i*3] = verts[indices[i] * 3];
+      position_attribute_array[i*3 + 1] = verts[indices[i] * 3 + 1];
+      position_attribute_array[i*3 + 2] = verts[indices[i] * 3 + 2];
+      if (normals_given) {
+        normal_attribute_array[i*3] = norms[indices[i] * 3];
+        normal_attribute_array[i*3 + 1] = norms[indices[i] * 3 + 1];
+        normal_attribute_array[i*3 + 2] = norms[indices[i] * 3 + 2];
+      }
+
+      if (all_gray) {
+        color_attribute_array[i*4] = data_color_0;
+        color_attribute_array[i*4 + 1] = data_color_1;
+        color_attribute_array[i*4 + 2] = data_color_2;
+      } else {
+        color_attribute_array[i*4] = colors[indices[i] * 4];
+        color_attribute_array[i*4 + 1] = colors[indices[i] * 4 + 1];
+        color_attribute_array[i*4 + 2] = colors[indices[i] * 4 + 2];
+      }
+      color_attribute_array[i*4 + 3] = 1.0;
+    }
+
+    if (!normals_given) {
+      geometry.computeVertexNormals();
+    }
 
     material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0xFFFFFF, shininess: 100, vertexColors: THREE.VertexColors});
-    
+
     polygonShape = new THREE.Mesh(geometry, material);
-    
+
     return polygonShape;
   }
-  
+
   // Update current values of the bounding box of
   // an object.
   function boundingBoxUpdate(box, x, y, z) {
@@ -347,5 +405,5 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
       box.maxZ = z;
     }
   }
-  
+
 };

@@ -34,7 +34,7 @@
     var line;
     var line_marker;
     var line_length, numberOfShapes;
-    var i, n, k, l, lastIndex, count;
+    var i, n, k, l, count;
     var face, shape, elem;
     
     data = data.split('\n');
@@ -74,7 +74,16 @@
           texIndexArray = current_shape.texIndexArray;
           normalIndexArray = current_shape.normalIndexArray;
           
-          for (k = 1; k < 4; k++){
+          var first_elem = line[1].split('/');
+          
+
+          for (k = 2; k < line_length - 1; k++){
+            face.push(parseInt(first_elem[0], 10)-1);
+            indexArray.push(parseInt(first_elem[0], 10) - 1);
+            texIndexArray.push(parseInt(first_elem[1], 10) - 1);
+            if (first_elem[2]) {
+              normalIndexArray.push(parseInt(first_elem[2], 10) - 1);
+            }
             elem = line[k].split('/');
             face.push(parseInt(elem[0], 10)-1);
             indexArray.push(parseInt(elem[0], 10) - 1);
@@ -82,20 +91,15 @@
             if (elem[2]) {
               normalIndexArray.push(parseInt(elem[2], 10) - 1);
             }
-          }
-  
-          if (line_length >= 4) {
-            while (k < line_length){
-              elem = line[k].split('/');
-              face.push(parseInt(elem[0], 10) - 1);
-              lastIndex = current_shape.indexArray.length;
-              indexArray.push(current_shape.indexArray[lastIndex - 1]);
-              
-              indexArray.push(current_shape.indexArray[lastIndex - 3]);
-              indexArray.push(elem[0] - 1);
-              k++;
+            elem = line[k+1].split('/');
+            face.push(parseInt(elem[0], 10)-1);
+            indexArray.push(parseInt(elem[0], 10) - 1);
+            texIndexArray.push(parseInt(elem[1], 10) - 1);
+            if (elem[2]) {
+              normalIndexArray.push(parseInt(elem[2], 10) - 1);
             }
           }
+
           current_shape.faces.push(face);
           break;
         }
@@ -106,6 +110,7 @@
       shape = result.shapes[l];
    
       shape.positionArray = vertexArray;
+      shape.normalArray = normalArray;
       if (shape.colorArray.length === 0) {
         shape.colorArray = [0.8,0.8,0.8,1.0];
       }

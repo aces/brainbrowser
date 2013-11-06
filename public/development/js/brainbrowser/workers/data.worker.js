@@ -27,8 +27,6 @@
     if (cmd === "parse") {
       parse(data);
       self.postMessage(result);
-    } else if (cmd === "createColorArray") {
-      self.postMessage(createColorArray(data.values, data.min, data.max, data.spectrum, data.flip, data.clamped, data.original_colors, data.model));
     } else {
       self.terminate();
     }
@@ -49,62 +47,6 @@
     result.min = min;
     result.max = max;
   }
-  
-  function createColorArray(values, min, max, spectrum, flip, clamped, original_colors, model) {
-    var colorArray = [];
-    //calculate a slice of the data per color
-    var increment = ((max-min)+(max-min)/spectrum.length)/spectrum.length;
-    var i, j, count;
-    var color_index;
-    var value;
-    var newColorArray;
-    //for each value, assign a color
-    for (i = 0, count = values.length; i < count; i++) {
-      value = values[i];
-      if (value <= min ) {
-        if (value < min && !clamped) {
-          color_index = -1;
-        } else {
-          color_index = 0;
-        }
-      }else if (value > max){
-        if (!clamped){
-          color_index = -1;
-        }else {
-          color_index = spectrum.length - 1;
-        }
-      }else {
-        color_index = parseInt((value-min)/increment, 10);
-      }
-      //This inserts the RGBA values (R,G,B,A) independently
-      if (flip && color_index !== -1) {
-        colorArray.push.apply(colorArray, spectrum[spectrum.length-1-color_index]);
-      } else {
-        if(color_index === -1) {
-          if(original_colors.length === 4){
-            colorArray.push.apply(colorArray, original_colors);
-          }else {
-            colorArray.push(original_colors[i*4], original_colors[i*4+1], original_colors[i*4+2], original_colors[i*4+3]);
-          }
-        }else {
-          colorArray.push.apply(colorArray, spectrum[color_index]);
-        }
-      }
-    }
-  
-    if(model.num_hemisphere !== 2) {
-      count = model.indexArray.length;
-      newColorArray = new Array(count * 4);
-      for (j = 0; j < count; j++ ) {
-        newColorArray[j*4]     = colorArray[model.indexArray[j]*4];
-        newColorArray[j*4 + 1] = colorArray[model.indexArray[j]*4 + 1];
-        newColorArray[j*4 + 2] = colorArray[model.indexArray[j]*4 + 2];
-        newColorArray[j*4 + 3] = colorArray[model.indexArray[j]*4 + 3];
-      }
-      colorArray.nonIndexedColorArray = newColorArray;
-    }
-  
-    return colorArray;
-  }
+ 
 })();
 

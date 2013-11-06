@@ -33,7 +33,7 @@
       collection.vertex = vertex_data.vertex;
       
       if (vertex_data.object && vertex_data.object.model_num) {
-        collection.vertex += vertex_data.object.model_num * vertex_data.object.geometry.vertices.length;
+        collection.vertex += vertex_data.object.model_num * (vertex_data.object.geometry.original_data.vertices.length / 3);
       }
       
       if (collection.vertex) {

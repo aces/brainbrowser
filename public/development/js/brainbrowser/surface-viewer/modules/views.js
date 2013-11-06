@@ -24,7 +24,7 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   
   // Change the opacity of an object in the scene.
   viewer.changeShapeTransparency = function(shape_name, alpha) {
-    var shape = viewer.model.getChildByName(shape_name);
+    var shape = viewer.model.getObjectByName(shape_name);
     var material;
     if (shape) {
       material = shape.material;
@@ -55,10 +55,10 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
     /*
      * Decides if the hemispheres need to be shown
      */
-    if (viewer.model.getChildByName("left")) {
+    if (viewer.model.getObjectByName("left")) {
       viewer.leftHemisphereVisible(params.left);
     }
-    if (viewer.model.getChildByName("right")) {
+    if (viewer.model.getObjectByName("right")) {
       viewer.rightHemisphereVisible(params.right);
     }
   };
@@ -70,7 +70,7 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
    * @param {Bool} state  boolean (true == visible, false == not visible)
    */
   viewer.leftHemisphereVisible = function(state)  {
-    viewer.model.getChildByName("left").visible = state;
+    viewer.model.getObjectByName("left").visible = state;
   };
   
 
@@ -79,7 +79,7 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
    * @param {Bool} state  boolean (true == visible, false == not visible)
    */
   viewer.rightHemisphereVisible = function(state)  {
-    viewer.model.getChildByName("right").visible = state;
+    viewer.model.getObjectByName("right").visible = state;
   };
 
   //Returns the position and info about a vertex
@@ -104,10 +104,10 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
     var model = viewer.model;
 
     if(viewer.model_data.num_hemispheres === 2 ) {
-      model.getChildByName("left").position.x -= 100;
-      model.getChildByName("left").rotation.z -= degToRad(90);
-      model.getChildByName("right").position.x += 100;
-      model.getChildByName("right").rotation.z += degToRad(90);
+      model.getObjectByName("left").position.x -= 100;
+      model.getObjectByName("left").rotation.z -= degToRad(90);
+      model.getObjectByName("right").position.x += 100;
+      model.getObjectByName("right").rotation.z += degToRad(90);
       model.rotation.x += degToRad(-90);
     }
   };
@@ -120,8 +120,8 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
     var left_child, right_child;
 
     if(viewer.model_data.num_hemispheres === 2 ) {
-      left_child = model.getChildByName("left");
-      right_child = model.getChildByName("right");
+      left_child = model.getObjectByName("left");
+      right_child = model.getObjectByName("right");
 
       left_child.position.x -= 100;
       left_child.rotation.z += degToRad(-90);

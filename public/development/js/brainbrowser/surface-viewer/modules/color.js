@@ -44,13 +44,14 @@ BrainBrowser.SurfaceViewer.core.color = function(viewer) {
     var blend = options.blend;
     var afterUpdate = options.afterUpdate;
 
+
     function applyColorArray(color_array) {
       var shapes;
       if(viewer.model_data.num_hemispheres === 2) {
         color_hemispheres(color_array);
       } else {
         if (data.apply_to_shape) {
-          shapes = [viewer.model.getChildByName(data.apply_to_shape, true)];
+          shapes = [viewer.model.getObjectByName(data.apply_to_shape, true)];
         } else {
           shapes = viewer.model.children;
         }
@@ -59,9 +60,11 @@ BrainBrowser.SurfaceViewer.core.color = function(viewer) {
 
       viewer.triggerEvent("updatecolors", data, min, max, spectrum);
 
+
       if (afterUpdate) {
         afterUpdate();
       }
+
     }
 
     viewer.clamped = clamped;
@@ -70,6 +73,34 @@ BrainBrowser.SurfaceViewer.core.color = function(viewer) {
     } else {
       data.createColorArray(min, max, spectrum, flip, clamped, viewer.model_data.colorArray, viewer.model_data, applyColorArray);
     }
+  };
+
+  /*
+   * Called when the range of colors is changed in the interface
+   * Clamped signifies that the range should be clamped and values above or bellow the
+   * thresholds should have the color of the maximum/mimimum.
+   */
+  viewer.rangeChange = function(min, max, clamped, options) {
+    options = options || {};
+    var afterChange = options.afterChange;
+    var data = viewer.model_data.data;
+    
+    data.rangeMin = min;
+    data.rangeMax = max;
+    viewer.updateColors(data, {
+      min: data.rangeMin,
+      max: data.rangeMax,
+      spectrum: viewer.spectrum,
+      flip: viewer.flip,
+      clamped: clamped,
+      afterUpdate: options.afterUpdate
+    });
+
+    if (afterChange) {
+      afterChange();
+    }
+
+    viewer.triggerEvent("rangechange", min, max);
   };
 
   ///////////////////////////
@@ -82,87 +113,56 @@ BrainBrowser.SurfaceViewer.core.color = function(viewer) {
     var color_array_length = color_array.length;
     var left_color_array;
     var right_color_array;
-    var left_hem = model.getChildByName("left");
-    var left_hem_faces = left_hem.geometry.faces;
-    var right_hem = model.getChildByName("right");
-    var right_hem_faces = right_hem.geometry.faces;
-    var right_hem_faces_length = right_hem_faces.length;
-    var left_hem_faces_length = left_hem_faces.length;
-    var face;
+    var left_hem = model.getObjectByName("left");
+    var right_hem = model.getObjectByName("right");
     var i, count;
-    var color_index;
-    var vertexColors;
-    
+
     left_color_array = color_array.slice(0, color_array_length/2);
-    right_color_array = color_array.slice(color_array_length/2, color_array_length);
-    
-    count = Math.max(left_hem_faces_length, right_hem_faces_length);
-    for (i = 0; i < count; i++) {
-      if (i < left_hem_faces_length) {
-        face = left_hem_faces[i];
-        vertexColors = face.vertexColors;
-        color_index = face.a * 4;
-        
-        vertexColors[0].setRGB(left_color_array[color_index], left_color_array[color_index+1], left_color_array[color_index+2]);
-        color_index = face.b * 4;
-        vertexColors[1].setRGB(left_color_array[color_index], left_color_array[color_index+1], left_color_array[color_index+2]);
-        color_index = face.c * 4;
-        vertexColors[2].setRGB(left_color_array[color_index], left_color_array[color_index+1], left_color_array[color_index+2]);
-        if (face.d) {
-          color_index = face.d * 4;
-          vertexColors[3].setRGB(left_color_array[color_index], left_color_array[color_index+1], left_color_array[color_index+2]);
-        }
-      }
-      if (i < right_hem_faces_length) {
-        face = right_hem_faces[i];
-        vertexColors = face.vertexColors;
-        color_index = face.a * 4;
-        
-        vertexColors[0].setRGB(right_color_array[color_index], right_color_array[color_index+1], right_color_array[color_index+2]);
-        color_index = face.b * 4;
-        vertexColors[1].setRGB(right_color_array[color_index], right_color_array[color_index+1], right_color_array[color_index+2]);
-        color_index = face.c * 4;
-        vertexColors[2].setRGB(right_color_array[color_index], right_color_array[color_index+1], right_color_array[color_index+2]);
-        if (face.d) {
-          color_index = face.d * 4;
-          vertexColors[3].setRGB(right_color_array[color_index], right_color_array[color_index+1], right_color_array[color_index+2]);
-        }
-      }
+    right_color_array = color_array.slice(color_array_length/2);
+
+    var left_indices = left_hem.geometry.original_data.indices;
+    var right_indices = right_hem.geometry.original_data.indices;
+
+    var left_color_attribute = left_hem.geometry.attributes.color;
+    var left_color_attribute_array = left_color_attribute.array;
+    var right_color_attribute = right_hem.geometry.attributes.color;
+    var right_color_attribute_array = right_color_attribute.array;
+     
+    for (i = 0, count = left_indices.length; i < count; i++) {
+      left_color_attribute_array[i*4] = left_color_array[left_indices[i]*4];
+      left_color_attribute_array[i*4+1] = left_color_array[left_indices[i]*4+1];
+      left_color_attribute_array[i*4+2] = left_color_array[left_indices[i]*4+2];
+      right_color_attribute_array[i*4] = right_color_array[right_indices[i]*4];
+      right_color_attribute_array[i*4+1] = right_color_array[right_indices[i]*4+1];
+      right_color_attribute_array[i*4+2] = right_color_array[right_indices[i]*4+2];
     }
 
-    left_hem.geometry.colorsNeedUpdate = true;
-    right_hem.geometry.colorsNeedUpdate = true;
+    left_color_attribute.needsUpdate = true;
+    right_color_attribute.needsUpdate = true;
     
   }
   
   //Coloring for regular models.
   function color_model(color_array, shapes) {
-    var color_index;
-    var face, faces;
-    var vertexColors;
-    var i, j;
-    var count1, count2;
+    var geometry, shape, indices;
+    var color_attribute, colors;
+    var i, count;
 
-    for (i = 0, count1 = shapes.length; i < count1; i++) {
-      faces = shapes[i].geometry.faces;
-      for (j = 0, count2 = faces.length; j < count2; j++) {
-        face = faces[j];
-        vertexColors = face.vertexColors;
-        
-        color_index = face.a * 4;
-        vertexColors[0].setRGB(color_array[color_index], color_array[color_index+1], color_array[color_index+2]);
-        color_index = face.b * 4;
-        vertexColors[1].setRGB(color_array[color_index], color_array[color_index+1], color_array[color_index+2]);
-        color_index = face.c * 4;
-        vertexColors[2].setRGB(color_array[color_index], color_array[color_index+1], color_array[color_index+2]);
-
-        if (face.d) {
-          color_index = face.d * 4;
-          vertexColors[3].setRGB(color_array[color_index], color_array[color_index+1], color_array[color_index+2]);
-        }
+    for (i = 0, count = shapes.length; i < count; i++) {
+      shape = shapes[i];
+      geometry = shape.geometry;
+      indices = shape.geometry.original_data.indices;
+      color_attribute = geometry.attributes.color;
+      colors = color_attribute.array;
+      for (i = 0, count = indices.length; i < count; i++) {
+        colors[i*4] = color_array[indices[i]*4];
+        colors[i*4+1] = color_array[indices[i]*4+1];
+        colors[i*4+2] = color_array[indices[i]*4+2];
       }
-      shapes[i].geometry.colorsNeedUpdate = true;
+
+      color_attribute.needsUpdate = true;
     }
+
   }
 
 };

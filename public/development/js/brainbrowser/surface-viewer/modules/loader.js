@@ -260,44 +260,6 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
     });
     viewer.setupSeries();
   };
-
-
-  
-  /*
-   * Called when the range of colors is changed in the interface
-   * Clamped signifies that the range should be clamped and values above or bellow the
-   * thresholds should have the color of the maximum/mimimum.
-   */
-  viewer.rangeChange = function(min, max, clamped, options) {
-    options = options || {};
-    var afterChange = options.afterChange;
-    var data = viewer.model_data.data;
-    
-    data.rangeMin = min;
-    data.rangeMax = max;
-    viewer.updateColors(data, {
-      min: data.rangeMin,
-      max: data.rangeMax,
-      spectrum: viewer.spectrum,
-      flip: viewer.flip,
-      clamped: clamped,
-      afterUpdate: options.afterUpdate
-    });
-
-    /*
-     * This callback allows users to
-     * do things like update ui elements
-     * when brainbrowser change it internally
-     *
-     */
-
-    if (afterChange) {
-      afterChange();
-    }
-
-    viewer.triggerEvent("rangechange", min, max);
-  };
-  
   
   
   ////////////////////////////////////

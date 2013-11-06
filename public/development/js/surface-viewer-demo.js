@@ -133,8 +133,6 @@ $(function() {
           slide: function(event, ui) {
             $("#data-range-min").val(ui.values[0]);
             $("#data-range-max").val(ui.values[1]);
-          },
-          stop: function(event, ui) {
             loading_div.show();
             data[0].rangeMin = ui.values[0];
             data[0].rangeMax = ui.values[1];
@@ -222,8 +220,6 @@ $(function() {
           slide: function() {
             var slider = $(this);
             slider.siblings("span").html(slider.slider("value"));
-          },
-          stop: function() {
             viewer.blend($(this).slider("value"));
           }
         }).appendTo(div);
@@ -404,7 +400,7 @@ $(function() {
 
     $("#obj_file_format").change(function () {
       var format = $("#obj_file_format").closest("#obj_file_select").find("#obj_file_format option:selected").val();
-      $("#format_hint").html(BrainBrowser.filetypes.config[format].format_hint || "");
+      $("#format_hint").html(BrainBrowser.config.surface_viewer.filetypes[format].format_hint || "");
     });
 
     $("#obj_file_submit").click(function () {

@@ -117,8 +117,6 @@ $(function() {
       slide: function(event, ui) {
         $("#data-range-min").val(ui.values[0]);
         $("#data-range-max").val(ui.values[1]);
-      },
-      stop: function() {
         macacc.rangeChange();
       },
       step: 0.1

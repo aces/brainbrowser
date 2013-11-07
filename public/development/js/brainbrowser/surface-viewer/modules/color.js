@@ -95,7 +95,7 @@ BrainBrowser.SurfaceViewer.core.color = function(viewer) {
       complete: options.complete
     });
 
-    viewer.triggerEvent("rangechange", min, max);
+    viewer.triggerEvent("rangechange", data);
   };
 
   ///////////////////////////

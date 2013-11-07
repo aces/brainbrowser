@@ -90,117 +90,122 @@ $(function() {
       $("#data-range-box").hide();
     });
 
-    viewer.addEventListener("rangechange", function(min, max) {
-      $("#data-range-min").val(min);
-      $("#data-range-max").val(max);
-      var canvas = viewer.spectrumObj.createSpectrumCanvasWithScale(min, max, null);
+    viewer.addEventListener("rangechange", function(data) {
+      var canvas = viewer.spectrumObj.createSpectrumCanvasWithScale(data.rangeMin, data.rangeMax, null);
       canvas.id = "spectrum-canvas";
-      $("#color-bar").html($(canvas));
+      $("#color-bar").html(canvas);
     });
 
-    viewer.addEventListener("loaddata", function(min, max, data, multiple) {
-      var rangeBox = $("#data-range");
-      var headers = "<div id=\"data-range-multiple\"><ul>";
+    viewer.addEventListener("loaddata", function(data) {
+      var container = $("#data-range");
+      var headers = '<div id="data-range-multiple"><ul>';
       var controls = "";
-      data = Array.isArray(data) ? data : [data];
       var i, count;
-      rangeBox.html("");
-      for(i = 0, count = data.length; i < count; i++) {
-        headers += "<li><a href=\"#data_file" + i + "\">" + data[i].fileName + "</a></li>";
-        controls += "<div id=\"data_file" + i + "\" class=\"box\">";
-        controls += "Min: <input class=\"range-box\" id=\"data-range-min\" type=\"text\" name=\"range_min\" size=\"5\" >";
-        controls += "<div id=\"range-slider+" + i + "\" data-blend-index=\"" + i + "\" class=\"slider\"></div>";
-        controls += "Max: <input class=\"range-box\" id=\"data-range-max\" type=\"text\" name=\"range_max\" size=\"5\" >";
-        controls += "<input type=\"checkbox\" class=\"button\" id=\"fix_range\"><label for=\"fix_range\">Fix Range</label>";
-        controls += "<input type=\"checkbox\" class=\"button\" id=\"clamp_range\" checked=\"true\"><label for=\"clamp_range\">Clamp range</label>";
-        controls += "<input type=\"checkbox\" class=\"button\" id=\"flip_range\"><label for=\"flip_range\">Flip Colors</label>";
-        controls += "</div>";
+      var data_set = Array.isArray(data) ? data : [data];
+
+      container.html("");
+      for(i = 0, count = data_set.length; i < count; i++) {
+        headers += '<li><a href="#data-file' + i + '">' + data_set[i].fileName + '</a></li>';
+        controls += '<div id="data-file' + i + '" class="box range-controls">';
+        controls += 'Min: <input class="range-box" id="data-range-min" type="text" name="range_min" size="5" >';
+        controls += '<div id="range-slider' + i + '" data-blend-index="' + i + '" class="slider"></div>';
+        controls += 'Max: <input class="range-box" id="data-range-max" type="text" name="range_max" size="5">';
+        controls += '<input type="checkbox" class="button" id="fix_range"><label for="fix_range">Fix Range</label>';
+        controls += '<input type="checkbox" class="button" id="clamp_range" checked="true"><label for="clamp_range">Clamp range</label>';
+        controls += '<input type="checkbox" class="button" id="flip_range"><label for="flip_range">Flip Colors</label>';
+        controls += '</div>';
       }
       headers += "</ul>";
 
 
-      rangeBox.html(headers + controls + "</div>");
+      container.html(headers + controls + "</div>");
       $("#data-range-box").show();
-      rangeBox.find("#data-range-multiple").tabs();
+      container.find("#data-range-multiple").tabs();
 
-      $("#data-range").find(".slider").each(function(index, element) {
-        var min = BrainBrowser.utils.min(data[0].values);
-        var max = BrainBrowser.utils.max(data[0].values);
-        $(element).slider({
+      container.find(".range-controls").each(function(index, element) {
+        var controls = $(element);
+        data = data_set[index];
+
+        var data_min = BrainBrowser.utils.min(data.values);
+        var data_max = BrainBrowser.utils.max(data.values);
+        var range_min = data.rangeMin;
+        var range_max = data.rangeMax;
+
+        var min_input = controls.find("#data-range-min");
+        var max_input = controls.find("#data-range-max");
+        var slider = controls.find(".slider");
+
+        slider.slider({
           range: true,
-          min: min,
-          max: max,
-          values: [data[index].rangeMin,data[index].rangeMax],
-          step: (max - min) / 100.0,
+          min: range_min,
+          max: range_max,
+          values: [range_min, range_max],
+          step: (range_max - range_min) / 100.0,
           slide: function(event, ui) {
-            $("#data-range-min").val(ui.values[0]);
-            $("#data-range-max").val(ui.values[1]);
+            var min = ui.values[0];
+            var max = ui.values[1];
+            min_input.val(min);
+            max_input.val(max);
             loading_div.show();
-            data[0].rangeMin = ui.values[0];
-            data[0].rangeMax = ui.values[1];
-            viewer.model_data.data = data[0];
-            viewer.rangeChange(data[0].rangeMin, data[0].rangeMax, viewer.clamped, {
-              complete: function () {
-                loading_div.hide();
-              }
+            data.rangeMin = min;
+            data.rangeMax = max;
+            viewer.model_data.data = data;
+            viewer.rangeChange(min, max, viewer.clamped, {
+              complete: hideLoading
             });
           }
         });
-      });
 
-      function dataRangeChange(e) {
-        loading_div.show();
-        var min = $("#data-range-min").val();
-        var max = $("#data-range-max").val();
-        $(e.target).siblings(".slider").slider('values', 0, min);
-        $(e.target).siblings(".slider").slider('values', 1, max);
-        viewer.rangeChange(min, max, $(e.target).siblings("#clamp_range").is(":checked"), {
-          complete: function () {
-            loading_div.hide();
-          }
-        });
+        slider.slider('values', 0, parseFloat(range_min));
+        slider.slider('values', 1, parseFloat(range_max));
+        min_input.val(data_min);
+        max_input.val(data_max);
 
-      }
-      $("#data-range-min").change(dataRangeChange);
-
-      $("#data-range-max").change(dataRangeChange);
-
-      $("#fix_range").click(function(event) {
-        viewer.fixRange = $(event.target).is(":checked");
-      });
-
-      $("#clamp_range").change(function(e) {
-        var min = parseFloat($(e.target).siblings("#data-range-min").val());
-        var max = parseFloat($(e.target).siblings("#data-range-max").val());
-
-        if($(e.target).is(":checked")) {
-          viewer.rangeChange(min,max,true);
-        }else {
-          viewer.rangeChange(min,max,false);
+        function inputRangeChange(e) {
+          var min = parseFloat(min_input.val())
+          var max = parseFloat(max_input.val())
+          loading_div.show();
+          
+          slider.slider('values', 0, min);
+          slider.slider('values', 1, max);
+          viewer.rangeChange(min, max, controls.find("#clamp_range").is(":checked"), {
+            complete: hideLoading
+          });
         }
-      });
+        $("#data-range-min").change(inputRangeChange);
+        $("#data-range-max").change(inputRangeChange);
 
+        $("#fix_range").click(function(event) {
+          viewer.fixRange = $(this).is(":checked");
+        });
 
-      $("#flip_range").change(function(e) {
-        viewer.flip = $(e.target).is(":checked");
-        loading_div.show();
-        viewer.updateColors(viewer.model_data.data, {
-          min: viewer.model_data.data.rangeMin,
-          max: viewer.model_data.data.rangeMax,
-          spectrum: viewer.spectrum,
-          flip: viewer.flip,
-          clamped: viewer.clamped,
-          complete: function() {
-            loading_div.hide();
+        $("#clamp_range").change(function(e) {
+          var min = parseFloat(min_input.val());
+          var max = parseFloat(max_input.val());
+
+          if($(e.target).is(":checked")) {
+            viewer.rangeChange(min, max, true);
+          }else {
+            viewer.rangeChange(min, max, false);
           }
         });
+
+
+        $("#flip_range").change(function(e) {
+          viewer.flip = $(this).is(":checked");
+          loading_div.show();
+          viewer.updateColors(viewer.model_data.data, {
+            min: range_min,
+            max: range_max,
+            spectrum: viewer.spectrum,
+            flip: viewer.flip,
+            clamped: viewer.clamped,
+            complete: hideLoading
+          });
+        });
+
+        viewer.triggerEvent("rangechange", data);
       });
-      
-      if (!multiple) {
-        $("#range-slider").slider('values', 0, parseFloat(min));
-        $("#range-slider").slider('values', 1, parseFloat(max));
-        viewer.triggerEvent("rangechange", min, max);
-      }
 
     }); // end loaddata listener
     

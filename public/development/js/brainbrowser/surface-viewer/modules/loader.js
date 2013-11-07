@@ -89,7 +89,7 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
         data.apply_to_shape = options.shape;
         initRange(min, max);
         
-        viewer.triggerEvent("loaddata", data.rangeMin, data.rangeMax, data);
+        viewer.triggerEvent("loaddata", data);
     
         viewer.updateColors(data, {
           min: data.rangeMin,
@@ -123,8 +123,8 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
         data.fileName = filename;
         data.apply_to_shape = options.shape;
         data.applied = false;
-        if (data.values.length < positionArrayLength/4) {
-          alert("Not enough color points to cover vertices - " + data.values.length + " color points for " + positionArrayLength/3 + " vertices." );
+        if (data.values.length < positionArrayLength / 4) {
+          alert("Not enough color points to cover vertices - " + data.values.length + " color points for " + positionArrayLength / 3 + " vertices." );
           return -1;
         }
         model_data.data = data;
@@ -135,12 +135,12 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
             BrainBrowser.utils.max(viewer.blendData[other_index].values),
             viewer.blendData[other_index]
           );
-          viewer.triggerEvent("loaddata", null, null, viewer.blendData, true); //multiple set to true
+          viewer.triggerEvent("loaddata", viewer.blendData);
       
           viewer.blend(0.5);
           viewer.triggerEvent("blenddata", data.rangeMin, data.rangeMax, data);
         } else {
-          viewer.triggerEvent("loaddata", data.rangeMin, data.rangeMax, data);
+          viewer.triggerEvent("loaddata", data);
           viewer.updateColors(data, {
             min: data.rangeMin,
             max: data.rangeMax,

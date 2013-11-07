@@ -22,8 +22,8 @@ $(function() {
   var macacc;
   var path_prefix = "/data/";
   var loading_div = $("#loading");
-  var showLoading = function() { loading_div.show(); };
-  var hideLoading = function() { loading_div.hide(); };
+  function showLoading() { loading_div.show(); }
+  function hideLoading() { loading_div.hide(); }
         
   if (!BrainBrowser.utils.webglEnabled()) {
     $("#brainbrowser").html(BrainBrowser.utils.webGLErrorMessage());
@@ -43,7 +43,7 @@ $(function() {
     
     viewer.loadModelFromUrl('/models/surf_reg_model_both.obj', {
       format: "MNIObject",
-      afterDisplay: function() {
+      complete: function() {
         hideLoading();
         macacc = MACACC.collection(viewer, path_prefix);
         
@@ -103,7 +103,7 @@ $(function() {
         $("#model").change(function(event) {
           showLoading();
           macacc.changeModel($(event.target).val(), {
-            afterDisplay: hideLoading
+            complete: hideLoading
           });
         });
       }

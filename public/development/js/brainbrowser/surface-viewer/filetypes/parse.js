@@ -29,8 +29,5 @@ BrainBrowser.SurfaceViewer.filetypes.parse = function(type, data, callback) {
     BrainBrowser.SurfaceViewer.filetypes.parseWorker(obj, data, config.worker, callback);
   }
   
-  if (config.afterParse) {
-    config.afterParse(obj, data);
-  }
 };
 

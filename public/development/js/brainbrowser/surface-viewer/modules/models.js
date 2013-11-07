@@ -32,7 +32,7 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
   viewer.displayObjectFile = function(obj, filename, options) {
     options = options || {};
     var renderDepth = options.renderDepth;
-    var afterDisplay = options.afterDisplay;
+    var complete = options.complete;
 
     if (obj.objectClass === 'P' && obj.numberVertices === 81924) {
       addBrain(obj, renderDepth);
@@ -46,7 +46,7 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
 
     viewer.triggerEvent("displayobject", viewer.model);
 
-    if (afterDisplay) afterDisplay();
+    if (complete) complete();
   };
 
   //////////////////////////////

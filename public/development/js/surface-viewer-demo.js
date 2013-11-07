@@ -22,6 +22,8 @@ $(function() {
   var current_request = 0;
   var current_request_name = "";
   var loading_div = $("#loading");
+  function showLoading() { loading_div.show(); }
+  function hideLoading() { loading_div.hide(); }
   
   if (!BrainBrowser.utils.webglEnabled()) {
     $("#brainbrowser").html(BrainBrowser.utils.webGLErrorMessage());
@@ -138,7 +140,7 @@ $(function() {
             data[0].rangeMax = ui.values[1];
             viewer.model_data.data = data[0];
             viewer.rangeChange(data[0].rangeMin, data[0].rangeMax, viewer.clamped, {
-              afterUpdate: function () {
+              complete: function () {
                 loading_div.hide();
               }
             });
@@ -153,7 +155,7 @@ $(function() {
         $(e.target).siblings(".slider").slider('values', 0, min);
         $(e.target).siblings(".slider").slider('values', 1, max);
         viewer.rangeChange(min, max, $(e.target).siblings("#clamp_range").is(":checked"), {
-          afterUpdate: function () {
+          complete: function () {
             loading_div.hide();
           }
         });
@@ -188,7 +190,7 @@ $(function() {
           spectrum: viewer.spectrum,
           flip: viewer.flip,
           clamped: viewer.clamped,
-          afterUpdate: function() {
+          complete: function() {
             loading_div.hide();
           }
         });
@@ -283,10 +285,6 @@ $(function() {
         return function() { return request_number !== current_request; };
       }
       
-      function loadFinished() {
-        loading_div.hide();
-      }
-      
       loading_div.show();
       viewer.clearScreen();
 
@@ -294,7 +292,7 @@ $(function() {
         basic: function() {
           viewer.loadModelFromUrl('/models/surf_reg_model_both.obj', {
             format: "MNIObject",
-            afterDisplay: loadFinished,
+            complete: hideLoading,
             cancel: default_cancel_opts(current_request)
           });
         },
@@ -302,7 +300,7 @@ $(function() {
           viewer.loadModelFromUrl('/models/dti.obj', {
             format: "MNIObject",
             renderDepth: 999,
-            afterDisplay: loadFinished,
+            complete: hideLoading,
             cancel: default_cancel_opts(current_request)
           });
           viewer.loadModelFromUrl('/models/left_color.obj', {
@@ -317,9 +315,9 @@ $(function() {
         realct: function() {
           viewer.loadModelFromUrl('/models/realct.obj', {
             format: "MNIObject",
-            afterDisplay: function() {
+            complete: function() {
               viewer.loadDataFromUrl('/models/realct.txt','Cortical Thickness', {
-                afterUpdate: loadFinished,
+                complete: hideLoading,
                 cancel: default_cancel_opts(current_request)
               });
             },
@@ -329,7 +327,7 @@ $(function() {
         car: function() {
           viewer.loadModelFromUrl('/models/car.obj', {
             format: "WavefrontObj",
-            afterDisplay: loadFinished,
+            complete: hideLoading,
             cancel: default_cancel_opts(current_request)
           });
           viewer.setCamera(0, 0, 100);
@@ -348,9 +346,7 @@ $(function() {
           });
           viewer.loadModelFromUrl('/models/dlr.model.obj', {
             format: "MNIObject",
-            afterDisplay: function() {
-              loadFinished();
-            },
+            complete: hideLoading,
             cancel: default_cancel_opts(current_request)
           });
           viewer.setCamera(0, 0, 75);
@@ -365,13 +361,13 @@ $(function() {
         mouse: function() {
           viewer.loadModelFromUrl('/models/mouse_surf.obj', {
             format: "MNIObject",
-            afterDisplay: function() {
+            complete: function() {
               viewer.loadDataFromUrl('/models/mouse_alzheimer_map.txt',
                 'Cortical Amyloid Burden, Tg AD Mouse, 18 Months Old', {
                   shape: "mouse_surf.obj",
                   min: 0.0,
                   max: 0.25,
-                  afterUpdate: loadFinished,
+                  complete: hideLoading,
                   cancel: default_cancel_opts(current_request)
                 }
               );
@@ -380,7 +376,7 @@ $(function() {
           });
           viewer.loadModelFromUrl('/models/mouse_brain_outline.obj', {
             format: "MNIObject",
-            afterDisplay: function() {
+            complete: function() {
               $(".opacity-slider[data-shape-name='mouse_brain_outline.obj']").slider("value", 50);
               viewer.setTransparency('mouse_brain_outline.obj', 0.5);
             },
@@ -407,15 +403,9 @@ $(function() {
       var format = $("#obj_file_format").closest("#obj_file_select").find("#obj_file_format option:selected").val();
       viewer.loadModelFromFile(document.getElementById("objfile"), {
         format: format,
-        beforeLoad: function() {
-          loading_div.show();
-        },
-        afterDisplay: function() {
-          loading_div.hide();
-        },
-        onError: function() {
-          loading_div.hide();
-        }
+        beforeLoad: showLoading,
+        complete: hideLoading,
+        error: hideLoading
       });
 
       return false;

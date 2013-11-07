@@ -42,7 +42,7 @@ BrainBrowser.SurfaceViewer.core.color = function(viewer) {
     var flip = options.flip;
     var clamped = options.clamped;
     var blend = options.blend;
-    var afterUpdate = options.afterUpdate;
+    var complete = options.complete;
 
 
     function applyColorArray(color_array) {
@@ -61,8 +61,8 @@ BrainBrowser.SurfaceViewer.core.color = function(viewer) {
       viewer.triggerEvent("updatecolors", data, min, max, spectrum);
 
 
-      if (afterUpdate) {
-        afterUpdate();
+      if (complete) {
+        complete();
       }
 
     }
@@ -82,7 +82,6 @@ BrainBrowser.SurfaceViewer.core.color = function(viewer) {
    */
   viewer.rangeChange = function(min, max, clamped, options) {
     options = options || {};
-    var afterChange = options.afterChange;
     var data = viewer.model_data.data;
     
     data.rangeMin = min;
@@ -93,12 +92,8 @@ BrainBrowser.SurfaceViewer.core.color = function(viewer) {
       spectrum: viewer.spectrum,
       flip: viewer.flip,
       clamped: clamped,
-      afterUpdate: options.afterUpdate
+      complete: options.complete
     });
-
-    if (afterChange) {
-      afterChange();
-    }
 
     viewer.triggerEvent("rangechange", min, max);
   };

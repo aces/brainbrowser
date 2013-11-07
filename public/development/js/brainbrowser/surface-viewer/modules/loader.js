@@ -42,8 +42,8 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
         if (obj.objectClass !== "__FAIL__") {
           // Display model to the canvas after parsing.
           if (!cancelLoad(options)) viewer.displayObjectFile(obj, filename, options);
-        } else if (options.onError !== undefined) {
-          options.onError();
+        } else if (options.error) {
+          options.error();
         }
       });
     });
@@ -65,8 +65,8 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
         if (obj.objectClass !== "__FAIL__") {
           // Display model to the canvas after parsing.
           viewer.displayObjectFile(obj, filename, options);
-        } else if (options.onError) {
-          options.onError();
+        } else if (options.error) {
+          options.error();
         }
       });
       
@@ -97,7 +97,7 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
           spectrum: viewer.spectrum,
           flip: viewer.flip,
           clamped: viewer.clamped,
-          afterUpdate: options.afterUpdate
+          complete: options.complete
         });
       });
     });
@@ -147,7 +147,7 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
             spectrum: viewer.spectrum,
             flip: viewer.flip,
             clamped: viewer.clamped,
-            afterUpdate: options.afterUpdate
+            complete: options.complete
           });
         }
         data.applied = true;
@@ -270,10 +270,13 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
   // Callback should interpret data as necessary.
   function loadFromUrl(url, options, callback) {
     options = options || {};
-    var beforeLoad = options.beforeLoad;
-    
-    if (beforeLoad) beforeLoad();
-    
+    var before = options.before;
+
+    if (before) {
+      before();
+      delete options.before;
+    }
+
     jQuery.ajax({ type: 'GET',
       url: url ,
       dataType: 'text',
@@ -294,17 +297,20 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
   // Callback should interpret data as necessary.
   function loadFromTextFile(file_input, options, callback) {
     var files = file_input.files;
+    
     if (files.length === 0) {
       return;
     }
+
     options = options || {};
-    var beforeLoad = options.beforeLoad;
+    var before = options.before;
     var reader = new FileReader();
     
     reader.file = files[0];
     
-    if (beforeLoad) {
-      beforeLoad();
+    if (before) {
+      before();
+      delete options.before;
     }
     
     reader.onloadend = function(e) {

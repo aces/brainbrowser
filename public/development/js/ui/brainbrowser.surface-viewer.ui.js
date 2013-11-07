@@ -119,7 +119,7 @@ BrainBrowser.SurfaceViewer.plugins.ui = function(viewer) {
       
     img.onload = function(){
       context.drawImage(img, 0, 0); // Or at whatever offset you like
-      if (spectrum_canvas) {
+      if ($(spectrum_canvas).is(":visible")) {
         getSpectrumImage();
       } else {
         displayImage();

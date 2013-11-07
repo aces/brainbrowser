@@ -27,12 +27,13 @@
 
 
 
-(function() {
+BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
   "use strict";
 
   var VolumeViewer = BrainBrowser.VolumeViewer;
   
-  VolumeViewer.globalUIControls = function(element, viewer) {
+  
+  viewer.globalUIControls = function(element) {
     var controls = $('<div id="global-controls" class="volume-viewer-controls"></div>');
     var sync_button, image_button;
 
@@ -87,26 +88,25 @@
     $(element).append(controls);
   };
   
-  VolumeViewer.volumeUIControls = function(controls, viewer, volume, volID) {
+  viewer.volumeUIControls = function(controls, volume, volID) {
     controls = $(controls);
 
-    VolumeViewer.coordinateUI(controls, viewer, volume, volID);
+    viewer.coordinateUI(controls, volume, volID);
     
     if(volume.type === "multivolume") {
-      VolumeViewer.blendUI(controls, viewer, volume, volID);
+      viewer.blendUI(controls, volume, volID);
     } else {
-      VolumeViewer.colorScaleUI(controls, viewer, volume, volID);
-      VolumeViewer.thresholdUI(controls, viewer, volume, volID);
+      viewer.colorScaleUI(controls, volume, volID);
+      viewer.thresholdUI(controls, volume, volID);
       if (volume.data.time) {
-        VolumeViewer.timeUI(controls, viewer, volume, volID);
+        viewer.timeUI(controls, volume, volID);
       }
-      VolumeViewer.sliceSeriesUI(controls, viewer, volume, volID);
+      viewer.sliceSeriesUI(controls, volume, volID);
     }
   };
   
-  VolumeViewer.coordinateUI = function(controls, viewer, volume) {
+  viewer.coordinateUI = function(controls, volume) {
     var coords, world_coords_div, voxel_coords_div;
-    
     if (volume.getWorldCoords) {
       coords = $('<div class="coords"></div>');
       world_coords_div = $(
@@ -163,7 +163,7 @@
     controls.append(coords);
   };
   
-  VolumeViewer.blendUI = function(controls, viewer, volume) {
+  viewer.blendUI = function(controls, volume) {
     var blendSlider = $("<div id=\"blend-slider\" class=\"slider volume-viewer-blend\"></div>");
     var blend = $("<div class=\"control-heading\">Blend (-50 to 50): </div>");
     var blend_val = $("<input class=\"control-inputs\" value=\"0\" id =\"blend-val\"/>");
@@ -196,7 +196,7 @@
     });
   };
   
-  VolumeViewer.colorScaleUI = function(controls, viewer, volume) {
+  viewer.colorScaleUI = function(controls, volume) {
     var colorScaleOption = $("<select></select>");
     var list = "";
     VolumeViewer.colorScales.forEach(function(scale, i) {
@@ -215,7 +215,7 @@
     controls.append($("<div class=\"control-heading\">Color Scale: </div>").append(colorScaleOption));
   };
   
-  VolumeViewer.thresholdUI = function(controls, viewer, volume) {
+  viewer.thresholdUI = function(controls, volume) {
     var thresh_slider = $('<div class="slider volume-viewer-threshold"></div>');
     var thresholds = $("<div class=\"control-heading\" class=\"slider-div\">Threshold: </div>");
     var min_input = $('<input class="control-inputs thresh-input-left" value="0"/>');
@@ -263,7 +263,7 @@
     });
   };
   
-  VolumeViewer.timeUI = function(controls, viewer, volume, volID) {
+  viewer.timeUI = function(controls, volume, volID) {
     var time_controls = $("<div class=\"control-heading\" class=\"slider-div\">Time: </div>");
     var time_slider = $('<div class="slider volume-viewer-threshold"></div>');
     var time_val = $("<input class=\"control-inputs\" value=\"0\" id =\"time-val\"/>");
@@ -318,7 +318,7 @@
     controls.append(play_button);
   };
   
-  VolumeViewer.sliceSeriesUI = function(controls, viewer, volume) {
+  viewer.sliceSeriesUI = function(controls, volume) {
     var slice_controls = $("<div class=\"control-heading\">All slices: </div>");
     var button_div = $("<div></div>");
     var xspace_button = $('<span class="slice-series button" data-axis="xspace" style="font-size: 11px">Sagittal</span>');
@@ -374,5 +374,5 @@
 
     controls.append(slice_controls);
   };
-})();
+};
 

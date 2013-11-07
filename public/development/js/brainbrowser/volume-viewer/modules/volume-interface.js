@@ -121,16 +121,16 @@ BrainBrowser.VolumeViewer.modules.ui = function(viewer) {
       );
     });
     
-    if (VolumeViewer.volumeUIControls) {
+    if (viewer.volumeUIControls) {
       var controls  = document.createElement("div");
       controls.className = "volume-viewer-controls volume-controls";
-      if (VolumeViewer.volumeUIControls.defer_until_page_load) {
+      if (viewer.volumeUIControls.defer_until_page_load) {
         viewer.addEventListener("ready", function() {
           div.appendChild(controls);
-          VolumeViewer.volumeUIControls(controls, viewer, volume, volID);
+          viewer.volumeUIControls(controls, volume, volID);
         });
       } else {
-        VolumeViewer.volumeUIControls(controls, viewer, volume, volID);
+        viewer.volumeUIControls(controls, volume, volID);
         div.appendChild(controls);
       }
     }

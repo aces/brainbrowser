@@ -61,6 +61,12 @@
     viewer.synced = false;
     viewer.default_zoom_level = 1;
 
+    BrainBrowser.utils.eventModel(viewer);
+    
+    Object.keys(VolumeViewer.modules).forEach(function(m) {
+      VolumeViewer.modules[m](viewer);
+    });
+
     console.log("BrainBrowser Volume Viewer v" + BrainBrowser.version);
 
      /**
@@ -85,18 +91,18 @@
       var volume;
       var slices;
       var k;
-      
+
       numVolumes = volumes.length;
       sliceWidth = 300;
       sliceHeight = 300;
       
-      if (VolumeViewer.globalUIControls) {
-        if (VolumeViewer.volumeUIControls.defer_until_page_load) {
+      if (viewer.globalUIControls) {
+        if (viewer.globalUIControls.defer_until_page_load) {
           viewer.addEventListener("ready", function() {
-            VolumeViewer.globalUIControls(viewer_element, viewer);
+            viewer.globalUIControls(viewer_element);
           });
         } else {
-          VolumeViewer.globalUIControls(viewer_element, viewer);
+          viewer.globalUIControls(viewer_element);
         }
       }
       
@@ -134,12 +140,6 @@
       
       viewer.draw();
     }
-
-    BrainBrowser.utils.eventModel(viewer);
-    
-    Object.keys(VolumeViewer.modules).forEach(function(m) {
-      VolumeViewer.modules[m](viewer);
-    });
 
     /**
      * Initial load of volumes

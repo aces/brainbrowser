@@ -33,9 +33,8 @@
     var vertexCount;
     var faceCount;
     var line;
-    var face, shape;
-    var numberOfShapes;
-    var i, l;
+    var face;
+    var i;
     
     data = data.split('\n');
     result.shapes = [];

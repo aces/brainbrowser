@@ -138,7 +138,10 @@ module.exports = function(grunt) {
       },
       workers: {
         options: {
-          worker: true
+          worker: true,
+          globals: {
+            Float32Array: true
+          }
         },
         src: ["<%= dev_js %>/brainbrowser/workers/*.js"]
       },

@@ -33,9 +33,9 @@
     var indexArray, texIndexArray, normalIndexArray;
     var line;
     var line_marker;
-    var line_length, numberOfShapes;
-    var i, n, k, l, count;
-    var face, shape, elem;
+    var line_length;
+    var i, n, k, count;
+    var face, elem;
     
     data = data.split('\n');
     result.shapes = [];

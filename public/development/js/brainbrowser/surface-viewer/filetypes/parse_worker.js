@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-BrainBrowser.SurfaceViewer.filetypes.parseWorker = function(self, data, worker_file, callback) {
+BrainBrowser.SurfaceViewer.filetypes.parseWorker = function(data, worker_file, callback) {
   "use strict";
   
   var worker_dir = BrainBrowser.config.surface_viewer.worker_dir;
@@ -23,15 +23,7 @@ BrainBrowser.SurfaceViewer.filetypes.parseWorker = function(self, data, worker_f
   var worker = new Worker(worker_dir + "/" + worker_file);
   
   worker.addEventListener("message", function(e) {
-    var result = e.data;
-    var prop;
-    
-    for (prop in result) {
-      if (result.hasOwnProperty(prop)){
-        self[prop] = result[prop];
-      }
-    }
-    if (callback) callback(self);
+    if (callback) callback(e.data);
     worker.terminate();
   });
   

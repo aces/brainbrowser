@@ -106,9 +106,6 @@ BrainBrowser.SurfaceViewer.core.color = function(viewer) {
   //Coloring for brain models with two separate hemispheres.
   function color_hemispheres(color_array) {
     var model = viewer.model;
-    var color_array_length = color_array.length;
-    var left_color_array;
-    var right_color_array;
     var left_hem = model.getObjectByName("left");
     var right_hem = model.getObjectByName("right");
     var i, count;

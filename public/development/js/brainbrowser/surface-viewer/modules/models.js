@@ -51,19 +51,34 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
 
 
   // Add a brain model to the scene.
-  function addBrain(obj) {
+  function addBrain(model_data) {
     var model = viewer.model;
     var left, right;
-    var left_data = obj.shapes[0];
-    var right_data = obj.shapes[1];
+    var left_data = model_data.shapes[0];
+    var right_data = model_data.shapes[1];
 
-    viewer.model_data = obj;
-    left = createObject(obj.positionArray, left_data.indexArray, obj.normalArray, obj.colorArray);
+    viewer.model_data = model_data;
+
+    left = createObject(left_data.unindexed);
     left.name = "left";
     left.model_num = 0;
-    right = createObject(obj.positionArray, right_data.indexArray, obj.normalArray, obj.colorArray);
+    left.geometry.original_data = {
+      vertices: model_data.positionArray,
+      indices: left_data.indexArray,
+      normals: model_data.normalArray,
+      colors: model_data.colorArray
+    };
+
+    right = createObject(right_data.unindexed);
     right.name = "right";
     right.model_num = 1;
+    right.geometry.original_data = {
+      vertices: model_data.positionArray,
+      indices: right_data.indexArray,
+      normals: model_data.normalArray,
+      colors: model_data.colorArray
+    };
+
     model.add(left);
     model.add(right);
   }
@@ -80,9 +95,16 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
     viewer.model_data = model_data;
     if (shapes){
       for (i = 0, count = shapes.length; i < count; i++){
-        shape_data = model_data.shapes[i]
-        shape = createObject(model_data.positionArray, shape_data.indexArray, model_data.normalArray, model_data.colorArray, is_line);
+        shape_data = model_data.shapes[i];
+        shape = createObject(shape_data.unindexed, is_line);
         shape.name = shape_data.name || filename;
+        shape.geometry.original_data = {
+          vertices: model_data.positionArray,
+          indices: shape_data.indexArray,
+          normals: model_data.normalArray,
+          colors: model_data.colorArray
+        };
+
         if (renderDepth) {
           shape.renderDepth = renderDepth;
         }
@@ -91,100 +113,39 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
     }
   }
 
-  function createObject(verts, indices, norms, colors, is_line) {
-    verts = verts || [];
-    indices = indices || [];
-    norms = norms || [];
-    colors = colors || [0.7, 0.7, 0.7, 1.0];
+  function createObject(parameters, is_line) {
+    var position = parameters.position;
+    var normal = parameters.normal || [];
+    var color = parameters.color || [];
+    var centroid = parameters.centroid;
 
-    var num_vertices = indices.length; // number of unindexed vertices.
-    var num_coords = num_vertices * 3;
-    var num_color_coords = num_vertices * 4;
-
-    var normals_given = norms.length > 0;
-    var data_color_0, data_color_1, data_color_2, all_gray;
-    var bounding_box = {};
-    var centroid = {};
-    var i, count;
 
     var geometry = new THREE.BufferGeometry();
     var material, shape;
-
-    if(colors.length === 4) {
-      all_gray = true;
-      data_color_0 = colors[0];
-      data_color_1 = colors[1];
-      data_color_2 = colors[2];
-    }
-
-    var unindexed_positions = new Float32Array(num_coords);
-    var unindexed_normals = normals_given ?  new Float32Array(num_coords) : new Float32Array();
-    var unindexed_colors = new Float32Array(num_color_coords);
-
-    //Calculate center so positions of objects relative to each other can
-    // defined (mainly for transparency).
-    for(i = 0, count = verts.length; i + 2 < count; i += 3) {
-      boundingBoxUpdate(bounding_box, verts[i], verts[i+1], verts[i+2]);
-    }
-    centroid.x = bounding_box.minX + 0.5 * (bounding_box.maxX - bounding_box.minX);
-    centroid.y = bounding_box.minY + 0.5 * (bounding_box.maxY - bounding_box.minY);
-    centroid.z = bounding_box.minY + 0.5 * (bounding_box.maxZ - bounding_box.minZ);
-
-    // "Unravel" the vertex and normal arrays so we don't have to use indices
-    // (Avoids WebGL's 16 bit limit on indices)
-    for (i = 0, count = num_vertices; i < count; i++) {
-      unindexed_positions[i*3] = verts[indices[i] * 3] - centroid.x;
-      unindexed_positions[i*3 + 1] = verts[indices[i] * 3 + 1] - centroid.y;
-      unindexed_positions[i*3 + 2] = verts[indices[i] * 3 + 2] - centroid.z;
-
-      if (normals_given) {
-        unindexed_normals[i*3] = norms[indices[i] * 3];
-        unindexed_normals[i*3 + 1] = norms[indices[i] * 3 + 1];
-        unindexed_normals[i*3 + 2] = norms[indices[i] * 3 + 2];
-      }
-
-      if (all_gray) {
-        unindexed_colors[i*4] = data_color_0;
-        unindexed_colors[i*4 + 1] = data_color_1;
-        unindexed_colors[i*4 + 2] = data_color_2;
-      } else {
-        unindexed_colors[i*4] = colors[indices[i] * 4];
-        unindexed_colors[i*4 + 1] = colors[indices[i] * 4 + 1];
-        unindexed_colors[i*4 + 2] = colors[indices[i] * 4 + 2];
-      }
-      unindexed_colors[i*4 + 3] = 1.0;
-    }
 
     geometry.dynamic = true;
 
     geometry.attributes.position = {
       itemSize: 3,
-      array: new Float32Array(unindexed_positions),
-      numItems: num_coords
+      array: new Float32Array(position),
+      numItems: position.length
     };
 
 
-    if (normals_given) {
+    if (normal.length > 0) {
       geometry.attributes.normal = {
         itemSize: 3,
-        array: new Float32Array(unindexed_normals),
+        array: new Float32Array(normal),
       };
+    } else {
+      geometry.computeVertexNormals();
     }
 
-    geometry.attributes.color = {
-      itemSize: 4,
-      array: new Float32Array(unindexed_colors),
-    };
-
-    geometry.original_data = {
-      vertices: verts,
-      indices: indices,
-      norms: norms || null,
-      colors: colors
-    };
-
-    if (!normals_given) {
-      geometry.computeVertexNormals();
+    if(color.length > 0) {
+      geometry.attributes.color = {
+        itemSize: 4,
+        array: new Float32Array(color),
+      };
     }
 
     if (is_line) {
@@ -200,29 +161,6 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
     shape.position.set(centroid.x, centroid.y, centroid.z);
   
     return shape;
-  }
-
-  // Update current values of the bounding box of
-  // an object.
-  function boundingBoxUpdate(box, x, y, z) {
-    if (!box.minX || box.minX > x) {
-      box.minX = x;
-    }
-    if (!box.maxX || box.maxX < x) {
-      box.maxX = x;
-    }
-    if (!box.minY || box.minY > y) {
-      box.minY = y;
-    }
-    if (!box.maxY || box.maxY < y) {
-      box.maxY = y;
-    }
-    if (!box.minZ || box.minZ > z) {
-      box.minZ = z;
-    }
-    if (!box.maxZ || box.maxZ < z) {
-      box.maxZ = z;
-    }
   }
 
   function createWireframe(object) {

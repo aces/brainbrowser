@@ -19,12 +19,19 @@ BrainBrowser.SurfaceViewer.filetypes.parse = function(type, data, callback) {
   "use strict";
   
   var config = BrainBrowser.config.surface_viewer;
-  var file_type_config = config.filetypes[type]
-  var worker_dir = config.worker_dir
-  var obj = {};
+  var file_type_config = config.filetypes[type];
+  var worker_dir = config.worker_dir;
   
   if (file_type_config.worker) {
-    BrainBrowser.SurfaceViewer.filetypes.parseWorker(obj, data, file_type_config.worker, callback);
+    BrainBrowser.SurfaceViewer.filetypes.parseWorker(data, file_type_config.worker, function(result) {
+      var deindex = new Worker(worker_dir + "/deindex.worker.js");
+
+      deindex.addEventListener("message", function(e) {
+        callback(e.data);
+      });
+
+      deindex.postMessage(result);
+    });
   }
   
 };

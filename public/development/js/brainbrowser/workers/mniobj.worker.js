@@ -36,11 +36,11 @@
       data.shapes = [
         { indexArray: result.left.indexArray },
         { indexArray: result.right.indexArray }
-      ]
+      ];
     } else {
       data.shapes = [
         { indexArray: result.indexArray }
-      ]
+      ];
     }
 
     self.postMessage(data);
@@ -51,7 +51,7 @@
     //get all the fields as seperate strings.
     var string = data.replace(/\s+$/, '').replace(/^\s+/, '');
     var i, j, start, end, nitems;
-    var indices = []
+    var indices = [];
     var indexArray, endIndicesArray;
 
     //setting it to one here by default,
@@ -84,7 +84,7 @@
       if (result.positionArray.length ===  81924*3){
         result.brainSurface = true;
         split_hemispheres();
-      } 
+      }
     } else if ( result.objectClass === "L") {
       indexArray = result.indexArray;
       endIndicesArray = result.endIndicesArray;

@@ -30,14 +30,16 @@
   function parse(data) {
     //replacing all new lines with spaces (obj files can be structure with or without them)
     //get all the fields as seperate strings.
-    var string1 = data.replace(/\s+$/, '');
-    var string2 = string1.replace(/^\s+/, '');
-    
+    var string = data.replace(/\s+$/, '').replace(/^\s+/, '');
+    var i, j, start, end, nitems;
+    var indices = []
+    var indexArray, endIndicesArray;
+
     //setting it to one here by default,
     //it will be set to two later if there are two hemispheres
     result.num_hemispheres = 1;
   
-    stack = string2.split(/\s+/).reverse();
+    stack = string.split(/\s+/).reverse();
     result.objectClass = stack.pop();
     if(result.objectClass === 'P') {
       parseSurfProp();
@@ -63,8 +65,27 @@
       if (result.positionArray.length ===  81924*3){
         result.brainSurface = true;
         split_hemispheres();
+      } 
+    } else if ( result.objectClass === "L") {
+      indexArray = result.indexArray;
+      endIndicesArray = result.endIndicesArray;
+      nitems = result.nitems;
+      for (i = 0; i < nitems; i++){
+        if (i === 0){
+          start = 0;
+        } else {
+          start = endIndicesArray[i-1];
+        }
+        indices.push(indexArray[start]);
+        end = endIndicesArray[i];
+        for (j = start + 1; j < end - 1; j++) {
+          indices.push(indexArray[j]);
+          indices.push(indexArray[j]);
+        }
+        indices.push(indexArray[end-1]);
       }
-      
+
+      result.indexArray = indices;
     }
   
   }

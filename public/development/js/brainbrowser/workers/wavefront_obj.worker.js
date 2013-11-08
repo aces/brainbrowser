@@ -105,19 +105,11 @@
         }
       }
     }
-    numberOfShapes = result.shapes.length;
-    for(l = 0; l < numberOfShapes; l++){
-      shape = result.shapes[l];
-   
-      shape.positionArray = vertexArray;
-      shape.normalArray = normalArray;
-      if (shape.colorArray.length === 0) {
-        shape.colorArray = [0.8,0.8,0.8,1.0];
-      }
-    }
-    
+  
     result.objectClass = 'P';
-    result.vertexArray = vertexArray;
+    result.positionArray = vertexArray;
+    result.normalArray = normalArray;
+    result.colorArray = [0.8,0.8,0.8,1.0];
     result.texCoordArray = texCoordArray;
   }
 })();

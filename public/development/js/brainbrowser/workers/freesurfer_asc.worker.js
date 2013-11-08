@@ -59,21 +59,14 @@
       face.push(parseInt(line[0], 10));
       face.push(parseInt(line[1], 10));
       face.push(parseInt(line[2], 10));
+
+      Array.prototype.push.apply(current_shape.indexArray, face);
       current_shape.faces.push(face);
     }
     
-    numberOfShapes = result.shapes.length;
-    for(l = 0; l < numberOfShapes; l++){
-      shape = result.shapes[l];
-      
-      shape.positionArray = vertexArray;
-      if (shape.colorArray.length === 0) {
-        shape.colorArray = [0.8,0.8,0.8,1.0];
-      }
-    }
-    
     result.objectClass = 'P';
-    result.vertexArray = vertexArray;
+    result.positionArray = vertexArray;
+    result.colorArray = [0.8,0.8,0.8,1.0];
   }
 })();
 

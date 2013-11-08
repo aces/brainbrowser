@@ -18,15 +18,13 @@
 BrainBrowser.SurfaceViewer.filetypes.parse = function(type, data, callback) {
   "use strict";
   
-  var config = BrainBrowser.config.surface_viewer.filetypes[type];
+  var config = BrainBrowser.config.surface_viewer;
+  var file_type_config = config.filetypes[type]
+  var worker_dir = config.worker_dir
   var obj = {};
-    
-  if (config.parse) {
-    config.parse(obj, data, callback);
-  }
   
-  if (config.worker) {
-    BrainBrowser.SurfaceViewer.filetypes.parseWorker(obj, data, config.worker, callback);
+  if (file_type_config.worker) {
+    BrainBrowser.SurfaceViewer.filetypes.parseWorker(obj, data, file_type_config.worker, callback);
   }
   
 };

@@ -24,10 +24,10 @@ BrainBrowser.SurfaceViewer.data = function(raw, callback) {
   
   // Allows a prototype to be defined for data object
   var data_obj = {};
-  var worker_url = BrainBrowser.config.surface_viewer.data.worker;
+  var worker_dir = BrainBrowser.config.surface_viewer.worker_dir;
   
   function parse() {
-    var worker = new Worker(worker_url);
+    var worker = new Worker(worker_dir + "/data.worker.js");
   
     worker.addEventListener("message", function(e) {
       var result = e.data;

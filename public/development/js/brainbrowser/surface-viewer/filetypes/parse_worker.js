@@ -18,7 +18,9 @@
 BrainBrowser.SurfaceViewer.filetypes.parseWorker = function(self, data, worker_file, callback) {
   "use strict";
   
-  var worker = new Worker(worker_file);
+  var worker_dir = BrainBrowser.config.surface_viewer.worker_dir;
+
+  var worker = new Worker(worker_dir + "/" + worker_file);
   
   worker.addEventListener("message", function(e) {
     var result = e.data;

@@ -47,6 +47,7 @@ BrainBrowser.SurfaceViewer.core.color = function(viewer) {
 
     function applyColorArray(color_array) {
       var shapes;
+
       if(viewer.model_data.num_hemispheres === 2) {
         color_hemispheres(color_array);
       } else {
@@ -113,9 +114,6 @@ BrainBrowser.SurfaceViewer.core.color = function(viewer) {
     var i, count;
     var ic, iwc;
 
-    left_color_array = color_array.slice(0, color_array_length/2);
-    right_color_array = color_array.slice(color_array_length/2);
-
     var left_indices = left_hem.geometry.original_data.indices;
     var right_indices = right_hem.geometry.original_data.indices;
 
@@ -144,25 +142,25 @@ BrainBrowser.SurfaceViewer.core.color = function(viewer) {
       // This is a little messy but it's just going from an indexed color map
       // to an unindexed geometry.
       // And it's skipping the alphas (every 4th element).
-      left_color_attribute_array[ic]    = left_color_array[left_indices[i]*4];
-      left_color_attribute_array[ic+1]  = left_color_array[left_indices[i]*4+1];
-      left_color_attribute_array[ic+2]  = left_color_array[left_indices[i]*4+2];
-      left_color_attribute_array[ic+4]  = left_color_array[left_indices[i+1]*4];
-      left_color_attribute_array[ic+5]  = left_color_array[left_indices[i+1]*4+1];
-      left_color_attribute_array[ic+6]  = left_color_array[left_indices[i+1]*4+2];
-      left_color_attribute_array[ic+8]  = left_color_array[left_indices[i+2]*4];
-      left_color_attribute_array[ic+9]  = left_color_array[left_indices[i+2]*4+1];
-      left_color_attribute_array[ic+10] = left_color_array[left_indices[i+2]*4+2];
+      left_color_attribute_array[ic]    = color_array[left_indices[i]*4];
+      left_color_attribute_array[ic+1]  = color_array[left_indices[i]*4+1];
+      left_color_attribute_array[ic+2]  = color_array[left_indices[i]*4+2];
+      left_color_attribute_array[ic+4]  = color_array[left_indices[i+1]*4];
+      left_color_attribute_array[ic+5]  = color_array[left_indices[i+1]*4+1];
+      left_color_attribute_array[ic+6]  = color_array[left_indices[i+1]*4+2];
+      left_color_attribute_array[ic+8]  = color_array[left_indices[i+2]*4];
+      left_color_attribute_array[ic+9]  = color_array[left_indices[i+2]*4+1];
+      left_color_attribute_array[ic+10] = color_array[left_indices[i+2]*4+2];
 
-      right_color_attribute_array[ic]    = right_color_array[right_indices[i]*4];
-      right_color_attribute_array[ic+1]  = right_color_array[right_indices[i]*4+1];
-      right_color_attribute_array[ic+2]  = right_color_array[right_indices[i]*4+2];
-      right_color_attribute_array[ic+4]  = right_color_array[right_indices[i+1]*4];
-      right_color_attribute_array[ic+5]  = right_color_array[right_indices[i+1]*4+1];
-      right_color_attribute_array[ic+6]  = right_color_array[right_indices[i+1]*4+2];
-      right_color_attribute_array[ic+8]  = right_color_array[right_indices[i+2]*4];
-      right_color_attribute_array[ic+9]  = right_color_array[right_indices[i+2]*4+1];
-      right_color_attribute_array[ic+10] = right_color_array[right_indices[i+2]*4+2];
+      right_color_attribute_array[ic]    = color_array[right_indices[i]*4];
+      right_color_attribute_array[ic+1]  = color_array[right_indices[i]*4+1];
+      right_color_attribute_array[ic+2]  = color_array[right_indices[i]*4+2];
+      right_color_attribute_array[ic+4]  = color_array[right_indices[i+1]*4];
+      right_color_attribute_array[ic+5]  = color_array[right_indices[i+1]*4+1];
+      right_color_attribute_array[ic+6]  = color_array[right_indices[i+1]*4+2];
+      right_color_attribute_array[ic+8]  = color_array[right_indices[i+2]*4];
+      right_color_attribute_array[ic+9]  = color_array[right_indices[i+2]*4+1];
+      right_color_attribute_array[ic+10] = color_array[right_indices[i+2]*4+2];
 
       if (has_wireframe) {
         // v1 -v2

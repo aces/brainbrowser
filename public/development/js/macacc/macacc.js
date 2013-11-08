@@ -32,10 +32,6 @@
     collection.pickClick = function(e, vertex_data) {
       collection.vertex = vertex_data.vertex;
       
-      if (vertex_data.object && vertex_data.object.model_num) {
-        collection.vertex += vertex_data.object.model_num * (vertex_data.object.geometry.original_data.vertices.length / 3);
-      }
-      
       if (collection.vertex) {
         loadMap();
         if (collection.afterVertexUpdate) collection.afterVertexUpdate(vertex_data, 0);

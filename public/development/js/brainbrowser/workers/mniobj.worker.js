@@ -22,9 +22,28 @@
   var result = {};
   
   self.addEventListener("message", function(e) {
-    var data = e.data;
-    parse(data);
-    self.postMessage(result);
+    parse(e.data);
+
+    var data = {
+      objectClass: result.objectClass,
+      positionArray: result.positionArray,
+      normalArray: result.normalArray,
+      colorArray: result.colorArray,
+      num_hemispheres: result.num_hemispheres
+    };
+
+    if (data.num_hemispheres === 2) {
+      data.shapes = [
+        { indexArray: result.left.indexArray },
+        { indexArray: result.right.indexArray }
+      ]
+    } else {
+      data.shapes = [
+        { indexArray: result.indexArray }
+      ]
+    }
+
+    self.postMessage(data);
   });
   
   function parse(data) {
@@ -188,64 +207,20 @@
     result.indexArray = indexArray;
   }
   
-  /*
-   * Splits the model into two hemispheres
-   * Making it easier to move the parts around (rotate the hemispheres 90 degrees,...)
-   *
-   */
   function split_hemispheres() {
-    var left = {};
-    var right = {};
-    var right_index_array;
-    var adjusted_num_indices;
-    var num_vertices, num_indices, num_normals, num_colors;
-    var i, count;
-  
-    num_vertices = result.positionArray.length;
-    left.positionArray = result.positionArray.slice(0, num_vertices/2);
-    right.positionArray = result.positionArray.slice(num_vertices/2, num_vertices);
-  
-    num_indices = result.indexArray.length;
-    left.indexArray = result.indexArray.slice(0, num_indices/2);
-    right.indexArray = result.indexArray.slice(num_indices/2, num_indices);
-  
-    right_index_array = right.indexArray;
-    adjusted_num_indices = num_indices/3/2/2;
-    
-    for (i = 0, count = right_index_array.length; i < count; i++) {
-      right_index_array[i] = right_index_array[i] - 2 - adjusted_num_indices;
-    }
-    
-    num_normals = result.normalArray.length;
-    left.normalArray = result.normalArray.slice(0, num_normals/2);
-    right.normalArray = result.normalArray.slice(num_normals/2, num_normals);
-  
-  
-    left.colorFlag = result.colorFlag;
-    right.colorFlag = result.colorFlag;
-  
-  
-    if(result.colorFlag === 0 || result.colorFlag === 1) {
-      left.colorArray = result.colorArray;
-      right.colorArray = result.colorArray;
-    } else {
-      num_colors = result.colorArray.length;
-      left.colorArray = result.colorArray.slice(0, num_colors/2);
-      right.colorArray = result.colorArray.slice(num_colors/2+1, -1);
-    }
-  
-    left.numberVertices = result.numberVertices/2;
-    right.numberVertices = result.numberVertices/2;
-    
-    left.numberPolygons = result.numberPolygons/2;
-    right.numberPolygons = result.numberPolygons/2;
-  
+    var num_indices = result.indexArray.length;
+
     result.num_hemispheres = 2;
-  
-    result.left = left;
-    result.right = right;
-  
+
+    result.left = {
+      indexArray: result.indexArray.slice(0, num_indices/2)
+    };
+
+    result.right = {
+      indexArray: result.indexArray.slice(num_indices/2)
+    };
   }
+
 })();
 
 

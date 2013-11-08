@@ -34,14 +34,10 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
     var renderDepth = options.renderDepth;
     var complete = options.complete;
 
-    if (obj.objectClass === 'P' && obj.numberVertices === 81924) {
+    if (obj.num_hemispheres === 2) {
       addBrain(obj, renderDepth);
-    } else if(obj.objectClass === 'P') {
-      addPolygonObject(obj,filename, renderDepth);
-    } else if(obj.objectClass === 'L') {
-      addLineObject(obj, filename, renderDepth);
     } else {
-      alert("Object file not supported");
+      addObject(obj, filename, renderDepth);
     }
 
     viewer.triggerEvent("displayobject", viewer.model);
@@ -58,14 +54,14 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
   function addBrain(obj) {
     var model = viewer.model;
     var left, right;
-    var left_data = obj.left;
-    var right_data = obj.right;
+    var left_data = obj.shapes[0];
+    var right_data = obj.shapes[1];
 
     viewer.model_data = obj;
-    left = createObject(left_data.positionArray, left_data.indexArray, left_data.normalArray, left_data.colorArray);
+    left = createObject(obj.positionArray, left_data.indexArray, obj.normalArray, obj.colorArray);
     left.name = "left";
     left.model_num = 0;
-    right = createObject(right_data.positionArray, right_data.indexArray, right_data.normalArray, right_data.colorArray);
+    right = createObject(obj.positionArray, right_data.indexArray, obj.normalArray, obj.colorArray);
     right.name = "right";
     right.model_num = 1;
     model.add(left);
@@ -73,38 +69,26 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
   }
 
   // Add a polygon object to the scene.
-  function addPolygonObject(model_data, filename){
+  function addObject(model_data, filename, renderDepth){
     var model = viewer.model;
     var shape, shape_data;
     var i, count;
     var shapes = model_data.shapes;
 
+    var is_line = model_data.objectClass === "L";
+
     viewer.model_data = model_data;
     if (shapes){
       for (i = 0, count = shapes.length; i < count; i++){
         shape_data = model_data.shapes[i]
-        shape = createObject(model_data.positionArray, shape_data.indexArray, model_data.normalArray, model_data.colorArray);
-        shape.name = shape_data.name || (filename.split(".")[0] + "_" + i);
+        shape = createObject(model_data.positionArray, shape_data.indexArray, model_data.normalArray, model_data.colorArray, is_line);
+        shape.name = shape_data.name || filename;
+        if (renderDepth) {
+          shape.renderDepth = renderDepth;
+        }
         model.add(shape);
       }
-    }else {
-      shape = createObject(model_data.positionArray, model_data.indexArray, model_data.normalArray, model_data.colorArray);
-      shape.name = filename;
-      model.add(shape);
     }
-  }
-
-  //Add a line model to the scene.
-  function addLineObject(model_data, filename, renderDepth) {
-    var model = viewer.model;
-    var lineObject = createObject(model_data.positionArray, model_data.indexArray, model_data.normalArray, model_data.colorArray, true);
-    viewer.model_data = model_data;
-    lineObject.name = filename;
-    if (renderDepth) {
-      lineObject.renderDepth = renderDepth;
-    }
-
-    model.add(lineObject);
   }
 
   function createObject(verts, indices, norms, colors, is_line) {

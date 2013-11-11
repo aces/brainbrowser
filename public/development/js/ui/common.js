@@ -35,6 +35,9 @@ $(function() {
       button_text.text("Hide Controls");
     }
   });
+  $("title").append(" v" + BrainBrowser.version);
+  $("#app-name").append(" v" + BrainBrowser.version);
+
   setTimeout(function() {
     $("#app-name").show("blind", {direction: "right"}, 500);
     $("#control-button").click();

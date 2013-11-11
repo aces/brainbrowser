@@ -5,7 +5,7 @@ body {
   margin-top: 0px;
   font-family: arial;
   font-size: 14px;
-  background: #21201E;
+  background: #000000;
 }
 
 #header a:link {
@@ -46,7 +46,7 @@ a img {
   height: 100px;
   padding: 0px;
   margin: 0px;
-  background: #21201E;
+  background: #000000;
 }
 
 #header h1 {

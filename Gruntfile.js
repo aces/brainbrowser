@@ -36,7 +36,12 @@ module.exports = function(grunt) {
           "<%= dev_js %>/brainbrowser/volume-viewer/**/*.js"
         ],
         dest: "tmp/brainbrowser.volume-viewer.js"
-      }
+      },
+      libs : {
+        files: {
+          "tmp/brainbrowser.utils.js": "<%= dev_js %>/brainbrowser/lib/utils.js"
+        }
+      },
     },
     uglify: {
       options: {
@@ -75,7 +80,7 @@ module.exports = function(grunt) {
         files: {
           "<%= prod_js %>/layout.js": "<%= dev_js %>/layout.js",
           "<%= prod_js %>/ui/common.js": "<%= dev_js %>/ui/common.js",
-          "<%= prod_js %>/lib/brainbrowser.utils.js": "<%= dev_js %>/brainbrowser/lib/utils.js"
+          "<%= prod_js %>/lib/brainbrowser.utils.js": "tmp/brainbrowser.utils.js"
         }
       },
       workers: {

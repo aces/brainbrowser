@@ -28,6 +28,8 @@ $(function() {
     $("#"+tabs_object).tabs("select", tab);
     return false;
   });
+  $(".title").append(" v" + BrainBrowser.version);
+
   var warnings = $("#html5-warnings");
   if (warnings) {
     if (!BrainBrowser.utils.canvasEnabled()) {

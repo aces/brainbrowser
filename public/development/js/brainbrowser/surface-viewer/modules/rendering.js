@@ -36,7 +36,7 @@ BrainBrowser.SurfaceViewer.core.rendering = function(viewer) {
   viewer.render = function() {
     var view_window = viewer.view_window;
     renderer = new THREE.WebGLRenderer({preserveDrawingBuffer: true});
-    renderer.setClearColor(0x888888);
+    renderer.setClearColor(0x000000);
 
     renderer.setSize(view_window.offsetWidth, view_window.offsetHeight);
     effect = renderer;

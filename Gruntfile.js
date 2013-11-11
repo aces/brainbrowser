@@ -83,7 +83,8 @@ module.exports = function(grunt) {
           "<%= build_dir %>/workers/mniobj.worker.js": "<%= dev_js %>/brainbrowser/workers/mniobj.worker.js",
           "<%= build_dir %>/workers/wavefront_obj.worker.js": "<%= dev_js %>/brainbrowser/workers/wavefront_obj.worker.js",
           "<%= build_dir %>/workers/freesurfer_asc.worker.js": "<%= dev_js %>/brainbrowser/workers/freesurfer_asc.worker.js",
-          "<%= build_dir %>/workers/data.worker.js": "<%= dev_js %>/brainbrowser/workers/data.worker.js"
+          "<%= build_dir %>/workers/data.worker.js": "<%= dev_js %>/brainbrowser/workers/data.worker.js",
+          "<%= build_dir %>/workers/deindex.worker.js": "<%= dev_js %>/brainbrowser/workers/deindex.worker.js"
         }
       }
     },
@@ -159,7 +160,7 @@ module.exports = function(grunt) {
     clean: {
       build :[
         "<%= prod_js %>/brainbrowser",
-        "<%= build_dir %>"
+        "build/brainbrowser-*"
       ],
       tmp: "tmp/*.js"
     },

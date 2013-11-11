@@ -25,15 +25,20 @@
     var norms = data.normalArray;
     var colors = data.colorArray || [0.7, 0.7, 0.7, 1.0];
     var i, count;
+    var shape, unindexed;
 
     for (i = 0, count = shapes.length; i < count; i++) {
-      shapes[i].unindexed = deindex(shapes[i].indexArray, verts, norms, colors);
+      shape = shapes[i];
+      unindexed = deindex(shapes[i].indexArray, verts, norms, colors, data.objectClass !== "L");
+      shape.centroid = unindexed.centroid;
+      shape.unindexed = unindexed.unindexed;
+      shape.wireframe = unindexed.wireframe;
     }
 
     self.postMessage(data);
   });
   
-  function deindex(indices, verts, norms, colors) {
+  function deindex(indices, verts, norms, colors, wireframe) {
     indices = indices || [];
     verts = verts || [];
     norms = norms || [];
@@ -42,12 +47,16 @@
     var num_vertices = indices.length; // number of unindexed vertices.
     var num_coords = num_vertices * 3;
     var num_color_coords = num_vertices * 4;
+    var wire_verts, wire_colors;
 
     var normals_given = norms.length > 0;
     var data_color_0, data_color_1, data_color_2, all_gray;
     var bounding_box = {};
     var centroid = {};
     var i, count;
+    var iw, iv, ic, iwc;
+
+    var result;
 
     if(colors.length === 4) {
       all_gray = true;
@@ -59,6 +68,11 @@
     var unindexed_positions = new Float32Array(num_coords);
     var unindexed_normals = normals_given ?  new Float32Array(num_coords) : new Float32Array();
     var unindexed_colors = new Float32Array(num_color_coords);
+    if (wireframe) {
+      wire_verts = new Float32Array(num_coords * 2);
+      wire_colors = new Float32Array(num_color_coords * 2);
+    }
+     
 
     //Calculate center so positions of objects relative to each other can
     // defined (mainly for transparency).
@@ -71,36 +85,137 @@
 
     // "Unravel" the vertex and normal arrays so we don't have to use indices
     // (Avoids WebGL's 16 bit limit on indices)
-    for (i = 0, count = num_vertices; i < count; i++) {
-      unindexed_positions[i*3] = verts[indices[i] * 3] - centroid.x;
-      unindexed_positions[i*3 + 1] = verts[indices[i] * 3 + 1] - centroid.y;
-      unindexed_positions[i*3 + 2] = verts[indices[i] * 3 + 2] - centroid.z;
+    for (i = 0, count = num_vertices; i < count; i += 3) {
+      iv = i * 3;
+      ic = i * 4;
+
+      unindexed_positions[iv]     = verts[indices[i] * 3] - centroid.x;
+      unindexed_positions[iv + 1] = verts[indices[i] * 3 + 1] - centroid.y;
+      unindexed_positions[iv + 2] = verts[indices[i] * 3 + 2] - centroid.z;
+      unindexed_positions[iv + 3] = verts[indices[i+1] * 3] - centroid.x;
+      unindexed_positions[iv + 4] = verts[indices[i+1] * 3 + 1] - centroid.y;
+      unindexed_positions[iv + 5] = verts[indices[i+1] * 3 + 2] - centroid.z;
+      unindexed_positions[iv + 6] = verts[indices[i+2] * 3] - centroid.x;
+      unindexed_positions[iv + 7] = verts[indices[i+2] * 3 + 1] - centroid.y;
+      unindexed_positions[iv + 8] = verts[indices[i+2] * 3 + 2] - centroid.z;
 
       if (normals_given) {
-        unindexed_normals[i*3] = norms[indices[i] * 3];
-        unindexed_normals[i*3 + 1] = norms[indices[i] * 3 + 1];
-        unindexed_normals[i*3 + 2] = norms[indices[i] * 3 + 2];
+        unindexed_normals[iv]     = norms[indices[i] * 3];
+        unindexed_normals[iv + 1] = norms[indices[i] * 3 + 1];
+        unindexed_normals[iv + 2] = norms[indices[i] * 3 + 2];
+        unindexed_normals[iv + 3] = norms[indices[i+1] * 3];
+        unindexed_normals[iv + 4] = norms[indices[i+1] * 3 + 1];
+        unindexed_normals[iv + 5] = norms[indices[i+1] * 3 + 2];
+        unindexed_normals[iv + 6] = norms[indices[i+2] * 3];
+        unindexed_normals[iv + 7] = norms[indices[i+2] * 3 + 1];
+        unindexed_normals[iv + 8] = norms[indices[i+2] * 3 + 2];
       }
 
       if (all_gray) {
-        unindexed_colors[i*4] = data_color_0;
-        unindexed_colors[i*4 + 1] = data_color_1;
-        unindexed_colors[i*4 + 2] = data_color_2;
+        unindexed_colors[ic]      = data_color_0;
+        unindexed_colors[ic + 1]  = data_color_1;
+        unindexed_colors[ic + 2]  = data_color_2;
+        unindexed_colors[ic + 3]  = 1.0;
+        unindexed_colors[ic + 4]  = data_color_0;
+        unindexed_colors[ic + 5]  = data_color_1;
+        unindexed_colors[ic + 6]  = data_color_2;
+        unindexed_colors[ic + 7]  = 1.0;
+        unindexed_colors[ic + 8]  = data_color_0;
+        unindexed_colors[ic + 9]  = data_color_1;
+        unindexed_colors[ic + 10] = data_color_2;
+        unindexed_colors[ic + 11] = 1.0;
       } else {
-        unindexed_colors[i*4] = colors[indices[i] * 4];
-        unindexed_colors[i*4 + 1] = colors[indices[i] * 4 + 1];
-        unindexed_colors[i*4 + 2] = colors[indices[i] * 4 + 2];
+        unindexed_colors[ic]      = colors[indices[i] * 4];
+        unindexed_colors[ic + 1]  = colors[indices[i] * 4 + 1];
+        unindexed_colors[ic + 2]  = colors[indices[i] * 4 + 2];
+        unindexed_colors[ic + 3]  = 1.0;
+        unindexed_colors[ic + 4]  = colors[indices[i+1] * 4];
+        unindexed_colors[ic + 5]  = colors[indices[i+1] * 4 + 1];
+        unindexed_colors[ic + 6]  = colors[indices[i+1] * 4 + 2];
+        unindexed_colors[ic + 7]  = 1.0;
+        unindexed_colors[ic + 8]  = colors[indices[i+2] * 4];
+        unindexed_colors[ic + 9]  = colors[indices[i+2] * 4 + 1];
+        unindexed_colors[ic + 10] = colors[indices[i+2] * 4 + 2];
+        unindexed_colors[ic + 11] = 1.0;
       }
-      unindexed_colors[i*4 + 3] = 1.0;
+
+      if (wireframe) {
+        iw = iv * 2;
+        iwc = ic * 2;
+
+        // v1 -v2
+        wire_verts[iw]      = unindexed_positions[iv];
+        wire_verts[iw + 1]  = unindexed_positions[iv + 1];
+        wire_verts[iw + 2]  = unindexed_positions[iv + 2];
+        wire_verts[iw + 3]  = unindexed_positions[iv + 3];
+        wire_verts[iw + 4]  = unindexed_positions[iv + 4];
+        wire_verts[iw + 5]  = unindexed_positions[iv + 5];
+
+        // v2 - v3
+        wire_verts[iw + 6]  = unindexed_positions[iv + 3];
+        wire_verts[iw + 7]  = unindexed_positions[iv + 4];
+        wire_verts[iw + 8]  = unindexed_positions[iv + 5];
+        wire_verts[iw + 9]  = unindexed_positions[iv + 6];
+        wire_verts[iw + 10] = unindexed_positions[iv + 7];
+        wire_verts[iw + 11] = unindexed_positions[iv + 8];
+
+        // v3 - v1
+        wire_verts[iw + 12] = unindexed_positions[iv + 6];
+        wire_verts[iw + 13] = unindexed_positions[iv + 7];
+        wire_verts[iw + 14] = unindexed_positions[iv + 8];
+        wire_verts[iw + 15] = unindexed_positions[iv];
+        wire_verts[iw + 16] = unindexed_positions[iv + 1];
+        wire_verts[iw + 17] = unindexed_positions[iv + 2];
+
+         // v1 -v2
+        wire_colors[iwc]      = unindexed_colors[ic];
+        wire_colors[iwc + 1]  = unindexed_colors[ic + 1];
+        wire_colors[iwc + 2]  = unindexed_colors[ic + 2];
+        wire_colors[iwc + 3]  = unindexed_colors[ic + 3];
+        wire_colors[iwc + 4]  = unindexed_colors[ic + 4];
+        wire_colors[iwc + 5]  = unindexed_colors[ic + 5];
+        wire_colors[iwc + 6]  = unindexed_colors[ic + 6];
+        wire_colors[iwc + 7]  = unindexed_colors[ic + 7];
+
+        // v2 - v3
+        wire_colors[iwc + 8]  = unindexed_colors[ic + 4];
+        wire_colors[iwc + 9]  = unindexed_colors[ic + 5];
+        wire_colors[iwc + 10] = unindexed_colors[ic + 6];
+        wire_colors[iwc + 11] = unindexed_colors[ic + 7];
+        wire_colors[iwc + 12] = unindexed_colors[ic + 8];
+        wire_colors[iwc + 13] = unindexed_colors[ic + 9];
+        wire_colors[iwc + 14] = unindexed_colors[ic + 10];
+        wire_colors[iwc + 15] = unindexed_colors[ic + 11];
+        
+        // v3 - v1
+        wire_colors[iwc + 16] = unindexed_colors[ic + 8];
+        wire_colors[iwc + 17] = unindexed_colors[ic + 9];
+        wire_colors[iwc + 18] = unindexed_colors[ic + 10];
+        wire_colors[iwc + 19] = unindexed_colors[ic + 11];
+        wire_colors[iwc + 20] = unindexed_colors[ic];
+        wire_colors[iwc + 21] = unindexed_colors[ic + 1];
+        wire_colors[iwc + 22] = unindexed_colors[ic + 2];
+        wire_colors[iwc + 23] = unindexed_colors[ic + 3];
+      }
     }
 
-    return {
-      position: unindexed_positions,
-      normal: unindexed_normals,
-      color: unindexed_colors,
-      centroid: centroid
+    result =  {
+      centroid: centroid,
+      unindexed : {
+        position: unindexed_positions,
+        normal: unindexed_normals,
+        color: unindexed_colors,
+      }
     };
 
+    if (wireframe) {
+      result.wireframe =  {
+        position: wire_verts,
+        color: wire_colors
+      };
+    }
+
+    return result;
   }
 
   // Update current values of the bounding box of

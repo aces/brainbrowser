@@ -256,6 +256,7 @@ BrainBrowser.SurfaceViewer.core.color = function(viewer) {
       indices = shape.geometry.original_data.indices;
       color_attribute = geometry.attributes.color;
       colors = color_attribute.array;
+      
       for (i = 0, count = indices.length; i < count; i += 3) {
         ic = i * 4;
         iwc = ic * 2;

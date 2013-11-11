@@ -34,11 +34,7 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
     var renderDepth = options.renderDepth;
     var complete = options.complete;
 
-    if (obj.num_hemispheres === 2) {
-      addBrain(obj, renderDepth);
-    } else {
-      addObject(obj, filename, renderDepth);
-    }
+    addObject(obj, filename, renderDepth);
 
     viewer.triggerEvent("displayobject", viewer.model);
 
@@ -48,40 +44,6 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
   //////////////////////////////
   // PRIVATE FUNCTIONS
   /////////////////////////////
-
-
-  // Add a brain model to the scene.
-  function addBrain(model_data) {
-    var model = viewer.model;
-    var left, right;
-    var left_data = model_data.shapes[0];
-    var right_data = model_data.shapes[1];
-
-    viewer.model_data = model_data;
-
-    left = createObject(left_data.unindexed);
-    left.name = "left";
-    left.model_num = 0;
-    left.geometry.original_data = {
-      vertices: model_data.positionArray,
-      indices: left_data.indexArray,
-      normals: model_data.normalArray,
-      colors: model_data.colorArray
-    };
-
-    right = createObject(right_data.unindexed);
-    right.name = "right";
-    right.model_num = 1;
-    right.geometry.original_data = {
-      vertices: model_data.positionArray,
-      indices: right_data.indexArray,
-      normals: model_data.normalArray,
-      colors: model_data.colorArray
-    };
-
-    model.add(left);
-    model.add(right);
-  }
 
   // Add a polygon object to the scene.
   function addObject(model_data, filename, renderDepth){
@@ -109,6 +71,12 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
           shape.renderDepth = renderDepth;
         }
         model.add(shape);
+      }
+      if (model_data.num_hemispheres === 2) {
+        model.children[0].name = "left";
+        model.children[0].model_num = 0;
+        model.children[1].name = "right";
+        model.children[1].model_num = 1;
       }
     }
   }

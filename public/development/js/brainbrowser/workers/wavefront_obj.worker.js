@@ -109,7 +109,7 @@
     result.objectClass = 'P';
     result.positionArray = vertexArray;
     result.normalArray = normalArray;
-    result.colorArray = [0.8,0.8,0.8,1.0];
+    result.colorArray = [0.8, 0.8, 0.8, 1.0];
     result.texCoordArray = texCoordArray;
   }
 })();

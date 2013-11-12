@@ -100,7 +100,7 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
     var params = viewer.getViewParams(); //Must be defined by calling app
     var method_name = params.view + "View";
     viewer.resetView();
-    if(viewer.model_data && viewer.model_data.num_hemispheres === 2) {
+    if(viewer.model_data && viewer.model_data.split) {
       if (typeof viewer[method_name] === "function") {
         viewer[method_name]();
       } else {
@@ -130,7 +130,7 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   viewer.medialView = function() {
     var model = viewer.model;
 
-    if(viewer.model_data.num_hemispheres === 2 ) {
+    if(viewer.model_data.split ) {
       model.getObjectByName("left").position.x -= 100;
       model.getObjectByName("left").rotation.z -= degToRad(90);
       model.getObjectByName("right").position.x += 100;
@@ -146,7 +146,7 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
     var model = viewer.model;
     var left_child, right_child;
 
-    if(viewer.model_data.num_hemispheres === 2 ) {
+    if(viewer.model_data.split ) {
       left_child = model.getObjectByName("left");
       right_child = model.getObjectByName("right");
 
@@ -195,7 +195,7 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
    * Adds space between the hemispheres
    */
   viewer.separateHemispheres = function() {
-    if(viewer.model_data.num_hemispheres === 2 ) {
+    if(viewer.model_data.split ) {
       viewer.model.children[0].position.x -= 1;
       viewer.model.children[1].position.x += 1;
     }

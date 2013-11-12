@@ -33,12 +33,14 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
     var parts;
     var filename;
     var filetype = options.format || "MNIObject";
+    var parse_options = options.parse || {};
+
     loadFromUrl(url, options, function(data) {
       parts = url.split("/");
       //last part of url will be shape name
       filename = parts[parts.length-1];
       // Parse model info based on the given file type.
-      SurfaceViewer.filetypes.parse(filetype, data, function(obj) {
+      SurfaceViewer.filetypes.parse(filetype, data, parse_options, function(obj) {
         if (obj.objectClass !== "__FAIL__") {
           // Display model to the canvas after parsing.
           if (!cancelLoad(options)) viewer.displayObjectFile(obj, filename, options);
@@ -55,13 +57,14 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
     var parts;
     var filename;
     var filetype = options.format || "MNIObject";
+    var parse_options = options.parse || {};
     
     loadFromTextFile(file_input, options, function(data) {
       parts = file_input.value.split("\\");
       //last part of path will be shape name
       filename = parts[parts.length-1];
       // Parse model info based on the given file type.
-      SurfaceViewer.filetypes.parse(filetype, data, function(obj) {
+      SurfaceViewer.filetypes.parse(filetype, data, parse_options, function(obj) {
         if (obj.objectClass !== "__FAIL__") {
           // Display model to the canvas after parsing.
           viewer.displayObjectFile(obj, filename, options);

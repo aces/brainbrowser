@@ -298,7 +298,8 @@ $(function() {
           viewer.loadModelFromUrl('/models/surf_reg_model_both.obj', {
             format: "MNIObject",
             complete: hideLoading,
-            cancel: default_cancel_opts(current_request)
+            cancel: default_cancel_opts(current_request),
+            parse: { split: true }
           });
         },
         punkdti: function() {
@@ -320,6 +321,7 @@ $(function() {
         realct: function() {
           viewer.loadModelFromUrl('/models/realct.obj', {
             format: "MNIObject",
+            parse: { split: true },
             complete: function() {
               viewer.loadDataFromUrl('/models/realct.txt','Cortical Thickness', {
                 complete: hideLoading,

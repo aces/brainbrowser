@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-BrainBrowser.SurfaceViewer.filetypes.parse = function(type, data, callback) {
+BrainBrowser.SurfaceViewer.filetypes.parse = function(type, data, options, callback) {
   "use strict";
   
   var config = BrainBrowser.config.surface_viewer;
@@ -23,7 +23,7 @@ BrainBrowser.SurfaceViewer.filetypes.parse = function(type, data, callback) {
   var worker_dir = config.worker_dir;
   
   if (file_type_config.worker) {
-    BrainBrowser.SurfaceViewer.filetypes.parseWorker(data, file_type_config.worker, function(result) {
+    BrainBrowser.SurfaceViewer.filetypes.parseWorker(data, file_type_config.worker, options, function(result) {
       var deindex = new Worker(worker_dir + "/deindex.worker.js");
 
       deindex.addEventListener("message", function(e) {

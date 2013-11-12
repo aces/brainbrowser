@@ -43,6 +43,7 @@ $(function() {
     
     viewer.loadModelFromUrl('/models/surf_reg_model_both.obj', {
       format: "MNIObject",
+      parse: {split: true},
       complete: function() {
         hideLoading();
         macacc = MACACC.collection(viewer, path_prefix);

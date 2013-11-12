@@ -60,6 +60,7 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
         shape_data = model_data.shapes[i];
         shape = createObject(shape_data, is_line);
         shape.name = shape_data.name || filename;
+        
         shape.geometry.original_data = {
           vertices: model_data.positionArray,
           indices: shape_data.indexArray,
@@ -72,7 +73,8 @@ BrainBrowser.SurfaceViewer.core.models = function(viewer) {
         }
         model.add(shape);
       }
-      if (model_data.num_hemispheres === 2) {
+
+      if (model_data.split) {
         model.children[0].name = "left";
         model.children[0].model_num = 0;
         model.children[1].name = "right";

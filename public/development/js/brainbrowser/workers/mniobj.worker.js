@@ -22,17 +22,19 @@
   var result = {};
   
   self.addEventListener("message", function(e) {
-    parse(e.data);
+    var input = e.data;
+
+    parse(input.data, input.options);
 
     var data = {
       objectClass: result.objectClass,
       positionArray: result.positionArray,
       normalArray: result.normalArray,
       colorArray: result.colorArray,
-      num_hemispheres: result.num_hemispheres
+      split: result.split
     };
 
-    if (data.num_hemispheres === 2) {
+    if (data.split) {
       data.shapes = [
         { indexArray: result.left.indexArray },
         { indexArray: result.right.indexArray }
@@ -46,17 +48,18 @@
     self.postMessage(data);
   });
   
-  function parse(data) {
+  function parse(data, options) {
     //replacing all new lines with spaces (obj files can be structure with or without them)
     //get all the fields as seperate strings.
     var string = data.replace(/\s+$/, '').replace(/^\s+/, '');
     var i, j, start, end, nitems;
     var indices = [];
     var indexArray, endIndicesArray;
+    var split_hemispheres = options.split;
 
     //setting it to one here by default,
     //it will be set to two later if there are two hemispheres
-    result.num_hemispheres = 1;
+    result.split = false;
   
     stack = string.split(/\s+/).reverse();
     result.objectClass = stack.pop();
@@ -79,11 +82,10 @@
     parseEndIndices();
     parseIndexArray();
   
-    //If there are two hemispheres, might need to be a better test one day
     if (result.objectClass === 'P' ) {
-      if (result.positionArray.length ===  81924*3){
-        result.brainSurface = true;
-        split_hemispheres();
+      if (split_hemispheres){
+        result.split = true;
+        splitHemispheres();
       }
     } else if ( result.objectClass === "L") {
       indexArray = result.indexArray;
@@ -207,10 +209,8 @@
     result.indexArray = indexArray;
   }
   
-  function split_hemispheres() {
+  function splitHemispheres() {
     var num_indices = result.indexArray.length;
-
-    result.num_hemispheres = 2;
 
     result.left = {
       indexArray: result.indexArray.slice(0, num_indices/2)

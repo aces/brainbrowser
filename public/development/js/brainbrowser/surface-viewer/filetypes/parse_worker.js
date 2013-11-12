@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-BrainBrowser.SurfaceViewer.filetypes.parseWorker = function(data, worker_file, callback) {
+BrainBrowser.SurfaceViewer.filetypes.parseWorker = function(data, worker_file, options, callback) {
   "use strict";
   
   var worker_dir = BrainBrowser.config.surface_viewer.worker_dir;
@@ -27,5 +27,8 @@ BrainBrowser.SurfaceViewer.filetypes.parseWorker = function(data, worker_file, c
     worker.terminate();
   });
   
-  worker.postMessage(data);
+  worker.postMessage({
+    data: data,
+    options: options
+  });
 };

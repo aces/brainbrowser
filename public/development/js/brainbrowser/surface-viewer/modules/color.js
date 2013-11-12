@@ -48,7 +48,7 @@ BrainBrowser.SurfaceViewer.core.color = function(viewer) {
     function applyColorArray(color_array) {
       var shapes;
 
-      if(viewer.model_data.num_hemispheres === 2) {
+      if(viewer.model_data.split) {
         color_hemispheres(color_array);
       } else {
         if (data.apply_to_shape) {

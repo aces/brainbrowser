@@ -21,7 +21,7 @@ BrainBrowser.SurfaceViewer.core.rendering = function(viewer) {
   var renderer; //THREE.js renderer
   var scene = new THREE.Scene();
   var pointLight;
-  var camera = new THREE.PerspectiveCamera(30, viewer.view_window.offsetWidth/viewer.view_window.offsetHeight, 0.1, 5000);
+  var camera = new THREE.PerspectiveCamera(30, viewer.view_window.offsetWidth/viewer.view_window.offsetHeight, 0.1, 10000);
   var camera_controls;
   var light_controls;
   var current_frame;
@@ -54,8 +54,10 @@ BrainBrowser.SurfaceViewer.core.rendering = function(viewer) {
     
     camera_controls = new THREE.TrackballControls(camera, view_window);
     light_controls = new THREE.TrackballControls(pointLight, view_window);
-    camera_controls.zoomSpeed = 2;
-    light_controls.zoomSpeed = 2;
+    camera_controls.zoomSpeed = 0.5;
+    camera_controls.maxDistance = camera.far * 0.9;
+    light_controls.zoomSpeed = 0.5;
+    camera_controls.maxDistance = camera.far * 0.9;
     
     viewer.autoRotate = {};
     

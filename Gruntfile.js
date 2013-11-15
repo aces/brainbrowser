@@ -210,6 +210,11 @@ module.exports = function(grunt) {
               title: "Surface Viewer",
               id: "surface-viewer",
               scripts: ["<%= dev_js %>/brainbrowser/surface-viewer.js", "<%= dev_js %>/brainbrowser/surface-viewer"]
+            },
+            {
+              title: "Volume Viewer",
+              id: "volume-viewer",
+              scripts: ["<%= dev_js %>/brainbrowser/volume-viewer.js", "<%= dev_js %>/brainbrowser/volume-viewer"]
             }
           ]
         }

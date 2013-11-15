@@ -15,9 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-// BrainBrowser module for loading data from the server or from a
-// file.
 BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   "use strict";
   

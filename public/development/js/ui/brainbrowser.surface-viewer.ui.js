@@ -17,7 +17,7 @@
 
 // Plugin for UI functionality used by both
 // surface viewer and macacc.
-BrainBrowser.SurfaceViewer.plugins.ui = function(viewer) {
+BrainBrowser.SurfaceViewer.modules.ui = function(viewer) {
   "use strict";
     
   $("body").keydown(function(e) {

@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
  
-BrainBrowser.SurfaceViewer.core.rendering = function(viewer) {
+BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   "use strict";
   
   var renderer; //THREE.js renderer

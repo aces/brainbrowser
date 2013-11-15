@@ -169,7 +169,7 @@
     *  @name start
     *  @param {string} element_id ID of the DOM element 
     *  in which the viewer will be inserted.
-    *  @param {function} callback Callback function to which the viewer objec
+    *  @param {function} callback Callback function to which the viewer object
     *  will be passed after creation.
     *  @description
     *  The start() function is the main point of entry to the Surface Viewer.
@@ -230,8 +230,6 @@
         view_window: document.getElementById(element_id), // Div where the canvas will be loaded.
         model: null                                       // The currently loaded model. Should be set by rendering.
       };
-
-      var module;
       
       //////////////////////////////
       // Load modules.
@@ -258,29 +256,10 @@
       */
       BrainBrowser.utils.eventModel(viewer);
 
-      for (module in SurfaceViewer.core) {
-        if (SurfaceViewer.core.hasOwnProperty(module)) {
-          SurfaceViewer.core[module](viewer);
-        }
-      }
-
-      for (module in SurfaceViewer.core) {
-        if (SurfaceViewer.core.hasOwnProperty(module)) {
-          SurfaceViewer.core[module](viewer);
-        }
-      }
       
-      for (module in SurfaceViewer.modules) {
-        if (SurfaceViewer.modules.hasOwnProperty(module)) {
-          SurfaceViewer.modules[module](viewer);
-        }
-      }
-      
-      for (module in SurfaceViewer.plugins) {
-        if (SurfaceViewer.plugins.hasOwnProperty(module)) {
-          SurfaceViewer.plugins[module](viewer);
-        }
-      }
+      Object.keys(SurfaceViewer.modules).forEach(function(m) {
+        SurfaceViewer.modules[m](viewer);
+      });
       
       //////////////////////////////////////////////////////  
       // Pass SurfaceViewer instance to calling application. 
@@ -289,14 +268,8 @@
     }
   };
 
-  // Core modules.
-  SurfaceViewer.core = {};
-  
   // Standard modules.
   SurfaceViewer.modules = {};
-  
-  // Application specific plugins.
-  SurfaceViewer.plugins = {};
   
   // 3D Model filetype handlers.
   SurfaceViewer.filetypes = {};

@@ -29,6 +29,89 @@
  * Author: Nicolas Kassis <nic.kassis@gmail.com>
  */
 
+/**
+* @doc overview
+* @name index
+*
+* @description
+* The BrainBrowser Volume Viewer is a tool for navigating 3D minc volumes. 
+* Basic usage consists of calling the **start()** method of the **VolumeViewer** module, 
+* which takes a callback function as its second argument, and then using the **viewer** object passed
+* to that callback function to set up interaction with the viewr:
+*  ```js
+*    BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
+*   
+*     // Add an event listener.
+*     viewer.addEventListener("ready", function() {
+*       console.log("Viewer is ready!");
+*     });
+*     
+*     // Load minc volumes.
+*     viewer.loadVolumes({
+*       volumes: [
+*         {
+*           type: 'minc',
+*           filename: 'volume1.mnc'
+*         },
+*         {
+*           type: 'minc',
+*           filename: 'volume2.mnc'
+*         }
+*       ],
+*       overlay: true
+*     });
+*   });
+*  ```
+*/
+/**
+* @doc object
+* @name Events
+*
+* @description
+* The Surface Viewer event model can be used to listen for certain events 
+* occuring of the lifetime of a viewer. Currently, the following viewer events can be listened for:
+* 
+* * **ready** Viewer is completely loaded and ready to be manipulated.
+* * **sliceupdate** A new slice has been rendered to the viewer.
+*
+* To listen for an event, simply use the viewer's **addEventListener()** method with 
+* with the event name and a callback funtion:
+*
+* ```js
+*    viewer.addEventListener("sliceupdate", function() {
+*      console.log("Slice updated!");
+*    });
+*
+* ```
+*/
+/**
+* @doc object
+* @name Events.events:ready
+*
+* @description
+* Triggered when the viewer is fully loaded and ready for interaction.
+* The event handler receives no arguments.
+*
+* ```js
+*    viewer.addEventListener("ready", function() {
+*      //...
+*    });
+* ```
+*/
+/**
+* @doc object
+* @name Events.events:sliceupdate
+*
+* @description
+* Triggered when the slice currently being displayed is updated.
+* The event handler receives no arguments.
+*
+* ```js
+*    viewer.addEventListener("sliceupdate", function() {
+*      //...
+*    });
+* ```
+*/
 
 (function() {
   "use strict";
@@ -41,8 +124,45 @@
   VolumeViewer.colorScales = [];
   VolumeViewer.modules = {};
   
-  VolumeViewer.start = function(containerID, callback) {
-    var viewer = {};
+
+  /**
+  *  @doc function
+  *  @name start
+  *  @param {string} element_id ID of the DOM element 
+  *  in which the viewer will be inserted.
+  *  @param {function} callback Callback function to which the viewer object
+  *  will be passed after creation.
+  *  @description
+  *  The start() function is the main point of entry to the Volume Viewer.
+  *  It creates a viewer object that is then passed to the callback function 
+  *  supplied by the user.
+  *
+  *  ```js
+  *    BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
+  *    
+  *      // Add an event listener.
+  *      viewer.addEventListener("ready", function() {
+  *        console.log("Viewer is ready!");
+  *      });
+  *      
+  *      // Load minc volumes.
+  *      viewer.loadVolumes({
+  *        volumes: [
+  *          {
+  *            type: 'minc',
+  *            filename: 'volume1.mnc'
+  *          },
+  *          {
+  *            type: 'minc',
+  *            filename: 'volume2.mnc'
+  *          }
+  *        ],
+  *        overlay: true
+  *      });
+  *    });
+  *  ```
+  */
+  VolumeViewer.start = function(element_id, callback) {
     var volumes = [];
     var container;
     var viewer_element;
@@ -55,12 +175,44 @@
       yspace: 1,
       zspace: 2
     };
-  
-    viewer.volumes = volumes;
-    viewer.displays = [];
-    viewer.synced = false;
-    viewer.default_zoom_level = 1;
+    
+    /**
+    * @doc object
+    * @name viewer
+    * @property {array} volumes Array of object representing volumes to be displayed.
+    * @property {array} displays Array of objects representing the display areas.
+    * @property {boolean} synced Are the cursors being synced across volumes? 
+    * @property {number} default_zoom_level The default zoom level for the viewer.
+    *
+    * @description
+    * The viewer object encapsulates all functionality of the Surface Viewer.
+    */
+    var viewer = { 
+      volumes: volumes,
+      displays: [],
+      synced: false,
+      default_zoom_level: 1
+    };
 
+    /**
+    * @doc function
+    * @name viewer.events:addEventListener
+    * @param {string} e The event name.
+    * @param {function} fn The event handler. 
+    *
+    * @description
+    * Add an event handler to handle event **e**.
+    */
+    /**
+    * @doc function
+    * @name viewer.events:triggerEvent
+    * @param {string} e The event name. 
+    *
+    * @description
+    * Trigger all handlers associated with event **e**.
+    * Any arguments after the first will be passed to the 
+    * event handler.
+    */
     BrainBrowser.utils.eventModel(viewer);
     
     Object.keys(VolumeViewer.modules).forEach(function(m) {
@@ -69,10 +221,11 @@
 
     console.log("BrainBrowser Volume Viewer v" + BrainBrowser.version);
 
-     /**
-     * Open volume using appropriate volume loader
-     * @param {Object} Volume description of the volume to load
-     */
+    /////////////////////////
+    // PRIVATE FUNCTIONS
+    /////////////////////////
+     
+    // Open volume using appropriate volume loader
     function openVolume(volume_description, callback){
       var loader = VolumeViewer.volumeType[volume_description.type];
       if(loader){
@@ -82,9 +235,8 @@
       }
     }
   
-    /*
-     * Initialize the viewer with first slices
-     */
+    
+    // Initialize the viewer with first slices
     function startViewer() {
       var i;
       var div;
@@ -142,17 +294,44 @@
     }
 
     /**
-     * Initial load of volumes
-     * @param container Id of the element to contain the viewer
-     * @param{Object} Options options
-     *
-     * Options:
-     *   multi: used to view multiple volumes at a time (default: false)
-     */
+    * @doc function
+    * @name viewer.volumes:loadVolumes
+    * @param {object} options Description of volumes to load:
+    * * **volumes** {array} An array of volume descriptions.
+    * * **overlay** {boolean} Create a display overlaying the other loaded volumes?
+    *
+    * @description
+    * Initial load of volumes. Usage: 
+    *  ```js
+    *    BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
+    *    
+    *      // Add an event listener.
+    *      viewer.addEventListener("ready", function() {
+    *        console.log("Viewer is ready!");
+    *      });
+    *      
+    *      // Load minc volumes.
+    *      viewer.loadVolumes({
+    *        volumes: [
+    *          {
+    *            type: 'minc',
+    *            filename: 'volume1.mnc'
+    *          },
+    *          {
+    *            type: 'minc',
+    *            filename: 'volume2.mnc'
+    *          }
+    *        ],
+    *        overlay: true
+    *      });
+    *    });
+    * ```
+    * 
+    */
     viewer.loadVolumes = function(options) {
       options = options || {};
       
-      container = document.getElementById(containerID);
+      container = document.getElementById(element_id);
       viewer_element = document.createElement("div");
       viewer_element.id = "volume-viewer";
       
@@ -215,86 +394,50 @@
       });
     };
     
-    viewer.updateVolume = function(volumeNum, slices) {
-      var i, slice;
+
+    /**
+    * @doc function
+    * @name viewer.volumes:updateVolume
+    * @param {number} volume_num Index of the volume.
+    * @param {array} slices slices Slice to update.
+    *
+    * @description
+    * Update a volume with the given slices.
+    * 
+    */
+    viewer.updateVolume = function(volume_num, slices) {
+      var i;
       
       for (i = 0; i < 3; i++) {
-        slice = slices[i];
-        viewer.updateSlice(volumeNum, i, slice);
+        viewer.updateSlice(volume_num, i, slices[i]);
       }
     };
-  
-    /**
-     * Redraw volume with current position
-     *
-     * @param {Number} volNum
-     *
-     */
-    viewer.redrawVolume = function(volNum) {
-      viewer.renderSlice(volNum, "xspace", volumes[volNum].position.xspace);
-      viewer.renderSlice(volNum, "yspace", volumes[volNum].position.yspace);
-      viewer.renderSlice(volNum, "zspace", volumes[volNum].position.zspace);
-    };
-  
-    viewer.redrawVolumes = function() {
-      for(var i = 0; i < volumes.length; i++) {
-        viewer.redrawVolume(i);
-      }
-    };
-  
-    /**
-     * Render a new slice to canvas
-     * @param {Number} VolID id of the volume
-     * @param {Object} coord
-     */
-    viewer.renderSlice = function(volID, axis, slice_number) {
-      var volume = volumes[volID];
-      var slice;
-      var axis_number = axis_to_number[axis];
-      
-      if (slice_number === undefined) {
-        slice_number = volume.position[axis];
-      }
-      
-      slice = volume.slice(axis, slice_number, volume.current_time);
-      slice.volID = volID;
-      slice.axis_number = axis_number;
-      volume.position[axis] = slice_number;
-  
-      //slice.startx = 0;
-      //slice.starty = 0;
-      slice.min = volume.min;
-      slice.max = volume.max;
-      viewer.updateSlice(volID, slice.axis_number, slice);
-          
-      viewer.triggerEvent("sliceupdate");
 
-      viewer.draw();
-    };
-    
     /**
-     * Update slice in volume.
-     * @param {VolumeNum} VolumeNum number of the volume to which the slice belongs
-     * @param {Number} startx initial x position of the slice (if translated) default 0
-     * @param {Number} starty initial y position of the slice (if translated) default 0
-     * @param {BrainBrowser.ColorScale} colorScale colors to use for the image
-     * @param {Array} imageData intensity data for the slice
-     */
-    viewer.updateSlice = function(volumeNum, axis_number, slice) {
+    * @doc function
+    * @name viewer.volumes:updateSlice
+    * @param {number} volume_num Index of the volume.
+    * @param {number} axis_num Volume axis to update.
+    * @param {object} slice The slice to update with.
+    *
+    * @description
+    * Update slice in volume.
+    */
+    viewer.updateSlice = function(volume_num, axis_num, slice) {
       var widthSpace = slice.x;
       var heightSpace = slice.y;
       
-      var cached_slice = cachedSlices[volumeNum][axis_number] || {
+      var cached_slice = cachedSlices[volume_num][axis_num] || {
         widthSpace: widthSpace,
         heightSpace: heightSpace,
       };
-      var display = viewer.displays[volumeNum][axis_number];
+      var display = viewer.displays[volume_num][axis_num];
       
       cached_slice.image = slice.getImage(display.zoom);
-      cachedSlices[volumeNum][axis_number] = cached_slice;
+      cachedSlices[volume_num][axis_num] = cached_slice;
       
       display.slice = cached_slice;
-      display.updateCursor(volumes[volumeNum]);
+      display.updateCursor(volumes[volume_num]);
     };
   
     viewer.draw = function draw() {
@@ -337,10 +480,82 @@
       });
     };
   
-    // Update cursor position in volume.
-    viewer.setCursor = function(cursor, volID, axis_num) {
-      var slice = cachedSlices[volID][axis_num];
-      var display = viewer.displays[volID][axis_num];
+    /**
+    * @doc function
+    * @name viewer.volumes:redrawVolume
+    * @param {number} volume_num Index of the volume.
+    *
+    * @description
+    * Redraw the volume at its current position.
+    */
+    viewer.redrawVolume = function(volume_num) {
+      viewer.renderSlice(volume_num, "xspace", volumes[volume_num].position.xspace);
+      viewer.renderSlice(volume_num, "yspace", volumes[volume_num].position.yspace);
+      viewer.renderSlice(volume_num, "zspace", volumes[volume_num].position.zspace);
+    };
+  
+    /**
+    * @doc function
+    * @name viewer.volumes:redrawVolumes
+    *
+    * @description
+    * Redraw all volumes at their current position.
+    */
+    viewer.redrawVolumes = function() {
+      var i, count;
+
+      for(i = 0, count = volumes.length; i < count; i++) {
+        viewer.redrawVolume(i);
+      }
+    };
+  
+   /**
+    * @doc function
+    * @name viewer.volumes:renderSlice
+    * @param {number} volume_num Index of the volume where the slice is being rendered.
+    * @param {string} axis_name Name of the axis where the slice is being rendered.
+    * @param {number} slice_num Index of the slice to render.
+    *
+    * @description
+    * Render a new slice on the given volume and axis.
+    */
+    viewer.renderSlice = function(volume_num, axis_name, slice_num) {
+      var volume = volumes[volume_num];
+      var slice;
+      var axis_number = axis_to_number[axis_name];
+      
+      if (slice_num === undefined) {
+        slice_num = volume.position[axis_name];
+      }
+      
+      slice = volume.slice(axis_name, slice_num, volume.current_time);
+      slice.volID = volume_num;
+      slice.axis_number = axis_number;
+      volume.position[axis_name] = slice_num;
+  
+      slice.min = volume.min;
+      slice.max = volume.max;
+      viewer.updateSlice(volume_num, slice.axis_number, slice);
+          
+      viewer.triggerEvent("sliceupdate");
+
+      viewer.draw();
+    };
+  
+    /**
+    * @doc function
+    * @name viewer.volumes:setCursor
+    * @param {number} volume_num Index of the volume.
+    * @param {number} axis_num Volume axis to update.
+    * @param {object} cursor Object containing the x and y coordinates of the 
+    * cursor.
+    *
+    * @description
+    * Set the cursor to a new position in the given volume and axis.
+    */
+    viewer.setCursor = function(volume_num, axis_num, cursor) {
+      var slice = cachedSlices[volume_num][axis_num];
+      var display = viewer.displays[volume_num][axis_num];
       var image_origin = display.getImageOrigin();
       var zoom = display.zoom;
       var x, y;
@@ -357,8 +572,8 @@
         y = null;
       }
   
-      viewer.renderSlice(volID, slice.widthSpace.name, x);
-      viewer.renderSlice(volID, slice.heightSpace.name, y);
+      viewer.renderSlice(volume_num, slice.widthSpace.name, x);
+      viewer.renderSlice(volume_num, slice.heightSpace.name, y);
   
     };
 

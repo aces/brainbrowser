@@ -54,12 +54,12 @@ BrainBrowser.VolumeViewer.modules.ui = function(viewer) {
         40: function() { cursor.y++; }  // Down
       })[keyCode]();
       
-      viewer.setCursor(cursor, volID, slice_num);
+      viewer.setCursor(volID, slice_num, cursor);
       
       if (viewer.synced){
         viewer.displays.forEach(function(display, synced_vol_id) {
           if (synced_vol_id !== volID) {
-            viewer.setCursor(cursor, synced_vol_id, slice_num);
+            viewer.setCursor(synced_vol_id, slice_num, cursor);
           }
         });
       }
@@ -176,11 +176,11 @@ BrainBrowser.VolumeViewer.modules.ui = function(viewer) {
                 });
               }
             } else {
-              viewer.setCursor(cursor, volID, slice_num);
+              viewer.setCursor(volID, slice_num, cursor);
               if (viewer.synced){
                 viewer.displays.forEach(function(display, synced_vol_id) {
                   if (synced_vol_id !== volID) {
-                    viewer.setCursor(cursor, synced_vol_id, slice_num);
+                    viewer.setCursor(synced_vol_id, slice_num, cursor);
                   }
                 });
               }
@@ -219,11 +219,11 @@ BrainBrowser.VolumeViewer.modules.ui = function(viewer) {
               });
             }
           } else {
-            viewer.setCursor(cursor, volID, slice_num);
+            viewer.setCursor(volID, slice_num, cursor);
             if (viewer.synced){
               viewer.displays.forEach(function(display, synced_vol_id) {
                 if (synced_vol_id !== volID) {
-                  viewer.setCursor(cursor, synced_vol_id, slice_num);
+                  viewer.setCursor(synced_vol_id, slice_num, cursor);
                 }
               });
             }

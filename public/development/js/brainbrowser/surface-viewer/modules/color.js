@@ -17,7 +17,7 @@
 
 
 // Module for updating colours on models currently being displayed.
-BrainBrowser.SurfaceViewer.core.color = function(viewer) {
+BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   "use strict";
   
   ///////////////////////////

@@ -20,20 +20,26 @@
 BrainBrowser.SurfaceViewer.core.color = function(viewer) {
   "use strict";
   
-  var SurfaceViewer = BrainBrowser.SurfaceViewer;
-
-  ///////////////////////////
-  // PRIVATE DATA
-  ///////////////////////////
-  
-  var colorManager = SurfaceViewer.colorManager();
-
   ///////////////////////////
   // INTERFACE
   ///////////////////////////
-
-  // This updates the colors of the model. Will delegate to color_hemispheres() or color_model()
-  // depending on the type of model.
+  /**
+  * @doc function
+  * @name viewer.color:updateColors
+  * @param {object} data Data object.
+  * @param {object} options Options for the color update, which include the following: 
+  * 
+  * * **min** Minimum value of the color samples.
+  * * **max** Maximum value of the color samples.
+  * * **spectrum** Spectrum object used to create the color array.
+  * * **flip** Should the colors be flipped?
+  * * **clamped** Should values be clampled to the min/max range?
+  * * **blend** Are the colors being blended with already loaded values?
+  * * **complete** Callback function to call when the color update is done.
+  * 
+  * @description
+  * Update the vertex colors of the model based on data object passed as argument.
+  */
   viewer.updateColors = function(data, options) {
     options = options || {};
     var min = options.min;
@@ -70,16 +76,20 @@ BrainBrowser.SurfaceViewer.core.color = function(viewer) {
 
     viewer.clamped = clamped;
     if (blend) {
-      applyColorArray(colorManager.blendColorMap(spectrum, data, 0, 1));
+      applyColorArray(blendColorMap(spectrum, data, 0, 1));
     } else {
       data.createColorArray(min, max, spectrum, flip, clamped, viewer.model_data.colorArray, viewer.model_data, applyColorArray);
     }
   };
 
-  /*
-   * Called when the range of colors is changed in the interface
-   * Clamped signifies that the range should be clamped and values above or bellow the
-   * thresholds should have the color of the maximum/mimimum.
+  /** 
+   * @doc function
+   * @name viewer.color:rangeChange
+   * @param {number} min Minimum value of the range.
+   * @param {number} max Maximum value of the range.
+   * @param {boolean} clamped Should values be clampled to the min/max range?
+   * @description
+   * Update the range of colors being applied to the current model.
    */
   viewer.rangeChange = function(min, max, clamped, options) {
     options = options || {};
@@ -97,6 +107,34 @@ BrainBrowser.SurfaceViewer.core.color = function(viewer) {
     });
 
     viewer.triggerEvent("rangechange", data);
+  };
+
+  /**
+  * @doc function
+  * @name viewer.color:blend
+  * @param {number} blend Blend ratio between two loaded color maps (between 0 and 1);
+  *
+  * @description 
+  * Blend two loaded color maps using the supplied ratio.
+  */
+  viewer.blend = function(value) {
+    var blendData = viewer.blendData;
+    var blendDataLength = blendData.length;
+    var i;
+    
+    blendData[0].alpha = value;
+    blendData[1].alpha = 1.0 - value;
+    for(i = 2; i < blendDataLength; i++) {
+      blendData[i].alpha = 0.0;
+    }
+    
+
+    viewer.updateColors(blendData, {
+      spectrum: viewer.spectrum,
+      flip: viewer.flip,
+      clamped: viewer.clamped,
+      blend: true
+    });
   };
 
   ///////////////////////////
@@ -311,6 +349,47 @@ BrainBrowser.SurfaceViewer.core.color = function(viewer) {
       }
     }
 
+  }
+
+  function blendColors(color_arrays) {
+    var final_color = color_arrays[0];
+    var i, j, count1, count2;
+    var old_alpha, new_alpha;
+    
+    for (i = 0, count1 = color_arrays[0].length/4; i < count1; i++){
+      for (j = 1, count2 = color_arrays.length;  j < count2; j++) {
+        old_alpha = final_color[i*4+3];
+        new_alpha = color_arrays[j][i*4+3];
+        final_color[i*4]   = final_color[i*4] * old_alpha+color_arrays[j][i*4] * new_alpha;
+        final_color[i*4+1] = final_color[i*4+1] * old_alpha+color_arrays[j][i*4+1] * new_alpha;
+        final_color[i*4+2] = final_color[i*4+2] * old_alpha+color_arrays[j][i*4+2] * new_alpha;
+        final_color[i*4+3] = old_alpha + new_alpha;
+      }
+    }
+    return final_color;
+    
+  }
+
+
+  /**
+  * Blends two or more arrays of values into one color array
+  */
+  function blendColorMap(spectrum, value_arrays) {
+    var count = value_arrays.length;
+    var color_arrays = new Array(count);
+    var i;
+    var value_array;
+    
+    for(i = 0; i < count; i++){
+      value_array = value_arrays[i];
+      color_arrays[i] = spectrum.createColorMap(value_array.values, {
+        min: value_array.rangeMin,
+        max: value_array.rangeMax,
+        alpha: value_array.alpha
+      });
+    }
+    
+    return blendColors(color_arrays);
   }
 
 };

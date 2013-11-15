@@ -33,6 +33,12 @@ BrainBrowser.SurfaceViewer.core.rendering = function(viewer) {
   
   scene.add(viewer.model);
   
+  /**
+   * @doc function
+   * @name viewer.rendering:render
+   * @description
+   * Render the scene.
+   */
   viewer.render = function() {
     var view_window = viewer.view_window;
     renderer = new THREE.WebGLRenderer({preserveDrawingBuffer: true});
@@ -71,27 +77,79 @@ BrainBrowser.SurfaceViewer.core.rendering = function(viewer) {
     
     render_frame();
   };
+
+  /**
+  * @doc function
+  * @name viewer.rendering:getVertexInfo
+  * @param {number} index Index of the vertex to give info for.
+  *
+  * @description
+  * Change to a given view of a split data set. (**Note:** this is
+  * only effective for a split dataset, e.g. two hemispheres of a brain).
+  */
+  viewer.getVertexInfo = function(index) {
+    var positions = viewer.model_data.positionArray;
+    var i = index * 3;
+    
+    return {
+      index: index,
+      point: new THREE.Vector3(positions[i], positions[i+1], positions[i+2])
+    };
+  };
   
+
+  /**
+   * @doc function
+   * @name viewer.rendering:canvasDataURL
+   * @returns {string} The data URL.
+   * @description
+   * Returns the Data URL of the canvas the viewer is using
+   * so it can be used to create an image.
+   */
   viewer.canvasDataURL = function() {
     return renderer.domElement.toDataURL();
   };
   
+  /**
+   * @doc function
+   * @name viewer.rendering:anaglyphEffect
+   * @description
+   * Enables the anaglyph effect for 3D viewing with
+   * red-blue 3D glasses.
+   */
   viewer.anaglyphEffect = function() {
     effect = anaglyphEffect;
   };
 
+  /**
+   * @doc function
+   * @name viewer.rendering:noEffect
+   * @description
+   * Disable any special effect active on the viewer.
+   */
   viewer.noEffect = function() {
     effect = renderer;
   };
   
+  /**
+   * @doc function
+   * @name viewer.rendering:setCamera
+   * @param {number} x The x coordinate of the camera.
+   * @param {number} y The y coordinate of the camera.
+   * @param {number} z The z coordinate of the camera.
+   * @description
+   * Set the camera position.
+   */
   viewer.setCamera = function(x, y, z) {
     camera.position.set(x, y, z);
   };
   
   /**
-    * Resets the view of the scene by resetting its local matrix to the identity
-    * matrix.
-    */
+   * @doc function
+   * @name viewer.rendering:resetView
+   * @description
+   * Resets the view of the scene.
+   */
   viewer.resetView = function() {
     var model = viewer.model;
     var child, wireframe;
@@ -116,53 +174,51 @@ BrainBrowser.SurfaceViewer.core.rendering = function(viewer) {
     }
   };
 
+  /**
+   * @doc function
+   * @name viewer.rendering:zoom
+   * @param {number} zoom The zoom level (default: 1.0).
+   * @description
+   * Zoom the view in or out.
+   */
   viewer.zoom = function(zoom) {
     camera.fov *= zoom;
     camera.updateProjectionMatrix();
   };
-
   
   /**
-   * Delete all the shapes on screen
-   * For this the function travels down the scenegraph and removes every shape.
-   *
-   * Tip: when you remove a shape, the shapes array lenght will be decremented so if you need to count the number of shapes, you must save that length value before removing shapes.
+   * @doc function
+   * @name viewer.rendering:setClearColor
+   * @param {number} color A hexadecimal number representing the RGB color to use.
+   * @description
+   * Updates the clear color of the viewer.
    */
-  viewer.clearScreen = function() {
-    var children = viewer.model.children;
-    
-    while (children.length > 0) {
-      viewer.model.remove(children[0]);
-    }
-        
-    viewer.resetView();
-    viewer.triggerEvent("clearscreen");
-  };
-  
-  /**
-   * Updates the clear color or background of the view window
-   * @param {Number[]} color Takes an array with 4 elements, the color must be represented as for values from 0-1.0 [red,green,blue,alpha]
-    *
-   */
-  viewer.updateClearColor = function(color)  {
+  viewer.setClearColor = function(color)  {
     renderer.setClearColor(color, 1.0);
   };
   
-  /*
-    * This method can be used to detect where the user clicked
-    * it takes a callback method which will receive the event and
-    * and info object.
-    *
+  /**
+   * @doc function
+   * @name viewer.rendering:pick
+   * @param {number} x The x coordinate on the canvas.
+   * @param {number} y The y coordinate on the canvas.
+   * @returns {object} If an intersection is detected, returns an object with the following information:
+   *
+   * * **object** The THREE.Object3D object with which the the click intersected.
+   * * **point** A THREE.Vector3 object representing the point in 3D space at which the intersection occured.
+   * * **index** The index of the intersection point in the list of vertices.
+   *
+   * Otherwise returns **null**.
+   * 
+   * @description
+   * Given an x and y coordinate on the viewer canvas, returns information about the 
+   * the point of intersection with a displayed object. 
+   *
    */
-  viewer.click = function(e, click_callback) {
-    var view_window = viewer.view_window;
-    
-    var offset = BrainBrowser.utils.getOffset(view_window);
+  viewer.pick = function(x, y) {
     var projector = new THREE.Projector();
     var raycaster = new THREE.Raycaster();
-    var mouseX = ((e.clientX - offset.left + window.scrollX)/view_window.offsetWidth) * 2 - 1;
-    var mouseY = -((e.clientY - offset.top + window.scrollY)/view_window.offsetHeight) * 2 + 1;
-    var vector = new THREE.Vector3(mouseX, mouseY, 1);
+    var vector = new THREE.Vector3(x, y, 1);
     var intersects, intersection, vertex_data;
     var intersect_object, intersect_point, intersect_vertex_index, min_distance;
     var verts, distance;
@@ -188,17 +244,18 @@ BrainBrowser.SurfaceViewer.core.rendering = function(viewer) {
       }
 
       vertex_data = {
-        vertex: intersect_vertex_index,
+        index: intersect_vertex_index,
         point: new THREE.Vector3(intersection.point.x, intersection.point.y, intersection.point.z),
         object: intersection.object
       };
 
-      return click_callback(e, vertex_data);
+      return vertex_data;
     } else {
-      return false;
+      return null;
     }
   };
   
+  // Render a single frame on the viewer.
   function render_frame(timestamp) {
     var model = viewer.model;
     var delta;

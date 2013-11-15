@@ -19,22 +19,13 @@
 // surface viewer and macacc.
 BrainBrowser.SurfaceViewer.plugins.ui = function(viewer) {
   "use strict";
-  
-  viewer.getViewParams = function() {
-    return {
-      view: $('[name=hem_view]:checked').val(),
-      left: $('#left_hem_visible').is(":checked"),
-      right: $('#right_hem_visible').is(":checked")
-    };
-  };  
-
     
   $("body").keydown(function(e) {
     var key_code = e.which;
     var keys = {
       38: function() { viewer.zoom(1/1.1); },
       40: function() { viewer.zoom(1.1); },
-      32: function() { viewer.separateHemispheres(); }
+      32: function() { viewer.separateHalves(); }
     };
   
     if (key_code in keys) {
@@ -46,11 +37,13 @@ BrainBrowser.SurfaceViewer.plugins.ui = function(viewer) {
   });
   
   $("#clear_color").change(function(e){
-    viewer.updateClearColor(parseInt($(e.target).val(), 16));
+    viewer.setClearColor(parseInt($(e.target).val(), 16));
   });
   
   //Setups the view events and handlers
-  $('#resetview').click(viewer.setupView);
+  $('#resetview').click(function() {
+    viewer.setView($('[name=hem_view]:checked').val());
+  });
 
   $('.visibility').change(function() {
     var input  = $(this);
@@ -66,14 +59,12 @@ BrainBrowser.SurfaceViewer.plugins.ui = function(viewer) {
     shape.visible = input.is(":checked");  
   });
   
-  $('[name=hem_view]').change(viewer.setupView);
+  $('[name=hem_view]').change(function() {
+    viewer.setView($('[name=hem_view]:checked').val());
+  });
   
   $('#meshmode').change(function(e) {
-    if ($(e.target).is(":checked")) {
-      viewer.fillModeWireframe();
-    } else {
-      viewer.fillModeSolid();
-    }
+    viewer.setWireframe($(this).is(":checked"));
   });
   
   $('#threedee').change(function(e) {

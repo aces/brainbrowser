@@ -35,11 +35,12 @@ $(function() {
   BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
 
     viewer.addEventListener("loadspectrum", function (spectrum) {
-      var canvas = spectrum.createSpectrumCanvasWithScale(0,5,null,false);
+      var canvas = spectrum.createCanvasWithScale(0,5,null,false);
       canvas.id = "spectrum-canvas";
       $("#spectrum").html($(canvas));
-      viewer.spectrumObj = spectrum;
     });
+
+    viewer.render();
     
     viewer.loadModelFromUrl('/models/surf_reg_model_both.obj', {
       format: "MNIObject",
@@ -68,7 +69,7 @@ $(function() {
         };
         
         macacc.afterVertexUpdate = function(vertex_data, value) {
-          var vertex = vertex_data.vertex;
+          var vertex = vertex_data.index;
           if (vertex !== undefined && value !== undefined) {
             $("#x-coord").val(vertex_data.point.x);
             $("#y-coord").val(vertex_data.point.y);
@@ -83,7 +84,7 @@ $(function() {
         macacc.afterInvalidMap = hideLoading;
         
         macacc.afterRangeChange = function(min,max) {
-          var canvas = viewer.spectrumObj.createSpectrumCanvasWithScale(min, max, null, macacc.flipRange);
+          var canvas = viewer.spectrum.createCanvasWithScale(min, max, null, macacc.flipRange);
           canvas.id = "spectrum-canvas";
           $("#spectrum").html($(canvas));
         };
@@ -144,16 +145,16 @@ $(function() {
     $('#screenshot').click(function() {$(this).attr("href", viewer.client.toDataUR());});
     
     $("#brainbrowser").mousedown(function(e) {
-      var pointer_setting=$('[name=pointer]:checked').val();
+      var view_window = viewer.view_window;
+      var pointer_setting = $('[name=pointer]:checked').val();
+      var offset = BrainBrowser.utils.getOffset(view_window);
+      var mouseX = ((e.clientX - offset.left + window.scrollX)/view_window.offsetWidth) * 2 - 1;
+      var mouseY = -((e.clientY - offset.top + window.scrollY)/view_window.offsetHeight) * 2 + 1;
       
       if(e.ctrlKey || pointer_setting === "check") {
-        if(viewer.valueAtPointCallback) {
-          viewer.click(e, viewer.valueAtPointCallback);
-        }
+        macacc.valueAtPoint(viewer.pick(mouseX, mouseY));
       } else if(e.shiftKey || pointer_setting === "select") {
-        if(viewer.clickCallback) {
-          viewer.click(e, viewer.clickCallback);
-        }
+        macacc.pick(viewer.pick(mouseX, mouseY));
       }
     });
 
@@ -179,7 +180,7 @@ $(function() {
     });
 
     $("#secondWindow").click(function(){
-      viewer.secondWindow=window.open('/macacc.html','secondWindow');
+      viewer.secondWindow = window.open('/macacc.html','secondWindow');
     });
 
     window.addEventListener('message', function(e){

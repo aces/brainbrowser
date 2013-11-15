@@ -15,27 +15,164 @@
 *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-/**
-* Spectrum object constructor also called color bar
-*
-* @constructor
-* @param {String} data String of data from loaded color file to parse to make spectrum obj
-*/
 BrainBrowser.SurfaceViewer.spectrum = function(data) {
   "use strict";
   
-  var spectrum = {};
-  var colorManager = BrainBrowser.SurfaceViewer.colorManager();
-
-  /*
-  * Creates an canvas with the spectrum of colors
-  * from low(left) to high(right) values
-  * colors == array of colors
-  * color_height  == height of the color bar
-  * full_height == height of the canvas
-  * flip == boolean should the colors be reversed
+  /**
+  * @doc object
+  * @name spectrum
+  * @propertyOf viewer
+  * 
+  * @description
+  * Object representing the currently loaded spectrum.
   */
+
+  /**
+  * @doc object
+  * @name spectrum
+  * 
+  * @description
+  * Object representing the currently loaded spectrum.
+  */
+  var spectrum = {
+
+    /**
+    * @doc function
+    * @name spectrum.spectrum:createCanvas
+    * @param {array} colors Array of color data.
+    * 
+    * @description
+    * Create a canvas spectrum from the given colors.
+    */
+    createCanvas: function(colors)  {
+      var canvas;
+      
+      if (!colors) {
+        colors = spectrum.colors;
+      }
+      
+      canvas = createCanvas(colors, 20, 20, false);
+
+      return canvas;
+    },
+
+    /**
+    * @doc function
+    * @name spectrum.spectrum:createCanvasWithScale
+    * @param {number} min Min value of the color data.
+    * @param {number} max Max value of the color data.
+    * @param {array} colors Array of color data.
+    * @param {boolean} flip Array of color data.
+    * 
+    * @description
+    * Create a canvas spectrum from the given colors and provide the scale for it.
+    */
+    createCanvasWithScale: function(min, max, colors, flip) {
+      var canvas;
+      var context;
+    
+      if (colors === null) {
+        colors = spectrum.colors;
+      }
+      canvas = createCanvas(colors, 20, 40, flip);
+      context = canvas.getContext("2d");
+
+      context.fillStyle = "#FFA000";
+
+      //min mark
+      context.fillRect(0.5, 20, 1, 10);
+      context.fillText(min.toPrecision(3), 0.5, 40 );
+
+      //quater mark
+      context.fillRect(canvas.width/4.0, 20, 1, 10);
+      context.fillText(((min+max)/4.0).toPrecision(3), canvas.width/4.0, 40);
+
+      //middle mark
+      context.fillRect(canvas.width/2.0, 20, 1, 10);
+      context.fillText(((min+max)/2.0).toPrecision(3), canvas.width/2.0, 40);
+
+      //3quater mark
+      context.fillRect(3*(canvas.width/4.0), 20, 1, 10);
+      context.fillText((3*((min+max)/4.0)).toPrecision(3), 3*(canvas.width/4.0), 40);
+
+
+      //max mark
+      context.fillRect(canvas.width-0.5, 20, 1, 10);
+      context.fillText(max.toPrecision(3), canvas.width - 20, 40);
+
+      return canvas;
+    },
+
+    /**
+    * @doc function
+    * @name spectrum.spectrum:createColorMap
+    * @param {array} values Original color values.
+    * @param {object} options Options for the color mapping.
+    * Options include the following:
+    *
+    * * **min** {number} Minimum color value.
+    * * **max** {number} Maximum color value.
+    * * **scale255** {boolean} Should the color values be scaled to a 0-255 range?
+    * * **contrast** {number} Color contrast.
+    * * **brightness** {number} Color brightness.
+    * * **alpha** {number} Opacity of the color map. 
+    * 
+    * @returns {array} Colors modified based on options.
+    *
+    * @description
+    * Create a color map of the input values modified based on the options given.
+    */
+    createColorMap: function(values, options) {
+      options = options || {};
+      var min = options.min || 0;
+      var max = options.max || 255;
+      var scale255 = options.scale255 || false;
+      var brightness = options.brightness || 0;
+      var contrast = options.contrast || 1;
+      var alpha = options.alpha || 1;
+
+      var color_map = [];
+      var spectrum_colors = spectrum.colors;
+      var spectrum_length = spectrum_colors.length;
+      //calculate a slice of the data per color
+      var increment = ((max-min)+(max-min)/spectrum_length)/spectrum_length;
+      var i, count;
+      var color_index;
+      var value;
+      var scale = scale255 ? 255 : 1;
+      var colors = [];
+
+      alpha *= scale;
+        
+      //for each value, assign a color
+      for (i = 0, count = values.length; i < count; i++) {
+        value = values[i];
+        if (value <= min) {
+          color_index = 0;
+        } else if (values[i] > max){
+          color_index = spectrum_length - 1;
+        }else {
+          color_index = parseInt((value - min) / increment, 10);
+        }
+        
+        colors = spectrum_colors[color_index] || [0, 0, 0];
+
+        color_map[i*4+0] = scale * (colors[0] * contrast + brightness);
+        color_map[i*4+1] = scale * (colors[1] * contrast + brightness);
+        color_map[i*4+2] = scale * (colors[2] * contrast + brightness);
+        color_map[i*4+3] = alpha;
+      }
+
+      return color_map;
+    }
+  };
+
+  // Creates an canvas with the spectrum of colors
+  // from low(left) to high(right) values
+  // colors == array of colors
+  // color_height  == height of the color bar
+  // full_height == height of the canvas
+  // flip == boolean should the colors be reversed
   function createCanvas(colors, color_height, full_height, flip) {
     var canvas = document.createElement("canvas");
     var value_array  = new Array(256);
@@ -44,8 +181,6 @@ BrainBrowser.SurfaceViewer.spectrum = function(data) {
 
     $(canvas).attr("width", 256);
     $(canvas).attr("height", full_height);
-
-    //using colorManager.createColorMap to create a array of 256 colors from the spectrum
     
     for (i = 0; i < 256; i++) {
       if (flip) {
@@ -55,7 +190,7 @@ BrainBrowser.SurfaceViewer.spectrum = function(data) {
       }
     }
     
-    colors = colorManager.createColorMap(spectrum, [], value_array, 0, 255, true, 0, 1);
+    colors = spectrum.createColorMap( value_array, { scale255: true });
 
     context = canvas.getContext("2d");
     for (k = 0; k < 256; k++) {
@@ -68,61 +203,13 @@ BrainBrowser.SurfaceViewer.spectrum = function(data) {
     return canvas;
 
   }
-  
-  //Returns a html canvas element of the color bar from the colors
-  spectrum.createSpectrumCanvas = function(colors)  {
-    var canvas;
-    
-    if (!colors) {
-      colors = spectrum.colors;
-    }
-    
-    canvas = createCanvas(colors, 20, 20, false);
-
-    return canvas;
-  };
-
-
-  spectrum.createSpectrumCanvasWithScale = function(min, max, colors, flip) {
-    var canvas;
-    var context;
-  
-    if (colors === null) {
-      colors = spectrum.colors;
-    }
-    canvas = createCanvas(colors, 20, 40, flip);
-    context = canvas.getContext("2d");
-
-    context.fillStyle = "#FFA000";
-
-    //min mark
-    context.fillRect(0.5, 20, 1, 10);
-    context.fillText(min.toPrecision(3), 0.5, 40 );
-
-    //quater mark
-    context.fillRect(canvas.width/4.0, 20, 1, 10);
-    context.fillText(((min+max)/4.0).toPrecision(3), canvas.width/4.0, 40);
-
-    //middle mark
-    context.fillRect(canvas.width/2.0, 20, 1, 10);
-    context.fillText(((min+max)/2.0).toPrecision(3), canvas.width/2.0, 40);
-
-    //3quater mark
-    context.fillRect(3*(canvas.width/4.0), 20, 1, 10);
-    context.fillText((3*((min+max)/4.0)).toPrecision(3), 3*(canvas.width/4.0), 40);
-
-
-    //max mark
-    context.fillRect(canvas.width-0.5, 20, 1, 10);
-    context.fillText(max.toPrecision(3), canvas.width - 20, 40);
-
-    return canvas;
-  };
 
   /*
   * Parse the spectrum data from a string
   */
-  function parseSpectrum(data) {
+  (function() {
+    if (!data) return;
+
     data = data.replace(/^\s+/, '').replace(/\s+$/, '');
     var tmp = data.split(/\n/);
     var colors = [];
@@ -142,13 +229,7 @@ BrainBrowser.SurfaceViewer.spectrum = function(data) {
       colors.push(tmp_color);
     }
     spectrum.colors = colors;
-    
-    return colors;
-  }
-
-  if(data) {
-    parseSpectrum(data);
-  }
+  })();
 
   return spectrum;
 

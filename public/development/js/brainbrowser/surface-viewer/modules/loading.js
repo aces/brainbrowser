@@ -18,7 +18,7 @@
 
 // BrainBrowser module for loading data from the server or from a
 // file.
-BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
+BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   "use strict";
   
   var SurfaceViewer = BrainBrowser.SurfaceViewer;
@@ -27,7 +27,22 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
   // Interface
   ////////////////////////////////////
   
-  // Load a model from the given url.
+  /**
+  * @doc function
+  * @name viewer.loading:loadModelFromUrl
+  * @param {string} url URL of the model file to load.
+  * @param {object} options Options for the color update, which include the following: 
+  * 
+  * * **format** The format of input file. Should be one of the filetypes described in 
+  *   BrainBrowser.config.
+  * * **parse** Parsing options to pass to the worker that will be used to parse the 
+  *   input file.
+  * * **before** A callback to be called before loading starts.
+  * * **error** A callback function that will be called if there's a parsing error.
+  *
+  * @description 
+  * Load and parse a model from the specified URL.
+  */
   viewer.loadModelFromUrl = function(url, options) {
     options = options || {};
     var parts;
@@ -43,7 +58,7 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
       SurfaceViewer.filetypes.parse(filetype, data, parse_options, function(obj) {
         if (obj.objectClass !== "__FAIL__") {
           // Display model to the canvas after parsing.
-          if (!cancelLoad(options)) viewer.displayObjectFile(obj, filename, options);
+          if (!cancelLoad(options)) displayModel(obj, filename, options);
         } else if (options.error) {
           options.error();
         }
@@ -51,7 +66,22 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
     });
   };
 
-  //Load model from local file.
+  /**
+  * @doc function
+  * @name viewer.loading:loadModelFromFile
+  * @param {object} file_input Object representing the local file to load.
+  * @param {object} options Options for the color update, which include the following: 
+  * 
+  * * **format** The format of input file. Should be one of the filetypes described in 
+  *   BrainBrowser.config.
+  * * **parse** Parsing options to pass to the worker that will be used to parse the 
+  *   input file.
+  * * **before** A callback to be called before loading starts.
+  * * **error** A callback function that will be called if there's a parsing error.
+  *
+  * @description 
+  * Load and parse a model from a local file.
+  */
   viewer.loadModelFromFile = function(file_input, options) {
     options = options || {};
     var parts;
@@ -59,7 +89,7 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
     var filetype = options.format || "MNIObject";
     var parse_options = options.parse || {};
     
-    loadFromTextFile(file_input, options, function(data) {
+    loadFromFile(file_input, options, function(data) {
       parts = file_input.value.split("\\");
       //last part of path will be shape name
       filename = parts[parts.length-1];
@@ -67,7 +97,7 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
       SurfaceViewer.filetypes.parse(filetype, data, parse_options, function(obj) {
         if (obj.objectClass !== "__FAIL__") {
           // Display model to the canvas after parsing.
-          viewer.displayObjectFile(obj, filename, options);
+          displayModel(obj, filename, options);
         } else if (options.error) {
           options.error();
         }
@@ -76,11 +106,25 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
     });
   };
   
-  // Load a colour map from the server.
-  viewer.loadDataFromUrl = function(file_input, name, options) {
+  /**
+  * @doc function
+  * @name viewer.loading:loadColorFromUrl
+  * @param {string} url URL of the model file to load.
+  * @param {object} options Options for the color update, which include the following: 
+  * 
+  * * **min** Minimum value of the color samples.
+  * * **max** Maximum value of the color samples.
+  * * **shape** The name of a specific shape to which this map will be applied.
+  * * **before** A callback to be called before loading starts.
+  * * **complete** Callback function to call when the color update is done.
+  *
+  * @description 
+  * Load a color map from the specified URL.
+  */
+  viewer.loadColorFromUrl = function(url, name, options) {
     options = options || {};
     
-    loadFromUrl(file_input, options, function(text) {
+    loadFromUrl(url, options, function(text) {
       SurfaceViewer.data(text, function(data) {
         if (cancelLoad(options)) return;
         
@@ -92,7 +136,7 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
         data.apply_to_shape = options.shape;
         initRange(min, max);
         
-        viewer.triggerEvent("loaddata", data);
+        viewer.triggerEvent("loadcolor", data);
     
         viewer.updateColors(data, {
           min: data.rangeMin,
@@ -107,8 +151,23 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
   };
   
   
-  //Load text data from file and update colors
-  viewer.loadDataFromFile = function(file_input, options) {
+  /**
+  * @doc function
+  * @name viewer.loading:loadColorFromFile
+  * @param {object} file_input Object representing the local file to load.
+  * @param {object} options Options for the color update, which include the following: 
+  * 
+  * * **min** Minimum value of the color samples.
+  * * **max** Maximum value of the color samples.
+  * * **shape** The name of a specific shape to which this map will be applied.
+  * * **blend_index** Index of this map in the array of blended color data (0 or 1).
+  * * **before** A callback to be called before loading starts.
+  * * **complete** Callback function to call when the color update is done.
+  *
+  * @description 
+  * Load a color map from a local file.
+  */
+  viewer.loadColorFromFile = function(file_input, options) {
     options = options || {};
     var filename = file_input.files[0].name;
     var model_data = viewer.model_data;
@@ -138,12 +197,12 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
             BrainBrowser.utils.max(viewer.blendData[other_index].values),
             viewer.blendData[other_index]
           );
-          viewer.triggerEvent("loaddata", viewer.blendData);
+          viewer.triggerEvent("loadcolor", viewer.blendData);
       
           viewer.blend(0.5);
-          viewer.triggerEvent("blenddata", data.rangeMin, data.rangeMax, data);
+          viewer.triggerEvent("blendcolormaps", data.rangeMin, data.rangeMax, data);
         } else {
-          viewer.triggerEvent("loaddata", data);
+          viewer.triggerEvent("loadcolor", data);
           viewer.updateColors(data, {
             min: data.rangeMin,
             max: data.rangeMax,
@@ -160,32 +219,21 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
     if(filename.match(/.*.mnc|.*.nii/)) {
       evaluate_volume(filename, onfinish);
     } else {
-      loadFromTextFile(file_input, null, onfinish);
+      loadFromFile(file_input, null, onfinish);
     }
   };
-  
-  // Blend colours.
-  viewer.blend = function(value) {
-    var blendData = viewer.blendData;
-    var blendDataLength = blendData.length;
-    var i;
-    
-    blendData[0].alpha = value;
-    blendData[1].alpha = 1.0 - value;
-    for(i = 2; i < blendDataLength; i++) {
-      blendData[i].alpha = 0.0;
-    }
-    
 
-    viewer.updateColors(blendData, {
-      spectrum: viewer.spectrum,
-      flip: viewer.flip,
-      clamped: viewer.clamped,
-      blend: true
-    });
-  };
-
-  //Load spectrum data from the server.
+  /**
+  * @doc function
+  * @name viewer.loading:loadSpectrumFromUrl
+  * @param {string} url URL of the model file to load.
+  * @param {object} options Options for the spectrum loading, which include the following: 
+  * 
+  * * **before** A callback to be called before loading starts.
+  *
+  * @description 
+  * Load and parse spectrum data from the specified URL.
+  */
   viewer.loadSpectrumFromUrl  = function(url, options) {
     options = options || {};
     var spectrum;
@@ -211,12 +259,22 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
 
   
 
-  // Load a color bar spectrum definition file.
+  /**
+  * @doc function
+  * @name viewer.loading:loadSpectrumFromUrl
+  * @param {object} file_input Object representing the local file to load.
+  * @param {object} options Options for the spectrum loading, which include the following: 
+  * 
+  * * **before** A callback to be called before loading starts.
+  *
+  * @description 
+  * Load and parse spectrum data from a local file.
+  */
   viewer.loadSpectrumFromFile = function(file_input){
     var spectrum;
     var model_data = viewer.model_data;
     
-    loadFromTextFile(file_input, null, function(data) {
+    loadFromFile(file_input, null, function(data) {
       spectrum = SurfaceViewer.spectrum(data);
       viewer.spectrum = spectrum;
       
@@ -232,36 +290,6 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
         });
       }
     });
-  };
- 
-  // Load a series of data files to be viewed with a slider.
-  viewer.loadSeriesDataFromFile = function(file_input) {
-    var numberFiles = file_input.files.length;
-    var files = file_input.files;
-    var reader;
-    var i;
-    
-    viewer.seriesData = new Array(numberFiles);
-    viewer.seriesData.numberFiles = numberFiles;
-    
-    files.forEach(function(file, num) {
-      reader = new FileReader();
-      reader.file = file;
-      /*
-      * Using a closure to keep the value of i around to put the
-      * data in an array in order.
-      */
-      reader.onloadend = function(e) {
-        
-        SurfaceViewer.data(e.target.result, function(data) {
-          viewer.seriesData[num] = data;
-          viewer.seriesData[num].fileName = file.name;
-        });
-      };
-      
-      reader.readAsText(files[i]);
-    });
-    viewer.setupSeries();
   };
   
   
@@ -298,7 +326,7 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
   
   // General function for loading data from a local file.
   // Callback should interpret data as necessary.
-  function loadFromTextFile(file_input, options, callback) {
+  function loadFromFile(file_input, options, callback) {
     var files = file_input.files;
     
     if (files.length === 0) {
@@ -388,6 +416,143 @@ BrainBrowser.SurfaceViewer.modules.loader = function(viewer) {
     }
     
     return cancelled;
+  }
+
+
+  ///////////////////////////////////////////
+  // DISPLAY OF LOADED MODELS
+  ///////////////////////////////////////////
+
+  // Creates a object based on the description in **model_data** and 
+  // displays in on the viewer.
+  function displayModel(model_data, filename, options) {
+    options = options || {};
+    var renderDepth = options.renderDepth;
+    var complete = options.complete;
+
+    addObject(model_data, filename, renderDepth);
+
+    viewer.triggerEvent("displaymodel", viewer.model);
+
+    if (complete) complete();
+  }
+
+  // Add a polygon object to the scene.
+  function addObject(model_data, filename, renderDepth){
+    var model = viewer.model;
+    var shape, shape_data;
+    var i, count;
+    var shapes = model_data.shapes;
+
+    var is_line = model_data.objectClass === "L";
+
+    viewer.model_data = model_data;
+    if (shapes){
+      for (i = 0, count = shapes.length; i < count; i++){
+        shape_data = model_data.shapes[i];
+        shape = createObject(shape_data, is_line);
+        shape.name = shape_data.name || filename;
+        
+        shape.geometry.original_data = {
+          vertices: model_data.positionArray,
+          indices: shape_data.indexArray,
+          normals: model_data.normalArray,
+          colors: model_data.colorArray
+        };
+
+        if (renderDepth) {
+          shape.renderDepth = renderDepth;
+        }
+        model.add(shape);
+      }
+
+      if (model_data.split) {
+        model.children[0].name = "left";
+        model.children[0].model_num = 0;
+        model.children[1].name = "right";
+        model.children[1].model_num = 1;
+      }
+    }
+  }
+
+  function createObject(shape_data, is_line) {
+    var unindexed = shape_data.unindexed;
+    var wireframe = shape_data.wireframe;
+    var centroid = shape_data.centroid;
+
+    var position = unindexed.position;
+    var normal = unindexed.normal || [];
+    var color = unindexed.color || [];
+
+
+    var geometry = new THREE.BufferGeometry();
+    var material, shape;
+
+    geometry.dynamic = true;
+
+    geometry.attributes.position = {
+      itemSize: 3,
+      array: new Float32Array(position),
+      numItems: position.length
+    };
+
+
+    if (normal.length > 0) {
+      geometry.attributes.normal = {
+        itemSize: 3,
+        array: new Float32Array(normal),
+      };
+    } else {
+      geometry.computeVertexNormals();
+    }
+
+    if(color.length > 0) {
+      geometry.attributes.color = {
+        itemSize: 4,
+        array: new Float32Array(color),
+      };
+    }
+
+    if (is_line) {
+      material = new THREE.LineBasicMaterial({vertexColors: THREE.VertexColors});
+      shape = new THREE.Line(geometry, material, THREE.LinePieces);
+    } else {
+      material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0xFFFFFF, shininess: 100, vertexColors: THREE.VertexColors});
+      shape = new THREE.Mesh(geometry, material);
+      shape.add(createWireframe(shape, wireframe));
+    }
+
+    shape.centroid = centroid;
+    shape.position.set(centroid.x, centroid.y, centroid.z);
+  
+    return shape;
+  }
+
+  function createWireframe(object, wireframe_data) {
+    var wire_geometry = new THREE.BufferGeometry();
+    var material, wireframe;
+
+    wire_geometry.attributes.position = {
+      itemSize: 3,
+      array: wireframe_data.position,
+      numItems: wireframe_data.position.length
+    };
+
+    wire_geometry.attributes.color = {
+      itemSize: 4,
+      array: wireframe_data.color,
+    };
+
+    wire_geometry.attributes.color.needsUpdate = true;
+
+    material = new THREE.LineBasicMaterial({ vertexColors: THREE.VertexColors });
+    wireframe = new THREE.Line(wire_geometry, material, THREE.LinePieces);
+
+    wireframe.name = "__wireframe__";
+    wireframe.visible = false;
+    object.wireframe_active = false;
+
+    return wireframe;
   }
   
 };

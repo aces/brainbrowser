@@ -15,6 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Create a worker thread to parse the model data.
 BrainBrowser.SurfaceViewer.filetypes.parseWorker = function(data, worker_file, options, callback) {
   "use strict";
   

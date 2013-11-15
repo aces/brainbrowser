@@ -29,8 +29,10 @@
     };
     
     // Gets the data related to a vertex in the image.
-    collection.pickClick = function(e, vertex_data) {
-      collection.vertex = vertex_data.vertex;
+    collection.pick = function(vertex_data) {
+      if (!vertex_data) return;
+
+      collection.vertex = vertex_data.index;
       
       if (collection.vertex) {
         loadMap();
@@ -39,6 +41,13 @@
           viewer.secondWindow.postMessage(collection.vertex, "*");
         }
       }
+    };
+
+    //Finds out what the value is at a certain point and displays it
+    collection.valueAtPoint = function(vertex_data) {
+      if (!vertex_data) return;
+      var value = collection.dataArray ? collection.dataArray[vertex_data.index] : 0;
+      if (collection.afterVertexUpdate) collection.afterVertexUpdate(vertex_data, value);
     };
   
     // Main method for updating the displayed map based on the vertex selected
@@ -126,7 +135,7 @@
       }else {
         collection.vertex += collection.dataArray.length/2;
       }
-      if (collection.afterVertexUpdate) collection.afterVertexUpdate(viewer.getInfoForVertex(collection.vertex), 0);
+      if (collection.afterVertexUpdate) collection.afterVertexUpdate(viewer.getVertexInfo(collection.vertex), 0);
       loadMap();
     };
   
@@ -141,16 +150,10 @@
         loadMap();
       }
     };
-  
-    //Finds out what the value is at a certain point and displays it
-    collection.valueAtPoint = function(e, vertex_data) {
-      var value = collection.dataArray ? collection.dataArray[vertex_data.vertex] : 0;
-      if (collection.afterVertexUpdate) collection.afterVertexUpdate(vertex_data, value);
-    };
     
     // Show the atlas.
     collection.showAtlas = function() {
-      viewer.loadDataFromUrl("/assets/aal_atlas.txt");
+      viewer.loadColorFromUrl("/assets/aal_atlas.txt");
     };
     
     // Default should be redefined by appliction.
@@ -167,8 +170,6 @@
     }
   
     viewer.loadSpectrumFromUrl("/assets/spectral_spectrum.txt");
-    viewer.valueAtPointCallback = collection.valueAtPoint;
-    viewer.clickCallback = collection.pickClick; //associating pickClick for viewer which handles events.
   
     return collection;
   };

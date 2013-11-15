@@ -15,23 +15,53 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Module for updating colours on models currently being displayed.
+
+/**
+* @doc overview
+* @name index
+* @property {string} version The current version of BrainBrowser.
+*
+* @description
+* Utilities for all BrainBrowser tools.
+*/
 (function() {
   "use strict";
  
+  /**
+  * @doc object
+  * @name BrainBrowser
+  * @property {string} version The current version of BrainBrowser.
+  *
+  * @description
+  * The main BrainBrowser namespace.
+  */
   var BrainBrowser = window.BrainBrowser = window.BrainBrowser || {};
 
-  // This gets set during the build process.
   var version = "<%= BRAINBROWSER_VERSION %>";
   BrainBrowser.version = version.indexOf("BRAINBROWSER_VERSION") > 0 ? "D.E.V" : version;
 
   BrainBrowser.utils = {
     
-    // Test for canvas element support.
+    /**
+    * @doc function
+    * @name BrainBrowser.utils:canvasEnabled
+    * @returns {boolean} Whether or not the canvas element is supported in the current browser.
+    *
+    * @description
+    * Test for canvas element support.
+    */
     canvasEnabled: function() {
       return document.createElement("canvas");
     },
 
+    /**
+    * @doc function
+    * @name BrainBrowser.utils:webglEnabled
+    * @returns {boolean} Whether or not WebGL is supported in the current browser.
+    *
+    * @description
+    * Test for WebGL support.
+    */
     /*!
      * WebGL test taken from Detector.js by
      * alteredq / http://alteredqualia.com/
@@ -45,12 +75,26 @@
       }
     },
     
-    // Test for webworkers.
+    /**
+    * @doc function
+    * @name BrainBrowser.utils:webglEnabled
+    * @returns {boolean} Whether or not Web Workers are supported in the current browser.
+    *
+    * @description
+    * Test for Web Worker support.
+    */
     webWorkersEnabled: function() {
       return !!window.Worker;
     },
     
-    // Simple error message for non-webgl browsers.
+    /**
+    * @doc function
+    * @name BrainBrowser.utils:webGLErrorMessage
+    * @returns {DOMElement} A div containing the error message.
+    *
+    * @description
+    * Produc a simple error message for non-webgl browsers.
+    */
     webGLErrorMessage: function() {
       var elem;
       var text = 'BrainBrowser requires <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">WebGL</a>.<br/>';
@@ -65,43 +109,61 @@
       return elem;
     },
     
-    // Test if an object is a function.
+    /**
+    * @doc function
+    * @name BrainBrowser.utils:isFunction
+    * @param {object} obj The object to test.
+    * @returns {boolean} Whether or not the object is a function.
+    *
+    * @description
+    * Test if the passed object is a function.
+    */
     isFunction: function(obj) {
       return obj instanceof Function || typeof obj === "function";
     },
-    
-    drawDot: function(scene, x, y, z) {
-      var geometry = new THREE.SphereGeometry(2);
-      var material = new THREE.MeshBasicMaterial({color: 0xFF0000});
-    
-      var sphere = new THREE.Mesh(geometry, material);
-      sphere.position.set(x, y, z);
-    
-      scene.add(sphere);
-    },
 
+    /**
+    * @doc function
+    * @name BrainBrowser.utils:eventModel
+    * @param {object} viewer Viewer to add the event model method to.
+    *
+    * @description
+    * Add event model methods, **addEventListener()** and
+    * **triggerEvent()** to the viewer passed as argument.
+    */
     eventModel: function(viewer) {
 
-      viewer.event_listeners = [];
+      var event_listeners = [];
 
       viewer.addEventListener = function(e, fn) {
-        if (!viewer.event_listeners[e]) {
-          viewer.event_listeners[e] = [];
+        if (!event_listeners[e]) {
+          event_listeners[e] = [];
         }
         
-        viewer.event_listeners[e].push(fn);
+        event_listeners[e].push(fn);
       };
       
       viewer.triggerEvent = function(e) {
         var args = Array.prototype.slice.call(arguments, 1);
-        if (viewer.event_listeners[e]) {
-          viewer.event_listeners[e].forEach(function(fn) {
+        if (event_listeners[e]) {
+          event_listeners[e].forEach(function(fn) {
             fn.apply(viewer, args);
           });
         }
       };
     },
 
+    /**
+    * @doc function
+    * @name BrainBrowser.utils:min
+    * @param {array|multiple} arguments List of items to processed. Can be given 
+    * as an array or directly as arguments.
+    * @returns {any} The smallest element of the given list.
+    *
+    * @description
+    * Find the smallest item in a list. List can be passed as an array or 
+    * directly as arguments.
+    */
     min: function() {
       var array = Array.prototype.slice.call(arguments);
       array = array.length === 1 && Array.isArray(array[0]) ? array[0] : array;
@@ -114,6 +176,17 @@
       return min;
     },
 
+    /**
+    * @doc function
+    * @name BrainBrowser.utils:max
+    * @param {array|multiple} arguments List of items to processed. Can be given 
+    * as an array or directly as arguments.
+    * @returns {any} The largenst element of the given list.
+    *
+    * @description
+    * Find the largest item in a list. List can be passed as an array or 
+    * directly as arguments.
+    */
     max: function() {
       var array = Array.prototype.slice.call(arguments);
       array = array.length === 1 && Array.isArray(array[0]) ? array[0] : array;
@@ -126,6 +199,18 @@
       return max;
     },
 
+    /**
+    * @doc function
+    * @name BrainBrowser.utils:getOffset
+    * @param {DOMElement} elem An element in the DOM.
+    * @returns {object} An object containing the given element's offet info:
+    *
+    * * **top**: offset from the top of the window.
+    * * **left**: offset from the left side of the window. 
+    *
+    * @description
+    * Return offset information about the given element.
+    */
     getOffset: function(elem) {
       var top = 0;
       var left = 0;
@@ -139,6 +224,7 @@
       
       return {top: top, left: left};
     }
+    
   
   };
 })();

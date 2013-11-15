@@ -15,6 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+// Parse model data by delegating to a worker.
 BrainBrowser.SurfaceViewer.filetypes.parse = function(type, data, options, callback) {
   "use strict";
   

@@ -56,7 +56,6 @@
     jQuery(canvas).attr("width",256);
     jQuery(canvas).attr("height",full_height);
 
-    //using colorManager.createColorMap to create a array of 256 colors from the colorScale
     var value_array  = new Array(256);
     for(var i = 0; i < 256; i++){
       if(flip) {

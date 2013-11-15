@@ -177,31 +177,53 @@ module.exports = function(grunt) {
       }
     },
     watch: {
-      grunt : {
+      grunt: {
         files: ["<%= jshint.grunt.src %>"],
         tasks: ["jshint:grunt"]
       },
-      brainbrowser : {
+      brainbrowser: {
         files: ["<%= jshint.brainbrowser.src %>"],
-        tasks: ["jshint:brainbrowser"]
+        tasks: ["docular"]//"jshint:brainbrowser", "docular"]
       },
-      workers : {
+      workers: {
         files: ["<%= jshint.workers.src %>"],
         tasks: ["jshint:workers"]
       },
-      loris : {
+      loris: {
         files: ["<%= jshint.loris.src %>"],
         tasks: ["jshint:loris"]
       }
+    },
+    docular: {
+      groups: [
+        {
+          groupTitle: "BrainBrowser v<%= pkg.version %>",
+          groupId: "brainbrowser",
+          showSource: true,
+          sections: [
+            {
+              title: "Utilities",
+              id: "utils",
+              scripts: ["<%= dev_js %>/brainbrowser/lib/utils.js"]
+            },
+            {
+              title: "Surface Viewer",
+              id: "surface-viewer",
+              scripts: ["<%= dev_js %>/brainbrowser/surface-viewer.js", "<%= dev_js %>/brainbrowser/surface-viewer"]
+            }
+          ]
+        }
+      ]
     }
   });
 
   grunt.loadNpmTasks("grunt-contrib-uglify");
   grunt.loadNpmTasks("grunt-contrib-jshint");
   grunt.loadNpmTasks("grunt-contrib-watch");
-  grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-contrib-symlink');
-  grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks("grunt-contrib-concat");
+  grunt.loadNpmTasks("grunt-contrib-symlink");
+  grunt.loadNpmTasks("grunt-contrib-clean");
+  grunt.loadNpmTasks("grunt-docular");
 
   grunt.registerTask("compile", ["clean", "concat", "uglify", "symlink"]);
   grunt.registerTask("build", ["jshint", "compile"]);

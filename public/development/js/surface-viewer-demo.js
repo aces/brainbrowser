@@ -41,7 +41,7 @@ $(function() {
     ///////////////////////////////////
 
     viewer.addEventListener("loadspectrum", function (spectrum) {
-      var canvas = spectrum.createSpectrumCanvasWithScale(0, 100, null);
+      var canvas = spectrum.createCanvasWithScale(0, 100, null);
       var spectrum_div = document.getElementById("color-bar");
       
       canvas.id = "spectrum-canvas";
@@ -50,11 +50,9 @@ $(function() {
       } else {
         $(spectrum_div).html(canvas);
       }
-
-      viewer.spectrumObj = spectrum;
     });
 
-    viewer.addEventListener("displayobject", function(object) {
+    viewer.addEventListener("displaymodel", function(object) {
       var slider, slider_div;
       var children = object.children;
       var current_count = $("#shapes").children().length;
@@ -91,12 +89,12 @@ $(function() {
     });
 
     viewer.addEventListener("rangechange", function(data) {
-      var canvas = viewer.spectrumObj.createSpectrumCanvasWithScale(data.rangeMin, data.rangeMax, null);
+      var canvas = viewer.spectrum.createCanvasWithScale(data.rangeMin, data.rangeMax, null);
       canvas.id = "spectrum-canvas";
       $("#color-bar").html(canvas);
     });
 
-    viewer.addEventListener("loaddata", function(data) {
+    viewer.addEventListener("loadcolor", function(data) {
       var container = $("#data-range");
       var headers = '<div id="data-range-multiple"><ul>';
       var controls = "";
@@ -207,13 +205,11 @@ $(function() {
         viewer.triggerEvent("rangechange", data);
       });
 
-    }); // end loaddata listener
+    }); // end loadcolor listener
     
-    viewer.addEventListener("blenddata", function(){
+    viewer.addEventListener("blendcolormaps", function(){
       var div = $("#blend-box");
       div.html("Blend Ratio: ");
-      //$("<div id=\"blend\">Blend ratios: </div>").appendTo("#surface_choice");
-      //var div = $("#blend");
       $("<span id=\"blend_value\">0.5</span>").appendTo(div);
       $("<div class=\"blend_slider\" id=\"blend_slider\" width=\"100px\" + height=\"10\"></div>")
         .slider({
@@ -221,23 +217,22 @@ $(function() {
           max: 0.99,
           value: 0.5,
           step: 0.01,
-          /*
-          * When the sliding the slider, change all the other sliders by the amount of this slider
-          */
           slide: function() {
-            var slider = $(this);
-            slider.siblings("span").html(slider.slider("value"));
             viewer.blend($(this).slider("value"));
           }
         }).appendTo(div);
     });
 
+    ////////////////////////////////////
+    //  Start rendering the scene.
+    ////////////////////////////////////
+    viewer.render();
+
+    viewer.loadSpectrumFromUrl('/assets/spectral_spectrum.txt');
 
     ///////////////////////////////////
     // UI
     ///////////////////////////////////
-
-    viewer.loadSpectrumFromUrl('/assets/spectral_spectrum.txt');
 
     $('#clearshapes').click(function() {
       viewer.clearScreen();
@@ -323,7 +318,7 @@ $(function() {
             format: "MNIObject",
             parse: { split: true },
             complete: function() {
-              viewer.loadDataFromUrl('/models/realct.txt','Cortical Thickness', {
+              viewer.loadColorFromUrl('/models/realct.txt','Cortical Thickness', {
                 complete: hideLoading,
                 cancel: default_cancel_opts(current_request)
               });
@@ -369,7 +364,7 @@ $(function() {
           viewer.loadModelFromUrl('/models/mouse_surf.obj', {
             format: "MNIObject",
             complete: function() {
-              viewer.loadDataFromUrl('/models/mouse_alzheimer_map.txt',
+              viewer.loadColorFromUrl('/models/mouse_alzheimer_map.txt',
                 'Cortical Amyloid Burden, Tg AD Mouse, 18 Months Old', {
                   shape: "mouse_surf.obj",
                   min: 0.0,
@@ -420,7 +415,7 @@ $(function() {
 
     $(".datafile").change(function() {
       var filenum = parseInt(this.id.slice(-1), 10);
-      viewer.loadDataFromFile(this, { blend_index : filenum - 1 });
+      viewer.loadColorFromFile(this, { blend_index : filenum - 1 });
     });
 
     $("#spectrum").change(function() {

@@ -17,12 +17,77 @@
  
 BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   "use strict";
+
+  //////////////////////////////
+  // PRIVATE FUNCTIONS AND DATA
+  //////////////////////////////
+
+  // View change functions
+  var views = {
+    medialView: function() {
+      var model = viewer.model;
+
+      if(viewer.model_data.split ) {
+        model.getObjectByName("left").position.x -= 100;
+        model.getObjectByName("left").rotation.z -= degToRad(90);
+        model.getObjectByName("right").position.x += 100;
+        model.getObjectByName("right").rotation.z += degToRad(90);
+        model.rotation.x += degToRad(-90);
+      }
+    },
+
+    lateralView: function() {
+      var model = viewer.model;
+      var left_child, right_child;
+
+      if(viewer.model_data.split ) {
+        left_child = model.getObjectByName("left");
+        right_child = model.getObjectByName("right");
+
+        left_child.position.x -= 100;
+        left_child.rotation.z += degToRad(-90);
+        right_child.position.x += 100;
+        right_child.rotation.z += degToRad(90);
+        model.rotation.x += degToRad(90);
+        model.rotation.y += degToRad(180);
+      }
+    },
+
+    inferiorView: function() {
+      viewer.model.rotation.y += degToRad(180);
+    },
+
+    anteriorView: function() {
+      viewer.resetView();
+      viewer.model.rotation.x += degToRad(-90);
+      viewer.model.rotation.z += degToRad(180);
+    },
+
+    posteriorView : function() {
+      viewer.resetView();
+      viewer.model.rotation.x += degToRad(-90);
+    }
+  };
+  
+  // Convert degrees to radians
+  function degToRad(deg) {
+    return deg * Math.PI/180;
+  }
+
   
   //////////////
   // INTERFACE
   //////////////
   
-  // Change the opacity of an object in the scene.
+  /**
+  * @doc function
+  * @name viewer.views:setTransparency
+  * @param {string} shape_name The name of the shape whose transparency
+  *        is being set.
+  * @param {number} alpha The value to set the opacity to (between 0 and 1).
+  * @description
+  * Change the opacity of an object in the scene.
+  */
   viewer.setTransparency = function(shape_name, alpha) {
     var shape = viewer.model.getObjectByName(shape_name);
     var material, wireframe;
@@ -41,172 +106,80 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
       }
     }
   };
-  
-  viewer.activateWireframe = function(shape) {
-    var wireframe = shape.getObjectByName("__wireframe__");
-    if (wireframe) {
-      shape.visible = false;
-      wireframe.visible = true;
-      shape.wireframe_active = true;
-    }
-  };
 
-  viewer.deactivateWireframe = function(shape) {
-    var wireframe = shape.getObjectByName("__wireframe__");
-    if (wireframe) {
-      shape.visible = true;
-      wireframe.visible = false;
-      shape.wireframe_active = false;
-    }
-  };
-
-  /*
-   * Sets the fillmode of the brain to wireframe or filled
-   */
-  viewer.fillModeWireframe = function() {
-    var children = viewer.model.children;
-    var child, wireframe;
-    
-    for (var i = 0; i < children.length; i++) {
-      child = children[i];
-      wireframe = child.getObjectByName("__wireframe__");
-      if (wireframe) {
-        child.visible = false;
-        wireframe.visible = true;
-        child.wireframe_active = true;
-      }
-    }
-  };
-  
-  viewer.fillModeSolid = function() {
-    var children = viewer.model.children;
-    var child, wireframe;
-    
-    for (var i = 0; i < children.length; i++) {
-      child = children[i];
-      wireframe = child.getObjectByName("__wireframe__");
-      if (wireframe) {
-        child.visible = true;
-        wireframe.visible = false;
-        child.wireframe_active = false;
-      }
-    }
-  };
-  
   /**
-   * Figures out what view has been selected and activates it
-   */
-  viewer.setupView = function() {
-    var params = viewer.getViewParams(); //Must be defined by calling app
-    var method_name = params.view + "View";
+  * @doc function
+  * @name viewer.views:setWireframe
+  * @param {boolean} is_wireframe Is the viewer in wireframe mode?
+  * @description
+  * Set wireframe mode on or off.
+  */
+  viewer.setWireframe = function(is_wireframe) {
+    var children = viewer.model.children;
+    var child, wireframe;
+    
+    for (var i = 0; i < children.length; i++) {
+      child = children[i];
+      wireframe = child.getObjectByName("__wireframe__");
+      if (wireframe) {
+        child.visible = !is_wireframe;
+        wireframe.visible = is_wireframe;
+        child.wireframe_active = is_wireframe;
+      }
+    }
+  };
+
+  /**
+  * @doc function
+  * @name viewer.views:setView
+  * @param {string} view_name The name of the view to change to.
+  * @description
+  * Change to a given view of a split data set. (**Note:** this is
+  * only effective for a split dataset, e.g. two hemispheres of a brain).
+  */
+  viewer.setView = function(view_name) {
+    var method_name = view_name + "View";
     viewer.resetView();
     if(viewer.model_data && viewer.model_data.split) {
-      if (typeof viewer[method_name] === "function") {
-        viewer[method_name]();
-      } else {
-        viewer.superiorView();
+      if (typeof views[method_name] === "function") {
+        views[method_name]();
       }
     }
   };
 
-  //Returns the position and info about a vertex
-  //currently a wrapper for model.getVertexInfo
-  //Should theoretically return thei same infor as click and
-  //click should use this to build that info object
-  viewer.getInfoForVertex = function(vertex) {
-    var positions = viewer.model_data.positionArray;
-    var i = vertex * 3;
+  /**
+   * @doc function
+   * @name viewer.views:clearScreen
+   * @description
+   * Delete all shapes on the screen.
+   */
+  viewer.clearScreen = function() {
+    var children = viewer.model.children;
     
-    return {
-      vertex: vertex,
-      point: new THREE.Vector3(positions[i], positions[i+1], positions[i+2])
-    };
-  };
-
-  /**
-   * function to handle to preset views of the system.
-   *
-   */
-  viewer.medialView = function() {
-    var model = viewer.model;
-
-    if(viewer.model_data.split ) {
-      model.getObjectByName("left").position.x -= 100;
-      model.getObjectByName("left").rotation.z -= degToRad(90);
-      model.getObjectByName("right").position.x += 100;
-      model.getObjectByName("right").rotation.z += degToRad(90);
-      model.rotation.x += degToRad(-90);
+    while (children.length > 0) {
+      viewer.model.remove(children[0]);
     }
+        
+    viewer.resetView();
+    viewer.triggerEvent("clearscreen");
   };
 
   /**
-   * function to handle to preset views of the system.
-   */
-  viewer.lateralView = function() {
-    var model = viewer.model;
-    var left_child, right_child;
+  * @doc function
+  * @name viewer.views:separateHalves
+  * @param {number} increment Amount of space to put between halves.
+  * @description
+  * Add space between two halves of a split dataset. (**Note:** this is
+  * only effective for a split dataset, e.g. two hemispheres of a brain).
+  */
+  viewer.separateHalves = function(increment) {
+    increment = increment || 1;
 
     if(viewer.model_data.split ) {
-      left_child = model.getObjectByName("left");
-      right_child = model.getObjectByName("right");
-
-      left_child.position.x -= 100;
-      left_child.rotation.z += degToRad(-90);
-      right_child.position.x += 100;
-      right_child.rotation.z += degToRad(90);
-      model.rotation.x += degToRad(90);
-      model.rotation.y += degToRad(180);
-    }
-  };
-
-  /**
-   * function to handle to preset views of the system.
-   */
-  viewer.superiorView = function() {
-    //nothing should be already done with reset view, placeholder
-  };
-
-  /**
-   * function to handle to preset views of the system.
-   */
-  viewer.inferiorView = function() {
-    viewer.model.rotation.y += degToRad(180);
-  };
-
-  /**
-   * function to handle to preset views of the system.
-   */
-  viewer.anteriorView = function() {
-    viewer.resetView();
-    viewer.model.rotation.x += degToRad(-90);
-    viewer.model.rotation.z += degToRad(180);
-  };
-
-  /**
-   * function to handle to preset views of the system.
-   */
-  viewer.posteriorView = function() {
-    viewer.resetView();
-    viewer.model.rotation.x += degToRad(-90);
-  };
-
-
-  /**
-   * Adds space between the hemispheres
-   */
-  viewer.separateHemispheres = function() {
-    if(viewer.model_data.split ) {
-      viewer.model.children[0].position.x -= 1;
-      viewer.model.children[1].position.x += 1;
+      viewer.model.children[0].position.x -= increment;
+      viewer.model.children[1].position.x += increment;
     }
   };
   
-  ///////////////////////
-  // PRIVATE FUNCTIONS
-  ///////////////////////
-  
-  function degToRad(deg) {
-    return deg * Math.PI/180;
-  }
 };
 

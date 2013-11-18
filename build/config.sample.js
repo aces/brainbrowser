@@ -44,27 +44,27 @@
         {
           name: "Spectral",
           url: "/color_scales/spectral.txt",
-          crosshair_color: "#FFFFFF"
+          cursor_color: "#FFFFFF"
         },
         {
           name: "Thermal",
           url: "/color_scales/thermal.txt",
-          crosshair_color: "#FFFFFF"
+          cursor_color: "#FFFFFF"
         },
         {
           name: "Gray",
           url: "/color_scales/gray_scale.txt",
-          crosshair_color: "#FF0000"
+          cursor_color: "#FF0000"
         },
         {
           name: "Blue",
           url: "/color_scales/blue.txt",
-          crosshair_color: "#FFFFFF"
+          cursor_color: "#FFFFFF"
         },
         {
           name: "Green",
           url: "/color_scales/green.txt",
-          crosshair_color: "#FF0000"
+          cursor_color: "#FF0000"
         }
       ]
     }

@@ -29,17 +29,6 @@
  * Author: Nicolas Kassis <nic.kassis@gmail.com>
  */
 
-/**
- * Library to encapsulate Minc. 
- * It request the parameters needed and then request the data block from the server
- * The data block is a binary array
- * The library can fetch slices in one of the three axese
- * @constructor
- * @param {string}   filename  File name or url of minc file
- * @param {object}   extraArgs object for extra arguments
- * @param {function} callback  function to call when data is finish loading 
- */
-
 (function() {
   "use strict";
      
@@ -101,7 +90,7 @@
   
         var xstep = this.x.step;
         var ystep = this.y.step;
-        return VolumeViewer.utils.nearestNeighboor(imageData, Math.floor(this.width * xstep * zoom), Math.floor(this.height * ystep * zoom));
+        return VolumeViewer.utils.nearestNeighbor(imageData, Math.floor(this.width * xstep * zoom), Math.floor(this.height * ystep * zoom));
       };
       
       return slice;

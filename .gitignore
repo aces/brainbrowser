@@ -21,3 +21,7 @@ development/public/models/*.obj
 development/public/models/*.mtl
 development/public/models/*.asc
 development/public/models/*.txt
+docs/docular/.htaccess
+docs/docular/configs
+docs/docular/controller
+docs/docular/php

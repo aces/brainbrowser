@@ -1,0 +1,21 @@
+<h1><code ng:non-bindable="">Events</code>
+<span class="hint"></span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>The Surface Viewer event model can be used to listen for certain events
+occuring of the lifetime of a viewer. Currently, the following viewer events can be listened for:</p>
+
+<ul>
+<li><strong>ready</strong> Viewer is completely loaded and ready to be manipulated.</li>
+<li><strong>sliceupdate</strong> A new slice has been rendered to the viewer.</li>
+</ul>
+
+<p>To listen for an event, simply use the viewer's <strong>addEventListener()</strong> method with
+with the event name and a callback funtion:</p>
+
+<pre class="prettyprint linenums">   viewer.addEventListener("sliceupdate", function() {
+     console.log("Slice updated!");
+   });
+
+</pre></div>
+</div>

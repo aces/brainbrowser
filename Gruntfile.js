@@ -167,7 +167,8 @@ module.exports = function(grunt) {
         "<%= prod_js %>/brainbrowser",
         "build/brainbrowser-*"
       ],
-      tmp: "tmp/*.js"
+      tmp: "tmp/*.js",
+      docs: ["docs/docular/.htaccess", "docs/docular/favicon.ico", "docs/docular/configs", "docs/docular/controller", "docs/docular/php"]
     },
     symlink: {
       explicit: {
@@ -183,7 +184,7 @@ module.exports = function(grunt) {
       },
       brainbrowser: {
         files: ["<%= jshint.brainbrowser.src %>"],
-        tasks: ["docular"]//"jshint:brainbrowser", "docular"]
+        tasks: ["jshint:brainbrowser"]
       },
       workers: {
         files: ["<%= jshint.workers.src %>"],
@@ -195,11 +196,13 @@ module.exports = function(grunt) {
       }
     },
     docular: {
+      docular_webapp_target: "docs/docular",
+      docular_partial_home: "docs/docular_brainbrowser_home.html",
       groups: [
         {
           groupTitle: "BrainBrowser v<%= pkg.version %>",
           groupId: "brainbrowser",
-          showSource: true,
+          showSource: false,
           sections: [
             {
               title: "Utilities",
@@ -231,6 +234,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-docular");
 
   grunt.registerTask("compile", ["clean", "concat", "uglify", "symlink"]);
-  grunt.registerTask("build", ["jshint", "compile"]);
+  grunt.registerTask("build", ["jshint", "compile", "docs"]);
+  grunt.registerTask("docs", ["docular", "clean:docs"]);
   grunt.registerTask("default", "jshint");
 };

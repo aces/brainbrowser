@@ -19,6 +19,8 @@
 // surface viewer and macacc.
 BrainBrowser.SurfaceViewer.modules.ui = function(viewer) {
   "use strict";
+
+  viewer.addEffect("AnaglyphEffect");
     
   $("body").keydown(function(e) {
     var key_code = e.which;
@@ -68,11 +70,7 @@ BrainBrowser.SurfaceViewer.modules.ui = function(viewer) {
   });
   
   $('#threedee').change(function(e) {
-    if ($(e.target).is(":checked")) {
-      viewer.anaglyphEffect();
-    } else {
-      viewer.noEffect();
-    }
+    viewer.setEffect($(this).is(":checked") ? "AnaglyphEffect" : "None");
   });
   
   $("#openImage").click(function() {

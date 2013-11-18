@@ -1,0 +1,31 @@
+<h1><code ng:non-bindable="">Configuration</code>
+<span class="hint"></span>
+</h1>
+<div><p>The Surface Viewer is configured by defining the object <strong>BrainBrowser.config.surface_viewer</strong>.
+Currently the properties available for configuration are the directory in which worker scripts 
+are stored and desciptions of supported filetypes for defining models. The <strong>worker_dir</strong> 
+option indicates the base URL at which all worker scripts are stored, and the <strong>filetypes</strong> 
+indicate the names of the filetypes as well as the specific worker script used to parse them:</p>
+
+<pre class="prettyprint linenums">BrainBrowser.config = {
+
+  surface_viewer: {
+
+    worker_dir: "js/brainbrowser/workers/",
+
+    filetypes: {
+      MNIObject: {
+        worker: "mniobj.worker.js",
+      },
+      WavefrontObj: {
+        worker: "wavefront_obj.worker.js"
+      },
+      FreeSurferAsc: {
+        worker: "freesurfer_asc.worker.js",
+      }
+    }
+
+  }
+  
+}
+</pre></div>

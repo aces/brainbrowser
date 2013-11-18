@@ -46,6 +46,44 @@
 *    });
 *  ```
 */
+
+/**
+* @doc overview
+* @name Configuration
+*
+* @description
+* The Surface Viewer is configured by defining the object **BrainBrowser.config.surface_viewer**.
+* Currently the properties available for configuration are the directory in which worker scripts 
+* are stored and desciptions of supported filetypes for defining models. The **worker\_dir** 
+* option indicates the base URL at which all worker scripts are stored, and the **filetypes** 
+* indicate the names of the filetypes as well as the specific worker script used to parse them:
+* 
+* ```js
+* BrainBrowser.config = {
+* 
+*   surface_viewer: {
+*
+*     worker_dir: "js/brainbrowser/workers/",
+*
+*     filetypes: {
+*       MNIObject: {
+*         worker: "mniobj.worker.js",
+*       },
+*       WavefrontObj: {
+*         worker: "wavefront_obj.worker.js"
+*       },
+*       FreeSurferAsc: {
+*         worker: "freesurfer_asc.worker.js",
+*       }
+*     }
+*
+*   }
+*   
+* }
+* ```
+* 
+*/
+
 /**
 * @doc object
 * @name Events

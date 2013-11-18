@@ -25,11 +25,36 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+* @doc object
+* @name display
+* @property {object} volume The volume being displayed.
+* @property {string} axis The name of the axis being displayed (xspace, yspace or zspace).
+* @property {object} slice The slice currently being displayed.
+* @property {object} canvas Reference to the canvas area used for drawing.
+* @property {object} context The 2D context of the canvas. 
+* @property {object} image_center The **x** and **y** coordinates of the
+*   center of the slice currently being displayed.
+* @property {number} zoom The current zoom level of the display. 
+* @property {object} cursor The current **x** and **y** coordinates of the cursor. 
+* @property {object} mouse The current **x** and **y** coordinates of the mouse. 
+* @description
+* Object representing an individual canvas display.
+*/
 (function() {
   "use strict";
     
   var display_proto = {
-    updateCursor: function(volume) {
+
+    /**
+    * @doc function
+    * @name display.display:updateCursor
+    * @param {object} volume The volume whose cursor will be updated.
+    * @description
+    * Update the display cursor based on the current position with the given volume.
+    */
+    updateCursor: function() {
+      var volume = this.volume;
       var slice = this.slice;
       var origin = this.getImageOrigin();
       if (volume && slice) {
@@ -38,13 +63,14 @@
       }
     },
     
-    getVolumePosition: function() {
-      return {
-        x: this.cursor.x / this.zoom,
-        y: this.cursor.y / this.zoom
-      };
-    },
-    
+    /**
+    * @doc function
+    * @name display.display:getImageOrigin
+    * @returns {object} Returns an object containing the **x** and **y** coordinates of the
+    * top-left corner of the currently displayed slice on the display.
+    * @description
+    * Get the coordinates of the top-left corner of the slice currently being displayed.
+    */
     getImageOrigin: function() {
       return {
         x: this.image_center.x - this.slice.image.width / 2,
@@ -52,13 +78,28 @@
       };
     },
     
-    drawSlice: function(context) {
+    /**
+    * @doc function
+    * @name display.display:drawSlice
+    * @description
+    * Draw the displays current slice to the canvas.
+    */
+    drawSlice: function() {
       var img = this.slice.image;
       var origin = this.getImageOrigin();
-      context.putImageData(img, origin.x, origin.y);
+      this.context.putImageData(img, origin.x, origin.y);
     },
     
-    drawCrosshair: function(context, color, zoom) {
+    /**
+    * @doc function
+    * @name display.display:drawCursor
+    * @param {string} color The cursor color.
+    * @description
+    * Draw the cursor at its current position on the canvas.
+    */
+    drawCursor: function(color) {
+      var context = this.context;
+      var zoom = this.zoom;
       var length = 8;
       color = color || "#FF0000";
       

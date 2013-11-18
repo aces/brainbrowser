@@ -1,0 +1,50 @@
+<h1><code ng:non-bindable="">loadVolumes</code>
+<span class="hint">( viewer in module <code ng:non-bindable="">viewer</code>
+ )</span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>Initial load of volumes. Usage:
+<pre class="prettyprint linenums">  BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
+
+    // Add an event listener.
+    viewer.addEventListener("ready", function() {
+      console.log("Viewer is ready!");
+    });
+
+    // Load minc volumes.
+    viewer.loadVolumes({
+      volumes: [
+        {
+          type: 'minc',
+          filename: 'volume1.mnc',
+          header_params:  { get_headers: true },
+          raw_data_params: { get_raw_data: true }
+        },
+        {
+          type: 'minc',
+          filename: 'volume2.mnc',
+          header_params:  { get_headers: true },
+          raw_data_params: { get_raw_data: true }
+        }
+      ],
+      overlay: true
+    });
+  });
+</pre>
+The <strong>header_params</strong> and <strong>raw_data_params</strong> options passed for each volume are
+used to create the URLs to fetch the headers and raw data for each volume. The
+Volume Viewer expects to send to requests to a single address, but with different
+query parameters for each type of data. For example, the data for the first volume
+described above would be fetched from the following two URLs:</p>
+
+<ul>
+<li>/volume1.mnc?get_headers=true</li>
+<li>/volume1.mnc?get_raw_data=true</li>
+</ul></div>
+<h2 id="Parameters">Parameters</h2>
+<ul class="parameters"><li><code class="plain">options – {object} – </code>
+<p>Description of volumes to load:
+* <strong>volumes</strong> {array} An array of volume descriptions.
+* <strong>overlay</strong> {boolean} Create a display overlaying the other loaded volumes?</p></li>
+</ul>
+</div>

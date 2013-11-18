@@ -1,0 +1,25 @@
+<h1><code ng:non-bindable="">pick</code>
+<span class="hint">( rendering in module <code ng:non-bindable="">viewer</code>
+ )</span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>Given an x and y coordinate on the viewer canvas, returns information about the
+the point of intersection with a displayed object.</p></div>
+<h2 id="Parameters">Parameters</h2>
+<ul class="parameters"><li><code class="plain">x – {number} – </code>
+<p>The x coordinate on the canvas.</p></li>
+<li><code class="plain">y – {number} – </code>
+<p>The y coordinate on the canvas.</p></li>
+</ul>
+<h2 id="Returns">Returns</h2>
+<div class="returns"><code class="plain">{object}</code>
+– <p>If an intersection is detected, returns an object with the following information:</p>
+
+<ul>
+<li><strong>object</strong> The THREE.Object3D object with which the the click intersected.</li>
+<li><strong>point</strong> A THREE.Vector3 object representing the point in 3D space at which the intersection occured.</li>
+<li><strong>index</strong> The index of the intersection point in the list of vertices.</li>
+</ul>
+
+<p>Otherwise returns <strong>null</strong>.</p></div>
+</div>

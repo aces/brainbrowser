@@ -1,0 +1,25 @@
+<h1><code ng:non-bindable="">Events</code>
+<span class="hint"></span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>The Surface Viewer event model can be used to listen for certain events 
+occuring of the lifetime of a viewer. Currently, the following viewer events can be listened for:</p>
+
+<ul>
+<li><strong>displaymodel</strong> A new model has been displayed on the viewer.</li>
+<li><strong>loadcolordata</strong> New color data has been loaded.</li>
+<li><strong>loadspectrum</strong> A new spectrum has been loaded.</li>
+<li><strong>rangechange</strong> The color range has been modified.</li>
+<li><strong>blendcolormaps</strong> Two color maps have been loaded and blended.</li>
+<li><strong>clearscreen</strong> The viewer has been cleared of objects.</li>
+</ul>
+
+<p>To listen for an event, simply use the viewer's <strong>addEventListener()</strong> method with 
+with the event name and a callback funtion:</p>
+
+<pre class="prettyprint linenums">   viewer.addEventListener("displaymodel", function() {
+     console.log("Model displayed!");
+   });
+
+</pre></div>
+</div>

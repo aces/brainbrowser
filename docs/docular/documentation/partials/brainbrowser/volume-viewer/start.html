@@ -1,0 +1,40 @@
+<h1><code ng:non-bindable="">start</code>
+<span class="hint"></span>
+</h1>
+<div><h2 id="Description">Description</h2>
+<div class="description"><p>The start() function is the main point of entry to the Volume Viewer.
+It creates a viewer object that is then passed to the callback function
+supplied by the user.</p>
+
+<pre class="prettyprint linenums">  BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
+
+    // Add an event listener.
+    viewer.addEventListener("ready", function() {
+      console.log("Viewer is ready!");
+    });
+
+    // Load minc volumes.
+    viewer.loadVolumes({
+      volumes: [
+        {
+          type: 'minc',
+          filename: 'volume1.mnc'
+        },
+        {
+          type: 'minc',
+          filename: 'volume2.mnc'
+        }
+      ],
+      overlay: true
+    });
+  });
+</pre></div>
+<h2 id="Parameters">Parameters</h2>
+<ul class="parameters"><li><code class="plain">element_id – {string} – </code>
+<p>ID of the DOM element
+in which the viewer will be inserted.</p></li>
+<li><code class="plain">callback – {function} – </code>
+<p>Callback function to which the viewer object
+will be passed after creation.</p></li>
+</ul>
+</div>

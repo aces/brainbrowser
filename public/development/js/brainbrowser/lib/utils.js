@@ -24,6 +24,31 @@
 * @description
 * Utilities for all BrainBrowser tools.
 */
+
+/**
+* @doc overview
+* @name Configuration
+*
+* @description
+* BrainBrowser configuration is done by creating an object, **BrainBrowser.config**,
+* with two object properties, **surface\_viewer** and **volume\_viewer** that define
+* the configuration options for each of the tools. For more information on particular 
+* options for each tool, see the Surface Viewer and Volume Viewer configuration sections.
+* 
+* ```js
+* BrainBrowser.config = {
+*
+*   surface_viewer: {
+*     // ...
+*   }, 
+*
+*   volume_viewer: {
+*     // ...
+*   }
+*   
+* }
+* ```
+*/
 (function() {
   "use strict";
  
@@ -77,7 +102,7 @@
     
     /**
     * @doc function
-    * @name BrainBrowser.utils:webglEnabled
+    * @name BrainBrowser.utils:webWorkersEnabled
     * @returns {boolean} Whether or not Web Workers are supported in the current browser.
     *
     * @description

@@ -48,16 +48,17 @@ BrainBrowser.VolumeViewer.utils = (function() {
   }
   
   /**
-   * Interpolates the slice data using nearest neighboor interpolation
-   * @param {Array} data original data
-   * @param {Number} width original width
-   * @param {Number} height original height
-   * @param {Number} new_width new width
-   * @param {Number} new_height new height
-   * @param {Number} numElem number of elements per pixel (default 4 for RGBA)
-   * @return {Array} new_array output of the neighrest neighboor algo.
+   * @doc function
+   * @name utils.utils.nearestNeighbor
+   *
+   * @param {array} orig Original image
+   * @param {number} new_width Width of scaled image.
+   * @param {number} new_height Height of scaled image.
+   * @returns {ImageData} The scaled image.
+   * @description
+   * Scale an image using nearest neighbor interpolation.
    */
-  function nearestNeighboor(orig, new_width, new_height) {
+  function nearestNeighbor(orig, new_width, new_height) {
     var data = orig.data;
     var width = orig.width;
     var height = orig.height;
@@ -96,7 +97,7 @@ BrainBrowser.VolumeViewer.utils = (function() {
   }
   
   return {
-    nearestNeighboor: nearestNeighboor
+    nearestNeighbor: nearestNeighbor
   };
   
 })();

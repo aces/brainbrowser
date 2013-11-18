@@ -18,7 +18,7 @@
 BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   "use strict";
   
-  var renderer; //THREE.js renderer
+  var renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
   var scene = new THREE.Scene();
   var pointLight;
   var camera = new THREE.PerspectiveCamera(30, viewer.view_window.offsetWidth/viewer.view_window.offsetHeight, 0.1, 10000);
@@ -26,8 +26,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   var light_controls;
   var current_frame;
   var last_frame;
-  var effect;
-  var anaglyphEffect;
+  var effect = renderer;
+  var effects = {};
 
   viewer.model = new THREE.Object3D();
   
@@ -41,15 +41,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
    */
   viewer.render = function() {
     var view_window = viewer.view_window;
-    renderer = new THREE.WebGLRenderer({preserveDrawingBuffer: true});
     renderer.setClearColor(0x000000);
-
     renderer.setSize(view_window.offsetWidth, view_window.offsetHeight);
-    effect = renderer;
-    
-    anaglyphEffect = new THREE.AnaglyphEffect(renderer);
-    anaglyphEffect.setSize(view_window.offsetWidth, view_window.offsetHeight);
-  
     view_window.appendChild(renderer.domElement);
     
     camera.position.z = 500;
@@ -112,23 +105,29 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   
   /**
    * @doc function
-   * @name viewer.rendering:anaglyphEffect
+   * @name viewer.rendering:addEffect
+   * @param {string} effect_name The name of the effect as defined in three.js.
    * @description
-   * Enables the anaglyph effect for 3D viewing with
-   * red-blue 3D glasses.
+   * Add a three.js postprocessing effect to the viewer.
    */
-  viewer.anaglyphEffect = function() {
-    effect = anaglyphEffect;
+  viewer.addEffect = function(effect_name) {
+    var effect;
+    if (THREE[effect_name]) {
+      effect = new THREE[effect_name](renderer);
+      effect.setSize(viewer.view_window.offsetWidth, viewer.view_window.offsetHeight);
+      effects[effect_name] = effect;
+    }
   };
 
   /**
    * @doc function
-   * @name viewer.rendering:noEffect
+   * @name viewer.rendering:setEffect
+   * @param {string} effect_name The name of the effect as defined in three.js.
    * @description
-   * Disable any special effect active on the viewer.
+   * Activate a previously added postprocessing effect.
    */
-  viewer.noEffect = function() {
-    effect = renderer;
+  viewer.setEffect = function(effect_name) {
+    effect = effects[effect_name] ? effects[effect_name] : renderer;
   };
   
   /**
@@ -209,10 +208,10 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
    * * **index** The index of the intersection point in the list of vertices.
    *
    * Otherwise returns **null**.
-   * 
+   *
    * @description
-   * Given an x and y coordinate on the viewer canvas, returns information about the 
-   * the point of intersection with a displayed object. 
+   * Given an x and y coordinate on the viewer canvas, returns information about the
+   * the point of intersection with a displayed object.
    *
    */
   viewer.pick = function(x, y) {

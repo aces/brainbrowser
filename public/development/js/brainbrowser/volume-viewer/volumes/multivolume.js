@@ -133,7 +133,7 @@
             var ystep = slice.y.step;
             // console.log("xstep: " +xstep);
             // console.log("ystep: " +ystep);
-            imageData = VolumeViewer.utils.nearestNeighboor(imageData, Math.floor(slice.width * xstep * zoom), Math.floor(slice.height * ystep * zoom));
+            imageData = VolumeViewer.utils.nearestNeighbor(imageData, Math.floor(slice.width * xstep * zoom), Math.floor(slice.height * ystep * zoom));
             
             images.push(imageData);
           }

@@ -1,0 +1,28 @@
+<h1></h1>
+<div><p>The BrainBrowser Volume Viewer is a tool for navigating 3D minc volumes.
+Basic usage consists of calling the <strong>start()</strong> method of the <strong>VolumeViewer</strong> module,
+which takes a callback function as its second argument, and then using the <strong>viewer</strong> object passed
+to that callback function to set up interaction with the viewr:
+ <pre class="prettyprint linenums">   BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
+
+    // Add an event listener.
+    viewer.addEventListener("ready", function() {
+      console.log("Viewer is ready!");
+    });
+
+    // Load minc volumes.
+    viewer.loadVolumes({
+      volumes: [
+        {
+          type: 'minc',
+          filename: 'volume1.mnc'
+        },
+        {
+          type: 'minc',
+          filename: 'volume2.mnc'
+        }
+      ],
+      overlay: true
+    });
+  });
+ </pre></div>

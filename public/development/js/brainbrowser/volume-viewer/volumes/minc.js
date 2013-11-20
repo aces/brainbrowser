@@ -81,7 +81,7 @@
    */
   function getData(filename, raw_data_params, callback){
     Object.keys(raw_data_params).forEach(function(k) {
-      filename += filename.match(/\?/) ? "&" : "?" +
+      filename += (filename.match(/\?/) ? "&" : "?") +
                   k + "=" + raw_data_params[k];
     });
     VolumeViewer.loader.loadArrayBuffer(filename, function(data) {

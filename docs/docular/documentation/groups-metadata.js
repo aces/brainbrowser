@@ -1,5 +1,5 @@
 GROUP_DATA=[
-{"groupTitle":"BrainBrowser v1.1.0","groupId":"brainbrowser","showSource":false,"sections":[
+{"groupTitle":"BrainBrowser v1.1.1","groupId":"brainbrowser","showSource":false,"sections":[
 {"title":"Utilities","id":"utils","scripts":["public/development/js/brainbrowser/lib/utils.js"],"doc_api":"doc"},
 {"title":"Surface Viewer","id":"surface-viewer","scripts":["public/development/js/brainbrowser/surface-viewer.js","public/development/js/brainbrowser/surface-viewer"],"doc_api":"doc"},
 {"title":"Volume Viewer","id":"volume-viewer","scripts":["public/development/js/brainbrowser/volume-viewer.js","public/development/js/brainbrowser/volume-viewer"],"doc_api":"doc"}],"visible":true}];

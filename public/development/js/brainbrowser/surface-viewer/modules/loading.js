@@ -28,16 +28,16 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * @doc function
   * @name viewer.loading:loadModelFromUrl
   * @param {string} url URL of the model file to load.
-  * @param {object} options Options for the color update, which include the following: 
-  * 
-  * * **format** The format of input file. Should be one of the filetypes described in 
+  * @param {object} options Options for the color update, which include the following:
+  *
+  * * **format** The format of input file. Should be one of the filetypes described in
   *   BrainBrowser.config.
-  * * **parse** Parsing options to pass to the worker that will be used to parse the 
+  * * **parse** Parsing options to pass to the worker that will be used to parse the
   *   input file.
   * * **before** A callback to be called before loading starts.
   * * **error** A callback function that will be called if there's a parsing error.
   *
-  * @description 
+  * @description
   * Load and parse a model from the specified URL.
   */
   viewer.loadModelFromUrl = function(url, options) {
@@ -63,15 +63,15 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * @doc function
   * @name viewer.loading:loadModelFromFile
   * @param {object} file_input Object representing the local file to load.
-  * @param {object} options Options for the color update, which include the following: 
-  * 
-  * * **format** The format of input file. Should be one of the filetypes described in 
+  * @param {object} options Options for the color update, which include the following:
+  *
+  * * **format** The format of input file. Should be one of the filetypes described in
   *   BrainBrowser.config.
-  * * **parse** Parsing options to pass to the worker that will be used to parse the 
+  * * **parse** Parsing options to pass to the worker that will be used to parse the
   *   input file.
   * * **before** A callback to be called before loading starts.
   *
-  * @description 
+  * @description
   * Load and parse a model from a local file.
   */
   viewer.loadModelFromFile = function(file_input, options) {
@@ -88,7 +88,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       // Parse model info based on the given file type.
       parseModel(filetype, data, parse_options, function(obj) {
         displayModel(obj, filename, options);
-      });    
+      });
     });
   };
   
@@ -96,14 +96,14 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * @doc function
   * @name viewer.loading:loadColorFromUrl
   * @param {string} url URL of the model file to load.
-  * @param {object} options Options for the color update, which include the following: 
-  * 
+  * @param {object} options Options for the color update, which include the following:
+  *
   * * **min** Minimum value of the color samples.
   * * **max** Maximum value of the color samples.
   * * **shape** The name of a specific shape to which this map will be applied.
   * * **before** A callback to be called before loading starts.
   *
-  * @description 
+  * @description
   * Load a color map from the specified URL.
   */
   viewer.loadColorFromUrl = function(url, name, options) {
@@ -140,8 +140,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * @doc function
   * @name viewer.loading:loadColorFromFile
   * @param {object} file_input Object representing the local file to load.
-  * @param {object} options Options for the color update, which include the following: 
-  * 
+  * @param {object} options Options for the color update, which include the following:
+  *
   * * **min** Minimum value of the color samples.
   * * **max** Maximum value of the color samples.
   * * **shape** The name of a specific shape to which this map will be applied.
@@ -149,15 +149,13 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * * **before** A callback to be called before loading starts.
   * * **complete** Callback function to call when the color update is done.
   *
-  * @description 
+  * @description
   * Load a color map from a local file.
   */
   viewer.loadColorFromFile = function(file_input, options) {
     options = options || {};
     var filename = file_input.files[0].name;
     var model_data = viewer.model_data;
-    var positionArray = model_data.positionArray;
-    var positionArrayLength = positionArray.length;
     var blend_index = options.blend_index || 0;
     var other_index = 1 - blend_index; // 1 or 0
     viewer.blendData = viewer.blendData || [];
@@ -208,11 +206,11 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * @doc function
   * @name viewer.loading:loadSpectrumFromUrl
   * @param {string} url URL of the model file to load.
-  * @param {object} options Options for the spectrum loading, which include the following: 
-  * 
+  * @param {object} options Options for the spectrum loading, which include the following:
+  *
   * * **before** A callback to be called before loading starts.
   *
-  * @description 
+  * @description
   * Load and parse spectrum data from the specified URL.
   */
   viewer.loadSpectrumFromUrl  = function(url, options) {
@@ -244,11 +242,11 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * @doc function
   * @name viewer.loading:loadSpectrumFromUrl
   * @param {object} file_input Object representing the local file to load.
-  * @param {object} options Options for the spectrum loading, which include the following: 
-  * 
+  * @param {object} options Options for the spectrum loading, which include the following:
+  *
   * * **before** A callback to be called before loading starts.
   *
-  * @description 
+  * @description
   * Load and parse spectrum data from a local file.
   */
   viewer.loadSpectrumFromFile = function(file_input){
@@ -303,7 +301,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
           }
         } else {
           var error_message = "error loading URL: " + url + "\n" +
-            "HTTP Response: " + request.status + "\n" + 
+            "HTTP Response: " + request.status + "\n" +
             "HTTP Status: " + request.statusText + "\n" +
             "Response was: \n" + request.response;
           viewer.triggerEvent("error", error_message);
@@ -420,7 +418,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var parse_worker, deindex_worker;
     
     if (file_type_config.worker) {
-      var parse_worker = new Worker(worker_dir + "/" + file_type_config.worker);
+      parse_worker = new Worker(worker_dir + "/" + file_type_config.worker);
       
       parse_worker.addEventListener("message", function(e) {
         var result = e.data;
@@ -428,13 +426,13 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
         if (result.error){
           error_message = "error parsing model.\n" +
-            result.error_message + "\n" + 
-            "File type: " + type + "\n" + 
-            "Worker file: " + type + "\n" + 
+            result.error_message + "\n" +
+            "File type: " + type + "\n" +
+            "Worker file: " + type + "\n" +
             "Options: " + JSON.stringify(options);
           viewer.triggerEvent("error", error_message);
-          throw new Error(error_message); 
-        } else if (callback) { 
+          throw new Error(error_message);
+        } else if (callback) {
           deindex_worker = new Worker(worker_dir + "/deindex.worker.js");
 
           deindex_worker.addEventListener("message", function(e) {
@@ -454,13 +452,13 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     
     }
     
-  };
+  }
 
   ///////////////////////////////////////////
   // DISPLAY OF LOADED MODELS
   ///////////////////////////////////////////
 
-  // Creates a object based on the description in **model_data** and 
+  // Creates a object based on the description in **model_data** and
   // displays in on the viewer.
   function displayModel(model_data, filename, options) {
     options = options || {};

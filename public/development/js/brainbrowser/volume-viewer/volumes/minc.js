@@ -62,7 +62,7 @@
         } else {
           throw new Error(
             "error loading URL: " + filename + "\n" +
-            "HTTP Response: " + request.status + "\n" + 
+            "HTTP Response: " + request.status + "\n" +
             "HTTP Status: " + request.statusText + "\n" +
             "Response was: \n" + request.response
           );
@@ -74,7 +74,7 @@
   }
 
   /**
-   * Make request to server for Minc file's data block. 
+   * Make request to server for Minc file's data block.
    * @param {String}    filename  url/filename of the minc file
    * @param {Function}  callback  function to call when data is done loading
    * @param {Object}    extraArgs with extraArgs to pass to callback when data is done loading

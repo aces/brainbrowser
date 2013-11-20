@@ -50,7 +50,7 @@
           } else {
             throw new Error(
               "error loading URL: " + url + "\n" +
-              "HTTP Response: " + request.status + "\n" + 
+              "HTTP Response: " + request.status + "\n" +
               "HTTP Status: " + request.statusText + "\n" +
               "Response was: \n" + request.response
             );

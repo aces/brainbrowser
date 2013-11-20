@@ -50,17 +50,13 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     loadFromUrl(url, options, function(data) {
       parts = url.split("/");
       //last part of url will be shape name
-      filename = parts[parts.length-1];
+      filename = parts[parts.length - 1];
       // Parse model info based on the given file type.
-      SurfaceViewer.filetypes.parse(filetype, data, parse_options, function(obj) {
-        if (obj.objectClass !== "__FAIL__") {
-          // Display model to the canvas after parsing.
-          if (!cancelLoad(options)) displayModel(obj, filename, options);
-        } else if (options.error) {
-          options.error();
-        }
+      parseModel(filetype, data, parse_options, function(obj) {
+        if (!cancelLoad(options)) displayModel(obj, filename, options);
       });
     });
+    
   };
 
   /**
@@ -74,7 +70,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * * **parse** Parsing options to pass to the worker that will be used to parse the 
   *   input file.
   * * **before** A callback to be called before loading starts.
-  * * **error** A callback function that will be called if there's a parsing error.
   *
   * @description 
   * Load and parse a model from a local file.
@@ -91,15 +86,9 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       //last part of path will be shape name
       filename = parts[parts.length-1];
       // Parse model info based on the given file type.
-      SurfaceViewer.filetypes.parse(filetype, data, parse_options, function(obj) {
-        if (obj.objectClass !== "__FAIL__") {
-          // Display model to the canvas after parsing.
-          displayModel(obj, filename, options);
-        } else if (options.error) {
-          options.error();
-        }
-      });
-      
+      parseModel(filetype, data, parse_options, function(obj) {
+        displayModel(obj, filename, options);
+      });    
     });
   };
   
@@ -113,7 +102,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * * **max** Maximum value of the color samples.
   * * **shape** The name of a specific shape to which this map will be applied.
   * * **before** A callback to be called before loading starts.
-  * * **complete** Callback function to call when the color update is done.
   *
   * @description 
   * Load a color map from the specified URL.
@@ -182,10 +170,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         data.fileName = filename;
         data.apply_to_shape = options.shape;
         data.applied = false;
-        if (data.values.length < positionArrayLength / 4) {
-          alert("Not enough color points to cover vertices - " + data.values.length + " color points for " + positionArrayLength / 3 + " vertices." );
-          return -1;
-        }
         model_data.data = data;
         viewer.blendData[blend_index] = data;
         initRange(min, max, data);
@@ -299,25 +283,35 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   function loadFromUrl(url, options, callback) {
     options = options || {};
     var before = options.before;
+    var request = new XMLHttpRequest();
+    var status;
 
     if (before) {
       before();
       delete options.before;
     }
 
-    jQuery.ajax({ type: 'GET',
-      url: url ,
-      dataType: 'text',
-      success: function(data) {
-        if (!cancelLoad(options)) {
-          callback(data);
+    request.open("GET", url);
+    request.onreadystatechange = function() {
+      if (request.readyState === 4){
+        status = request.status;
+
+        // Based on jQuery's "success" codes.
+        if(status >= 200 && status < 300 || status === 304) {
+          if (!cancelLoad(options)) {
+            callback(request.response);
+          }
+        } else {
+          var error_message = "error loading URL: " + url + "\n" +
+            "HTTP Response: " + request.status + "\n" + 
+            "HTTP Status: " + request.statusText + "\n" +
+            "Response was: \n" + request.response;
+          viewer.triggerEvent("error", error_message);
+          throw new Error(error_message);
         }
-      },
-      error: function(request, textStatus) {
-        alert("Failure in loadFromURL: " +  textStatus);
-      },
-      timeout: 100000
-    });
+      }
+    };
+    request.send();
 
   }
   
@@ -415,6 +409,52 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     return cancelled;
   }
 
+  ///////////////////////////////////////////
+  // PARSE LOADED MODELS
+  ///////////////////////////////////////////
+
+  function parseModel(type, data, options, callback) {
+    var config = BrainBrowser.config.surface_viewer;
+    var file_type_config = config.filetypes[type];
+    var worker_dir = config.worker_dir;
+    var parse_worker, deindex_worker;
+    
+    if (file_type_config.worker) {
+      var parse_worker = new Worker(worker_dir + "/" + file_type_config.worker);
+      
+      parse_worker.addEventListener("message", function(e) {
+        var result = e.data;
+        var error_message;
+
+        if (result.error){
+          error_message = "error parsing model.\n" +
+            result.error_message + "\n" + 
+            "File type: " + type + "\n" + 
+            "Worker file: " + type + "\n" + 
+            "Options: " + JSON.stringify(options);
+          viewer.triggerEvent("error", error_message);
+          throw new Error(error_message); 
+        } else if (callback) { 
+          deindex_worker = new Worker(worker_dir + "/deindex.worker.js");
+
+          deindex_worker.addEventListener("message", function(e) {
+            callback(e.data);
+          });
+
+          deindex_worker.postMessage(result);
+        }
+        
+        parse_worker.terminate();
+      });
+      
+      parse_worker.postMessage({
+        data: data,
+        options: options
+      });
+    
+    }
+    
+  };
 
   ///////////////////////////////////////////
   // DISPLAY OF LOADED MODELS

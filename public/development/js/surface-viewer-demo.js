@@ -40,6 +40,8 @@ $(function() {
     // Event Listeners
     ///////////////////////////////////
 
+    viewer.addEventListener("error", hideLoading);
+
     viewer.addEventListener("loadspectrum", function (spectrum) {
       var canvas = spectrum.createCanvasWithScale(0, 100, null);
       var spectrum_div = document.getElementById("color-bar");
@@ -266,7 +268,7 @@ $(function() {
 
     $(".range-box").keypress(function(e) {
       if(e.keyCode === '13'){
-        viewer.rangeChange(parseFloat($("#data-range-min").val()),parseFloat($("#data-range-max").val()));
+        viewer.rangeChange(parseFloat($("#data-range-min").val(), 10), parseFloat($("#data-range-max").val(), 10));
       }
     });
 
@@ -406,8 +408,7 @@ $(function() {
       viewer.loadModelFromFile(document.getElementById("objfile"), {
         format: format,
         beforeLoad: showLoading,
-        complete: hideLoading,
-        error: hideLoading
+        complete: hideLoading
       });
 
       return false;

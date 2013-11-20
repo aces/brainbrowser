@@ -38,16 +38,22 @@
   VolumeViewer.loader = {
     loadArrayBuffer: function(url, callback) {
       var request = new XMLHttpRequest();
-      request.open('GET', url ,true);
+      var status;
+
+      request.open('GET', url);
       request.responseType = 'arraybuffer';
       request.onreadystatechange = function() {
         if(request.readyState === 4) {
-          if(request.status === 200) {
-            if(request.mozResponseArrayBuffer !== undefined) {
-              callback(request.mozResponseArrayBuffer);
-            } else {
-              callback(request.response);
-            }
+          status = request.status;
+          if(status >= 200 && status < 300 || status === 304) {
+            callback(request.response);
+          } else {
+            throw new Error(
+              "error loading URL: " + url + "\n" +
+              "HTTP Response: " + request.status + "\n" + 
+              "HTTP Status: " + request.statusText + "\n" +
+              "Response was: \n" + request.response
+            );
           }
         }
       };

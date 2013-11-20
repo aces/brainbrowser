@@ -98,6 +98,7 @@
 * * **rangechange** The color range has been modified.
 * * **blendcolormaps** Two color maps have been loaded and blended.
 * * **clearscreen** The viewer has been cleared of objects.
+* * **error** An error has occured.
 *
 * To listen for an event, simply use the viewer's **addEventListener()** method with 
 * with the event name and a callback funtion:
@@ -189,6 +190,21 @@
 *
 * ```js
 *    viewer.addEventListener("blenddata", function() {
+*      //...
+*    });
+* ```
+*
+*/
+/**
+* @doc object
+* @name Events.events:error
+*
+* @description
+* Triggered when an error of some sort has occured. The error message, if any,
+* is passed as the callbacks sole argument.
+*
+* ```js
+*    viewer.addEventListener("blenddata", function(error_message) {
 *      //...
 *    });
 * ```

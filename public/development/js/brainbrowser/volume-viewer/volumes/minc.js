@@ -39,20 +39,38 @@
    * @param {String} filename url/filename of the file to load minc headers
    */
   function getHeaders(filename, header_params, callback) {
-    $.ajax({
-      url: filename,
-      dataType: 'json',
-      data: header_params,
-      success: function(data){
-        if (callback) callback(data);
-      },
-      error: function(request, textStatus) {
-        throw {
-          request: request,
-          textStatus: textStatus
-        };
+    var request = new XMLHttpRequest();
+    var status;
+    var response_text;
+
+    request.open("GET", filename);
+    request.onreadystatechange = function() {
+      if (request.readyState === 4){
+        status = request.status;
+
+        // Based on jQuery's "success" codes.
+        if(status >= 200 && status < 300 || status === 304) {
+          try{
+            response_text = JSON.parse(request.response);
+          } catch(error) {
+            throw new Error(
+              "server did not respond with valid JSON" + "\n" +
+              "Response was: \n" + request.response
+            );
+          }
+          if (callback) callback(response_text);
+        } else {
+          throw new Error(
+            "error loading URL: " + filename + "\n" +
+            "HTTP Response: " + request.status + "\n" + 
+            "HTTP Status: " + request.statusText + "\n" +
+            "Response was: \n" + request.response
+          );
+        }
       }
-    });
+    };
+    request.send();
+
   }
 
   /**

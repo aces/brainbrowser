@@ -31,7 +31,9 @@
       positionArray: result.positionArray,
       normalArray: result.normalArray,
       colorArray: result.colorArray,
-      split: result.split
+      split: result.split,
+      error: result.error,
+      error_message: result.error_message
     };
 
     if (data.split) {
@@ -75,7 +77,8 @@
       parsePositionArray();
       result.nitems = parseInt(stack.pop(), 10);
     } else {
-      result.objectClass = "__FAIL__";
+      result.error = true;
+      result.error_message = "Invalid MNI Object class: must be 'P' or 'L'";
       return;
     }
     parseColorArray();

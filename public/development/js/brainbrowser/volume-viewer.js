@@ -569,33 +569,33 @@
     *
     * @description
     * Initial load of volumes. Usage:
-    *  ```js
-    *    BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
+    * ```js
+    *   BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
     *
-    *      // Add an event listener.
-    *      viewer.addEventListener("ready", function() {
-    *        console.log("Viewer is ready!");
-    *      });
+    *     // Add an event listener.
+    *     viewer.addEventListener("ready", function() {
+    *       console.log("Viewer is ready!");
+    *     });
     *
-    *      // Load minc volumes.
-    *      viewer.loadVolumes({
-    *        volumes: [
-    *          {
-    *            type: 'minc',
-    *            filename: 'volume1.mnc',
-    *            header_params:  { get_headers: true },
-    *            raw_data_params: { get_raw_data: true }
-    *          },
-    *          {
-    *            type: 'minc',
-    *            filename: 'volume2.mnc',
-    *            header_params:  { get_headers: true },
-    *            raw_data_params: { get_raw_data: true }
-    *          }
-    *        ],
-    *        overlay: true
-    *      });
-    *    });
+    *     // Load minc volumes.
+    *     viewer.loadVolumes({
+    *       volumes: [
+    *         {
+    *           type: 'minc',
+    *           filename: 'volume1.mnc',
+    *           header_params:  { get_headers: true },
+    *           raw_data_params: { get_raw_data: true }
+    *         },
+    *         {
+    *           type: 'minc',
+    *           filename: 'volume2.mnc',
+    *           header_params:  { get_headers: true },
+    *           raw_data_params: { get_raw_data: true }
+    *         }
+    *       ],
+    *       overlay: true
+    *     });
+    *   });
     * ```
     * The **header\_params** and **raw\_data\_params** options passed for each volume are
     * used to create the URLs to fetch the headers and raw data for each volume. The
@@ -607,6 +607,14 @@
     * * /volume1.mnc?get\_raw\_data=true
     */
     viewer.loadVolumes = function(options) {
+
+      if (!BrainBrowser.utils.checkConfig("volume_viewer.color_scales")) {
+        throw new Error(
+          "error in VolumeViewer configuration.\n" +
+          "BrainBrowser.config.volume_viewer.color_scales not defined."
+        );
+      }
+
       options = options || {};
       
       container = document.getElementById(element_id);

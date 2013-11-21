@@ -412,6 +412,23 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   ///////////////////////////////////////////
 
   function parseModel(type, data, options, callback) {
+    var error_message;
+    if (!BrainBrowser.utils.checkConfig("surface_viewer.filetypes." + type)) {
+      error_message = "error in SurfaceViewer configuration.\n" +
+        "BrainBrowser.config.surface_viewer.filetypes." + type + " not defined.";
+
+      viewer.triggerEvent("error", error_message);
+      throw new Error(error_message);
+    }
+
+    if (!BrainBrowser.utils.checkConfig("surface_viewer.worker_dir")) {
+      error_message = "error in SurfaceViewer configuration.\n" +
+        "BrainBrowser.config.surface_viewer.worker_dir not defined.";
+
+      viewer.triggerEvent("error", error_message);
+      throw new Error(error_message);
+    }
+
     var config = BrainBrowser.config.surface_viewer;
     var file_type_config = config.filetypes[type];
     var worker_dir = config.worker_dir;
@@ -422,7 +439,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       
       parse_worker.addEventListener("message", function(e) {
         var result = e.data;
-        var error_message;
 
         if (result.error){
           error_message = "error parsing model.\n" +

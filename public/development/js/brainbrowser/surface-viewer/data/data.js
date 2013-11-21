@@ -1,11 +1,11 @@
-/* 
+/*
 * Copyright (C) 2011 McGill University
-* 
+*
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
 *   the Free Software Foundation, either version 3 of the License, or
 *  (at your option) any later version.
-* 
+*
 * This program is distributed in the hope that it will be useful,
 *  but WITHOUT ANY WARRANTY; without even the implied warranty of
 *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -22,6 +22,13 @@
 BrainBrowser.SurfaceViewer.data = function(raw, callback) {
   "use strict";
   
+  if (!BrainBrowser.utils.checkConfig("surface_viewer.worker_dir")) {
+    throw new Error(
+      "error in SurfaceViewer configuration.\n" +
+      "BrainBrowser.config.surface_viewer.worker_dir not defined."
+    );
+  }
+
   // Allows a prototype to be defined for data object
   var data_obj = {};
   var worker_dir = BrainBrowser.config.surface_viewer.worker_dir;

@@ -94,8 +94,8 @@
     slice: function(axis, number, time) {
       var slice = this.data.slice(axis, number, time);
       slice.colorScale = this.colorScale || VolumeViewer.colorScales[0];
-      slice.min   = this.min;
-      slice.max   = this.max;
+      slice.min  = this.min;
+      slice.max  = this.max;
       slice.axis = axis;
 
       slice.getImage = function(zoom) {

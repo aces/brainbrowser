@@ -153,7 +153,7 @@
     
     // Show the atlas.
     collection.showAtlas = function() {
-      viewer.loadColorFromUrl("/assets/aal_atlas.txt");
+      viewer.loadColorsFromUrl("/assets/aal_atlas.txt");
     };
     
     // Default should be redefined by appliction.
@@ -206,7 +206,7 @@
         data: data_object,
         dataType: 'text',
         success: function(result) {
-          BrainBrowser.SurfaceViewer.data(result, function(data) {
+          BrainBrowser.SurfaceViewer.parseColorData(result, function(data) {
             dataset.current_data = data;
             callback(dataset);
           });

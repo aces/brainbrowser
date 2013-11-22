@@ -19,7 +19,17 @@
 /**
 * @param {String} data data file in string format to parse
 */
-BrainBrowser.SurfaceViewer.data = function(raw, callback) {
+/**
+ * @doc function
+ * @name SurfaceViewer.static methods:parseColorData
+ * @param {string} raw The color data as a string of text
+ * @param {function} callback Callback to which the new color data object 
+ * will be passed when parsing is complete.
+ * 
+ * @description
+ * Parse vertex color data from a string of text.
+ */
+BrainBrowser.SurfaceViewer.parseColorData = function(raw, callback) {
   "use strict";
   
   if (!BrainBrowser.utils.checkConfig("surface_viewer.worker_dir")) {

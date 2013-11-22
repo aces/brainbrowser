@@ -95,57 +95,6 @@
 * }
 * ```
 */
-
-/**
-* @doc object
-* @name Events
-*
-* @description
-* The Surface Viewer event model can be used to listen for certain events
-* occuring of the lifetime of a viewer. Currently, the following viewer events can be listened for:
-*
-* * **ready** Viewer is completely loaded and ready to be manipulated.
-* * **sliceupdate** A new slice has been rendered to the viewer.
-*
-* To listen for an event, simply use the viewer's **addEventListener()** method with
-* with the event name and a callback funtion:
-*
-* ```js
-*    viewer.addEventListener("sliceupdate", function() {
-*      console.log("Slice updated!");
-*    });
-*
-* ```
-*/
-/**
-* @doc object
-* @name Events.events:ready
-*
-* @description
-* Triggered when the viewer is fully loaded and ready for interaction.
-* The event handler receives no arguments.
-*
-* ```js
-*    viewer.addEventListener("ready", function() {
-*      //...
-*    });
-* ```
-*/
-/**
-* @doc object
-* @name Events.events:sliceupdate
-*
-* @description
-* Triggered when the slice currently being displayed is updated.
-* The event handler receives no arguments.
-*
-* ```js
-*    viewer.addEventListener("sliceupdate", function() {
-*      //...
-*    });
-* ```
-*/
-
 (function() {
   "use strict";
   
@@ -160,7 +109,7 @@
 
   /**
   *  @doc function
-  *  @name start
+  *  @name VolumeViewer.static methods:start
   *  @param {string} element_id ID of the DOM element
   *  in which the viewer will be inserted.
   *  @param {function} callback Callback function to which the viewer object
@@ -213,6 +162,21 @@
     *
     * @description
     * The viewer object encapsulates all functionality of the Surface Viewer.
+    * Handlers can be attached to the viewer to listen for certain events 
+    * occuring over its lifetime. Currently, the following viewer events can be listened for:
+    *
+    * * **ready** Viewer is completely loaded and ready to be manipulated.
+    * * **sliceupdate** A new slice has been rendered to the viewer.
+    *
+    * To listen for an event, simply use the viewer's **addEventListener()** method with
+    * with the event name and a callback funtion:
+    *
+    * ```js
+    *    viewer.addEventListener("sliceupdate", function() {
+    *      console.log("Slice updated!");
+    *    });
+    *
+    * ```
     */
     var viewer = {
       volumes: volumes,
@@ -240,6 +204,34 @@
     * Trigger all handlers associated with event **e**.
     * Any arguments after the first will be passed to the
     * event handler.
+    */
+    /**
+    * @doc object
+    * @name viewer.events:ready
+    *
+    * @description
+    * Triggered when the viewer is fully loaded and ready for interaction.
+    * The event handler receives no arguments.
+    *
+    * ```js
+    *    viewer.addEventListener("ready", function() {
+    *      //...
+    *    });
+    * ```
+    */
+    /**
+    * @doc object
+    * @name viewer.events:sliceupdate
+    *
+    * @description
+    * Triggered when the slice currently being displayed is updated.
+    * The event handler receives no arguments.
+    *
+    * ```js
+    *    viewer.addEventListener("sliceupdate", function() {
+    *      //...
+    *    });
+    * ```
     */
     BrainBrowser.utils.eventModel(viewer);
     

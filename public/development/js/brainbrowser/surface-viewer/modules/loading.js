@@ -94,7 +94,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   
   /**
   * @doc function
-  * @name viewer.loading:loadColorFromUrl
+  * @name viewer.loading:loadColorsFromUrl
   * @param {string} url URL of the model file to load.
   * @param {object} options Options for the color update, which include the following:
   *
@@ -106,17 +106,17 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * @description
   * Load a color map from the specified URL.
   */
-  viewer.loadColorFromUrl = function(url, name, options) {
+  viewer.loadColorsFromUrl = function(url, name, options) {
     options = options || {};
     
     loadFromUrl(url, options, function(text) {
-      SurfaceViewer.data(text, function(data) {
+      SurfaceViewer.parseColorData(text, function(data) {
         if (cancelLoad(options)) return;
         
         var max = options.max === undefined ? data.max : options.max;
         var min = options.min === undefined ? data.min : options.min;
         
-        viewer.model_data.data = data;
+        viewer.model_data.color_data = data;
         data.fileName = name;
         data.apply_to_shape = options.shape;
         initRange(min, max);
@@ -138,7 +138,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   
   /**
   * @doc function
-  * @name viewer.loading:loadColorFromFile
+  * @name viewer.loading:loadColorsFromFile
   * @param {object} file_input Object representing the local file to load.
   * @param {object} options Options for the color update, which include the following:
   *
@@ -152,7 +152,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * @description
   * Load a color map from a local file.
   */
-  viewer.loadColorFromFile = function(file_input, options) {
+  viewer.loadColorsFromFile = function(file_input, options) {
     options = options || {};
     var filename = file_input.files[0].name;
     var model_data = viewer.model_data;
@@ -161,14 +161,14 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     viewer.blendData = viewer.blendData || [];
 
     var onfinish = function(text) {
-      SurfaceViewer.data(text, function(data) {
+      SurfaceViewer.parseColorData(text, function(data) {
         var max = options.max === undefined ? data.max : options.max;
         var min = options.min === undefined ? data.min : options.min;
         
         data.fileName = filename;
         data.apply_to_shape = options.shape;
         data.applied = false;
-        model_data.data = data;
+        model_data.color_data = data;
         viewer.blendData[blend_index] = data;
         initRange(min, max, data);
         if (viewer.blendData[other_index] && viewer.blendData[other_index].applied) {
@@ -224,10 +224,10 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         
       viewer.triggerEvent("loadspectrum", spectrum);
     
-      if (viewer.model_data && viewer.model_data.data) {
-        viewer.updateColors(viewer.model_data.data, {
-          min: viewer.model_data.data.rangeMin,
-          max: viewer.model_data.data.rangeMax,
+      if (viewer.model_data && viewer.model_data.color_data) {
+        viewer.updateColors(viewer.model_data.color_data, {
+          min: viewer.model_data.color_data.rangeMin,
+          max: viewer.model_data.color_data.rangeMax,
           spectrum: viewer.spectrum,
           flip: viewer.flip,
           clamped: viewer.clamped
@@ -259,10 +259,10 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       
       viewer.triggerEvent("loadspectrum", spectrum);
 
-      if(model_data.data) {
-        viewer.updateColors(model_data.data, {
-          min: model_data.data.rangeMin,
-          max: model_data.data.rangeMax,
+      if(model_data.color_data) {
+        viewer.updateColors(model_data.color_data, {
+          min: model_data.color_data.rangeMin,
+          max: model_data.color_data.rangeMax,
           spectrum: viewer.spectrum,
           flip: viewer.flip,
           clamped: viewer.clamped
@@ -373,7 +373,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   function initRange(min, max, file) {
     
     if (!file) {
-      file = viewer.model_data.data;
+      file = viewer.model_data.color_data;
     }
     if (!file.fixRange) {
       file.rangeMin = min;

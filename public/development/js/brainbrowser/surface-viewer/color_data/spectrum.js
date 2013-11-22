@@ -15,6 +15,14 @@
 *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * @doc function
+ * @name SurfaceViewer.static methods:spectrum
+ * @param {string}  data The spectrum data as a string.
+ * 
+ * @description
+ * Factory function to produce sprectrum object from a string of data.
+ */
 BrainBrowser.SurfaceViewer.spectrum = function(data) {
   "use strict";
   

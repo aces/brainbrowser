@@ -90,18 +90,18 @@ $(function() {
       $("#data-range-box").hide();
     });
 
-    viewer.addEventListener("rangechange", function(data) {
-      var canvas = viewer.spectrum.createCanvasWithScale(data.rangeMin, data.rangeMax, null);
+    viewer.addEventListener("rangechange", function(color_data) {
+      var canvas = viewer.spectrum.createCanvasWithScale(color_data.rangeMin, color_data.rangeMax, null);
       canvas.id = "spectrum-canvas";
       $("#color-bar").html(canvas);
     });
 
-    viewer.addEventListener("loadcolor", function(data) {
+    viewer.addEventListener("loadcolor", function(color_data) {
       var container = $("#data-range");
       var headers = '<div id="data-range-multiple"><ul>';
       var controls = "";
       var i, count;
-      var data_set = Array.isArray(data) ? data : [data];
+      var data_set = Array.isArray(color_data) ? color_data : [color_data];
 
       container.html("");
       for(i = 0, count = data_set.length; i < count; i++) {
@@ -124,12 +124,12 @@ $(function() {
 
       container.find(".range-controls").each(function(index, element) {
         var controls = $(element);
-        data = data_set[index];
+        var color_data = data_set[index];
 
-        var data_min = BrainBrowser.utils.min(data.values);
-        var data_max = BrainBrowser.utils.max(data.values);
-        var range_min = data.rangeMin;
-        var range_max = data.rangeMax;
+        var data_min = BrainBrowser.utils.min(color_data.values);
+        var data_max = BrainBrowser.utils.max(color_data.values);
+        var range_min = color_data.rangeMin;
+        var range_max = color_data.rangeMax;
 
         var min_input = controls.find("#data-range-min");
         var max_input = controls.find("#data-range-max");
@@ -147,9 +147,9 @@ $(function() {
             min_input.val(min);
             max_input.val(max);
             loading_div.show();
-            data.rangeMin = min;
-            data.rangeMax = max;
-            viewer.model_data.data = data;
+            color_data.rangeMin = min;
+            color_data.rangeMax = max;
+            viewer.model_data.color_data = color_data;
             viewer.rangeChange(min, max, viewer.clamped, {
               complete: hideLoading
             });
@@ -194,7 +194,7 @@ $(function() {
         $("#flip_range").change(function(e) {
           viewer.flip = $(this).is(":checked");
           loading_div.show();
-          viewer.updateColors(viewer.model_data.data, {
+          viewer.updateColors(viewer.model_data.color_data, {
             min: range_min,
             max: range_max,
             spectrum: viewer.spectrum,
@@ -204,7 +204,7 @@ $(function() {
           });
         });
 
-        viewer.triggerEvent("rangechange", data);
+        viewer.triggerEvent("rangechange", color_data);
       });
 
     }); // end loadcolor listener
@@ -320,7 +320,7 @@ $(function() {
             format: "MNIObject",
             parse: { split: true },
             complete: function() {
-              viewer.loadColorFromUrl('/models/realct.txt','Cortical Thickness', {
+              viewer.loadColorsFromUrl('/models/realct.txt','Cortical Thickness', {
                 complete: hideLoading,
                 cancel: default_cancel_opts(current_request)
               });
@@ -366,7 +366,7 @@ $(function() {
           viewer.loadModelFromUrl('/models/mouse_surf.obj', {
             format: "MNIObject",
             complete: function() {
-              viewer.loadColorFromUrl('/models/mouse_alzheimer_map.txt',
+              viewer.loadColorsFromUrl('/models/mouse_alzheimer_map.txt',
                 'Cortical Amyloid Burden, Tg AD Mouse, 18 Months Old', {
                   shape: "mouse_surf.obj",
                   min: 0.0,
@@ -416,7 +416,7 @@ $(function() {
 
     $(".datafile").change(function() {
       var filenum = parseInt(this.id.slice(-1), 10);
-      viewer.loadColorFromFile(this, { blend_index : filenum - 1 });
+      viewer.loadColorsFromFile(this, { blend_index : filenum - 1 });
     });
 
     $("#spectrum").change(function() {

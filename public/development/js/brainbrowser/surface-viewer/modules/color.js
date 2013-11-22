@@ -84,12 +84,15 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
    * @param {number} min Minimum value of the range.
    * @param {number} max Maximum value of the range.
    * @param {boolean} clamped Should values be clampled to the min/max range?
+   * @param {object} options Options for the range change, which include the following: 
+   * 
+   * * **complete** Callback function to call when the color update is done.
    * @description
    * Update the range of colors being applied to the current model.
    */
   viewer.rangeChange = function(min, max, clamped, options) {
     options = options || {};
-    var data = viewer.model_data.data;
+    var data = viewer.model_data.color_data;
     
     data.rangeMin = min;
     data.rangeMax = max;
@@ -137,7 +140,6 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   // PRIVATE FUNCTIONS
   ///////////////////////////
   
-  //Coloring for regular models.
   function colorModel(color_array, shapes) {
     var geometry, shape, indices;
     var color_attribute, colors;

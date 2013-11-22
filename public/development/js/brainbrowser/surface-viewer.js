@@ -83,134 +83,6 @@
 * ```
 * 
 */
-
-/**
-* @doc object
-* @name Events
-*
-* @description
-* The Surface Viewer event model can be used to listen for certain events 
-* occuring of the lifetime of a viewer. Currently, the following viewer events can be listened for:
-* 
-* * **displaymodel** A new model has been displayed on the viewer.
-* * **loadcolordata** New color data has been loaded.
-* * **loadspectrum** A new spectrum has been loaded.
-* * **rangechange** The color range has been modified.
-* * **blendcolormaps** Two color maps have been loaded and blended.
-* * **clearscreen** The viewer has been cleared of objects.
-* * **error** An error has occured.
-*
-* To listen for an event, simply use the viewer's **addEventListener()** method with 
-* with the event name and a callback funtion:
-*
-* ```js
-*    viewer.addEventListener("displaymodel", function() {
-*      console.log("Model displayed!");
-*    });
-*
-* ```
-*/
-/**
-* @doc object
-* @name Events.events:displaymodel
-*
-* @description
-* Triggered when a model new model is displayed on the viewer. The displayed model, as a THREE.Object3D
-* object, will be passed to the event handler:
-*
-* ```js
-*    viewer.addEventListener("displaymodel", function(model) {
-*      //...
-*    });
-* ```
-*/
-/**
-* @doc object
-* @name Events.events:loadcolordata
-*
-* @description
-* Triggered when a new color map is loaded. The new color data
-* object will be passed to the event handler:
-*
-* ```js
-*    viewer.addEventListener("loadcolordata", function(color_data) {
-*      //...
-*    });
-* ```
-*/
-/**
-* @doc object
-* @name Events.events:loadspectrum
-*
-* @description
-* Triggered when a new spectrum has finished loading. The loaded spectrum
-* object will be passed to the event handler:
-*
-* ```js
-*    viewer.addEventListener("loadspectrum", function(spectrum) {
-*      //...
-*    });
-* ```
-*/
-/**
-* @doc object
-* @name Events.events:clearscreen
-*
-* @description
-* Triggered when the screen is cleared. The event handler receives
-* no arguments.
-*
-* ```js
-*    viewer.addEventListener("clearscreen", function() {
-*      //...
-*    });
-* ```
-*/
-/**
-* @doc object
-* @name Events.events:rangechange
-*
-* @description
-* Triggered when the color range changes. The modified color data
-* object will be passed to the event handler:
-*
-* ```js
-*    viewer.addEventListener("rangechange", function(color data) {
-*      //...
-*    });
-* ```
-*/
-/**
-* @doc object
-* @name Events.events:blenddata
-*
-* @description
-* Triggered when two color maps have been loaded and blended. The event handler receives
-* no arguments.
-*
-* ```js
-*    viewer.addEventListener("blenddata", function() {
-*      //...
-*    });
-* ```
-*
-*/
-/**
-* @doc object
-* @name Events.events:error
-*
-* @description
-* Triggered when an error of some sort has occured. The error message, if any,
-* is passed as the callbacks sole argument.
-*
-* ```js
-*    viewer.addEventListener("blenddata", function(error_message) {
-*      //...
-*    });
-* ```
-*
-*/
-
 (function() {
   "use strict";
 
@@ -220,7 +92,7 @@
 
     /**
     *  @doc function
-    *  @name start
+    *  @name SurfaceViewer.static methods:start
     *  @param {string} element_id ID of the DOM element 
     *  in which the viewer will be inserted.
     *  @param {function} callback Callback function to which the viewer object
@@ -271,14 +143,35 @@
       }
 
       /**
-      *  @doc object
-      *  @name viewer
-      *  @property {DOMElement} view_window The DOM element where the viewer
-      *  will be inserted.
-      *  @property {THREE.Object3D} model The currently loaded surface model.
+      * @doc object
+      * @name viewer
+      * @property {DOMElement} view_window The DOM element where the viewer
+      * will be inserted.
+      * @property {THREE.Object3D} model The currently loaded surface model.
       * 
-      *  @description
-      *  The viewer object encapsulates all functionality of the Surface Viewer.
+      * @description
+      * The viewer object encapsulates all functionality of the Surface Viewer.
+      * Handlers can be attached to the viewer to listen for certain events 
+      * occuring over its lifetime. Currently, the following viewer events 
+      * can be listened for:
+      * 
+      * * **displaymodel** A new model has been displayed on the viewer.
+      * * **loadcolordata** New color data has been loaded.
+      * * **loadspectrum** A new spectrum has been loaded.
+      * * **rangechange** The color range has been modified.
+      * * **blendcolormaps** Two color maps have been loaded and blended.
+      * * **clearscreen** The viewer has been cleared of objects.
+      * * **error** An error has occured.
+      *
+      * To listen for an event, simply use the viewer's **addEventListener()** method with 
+      * with the event name and a callback funtion:
+      *
+      * ```js
+      *    viewer.addEventListener("displaymodel", function() {
+      *      console.log("Model displayed!");
+      *    });
+      *
+      * ```
       */
       var viewer = {
         view_window: document.getElementById(element_id), // Div where the canvas will be loaded.
@@ -307,6 +200,106 @@
       * Trigger all handlers associated with event **e**.
       * Any arguments after the first will be passed to the 
       * event handler.
+      */
+      /**
+      * @doc object
+      * @name viewer.events:displaymodel
+      *
+      * @description
+      * Triggered when a model new model is displayed on the viewer. The displayed model, as a THREE.Object3D
+      * object, will be passed to the event handler:
+      *
+      * ```js
+      *    viewer.addEventListener("displaymodel", function(model) {
+      *      //...
+      *    });
+      * ```
+      */
+      /**
+      * @doc object
+      * @name viewer.events:loadcolordata
+      *
+      * @description
+      * Triggered when a new color map is loaded. The new color data
+      * object will be passed to the event handler:
+      *
+      * ```js
+      *    viewer.addEventListener("loadcolordata", function(color_data) {
+      *      //...
+      *    });
+      * ```
+      */
+      /**
+      * @doc object
+      * @name viewer.events:loadspectrum
+      *
+      * @description
+      * Triggered when a new spectrum has finished loading. The loaded spectrum
+      * object will be passed to the event handler:
+      *
+      * ```js
+      *    viewer.addEventListener("loadspectrum", function(spectrum) {
+      *      //...
+      *    });
+      * ```
+      */
+      /**
+      * @doc object
+      * @name viewer.events:clearscreen
+      *
+      * @description
+      * Triggered when the screen is cleared. The event handler receives
+      * no arguments.
+      *
+      * ```js
+      *    viewer.addEventListener("clearscreen", function() {
+      *      //...
+      *    });
+      * ```
+      */
+      /**
+      * @doc object
+      * @name viewer.events:rangechange
+      *
+      * @description
+      * Triggered when the color range changes. The modified color data
+      * object will be passed to the event handler:
+      *
+      * ```js
+      *    viewer.addEventListener("rangechange", function(color data) {
+      *      //...
+      *    });
+      * ```
+      */
+      /**
+      * @doc object
+      * @name viewer.events:blenddata
+      *
+      * @description
+      * Triggered when two color maps have been loaded and blended. The event handler receives
+      * no arguments.
+      *
+      * ```js
+      *    viewer.addEventListener("blenddata", function() {
+      *      //...
+      *    });
+      * ```
+      *
+      */
+      /**
+      * @doc object
+      * @name viewer.events:error
+      *
+      * @description
+      * Triggered when an error of some sort has occured. The error message, if any,
+      * is passed as the callbacks sole argument.
+      *
+      * ```js
+      *    viewer.addEventListener("blenddata", function(error_message) {
+      *      //...
+      *    });
+      * ```
+      *
       */
       BrainBrowser.utils.eventModel(viewer);
 

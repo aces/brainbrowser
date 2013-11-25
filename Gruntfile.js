@@ -77,7 +77,7 @@ module.exports = function(grunt) {
       },
       libs : {
         files: {
-          "<%= prod_js %>/layout.js": "<%= dev_js %>/layout.js",
+          "<%= prod_js %>/index.js": "<%= dev_js %>/index.js",
           "<%= prod_js %>/ui/common.js": "<%= dev_js %>/ui/common.js",
           "<%= prod_js %>/lib/brainbrowser.utils.js": "tmp/brainbrowser.utils.js"
         }
@@ -131,7 +131,7 @@ module.exports = function(grunt) {
           }
         },
         src: [
-          "<%= dev_js %>/layout.js",
+          "<%= dev_js %>/index.js",
           "<%= dev_js %>/lib/ui.js",
           "<%= concat.surface.src %>",
           "<%= dev_js %>/surface-viewer.js",

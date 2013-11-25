@@ -84,10 +84,11 @@ a img {
   margin-bottom: 0px;
 }
 
-#text-box {
+.tab-content {
   padding-left: 10px;
   padding-right: 10px;
-
+  height: 670px;
+  overflow-y: auto;
 }
 
 bb-tabs bb-tabs-nav li {

@@ -55,8 +55,6 @@ if (cluster.isMaster) {
   app.use(express.static(path.join(__dirname, "public", "common")));
   
   app.get("/", routes.index);
-  app.get("/about", routes.about);
-  app.get("/credits", routes.credits);
   app.get("/surface-viewer", routes.surface);
   app.get("/macacc-viewer", routes.macacc);
   app.get("/volume-viewer", routes.volume);

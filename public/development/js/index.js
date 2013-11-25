@@ -21,13 +21,7 @@ $(function() {
   "use strict";
   
   $(".button").button();
-  $(".tabs").tabs({ heigth: 800 });
-  $(".tablink").click(function(e) {
-    var tabs_object = $(e.target).attr('data-tabs');
-    var tab = $(e.target).attr('data-tab');
-    $("#"+tabs_object).tabs("select", tab);
-    return false;
-  });
+  $(".tabs").tabs();
   $(".title").append(' <span id="title-version">v' + BrainBrowser.version + '</span>');
 
   var warnings = $("#html5-warnings");

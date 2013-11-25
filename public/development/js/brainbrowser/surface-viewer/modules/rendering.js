@@ -81,12 +81,12 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * only effective for a split dataset, e.g. two hemispheres of a brain).
   */
   viewer.getVertexInfo = function(index) {
-    var positions = viewer.model_data.positionArray;
+    var vertices = viewer.model_data.vertices;
     var i = index * 3;
     
     return {
       index: index,
-      point: new THREE.Vector3(positions[i], positions[i+1], positions[i+2])
+      point: new THREE.Vector3(vertices[i], vertices[i+1], vertices[i+2])
     };
   };
   

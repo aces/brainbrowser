@@ -74,7 +74,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     if (blend) {
       applyColorArray(blendColorMap(spectrum, data, 0, 1));
     } else {
-      data.createColorArray(min, max, spectrum, flip, clamped, viewer.model_data.colorArray, viewer.model_data, applyColorArray);
+      data.createColorArray(min, max, spectrum, flip, clamped, viewer.model_data.colors, viewer.model_data, applyColorArray);
     }
   };
 

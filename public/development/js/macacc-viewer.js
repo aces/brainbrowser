@@ -187,9 +187,9 @@ $(function() {
 
       var vertex = parseInt(e.data, 10);
       var position_vector = [
-        viewer.model_data.positionArray[vertex*3],
-        viewer.model_data.positionArray[vertex*3+1],
-        viewer.model_data.positionArray[vertex*3+2]
+        viewer.model_data.vertices[vertex*3],
+        viewer.model_data.vertices[vertex*3+1],
+        viewer.model_data.vertices[vertex*3+2]
       ];
 
       macacc.pickClick(e, {

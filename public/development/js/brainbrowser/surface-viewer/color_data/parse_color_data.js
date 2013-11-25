@@ -65,7 +65,7 @@ BrainBrowser.SurfaceViewer.parseColorData = function(raw, callback) {
   data_obj.createColorArray = function createColorArray(min, max, spectrum, flip, clamped, original_colors, model, callback) {
     spectrum = spectrum.colors;
     var values = data_obj.values;
-    var colorArray = [];
+    var colors = [];
     //calculate a slice of the data per color
     var increment = ((max-min)+(max-min)/spectrum.length)/spectrum.length;
     var i, count;
@@ -92,22 +92,22 @@ BrainBrowser.SurfaceViewer.parseColorData = function(raw, callback) {
       }
       //This inserts the RGBA values (R,G,B,A) independently
       if (flip && color_index !== -1) {
-        colorArray.push.apply(colorArray, spectrum[spectrum.length-1-color_index]);
+        colors.push.apply(colors, spectrum[spectrum.length-1-color_index]);
       } else {
         if(color_index === -1) {
           if(original_colors.length === 4){
-            colorArray.push.apply(colorArray, original_colors);
+            colors.push.apply(colors, original_colors);
           } else {
-            colorArray.push(original_colors[i*4], original_colors[i*4+1], original_colors[i*4+2], original_colors[i*4+3]);
+            colors.push(original_colors[i*4], original_colors[i*4+1], original_colors[i*4+2], original_colors[i*4+3]);
           }
         } else {
-          colorArray.push.apply(colorArray, spectrum[color_index]);
+          colors.push.apply(colors, spectrum[color_index]);
         }
       }
     }
 
-    //return colorArray;
-    if (callback) callback(colorArray);
+    //return colors;
+    if (callback) callback(colors);
   };
   
   

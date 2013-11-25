@@ -17,55 +17,55 @@
  
 (function() {
   "use strict";
-    
-  var result = {};
-  
+      
   self.addEventListener("message", function(e) {
-    var input = e.data;
-    parse(input.data);
-    self.postMessage(result);
+    self.postMessage(parse(e.data.data));
   });
   
   function parse(data) {
     var current_shape;
-    var vertexArray = [];
+    var vertices = [];
     var counts;
-    var vertexCount;
-    var faceCount;
+    var vertex_count;
+    var face_count;
     var line;
     var face;
     var i;
     
+    var result = {};
+
     data = data.split('\n');
     result.shapes = [];
-    current_shape = {name: data.name | "undefined", faces: [], positionArray: [], colorArray: [], indexArray: [], texIndexArray:[], normalIndexArray: []};
+    current_shape = {name: data.name | "undefined", faces: [], indices: [] };
     result.shapes.push(current_shape);
     
     counts = data[1].split(/\s+/);
-    vertexCount = parseInt(counts[0], 10);
-    faceCount = parseInt(counts[1], 10);
+    vertex_count = parseInt(counts[0], 10);
+    face_count = parseInt(counts[1], 10);
     
-    for (i = 2; i < vertexCount + 2; i++) {
+    for (i = 2; i < vertex_count + 2; i++) {
       line = data[i].split(/\s+/);
-      vertexArray.push(parseFloat(line[0]));
-      vertexArray.push(parseFloat(line[1]));
-      vertexArray.push(parseFloat(line[2]));
+      vertices.push(parseFloat(line[0]));
+      vertices.push(parseFloat(line[1]));
+      vertices.push(parseFloat(line[2]));
     }
     
-    for (i = vertexCount + 2; i < vertexCount + faceCount + 2; i++) {
+    for (i = vertex_count + 2; i < vertex_count + face_count + 2; i++) {
       line = data[i].split(/\s+/);
       face = [];
       face.push(parseInt(line[0], 10));
       face.push(parseInt(line[1], 10));
       face.push(parseInt(line[2], 10));
 
-      Array.prototype.push.apply(current_shape.indexArray, face);
+      Array.prototype.push.apply(current_shape.indices, face);
       current_shape.faces.push(face);
     }
     
-    result.objectClass = 'P';
-    result.positionArray = vertexArray;
-    result.colorArray = [0.8,0.8,0.8,1.0];
+    result.type = "polygon";
+    result.vertices = vertices;
+    result.colors = [0.8, 0.8, 0.8, 1.0];
+
+    return result;
   }
 })();
 

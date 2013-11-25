@@ -16,30 +16,28 @@
  */
 (function() {
   "use strict";
-  
-  var result = {};
 
   self.addEventListener("message", function(e) {
-    var input = e.data;
-    parse(input.data);
-    self.postMessage(result);
+    self.postMessage(parse(e.data.data));
   });
   
   function parse(data) {
     var current_shape;
-    var vertexArray = [];
-    var texCoordArray = [];
-    var normalArray = [];
-    var indexArray, texIndexArray, normalIndexArray;
+    var vertices = [];
+    var texture_coords = [];
+    var normals = [];
+    var indices, texture_indices, normal_indices;
     var line;
     var line_marker;
     var line_length;
     var i, n, k, count;
     var face, elem;
-    
+   
+    var result = {};
+
     data = data.split('\n');
     result.shapes = [];
-    current_shape = {name: data.name | "undefined", faces: [], positionArray: [], colorArray: [], indexArray: [], texIndexArray:[], normalIndexArray: []};
+    current_shape = {name: data.name | "undefined", faces: [], indices: [], texture_indices:[], normal_indices: []};
     result.shapes.push(current_shape);
     for(i = 0, count = data.length; i < count; i++) {
       line = data[i].split(/\s+/);
@@ -50,53 +48,53 @@
         switch(line_marker) {
         case "o":
         case "g":
-          current_shape = {name: line[1], faces: [], positionArray: [], colorArray: [], indexArray: [], texIndexArray:[],  normalIndexArray: []};
+          current_shape = {name: line[1], faces: [], indices: [], texture_indices:[],  normal_indices: []};
           result.shapes.push(current_shape);
           break;
         case "v":
-          vertexArray.push(parseFloat(line[1]));
-          vertexArray.push(parseFloat(line[2]));
-          vertexArray.push(parseFloat(line[3]));
+          vertices.push(parseFloat(line[1]));
+          vertices.push(parseFloat(line[2]));
+          vertices.push(parseFloat(line[3]));
           break;
         case "vt":
           for(n = 1; n < line_length; n++){
-            texCoordArray.push(parseFloat(line[n]));
+            texture_coords.push(parseFloat(line[n]));
           }
           break;
         case "vn":
-          normalArray.push(parseFloat(line[1]));
-          normalArray.push(parseFloat(line[2]));
-          normalArray.push(parseFloat(line[3]));
+          normals.push(parseFloat(line[1]));
+          normals.push(parseFloat(line[2]));
+          normals.push(parseFloat(line[3]));
           break;
         case "f":
           face = [];
-          indexArray = current_shape.indexArray;
-          texIndexArray = current_shape.texIndexArray;
-          normalIndexArray = current_shape.normalIndexArray;
+          indices = current_shape.indices;
+          texture_indices = current_shape.texture_indices;
+          normal_indices = current_shape.normal_indices;
           
           var first_elem = line[1].split('/');
           
 
           for (k = 2; k < line_length - 1; k++){
             face.push(parseInt(first_elem[0], 10)-1);
-            indexArray.push(parseInt(first_elem[0], 10) - 1);
-            texIndexArray.push(parseInt(first_elem[1], 10) - 1);
+            indices.push(parseInt(first_elem[0], 10) - 1);
+            texture_indices.push(parseInt(first_elem[1], 10) - 1);
             if (first_elem[2]) {
-              normalIndexArray.push(parseInt(first_elem[2], 10) - 1);
+              normal_indices.push(parseInt(first_elem[2], 10) - 1);
             }
             elem = line[k].split('/');
             face.push(parseInt(elem[0], 10)-1);
-            indexArray.push(parseInt(elem[0], 10) - 1);
-            texIndexArray.push(parseInt(elem[1], 10) - 1);
+            indices.push(parseInt(elem[0], 10) - 1);
+            texture_indices.push(parseInt(elem[1], 10) - 1);
             if (elem[2]) {
-              normalIndexArray.push(parseInt(elem[2], 10) - 1);
+              normal_indices.push(parseInt(elem[2], 10) - 1);
             }
             elem = line[k+1].split('/');
             face.push(parseInt(elem[0], 10)-1);
-            indexArray.push(parseInt(elem[0], 10) - 1);
-            texIndexArray.push(parseInt(elem[1], 10) - 1);
+            indices.push(parseInt(elem[0], 10) - 1);
+            texture_indices.push(parseInt(elem[1], 10) - 1);
             if (elem[2]) {
-              normalIndexArray.push(parseInt(elem[2], 10) - 1);
+              normal_indices.push(parseInt(elem[2], 10) - 1);
             }
           }
 
@@ -106,11 +104,13 @@
       }
     }
   
-    result.objectClass = 'P';
-    result.positionArray = vertexArray;
-    result.normalArray = normalArray;
-    result.colorArray = [0.8, 0.8, 0.8, 1.0];
-    result.texCoordArray = texCoordArray;
+    result.type = "polygon";
+    result.vertices = vertices;
+    result.normals = normals;
+    result.colors = [0.8, 0.8, 0.8, 1.0];
+    result.texture_coords = texture_coords;
+
+    return result;
   }
 })();
 

@@ -18,7 +18,6 @@ module.exports = function(grunt) {
           "<%= dev_js %>/brainbrowser/lib/utils.js",
           "<%= dev_js %>/brainbrowser/surface-viewer.js",
           "<%= dev_js %>/brainbrowser/surface-viewer/**/*.js"
-
         ],
         dest: "tmp/brainbrowser.surface-viewer.js"
       },

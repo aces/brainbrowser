@@ -495,7 +495,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var i, count;
     var shapes = model_data.shapes;
 
-    var is_line = model_data.objectClass === "L";
+    var is_line = model_data.type === "line";
 
     viewer.model_data = model_data;
     if (shapes){
@@ -505,10 +505,10 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         shape.name = shape_data.name || filename;
         
         shape.geometry.original_data = {
-          vertices: model_data.positionArray,
-          indices: shape_data.indexArray,
-          normals: model_data.normalArray,
-          colors: model_data.colorArray
+          vertices: model_data.vertices,
+          indices: shape_data.indices,
+          normals: model_data.normals,
+          colors: model_data.colors
         };
 
         if (renderDepth) {

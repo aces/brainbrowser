@@ -21,15 +21,15 @@
   self.addEventListener("message", function(e) {
     var data = e.data;
     var shapes = data.shapes;
-    var verts = data.positionArray;
-    var norms = data.normalArray;
-    var colors = data.colorArray || [0.7, 0.7, 0.7, 1.0];
+    var verts = data.vertices;
+    var norms = data.normals;
+    var colors = data.colors || [0.7, 0.7, 0.7, 1.0];
     var i, count;
     var shape, unindexed;
 
     for (i = 0, count = shapes.length; i < count; i++) {
       shape = shapes[i];
-      unindexed = deindex(shapes[i].indexArray, verts, norms, colors, data.objectClass !== "L");
+      unindexed = deindex(shapes[i].indices, verts, norms, colors, data.type !== "line");
       shape.centroid = unindexed.centroid;
       shape.unindexed = unindexed.unindexed;
       shape.wireframe = unindexed.wireframe;

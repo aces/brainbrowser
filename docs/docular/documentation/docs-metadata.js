@@ -43,7 +43,7 @@ DOC_DATA=[
 {"lineStart":93,"lineEnd":98}],"source":false},
 {"section":"volume-viewer","group":"brainbrowser","id":"display.display:drawSlice","name":false,"shortName":"drawSlice","docType":"function","module":"display","moduleSection":"display","moduleItem":"drawSlice","moduleSubItem":"","keywords":"canvas current display displays draw function slice the to","codeBlocks":[
 {"lineStart":81,"lineEnd":85}],"source":false},
-{"section":"surface-viewer","group":"brainbrowser","id":"viewer.events:error","name":false,"shortName":"error","docType":"object","module":"viewer","moduleSection":"events","moduleItem":"error","moduleSubItem":"","keywords":"addeventlistener an any argument as blenddata callbacks error events function has if is js message object occured of passed sole some sort the triggered viewer when","codeBlocks":[
+{"section":"surface-viewer","group":"brainbrowser","id":"viewer.events:error","name":false,"shortName":"error","docType":"object","module":"viewer","moduleSection":"events","moduleItem":"error","moduleSubItem":"","keywords":"addeventlistener an any argument as callbacks error events function has if is js message object occured of passed sole some sort the triggered viewer when","codeBlocks":[
 {"lineStart":289,"lineEnd":302}],"source":false},
 {"section":"utils","group":"brainbrowser","id":"BrainBrowser.utils:eventModel","name":false,"shortName":"eventModel","docType":"function","module":"BrainBrowser","moduleSection":"utils","moduleItem":"eventModel","moduleSubItem":"","keywords":"add and argument as brainbrowser event function method methods model passed the to utils viewer","codeBlocks":[
 {"lineStart":150,"lineEnd":157}],"source":false},

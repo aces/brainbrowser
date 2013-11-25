@@ -295,7 +295,7 @@
       * is passed as the callbacks sole argument.
       *
       * ```js
-      *    viewer.addEventListener("blenddata", function(error_message) {
+      *    viewer.addEventListener("error", function(error_message) {
       *      //...
       *    });
       * ```

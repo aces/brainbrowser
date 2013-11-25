@@ -15,5 +15,5 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* brainbrowser v1.1.1 */
+/* brainbrowser v1.2.0 */
 !function(){"use strict";function a(a){var c,d,e,f;for(a=a.replace(/^\s+/,"").replace(/\s+$/,""),b.values=a.split(/\s+/),e=b.values[0],f=b.values[0],c=0,d=b.values.length;d>c;c++)b.values[c]=parseFloat(b.values[c]),e=Math.min(e,b.values[c]),f=Math.max(f,b.values[c]);b.min=e,b.max=f}var b={};self.addEventListener("message",function(c){var d=c.data,e=d.cmd,f=d.data;"parse"===e?(a(f),self.postMessage(b)):self.terminate()})}();

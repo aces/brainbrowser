@@ -20,14 +20,13 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   
   var renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
   var scene = new THREE.Scene();
-  var pointLight;
   var camera = new THREE.PerspectiveCamera(30, viewer.view_window.offsetWidth/viewer.view_window.offsetHeight, 0.1, 10000);
-  var camera_controls;
-  var light_controls;
+  var light = new THREE.PointLight(0xFFFFFF);
   var current_frame;
   var last_frame;
   var effect = renderer;
   var effects = {};
+  var canvas = renderer.domElement;
 
   viewer.model = new THREE.Object3D();
   
@@ -47,16 +46,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     
     camera.position.z = 500;
     
-    pointLight = new THREE.PointLight(0xFFFFFF);
-    pointLight.position.set(0, 0, 500);
-    scene.add(pointLight);
-    
-    camera_controls = new THREE.TrackballControls(camera, view_window);
-    light_controls = new THREE.TrackballControls(pointLight, view_window);
-    camera_controls.zoomSpeed = 0.5;
-    camera_controls.maxDistance = camera.far * 0.9;
-    light_controls.zoomSpeed = 0.5;
-    camera_controls.maxDistance = camera.far * 0.9;
+    light.position.set(0, 0, 500);
+    scene.add(light);
     
     viewer.autoRotate = {};
     
@@ -141,6 +132,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
    */
   viewer.setCamera = function(x, y, z) {
     camera.position.set(x, y, z);
+    light.position.set(x, y, z);
   };
   
   /**
@@ -156,9 +148,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var inv = new THREE.Matrix4();
     inv.getInverse(model.matrix);
   
-    camera_controls.reset();
-    light_controls.reset();
     model.applyMatrix(inv);
+    camera.position.set(0, 0, 500);
+    light.position.set(0, 0, 500);
     
     for (i = 0, count = viewer.model.children.length; i < count; i++) {
       child = model.children[i];
@@ -181,8 +173,12 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
    * Zoom the view in or out.
    */
   viewer.zoom = function(zoom) {
-    camera.fov *= zoom;
-    camera.updateProjectionMatrix();
+    var position = camera.position;
+    var new_z = position.z / zoom;
+    if (new_z > camera.near && new_z < 0.9 * camera.far) {
+      position.z = new_z;
+      light.position.z = new_z;
+    }
   };
   
   /**
@@ -265,8 +261,6 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     last_frame = current_frame || timestamp;
     current_frame = timestamp;
     
-    camera_controls.update();
-    light_controls.update();
     delta = current_frame - last_frame;
     rotation = delta * 0.00015;
 
@@ -282,6 +276,157 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     effect.render(scene, camera);
   }
+
+  ////////////////////////////////
+  // CONTROLS
+  ////////////////////////////////
+
+  (function() {
+    var model = viewer.model;
+    var movement = "rotate";
+    var last_x = null;
+    var last_y = null;
+    var last_touch_distance = null;
+
+    function getMousePosition(e) {
+      var x, y;
+      var offset = BrainBrowser.utils.getOffset(canvas);
+
+
+      if (e.pageX !== undefined) {
+        x = e.pageX;
+        y = e.pageY;
+      } else {
+        x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+        y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+      }
+
+      x -= offset.left;
+      y -= offset.top;
+
+      return {
+        x: x,
+        y: y
+      };
+    }
+
+    function drag(e) {
+      var inverse = new THREE.Matrix4();
+      var position = getMousePosition(e);
+      var x = position.x;
+      var y = position.y;
+      var dx, dy;
+
+
+      if (last_x !== null) {
+        dx = x - last_x;
+        dy = y - last_y;
+
+        if (movement === "rotate") {
+
+          // Want to always be rotating around
+          // world axes.
+          inverse.getInverse(model.matrix);
+          var axis = new THREE.Vector3(1, 0, 0).applyMatrix4(inverse).normalize();
+          model.rotateOnAxis(axis, dy / 150);
+
+          inverse.getInverse(model.matrix);
+          axis = new THREE.Vector3(0, 1, 0).applyMatrix4(inverse).normalize();
+          model.rotateOnAxis(axis, dx / 150);
+        } else {
+          camera.position.x -= dx / 3;
+          light.position.x -= dx / 3;
+          camera.position.y += dy / 3;
+          light.position.y += dy / 3;
+        }
+      }
+
+      last_x = x;
+      last_y = y;
+
+    }
+
+    function touchZoom(e) {
+      var pos1 = getMousePosition(e.touches[0]);
+      var pos2 = getMousePosition(e.touches[1]);
+      var dx = pos1.x - pos2.x;
+      var dy = pos1.y - pos2.y;
+
+      var distance = Math.sqrt(dx * dx + dy * dy);
+      var delta;
+
+      if (last_touch_distance !== null) {
+        delta = distance - last_touch_distance;
+
+        viewer.zoom(1.0 + 0.05 * delta);
+      }
+
+    }
+
+    function mouseDrag(e) {
+      e.preventDefault();
+      drag(e);
+    }
+
+    function touchDrag(e) {
+      e.preventDefault();
+      if (movement === "zoom") {
+        touchZoom(e);
+      } else {
+        drag(e.touches[0]);
+      }
+      
+    }
+
+    function mouseDragEnd() {
+      document.removeEventListener("mousemove", mouseDrag, false);
+      document.removeEventListener("mouseup", mouseDragEnd, false);
+      last_x = null;
+      last_y = null;
+    }
+
+    function touchDragEnd() {
+      document.removeEventListener("touchmove", touchDrag, false);
+      document.removeEventListener("touchend", touchDragEnd, false);
+      last_x = null;
+      last_y = null;
+      last_touch_distance = null;
+    }
+
+    function wheelHandler(e) {
+      var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      viewer.zoom(1.0 + 0.05 * delta);
+    }
+
+    canvas.addEventListener("mousedown", function(e) {
+      document.addEventListener("mousemove", mouseDrag, false);
+      document.addEventListener("mouseup", mouseDragEnd, false);
+
+      movement = e.which === 1 ? "rotate" : "translate" ;
+    }, false);
+
+    canvas.addEventListener("touchstart", function(e) {
+      document.addEventListener("touchmove", touchDrag, false);
+      document.addEventListener("touchend", touchDragEnd, false);
+      movement = e.touches.length === 1 ? "rotate" :
+                 e.touches.length === 2 ? "zoom" :
+                 "translate";
+    }, false);
+
+    canvas.addEventListener("mousewheel", wheelHandler, false);
+    canvas.addEventListener("DOMMouseScroll", wheelHandler, false); // Dammit Firefox
+    
+    canvas.addEventListener( 'contextmenu', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }, false );
+
+  })();
+
 };
  
  

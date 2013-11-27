@@ -148,8 +148,6 @@
     var volumes = [];
     var container;
     var viewer_element;
-    var sliceHeight;
-    var sliceWidth;
     var numVolumes;
     
     /**
@@ -265,8 +263,6 @@
       var k;
 
       numVolumes = volumes.length;
-      sliceWidth = 300;
-      sliceHeight = 300;
       
       if (viewer.globalUIControls) {
         if (viewer.globalUIControls.defer_until_page_load) {
@@ -720,6 +716,8 @@
 
     callback(viewer);
   };
+
+  
 
 })();
 

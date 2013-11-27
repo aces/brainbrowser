@@ -1,0 +1,50 @@
+<div id="html5-warnings">
+  BrainBrowser requires the following HTML5 technologies which seem to be unavailable in your browser:
+  <ul>
+    <li id="canvas-warning"><a href="http://en.wikipedia.org/wiki/Canvas_element" target="_blank">Canvas Element</a></li>
+    <li id="webgl-warning"><a href="http://en.wikipedia.org/wiki/WebGL" target="_blank">WebGL</a></li>
+    <li id="webworker-warning"><a href="https://en.wikipedia.org/wiki/Web_worker" target="_blank">Web Workers</a></li>
+  </ul>
+  <a href="https://www.google.com/intl/en/chrome/browser/" target="_blank">Google Chrome</a> or 
+  <a href="https://www.mozilla.org/firefox" target="_blank">Mozilla Firefox</a> are recommended for optimal viewing.
+</div>
+<p>
+  BrainBrowser is a set of web-based, 3D visualization tools primarily targetting neuroimaging. 
+  Using open web-standard technologies, such as WebGL and HTML5, it allows for real time 
+  manipulation and analysis of 3D imaging data. The <strong>BrainBrowser Surface Viewer</strong> allows users to explore
+  cortical surface models in <a href="http://www.bic.mni.mcgill.ca/users/mishkin/mni_obj_format.pdf" target="_blank">MNI object</a>,  
+  <a href="http://en.wikipedia.org/wiki/Wavefront_.obj_file" target="_blank">Wavefront object</a> or 
+  <a href="http://wideman-one.com/gw/brain/fs/surfacefileformats.htm" target="_blank">FreeSurfer ASCII surface</a> 
+  file formats. Color maps can be applied to them, whether they're precalculated, such as the 
+  <a href="http://www.sciencedirect.com/science?_ob=ArticleURL&_udi=B6WNP-4JS1MWF-1&_user=458507&_coverDate=07%2F01%2F2006&_rdoc=1&_fmt=high&_orig=gateway&_origin=gateway&_sort=d&_docanchor=&view=c&_searchStrId=1747460871&_rerunOrigin=google&_acct=C000022002&_version=1&_urlVersion=0&_userid=458507&md5=dc6bd372a8fee1ee776a3318d9966baf&searchtype=a">MACACC</a> Dataset (Mapping Anatomical Correlations Across Cerebral Cortex), or maps provided by the user. 
+  The <strong>BrainBrowser Volume Viewer</strong> allows users to navigate 3D or 4D
+  <a href="http://www.bic.mni.mcgill.ca/ServicesSoftware/MINC">MINC</a> structural or functional MRI volume data.
+</p>
+<p>Please select one of the following demonstrations to see more:</p>
+<div class="icons"  style="margin-left: 200px">
+  <div>
+    <div class="sidebyside-icon">
+      <a href="/surface-viewer" ><img src="/img/model_viewer.png" height=190px style="border: 2px solid #FFF;" alt="Surface Viewer"><br />
+        <span class="button">Surface Viewer</span>
+      </a>
+      <br><br>
+    </div>
+    <div class="sidebyside-icon">
+      <a href="/macacc-viewer">
+        <img src="/img/macacc.png" height=190px style="border: 2px solid #FFF;" alt="MACACC Viewer"><br />
+        <span class="button">MACACC Dataset</span>
+      </a>
+      <br><br>
+    </div>
+  </div>
+  <div>
+    <div class="sidebyside-icon">
+      <a href="/volume-viewer"><img src="/img/braincanvas.png" height=190px style="border: 2px solid #FFF;" alt="Volume Viewer"><br />
+        <span class="button">Volume Viewer</span></a><br><br>
+    </div>
+    <div class="sidebyside-icon">
+      <a href="/fmri-viewer"><img src="/img/fmri.png" height=190px style="border: 2px solid #FFF;" alt="fMRI Viewer"><br />
+        <span class="button">fMRI Viewer</span></a><br><br>
+    </div>
+  </div>
+</div>

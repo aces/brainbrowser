@@ -29,164 +29,16 @@
           <li><a href="#credits">Credits</a></li>
         </ul>
         <div id="home" class="tab-content">
-          <div id="viewers">
-            <div id="html5-warnings">
-              BrainBrowser requires the following HTML5 technologies which seem to be unavailable in your browser:
-              <ul>
-                <li id="canvas-warning"><a href="http://en.wikipedia.org/wiki/Canvas_element" target="_blank">Canvas Element</a></li>
-                <li id="webgl-warning"><a href="http://en.wikipedia.org/wiki/WebGL" target="_blank">WebGL</a></li>
-                <li id="webworker-warning"><a href="https://en.wikipedia.org/wiki/Web_worker" target="_blank">Web Workers</a></li>
-              </ul>
-              <a href="https://www.google.com/intl/en/chrome/browser/" target="_blank">Google Chrome</a> or 
-              <a href="https://www.mozilla.org/firefox" target="_blank">Mozilla Firefox</a> are recommended for optimal viewing.
-            </div>
-            <p>
-              BrainBrowser is a set of web-based, 3D visualization tools primarily targetting neuroimaging. 
-              Using open web-standard technologies, such as WebGL and HTML5, it allows for real time 
-              manipulation and analysis of 3D imaging data. The <strong>BrainBrowser Surface Viewer</strong> allows users to explore
-              cortical surface models in <a href="http://www.bic.mni.mcgill.ca/users/mishkin/mni_obj_format.pdf" target="_blank">MNI object</a>,  
-              <a href="http://en.wikipedia.org/wiki/Wavefront_.obj_file" target="_blank">Wavefront object</a> or 
-              <a href="http://wideman-one.com/gw/brain/fs/surfacefileformats.htm" target="_blank">FreeSurfer ASCII surface</a> 
-              file formats. Color maps can be applied to them, whether they're precalculated, such as the 
-              <a href="http://www.sciencedirect.com/science?_ob=ArticleURL&_udi=B6WNP-4JS1MWF-1&_user=458507&_coverDate=07%2F01%2F2006&_rdoc=1&_fmt=high&_orig=gateway&_origin=gateway&_sort=d&_docanchor=&view=c&_searchStrId=1747460871&_rerunOrigin=google&_acct=C000022002&_version=1&_urlVersion=0&_userid=458507&md5=dc6bd372a8fee1ee776a3318d9966baf&searchtype=a">MACACC</a> Dataset (Mapping Anatomical Correlations Across Cerebral Cortex), or maps provided by the user. 
-              The <strong>BrainBrowser Volume Viewer</strong> allows users to navigate 3D or 4D
-              <a href="http://www.bic.mni.mcgill.ca/ServicesSoftware/MINC">MINC</a> structural or functional MRI volume data.
-            </p>
-            <p>Please select one of the following demonstrations to see more:</p>
-            <div class="icons"  style="margin-left: 200px">
-              <div>
-                <div class="sidebyside-icon">
-                  <a href="/surface-viewer" ><img src="/img/model_viewer.png" height=190px style="border: 2px solid #FFF;" alt="Surface Viewer"><br />
-                    <span class="button">Surface Viewer</span>
-                  </a>
-                  <br><br>
-                </div>
-                <div class="sidebyside-icon">
-                  <a href="/macacc-viewer">
-                    <img src="/img/macacc.png" height=190px style="border: 2px solid #FFF;" alt="MACACC Viewer"><br />
-                    <span class="button">MACACC Dataset</span>
-                  </a>
-                  <br><br>
-                </div>
-              </div>
-              <div>
-                <div class="sidebyside-icon">
-                  <a href="/volume-viewer"><img src="/img/braincanvas.png" height=190px style="border: 2px solid #FFF;" alt="Volume Viewer"><br />
-                    <span class="button">Volume Viewer</span></a><br><br>
-                </div>
-                <div class="sidebyside-icon">
-                  <a href="/fmri-viewer"><img src="/img/fmri.png" height=190px style="border: 2px solid #FFF;" alt="fMRI Viewer"><br />
-                    <span class="button">fMRI Viewer</span></a><br><br>
-                </div>
-              </div>
-            </div>
-          </div>  
+          {{> home }}
         </div>
         <div id="about" class="tab-content">
-          <h2>Introduction</h2>
-          <p>
-            BrainBrowser is a collection of several tools primarily targeting brain imaging research, though in some cases general enough to potentially be of use in other fields. The BrainBrowser toolset includes:
-              <ul>
-                <li>The Surface Viewer: a general-purpose 3D viewer capable of displaying 3D surfaces and mapping various sorts of data to them.</li>
-                <li>The MACACC Dataset Viewer: a slightly modified version of the Surface Viewer, designed specifically to explore the <a href="http://www.sciencedirect.com/science?_ob=ArticleURL&_udi=B6WNP-4JS1MWF-1&_user=458507&_coverDate=07%2F01%2F2006&_rdoc=1&_fmt=high&_orig=gateway&_origin=gateway&_sort=d&_docanchor=&view=c&_searchStrId=1747460871&_rerunOrigin=google&_acct=C000022002&_version=1&_urlVersion=0&_userid=458507&md5=dc6bd372a8fee1ee776a3318d9966baf&searchtype=a">MACACC</a> Dataset.</li>
-                <li>The Volume Viewer: a viewer allowing slice-by-slice traversal of <a href="http://www.bic.mni.mcgill.ca/ServicesSoftware/MINC">MINC</a> volume data.</li>
-              </ul>
-          </p>
-          
-          <h2>Surface Viewer</h2>
-          <p>
-            The BrainBrowser Surface Viewer is a web-enabled 3D model viewer primarily used for realtime exploration of 3D brain maps, 
-            though capable of displaying any properly formatted 3D model. A typical brain map might be calculated using 3D statistical 
-            tools (e.g. SPM, fMRIstat) or surface-based statistical tools (e.g. Surfstat). It can then be texture-mapped onto either 
-            the default surface in stereotaxic space (Lyttelton O et al., 2007) or a surface provided by the user. The BrainBrowser 
-            Surface Viewer can be used in several ways. In the most straightforward usage, the user may choose to load a 3D model in 
-            <a href="http://www.bic.mni.mcgill.ca/users/mishkin/mni_obj_format.pdf" target="_blank">MNI object</a>,  
-            <a href="http://en.wikipedia.org/wiki/Wavefront_.obj_file" target="_blank">Wavefront object</a> or 
-            <a href="http://wideman-one.com/gw/brain/fs/surfacefileformats.htm" target="_blank">FreeSurfer ASCII surface</a> 
-            file formats, or use a sample model provided, and then apply a mapping of interest to the loaded model. 
-            <br><br>
-            Samples provided include:
-            <ul>
-              <li>An exploration of correlation structure for cortical thickness, cortical area or cortical volume, previously calculated at the MNI on a vertex-wise basis from the ICBM152 MRI database. This database was built using the MACACC (see following paragraph) approach to define cortical correlation structure (Lerch J et al., 2006). </li>
-              <li>3D fibre pathways derived from DTI.</li>
-              <li>Cortical amyloid deposition of a cohort of 18 month-old transgenic mice with Alzheimer's disease.</li>
-              <li>A basic cortical surface.</li>
-              <li>An aeroplane with with air density and flow mappings.</li>
-              <li>An automobile.</li>
-            </ul> 
-            
-          </p>
-          <h2>MACACC Dataset Viewer</h2>
-          <p>
-            BrainBrowser provides a means to explore the <a href="http://www.sciencedirect.com/science?_ob=ArticleURL&_udi=B6WNP-4JS1MWF-1&_user=458507&_coverDate=07%2F01%2F2006&_rdoc=1&_fmt=high&_orig=gateway&_origin=gateway&_sort=d&_docanchor=&view=c&_searchStrId=1747460871&_rerunOrigin=google&_acct=C000022002&_version=1&_urlVersion=0&_userid=458507&md5=dc6bd372a8fee1ee776a3318d9966baf&searchtype=a">MACACC</a> Dataset of structural correlations across the
-            cortex, derived in database of 152 young normal subjects from the International
-            Consortium for Brain Mapping (ICBM, Mazziotta J et al., 2001). Cortical thickness at
-            each of 80K 3D locations were calculated using the CLASP algorithm (MacDonald
-            D et al., 2000; Kim JS et al., 2005). This subject population is the same as used for
-            the MNI152 stereotaxic voxelwise templates used, for instance, in SPM. Structural
-            correlation maps are calculated according to the procedures in Lerch et al., (2005),
-            wherein the correlation across subjects, between the cortical thickness at a
-            seed vertex and at any other vertex, is measured. This yields a cortical thickness
-            correlation map for that seed vertex. The MACACC Dataset contains maps for
-            all cortical vertices for each of three vertexwise morphological variables (thickness,
-            area, volume). Furthermore, since the blurring kernel used will profoundly alter the
-            derived statistical map, the results are generated for 9 different surface-blurring
-            kernels and for three different statistics. In total, the BrainBrowser database
-            comprises ~6.3 Million maps for the following permutations:
-            
-            80K vertices x 9 blurring kernels x 3 morphological indices x 3 statistical
-            
-          </p>
-          <h2>Volume Viewer</h2>
-          <p>
-            The BrainBrowser Volume Viewer allows the user to explore 3D <a href="http://www.bic.mni.mcgill.ca/ServicesSoftware/MINC">MINC</a> imaging
-            data in a slice-by-slice manner. Sagittal, coronal and transverse slices are shown simultaneously representing a single point in 3D space, and users can 
-            navigate through the volume by manipulating a cursor with their mouse. Various color maps can be applied to the slice displays to enhance viewing,
-            and slices from multiple volumes can be overlayed for comparision. The BrainBrowser Volume Viewer also supports 4 dimensional fMRI data, allowing the
-            user to navigate through the time axis of the volume as well.
-          </p>
-          <h2>fMRI Viewer</h2>
-          <p>
-            The fMRI Viewer is simply a demonstration of the BrainBrowser Volume Viewer's use on a 4D <a href="http://en.wikipedia.org/wiki/Functional_magnetic_resonance_imaging">functional MRI</a> data set. The user can explore the volume in 3 spatial dimensions and 1 dimension of time.
-          </p>
+          {{> about }}
         </div>
         <div id="get-brainbrowser" class="tab-content">
-          <h2>Try out BrainBrowser:</h2>
-          <p>Note that the BrainBrowser Surface Viewer requires <a href="http://threejs.org/">three.js</a>.</p>
-          <dl>
-            <dt class="credit-title">BrainBrowser Surface Viewer</dt>
-            <dd><a href="/js/brainbrowser/brainbrowser.surface-viewer.min.js">brainbrowser.surface-viewer.min.js</a></dd>
-            <dt class="credit-title">BrainBrowser Volume Viewer</dt>
-            <dd><a href="/js/brainbrowser/brainbrowser.volume-viewer.min.js">brainbrowser.volume-viewer.min.js</a></dd>
-          </dl>
-          <p>
-            BrainBrowser API documentation is available <a href="/docs">here</a>.
-          </p>
-          <p>
-            Please send any feedback to <a href="mailto:tsherif@bic.mni.mcgill.ca">tsherif@bic.mni.mcgill.ca</a>.
-          </p>
+          {{> get_brainbrowser }}
         </div>
         <div id="credits" class="tab-content">
-          <p>
-            BrainBrowser was created by Nicolas Kassis and is currently developed and maintained by Tarek Sherif as part of the <a href="http://cbrain.mcgill.ca/">CBRAIN</a> project at <a href="http://www.mcgill.ca/">McGill University</a>.
-          </p>
-          <p>
-            BrainBrowser uses <a href="http://threejs.org/">three.js</a> for 3D rendering and <a href="http://jquery.com/">jQuery</a> for interface design. BrainBrowser runs on a <a href="http://nodejs.org/">node.js</a> server using the <a href="http://expressjs.com/">Express</a> web framework with the <a href="http://handlebarsjs.com/">Handlebars</a> templating engine. Development tasks are managed using <a href="http://gruntjs.com/">Grunt</a>.
-          </p>
-          <p>
-            For support or inquiries, please contact Tarek Sherif at <a href="mailto:tsherif@bic.mni.mcgill.ca">tsherif@bic.mni.mcgill.ca</a>.
-          </p>
-          <p>
-            <dl>
-              <dt class="credit-title">Lead Developer</dt><dd>Tarek Sherif</dd>
-              <dt class="credit-title">Contributing Developer</dt><dd>Mia Petkova</dd>
-              <dt class="credit-title">Original Author</dt><dd>Nicolas Kassis</dd>
-              <dt class="credit-title">Consultant</dt><dd>Samir Das</dd>
-              <dt class="credit-title">CBRAIN System Architect</dt><dd>Marc Rousseau</dd>
-              <dt class="credit-title">CBRAIN Manager</dt><dd>Reza Adalat</dd>
-              <dt class="credit-title">Principal Investigator</dt><dd>Alan Evans</dd>
-            </dl>
-          </p>
+          {{> credits }}
         </div>
       </div>
       <div id="footer">

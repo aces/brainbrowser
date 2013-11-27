@@ -83,7 +83,7 @@
     
     loadColorScaleFromFile: function(fileInput, name, callback) {
       VolumeViewer.loader.loadFromTextFile(fileInput, function(string) {
-        var colorScale = new VolumeViewer.ColorScale(string);
+        var colorScale = BrainBrowser.createColorMap(string);
         colorScale.name = name;
         callback(colorScale);
       });
@@ -91,7 +91,7 @@
 
     loadColorScaleFromUrl: function(url, name, callback) {
       VolumeViewer.loader.loadFromUrl(url, function(string) {
-        var colorScale = new VolumeViewer.ColorScale(string);
+        var colorScale = BrainBrowser.createColorMap(string);
         colorScale.name = name;
         callback(colorScale);
       });

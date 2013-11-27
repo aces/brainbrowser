@@ -126,7 +126,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         viewer.updateColors(data, {
           min: data.rangeMin,
           max: data.rangeMax,
-          spectrum: viewer.spectrum,
+          color_map: viewer.color_map,
           flip: viewer.flip,
           clamped: viewer.clamped,
           complete: options.complete
@@ -185,7 +185,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
           viewer.updateColors(data, {
             min: data.rangeMin,
             max: data.rangeMax,
-            spectrum: viewer.spectrum,
+            color_map: viewer.color_map,
             flip: viewer.flip,
             clamped: viewer.clamped,
             complete: options.complete
@@ -204,31 +204,28 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
   /**
   * @doc function
-  * @name viewer.loading:loadSpectrumFromUrl
+  * @name viewer.loading:loadColorMapFromUrl
   * @param {string} url URL of the model file to load.
-  * @param {object} options Options for the spectrum loading, which include the following:
+  * @param {object} options Options for the color map loading, which include the following:
   *
   * * **before** A callback to be called before loading starts.
   *
   * @description
-  * Load and parse spectrum data from the specified URL.
+  * Load and parse color map data from the specified URL.
   */
-  viewer.loadSpectrumFromUrl  = function(url, options) {
+  viewer.loadColorMapFromUrl  = function(url, options) {
     options = options || {};
-    var spectrum;
-    
-    //get the spectrum of colors
+
     loadFromUrl(url, options, function (data) {
-      spectrum = SurfaceViewer.spectrum(data);
-      viewer.spectrum = spectrum;
-        
-      viewer.triggerEvent("loadspectrum", spectrum);
+      viewer.color_map = BrainBrowser.createColorMap(data);
+      
+      viewer.triggerEvent("loadcolormap", viewer.color_map);
     
       if (viewer.model_data && viewer.model_data.color_data) {
         viewer.updateColors(viewer.model_data.color_data, {
           min: viewer.model_data.color_data.rangeMin,
           max: viewer.model_data.color_data.rangeMax,
-          spectrum: viewer.spectrum,
+          color_map: viewer.color_map,
           flip: viewer.flip,
           clamped: viewer.clamped
         });
@@ -240,30 +237,28 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
   /**
   * @doc function
-  * @name viewer.loading:loadSpectrumFromUrl
+  * @name viewer.loading:loadColorMapFromFile
   * @param {object} file_input Object representing the local file to load.
-  * @param {object} options Options for the spectrum loading, which include the following:
+  * @param {object} options Options for the color map loading, which include the following:
   *
   * * **before** A callback to be called before loading starts.
   *
   * @description
-  * Load and parse spectrum data from a local file.
+  * Load and parse color map data from a local file.
   */
-  viewer.loadSpectrumFromFile = function(file_input){
-    var spectrum;
+  viewer.loadColorMapFromFile = function(file_input){
     var model_data = viewer.model_data;
     
     loadFromFile(file_input, null, function(data) {
-      spectrum = SurfaceViewer.spectrum(data);
-      viewer.spectrum = spectrum;
+      viewer.color_map = BrainBrowser.createColorMap(data);
       
-      viewer.triggerEvent("loadspectrum", spectrum);
+      viewer.triggerEvent("loadcolormap", viewer.color_map);
 
       if(model_data.color_data) {
         viewer.updateColors(model_data.color_data, {
           min: model_data.color_data.rangeMin,
           max: model_data.color_data.rangeMax,
-          spectrum: viewer.spectrum,
+          color_map: viewer.color_map,
           flip: viewer.flip,
           clamped: viewer.clamped
         });

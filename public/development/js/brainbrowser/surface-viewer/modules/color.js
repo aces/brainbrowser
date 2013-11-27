@@ -31,7 +31,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   * 
   * * **min** Minimum value of the color samples.
   * * **max** Maximum value of the color samples.
-  * * **spectrum** Spectrum object used to create the color array.
+  * * **color_map** Color map object used to create the color array.
   * * **flip** Should the colors be flipped?
   * * **clamped** Should values be clampled to the min/max range?
   * * **blend** Are the colors being blended with already loaded values?
@@ -44,7 +44,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     options = options || {};
     var min = options.min;
     var max = options.max;
-    var spectrum = options.spectrum;
+    var color_map = options.color_map;
     var flip = options.flip;
     var clamped = options.clamped;
     var blend = options.blend;
@@ -61,7 +61,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
       }
       colorModel(color_array, shapes);
 
-      viewer.triggerEvent("updatecolors", data, min, max, spectrum);
+      viewer.triggerEvent("updatecolors", data, min, max, color_map);
 
 
       if (complete) {
@@ -72,9 +72,9 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
 
     viewer.clamped = clamped;
     if (blend) {
-      applyColorArray(blendColorMap(spectrum, data, 0, 1));
+      applyColorArray(blendColorMap(color_map, data, 0, 1));
     } else {
-      data.createColorArray(min, max, spectrum, flip, clamped, viewer.model_data.colors, viewer.model_data, applyColorArray);
+      data.createColorArray(min, max, color_map, flip, clamped, viewer.model_data.colors, viewer.model_data, applyColorArray);
     }
   };
 
@@ -99,7 +99,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     viewer.updateColors(data, {
       min: data.rangeMin,
       max: data.rangeMax,
-      spectrum: viewer.spectrum,
+      color_map: viewer.color_map,
       flip: viewer.flip,
       clamped: clamped,
       complete: options.complete
@@ -129,7 +129,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     
 
     viewer.updateColors(blendData, {
-      spectrum: viewer.spectrum,
+      color_map: viewer.color_map,
       flip: viewer.flip,
       clamped: viewer.clamped,
       blend: true
@@ -247,7 +247,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   /**
   * Blends two or more arrays of values into one color array
   */
-  function blendColorMap(spectrum, value_arrays) {
+  function blendColorMap(color_map, value_arrays) {
     var count = value_arrays.length;
     var color_arrays = new Array(count);
     var i;
@@ -255,7 +255,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     
     for(i = 0; i < count; i++){
       value_array = value_arrays[i];
-      color_arrays[i] = spectrum.createColorMap(value_array.values, {
+      color_arrays[i] = color_map.mapColors(value_array.values, {
         min: value_array.rangeMin,
         max: value_array.rangeMax,
         alpha: value_array.alpha

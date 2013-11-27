@@ -104,7 +104,15 @@
         var context = document.createElement("canvas").getContext("2d");
         var colorScale = this.colorScale;
         var imageData = context.createImageData(this.width, this.height);
-        colorScale.colorizeArray(this.data, this.min, this.max, true, 0, 1, this.alpha, imageData.data);
+        colorScale.mapColors(this.data, {
+          min: this.min, 
+          max: this.max, 
+          scale255: true, 
+          brightness: 0, 
+          contrast: 1, 
+          alpha: this.alpha, 
+          destination: imageData.data
+        });
   
         var xstep = this.x.step;
         var ystep = this.y.step;

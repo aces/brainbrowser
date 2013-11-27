@@ -42,8 +42,8 @@ $(function() {
 
     viewer.addEventListener("error", hideLoading);
 
-    viewer.addEventListener("loadspectrum", function (spectrum) {
-      var canvas = spectrum.createCanvasWithScale(0, 100, null);
+    viewer.addEventListener("loadcolormap", function (color_map) {
+      var canvas = color_map.createCanvasWithScale(0, 100, null);
       var spectrum_div = document.getElementById("color-bar");
       
       canvas.id = "spectrum-canvas";
@@ -91,7 +91,7 @@ $(function() {
     });
 
     viewer.addEventListener("rangechange", function(color_data) {
-      var canvas = viewer.spectrum.createCanvasWithScale(color_data.rangeMin, color_data.rangeMax, null);
+      var canvas = viewer.color_map.createCanvasWithScale(color_data.rangeMin, color_data.rangeMax, null);
       canvas.id = "spectrum-canvas";
       $("#color-bar").html(canvas);
     });
@@ -197,7 +197,7 @@ $(function() {
           viewer.updateColors(viewer.model_data.color_data, {
             min: range_min,
             max: range_max,
-            spectrum: viewer.spectrum,
+            color_map: viewer.color_map,
             flip: viewer.flip,
             clamped: viewer.clamped,
             complete: hideLoading
@@ -230,7 +230,7 @@ $(function() {
     ////////////////////////////////////
     viewer.render();
 
-    viewer.loadSpectrumFromUrl('/assets/spectral_spectrum.txt');
+    viewer.loadColorMapFromUrl('/assets/spectral_spectrum.txt');
 
     ///////////////////////////////////
     // UI
@@ -419,8 +419,8 @@ $(function() {
       viewer.loadColorsFromFile(this, { blend_index : filenum - 1 });
     });
 
-    $("#spectrum").change(function() {
-      viewer.loadSpectrumFromFile(document.getElementById("spectrum"));
+    $("#color-map").change(function() {
+      viewer.loadColorMapFromFile(document.getElementById("color-map"));
     });
 
     // Load first model.

@@ -62,12 +62,12 @@ BrainBrowser.SurfaceViewer.parseColorData = function(raw, callback) {
     worker.postMessage({ cmd: "parse", data: raw });
   }
   
-  data_obj.createColorArray = function createColorArray(min, max, spectrum, flip, clamped, original_colors, model, callback) {
-    spectrum = spectrum.colors;
+  data_obj.createColorArray = function createColorArray(min, max, color_map, flip, clamped, original_colors, model, callback) {
+    color_map = color_map.colors;
     var values = data_obj.values;
     var colors = [];
     //calculate a slice of the data per color
-    var increment = ((max-min)+(max-min)/spectrum.length)/spectrum.length;
+    var increment = ((max-min)+(max-min)/color_map.length)/color_map.length;
     var i, count;
     var color_index;
     var value;
@@ -85,14 +85,14 @@ BrainBrowser.SurfaceViewer.parseColorData = function(raw, callback) {
         if (!clamped){
           color_index = -1;
         }else {
-          color_index = spectrum.length - 1;
+          color_index = color_map.length - 1;
         }
       } else {
         color_index = parseInt((value-min)/increment, 10);
       }
       //This inserts the RGBA values (R,G,B,A) independently
       if (flip && color_index !== -1) {
-        colors.push.apply(colors, spectrum[spectrum.length-1-color_index]);
+        colors.push.apply(colors, color_map[color_map.length-1-color_index]);
       } else {
         if(color_index === -1) {
           if(original_colors.length === 4){
@@ -101,7 +101,7 @@ BrainBrowser.SurfaceViewer.parseColorData = function(raw, callback) {
             colors.push(original_colors[i*4], original_colors[i*4+1], original_colors[i*4+2], original_colors[i*4+3]);
           }
         } else {
-          colors.push.apply(colors, spectrum[color_index]);
+          colors.push.apply(colors, color_map[color_index]);
         }
       }
     }

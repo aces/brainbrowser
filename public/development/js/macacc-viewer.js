@@ -34,8 +34,8 @@ $(function() {
   
   BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
 
-    viewer.addEventListener("loadspectrum", function (spectrum) {
-      var canvas = spectrum.createCanvasWithScale(0,5,null,false);
+    viewer.addEventListener("loadcolormap", function (color_map) {
+      var canvas = color_map.createCanvasWithScale(0,5,null,false);
       canvas.id = "spectrum-canvas";
       $("#spectrum").html($(canvas));
     });
@@ -84,7 +84,7 @@ $(function() {
         macacc.afterInvalidMap = hideLoading;
         
         macacc.afterRangeChange = function(min,max) {
-          var canvas = viewer.spectrum.createCanvasWithScale(min, max, null, macacc.flipRange);
+          var canvas = viewer.color_map.createCanvasWithScale(min, max, null, macacc.flipRange);
           canvas.id = "spectrum-canvas";
           $("#spectrum").html($(canvas));
         };

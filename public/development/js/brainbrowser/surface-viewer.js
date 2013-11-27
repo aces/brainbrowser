@@ -157,7 +157,7 @@
       * 
       * * **displaymodel** A new model has been displayed on the viewer.
       * * **loadcolordata** New color data has been loaded.
-      * * **loadspectrum** A new spectrum has been loaded.
+      * * **loadcolormap** A new color map has been loaded.
       * * **rangechange** The color range has been modified.
       * * **blendcolormaps** Two color maps have been loaded and blended.
       * * **clearscreen** The viewer has been cleared of objects.
@@ -231,14 +231,14 @@
       */
       /**
       * @doc object
-      * @name viewer.events:loadspectrum
+      * @name viewer.events:loadcolormap
       *
       * @description
-      * Triggered when a new spectrum has finished loading. The loaded spectrum
+      * Triggered when a new color map has finished loading. The loaded color map
       * object will be passed to the event handler:
       *
       * ```js
-      *    viewer.addEventListener("loadspectrum", function(spectrum) {
+      *    viewer.addEventListener("loadcolormap", function(color_map) {
       *      //...
       *    });
       * ```

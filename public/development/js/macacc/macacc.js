@@ -92,7 +92,7 @@
       viewer.updateColors(collection.dataset.current_data, {
         min: min,
         max: max,
-        spectrum: viewer.spectrum,
+        color_map: viewer.color_map,
         flip: flip,
         clamped: clamped
       });
@@ -169,7 +169,7 @@
       }
     }
   
-    viewer.loadSpectrumFromUrl("/assets/spectral_spectrum.txt");
+    viewer.loadColorMapFromUrl("/assets/spectral_spectrum.txt");
   
     return collection;
   };

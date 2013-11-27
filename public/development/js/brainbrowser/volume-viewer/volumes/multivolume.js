@@ -127,7 +127,15 @@
           
             var colorScale = slice.colorScale;
             var imageData = context.createImageData(slice.width, slice.height);
-            colorScale.colorizeArray(slice.data, slice.min, slice.max, true, 0, 1, slice.alpha, imageData.data);
+            colorScale.mapColors(slice.data, {
+              min: slice.min, 
+              max: slice.max, 
+              scale255: true, 
+              brightness: 0, 
+              contrast: 1, 
+              alpha: slice.alpha, 
+              destination: imageData.data
+            });
           
             var xstep = slice.x.step;
             var ystep = slice.y.step;

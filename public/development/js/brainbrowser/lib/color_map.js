@@ -147,8 +147,9 @@
         
         var color_map_colors = color_map.colors;
         var color_map_length = color_map_colors.length;
+        var range = max - min;
         //calculate a slice of the data per color
-        var increment = (max - min) / color_map_length;
+        var increment = ( range + range / color_map_length ) / color_map_length;
         var i, count;
         var color_index;
         var value;
@@ -224,22 +225,26 @@
       if (!data) return;
 
       data = data.replace(/^\s+/, '').replace(/\s+$/, '');
-      var tmp = data.split(/\n/);
+      var lines = data.split(/\n/);
       var colors = [];
-      var i, k, count1, count2;
-      var tmp_color;
+      var i, k, line_count, line_length;
+      var color;
       
-      for (i = 0, count1 = tmp.length; i < count1; i++) {
-        tmp_color = tmp[i].replace(/\s+$/, '').split(/\s+/);
-        count2 = tmp_color.length;
-        for (k=0; k < count2; k++) {
-          tmp_color[k] = parseFloat(tmp_color[k]);
-        }
-        if (count2 < 4) {
-          tmp_color.push(1.0000);
+      for (i = 0, line_count = lines.length; i < line_count; i++) {
+        color = lines[i].replace(/^\s+/, '').replace(/\s+$/, '').split(/\s+/).slice(0, 4);
+        line_length = color.length;
+
+        if (line_length < 3) continue;
+
+        for (k=0; k < line_length; k++) {
+          color[k] = parseFloat(color[k]);
         }
 
-        colors.push(tmp_color);
+        if (line_length < 4) {
+          color.push(1.0000);
+        }
+
+        colors.push(color);
       }
       color_map.colors = colors;
     })();

@@ -175,12 +175,15 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
         colors[ic]    = color_array[indices[i]*4];
         colors[ic+1]  = color_array[indices[i]*4+1];
         colors[ic+2]  = color_array[indices[i]*4+2];
+        colors[ic+3]  = 1.0;
         colors[ic+4]  = color_array[indices[i+1]*4];
         colors[ic+5]  = color_array[indices[i+1]*4+1];
         colors[ic+6]  = color_array[indices[i+1]*4+2];
+        colors[ic+7]  = 1.0;
         colors[ic+8]  = color_array[indices[i+2]*4];
         colors[ic+9]  = color_array[indices[i+2]*4+1];
         colors[ic+10] = color_array[indices[i+2]*4+2];
+        colors[ic+11]  = 1.0;
 
         if (has_wireframe) {
           // v1 -v2

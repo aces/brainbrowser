@@ -66,8 +66,10 @@ BrainBrowser.SurfaceViewer.parseColorData = function(raw, callback) {
     color_map = color_map.colors;
     var values = data_obj.values;
     var colors = [];
+    var color_map_length = color_map.length;
+    var range = max - min;
     //calculate a slice of the data per color
-    var increment = ((max-min)+(max-min)/color_map.length)/color_map.length;
+    var increment = ( range + range / color_map.length ) / color_map.length;
     var i, count;
     var color_index;
     var value;
@@ -81,10 +83,10 @@ BrainBrowser.SurfaceViewer.parseColorData = function(raw, callback) {
         } else {
           color_index = 0;
         }
-      } else if (value > max){
+      }else if (value > max){
         if (!clamped){
           color_index = -1;
-        } else {
+        }else {
           color_index = color_map.length - 1;
         }
       } else {
@@ -92,7 +94,7 @@ BrainBrowser.SurfaceViewer.parseColorData = function(raw, callback) {
       }
       //This inserts the RGBA values (R,G,B,A) independently
       if (flip && color_index !== -1) {
-        colors.push.apply(colors, color_map[color_map.length-1-color_index]);
+        colors.push.apply(colors, color_map[color_map.length - 1 - color_index]);
       } else {
         if(color_index === -1) {
           if(original_colors.length === 4){

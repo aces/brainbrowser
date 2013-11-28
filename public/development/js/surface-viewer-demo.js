@@ -230,7 +230,7 @@ $(function() {
     ////////////////////////////////////
     viewer.render();
 
-    viewer.loadColorMapFromUrl('/assets/spectral_spectrum.txt');
+    viewer.loadColorMapFromUrl('/color_maps/spectral.txt');
 
     ///////////////////////////////////
     // UI

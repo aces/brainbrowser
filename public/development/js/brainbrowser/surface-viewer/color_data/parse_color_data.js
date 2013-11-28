@@ -81,10 +81,10 @@ BrainBrowser.SurfaceViewer.parseColorData = function(raw, callback) {
         } else {
           color_index = 0;
         }
-      }else if (value > max){
+      } else if (value > max){
         if (!clamped){
           color_index = -1;
-        }else {
+        } else {
           color_index = color_map.length - 1;
         }
       } else {

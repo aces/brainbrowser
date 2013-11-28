@@ -41,22 +41,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * Load and parse a model from the specified URL.
   */
   viewer.loadModelFromUrl = function(url, options) {
-    options = options || {};
-    var parts;
-    var filename;
-    var filetype = options.format || "MNIObject";
-    var parse_options = options.parse || {};
-
-    loadFromUrl(url, options, function(data) {
-      parts = url.split("/");
-      //last part of url will be shape name
-      filename = parts[parts.length - 1];
-      // Parse model info based on the given file type.
-      parseModel(filetype, data, parse_options, function(obj) {
-        if (!cancelLoad(options)) displayModel(obj, filename, options);
-      });
-    });
-    
+    loadFromUrl(url, options, loadModel);
   };
 
   /**
@@ -75,70 +60,31 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * Load and parse a model from a local file.
   */
   viewer.loadModelFromFile = function(file_input, options) {
-    options = options || {};
-    var parts;
-    var filename;
-    var filetype = options.format || "MNIObject";
-    var parse_options = options.parse || {};
-    
-    loadFromFile(file_input, options, function(data) {
-      parts = file_input.value.split("\\");
-      //last part of path will be shape name
-      filename = parts[parts.length-1];
-      // Parse model info based on the given file type.
-      parseModel(filetype, data, parse_options, function(obj) {
-        displayModel(obj, filename, options);
-      });
-    });
+    loadFromFile(file_input, options, loadModel);
   };
   
   /**
   * @doc function
-  * @name viewer.loading:loadColorsFromUrl
+  * @name viewer.loading:loadIntensityDataFromUrl
   * @param {string} url URL of the model file to load.
-  * @param {object} options Options for the color update, which include the following:
+  * @param {object} options Options for the data, which include the following:
   *
-  * * **min** Minimum value of the color samples.
-  * * **max** Maximum value of the color samples.
+  * * **min** Minimum value of the intensity.
+  * * **max** Maximum value of the intensity.
   * * **shape** The name of a specific shape to which this map will be applied.
   * * **before** A callback to be called before loading starts.
   *
   * @description
-  * Load a color map from the specified URL.
+  * Load intensity data from the specified URL.
   */
-  viewer.loadColorsFromUrl = function(url, name, options) {
-    options = options || {};
-    
-    loadFromUrl(url, options, function(text) {
-      SurfaceViewer.parseColorData(text, function(data) {
-        if (cancelLoad(options)) return;
-        
-        var max = options.max === undefined ? data.max : options.max;
-        var min = options.min === undefined ? data.min : options.min;
-        
-        viewer.model_data.color_data = data;
-        data.fileName = name;
-        data.apply_to_shape = options.shape;
-        initRange(min, max);
-        
-        viewer.triggerEvent("loadcolor", data);
-    
-        viewer.updateColors(data, {
-          min: data.rangeMin,
-          max: data.rangeMax,
-          color_map: viewer.color_map,
-          flip: viewer.flip,
-          clamped: viewer.clamped,
-          complete: options.complete
-        });
-      });
-    });
+  viewer.loadIntensityDataFromUrl = function(url, options) {
+    loadFromUrl(url, options, loadIntensityData);
   };
   
   
   /**
   * @doc function
-  * @name viewer.loading:loadColorsFromFile
+  * @name viewer.loading:loadIntensityDataFromFile
   * @param {object} file_input Object representing the local file to load.
   * @param {object} options Options for the color update, which include the following:
   *
@@ -152,53 +98,13 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * @description
   * Load a color map from a local file.
   */
-  viewer.loadColorsFromFile = function(file_input, options) {
-    options = options || {};
+  viewer.loadIntensityDataFromFile = function(file_input, options) {
     var filename = file_input.files[0].name;
-    var model_data = viewer.model_data;
-    var blend_index = options.blend_index || 0;
-    var other_index = 1 - blend_index; // 1 or 0
-    viewer.blendData = viewer.blendData || [];
-
-    var onfinish = function(text) {
-      SurfaceViewer.parseColorData(text, function(data) {
-        var max = options.max === undefined ? data.max : options.max;
-        var min = options.min === undefined ? data.min : options.min;
-        
-        data.fileName = filename;
-        data.apply_to_shape = options.shape;
-        data.applied = false;
-        model_data.color_data = data;
-        viewer.blendData[blend_index] = data;
-        initRange(min, max, data);
-        if (viewer.blendData[other_index] && viewer.blendData[other_index].applied) {
-          initRange(BrainBrowser.utils.min(viewer.blendData[other_index].values),
-            BrainBrowser.utils.max(viewer.blendData[other_index].values),
-            viewer.blendData[other_index]
-          );
-          viewer.triggerEvent("loadcolor", viewer.blendData);
-      
-          viewer.blend(0.5);
-          viewer.triggerEvent("blendcolormaps", data.rangeMin, data.rangeMax, data);
-        } else {
-          viewer.triggerEvent("loadcolor", data);
-          viewer.updateColors(data, {
-            min: data.rangeMin,
-            max: data.rangeMax,
-            color_map: viewer.color_map,
-            flip: viewer.flip,
-            clamped: viewer.clamped,
-            complete: options.complete
-          });
-        }
-        data.applied = true;
-      });
-    };
 
     if(filename.match(/.*.mnc|.*.nii/)) {
-      evaluate_volume(filename, onfinish);
+      evaluate_volume(filename, loadIntensityData);
     } else {
-      loadFromFile(file_input, null, onfinish);
+      loadFromFile(file_input, options, loadIntensityData);
     }
   };
 
@@ -214,23 +120,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * Load and parse color map data from the specified URL.
   */
   viewer.loadColorMapFromUrl  = function(url, options) {
-    options = options || {};
-
-    loadFromUrl(url, options, function (data) {
-      viewer.color_map = BrainBrowser.createColorMap(data);
-      
-      viewer.triggerEvent("loadcolormap", viewer.color_map);
-    
-      if (viewer.model_data && viewer.model_data.color_data) {
-        viewer.updateColors(viewer.model_data.color_data, {
-          min: viewer.model_data.color_data.rangeMin,
-          max: viewer.model_data.color_data.rangeMax,
-          color_map: viewer.color_map,
-          flip: viewer.flip,
-          clamped: viewer.clamped
-        });
-      }
-    });
+    loadFromUrl(url, options, loadColorMap);
   };
 
   
@@ -246,24 +136,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * @description
   * Load and parse color map data from a local file.
   */
-  viewer.loadColorMapFromFile = function(file_input){
-    var model_data = viewer.model_data;
-    
-    loadFromFile(file_input, null, function(data) {
-      viewer.color_map = BrainBrowser.createColorMap(data);
-      
-      viewer.triggerEvent("loadcolormap", viewer.color_map);
-
-      if(model_data.color_data) {
-        viewer.updateColors(model_data.color_data, {
-          min: model_data.color_data.rangeMin,
-          max: model_data.color_data.rangeMax,
-          color_map: viewer.color_map,
-          flip: viewer.flip,
-          clamped: viewer.clamped
-        });
-      }
-    });
+  viewer.loadColorMapFromFile = function(file_input, options){
+    loadFromFile(file_input, options, loadColorMap);
   };
   
   
@@ -278,6 +152,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var before = options.before;
     var request = new XMLHttpRequest();
     var status;
+    var parts = url.split("/");
+    var filename = parts[parts.length-1];
 
     if (before) {
       before();
@@ -292,7 +168,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         // Based on jQuery's "success" codes.
         if(status >= 200 && status < 300 || status === 304) {
           if (!cancelLoad(options)) {
-            callback(request.response);
+            callback(request.response, filename, options);
           }
         } else {
           var error_message = "error loading URL: " + url + "\n" +
@@ -320,6 +196,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     options = options || {};
     var before = options.before;
     var reader = new FileReader();
+    var parts = file_input.value.split("\\");
+    var filename = parts[parts.length-1];
     
     reader.file = files[0];
     
@@ -329,12 +207,83 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     }
     
     reader.onloadend = function(e) {
-      callback(e.target.result);
+      callback(e.target.result, filename, options);
     };
     
     reader.readAsText(files[0]);
   }
+
+  function loadModel(data, filename, options) {
+    options = options || {};
+    var filetype = options.format || "MNIObject";
+    var parse_options = options.parse || {};
+    
+    // Parse model info based on the given file type.
+    parseModel(filetype, data, parse_options, function(obj) {
+      displayModel(obj, filename, options);
+    });
+  }
+
+  function loadIntensityData(text, filename, options) {
+    options = options || {};
+    var name = options.name || filename;
+    var model_data = viewer.model_data;
+    var blend_index = options.blend_index || 0;
+    var other_index = 1 - blend_index; // 1 or 0
+
+    viewer.blendData = viewer.blendData || [];
+
+    SurfaceViewer.parseIntensityData(text, function(data) {
+      var max = options.max === undefined ? data.max : options.max;
+      var min = options.min === undefined ? data.min : options.min;
+      
+      data.filename = name;
+      data.apply_to_shape = options.shape;
+      data.applied = false;
+      model_data.color_data = data;
+      viewer.blendData[blend_index] = data;
+      initRange(min, max, data);
+      if (viewer.blendData[other_index] && viewer.blendData[other_index].applied) {
+        initRange(BrainBrowser.utils.min(viewer.blendData[other_index].values),
+          BrainBrowser.utils.max(viewer.blendData[other_index].values),
+          viewer.blendData[other_index]
+        );
+        viewer.triggerEvent("loadcolor", viewer.blendData);
+    
+        viewer.blend(0.5);
+        viewer.triggerEvent("blendcolormaps", data.rangeMin, data.rangeMax, data);
+      } else {
+        viewer.triggerEvent("loadcolor", data);
+        viewer.updateColors(data, {
+          min: data.rangeMin,
+          max: data.rangeMax,
+          color_map: viewer.color_map,
+          flip: viewer.flip,
+          clamped: viewer.clamped,
+          complete: options.complete
+        });
+      }
+      data.applied = true;
+    });
+  }
   
+  function loadColorMap(data) {
+    var model_data = viewer.model_data;
+    viewer.color_map = BrainBrowser.createColorMap(data);
+    
+    viewer.triggerEvent("loadcolormap", viewer.color_map);
+  
+    if (model_data && model_data.color_data) {
+      viewer.updateColors(model_data.color_data, {
+        min: model_data.color_data.rangeMin,
+        max: model_data.color_data.rangeMax,
+        color_map: viewer.color_map,
+        flip: viewer.flip,
+        clamped: viewer.clamped
+      });
+    }
+  }
+
   /*
    * If the data file is a mnc or nii, we need to send it to the server and
    * have the server process it with volume_object_evaluate which projects the

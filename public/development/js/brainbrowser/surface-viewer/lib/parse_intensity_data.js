@@ -21,7 +21,7 @@
 */
 /**
  * @doc function
- * @name SurfaceViewer.static methods:parseColorData
+ * @name SurfaceViewer.static methods:parseIntensityData
  * @param {string} raw The color data as a string of text
  * @param {function} callback Callback to which the new color data object 
  * will be passed when parsing is complete.
@@ -29,7 +29,7 @@
  * @description
  * Parse vertex color data from a string of text.
  */
-BrainBrowser.SurfaceViewer.parseColorData = function(raw, callback) {
+BrainBrowser.SurfaceViewer.parseIntensityData = function(raw, callback) {
   "use strict";
   
   if (!BrainBrowser.utils.checkConfig("surface_viewer.worker_dir")) {
@@ -69,7 +69,7 @@ BrainBrowser.SurfaceViewer.parseColorData = function(raw, callback) {
     var color_map_length = color_map.length;
     var range = max - min;
     //calculate a slice of the data per color
-    var increment = ( range + range / color_map.length ) / color_map.length;
+    var increment = ( range + range / color_map_length ) / color_map_length;
     var i, count;
     var color_index;
     var value;
@@ -87,14 +87,14 @@ BrainBrowser.SurfaceViewer.parseColorData = function(raw, callback) {
         if (!clamped){
           color_index = -1;
         }else {
-          color_index = color_map.length - 1;
+          color_index = color_map_length - 1;
         }
       } else {
         color_index = parseInt((value-min)/increment, 10);
       }
       //This inserts the RGBA values (R,G,B,A) independently
       if (flip && color_index !== -1) {
-        colors.push.apply(colors, color_map[color_map.length - 1 - color_index]);
+        colors.push.apply(colors, color_map[color_map_length - 1 - color_index]);
       } else {
         if(color_index === -1) {
           if(original_colors.length === 4){

@@ -105,7 +105,7 @@ $(function() {
 
       container.html("");
       for(i = 0, count = data_set.length; i < count; i++) {
-        headers += '<li><a href="#data-file' + i + '">' + data_set[i].fileName + '</a></li>';
+        headers += '<li><a href="#data-file' + i + '">' + data_set[i].filename + '</a></li>';
         controls += '<div id="data-file' + i + '" class="box range-controls">';
         controls += 'Min: <input class="range-box" id="data-range-min" type="text" name="range_min" size="5" >';
         controls += '<div id="range-slider' + i + '" data-blend-index="' + i + '" class="slider"></div>';
@@ -320,7 +320,8 @@ $(function() {
             format: "MNIObject",
             parse: { split: true },
             complete: function() {
-              viewer.loadColorsFromUrl('/models/realct.txt','Cortical Thickness', {
+              viewer.loadIntensityDataFromUrl('/models/realct.txt', {
+                name: "Cortical Thickness",
                 complete: hideLoading,
                 cancel: default_cancel_opts(current_request)
               });
@@ -366,7 +367,7 @@ $(function() {
           viewer.loadModelFromUrl('/models/mouse_surf.obj', {
             format: "MNIObject",
             complete: function() {
-              viewer.loadColorsFromUrl('/models/mouse_alzheimer_map.txt',
+              viewer.loadIntensityDataFromUrl('/models/mouse_alzheimer_map.txt',
                 'Cortical Amyloid Burden, Tg AD Mouse, 18 Months Old', {
                   shape: "mouse_surf.obj",
                   min: 0.0,
@@ -416,7 +417,7 @@ $(function() {
 
     $(".datafile").change(function() {
       var filenum = parseInt(this.id.slice(-1), 10);
-      viewer.loadColorsFromFile(this, { blend_index : filenum - 1 });
+      viewer.loadIntensityDataFromFile(this, { blend_index : filenum - 1 });
     });
 
     $("#color-map").change(function() {

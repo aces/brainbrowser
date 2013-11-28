@@ -105,12 +105,12 @@
         var colorScale = this.colorScale;
         var imageData = context.createImageData(this.width, this.height);
         colorScale.mapColors(this.data, {
-          min: this.min, 
-          max: this.max, 
-          scale255: true, 
-          brightness: 0, 
-          contrast: 1, 
-          alpha: this.alpha, 
+          min: this.min,
+          max: this.max,
+          scale255: true,
+          brightness: 0,
+          contrast: 1,
+          alpha: this.alpha,
           destination: imageData.data
         });
   

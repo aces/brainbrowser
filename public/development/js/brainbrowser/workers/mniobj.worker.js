@@ -21,7 +21,10 @@
   self.addEventListener("message", function(e) {
     var input = e.data;
 
-    var result = parse(input.data, input.options);
+    var result = parse(input.data, input.options) || {
+      error: true,
+      error_message: "Error parsing data."
+    };
 
     var data = {
       type: result.type,

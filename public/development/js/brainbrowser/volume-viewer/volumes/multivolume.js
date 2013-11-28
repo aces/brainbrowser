@@ -110,6 +110,7 @@
           slices.push(slice);
         }
       }
+      
       return {
         x: slices[0].x,
         y: slices[0].y,
@@ -128,12 +129,12 @@
             var colorScale = slice.colorScale;
             var imageData = context.createImageData(slice.width, slice.height);
             colorScale.mapColors(slice.data, {
-              min: slice.min, 
-              max: slice.max, 
-              scale255: true, 
-              brightness: 0, 
-              contrast: 1, 
-              alpha: slice.alpha, 
+              min: slice.min,
+              max: slice.max,
+              scale255: true,
+              brightness: 0,
+              contrast: 1,
+              alpha: slice.alpha,
               destination: imageData.data
             });
           

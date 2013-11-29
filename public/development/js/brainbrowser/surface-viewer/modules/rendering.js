@@ -377,7 +377,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       if (last_touch_distance !== null) {
         delta = distance - last_touch_distance;
 
-        viewer.zoom(1.0 + 0.05 * delta);
+        viewer.zoom(1.0 + 0.02 * delta);
       }
 
       last_touch_distance = distance;
@@ -385,11 +385,13 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     function mouseDrag(e) {
       e.preventDefault();
+      e.stopPropagation();
       drag(e);
     }
 
     function touchDrag(e) {
       e.preventDefault();
+      e.stopPropagation();
       if (movement === "zoom") {
         touchZoom(e);
       } else {

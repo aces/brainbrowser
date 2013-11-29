@@ -169,7 +169,7 @@
       }
     }
   
-    viewer.loadColorMapFromUrl("/color_maps/spectral.txt");
+    viewer.loadColorMapFromUrl(BrainBrowser.config.surface_viewer.color_maps[0].url);
   
     return collection;
   };

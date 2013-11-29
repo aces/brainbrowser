@@ -32,6 +32,16 @@ $(function() {
 
   BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
  
+    var color_map_select = $('<select id="color-map-select"></select>').change(function (e) {
+      viewer.loadColorMapFromUrl($(this).val());
+    });
+
+    BrainBrowser.config.surface_viewer.color_maps.forEach(function(map) {
+      color_map_select.append('<option value="' + map.url + '">' + map.name +'</option>');
+    });
+
+    $("#color-map-box").append(color_map_select);
+
     //setting up some defaults
     viewer.clamped = true; //By default clamp range.
     viewer.flip = false;
@@ -65,7 +75,7 @@ $(function() {
             "Name: " + shape.name + "<br />" +
             "Opacity: " +
             "</div>");
-          slider = $("<div class=\"opacity-slider slider\"  data-shape-name=\"" + shape.name + "\"></div>");
+          slider = $("<div class=\"opacity-slider slider\" data-shape-name=\"" + shape.name + "\"></div>");
           slider.slider({
             value: 100,
             min: -1,
@@ -88,6 +98,7 @@ $(function() {
     viewer.addEventListener("clearscreen", function() {
       $("#shapes").html("");
       $("#data-range-box").hide();
+      $("#color-map-box").hide();
     });
 
     viewer.addEventListener("rangechange", function(color_data) {
@@ -96,7 +107,7 @@ $(function() {
       $("#color-bar").html(canvas);
     });
 
-    viewer.addEventListener("loadcolor", function(color_data) {
+    viewer.addEventListener("loadintensitydata", function(color_data) {
       var container = $("#data-range");
       var headers = '<div id="data-range-multiple"><ul>';
       var controls = "";
@@ -120,6 +131,7 @@ $(function() {
 
       container.html(headers + controls + "</div>");
       $("#data-range-box").show();
+      $("#color-map-box").show();
       container.find("#data-range-multiple").tabs();
 
       container.find(".range-controls").each(function(index, element) {
@@ -207,7 +219,7 @@ $(function() {
         viewer.triggerEvent("rangechange", color_data);
       });
 
-    }); // end loadcolor listener
+    }); // end loadintensitydata listener
     
     viewer.addEventListener("blendcolormaps", function(){
       var div = $("#blend-box");
@@ -230,7 +242,7 @@ $(function() {
     ////////////////////////////////////
     viewer.render();
 
-    viewer.loadColorMapFromUrl('/color_maps/spectral.txt');
+    viewer.loadColorMapFromUrl(BrainBrowser.config.surface_viewer.color_maps[0].url);
 
     ///////////////////////////////////
     // UI
@@ -367,8 +379,8 @@ $(function() {
           viewer.loadModelFromUrl('/models/mouse_surf.obj', {
             format: "MNIObject",
             complete: function() {
-              viewer.loadIntensityDataFromUrl('/models/mouse_alzheimer_map.txt',
-                'Cortical Amyloid Burden, Tg AD Mouse, 18 Months Old', {
+              viewer.loadIntensityDataFromUrl('/models/mouse_alzheimer_map.txt', {
+                  name: 'Cortical Amyloid Burden, Tg AD Mouse, 18 Months Old',
                   shape: "mouse_surf.obj",
                   min: 0.0,
                   max: 0.25,

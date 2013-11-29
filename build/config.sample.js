@@ -35,12 +35,35 @@
           worker: "freesurfer_asc.worker.js",
           format_hint: 'You can use <a href="http://surfer.nmr.mgh.harvard.edu/fswiki/mris_convert" target="_blank">mris_convert</a> to convert your binary surface files into .asc format.'
         }
-      }
+      },
+
+      color_maps: [
+        {
+          name: "Spectral",
+          url: "/color_maps/spectral.txt",
+        },
+        {
+          name: "Thermal",
+          url: "/color_maps/thermal.txt",
+        },
+        {
+          name: "Gray",
+          url: "/color_maps/gray_scale.txt",
+        },
+        {
+          name: "Blue",
+          url: "/color_maps/blue.txt",
+        },
+        {
+          name: "Green",
+          url: "/color_maps/green.txt",
+        }
+      ]
 
     },
 
     volume_viewer: {
-      color_scales: [
+      color_maps: [
         {
           name: "Spectral",
           url: "/color_maps/spectral-brainview.txt",

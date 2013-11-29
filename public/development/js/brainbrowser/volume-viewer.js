@@ -70,7 +70,7 @@
 *
 * @description
 * The Volume Viewer is configured by defining the object **BrainBrowser.config.volume_viewer**.
-* Currently the only properties available for configuration are the color scales which are configured
+* Currently the only properties available for configuration are the color maps which are configured
 * to define their name, the URL at which the color scale file is located, and, optionally, the color
 * to use for the cursor when the defined color scale is active:
 *
@@ -78,15 +78,15 @@
 * BrainBrowser.config = {
 *
 *   volume_viewer: {
-*     color_scales: [
+*     color_maps: [
 *       {
 *         name: "Spectral",
-*         url: "/color_scales/spectral.txt",
+*         url: "/color_maps/spectral.txt",
 *         cursor_color: "#FFFFFF"
 *       },
 *       {
 *         name: "Gray",
-*         url: "/color_scales/gray_scale.txt",
+*         url: "/color_maps/gray_scale.txt",
 *         cursor_color: "#FF0000"
 *       }
 *     ]
@@ -596,10 +596,10 @@
     */
     viewer.loadVolumes = function(options) {
 
-      if (!BrainBrowser.utils.checkConfig("volume_viewer.color_scales")) {
+      if (!BrainBrowser.utils.checkConfig("volume_viewer.color_maps")) {
         throw new Error(
           "error in VolumeViewer configuration.\n" +
-          "BrainBrowser.config.volume_viewer.color_scales not defined."
+          "BrainBrowser.config.volume_viewer.color_maps not defined."
         );
       }
 
@@ -613,7 +613,7 @@
       var num_descriptions = options.volumes.length;
 
       var config = BrainBrowser.config.volume_viewer;
-      var color_scale = config.color_scales[0];
+      var color_scale = config.color_maps[0];
 
       VolumeViewer.loader.loadColorScaleFromUrl(
         color_scale.url,
@@ -656,7 +656,7 @@
         }
       );
 
-      config.color_scales.slice(1).forEach(function(cs, i) {
+      config.color_maps.slice(1).forEach(function(cs, i) {
         VolumeViewer.loader.loadColorScaleFromUrl(
           cs.url,
           cs.name,

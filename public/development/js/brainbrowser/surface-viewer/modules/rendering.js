@@ -213,7 +213,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   viewer.pick = function(x, y) {
     var projector = new THREE.Projector();
     var raycaster = new THREE.Raycaster();
-    var vector = new THREE.Vector3(x, y, 1);
+    var vector = new THREE.Vector3( x, y, camera.near );
     var intersects, intersection, vertex_data;
     var intersect_object, intersect_point, intersect_vertex_index, min_distance;
     var verts, distance;

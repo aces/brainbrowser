@@ -156,7 +156,7 @@
       * can be listened for:
       * 
       * * **displaymodel** A new model has been displayed on the viewer.
-      * * **loadcolordata** New color data has been loaded.
+      * * **loadintensitydata** New intensity data has been loaded.
       * * **loadcolormap** A new color map has been loaded.
       * * **rangechange** The color range has been modified.
       * * **blendcolormaps** Two color maps have been loaded and blended.
@@ -217,14 +217,14 @@
       */
       /**
       * @doc object
-      * @name viewer.events:loadcolordata
+      * @name viewer.events:loadintensitydata
       *
       * @description
-      * Triggered when a new color map is loaded. The new color data
+      * Triggered when a new intensity is loaded. The new intensity data
       * object will be passed to the event handler:
       *
       * ```js
-      *    viewer.addEventListener("loadcolordata", function(color_data) {
+      *    viewer.addEventListener("loadintensitydata", function(color_data) {
       *      //...
       *    });
       * ```

@@ -248,12 +248,12 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
           BrainBrowser.utils.max(viewer.blendData[other_index].values),
           viewer.blendData[other_index]
         );
-        viewer.triggerEvent("loadcolor", viewer.blendData);
+        viewer.triggerEvent("loadintensitydata", viewer.blendData);
     
         viewer.blend(0.5);
         viewer.triggerEvent("blendcolormaps", data.rangeMin, data.rangeMax, data);
       } else {
-        viewer.triggerEvent("loadcolor", data);
+        viewer.triggerEvent("loadintensitydata", data);
         viewer.updateColors(data, {
           min: data.rangeMin,
           max: data.rangeMax,
@@ -272,7 +272,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     viewer.color_map = BrainBrowser.createColorMap(data);
     
     viewer.triggerEvent("loadcolormap", viewer.color_map);
-  
+
     if (model_data && model_data.color_data) {
       viewer.updateColors(model_data.color_data, {
         min: model_data.color_data.rangeMin,

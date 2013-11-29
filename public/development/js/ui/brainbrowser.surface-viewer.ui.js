@@ -21,7 +21,7 @@ BrainBrowser.SurfaceViewer.modules.ui = function(viewer) {
   "use strict";
 
   viewer.addEffect("AnaglyphEffect");
-    
+
   $("body").keydown(function(e) {
     var key_code = e.which;
     var keys = {
@@ -37,7 +37,7 @@ BrainBrowser.SurfaceViewer.modules.ui = function(viewer) {
   
     return true; // If we got here, key was not captured.
   });
-  
+
   $("#clear_color").change(function(e){
     viewer.setClearColor(parseInt($(e.target).val(), 16));
   });

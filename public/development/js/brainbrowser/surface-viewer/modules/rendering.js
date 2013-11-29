@@ -380,6 +380,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
         viewer.zoom(1.0 + 0.05 * delta);
       }
 
+      last_touch_distance = distance;
     }
 
     function mouseDrag(e) {
@@ -394,7 +395,6 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       } else {
         drag(e.touches[0]);
       }
-      
     }
 
     function mouseDragEnd() {

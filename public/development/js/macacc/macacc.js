@@ -103,10 +103,8 @@
     
     // Change surface on which maps will be displayed.
     collection.changeModel = function(type, options) {
-      options.format = "MNIObject";
-      
       viewer.clearScreen();
-      viewer.loadModelFromUrl('/data/surfaces/surf_reg_model_both_' + type + '.obj', options);
+      viewer.loadModelFromURL('/data/surfaces/surf_reg_model_both_' + type + '.obj', options);
     };
   
     // Callback to update map after a change in range.
@@ -153,7 +151,7 @@
     
     // Show the atlas.
     collection.showAtlas = function() {
-      viewer.loadIntensityDataFromUrl("/assets/aal_atlas.txt");
+      viewer.loadIntensityDataFromURL("/assets/aal_atlas.txt");
     };
     
     // Default should be redefined by appliction.
@@ -169,7 +167,7 @@
       }
     }
   
-    viewer.loadColorMapFromUrl(BrainBrowser.config.surface_viewer.color_maps[0].url);
+    viewer.loadColorMapFromURL(BrainBrowser.config.surface_viewer.color_maps[0].url);
   
     return collection;
   };

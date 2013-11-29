@@ -15,5 +15,5 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* brainbrowser v1.2.0 */
+/* brainbrowser v1.3.0 */
 $(function(){"use strict";BrainBrowser.VolumeViewer.start("brainbrowser",function(a){var b=$("#loading");a.addEventListener("ready",function(){b.hide(),$("#brainbrowser").slideDown({duration:600}),$(".button").button()}),b.show(),a.loadVolumes({volumes:[{type:"minc",filename:"data/ibis_410023_LIVING_PHANTOM_STL_SD_HOS_20121212_SCAN1_ep2d_bold_001.mnc"},{type:"minc",filename:"data/ibis_410023_LIVING_PHANTOM_STL_SD_HOS_20121212_SCAN1_dti_001.mnc"}]})})});

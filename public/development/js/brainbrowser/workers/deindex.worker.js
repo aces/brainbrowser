@@ -74,14 +74,15 @@
     }
      
 
-    //Calculate center so positions of objects relative to each other can
+    // Calculate center so positions of objects relative to each other can
     // defined (mainly for transparency).
-    for(i = 0, count = verts.length; i + 2 < count; i += 3) {
-      boundingBoxUpdate(bounding_box, verts[i], verts[i+1], verts[i+2]);
+    for(i = 0, count = indices.length; i < count; i++) {
+      boundingBoxUpdate(bounding_box, verts[indices[i] * 3], verts[indices[i] * 3 + 1], verts[indices[i] * 3 + 2]);
     }
-    centroid.x = bounding_box.minX + 0.5 * (bounding_box.maxX - bounding_box.minX);
-    centroid.y = bounding_box.minY + 0.5 * (bounding_box.maxY - bounding_box.minY);
-    centroid.z = bounding_box.minY + 0.5 * (bounding_box.maxZ - bounding_box.minZ);
+    centroid.x = bounding_box.minX + (bounding_box.maxX - bounding_box.minX) / 2;
+    centroid.y = bounding_box.minY + (bounding_box.maxY - bounding_box.minY) / 2;
+    centroid.z = bounding_box.minZ + (bounding_box.maxZ - bounding_box.minZ) / 2;
+    centroid.bounding_box = bounding_box;
 
     // "Unravel" the vertex and normal arrays so we don't have to use indices
     // (Avoids WebGL's 16 bit limit on indices)

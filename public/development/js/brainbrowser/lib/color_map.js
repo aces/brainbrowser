@@ -18,10 +18,11 @@
 /**
  * @doc function
  * @name BrainBrowser.static methods:createColorMap
- * @param {string}  data The colormap data as a string.
+ * @param {string}  data The color map data as a string.
  * 
  * @description
- * Factory function to produce color map object from a string of data.
+ * Factory function to produce color map object from a string of data. A given
+ * color map is a set of colors to which intensity data can be mapped for display.
  */
 
 (function() {
@@ -30,15 +31,6 @@
   var BrainBrowser = window.BrainBrowser = window.BrainBrowser || {};
 
   BrainBrowser.createColorMap = function(data) {
-    
-    /**
-    * @doc object
-    * @name color_map
-    * @propertyOf viewer
-    * 
-    * @description
-    * Object representing the currently loaded color map.
-    */
 
     /**
     * @doc object

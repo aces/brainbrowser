@@ -72,7 +72,7 @@
       reader.readAsText(files[0]);
     },
   
-    loadFromUrl: function(url,callback,error) {
+    loadFromURL: function(url,callback,error) {
       $.ajax({
         url: url,
         type: "GET",
@@ -89,8 +89,8 @@
       });
     },
 
-    loadColorScaleFromUrl: function(url, name, callback) {
-      VolumeViewer.loader.loadFromUrl(url, function(string) {
+    loadColorScaleFromURL: function(url, name, callback) {
+      VolumeViewer.loader.loadFromURL(url, function(string) {
         var colorScale = BrainBrowser.createColorMap(string);
         colorScale.name = name;
         callback(colorScale);

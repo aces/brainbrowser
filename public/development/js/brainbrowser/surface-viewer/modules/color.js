@@ -29,8 +29,8 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   * @param {object} data Data object.
   * @param {object} options Options for the color update, which include the following: 
   * 
-  * * **min** Minimum value of the color samples.
-  * * **max** Maximum value of the color samples.
+  * * **min** Minimum intensity.
+  * * **max** Maximum intensity.
   * * **color_map** Color map object used to create the color array.
   * * **flip** Should the colors be flipped?
   * * **clamped** Should values be clampled to the min/max range?

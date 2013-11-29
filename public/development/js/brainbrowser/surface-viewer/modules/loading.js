@@ -26,7 +26,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   
   /**
   * @doc function
-  * @name viewer.loading:loadModelFromUrl
+  * @name viewer.loading:loadModelFromURL
   * @param {string} url URL of the model file to load.
   * @param {object} options Options for the color update, which include the following:
   *
@@ -40,8 +40,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * @description
   * Load and parse a model from the specified URL.
   */
-  viewer.loadModelFromUrl = function(url, options) {
-    loadFromUrl(url, options, loadModel);
+  viewer.loadModelFromURL = function(url, options) {
+    loadFromURL(url, options, loadModel);
   };
 
   /**
@@ -65,20 +65,22 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   
   /**
   * @doc function
-  * @name viewer.loading:loadIntensityDataFromUrl
-  * @param {string} url URL of the model file to load.
-  * @param {object} options Options for the data, which include the following:
+  * @name viewer.loading:loadIntensityDataFromURL
+  * @param {object} file_input Object representing the local file to load.
+  * @param {object} options Options for the color update, which include the following:
   *
   * * **min** Minimum value of the intensity.
   * * **max** Maximum value of the intensity.
   * * **shape** The name of a specific shape to which this map will be applied.
+  * * **blend_index** Index of this map in the array of blended color data (0 or 1).
   * * **before** A callback to be called before loading starts.
+  * * **complete** Callback function to call when the color update is done.
   *
   * @description
-  * Load intensity data from the specified URL.
+  * Load a color map from the specified URL.
   */
-  viewer.loadIntensityDataFromUrl = function(url, options) {
-    loadFromUrl(url, options, loadIntensityData);
+  viewer.loadIntensityDataFromURL = function(url, options) {
+    loadFromURL(url, options, loadIntensityData);
   };
   
   
@@ -88,8 +90,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * @param {object} file_input Object representing the local file to load.
   * @param {object} options Options for the color update, which include the following:
   *
-  * * **min** Minimum value of the color samples.
-  * * **max** Maximum value of the color samples.
+  * * **min** Minimum value of the intensity.
+  * * **max** Maximum value of the intensity.
   * * **shape** The name of a specific shape to which this map will be applied.
   * * **blend_index** Index of this map in the array of blended color data (0 or 1).
   * * **before** A callback to be called before loading starts.
@@ -110,7 +112,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
   /**
   * @doc function
-  * @name viewer.loading:loadColorMapFromUrl
+  * @name viewer.loading:loadColorMapFromURL
   * @param {string} url URL of the model file to load.
   * @param {object} options Options for the color map loading, which include the following:
   *
@@ -119,8 +121,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * @description
   * Load and parse color map data from the specified URL.
   */
-  viewer.loadColorMapFromUrl  = function(url, options) {
-    loadFromUrl(url, options, loadColorMap);
+  viewer.loadColorMapFromURL  = function(url, options) {
+    loadFromURL(url, options, loadColorMap);
   };
 
   
@@ -147,7 +149,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   
   // General function for loading data from a url.
   // Callback should interpret data as necessary.
-  function loadFromUrl(url, options, callback) {
+  function loadFromURL(url, options, callback) {
     options = options || {};
     var before = options.before;
     var request = new XMLHttpRequest();
@@ -220,7 +222,9 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     
     // Parse model info based on the given file type.
     parseModel(filetype, data, parse_options, function(obj) {
-      displayModel(obj, filename, options);
+      if (!cancelLoad(options)) {
+        displayModel(obj, filename, options);
+      }
     });
   }
 

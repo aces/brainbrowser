@@ -285,6 +285,27 @@
       }
 
       return true;
+    },
+
+    /**
+    * @doc function
+    * @name BrainBrowser.utils:drawDot
+    * @param {scene} The THREE.Scene to draw in.
+    * @param {number} The x coordinate.
+    * @param {number} The y coordinate.
+    * @param {number} The z coordinate.
+    *
+    * @description Draw a red dot in a THREE.Scene. Handy for debugging.
+    * 
+    */
+    drawDot: function(scene, x, y, z) {
+      var geometry = new THREE.SphereGeometry(2);
+      var material = new THREE.MeshBasicMaterial({color: 0xFF0000});
+    
+      var sphere = new THREE.Mesh(geometry, material);
+      sphere.position.set(x, y, z);
+    
+      scene.add(sphere);
     }
   
   };

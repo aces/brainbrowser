@@ -615,7 +615,7 @@
       var config = BrainBrowser.config.volume_viewer;
       var color_scale = config.color_maps[0];
 
-      VolumeViewer.loader.loadColorScaleFromUrl(
+      VolumeViewer.loader.loadColorScaleFromURL(
         color_scale.url,
         color_scale.name,
         function(scale) {
@@ -657,7 +657,7 @@
       );
 
       config.color_maps.slice(1).forEach(function(cs, i) {
-        VolumeViewer.loader.loadColorScaleFromUrl(
+        VolumeViewer.loader.loadColorScaleFromURL(
           cs.url,
           cs.name,
           function(scale) {

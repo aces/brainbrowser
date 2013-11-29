@@ -9,8 +9,8 @@ can be listened for:</p>
 
 <ul>
 <li><strong>displaymodel</strong> A new model has been displayed on the viewer.</li>
-<li><strong>loadcolordata</strong> New color data has been loaded.</li>
-<li><strong>loadspectrum</strong> A new spectrum has been loaded.</li>
+<li><strong>loadintensitydata</strong> New intensity data has been loaded.</li>
+<li><strong>loadcolormap</strong> A new color map has been loaded.</li>
 <li><strong>rangechange</strong> The color range has been modified.</li>
 <li><strong>blendcolormaps</strong> Two color maps have been loaded and blended.</li>
 <li><strong>clearscreen</strong> The viewer has been cleared of objects.</li>
@@ -26,15 +26,12 @@ with the event name and a callback funtion:</p>
 
 </pre></div>
 <div class="member property"><h2 id="Properties">Properties</h2>
-<ul class="properties"><li><h3 id="model">model</h3>
-<div class="model"><p>The currently loaded surface model.</p></div>
-</li>
-<li><h3 id="spectrum">spectrum</h3>
-<div class="spectrum"><p>Object representing the currently loaded spectrum.</p></div>
-</li>
-<li><h3 id="view_window">view_window</h3>
+<ul class="properties"><li><h3 id="view_window">view_window</h3>
 <div class="view-window"><p>The DOM element where the viewer
 will be inserted.</p></div>
+</li>
+<li><h3 id="model">model</h3>
+<div class="model"><p>The currently loaded surface model.</p></div>
 </li>
 </ul>
 </div>

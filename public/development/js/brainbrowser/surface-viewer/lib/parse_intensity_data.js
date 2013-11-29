@@ -22,12 +22,12 @@
 /**
  * @doc function
  * @name SurfaceViewer.static methods:parseIntensityData
- * @param {string} raw The color data as a string of text
- * @param {function} callback Callback to which the new color data object 
+ * @param {string} raw The intensity data as a string of text
+ * @param {function} callback Callback to which the new intensity data object 
  * will be passed when parsing is complete.
  * 
  * @description
- * Parse vertex color data from a string of text.
+ * Parse vertex intensity data from a string of text.
  */
 BrainBrowser.SurfaceViewer.parseIntensityData = function(raw, callback) {
   "use strict";

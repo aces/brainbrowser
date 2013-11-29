@@ -36,7 +36,7 @@
 *      viewer.render();
 *
 *      // Load a model into the scene.
-*      viewer.loadModelFromUrl("/models/brain_surface.obj");
+*      viewer.loadModelFromURL("/models/brain_surface.obj");
 *       
 *      // Hook viewer behaviour into UI.
 *      $('#wireframe').change(function(e) {
@@ -114,7 +114,7 @@
     *      viewer.render();
     *
     *      // Load a model into the scene.
-    *      viewer.loadModelFromUrl("/models/brain_surface.obj");
+    *      viewer.loadModelFromURL("/models/brain_surface.obj");
     *       
     *      // Hook viewer behaviour into UI.
     *      $('#wireframe').change(function(e) {
@@ -224,7 +224,7 @@
       * object will be passed to the event handler:
       *
       * ```js
-      *    viewer.addEventListener("loadintensitydata", function(color_data) {
+      *    viewer.addEventListener("loadintensitydata", function(intensity_data) {
       *      //...
       *    });
       * ```

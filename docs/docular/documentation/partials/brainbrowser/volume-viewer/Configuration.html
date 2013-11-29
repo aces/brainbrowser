@@ -2,22 +2,22 @@
 <span class="hint"></span>
 </h1>
 <div><p>The Volume Viewer is configured by defining the object <strong>BrainBrowser.config.volume_viewer</strong>.
-Currently the only properties available for configuration are the color scales which are configured
+Currently the only properties available for configuration are the color maps which are configured
 to define their name, the URL at which the color scale file is located, and, optionally, the color
 to use for the cursor when the defined color scale is active:</p>
 
 <pre class="prettyprint linenums">BrainBrowser.config = {
 
   volume_viewer: {
-    color_scales: [
+    color_maps: [
       {
         name: "Spectral",
-        url: "/color_scales/spectral.txt",
+        url: "/color_maps/spectral.txt",
         cursor_color: "#FFFFFF"
       },
       {
         name: "Gray",
-        url: "/color_scales/gray_scale.txt",
+        url: "/color_maps/gray_scale.txt",
         cursor_color: "#FF0000"
       }
     ]

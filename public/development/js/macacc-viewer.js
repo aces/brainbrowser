@@ -42,9 +42,9 @@ $(function() {
 
     viewer.render();
     
-    viewer.loadModelFromUrl('/models/surf_reg_model_both.obj', {
+    viewer.loadModelFromURL('/models/surf_reg_model_both.obj', {
       format: "MNIObject",
-      parse: {split: true},
+      parse: { split: true },
       complete: function() {
         hideLoading();
         macacc = MACACC.collection(viewer, path_prefix);
@@ -105,7 +105,9 @@ $(function() {
         $("#model").change(function(event) {
           showLoading();
           macacc.changeModel($(event.target).val(), {
-            complete: hideLoading
+            complete: hideLoading,
+            format: "MNIObject",
+            parse: { split: true }
           });
         });
       }

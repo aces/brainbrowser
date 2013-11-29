@@ -211,6 +211,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
    *
    */
   viewer.pick = function(x, y) {
+    var model = viewer.model;
     var projector = new THREE.Projector();
     var raycaster = new THREE.Raycaster();
     var vector = new THREE.Vector3( x, y, camera.near );
@@ -218,20 +219,37 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var intersect_object, intersect_point, intersect_vertex_index, min_distance;
     var verts, distance;
     var i, count;
-  
+    var centroid;
+
+    // Because we're comparing against
+    // the vertices in their original positions,
+    // we have move everything to place the model at its
+    // original position.
+    var inv_matrix = new THREE.Matrix4();
+
     projector.unprojectVector(vector, camera);
     raycaster.set(camera.position, vector.sub(camera.position).normalize() );
-    intersects = raycaster.intersectObject(viewer.model, true);
+    intersects = raycaster.intersectObject(model, true);
+
     if (intersects.length > 0) {
       
       // Find closest point to intersection.
       intersection = intersects[0];
       intersect_object = intersection.object;
-      intersect_point = intersection.point;
+
+      // Objects have their origins centered 
+      // to help with transparency, so to check
+      // check against original vertices we have
+      // move them back. 
+      centroid = intersect_object.centroid;
+
+      inv_matrix.getInverse(intersect_object.matrixWorld);
+      intersect_point = intersection.point.applyMatrix4(inv_matrix);
+
       verts = intersect_object.geometry.original_data.vertices;
-      min_distance = intersect_point.distanceTo(new THREE.Vector3(verts[0], verts[1], verts[2]));
-      for (i = 1, count = verts.length; i < count; i++) {
-        distance = intersect_point.distanceTo(new THREE.Vector3(verts[i*3], verts[i*3+1], verts[i*3+2]));
+      min_distance = intersect_point.distanceTo(new THREE.Vector3(verts[0] - centroid.x, verts[1] - centroid.y, verts[2] - centroid.z));
+      for (i = 1, count = verts.length / 3; i < count; i++) {
+        distance = intersect_point.distanceTo(new THREE.Vector3(verts[i*3] - centroid.x, verts[i*3+1] - centroid.y, verts[i*3+2] - centroid.z));
         if ( distance < min_distance) {
           intersect_vertex_index = i;
           min_distance = distance;
@@ -244,10 +262,11 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
         object: intersection.object
       };
 
-      return vertex_data;
     } else {
-      return null;
+      vertex_data = null;
     }
+
+    return vertex_data;
   };
   
   // Render a single frame on the viewer.

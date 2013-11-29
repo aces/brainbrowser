@@ -33,7 +33,7 @@ $(function() {
   BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
  
     var color_map_select = $('<select id="color-map-select"></select>').change(function (e) {
-      viewer.loadColorMapFromUrl($(this).val());
+      viewer.loadColorMapFromURL($(this).val());
     });
 
     BrainBrowser.config.surface_viewer.color_maps.forEach(function(map) {
@@ -242,7 +242,7 @@ $(function() {
     ////////////////////////////////////
     viewer.render();
 
-    viewer.loadColorMapFromUrl(BrainBrowser.config.surface_viewer.color_maps[0].url);
+    viewer.loadColorMapFromURL(BrainBrowser.config.surface_viewer.color_maps[0].url);
 
     ///////////////////////////////////
     // UI
@@ -304,7 +304,7 @@ $(function() {
 
       var examples = {
         basic: function() {
-          viewer.loadModelFromUrl('/models/surf_reg_model_both.obj', {
+          viewer.loadModelFromURL('/models/surf_reg_model_both.obj', {
             format: "MNIObject",
             complete: hideLoading,
             cancel: default_cancel_opts(current_request),
@@ -312,27 +312,27 @@ $(function() {
           });
         },
         punkdti: function() {
-          viewer.loadModelFromUrl('/models/dti.obj', {
+          viewer.loadModelFromURL('/models/dti.obj', {
             format: "MNIObject",
             renderDepth: 999,
             complete: hideLoading,
             cancel: default_cancel_opts(current_request)
           });
-          viewer.loadModelFromUrl('/models/left_color.obj', {
+          viewer.loadModelFromURL('/models/left_color.obj', {
             format: "MNIObject",
             cancel: default_cancel_opts(current_request)
           });
-          viewer.loadModelFromUrl('/models/right_color.obj', {
+          viewer.loadModelFromURL('/models/right_color.obj', {
             format: "MNIObject",
             cancel: default_cancel_opts(current_request)
           });
         },
         realct: function() {
-          viewer.loadModelFromUrl('/models/realct.obj', {
+          viewer.loadModelFromURL('/models/realct.obj', {
             format: "MNIObject",
             parse: { split: true },
             complete: function() {
-              viewer.loadIntensityDataFromUrl('/models/realct.txt', {
+              viewer.loadIntensityDataFromURL('/models/realct.txt', {
                 name: "Cortical Thickness",
                 complete: hideLoading,
                 cancel: default_cancel_opts(current_request)
@@ -342,7 +342,7 @@ $(function() {
           });
         },
         car: function() {
-          viewer.loadModelFromUrl('/models/car.obj', {
+          viewer.loadModelFromURL('/models/car.obj', {
             format: "WavefrontObj",
             complete: hideLoading,
             cancel: default_cancel_opts(current_request)
@@ -357,11 +357,11 @@ $(function() {
           viewer.model.applyMatrix(matrixRotY.multiply(matrixRotX));
         },
         plane: function() {
-          viewer.loadModelFromUrl('/models/dlr_bigger.streamlines.obj', {
+          viewer.loadModelFromURL('/models/dlr_bigger.streamlines.obj', {
             format: "MNIObject",
             cancel: default_cancel_opts(current_request)
           });
-          viewer.loadModelFromUrl('/models/dlr.model.obj', {
+          viewer.loadModelFromURL('/models/dlr.model.obj', {
             format: "MNIObject",
             complete: hideLoading,
             cancel: default_cancel_opts(current_request)
@@ -376,10 +376,10 @@ $(function() {
           viewer.model.applyMatrix(matrixRotY.multiply(matrixRotX));
         },
         mouse: function() {
-          viewer.loadModelFromUrl('/models/mouse_surf.obj', {
+          viewer.loadModelFromURL('/models/mouse_surf.obj', {
             format: "MNIObject",
             complete: function() {
-              viewer.loadIntensityDataFromUrl('/models/mouse_alzheimer_map.txt', {
+              viewer.loadIntensityDataFromURL('/models/mouse_alzheimer_map.txt', {
                   name: 'Cortical Amyloid Burden, Tg AD Mouse, 18 Months Old',
                   shape: "mouse_surf.obj",
                   min: 0.0,
@@ -391,7 +391,7 @@ $(function() {
             },
             cancel: default_cancel_opts(current_request)
           });
-          viewer.loadModelFromUrl('/models/mouse_brain_outline.obj', {
+          viewer.loadModelFromURL('/models/mouse_brain_outline.obj', {
             format: "MNIObject",
             complete: function() {
               $(".opacity-slider[data-shape-name='mouse_brain_outline.obj']").slider("value", 50);

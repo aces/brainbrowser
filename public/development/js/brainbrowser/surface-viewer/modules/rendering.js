@@ -20,7 +20,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   
   var renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
   var scene = new THREE.Scene();
-  var camera = new THREE.PerspectiveCamera(30, viewer.view_window.offsetWidth/viewer.view_window.offsetHeight, 0.1, 10000);
+  var camera = new THREE.PerspectiveCamera(30, viewer.view_window.offsetWidth/viewer.view_window.offsetHeight, 1, 10000);
   var light = new THREE.PointLight(0xFFFFFF);
   var current_frame;
   var last_frame;
@@ -219,7 +219,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var intersect_object, intersect_point, intersect_vertex_index, min_distance;
     var verts, distance;
     var i, count;
-    var centroid;
+    var centroid, cx, cy, cz;
 
     // Because we're comparing against
     // the vertices in their original positions,
@@ -242,14 +242,17 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       // check against original vertices we have
       // move them back. 
       centroid = intersect_object.centroid;
+      cx = centroid.x;
+      cy = centroid.y;
+      cz = centroid.z;
 
       inv_matrix.getInverse(intersect_object.matrixWorld);
       intersect_point = intersection.point.applyMatrix4(inv_matrix);
 
       verts = intersect_object.geometry.original_data.vertices;
-      min_distance = intersect_point.distanceTo(new THREE.Vector3(verts[0] - centroid.x, verts[1] - centroid.y, verts[2] - centroid.z));
+      min_distance = intersect_point.distanceTo(new THREE.Vector3(verts[0] - cx, verts[1] - cy, verts[2] - cz));
       for (i = 1, count = verts.length / 3; i < count; i++) {
-        distance = intersect_point.distanceTo(new THREE.Vector3(verts[i*3] - centroid.x, verts[i*3+1] - centroid.y, verts[i*3+2] - centroid.z));
+        distance = intersect_point.distanceTo(new THREE.Vector3(verts[i*3] - cx, verts[i*3+1] - cy, verts[i*3+2] - cz));
         if ( distance < min_distance) {
           intersect_vertex_index = i;
           min_distance = distance;
@@ -329,7 +332,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       };
     }
 
-    function drag(e) {
+    function drag(e, multiplier) {
+      multiplier = multiplier || 1.0;
       var inverse = new THREE.Matrix4();
       var position = getMousePosition(e);
       var x = position.x;
@@ -353,10 +357,10 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
           axis = new THREE.Vector3(0, 1, 0).applyMatrix4(inverse).normalize();
           model.rotateOnAxis(axis, dx / 150);
         } else {
-          camera.position.x -= dx / 3;
-          light.position.x -= dx / 3;
-          camera.position.y += dy / 3;
-          light.position.y += dy / 3;
+          camera.position.x -= dx * multiplier;
+          light.position.x -= dx * multiplier;
+          camera.position.y += dy * multiplier;
+          light.position.y += dy * multiplier;
         }
       }
 
@@ -377,7 +381,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       if (last_touch_distance !== null) {
         delta = distance - last_touch_distance;
 
-        viewer.zoom(1.0 + 0.02 * delta);
+        viewer.zoom(1.0 + 0.01 * delta);
       }
 
       last_touch_distance = distance;
@@ -386,7 +390,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     function mouseDrag(e) {
       e.preventDefault();
       e.stopPropagation();
-      drag(e);
+      drag(e, 0.25);
     }
 
     function touchDrag(e) {
@@ -395,7 +399,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       if (movement === "zoom") {
         touchZoom(e);
       } else {
-        drag(e.touches[0]);
+        drag(e.touches[0], 1.0);
       }
     }
 
@@ -433,6 +437,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     canvas.addEventListener("touchstart", function(e) {
       document.addEventListener("touchmove", touchDrag, false);
       document.addEventListener("touchend", touchDragEnd, false);
+
       movement = e.touches.length === 1 ? "rotate" :
                  e.touches.length === 2 ? "zoom" :
                  "translate";

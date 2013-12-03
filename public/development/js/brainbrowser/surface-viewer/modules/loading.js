@@ -244,7 +244,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       data.filename = name;
       data.apply_to_shape = options.shape;
       data.applied = false;
-      model_data.color_data = data;
+      model_data.intensity_data = data;
       viewer.blendData[blend_index] = data;
       initRange(min, max, data);
       if (viewer.blendData[other_index] && viewer.blendData[other_index].applied) {
@@ -277,10 +277,10 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     
     viewer.triggerEvent("loadcolormap", viewer.color_map);
 
-    if (model_data && model_data.color_data) {
-      viewer.updateColors(model_data.color_data, {
-        min: model_data.color_data.rangeMin,
-        max: model_data.color_data.rangeMax,
+    if (model_data && model_data.intensity_data) {
+      viewer.updateColors(model_data.intensity_data, {
+        min: model_data.intensity_data.rangeMin,
+        max: model_data.intensity_data.rangeMax,
         color_map: viewer.color_map,
         flip: viewer.flip,
         clamped: viewer.clamped
@@ -321,7 +321,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   function initRange(min, max, file) {
     
     if (!file) {
-      file = viewer.model_data.color_data;
+      file = viewer.model_data.intensity_data;
     }
     if (!file.fixRange) {
       file.rangeMin = min;

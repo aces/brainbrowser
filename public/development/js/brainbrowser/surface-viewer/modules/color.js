@@ -92,7 +92,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
    */
   viewer.rangeChange = function(min, max, clamped, options) {
     options = options || {};
-    var data = viewer.model_data.color_data;
+    var data = viewer.model_data.intensity_data;
     
     data.rangeMin = min;
     data.rangeMax = max;

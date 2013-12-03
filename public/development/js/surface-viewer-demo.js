@@ -101,18 +101,18 @@ $(function() {
       $("#color-map-box").hide();
     });
 
-    viewer.addEventListener("rangechange", function(color_data) {
-      var canvas = viewer.color_map.createCanvasWithScale(color_data.rangeMin, color_data.rangeMax, null);
+    viewer.addEventListener("rangechange", function(intensity_data) {
+      var canvas = viewer.color_map.createCanvasWithScale(intensity_data.rangeMin, intensity_data.rangeMax, null);
       canvas.id = "spectrum-canvas";
       $("#color-bar").html(canvas);
     });
 
-    viewer.addEventListener("loadintensitydata", function(color_data) {
+    viewer.addEventListener("loadintensitydata", function(intensity_data) {
       var container = $("#data-range");
       var headers = '<div id="data-range-multiple"><ul>';
       var controls = "";
       var i, count;
-      var data_set = Array.isArray(color_data) ? color_data : [color_data];
+      var data_set = Array.isArray(intensity_data) ? intensity_data : [intensity_data];
 
       container.html("");
       for(i = 0, count = data_set.length; i < count; i++) {
@@ -136,12 +136,12 @@ $(function() {
 
       container.find(".range-controls").each(function(index, element) {
         var controls = $(element);
-        var color_data = data_set[index];
+        var intensity_data = data_set[index];
 
-        var data_min = BrainBrowser.utils.min(color_data.values);
-        var data_max = BrainBrowser.utils.max(color_data.values);
-        var range_min = color_data.rangeMin;
-        var range_max = color_data.rangeMax;
+        var data_min = BrainBrowser.utils.min(intensity_data.values);
+        var data_max = BrainBrowser.utils.max(intensity_data.values);
+        var range_min = intensity_data.rangeMin;
+        var range_max = intensity_data.rangeMax;
 
         var min_input = controls.find("#data-range-min");
         var max_input = controls.find("#data-range-max");
@@ -159,9 +159,9 @@ $(function() {
             min_input.val(min);
             max_input.val(max);
             loading_div.show();
-            color_data.rangeMin = min;
-            color_data.rangeMax = max;
-            viewer.model_data.color_data = color_data;
+            intensity_data.rangeMin = min;
+            intensity_data.rangeMax = max;
+            viewer.model_data.intensity_data = intensity_data;
             viewer.rangeChange(min, max, viewer.clamped, {
               complete: hideLoading
             });
@@ -206,7 +206,7 @@ $(function() {
         $("#flip_range").change(function(e) {
           viewer.flip = $(this).is(":checked");
           loading_div.show();
-          viewer.updateColors(viewer.model_data.color_data, {
+          viewer.updateColors(viewer.model_data.intensity_data, {
             min: range_min,
             max: range_max,
             color_map: viewer.color_map,
@@ -216,7 +216,7 @@ $(function() {
           });
         });
 
-        viewer.triggerEvent("rangechange", color_data);
+        viewer.triggerEvent("rangechange", intensity_data);
       });
 
     }); // end loadintensitydata listener

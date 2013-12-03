@@ -262,11 +262,11 @@
       * @name viewer.events:rangechange
       *
       * @description
-      * Triggered when the color range changes. The modified color data
+      * Triggered when the intensity range changes. The modified intensity data
       * object will be passed to the event handler:
       *
       * ```js
-      *    viewer.addEventListener("rangechange", function(color data) {
+      *    viewer.addEventListener("rangechange", function(intensity_data) {
       *      //...
       *    });
       * ```
@@ -276,8 +276,8 @@
       * @name viewer.events:blenddata
       *
       * @description
-      * Triggered when two color maps have been loaded and blended. The event handler receives
-      * no arguments.
+      * Triggered when two sets of intensity data have been loaded and blended. 
+      * The event handler receives no arguments.
       *
       * ```js
       *    viewer.addEventListener("blenddata", function() {

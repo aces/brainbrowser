@@ -129,12 +129,12 @@
       */
       mapColors: function(values, options) {
         options = options || {};
-        var min = options.min || 0;
-        var max = options.max || 255;
-        var scale255 = options.scale255 || false;
-        var brightness = options.brightness || 0;
-        var contrast = options.contrast || 1;
-        var alpha = options.alpha || 1;
+        var min = options.min === undefined ? 0 : options.min;
+        var max = options.max === undefined ? 255 : options.max;
+        var scale255 = options.scale255 === undefined ? false : options.scale255;
+        var brightness = options.brightness === undefined ? 0 : options.brightness;
+        var contrast = options.contrast === undefined ? 1 : options.contrast;
+        var alpha = options.alpha === undefined ? 1 : options.alpha;
         var destination = options.destination || [];
         
         var color_map_colors = color_map.colors;

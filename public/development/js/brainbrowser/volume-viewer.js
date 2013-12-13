@@ -286,9 +286,9 @@
         viewer.displays.push(addVolumeInterface(div, volumes[i], i));
         viewer.cachedSlices[i] = [];
         
-        volume.position.xspace = parseInt(volume.header.xspace.space_length/2, 10);
-        volume.position.yspace = parseInt(volume.header.yspace.space_length/2, 10);
-        volume.position.zspace = parseInt(volume.header.zspace.space_length/2, 10);
+        volume.position.xspace = Math.floor(volume.header.xspace.space_length / 2);
+        volume.position.yspace = Math.floor(volume.header.yspace.space_length / 2);
+        volume.position.zspace = Math.floor(volume.header.zspace.space_length / 2);
   
         slices.push(volume.slice('xspace', volume.position.xspace));
         slices.push(volume.slice('yspace', volume.position.yspace));

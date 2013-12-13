@@ -158,7 +158,7 @@
           } else if (values[i] > max){
             color_index = color_map_length - 1;
           }else {
-            color_index = parseInt((value - min) / increment, 10);
+            color_index = Math.floor((value - min) / increment);
           }
           
           colors = color_map_colors[color_index] || [0, 0, 0];
@@ -200,9 +200,9 @@
 
       context = canvas.getContext("2d");
       for (k = 0; k < 256; k++) {
-        context.fillStyle = "rgb(" + parseInt(colors[k*4], 10) + ", " +
-                                     parseInt(colors[k*4+1], 10) + ", " +
-                                     parseInt(colors[k*4+2], 10) + ")";
+        context.fillStyle = "rgb(" + Math.floor(colors[k*4]) + ", " +
+                                     Math.floor(colors[k*4+1]) + ", " +
+                                     Math.floor(colors[k*4+2]) + ")";
         context.fillRect(k, 0, 1, color_height);
       }
 

@@ -90,7 +90,7 @@ BrainBrowser.SurfaceViewer.parseIntensityData = function(raw, callback) {
           color_index = color_map_length - 1;
         }
       } else {
-        color_index = parseInt((value-min)/increment, 10);
+        color_index = Math.floor((value-min)/increment);
       }
       //This inserts the RGBA values (R,G,B,A) independently
       if (flip && color_index !== -1) {

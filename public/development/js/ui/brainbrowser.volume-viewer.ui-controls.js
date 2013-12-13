@@ -355,7 +355,7 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
       for (i = 0; i < space_length; i++) {
         image_data = volume.slice(axis_name, i, time).getImage(zoom);
         x = i % per_column * image_data.width;
-        y = parseInt(i / per_column, 10) * image_data.height;
+        y = Math.floor(i / per_column) * image_data.height;
         context.putImageData(image_data, x, y);
       }
 

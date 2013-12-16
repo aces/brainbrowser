@@ -43,6 +43,11 @@
     var status;
     var response_text;
 
+    Object.keys(header_params).forEach(function(k) {
+      filename += (filename.match(/\?/) ? "&" : "?") +
+                  k + "=" + header_params[k];
+    });
+
     request.open("GET", filename);
     request.onreadystatechange = function() {
       if (request.readyState === 4){

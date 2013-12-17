@@ -75,9 +75,6 @@ BrainBrowser.VolumeViewer.utils = (function() {
     
     new_width = Math.abs(new_width);
     new_height = Math.abs(new_height);
-      
-    //console.log("neighbor");
-    //else execute nearest neighboor (NED FLANDERS)
     
     var image     = context.createImageData(new_width, new_height);
     var imageData = image.data;

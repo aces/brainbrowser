@@ -59,7 +59,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     
     window.onresize();
     
-    render_frame();
+    renderFrame();
   };
 
   /**
@@ -273,12 +273,12 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   };
   
   // Render a single frame on the viewer.
-  function render_frame(timestamp) {
+  function renderFrame(timestamp) {
     var model = viewer.model;
     var delta;
     var rotation;
     
-    window.requestAnimationFrame(render_frame);
+    window.requestAnimationFrame(renderFrame);
     
     last_frame = current_frame || timestamp;
     current_frame = timestamp;

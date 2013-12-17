@@ -31,8 +31,7 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
   "use strict";
 
   var VolumeViewer = BrainBrowser.VolumeViewer;
-  
-  
+
   viewer.globalUIControls = function(element) {
     var controls = $('<div id="global-controls" class="volume-viewer-controls"></div>');
     var sync_button, image_button;
@@ -109,6 +108,7 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
     var coords, world_coords_div, voxel_coords_div;
     if (volume.getWorldCoords) {
       coords = $('<div class="coords"></div>');
+
       world_coords_div = $(
         '<div class="control-heading">World Coordinates: </div>' +
         '<div class="world-coords">' +
@@ -117,13 +117,21 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
         'Y:<input id="world-y" class="control-inputs"></input>' +
         'Z:<input id="world-z" class="control-inputs"></input>' +
         '</div>'
-      ).change(function() {
-        var world = {
-          x: +world_coords_div.find("#world-x").val(),
-          y: +world_coords_div.find("#world-y").val(),
-          z: +world_coords_div.find("#world-z").val()
-        };
-        volume.setWorldCoords(world.x, world.y, world.z);
+      );
+
+      var world_coord_inputs = {
+        x: world_coords_div.find("#world-x"),
+        y: world_coords_div.find("#world-y"),
+        z: world_coords_div.find("#world-z")
+      };
+
+
+      world_coords_div.change(function() {
+        var x = parseFloat(world_coord_inputs.x.val());
+        var y = parseFloat(world_coord_inputs.y.val());
+        var z = parseFloat(world_coord_inputs.z.val());
+
+        volume.setWorldCoords(x, y, z);
         viewer.redrawVolumes();
       });
       
@@ -135,26 +143,33 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
         'Y:<input id="voxel-y" class="control-inputs"></input>' +
         'Z:<input id="voxel-z" class="control-inputs"></input>' +
         '</div>'
-      ).change(function() {
-        var voxel = {
-          x: +voxel_coords_div.find("#voxel-x").val(),
-          y: +voxel_coords_div.find("#voxel-y").val(),
-          z: +voxel_coords_div.find("#voxel-z").val()
-        };
-        volume.setVoxelCoords(voxel.x, voxel.y, voxel.z);
+      );
+
+      var voxel_coord_inputs = {
+        x: voxel_coords_div.find("#voxel-x"),
+        y: voxel_coords_div.find("#voxel-y"),
+        z: voxel_coords_div.find("#voxel-z")
+      };
+
+      voxel_coords_div.change(function() {
+        var x = parseFloat(voxel_coord_inputs.x.val());
+        var y = parseFloat(voxel_coord_inputs.y.val());
+        var z = parseFloat(voxel_coord_inputs.z.val());
+        
+        volume.setVoxelCoords(x, y, z);
         viewer.redrawVolumes();
       });
       
       viewer.addEventListener("sliceupdate", function() {
         var world_coords = volume.getWorldCoords();
         var voxel_coords = volume.getVoxelCoords();
-        world_coords_div.find("#world-x").val(world_coords.x);
-        world_coords_div.find("#world-y").val(world_coords.y);
-        world_coords_div.find("#world-z").val(world_coords.z);
+        world_coord_inputs.x.val(world_coords.x);
+        world_coord_inputs.y.val(world_coords.y);
+        world_coord_inputs.z.val(world_coords.z);
 
-        voxel_coords_div.find("#voxel-x").val(voxel_coords.x);
-        voxel_coords_div.find("#voxel-y").val(voxel_coords.y);
-        voxel_coords_div.find("#voxel-z").val(voxel_coords.z);
+        voxel_coord_inputs.x.val(voxel_coords.x);
+        voxel_coord_inputs.y.val(voxel_coords.y);
+        voxel_coord_inputs.z.val(voxel_coords.z);
       });
     }
     

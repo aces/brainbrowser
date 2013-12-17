@@ -25,7 +25,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
+/*
+* @author: Tarek Sherif
+*/
 
 BrainBrowser.VolumeViewer.modules.navigation = function(viewer) {
   "use strict";
@@ -143,8 +145,6 @@ BrainBrowser.VolumeViewer.modules.navigation = function(viewer) {
     viewer.updateSlice(volume_num, axis_name, slice);
         
     viewer.triggerEvent("sliceupdate");
-
-    viewer.draw();
   };
 
   /**
@@ -158,6 +158,8 @@ BrainBrowser.VolumeViewer.modules.navigation = function(viewer) {
   * @description
   * Set the cursor to a new position in the given volume and axis.
   */
+  var x_timeout = null;
+  var y_timeout = null;
   viewer.setCursor = function(volume_num, axis_name, cursor) {
     var axis_num = axis_to_number[axis_name];
     var slice = viewer.cachedSlices[volume_num][axis_num];
@@ -169,6 +171,8 @@ BrainBrowser.VolumeViewer.modules.navigation = function(viewer) {
     display.cursor.x = cursor.x;
     display.cursor.y = cursor.y;
     
+    clearTimeout(x_timeout);
+    clearTimeout(y_timeout);
 
     if (cursor) {
       x = Math.floor((cursor.x - image_origin.x) / zoom / Math.abs(slice.widthSpace.step));
@@ -178,9 +182,12 @@ BrainBrowser.VolumeViewer.modules.navigation = function(viewer) {
       y = null;
     }
 
-    viewer.renderSlice(volume_num, slice.widthSpace.name, x);
-    viewer.renderSlice(volume_num, slice.heightSpace.name, y);
-
+    x_timeout = setTimeout(function() {
+      viewer.renderSlice(volume_num, slice.widthSpace.name, x);
+    }, 0);
+    y_timeout = setTimeout(function() {
+      viewer.renderSlice(volume_num, slice.heightSpace.name, y);
+    }, 0);
   };
 };
 

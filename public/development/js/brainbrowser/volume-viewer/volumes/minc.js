@@ -26,7 +26,8 @@
  */
 
 /*
- * Author: Nicolas Kassis <nic.kassis@gmail.com>
+ * @author: Nicolas Kassis
+ * @author: Tarek Sherif
  */
 
 (function() {

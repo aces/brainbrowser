@@ -26,8 +26,9 @@
  */
 
 /*
- * Author: Nicolas Kassis <nic.kassis@gmail.com>
- */
+* @author: Nicolas Kassis
+* @author: Tarek Sherif
+*/
 
 /**
 * @doc overview
@@ -306,6 +307,13 @@
       viewer.triggerEvent("ready");
       viewer.triggerEvent("sliceupdate");
       
+      animate();
+    }
+
+    // Start animating
+    function animate() {
+      window.requestAnimationFrame(animate);
+
       viewer.draw();
     }
 
@@ -468,7 +476,6 @@
                 }
                 display.cursor = viewer.active_cursor = cursor;
               }
-              viewer.draw();
             }
           }
           
@@ -514,8 +521,6 @@
             viewer.active_canvas = e.target;
             document.addEventListener("mousemove", drag, false);
             document.addEventListener("mouseup", stopDrag, false);
-            
-            viewer.draw();
 
           }, false);
           
@@ -676,7 +681,7 @@
     * Draw current slices to the canvases.
     *
     */
-    viewer.draw = function draw() {
+    viewer.draw = function() {
       var slice;
       var context;
       var canvas;

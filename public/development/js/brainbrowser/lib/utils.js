@@ -15,6 +15,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+* @author Tarek Sherif
+*/
 
 /**
 * @doc overview
@@ -172,7 +175,9 @@
         var args = Array.prototype.slice.call(arguments, 1);
         if (event_listeners[e]) {
           event_listeners[e].forEach(function(fn) {
-            fn.apply(viewer, args);
+            setTimeout(function() {
+              fn.apply(viewer, args);
+            }, 0);
           });
         }
       };
@@ -309,6 +314,21 @@
     }
   
   };
+
+  // Shims for requestAnimationFrame (mainly for old Safari)
+  window.requestAnimationFrame =  window.requestAnimationFrame ||
+                                  window.webkitRequestAnimationFrame ||
+                                  window.mozRequestAnimationFrame ||
+                                  window.oRequestAnimationFrame ||
+                                  window.msRequestAnimationFrame ||
+                                  function(callback){
+                                    return window.setTimeout(callback, 1000 / 60);
+                                  };
+
+  window.cancelAnimationFrame = window.cancelAnimationFrame ||
+                                function(id){
+                                  window.clearTimeout(id);
+                                };
 })();
 
 

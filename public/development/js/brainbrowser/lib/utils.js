@@ -152,6 +152,19 @@
 
     /**
     * @doc function
+    * @name BrainBrowser.utils:isFunction
+    * @param {object} obj The object to test.
+    * @returns {boolean} Whether or not the object is a function.
+    *
+    * @description
+    * Test if the passed object is a function.
+    */
+    isNumeric: function(n) {
+      return !isNaN(parseFloat(n));
+    },
+
+    /**
+    * @doc function
     * @name BrainBrowser.utils:eventModel
     * @param {object} viewer Viewer to add the event model method to.
     *

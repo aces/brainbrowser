@@ -126,25 +126,38 @@ BrainBrowser.VolumeViewer.modules.navigation = function(viewer) {
   * @description
   * Render a new slice on the given volume and axis.
   */
-  viewer.renderSlice = function(volume_num, axis_name, slice_num) {
-    var volume = viewer.volumes[volume_num];
-    var slice;
-    var axis_num = axis_to_number[axis_name];
-    
-    if (slice_num === undefined) {
-      slice_num = volume.position[axis_name];
-    }
-    
-    slice = volume.slice(axis_name, slice_num, volume.current_time);
-    slice.volID = volume_num;
-    slice.axis_number = axis_num;
-    volume.position[axis_name] = slice_num;
 
-    slice.min = volume.min;
-    slice.max = volume.max;
-    viewer.updateSlice(volume_num, axis_name, slice);
-        
-    viewer.triggerEvent("sliceupdate");
+  // Keep track of timers.
+  // renderSlice() is an expensive operation so 
+  // we call it asynchronously and don't want to 
+  // call it unnecessarily.
+  var timeouts = {};
+
+  viewer.renderSlice = function(volume_num, axis_name, slice_num) {
+    timeouts[volume_num] = timeouts[volume_num] || {};
+    
+    clearTimeout(timeouts[volume_num][axis_name]);
+
+    timeouts[volume_num][axis_name] = setTimeout(function() {
+      var volume = viewer.volumes[volume_num];
+      var slice;
+      var axis_num = axis_to_number[axis_name];
+      
+      if (slice_num === undefined) {
+        slice_num = volume.position[axis_name];
+      }
+      
+      slice = volume.slice(axis_name, slice_num, volume.current_time);
+      slice.volID = volume_num;
+      slice.axis_number = axis_num;
+      volume.position[axis_name] = slice_num;
+
+      slice.min = volume.min;
+      slice.max = volume.max;
+      viewer.updateSlice(volume_num, axis_name, slice);
+          
+      viewer.triggerEvent("sliceupdate");
+    }, 0);
   };
 
   /**
@@ -158,8 +171,6 @@ BrainBrowser.VolumeViewer.modules.navigation = function(viewer) {
   * @description
   * Set the cursor to a new position in the given volume and axis.
   */
-  var x_timeout = null;
-  var y_timeout = null;
   viewer.setCursor = function(volume_num, axis_name, cursor) {
     var axis_num = axis_to_number[axis_name];
     var slice = viewer.cachedSlices[volume_num][axis_num];
@@ -170,9 +181,6 @@ BrainBrowser.VolumeViewer.modules.navigation = function(viewer) {
     
     display.cursor.x = cursor.x;
     display.cursor.y = cursor.y;
-    
-    clearTimeout(x_timeout);
-    clearTimeout(y_timeout);
 
     if (cursor) {
       x = Math.floor((cursor.x - image_origin.x) / zoom / Math.abs(slice.widthSpace.step));
@@ -182,12 +190,8 @@ BrainBrowser.VolumeViewer.modules.navigation = function(viewer) {
       y = null;
     }
 
-    x_timeout = setTimeout(function() {
-      viewer.renderSlice(volume_num, slice.widthSpace.name, x);
-    }, 0);
-    y_timeout = setTimeout(function() {
-      viewer.renderSlice(volume_num, slice.heightSpace.name, y);
-    }, 0);
+    viewer.renderSlice(volume_num, slice.widthSpace.name, x);
+    viewer.renderSlice(volume_num, slice.heightSpace.name, y);
   };
 };
 

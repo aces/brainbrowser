@@ -15,5 +15,5 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* brainbrowser v1.3.5 */
+/* brainbrowser v1.3.6 */
 $(function(){"use strict";var a=$("#controls");$(".button").button(),$(".buttonset").buttonset(),$("#data-range-box").hide(),$("#control-button").click(function(){var b=$(this).find("span");a.is(":visible")?(a.animate({height:30},300).animate({width:0},200,function(){a.hide()}),b.text("Show Controls")):(a.show().animate({width:450},200).animate({height:"70%"},300),b.text("Hide Controls"))}),$("title").append(" v"+BrainBrowser.version),$("#app-name").append(" v"+BrainBrowser.version),setTimeout(function(){$("#app-name").show("blind",{direction:"right"},500),$("#control-button").click()},0)});

@@ -130,8 +130,18 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
         var x = parseFloat(world_coord_inputs.x.val());
         var y = parseFloat(world_coord_inputs.y.val());
         var z = parseFloat(world_coord_inputs.z.val());
+        if (!BrainBrowser.utils.isNumeric(x)) {
+          x = 0;
+        }
+        if (!BrainBrowser.utils.isNumeric(y)) {
+          y = 0;
+        }
+        if (!BrainBrowser.utils.isNumeric(z)) {
+          z = 0;
+        }
 
         volume.setWorldCoords(x, y, z);
+
         viewer.redrawVolumes();
       });
       
@@ -152,9 +162,18 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
       };
 
       voxel_coords_div.change(function() {
-        var x = parseFloat(voxel_coord_inputs.x.val());
-        var y = parseFloat(voxel_coord_inputs.y.val());
-        var z = parseFloat(voxel_coord_inputs.z.val());
+        var x = parseInt(voxel_coord_inputs.x.val(), 10);
+        var y = parseInt(voxel_coord_inputs.y.val(), 10);
+        var z = parseInt(voxel_coord_inputs.z.val(), 10);
+        if (!BrainBrowser.utils.isNumeric(x)) {
+          x = 0;
+        }
+        if (!BrainBrowser.utils.isNumeric(y)) {
+          y = 0;
+        }
+        if (!BrainBrowser.utils.isNumeric(z)) {
+          z = 0;
+        }
         
         volume.setVoxelCoords(x, y, z);
         viewer.redrawVolumes();
@@ -204,7 +223,14 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
     
     //change blend value based on user input in text field
     blend_val.change(function () {
-      var value = this.value;
+      var value = parseFloat(this.value);
+      if (!BrainBrowser.utils.isNumeric(value)) {
+        value = 0;
+      }
+
+      value = Math.max(-50, Math.min(value, 50));
+
+      this.value = value;
       blendSlider.slider("value", value);
       volume.updateBlendRatio(value);
       viewer.redrawVolumes();
@@ -263,7 +289,14 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
         
     //change min value based on user input and update slider
     min_input.change(function () {
-      var value = this.value;
+      var value = parseFloat(this.value);
+      if (!BrainBrowser.utils.isNumeric(value)) {
+        value = 0;
+      }
+
+      value = Math.max(0, Math.min(value, 255));
+
+      this.value = value;
       thresh_slider.slider("values", 0, value);
       volume.min = value;
       viewer.redrawVolumes();
@@ -271,7 +304,14 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
     
     //change max value based on user input and update slider
     max_input.change(function () {
-      var value = this.value;
+      var value = parseFloat(this.value);
+      if (!BrainBrowser.utils.isNumeric(value)) {
+        value = 255;
+      }
+
+      value = Math.max(0, Math.min(value, 255));
+
+      this.value = value;
       thresh_slider.slider("values", 1, value);
       volume.max = value;
       viewer.redrawVolumes();
@@ -304,7 +344,14 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
     });
     
     time_val.change(function () {
-      var value = Math.max(min, Math.min(max, parseInt(this.value, 10)));
+      var value = parseInt(this.value, 10);
+      if (!BrainBrowser.utils.isNumeric(value)) {
+        value = 0;
+      }
+
+      value = Math.max(min, Math.min(value, max));
+
+      this.value = value;
       time_val.val(value);
       time_slider.slider("value", value);
       volume.current_time = value;

@@ -52,9 +52,7 @@ $(function() {
       complete: function() {
         hideLoading();
         macacc = MACACC.collection(viewer, path_prefix);
-        
-        viewer.addEventListener("updatecolors", hideLoading);
-        
+                
         macacc.dataOptions = function() {
           return {
             flip: $("#flip_range").is(":checked"),
@@ -65,7 +63,8 @@ $(function() {
           };
         };
         
-        macacc.afterUpdateModel = function(statistic) {
+        macacc.afterUpdateMap = function(statistic) {
+          hideLoading();
           if (statistic !== "T") {
             $("#range-slider").slider("option", "min", "0");
             $("#range-slider").slider("option", "max", "1");
@@ -84,7 +83,6 @@ $(function() {
         };
         
         macacc.beforeUpdateMap = showLoading;
-        macacc.beforeRangeChange = showLoading;
         macacc.afterInvalidMap = hideLoading;
         
         macacc.afterRangeChange = function(min,max) {

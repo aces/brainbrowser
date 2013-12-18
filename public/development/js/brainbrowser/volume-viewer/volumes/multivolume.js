@@ -20,7 +20,6 @@
 * @author: Tarek Sherif
 */
 
-
 /**
  * Represents a blended volume
  */

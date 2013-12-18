@@ -102,7 +102,7 @@
         clamped: clamped
       });
       
-      if (collection.afterUpdateModel) collection.afterUpdateModel(statistic);
+      if (collection.afterUpdateMap) collection.afterUpdateMap(statistic);
   
     };
     
@@ -113,20 +113,27 @@
     };
   
     // Callback to update map after a change in range.
+    var timeout = null;
     collection.rangeChange = function(options) {
-      options = options || (collection.dataOptions && collection.dataOptions()) || {};
-      var min = parseFloat(options.data_range_min);
-      var max = parseFloat(options.data_range_max);
-      
-      if(collection.beforeRangeChange) {
-        collection.beforeRangeChange(min, max);
-      }
-      
-      collection.updateMap();
-  
-      if(collection.afterRangeChange) {
-        collection.afterRangeChange(min, max);
-      }
+      if (timeout !== null) return;
+
+      timeout = setTimeout(function() {
+        options = options || (collection.dataOptions && collection.dataOptions()) || {};
+        var min = parseFloat(options.data_range_min);
+        var max = parseFloat(options.data_range_max);
+
+        if(collection.beforeRangeChange) {
+          collection.beforeRangeChange(min, max);
+        }
+        
+        collection.updateMap();
+    
+        if(collection.afterRangeChange) {
+          collection.afterRangeChange(min, max);
+        }
+
+        timeout = null;
+      }, 0);
     };
   
     // Flip mapping along x axix.

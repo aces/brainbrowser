@@ -162,13 +162,10 @@ $(function() {
             var max = ui.values[1];
             min_input.val(min);
             max_input.val(max);
-            loading_div.show();
             intensity_data.rangeMin = min;
             intensity_data.rangeMax = max;
             viewer.model_data.intensity_data = intensity_data;
-            viewer.rangeChange(min, max, viewer.clamped, {
-              complete: hideLoading
-            });
+            viewer.rangeChange(min, max, viewer.clamped);
           }
         });
 
@@ -180,13 +177,10 @@ $(function() {
         function inputRangeChange(e) {
           var min = parseFloat(min_input.val())
           var max = parseFloat(max_input.val())
-          loading_div.show();
           
           slider.slider('values', 0, min);
           slider.slider('values', 1, max);
-          viewer.rangeChange(min, max, controls.find("#clamp_range").is(":checked"), {
-            complete: hideLoading
-          });
+          viewer.rangeChange(min, max, controls.find("#clamp_range").is(":checked"));
         }
         $("#data-range-min").change(inputRangeChange);
         $("#data-range-max").change(inputRangeChange);
@@ -209,14 +203,12 @@ $(function() {
 
         $("#flip_range").change(function(e) {
           viewer.flip = $(this).is(":checked");
-          loading_div.show();
           viewer.updateColors(viewer.model_data.intensity_data, {
             min: range_min,
             max: range_max,
             color_map: viewer.color_map,
             flip: viewer.flip,
-            clamped: viewer.clamped,
-            complete: hideLoading
+            clamped: viewer.clamped
           });
         });
 
@@ -257,35 +249,6 @@ $(function() {
       current_request = 0;
       current_request_name = "";
       loading_div.hide();
-    });
-
-    /********************************************************
-    * This section implements the range change events
-    * It takes care of updating the UI elements related to
-    * the threshold range
-    * It also defines the BrainBrowser::afterRangeChange
-    * callback which is called in the BrainBrowser::rangeChange
-    * Method.
-    ********************************************************/
-
-    //Create a range slider for the thresholds
-    $("#range-slider").slider({
-      range: true,
-      min: -50,
-      max: 50,
-      value: [-10, 10],
-      slider: function(event, ui) {
-        var min = parseFloat(ui.values[0]);
-        var max = parseFloat(ui.values[1]);
-        viewer.rangeChange(min, max, $("#clamp_range").is(":checked"));
-      },
-      step: 0.1
-    });
-
-    $(".range-box").keypress(function(e) {
-      if(e.keyCode === '13'){
-        viewer.rangeChange(parseFloat($("#data-range-min").val(), 10), parseFloat($("#data-range-max").val(), 10));
-      }
     });
 
     $("#examples").click(function(e) {

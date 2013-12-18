@@ -15,6 +15,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+* @author: Tarek Sherif
+* @author: Nicolas Kassis
+*/
 
 // Module for updating colours on models currently being displayed.
 BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
@@ -40,6 +44,8 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   * @description
   * Update the vertex colors of the model based on data object passed as argument.
   */
+  var timeout = null;
+  
   viewer.updateColors = function(data, options) {
     options = options || {};
     var min = options.min;
@@ -71,11 +77,18 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     }
 
     viewer.clamped = clamped;
-    if (blend) {
-      applyColorArray(blendColorMap(color_map, data, 0, 1));
-    } else {
-      data.createColorArray(min, max, color_map, flip, clamped, viewer.model_data.colors, viewer.model_data, applyColorArray);
-    }
+
+    // Color updates will be asynchronous because they take a while.
+    // New requests for color updates will replace old ones.
+    clearTimeout(timeout);
+
+    timeout = setTimeout(function() {
+      if (blend) {
+        applyColorArray(blendColorMap(color_map, data, 0, 1));
+      } else {
+        data.createColorArray(min, max, color_map, flip, clamped, viewer.model_data.colors, viewer.model_data, applyColorArray);
+      }
+    }, 0);
   };
 
   /** 

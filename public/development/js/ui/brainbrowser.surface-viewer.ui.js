@@ -15,6 +15,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+* @author: Tarek Sherif
+*/
+
 // Plugin for UI functionality used by both
 // surface viewer and macacc.
 BrainBrowser.SurfaceViewer.modules.ui = function(viewer) {

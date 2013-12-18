@@ -25,7 +25,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
+/*
+* @author Tarek Sherif
+*/
 
 BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
   "use strict";

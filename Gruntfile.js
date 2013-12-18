@@ -45,7 +45,14 @@ module.exports = function(grunt) {
     uglify: {
       options: {
         report: "min",
-        banner: "<%= license %>\n/* <%= pkg.name %> v<%= pkg.version %> */\n"
+        banner: "<%= license %>\n" +
+                "/*\n" +
+                "* <%= pkg.name %> v<%= pkg.version %>\n" +
+                "* https://brainbrowser.cbrain.mcgill.ca/\n" +
+                "*\n" +
+                "* Author: Tarek Sherif  <tsherif@gmail.com> (http://tareksherif.ca/)\n" +
+                "* Author: Nicolas Kassis\n" +
+                "*/\n"
       },
       surface: {
         files: {

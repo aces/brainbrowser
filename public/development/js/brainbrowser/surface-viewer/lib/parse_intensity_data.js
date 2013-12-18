@@ -15,10 +15,11 @@
 *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-/**
-* @param {String} data data file in string format to parse
+/*
+* @author: Nicolas Kassis
+* @author: Tarek Sherif
 */
+
 /**
  * @doc function
  * @name SurfaceViewer.static methods:parseIntensityData

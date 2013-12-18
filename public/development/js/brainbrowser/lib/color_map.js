@@ -15,6 +15,11 @@
 *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+* @author: Nicolas Kassis
+* @author: Tarek Sherif
+*/
+
 /**
  * @doc function
  * @name BrainBrowser.static methods:createColorMap

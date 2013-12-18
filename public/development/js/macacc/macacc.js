@@ -15,6 +15,11 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+* @author: Tarek Sherif
+* @author: Nicolas Kassis
+*/
+
 // Module for fetching MACACC data from the server and updating
 // the displayed map.
 (function() {

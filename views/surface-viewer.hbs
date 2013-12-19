@@ -7,12 +7,12 @@
     <link type="text/css" href="/css/common.css" rel="Stylesheet" />
     <link type="text/css" href="/css/surface-viewer-demo.css" rel="Stylesheet" />
     <link rel="icon" type="image/png" href="img/brainbrowser.png">
-    <title>BrainBrowser Surface Viewer</title>  
+    <title>BrainBrowser Surface Viewer v{{version}}</title>  
   </head>  
   <body>  
       <!-- The webgl window and loading messages if any -->
     <div id="display">
-      <h1 id="app-name">Surface Viewer</h1><a id="control-button" class="button">Hide Controls</a>
+      <h1 id="app-name">Surface Viewer v{{version}}</h1><a id="control-button" class="button">Hide Controls</a>
       <!-- Loading image from: http://www.ajaxload.info/ -->
       <div id="loading" style="display: none"><img src="/img/ajax-loader.gif" /></div>
       <div id="brainbrowser"></div>
@@ -21,16 +21,17 @@
           <div id="examples" class="box full_box">
             <h3>Sample Models</h3>
             <ul>
-               <li><a href="#" class="example" data-example-name="realct">Brain with Cortical Thickness Map</a></li>
-               <li><a href="#" span class="example" data-example-name="punkdti">DTI and Mesh Brain</a></li>
+               <li><a href="#" class="example" data-example-name="realct">Brain with Cortical Thickness Map</a> (81924 vertices)</li>
+               <li><a href="#" span class="example" data-example-name="punkdti">DTI and Mesh Brain</a> (560674 vertices)</li>
                <li>
                  <a href="#" span class="example" data-example-name="mouse" title="Surface-Projected Cortical Amyloid Deposition of a Cohort of 18 Month-Old Transgenic Mice with Alzheimer's Disease">
                    Mouse Brain with Alzheimer's Disease
                 </a>
+                (79016 vertices)
               </li>
-               <li><a href="#" class="example" data-example-name="basic">Basic Brain Surface</a></li>
-               <li><a href="#" class="example" data-example-name="plane" title="DLR-F6 Geometry 2nd AIAA CFD Drag Prediction Workshop, 2003">Aeroplane with Air Density and Air Flow</a></li>
-               <li><a href="#" class="example" data-example-name="car">Automobile</a></li> 
+               <li><a href="#" class="example" data-example-name="basic">Basic Brain Surface</a> (81924 vertices)</li>
+               <li><a href="#" class="example" data-example-name="plane" title="DLR-F6 Geometry 2nd AIAA CFD Drag Prediction Workshop, 2003">Aeroplane with Air Density and Air Flow</a> (198375 vertices)</li>
+               <li><a href="#" class="example" data-example-name="car">Automobile</a> (29795 vertices)</li> 
             </ul>
           </div>
           <div id="surface_choice" class="box full_box">

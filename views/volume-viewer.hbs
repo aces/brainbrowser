@@ -7,6 +7,7 @@
     {{else}}
       BrainBrowser Volume Viewer
     {{/if}}
+    v{{version}}
   </title>
   <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.10.custom.css" rel="Stylesheet" />
   <link type="text/css" href="/css/common.css" rel="Stylesheet" />
@@ -18,11 +19,14 @@
   {{/ifenv}}
 </head>
 <body>
-  {{#if fmri}}
-    <h1 id="app-name">fMRI Viewer</h1>
-  {{else}}
-    <h1 id="app-name">Volume Viewer</h1>
-  {{/if}}
+  <h1 id="app-name">
+    {{#if fmri}}
+      fMRI Viewer
+    {{else}}
+      Volume Viewer
+    {{/if}}
+    v{{version}}
+  </h1>
   <div id="loading" style="display: none"><img src="/img/ajax-loader.gif" /></div>
   <div id="brainbrowser" style="display:none"></div>
   <script type="text/javascript" src="//code.jquery.com/jquery-1.7.2.min.js"></script>

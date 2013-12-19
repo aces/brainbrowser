@@ -7,6 +7,7 @@ module.exports = function(grunt) {
     dev_js: "public/development/js",
     prod_js: "public/production/js",
     build_dir: "build/brainbrowser-<%= BRAINBROWSER_VERSION %>",
+    release_dir: "public/common/release",
     license: grunt.file.read("license_header.txt"),
     concat: {
       options: {
@@ -174,13 +175,24 @@ module.exports = function(grunt) {
         "build/brainbrowser-*"
       ],
       tmp: "tmp/*.js",
-      docs: ["docs/docular/.htaccess", "docs/docular/favicon.ico", "docs/docular/configs", "docs/docular/controller", "docs/docular/php"]
+      docs: ["docs/docular/.htaccess", "docs/docular/favicon.ico", "docs/docular/configs", "docs/docular/controller", "docs/docular/php"],
+      release: "<%= release_dir %>/*.tar.gz"
     },
     symlink: {
       explicit: {
         files: {
           "<%= prod_js %>/brainbrowser": "<%= build_dir %>"
         }
+      }
+    },
+    compress: {
+      release: {
+        options: {
+          archive: "<%= release_dir %>/brainbrowser-<%= BRAINBROWSER_VERSION %>.tar.gz"
+        },
+        expand: true,
+        cwd: "build/",
+        src: "brainbrowser-<%= BRAINBROWSER_VERSION %>/**"
       }
     },
     watch: {
@@ -237,10 +249,11 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-concat");
   grunt.loadNpmTasks("grunt-contrib-symlink");
   grunt.loadNpmTasks("grunt-contrib-clean");
+  grunt.loadNpmTasks("grunt-contrib-compress");
   grunt.loadNpmTasks("grunt-docular");
 
   grunt.registerTask("compile", ["clean", "concat", "uglify", "symlink"]);
-  grunt.registerTask("build", ["jshint", "compile", "docs"]);
+  grunt.registerTask("build", ["jshint", "compile", "docs", "compress"]);
   grunt.registerTask("docs", ["docular", "clean:docs"]);
   grunt.registerTask("default", "jshint");
 };

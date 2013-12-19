@@ -24,7 +24,6 @@ $(function() {
   
   $(".button").button();
   $(".tabs").tabs();
-  $(".title").append(' <span id="title-version">v' + BrainBrowser.version + '</span>');
 
   var warnings = $("#html5-warnings");
   if (warnings) {

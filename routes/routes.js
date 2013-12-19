@@ -1,7 +1,9 @@
 "use strict";
 
+var pkg = require("../package.json");
+
 exports.index = function(req, res){
-  res.render('index');
+  res.render('index', {version: pkg.version});
 };
 
 exports.surface = function(req, res){

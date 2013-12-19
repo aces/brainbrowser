@@ -37,6 +37,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   *
   * * **format** The format of input file. Should be one of the filetypes described in
   *   BrainBrowser.config.
+  * * **render_depth** Force rendering at the given depth (can help with transparency).
   * * **parse** Parsing options to pass to the worker that will be used to parse the
   *   input file.
   * * **before** A callback to be called before loading starts.
@@ -57,6 +58,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   *
   * * **format** The format of input file. Should be one of the filetypes described in
   *   BrainBrowser.config.
+  * * **render_depth** Force rendering at the given depth (can help with transparency).
   * * **parse** Parsing options to pass to the worker that will be used to parse the
   *   input file.
   * * **before** A callback to be called before loading starts.
@@ -431,10 +433,10 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   // displays in on the viewer.
   function displayModel(model_data, filename, options) {
     options = options || {};
-    var renderDepth = options.renderDepth;
+    var render_depth = options.render_depth;
     var complete = options.complete;
 
-    addObject(model_data, filename, renderDepth);
+    addObject(model_data, filename, render_depth);
 
     viewer.triggerEvent("displaymodel", viewer.model);
 
@@ -442,7 +444,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   }
 
   // Add a polygon object to the scene.
-  function addObject(model_data, filename, renderDepth){
+  function addObject(model_data, filename, render_depth){
     var model = viewer.model;
     var shape, shape_data;
     var i, count;
@@ -464,8 +466,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
           colors: model_data.colors
         };
 
-        if (renderDepth) {
-          shape.renderDepth = renderDepth;
+        if (render_depth) {
+          shape.renderDepth = render_depth;
         }
         model.add(shape);
       }

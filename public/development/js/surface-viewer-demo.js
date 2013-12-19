@@ -262,7 +262,7 @@ $(function() {
       
       //Create a closure to compare current request number to number
       // at the time request was sent.
-      function default_cancel_opts(request_number) {
+      function defaultCancelOptions(request_number) {
         return function() { return request_number !== current_request; };
       }
       
@@ -274,24 +274,24 @@ $(function() {
           viewer.loadModelFromURL('/models/surf_reg_model_both.obj', {
             format: "MNIObject",
             complete: hideLoading,
-            cancel: default_cancel_opts(current_request),
+            cancel: defaultCancelOptions(current_request),
             parse: { split: true }
           });
         },
         punkdti: function() {
           viewer.loadModelFromURL('/models/dti.obj', {
             format: "MNIObject",
-            renderDepth: 999,
+            render_depth: 999,
             complete: hideLoading,
-            cancel: default_cancel_opts(current_request)
+            cancel: defaultCancelOptions(current_request)
           });
           viewer.loadModelFromURL('/models/left_color.obj', {
             format: "MNIObject",
-            cancel: default_cancel_opts(current_request)
+            cancel: defaultCancelOptions(current_request)
           });
           viewer.loadModelFromURL('/models/right_color.obj', {
             format: "MNIObject",
-            cancel: default_cancel_opts(current_request)
+            cancel: defaultCancelOptions(current_request)
           });
         },
         realct: function() {
@@ -302,17 +302,17 @@ $(function() {
               viewer.loadIntensityDataFromURL('/models/realct.txt', {
                 name: "Cortical Thickness",
                 complete: hideLoading,
-                cancel: default_cancel_opts(current_request)
+                cancel: defaultCancelOptions(current_request)
               });
             },
-            cancel: default_cancel_opts(current_request)
+            cancel: defaultCancelOptions(current_request)
           });
         },
         car: function() {
           viewer.loadModelFromURL('/models/car.obj', {
             format: "WavefrontObj",
             complete: hideLoading,
-            cancel: default_cancel_opts(current_request)
+            cancel: defaultCancelOptions(current_request)
           });
           viewer.setCamera(0, 0, 100);
 
@@ -326,12 +326,12 @@ $(function() {
         plane: function() {
           viewer.loadModelFromURL('/models/dlr_bigger.streamlines.obj', {
             format: "MNIObject",
-            cancel: default_cancel_opts(current_request)
+            cancel: defaultCancelOptions(current_request)
           });
           viewer.loadModelFromURL('/models/dlr.model.obj', {
             format: "MNIObject",
             complete: hideLoading,
-            cancel: default_cancel_opts(current_request)
+            cancel: defaultCancelOptions(current_request)
           });
           viewer.setCamera(0, 0, 75);
 
@@ -345,6 +345,7 @@ $(function() {
         mouse: function() {
           viewer.loadModelFromURL('/models/mouse_surf.obj', {
             format: "MNIObject",
+            render_depth: 999,
             complete: function() {
               viewer.loadIntensityDataFromURL('/models/mouse_alzheimer_map.txt', {
                   name: 'Cortical Amyloid Burden, Tg AD Mouse, 18 Months Old',
@@ -352,19 +353,21 @@ $(function() {
                   min: 0.0,
                   max: 0.25,
                   complete: hideLoading,
-                  cancel: default_cancel_opts(current_request)
+                  cancel: defaultCancelOptions(current_request)
                 }
               );
             },
-            cancel: default_cancel_opts(current_request)
+            cancel: defaultCancelOptions(current_request)
           });
           viewer.loadModelFromURL('/models/mouse_brain_outline.obj', {
             format: "MNIObject",
             complete: function() {
-              $(".opacity-slider[data-shape-name='mouse_brain_outline.obj']").slider("value", 50);
-              viewer.setTransparency('mouse_brain_outline.obj', 0.5);
+              setTimeout(function() {
+                $(".opacity-slider[data-shape-name='mouse_brain_outline.obj']").slider("value", 50);
+                viewer.setTransparency('mouse_brain_outline.obj', 0.5);
+              }, 0);
             },
-            cancel: default_cancel_opts(current_request)
+            cancel: defaultCancelOptions(current_request)
           });
           viewer.setCamera(0, 0, 40);
         }

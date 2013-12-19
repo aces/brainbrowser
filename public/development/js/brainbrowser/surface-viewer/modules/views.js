@@ -95,14 +95,17 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   viewer.setTransparency = function(shape_name, alpha) {
     var shape = viewer.model.getObjectByName(shape_name);
     var material, wireframe;
+    
     if (shape) {
       material = shape.material;
       material.opacity = alpha;
+      
       if (alpha === 1) {
         material.transparent = false;
       } else {
         material.transparent = true;
       }
+
       wireframe = shape.getObjectByName("__wireframe__");
       if (wireframe) {
         wireframe.material.opacity = material.opacity;

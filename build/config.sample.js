@@ -22,7 +22,7 @@
 
     surface_viewer: {
 
-      worker_dir: "js/brainbrowser/workers/",
+      worker_dir: "/js/brainbrowser/workers/",
 
       filetypes: {
         MNIObject: {
@@ -92,7 +92,7 @@
       ]
     }
     
-  }
+  };
 })();
 
 

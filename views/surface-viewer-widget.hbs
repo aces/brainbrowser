@@ -1,0 +1,106 @@
+<div id="display">
+<style scoped>
+  #brainbrowser {
+    width: {{width}}px;
+    height: {{height}}px;
+  }
+</style>
+<div id="brainbrowser"></div>
+</div>
+
+
+<script type="text/javascript">
+  (function() {
+    "use strict";
+
+    function loadScript(url, callback) {
+      var script = document.createElement("script");
+      script.src = url;
+      if (typeof callback === "function") {
+        script.onload = callback;
+      }
+      document.head.appendChild(script);
+    }
+
+    {{#if nothreejs}}
+    var scripts = [];
+    {{else}}
+    var scripts = ["{{host}}/js/lib/three.min.js"];
+    {{/if}}
+
+
+    {{#ifenv "production"}}
+    scripts.push("{{host}}/js/brainbrowser/brainbrowser.surface-viewer.min.js");
+    {{else}}
+    scripts.push(
+      "{{host}}/js/brainbrowser/lib/utils.js",
+      "{{host}}/js/brainbrowser/lib/color_map.js",
+      "{{host}}/js/brainbrowser/surface-viewer.js",
+      "{{host}}/js/brainbrowser/surface-viewer/lib/parse_intensity_data.js",
+      "{{host}}/js/brainbrowser/surface-viewer/modules/color.js",
+      "{{host}}/js/brainbrowser/surface-viewer/modules/loading.js",
+      "{{host}}/js/brainbrowser/surface-viewer/modules/rendering.js",
+      "{{host}}/js/brainbrowser/surface-viewer/modules/views.js"
+    );
+    {{/ifenv}}
+
+    var index = 1;
+
+    loadScript(scripts[0], function loadNext() {
+      if (index < scripts.length) {
+        loadScript(scripts[index++], loadNext);
+      } else {
+        start();
+      }
+    });
+
+    function start() {
+      BrainBrowser.config = {
+
+        surface_viewer: {
+
+          worker_dir: "{{host}}/js/brainbrowser/workers/",
+
+          filetypes: {
+            MNIObject: {
+              worker: "mniobj.worker.js",
+            },
+            WavefrontObj: {
+              worker: "wavefront_obj.worker.js"
+            },
+            FreeSurferAsc: {
+              worker: "freesurfer_asc.worker.js"
+            }
+          }
+
+        }
+      };
+
+
+      BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
+        {{#if color_map}}
+        viewer.loadColorMapFromURL("{{color_map}}");
+        {{/if}}
+
+        var complete_callback;
+
+        {{#if intensity_data}}
+        complete_callback = function() {
+          viewer.loadIntensityDataFromURL("{{intensity_data}}");
+        }
+        {{/if}}
+
+        viewer.render();
+        viewer.loadModelFromURL("{{model}}", {
+          format: "{{format}}",
+          complete: complete_callback
+        });
+        {{#if zoom}}
+        viewer.zoom(parseFloat({{zoom}}));
+        {{/if}}
+      });
+    }
+
+  })();
+</script>
+

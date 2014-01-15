@@ -254,13 +254,14 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       model_data.intensity_data = data;
       viewer.blendData[blend_index] = data;
       initRange(min, max, data);
+      
       if (viewer.blendData[other_index] && viewer.blendData[other_index].applied) {
         initRange(BrainBrowser.utils.min(viewer.blendData[other_index].values),
           BrainBrowser.utils.max(viewer.blendData[other_index].values),
           viewer.blendData[other_index]
         );
+
         viewer.triggerEvent("loadintensitydata", viewer.blendData);
-    
         viewer.blend(0.5);
         viewer.triggerEvent("blendcolormaps", data.rangeMin, data.rangeMax, data);
       } else {
@@ -274,6 +275,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
           complete: options.complete
         });
       }
+      
       data.applied = true;
     });
   }
@@ -326,10 +328,10 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
    * @param {Object} file Data file on which the range will be set
    */
   function initRange(min, max, file) {
-    
     if (!file) {
       file = viewer.model_data.intensity_data;
     }
+
     if (!file.fixRange) {
       file.rangeMin = min;
       file.rangeMax = max;
@@ -368,61 +370,53 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
   function parseModel(type, data, options, callback) {
     var error_message;
-    if (!BrainBrowser.utils.checkConfig("surface_viewer.filetypes." + type)) {
-      error_message = "error in SurfaceViewer configuration.\n" +
-        "BrainBrowser.config.surface_viewer.filetypes." + type + " not defined.";
-
-      viewer.triggerEvent("error", error_message);
-      throw new Error(error_message);
-    }
 
     if (!BrainBrowser.utils.checkConfig("surface_viewer.worker_dir")) {
+      throw new Error(
+        "error in SurfaceViewer configuration.\n" +
+        "BrainBrowser.config.surface_viewer.worker_dir not defined."
+      );
+    }
+
+    if (!SurfaceViewer.worker_urls[type]) {
       error_message = "error in SurfaceViewer configuration.\n" +
-        "BrainBrowser.config.surface_viewer.worker_dir not defined.";
+        "Worker URL for " + type + " not defined.";
 
       viewer.triggerEvent("error", error_message);
       throw new Error(error_message);
     }
-
-    var config = BrainBrowser.config.surface_viewer;
-    var file_type_config = config.filetypes[type];
-    var worker_dir = config.worker_dir;
-    var parse_worker, deindex_worker;
     
-    if (file_type_config.worker) {
-      parse_worker = new Worker(worker_dir + "/" + file_type_config.worker);
+    var parse_worker = new Worker(SurfaceViewer.worker_urls[type]);
+    var deindex_worker;
+    
+    parse_worker.addEventListener("message", function(e) {
+      var result = e.data;
+
+      if (result.error){
+        error_message = "error parsing model.\n" +
+          result.error_message + "\n" +
+          "File type: " + type + "\n" +
+          "Options: " + JSON.stringify(options);
+        viewer.triggerEvent("error", error_message);
+        throw new Error(error_message);
+      } else if (callback) {
+        deindex_worker = new Worker(SurfaceViewer.worker_urls.deindex);
+
+        deindex_worker.addEventListener("message", function(e) {
+          callback(e.data);
+        });
+
+        deindex_worker.postMessage(result);
+      }
       
-      parse_worker.addEventListener("message", function(e) {
-        var result = e.data;
-
-        if (result.error){
-          error_message = "error parsing model.\n" +
-            result.error_message + "\n" +
-            "File type: " + type + "\n" +
-            "Worker file: " + type + "\n" +
-            "Options: " + JSON.stringify(options);
-          viewer.triggerEvent("error", error_message);
-          throw new Error(error_message);
-        } else if (callback) {
-          deindex_worker = new Worker(worker_dir + "/deindex.worker.js");
-
-          deindex_worker.addEventListener("message", function(e) {
-            callback(e.data);
-          });
-
-          deindex_worker.postMessage(result);
-        }
+      parse_worker.terminate();
+    });
+    
+    parse_worker.postMessage({
+      data: data,
+      options: options
+    });
         
-        parse_worker.terminate();
-      });
-      
-      parse_worker.postMessage({
-        data: data,
-        options: options
-      });
-    
-    }
-    
   }
 
   ///////////////////////////////////////////

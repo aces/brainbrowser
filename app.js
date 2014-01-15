@@ -38,6 +38,10 @@ if (cluster.isMaster) {
   app.set("port", process.env.PORT || 5000);
   app.set("views", __dirname + "/views");
   app.set("view engine", "hbs");
+  app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    return next();
+  });
   app.use(express.compress());
   app.use(express.favicon("public/img/brainbrowser.png"));
   app.use(express.logger("dev"));
@@ -59,6 +63,8 @@ if (cluster.isMaster) {
   app.get("/macacc-viewer", routes.macacc);
   app.get("/volume-viewer", routes.volume);
   app.get("/fmri-viewer", routes.fmri);
+  app.get("/surface-viewer-widget", routes.surface_widget);
+
   app.get('/data/:filename', function(req,res) {
     var filename = req.params.filename;
     var raw_filename, gz_raw_filename, header_filename;

@@ -40,12 +40,18 @@ BrainBrowser.SurfaceViewer.parseIntensityData = function(raw, callback) {
     );
   }
 
+  if (!BrainBrowser.SurfaceViewer.worker_urls.data) {
+    throw new Error(
+      "error in SurfaceViewer configuration.\n" +
+      "Worker URL for Data not defined."
+    );
+  }
+
   // Allows a prototype to be defined for data object
   var data_obj = {};
-  var worker_dir = BrainBrowser.config.surface_viewer.worker_dir;
   
   function parse() {
-    var worker = new Worker(worker_dir + "/data.worker.js");
+    var worker = new Worker(BrainBrowser.SurfaceViewer.worker_urls.data);
   
     worker.addEventListener("message", function(e) {
       var result = e.data;

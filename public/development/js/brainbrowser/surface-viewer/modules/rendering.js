@@ -37,11 +37,11 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   scene.add(viewer.model);
   
   /**
-   * @doc function
-   * @name viewer.rendering:render
-   * @description
-   * Render the scene.
-   */
+  * @doc function
+  * @name viewer.rendering:render
+  * @description
+  * Render the scene.
+  */
   viewer.render = function() {
     var view_window = viewer.view_window;
     renderer.setClearColor(0x000000);
@@ -87,24 +87,24 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   
 
   /**
-   * @doc function
-   * @name viewer.rendering:canvasDataURL
-   * @returns {string} The data URL.
-   * @description
-   * Returns the Data URL of the canvas the viewer is using
-   * so it can be used to create an image.
-   */
+  * @doc function
+  * @name viewer.rendering:canvasDataURL
+  * @returns {string} The data URL.
+  * @description
+  * Returns the Data URL of the canvas the viewer is using
+  * so it can be used to create an image.
+  */
   viewer.canvasDataURL = function() {
     return renderer.domElement.toDataURL();
   };
   
   /**
-   * @doc function
-   * @name viewer.rendering:addEffect
-   * @param {string} effect_name The name of the effect as defined in three.js.
-   * @description
-   * Add a three.js postprocessing effect to the viewer.
-   */
+  * @doc function
+  * @name viewer.rendering:addEffect
+  * @param {string} effect_name The name of the effect as defined in three.js.
+  * @description
+  * Add a three.js postprocessing effect to the viewer.
+  */
   viewer.addEffect = function(effect_name) {
     var effect;
     if (THREE[effect_name]) {
@@ -115,36 +115,36 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   };
 
   /**
-   * @doc function
-   * @name viewer.rendering:setEffect
-   * @param {string} effect_name The name of the effect as defined in three.js.
-   * @description
-   * Activate a previously added postprocessing effect.
-   */
+  * @doc function
+  * @name viewer.rendering:setEffect
+  * @param {string} effect_name The name of the effect as defined in three.js.
+  * @description
+  * Activate a previously added postprocessing effect.
+  */
   viewer.setEffect = function(effect_name) {
     effect = effects[effect_name] ? effects[effect_name] : renderer;
   };
   
   /**
-   * @doc function
-   * @name viewer.rendering:setCamera
-   * @param {number} x The x coordinate of the camera.
-   * @param {number} y The y coordinate of the camera.
-   * @param {number} z The z coordinate of the camera.
-   * @description
-   * Set the camera position.
-   */
+  * @doc function
+  * @name viewer.rendering:setCamera
+  * @param {number} x The x coordinate of the camera.
+  * @param {number} y The y coordinate of the camera.
+  * @param {number} z The z coordinate of the camera.
+  * @description
+  * Set the camera position.
+  */
   viewer.setCamera = function(x, y, z) {
     camera.position.set(x, y, z);
     light.position.set(x, y, z);
   };
   
   /**
-   * @doc function
-   * @name viewer.rendering:resetView
-   * @description
-   * Resets the view of the scene.
-   */
+  * @doc function
+  * @name viewer.rendering:resetView
+  * @description
+  * Resets the view of the scene.
+  */
   viewer.resetView = function() {
     var model = viewer.model;
     var child, wireframe;
@@ -170,12 +170,12 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   };
 
   /**
-   * @doc function
-   * @name viewer.rendering:zoom
-   * @param {number} zoom The zoom level (default: 1.0).
-   * @description
-   * Zoom the view in or out.
-   */
+  * @doc function
+  * @name viewer.rendering:zoom
+  * @param {number} zoom The zoom level (default: 1.0).
+  * @description
+  * Zoom the view in or out.
+  */
   viewer.zoom = function(zoom) {
     var position = camera.position;
     var new_z = position.z / zoom;
@@ -186,34 +186,34 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   };
   
   /**
-   * @doc function
-   * @name viewer.rendering:setClearColor
-   * @param {number} color A hexadecimal number representing the RGB color to use.
-   * @description
-   * Updates the clear color of the viewer.
-   */
+  * @doc function
+  * @name viewer.rendering:setClearColor
+  * @param {number} color A hexadecimal number representing the RGB color to use.
+  * @description
+  * Updates the clear color of the viewer.
+  */
   viewer.setClearColor = function(color)  {
     renderer.setClearColor(color, 1.0);
   };
   
   /**
-   * @doc function
-   * @name viewer.rendering:pick
-   * @param {number} x The x coordinate on the canvas.
-   * @param {number} y The y coordinate on the canvas.
-   * @returns {object} If an intersection is detected, returns an object with the following information:
-   *
-   * * **object** The THREE.Object3D object with which the the click intersected.
-   * * **point** A THREE.Vector3 object representing the point in 3D space at which the intersection occured.
-   * * **index** The index of the intersection point in the list of vertices.
-   *
-   * Otherwise returns **null**.
-   *
-   * @description
-   * Given an x and y coordinate on the viewer canvas, returns information about the
-   * the point of intersection with a displayed object.
-   *
-   */
+  * @doc function
+  * @name viewer.rendering:pick
+  * @param {number} x The x coordinate on the canvas.
+  * @param {number} y The y coordinate on the canvas.
+  * @returns {object} If an intersection is detected, returns an object with the following information:
+  *
+  * * **object** The THREE.Object3D object with which the the click intersected.
+  * * **point** A THREE.Vector3 object representing the point in 3D space at which the intersection occured.
+  * * **index** The index of the intersection point in the list of vertices.
+  *
+  * Otherwise returns **null**.
+  *
+  * @description
+  * Given an x and y coordinate on the viewer canvas, returns information about the
+  * the point of intersection with a displayed object.
+  *
+  */
   viewer.pick = function(x, y) {
     var model = viewer.model;
     var projector = new THREE.Projector();

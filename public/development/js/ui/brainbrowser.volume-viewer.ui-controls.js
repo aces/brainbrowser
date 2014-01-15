@@ -184,13 +184,13 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
       viewer.addEventListener("sliceupdate", function() {
         var world_coords = volume.getWorldCoords();
         var voxel_coords = volume.getVoxelCoords();
-        world_coord_inputs.x.val(world_coords.x);
-        world_coord_inputs.y.val(world_coords.y);
-        world_coord_inputs.z.val(world_coords.z);
+        world_coord_inputs.x.val(world_coords.x.toPrecision(6));
+        world_coord_inputs.y.val(world_coords.y.toPrecision(6));
+        world_coord_inputs.z.val(world_coords.z.toPrecision(6));
 
-        voxel_coord_inputs.x.val(voxel_coords.x);
-        voxel_coord_inputs.y.val(voxel_coords.y);
-        voxel_coord_inputs.z.val(voxel_coords.z);
+        voxel_coord_inputs.x.val(voxel_coords.x.toPrecision(6));
+        voxel_coord_inputs.y.val(voxel_coords.y.toPrecision(6));
+        voxel_coord_inputs.z.val(voxel_coords.z.toPrecision(6));
       });
     }
     

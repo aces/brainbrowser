@@ -308,11 +308,14 @@
       */
       BrainBrowser.utils.eventModel(viewer);
 
-      
       Object.keys(SurfaceViewer.modules).forEach(function(m) {
         SurfaceViewer.modules[m](viewer);
       });
-      
+
+      if (BrainBrowser.utils.checkConfig("surface_viewer.worker_dir")) {
+        setupWorkers();
+      }
+
       //////////////////////////////////////////////////////  
       // Pass SurfaceViewer instance to calling application. 
       ////////////////////////////////////////////////////// 
@@ -322,9 +325,53 @@
 
   // Standard modules.
   SurfaceViewer.modules = {};
-  
-  // 3D Model filetype handlers.
-  SurfaceViewer.filetypes = {};
+
+  // URLS for Web Workers.
+  // May be network or Blob URLs
+  SurfaceViewer.worker_urls = {};
+
+  // Build worker URLs and attempt to inline 
+  // them using Blob URLs if possible.
+  function setupWorkers() {
+    var workers = {
+      data: "data.worker.js",
+      deindex: "deindex.worker.js"
+    };
+    var config = BrainBrowser.config.surface_viewer;
+
+    if (BrainBrowser.utils.checkConfig("surface_viewer.filetypes")) {
+      Object.keys(config.filetypes).forEach(function(type) {
+        workers[type] = config.filetypes[type].worker;
+      });
+    }
+
+    Object.keys(workers).forEach(function(type) {
+      var url = config.worker_dir + "/" + workers[type];
+      if (window.URL && window.URL.createObjectURL) {
+        var request = new XMLHttpRequest();
+        var status, blob;
+
+        request.open("GET", url);
+        request.onreadystatechange = function() {
+          if (request.readyState === 4){
+            status = request.status;
+
+            // Based on jQuery's "success" codes.
+            if(status >= 200 && status < 300 || status === 304) {
+              blob = new Blob([request.response], {type : "application/javascript"});
+              SurfaceViewer.worker_urls[type] = window.URL.createObjectURL(blob);
+            } else {
+              SurfaceViewer.worker_urls[type] = url;
+            }
+          }
+        };
+
+        request.send();
+      } else {
+        SurfaceViewer.worker_urls[type] = url;
+      }
+    });
+  }
   
 })();
 

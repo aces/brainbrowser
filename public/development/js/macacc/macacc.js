@@ -94,13 +94,13 @@
       }
       collection.flipRange = flip;
       
-      viewer.updateColors(collection.dataset.current_data, {
-        min: min,
-        max: max,
-        color_map: viewer.color_map,
-        flip: flip,
-        clamped: clamped
-      });
+      viewer.setAttribute("clamp_colors", clamped);
+      viewer.setAttribute("flip_colors", flip);
+
+      collection.dataset.current_data.range_min = min;
+      collection.dataset.current_data.range_max = max;
+
+      viewer.updateColors(collection.dataset.current_data);
       
       if (collection.afterUpdateMap) collection.afterUpdateMap(statistic);
   

@@ -47,8 +47,8 @@ $(function() {
     $("#color-map-box").append(color_map_select);
 
     //setting up some defaults
-    viewer.clamped = true; //By default clamp range.
-    viewer.flip = false;
+    viewer.setAttribute("clamp_colors", true); //By default clamp range.
+    viewer.setAttribute("flip_colors", false);
 
     ///////////////////////////////////
     // Event Listeners
@@ -106,7 +106,7 @@ $(function() {
     });
 
     viewer.addEventListener("rangechange", function(intensity_data) {
-      var canvas = viewer.color_map.createCanvasWithScale(intensity_data.rangeMin, intensity_data.rangeMax, null);
+      var canvas = viewer.color_map.createCanvasWithScale(intensity_data.range_min, intensity_data.range_max, null);
       canvas.id = "spectrum-canvas";
       $("#color-bar").html(canvas);
     });
@@ -125,9 +125,15 @@ $(function() {
         controls += 'Min: <input class="range-box" id="data-range-min" type="text" name="range_min" size="5" >';
         controls += '<div id="range-slider' + i + '" data-blend-index="' + i + '" class="slider"></div>';
         controls += 'Max: <input class="range-box" id="data-range-max" type="text" name="range_max" size="5">';
-        controls += '<input type="checkbox" class="button" id="fix_range"><label for="fix_range">Fix Range</label>';
-        controls += '<input type="checkbox" class="button" id="clamp_range" checked="true"><label for="clamp_range">Clamp range</label>';
-        controls += '<input type="checkbox" class="button" id="flip_range"><label for="flip_range">Flip Colors</label>';
+        controls += '<input type="checkbox" class="button" id="fix_range"' +
+                    (viewer.getAttribute("fix_color_range") ? ' checked="true"' : '') +
+                    '><label for="fix_range">Fix Range</label>';
+        controls += '<input type="checkbox" class="button" id="clamp_range"' +
+                    (viewer.getAttribute("clamp_colors") ? ' checked="true"' : '') +
+                    '><label for="clamp_range">Clamp range</label>';
+        controls += '<input type="checkbox" class="button" id="flip_range"' +
+                    (viewer.getAttribute("flip_colors") ? ' checked="true"' : '') +
+                    '><label for="flip_range">Flip Colors</label>';
         controls += '</div>';
       }
       headers += "</ul>";
@@ -144,8 +150,8 @@ $(function() {
 
         var data_min = BrainBrowser.utils.min(intensity_data.values);
         var data_max = BrainBrowser.utils.max(intensity_data.values);
-        var range_min = intensity_data.rangeMin;
-        var range_max = intensity_data.rangeMax;
+        var range_min = intensity_data.range_min;
+        var range_max = intensity_data.range_max;
 
         var min_input = controls.find("#data-range-min");
         var max_input = controls.find("#data-range-max");
@@ -153,8 +159,8 @@ $(function() {
 
         slider.slider({
           range: true,
-          min: range_min,
-          max: range_max,
+          min: data_min,
+          max: data_max,
           values: [range_min, range_max],
           step: (range_max - range_min) / 100.0,
           slide: function(event, ui) {
@@ -162,17 +168,17 @@ $(function() {
             var max = ui.values[1];
             min_input.val(min);
             max_input.val(max);
-            intensity_data.rangeMin = min;
-            intensity_data.rangeMax = max;
+            intensity_data.range_min = min;
+            intensity_data.range_max = max;
             viewer.model_data.intensity_data = intensity_data;
-            viewer.rangeChange(min, max, viewer.clamped);
+            viewer.rangeChange(min, max);
           }
         });
 
         slider.slider('values', 0, parseFloat(range_min));
         slider.slider('values', 1, parseFloat(range_max));
-        min_input.val(data_min);
-        max_input.val(data_max);
+        min_input.val(range_min);
+        max_input.val(range_max);
 
         function inputRangeChange(e) {
           var min = parseFloat(min_input.val())
@@ -186,30 +192,26 @@ $(function() {
         $("#data-range-max").change(inputRangeChange);
 
         $("#fix_range").click(function(event) {
-          viewer.fixRange = $(this).is(":checked");
+          viewer.setAttribute("fix_color_range", $(this).is(":checked"));
         });
 
         $("#clamp_range").change(function(e) {
           var min = parseFloat(min_input.val());
           var max = parseFloat(max_input.val());
 
-          if($(e.target).is(":checked")) {
-            viewer.rangeChange(min, max, true);
-          }else {
-            viewer.rangeChange(min, max, false);
-          }
+          viewer.setAttribute("clamp_colors", $(this).is(":checked"));
+
+          viewer.rangeChange(min, max);
         });
 
 
         $("#flip_range").change(function(e) {
-          viewer.flip = $(this).is(":checked");
-          viewer.updateColors(viewer.model_data.intensity_data, {
-            min: range_min,
-            max: range_max,
-            color_map: viewer.color_map,
-            flip: viewer.flip,
-            clamped: viewer.clamped
-          });
+          var min = parseFloat(min_input.val());
+          var max = parseFloat(max_input.val());
+
+          viewer.setAttribute("flip_colors", $(this).is(":checked"));
+
+          viewer.rangeChange(min, max);
         });
 
         viewer.triggerEvent("rangechange", intensity_data);
@@ -221,16 +223,15 @@ $(function() {
       var div = $("#blend-box");
       div.html("Blend Ratio: ");
       $("<span id=\"blend_value\">0.5</span>").appendTo(div);
-      $("<div class=\"blend_slider\" id=\"blend_slider\" width=\"100px\" + height=\"10\"></div>")
-        .slider({
-          min: 0.1,
-          max: 0.99,
-          value: 0.5,
-          step: 0.01,
-          slide: function() {
-            viewer.blend($(this).slider("value"));
-          }
-        }).appendTo(div);
+      $("<div class=\"blend_slider\" id=\"blend_slider\" width=\"100px\" + height=\"10\"></div>").slider({
+        min: 0.1,
+        max: 0.99,
+        value: 0.5,
+        step: 0.01,
+        slide: function() {
+          viewer.blend($(this).slider("value"));
+        }
+      }).appendTo(div);
     });
 
     ////////////////////////////////////

@@ -115,7 +115,6 @@ BrainBrowser.SurfaceViewer.parseIntensityData = function(raw, callback) {
       }
     }
 
-    //return colors;
     if (callback) callback(colors);
   };
   

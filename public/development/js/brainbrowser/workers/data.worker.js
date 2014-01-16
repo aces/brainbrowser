@@ -22,22 +22,16 @@
 
 (function() {
   "use strict";
-
-  var result = {};
   
   self.addEventListener("message", function(e) {
     var message = e.data;
     var cmd = message.cmd;
     var data = message.data;
-    if (cmd === "parse") {
-      parse(data);
-      self.postMessage(result);
-    } else {
-      self.terminate();
-    }
+      self.postMessage(parse(data));
   });
   
   function parse(string) {
+    var result = {};
     var i, count, min, max;
   
     string = string.replace(/^\s+/, '').replace(/\s+$/, '');
@@ -51,6 +45,8 @@
     }
     result.min = min;
     result.max = max;
+
+    return result;
   }
  
 })();

@@ -33,11 +33,6 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   * @param {object} data Data object.
   * @param {object} options Options for the color update, which include the following: 
   * 
-  * * **min** Minimum intensity.
-  * * **max** Maximum intensity.
-  * * **color_map** Color map object used to create the color array.
-  * * **flip** Should the colors be flipped?
-  * * **clamped** Should values be clampled to the min/max range?
   * * **blend** Are the colors being blended with already loaded values?
   * * **complete** Callback function to call when the color update is done.
   * 
@@ -48,14 +43,14 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   
   viewer.updateColors = function(data, options) {
     options = options || {};
-    var min = options.min;
-    var max = options.max;
-    var color_map = options.color_map;
-    var flip = options.flip;
-    var clamped = options.clamped;
     var blend = options.blend;
     var complete = options.complete;
 
+    var min = data.range_min;
+    var max = data.range_max;
+    var flip = viewer.getAttribute("flip_colors");
+    var clamped = viewer.getAttribute("clamp_colors");
+    var color_map = viewer.color_map;
 
     function applyColorArray(color_array) {
       var shapes;
@@ -75,8 +70,6 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
       }
 
     }
-
-    viewer.clamped = clamped;
 
     // Color updates will be asynchronous because they take a while.
     // New requests for color updates will replace old ones.
@@ -103,18 +96,14 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
    * @description
    * Update the range of colors being applied to the current model.
    */
-  viewer.rangeChange = function(min, max, clamped, options) {
+  viewer.rangeChange = function(min, max, options) {
     options = options || {};
     var data = viewer.model_data.intensity_data;
     
-    data.rangeMin = min;
-    data.rangeMax = max;
+    data.range_min = min;
+    data.range_max = max;
+
     viewer.updateColors(data, {
-      min: data.rangeMin,
-      max: data.rangeMax,
-      color_map: viewer.color_map,
-      flip: viewer.flip,
-      clamped: clamped,
       complete: options.complete
     });
 
@@ -139,12 +128,8 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     for(i = 2; i < blendDataLength; i++) {
       blendData[i].alpha = 0.0;
     }
-    
 
     viewer.updateColors(blendData, {
-      color_map: viewer.color_map,
-      flip: viewer.flip,
-      clamped: viewer.clamped,
       blend: true
     });
   };
@@ -272,8 +257,8 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     for(i = 0; i < count; i++){
       value_array = value_arrays[i];
       color_arrays[i] = color_map.mapColors(value_array.values, {
-        min: value_array.rangeMin,
-        max: value_array.rangeMax,
+        min: value_array.range_min,
+        max: value_array.range_max,
         alpha: value_array.alpha
       });
     }

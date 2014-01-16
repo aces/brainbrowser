@@ -178,9 +178,57 @@
       *
       * ```
       */
+
+      var attributes = {};
+
       var viewer = {
         view_window: document.getElementById(element_id), // Div where the canvas will be loaded.
-        model: null                                       // The currently loaded model. Should be set by rendering.
+        model: null,                                      // The currently loaded model. Should be set by rendering.
+        /**
+        * @doc function
+        * @name viewer.attributes:getAttribute
+        * @param {string} name Name of the attribute to retrieve.
+        * 
+        * @description
+        * Retrieve the value of an attribute.
+        *
+        * The viewer object can maintain an arbitrary set of key-value
+        * to aid in the functioning of various parts of the system. 
+        *
+        * Currently, the following attributes are used by the Surface Viewer:
+        *
+        * * clamp_colors: clamp intensity values outside the current range to maximum
+        *   and minimum values of the color map.
+        * * flip_colors: invert the intensity to color map relationship.
+        * * fix_color_range: maintain the current intensity range, even if new data is 
+        *   loaded.
+        */
+        getAttribute: function(name) {
+          return attributes[name];
+        },
+        /**
+        * @doc function
+        * @name viewer.attributes:setAttribute
+        * @param {string} name Name of the attribute to retrieve.
+        * @param {any} value Value to set the attribute to.
+        * 
+        * @description
+        * Set the value of an attribute. 
+        *
+        * The viewer object can maintain an arbitrary set of key-value
+        * pairs to aid in the functioning of various parts of the system. 
+        *
+        * Currently, the following attributes are used by the Surface Viewer:
+        *
+        * * clamp_colors: clamp intensity values outside the current range to maximum
+        *   and minimum values of the color map.
+        * * flip_colors: invert the intensity to color map relationship.
+        * * fix_color_range: maintain the current intensity range, even if new data is 
+        *   loaded.
+        */
+        setAttribute: function(name, value) {
+          attributes[name] = value;
+        }
       };
       
       //////////////////////////////

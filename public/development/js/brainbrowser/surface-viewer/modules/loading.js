@@ -241,37 +241,51 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var model_data = viewer.model_data;
     var blend_index = options.blend_index || 0;
     var other_index = 1 - blend_index; // 1 or 0
+    
+    var old_range = {};
+
+    if (viewer.getAttribute("fix_color_range") && model_data.intensity_data) {
+      old_range = {
+        min: model_data.intensity_data.range_min,
+        max: model_data.intensity_data.range_max
+      }
+    }
+
 
     viewer.blendData = viewer.blendData || [];
 
     SurfaceViewer.parseIntensityData(text, function(data) {
-      var max = options.max === undefined ? data.max : options.max;
-      var min = options.min === undefined ? data.min : options.min;
+      var min;
+      var max;
+
+      if (viewer.getAttribute("fix_color_range") && 
+          old_range.min !== undefined && old_range.max !== undefined) {
+        min = old_range.min;
+        max = old_range.max;
+      } else {
+        min = options.min === undefined ? data.min : options.min;
+        max = options.max === undefined ? data.max : options.max;
+      }
       
       data.filename = name;
       data.apply_to_shape = options.shape;
       data.applied = false;
       model_data.intensity_data = data;
       viewer.blendData[blend_index] = data;
-      initRange(min, max, data);
+      data.range_min = min;
+      data.range_max = max;
       
       if (viewer.blendData[other_index] && viewer.blendData[other_index].applied) {
-        initRange(BrainBrowser.utils.min(viewer.blendData[other_index].values),
-          BrainBrowser.utils.max(viewer.blendData[other_index].values),
-          viewer.blendData[other_index]
-        );
+        viewer.blendData[other_index].range_min = BrainBrowser.utils.min(viewer.blendData[other_index].values);
+        viewer.blendData[other_index].range_max = BrainBrowser.utils.max(viewer.blendData[other_index].values);
+
+        viewer.blend(0.5);
 
         viewer.triggerEvent("loadintensitydata", viewer.blendData);
-        viewer.blend(0.5);
-        viewer.triggerEvent("blendcolormaps", data.rangeMin, data.rangeMax, data);
+        viewer.triggerEvent("blendcolormaps", data.range_min, data.range_max, data);
       } else {
         viewer.triggerEvent("loadintensitydata", data);
         viewer.updateColors(data, {
-          min: data.rangeMin,
-          max: data.rangeMax,
-          color_map: viewer.color_map,
-          flip: viewer.flip,
-          clamped: viewer.clamped,
           complete: options.complete
         });
       }
@@ -287,13 +301,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     viewer.triggerEvent("loadcolormap", viewer.color_map);
 
     if (model_data && model_data.intensity_data) {
-      viewer.updateColors(model_data.intensity_data, {
-        min: model_data.intensity_data.rangeMin,
-        max: model_data.intensity_data.rangeMax,
-        color_map: viewer.color_map,
-        flip: viewer.flip,
-        clamped: viewer.clamped
-      });
+      viewer.updateColors(model_data.intensity_data);
     }
   }
 
@@ -318,24 +326,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     xhr.send(form_data);
     text_data = xhr.response;
     onfinish(text_data);
-  }
-  
-  /**
-   * Initialize the range for a file if it's not already set or
-   * fixed by the user.
-   * @param {Number} min minimum value of the range if the  range is not fixed
-   * @param {Number} max maximum value of the range if the range is not fixed
-   * @param {Object} file Data file on which the range will be set
-   */
-  function initRange(min, max, file) {
-    if (!file) {
-      file = viewer.model_data.intensity_data;
-    }
-
-    if (!file.fixRange) {
-      file.rangeMin = min;
-      file.rangeMax = max;
-    }
   }
   
   // Allows the loading of data to be cancelled after the request is sent

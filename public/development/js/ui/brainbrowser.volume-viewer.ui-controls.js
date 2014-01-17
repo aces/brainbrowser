@@ -106,13 +106,13 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
     }
   };
   
-  viewer.coordinateUI = function(controls, volume) {
+  viewer.coordinateUI = function(controls, volume, volID) {
     var coords, world_coords_div, voxel_coords_div;
     if (volume.getWorldCoords) {
       coords = $('<div class="coords"></div>');
 
       world_coords_div = $(
-        '<div class="control-heading" id="world-coordinates-heading">World Coordinates: </div>' +
+        '<div class="control-heading" id="world-coordinates-heading'+volID+'">World Coordinates: </div>' +
         '<div class="world-coords">' +
         
         'X:<input id="world-x" class="control-inputs"></input>' +
@@ -148,7 +148,7 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
       });
       
       voxel_coords_div = $(
-        '<div class="control-heading" id="voxel-coordinates-heading">Voxel Coordinates: </div>' +
+        '<div class="control-heading" id="voxel-coordinates-heading'+volID+'">Voxel Coordinates: </div>' +
         '<div class="voxel-coords">' +
         
         'X:<input id="voxel-x" class="control-inputs"></input>' +
@@ -199,9 +199,9 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
     controls.append(coords);
   };
   
-  viewer.blendUI = function(controls, volume) {
+  viewer.blendUI = function(controls, volume, volID) {
     var blendSlider = $("<div id=\"blend-slider\" class=\"slider volume-viewer-blend\"></div>");
-    var blend = $("<div class=\"control-heading\" id=\"blend-heading\" >Blend (-50 to 50): </div>");
+    var blend = $("<div class=\"control-heading\" id=\"blend-heading"+volID+"\">Blend (-50 to 50): </div>");
     var blend_val = $("<input class=\"control-inputs\" value=\"0\" id =\"blend-val\"/>");
     blend.append(blend_val);
     
@@ -239,7 +239,7 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
     });
   };
   
-  viewer.colorScaleUI = function(controls, volume) {
+  viewer.colorScaleUI = function(controls, volume, volID) {
     var colorScaleOption = $("<select></select>");
     var list = "";
     VolumeViewer.colorScales.forEach(function(scale, i) {
@@ -255,11 +255,11 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
       viewer.redrawVolumes();
     });
     
-    controls.append($("<div class=\"control-heading\" id=\"color-scale-heading\" >Color Scale: </div>").append(colorScaleOption));
+    controls.append($("<div class=\"control-heading\" id=\"color-scale-heading"+volID+"\" >Color Scale: </div>").append(colorScaleOption));
   };
   
   viewer.thresholdUI = function(controls, volume) {
-    var thresh_slider = $('<div class="slider volume-viewer-threshold" id="threshold-slider"></div>');
+    var thresh_slider = $('<div class="slider volume-viewer-threshold" id="threshold-slider'+volID+'"></div>');
     var thresholds = $("<div class=\"control-heading\" class=\"slider-div\">Threshold: </div>");
     var min_input = $('<input class="control-inputs thresh-input-left" value="0"/>');
     var max_input = $('<input class="control-inputs thresh-input-right" value="255"/>');
@@ -322,7 +322,7 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
   
   viewer.timeUI = function(controls, volume, volID) {
     var time_controls = $("<div class=\"control-heading\" class=\"slider-div\">Time: </div>");
-    var time_slider = $('<div class="slider volume-viewer-threshold" id="threshold-time-slider"></div>');
+    var time_slider = $('<div class="slider volume-viewer-threshold" id="threshold-time-slider'+volID+'"></div>');
     var time_val = $("<input class=\"control-inputs\" value=\"0\" id =\"time-val\"/>");
     var play_button = $('<input type="checkbox" class="button" id="play-' + volID +'"><label for="play-' + volID + '">Play</label>');
     var min = 0;
@@ -382,9 +382,9 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
     controls.append(play_button);
   };
   
-  viewer.sliceSeriesUI = function(controls, volume) {
-    var slice_controls = $("<div class=\"control-heading\" id=\"slice-series-heading\">All slices: </div>");
-    var button_div = $("<div id=\"slice-series-buttons\"></div>");
+  viewer.sliceSeriesUI = function(controls, volume, volID) {
+    var slice_controls = $("<div class=\"control-heading\" id=\"slice-series-heading"+volID+"\">All slices: </div>");
+    var button_div = $("<div id=\"slice-series-buttons"+volID+"\"></div>");
     var xspace_button = $('<span class="slice-series button" data-axis="xspace" style="font-size: 11px">Sagittal</span>');
     var yspace_button = $('<span class="slice-series button" data-axis="yspace" style="font-size: 11px">Coronal</span>');
     var zspace_button = $('<span class="slice-series button" data-axis="zspace" style="font-size: 11px">Transverse</span>');

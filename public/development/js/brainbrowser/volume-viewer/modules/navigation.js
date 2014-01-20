@@ -34,7 +34,7 @@ BrainBrowser.VolumeViewer.modules.navigation = function(viewer) {
   * @doc function
   * @name viewer.volumes:updateVolume
   * @param {number} volume_num Index of the volume.
-  * @param {array} slices slices Slice to update.
+  * @param {array} slices Slice to update.
   *
   * @description
   * Update a volume with the given slices.

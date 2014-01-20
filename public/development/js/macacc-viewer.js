@@ -123,7 +123,7 @@ $(function() {
       slide: function(event, ui) {
         $("#data-range-min").val(ui.values[0]);
         $("#data-range-max").val(ui.values[1]);
-        macacc.rangeChange();
+        macacc.setIntensityRange();
       },
       step: 0.1
     });
@@ -132,7 +132,7 @@ $(function() {
 
     $(".range-box").keypress(function(e) {
       if(e.keyCode === '13'){
-        macacc.rangeChange();
+        macacc.setIntensityRange();
       }
     });
 

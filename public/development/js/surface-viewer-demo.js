@@ -171,7 +171,7 @@ $(function() {
             intensity_data.range_min = min;
             intensity_data.range_max = max;
             viewer.model_data.intensity_data = intensity_data;
-            viewer.rangeChange(min, max);
+            viewer.setIntensityRange(min, max);
           }
         });
 
@@ -186,7 +186,7 @@ $(function() {
           
           slider.slider('values', 0, min);
           slider.slider('values', 1, max);
-          viewer.rangeChange(min, max, controls.find("#clamp_range").is(":checked"));
+          viewer.setIntensityRange(min, max, controls.find("#clamp_range").is(":checked"));
         }
         $("#data-range-min").change(inputRangeChange);
         $("#data-range-max").change(inputRangeChange);
@@ -201,7 +201,7 @@ $(function() {
 
           viewer.setAttribute("clamp_colors", $(this).is(":checked"));
 
-          viewer.rangeChange(min, max);
+          viewer.setIntensityRange(min, max);
         });
 
 
@@ -211,7 +211,7 @@ $(function() {
 
           viewer.setAttribute("flip_colors", $(this).is(":checked"));
 
-          viewer.rangeChange(min, max);
+          viewer.setIntensityRange(min, max);
         });
 
         viewer.triggerEvent("rangechange", intensity_data);

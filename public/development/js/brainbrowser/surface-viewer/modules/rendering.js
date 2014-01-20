@@ -53,7 +53,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     light.position.set(0, 0, 500);
     scene.add(light);
     
-    viewer.autoRotate = {};
+    viewer.autorotate = {};
     
     window.onresize = function() {
       effect.setSize(view_window.offsetWidth, view_window.offsetHeight);
@@ -290,13 +290,13 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     delta = current_frame - last_frame;
     rotation = delta * 0.00015;
 
-    if (viewer.autoRotate.x) {
+    if (viewer.autorotate.x) {
       model.rotation.x += rotation;
     }
-    if (viewer.autoRotate.y) {
+    if (viewer.autorotate.y) {
       model.rotation.y += rotation;
     }
-    if (viewer.autoRotate.z) {
+    if (viewer.autorotate.z) {
       model.rotation.z += rotation;
     }
 

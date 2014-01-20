@@ -123,8 +123,8 @@ BrainBrowser.SurfaceViewer.modules.ui = function(viewer) {
   });
   
   $("#autorotate-controls").children().change(function () {
-    viewer.autoRotate.x = $("#autorotateX").is(":checked");
-    viewer.autoRotate.y = $("#autorotateY").is(":checked");
-    viewer.autoRotate.z = $("#autorotateZ").is(":checked");
+    viewer.autorotate.x = $("#autorotateX").is(":checked");
+    viewer.autorotate.y = $("#autorotateY").is(":checked");
+    viewer.autorotate.z = $("#autorotateZ").is(":checked");
   });
 };

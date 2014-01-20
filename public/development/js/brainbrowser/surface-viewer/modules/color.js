@@ -86,7 +86,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
 
   /** 
    * @doc function
-   * @name viewer.color:rangeChange
+   * @name viewer.color:setIntensityRange
    * @param {number} min Minimum value of the range.
    * @param {number} max Maximum value of the range.
    * @param {boolean} clamped Should values be clampled to the min/max range?
@@ -96,7 +96,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
    * @description
    * Update the range of colors being applied to the current model.
    */
-  viewer.rangeChange = function(min, max, options) {
+  viewer.setIntensityRange = function(min, max, options) {
     options = options || {};
     var data = viewer.model_data.intensity_data;
     

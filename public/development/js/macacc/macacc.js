@@ -114,7 +114,7 @@
   
     // Callback to update map after a change in range.
     var timeout = null;
-    collection.rangeChange = function(options) {
+    collection.setIntensityRange = function(options) {
       if (timeout !== null) return;
 
       timeout = setTimeout(function() {

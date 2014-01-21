@@ -62,18 +62,18 @@ BrainBrowser.SurfaceViewer.modules.ui = function(viewer) {
       shape = shape.getObjectByName("__wireframe__") || shape;
     }
 
-    shape.visible = input.is(":checked");  
+    shape.visible = input.is(":checked");
   });
   
   $('[name=hem_view]').change(function() {
     viewer.setView($('[name=hem_view]:checked').val());
   });
   
-  $('#meshmode').change(function(e) {
+  $('#meshmode').change(function() {
     viewer.setWireframe($(this).is(":checked"));
   });
   
-  $('#threedee').change(function(e) {
+  $('#threedee').change(function() {
     viewer.setEffect($(this).is(":checked") ? "AnaglyphEffect" : "None");
   });
   

@@ -140,13 +140,13 @@ module.exports = function(grunt) {
         },
         src: [
           "<%= dev_js %>/index.js",
-          "<%= dev_js %>/lib/ui.js",
           "<%= concat.surface.src %>",
           "<%= dev_js %>/surface-viewer.js",
           "<%= dev_js %>/macacc/macacc.js",
           "<%= dev_js %>/macacc-viewer.js",
           "<%= concat.volume.src %>",
-          "<%= dev_js %>/fmri-viewer.js"
+          "<%= dev_js %>/fmri-viewer.js",
+          "<%= dev_js %>/ui/*.js"
         ]
       },
       workers: {

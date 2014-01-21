@@ -25,8 +25,10 @@ exports.fmri = function(req, res) {
 exports.surface_widget = function(req, res) {
   var query = req.query;
 
+  var protocol = query.http ? "http" : "https";
+
   res.render('surface-viewer-widget', {
-    host: req.protocol + "://" + req.get("host"),
+    host: protocol + "://" + req.get("host"),
     layout: false,
     nothreejs: query.nothreejs,
     viewer_callback: query.viewer_callback,

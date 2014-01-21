@@ -65,7 +65,7 @@ if (cluster.isMaster) {
   app.get("/fmri-viewer", routes.fmri);
   app.get("/surface-viewer-widget", routes.surface_widget);
 
-  app.get('/data/:filename', function(req,res) {
+  app.get('/data/:filename', function(req, res) {
     var filename = req.params.filename;
     var raw_filename, gz_raw_filename, header_filename;
     var gzip = zlib.createGzip();

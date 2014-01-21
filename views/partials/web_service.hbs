@@ -1,0 +1,64 @@
+<h2>Surface Viewer Web Service (alpha)</h2>
+<p>
+  Load a BrainBrowser Surface Viewer widget into your web page to view your own data! Simply make an HTTP request to the following URL:
+</p>
+<p>
+  <a href="/surface-viewer-widget">https://brainbrowser.cbrain.mcgill.ca/surface-viewer-widget</a>
+</p>
+<p>
+   and insert the renturned HTML into your page. The Web Service will automatically load all required library files and
+   launch the viewer. Optionally, you can provide a callback function to programatically control the viewer.
+</p>
+<h2>
+  Examples
+</h2>
+<p>
+  Load brain.obj MNIObj model into a 200 X 200 viewer:
+  <pre>
+    <span style='color:#808030; '>&lt;</span><span style='color:#603000; '>div</span> id<span style='color:#808030; '>=</span><span style='color:#800000; '>"</span><span style='color:#0000e6; '>display</span><span style='color:#800000; '>"</span><span style='color:#808030; '>></span><span style='color:#808030; '>&lt;</span><span style='color:#808030; '>/</span><span style='color:#603000; '>div</span><span style='color:#808030; '>></span>
+    <span style='color:#808030; '>&lt;</span>script type<span style='color:#808030; '>=</span><span style='color:#800000; '>"</span><span style='color:#0000e6; '>text/javascript</span><span style='color:#800000; '>"</span> src<span style='color:#808030; '>=</span><span style='color:#800000; '>"</span><span style='color:#0000e6; '>jquery.min.js</span><span style='color:#800000; '>"</span><span style='color:#808030; '>></span><span style='color:#808030; '>&lt;</span><span style='color:#808030; '>/</span>script<span style='color:#808030; '>></span>
+    <span style='color:#808030; '>&lt;</span>script type<span style='color:#808030; '>=</span><span style='color:#800000; '>"</span><span style='color:#0000e6; '>text/javascript</span><span style='color:#800000; '>"</span><span style='color:#808030; '>></span>
+      $<span style='color:#808030; '>(</span><span style='color:#800000; '>"</span><span style='color:#0000e6; '>#display</span><span style='color:#800000; '>"</span><span style='color:#808030; '>)</span><span style='color:#808030; '>.</span>load<span style='color:#808030; '>(</span><span style='color:#800000; '>"</span><span style='color:#0000e6; '>https://brainbrowser.cbrain.mcgill.ca/surface-viewer-widget?width=200&amp;height=200&amp;model=brain.obj&amp;format=MNIObj</span><span style='color:#800000; '>"</span><span style='color:#808030; '>)</span><span style='color:#800080; '>;</span>   
+    <span style='color:#808030; '>&lt;</span><span style='color:#808030; '>/</span>script<span style='color:#808030; '>></span>
+  </pre>
+</p>
+<p>
+  Use a viewer callback to set up a UI for the viewer (see the <a href="/documentation/brainbrowser/surface-viewer/viewer">viewer object API</a> ):
+  <pre>
+    <span style='color:#808030; '>&lt;</span><span style='color:#603000; '>div</span> id<span style='color:#808030; '>=</span><span style='color:#800000; '>"</span><span style='color:#0000e6; '>display</span><span style='color:#800000; '>"</span><span style='color:#808030; '>></span><span style='color:#808030; '>&lt;</span><span style='color:#808030; '>/</span><span style='color:#603000; '>div</span><span style='color:#808030; '>></span>
+    <span style='color:#808030; '>&lt;</span><span style='color:#603000; '>div</span> id<span style='color:#808030; '>=</span><span style='color:#800000; '>"</span><span style='color:#0000e6; '>wireframe</span><span style='color:#800000; '>"</span><span style='color:#808030; '>></span>Wireframe<span style='color:#808030; '>&lt;</span><span style='color:#808030; '>/</span><span style='color:#603000; '>div</span><span style='color:#808030; '>></span>
+    <span style='color:#808030; '>&lt;</span>script type<span style='color:#808030; '>=</span><span style='color:#800000; '>"</span><span style='color:#0000e6; '>text/javascript</span><span style='color:#800000; '>"</span> src<span style='color:#808030; '>=</span><span style='color:#800000; '>"</span><span style='color:#0000e6; '>jquery.min.js</span><span style='color:#800000; '>"</span><span style='color:#808030; '>></span><span style='color:#808030; '>&lt;</span><span style='color:#808030; '>/</span>script<span style='color:#808030; '>></span>
+    <span style='color:#808030; '>&lt;</span>script type<span style='color:#808030; '>=</span><span style='color:#800000; '>"</span><span style='color:#0000e6; '>text/javascript</span><span style='color:#800000; '>"</span><span style='color:#808030; '>></span>
+      function init<span style='color:#808030; '>(</span>viewer<span style='color:#808030; '>)</span> <span style='color:#800080; '>{</span>
+        var wireframe <span style='color:#808030; '>=</span> false<span style='color:#800080; '>;</span>    
+        $<span style='color:#808030; '>(</span><span style='color:#800000; '>"</span><span style='color:#0000e6; '>#wireframe</span><span style='color:#800000; '>"</span><span style='color:#808030; '>)</span><span style='color:#808030; '>.</span>click<span style='color:#808030; '>(</span>function<span style='color:#808030; '>(</span><span style='color:#808030; '>)</span> <span style='color:#800080; '>{</span>
+          wireframe <span style='color:#808030; '>=</span> <span style='color:#808030; '>!</span>wireframe<span style='color:#800080; '>;</span>
+          viewer<span style='color:#808030; '>.</span>setWireframe<span style='color:#808030; '>(</span>wireframe<span style='color:#808030; '>)</span><span style='color:#800080; '>;</span>
+        <span style='color:#800080; '>}</span><span style='color:#808030; '>)</span><span style='color:#800080; '>;</span>
+      <span style='color:#800080; '>}</span>
+      $<span style='color:#808030; '>(</span><span style='color:#800000; '>"</span><span style='color:#0000e6; '>#display</span><span style='color:#800000; '>"</span><span style='color:#808030; '>)</span><span style='color:#808030; '>.</span>load<span style='color:#808030; '>(</span><span style='color:#800000; '>"</span><span style='color:#0000e6; '>https://brainbrowser.cbrain.mcgill.ca/surface-viewer-widget?model=brain.obj&amp;format=MNIObj&amp;viewer_callback=init</span><span style='color:#800000; '>"</span><span style='color:#808030; '>)</span><span style='color:#800080; '>;</span>   
+    <span style='color:#808030; '>&lt;</span><span style='color:#808030; '>/</span>script<span style='color:#808030; '>></span>
+  </pre>
+</p>
+<h2>Options</h2>
+<p>
+  The loaded viewer can be customized by passing options to the web service as parameters in the URL. 
+  Supported options for the Surface Viewer Web Service include:
+</p>
+<dl>
+  <dt class="credit-title">width</dt><dd>Width of the loaded viewer in pixels (default 400)</dd>
+  <dt class="credit-title">height</dt><dd>Height of the loaded viewer in pixels (default 400)</dd>
+  <dt class="credit-title">model</dt><dd>URL of a model file to load</dd>
+  <dt class="credit-title">format</dt><dd>File format of the model file (MNIObj, WavefrontObj, FreesurferAsc)</dd>
+  <dt class="credit-title">intensity_data</dt><dd>Intensity data to map onto the model (requires a color map)</dd>
+  <dt class="credit-title">color_map</dt><dd>Color map used to display the intensity data</dd>
+  <dt class="credit-title">zoom</dt><dd>Initial zoom level on the model (default 1.0)</dd>
+  <dt class="credit-title">viewer_callback</dt>
+  <dd>
+    A function defined in the client page what will be called, and to which a 
+    <a href="/documentation/brainbrowser/surface-viewer/viewer">viewer object</a> 
+    will be passed once the viewer begins rendering
+  </dd>
+  <dt class="credit-title">element_id</dt><dd>ID of the HTML element that will be inserted into the page (default "brainbrowser")</dd>
+  <dt class="credit-title">nothreejs</dt><dd>Don't load three.js (i.e. if it's already loaded in the page)</dd>
+</dl>

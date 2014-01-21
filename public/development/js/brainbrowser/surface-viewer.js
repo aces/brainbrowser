@@ -71,7 +71,7 @@
 *     worker_dir: "js/brainbrowser/workers/",
 *
 *     filetypes: {
-*       MNIObject: {
+*       MNIObj: {
 *         worker: "mniobj.worker.js",
 *       },
 *       WavefrontObj: {

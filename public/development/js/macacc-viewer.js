@@ -47,7 +47,7 @@ $(function() {
     viewer.render();
     
     viewer.loadModelFromURL('/models/surf_reg_model_both.obj', {
-      format: "MNIObject",
+      format: "MNIObj",
       parse: { split: true },
       complete: function() {
         hideLoading();
@@ -108,7 +108,7 @@ $(function() {
           showLoading();
           macacc.changeModel($(event.target).val(), {
             complete: hideLoading,
-            format: "MNIObject",
+            format: "MNIObj",
             parse: { split: true }
           });
         });

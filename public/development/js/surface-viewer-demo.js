@@ -273,7 +273,7 @@ $(function() {
       var examples = {
         basic: function() {
           viewer.loadModelFromURL('/models/surf_reg_model_both.obj', {
-            format: "MNIObject",
+            format: "MNIObj",
             complete: hideLoading,
             cancel: defaultCancelOptions(current_request),
             parse: { split: true }
@@ -281,23 +281,23 @@ $(function() {
         },
         punkdti: function() {
           viewer.loadModelFromURL('/models/dti.obj', {
-            format: "MNIObject",
+            format: "MNIObj",
             render_depth: 999,
             complete: hideLoading,
             cancel: defaultCancelOptions(current_request)
           });
           viewer.loadModelFromURL('/models/left_color.obj', {
-            format: "MNIObject",
+            format: "MNIObj",
             cancel: defaultCancelOptions(current_request)
           });
           viewer.loadModelFromURL('/models/right_color.obj', {
-            format: "MNIObject",
+            format: "MNIObj",
             cancel: defaultCancelOptions(current_request)
           });
         },
         realct: function() {
           viewer.loadModelFromURL('/models/realct.obj', {
-            format: "MNIObject",
+            format: "MNIObj",
             parse: { split: true },
             complete: function() {
               viewer.loadIntensityDataFromURL('/models/realct.txt', {
@@ -326,11 +326,11 @@ $(function() {
         },
         plane: function() {
           viewer.loadModelFromURL('/models/dlr_bigger.streamlines.obj', {
-            format: "MNIObject",
+            format: "MNIObj",
             cancel: defaultCancelOptions(current_request)
           });
           viewer.loadModelFromURL('/models/dlr.model.obj', {
-            format: "MNIObject",
+            format: "MNIObj",
             complete: hideLoading,
             cancel: defaultCancelOptions(current_request)
           });
@@ -345,7 +345,7 @@ $(function() {
         },
         mouse: function() {
           viewer.loadModelFromURL('/models/mouse_surf.obj', {
-            format: "MNIObject",
+            format: "MNIObj",
             render_depth: 999,
             complete: function() {
               viewer.loadIntensityDataFromURL('/models/mouse_alzheimer_map.txt', {
@@ -361,7 +361,7 @@ $(function() {
             cancel: defaultCancelOptions(current_request)
           });
           viewer.loadModelFromURL('/models/mouse_brain_outline.obj', {
-            format: "MNIObject",
+            format: "MNIObj",
             complete: function() {
               setTimeout(function() {
                 $(".opacity-slider[data-shape-name='mouse_brain_outline.obj']").slider("value", 50);

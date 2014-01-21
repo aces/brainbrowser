@@ -32,7 +32,6 @@ exports.surface_widget = function(req, res) {
     layout: false,
     nothreejs: query.nothreejs,
     viewer_callback: query.viewer_callback,
-    autostart: query.autostart,
     element_id: query.element_id || "brainbrowser",
     width: query.width || 400,
     height: query.height || 400,

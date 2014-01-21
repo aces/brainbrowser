@@ -258,7 +258,7 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
     controls.append($("<div class=\"control-heading\" id=\"color-scale-heading"+volID+"\" >Color Scale: </div>").append(colorScaleOption));
   };
   
-  viewer.thresholdUI = function(controls, volume) {
+  viewer.thresholdUI = function(controls, volume, volID) {
     var thresh_slider = $('<div class="slider volume-viewer-threshold" id="threshold-slider'+volID+'"></div>');
     var thresholds = $("<div class=\"control-heading\" class=\"slider-div\">Threshold: </div>");
     var min_input = $('<input class="control-inputs thresh-input-left" value="0"/>');

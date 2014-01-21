@@ -25,9 +25,8 @@
   
   self.addEventListener("message", function(e) {
     var message = e.data;
-    var cmd = message.cmd;
     var data = message.data;
-      self.postMessage(parse(data));
+    self.postMessage(parse(data));
   });
   
   function parse(string) {

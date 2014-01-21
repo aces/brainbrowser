@@ -248,7 +248,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       old_range = {
         min: model_data.intensity_data.range_min,
         max: model_data.intensity_data.range_max
-      }
+      };
     }
 
 
@@ -258,7 +258,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       var min;
       var max;
 
-      if (viewer.getAttribute("fix_color_range") && 
+      if (viewer.getAttribute("fix_color_range") &&
           old_range.min !== undefined && old_range.max !== undefined) {
         min = old_range.min;
         max = old_range.max;

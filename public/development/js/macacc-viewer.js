@@ -152,8 +152,8 @@ $(function() {
       var view_window = viewer.view_window;
       var pointer_setting = $('[name=pointer]:checked').val();
       var offset = BrainBrowser.utils.getOffset(view_window);
-      var mouseX = ((e.clientX - offset.left + window.scrollX)/view_window.offsetWidth) * 2 - 1;
-      var mouseY = -((e.clientY - offset.top + window.scrollY)/view_window.offsetHeight) * 2 + 1;
+      var mouseX = e.clientX - offset.left + window.scrollX;
+      var mouseY = e.clientY - offset.top + window.scrollY;
       
       if(e.ctrlKey || pointer_setting === "check") {
         macacc.valueAtPoint(viewer.pick(mouseX, mouseY));

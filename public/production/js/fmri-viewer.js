@@ -16,7 +16,7 @@
  */
 
 /*
-* BrainBrowser v1.3.8
+* BrainBrowser v1.4.0
 * https://brainbrowser.cbrain.mcgill.ca/
 *
 * Author: Tarek Sherif  <tsherif@gmail.com> (http://tareksherif.ca/)

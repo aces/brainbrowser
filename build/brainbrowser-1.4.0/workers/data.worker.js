@@ -16,10 +16,10 @@
  */
 
 /*
-* BrainBrowser v1.3.8
+* BrainBrowser v1.4.0
 * https://brainbrowser.cbrain.mcgill.ca/
 *
 * Author: Tarek Sherif  <tsherif@gmail.com> (http://tareksherif.ca/)
 * Author: Nicolas Kassis
 */
-!function(){"use strict";function a(a){var c,d,e,f;for(a=a.replace(/^\s+/,"").replace(/\s+$/,""),b.values=a.split(/\s+/),e=b.values[0],f=b.values[0],c=0,d=b.values.length;d>c;c++)b.values[c]=parseFloat(b.values[c]),e=Math.min(e,b.values[c]),f=Math.max(f,b.values[c]);b.min=e,b.max=f}var b={};self.addEventListener("message",function(c){var d=c.data,e=d.cmd,f=d.data;"parse"===e?(a(f),self.postMessage(b)):self.terminate()})}();
+!function(){"use strict";function a(a){var b,c,d,e,f={};for(a=a.replace(/^\s+/,"").replace(/\s+$/,""),f.values=a.split(/\s+/),d=f.values[0],e=f.values[0],b=0,c=f.values.length;c>b;b++)f.values[b]=parseFloat(f.values[b]),d=Math.min(d,f.values[b]),e=Math.max(e,f.values[b]);return f.min=d,f.max=e,f}self.addEventListener("message",function(b){var c=b.data,d=c.data;self.postMessage(a(d))})}();

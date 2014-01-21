@@ -1,13 +1,5 @@
-<div id="display">
-<style scoped>
-  #brainbrowser {
-    width: {{width}}px;
-    height: {{height}}px;
-  }
-</style>
-<div id="brainbrowser"></div>
-</div>
 
+<div id="{{element_id}}" style="width: {{width}}px;height: {{height}}px;"></div>
 
 <script type="text/javascript">
   (function() {
@@ -76,8 +68,7 @@
         }
       };
 
-
-      BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
+      BrainBrowser.SurfaceViewer.start("{{element_id}}", function(viewer) {
         {{#if color_map}}
         viewer.loadColorMapFromURL("{{color_map}}");
         {{/if}}
@@ -91,12 +82,20 @@
         {{/if}}
 
         viewer.render();
+
+        {{#if model}}
         viewer.loadModelFromURL("{{model}}", {
           format: "{{format}}",
           complete: complete_callback
         });
+        {{/if}}
+
         {{#if zoom}}
         viewer.zoom(parseFloat({{zoom}}));
+        {{/if}}
+
+        {{#if viewer_callback}}
+        {{viewer_callback}}(viewer);
         {{/if}}
       });
     }

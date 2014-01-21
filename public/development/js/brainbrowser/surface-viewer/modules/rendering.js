@@ -24,7 +24,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   
   var renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
   var scene = new THREE.Scene();
-  var camera = new THREE.PerspectiveCamera(30, viewer.view_window.offsetWidth/viewer.view_window.offsetHeight, 1, 10000);
+  var camera = new THREE.PerspectiveCamera(30, viewer.view_window.offsetWidth / viewer.view_window.offsetHeight, 1, 10000);
   var light = new THREE.PointLight(0xFFFFFF);
   var current_frame;
   var last_frame;
@@ -215,10 +215,14 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   *
   */
   viewer.pick = function(x, y) {
+    // Convert to normalized coordinates.
+    x = (x / viewer.view_window.offsetWidth) * 2 - 1;
+    y = (-y / viewer.view_window.offsetHeight) * 2 + 1;
+
     var model = viewer.model;
     var projector = new THREE.Projector();
     var raycaster = new THREE.Raycaster();
-    var vector = new THREE.Vector3( x, y, camera.near );
+    var vector = new THREE.Vector3(x, y, camera.near);
     var intersects, intersection, vertex_data;
     var intersect_object, intersect_point, intersect_vertex_index, min_distance;
     var verts, distance;
@@ -232,7 +236,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var inv_matrix = new THREE.Matrix4();
 
     projector.unprojectVector(vector, camera);
-    raycaster.set(camera.position, vector.sub(camera.position).normalize() );
+    raycaster.set(camera.position, vector.sub(camera.position).normalize());
     intersects = raycaster.intersectObject(model, true);
 
     if (intersects.length > 0) {

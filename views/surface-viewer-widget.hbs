@@ -17,12 +17,12 @@
     {{#if nothreejs}}
     var scripts = [];
     {{else}}
-    var scripts = ["{{host}}/js/lib/three.min.js"];
+    var scripts = ["{{host}}/js/lib/three.{{threejs_version}}.min.js"];
     {{/if}}
 
 
     {{#ifenv "production"}}
-    scripts.push("{{host}}/js/brainbrowser/brainbrowser.surface-viewer.min.js");
+    scripts.push("{{host}}/js/{{brainbrowser}}/brainbrowser.surface-viewer.min.js");
     {{else}}
     scripts.push(
       "{{host}}/js/brainbrowser/lib/utils.js",
@@ -51,10 +51,10 @@
 
         surface_viewer: {
 
-          worker_dir: "{{host}}/js/brainbrowser/workers/",
+          worker_dir: "{{host}}/js/{{brainbrowser}}/workers/",
 
           filetypes: {
-            MNIObject: {
+            MNIObj: {
               worker: "mniobj.worker.js",
             },
             WavefrontObj: {

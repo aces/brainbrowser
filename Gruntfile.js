@@ -108,7 +108,6 @@ module.exports = function(grunt) {
         strict: true,
         indent: 2,
         immed: true,
-        latedef: true,
         newcap: true,
         nonew: true,
         trailing: true
@@ -171,8 +170,7 @@ module.exports = function(grunt) {
     },
     clean: {
       build :[
-        "<%= prod_js %>/brainbrowser",
-        "build/brainbrowser-*"
+        "<%= prod_js %>/brainbrowser"
       ],
       tmp: "tmp/*.js",
       docs: ["docs/docular/.htaccess", "docs/docular/favicon.ico", "docs/docular/configs", "docs/docular/controller", "docs/docular/php"],
@@ -181,7 +179,8 @@ module.exports = function(grunt) {
     symlink: {
       explicit: {
         files: {
-          "<%= prod_js %>/brainbrowser": "<%= build_dir %>"
+          "<%= prod_js %>/brainbrowser": "<%= build_dir %>",
+          "<%= prod_js %>/brainbrowser-<%= pkg.version %>": "<%= build_dir %>"
         }
       }
     },

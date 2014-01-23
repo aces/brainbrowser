@@ -434,9 +434,10 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
       img.src = canvas.toDataURL();
     });
 
-    slice_controls.append(button_div);
-
     controls.append(slice_controls);
+
+    controls.append(button_div);
+
   };
 };
 

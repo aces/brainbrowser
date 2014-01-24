@@ -25,6 +25,8 @@ $(function() {
   BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
     var loading_div = $("#loading");
   
+    // Hide the loading icon and display the viewer when once
+    // the volume are all ready.
     viewer.addEventListener("ready", function() {
       loading_div.hide();
       $("#brainbrowser").slideDown({duration: 600});
@@ -33,15 +35,18 @@ $(function() {
     
     loading_div.show();
 
+    // Load the volumes.
     viewer.loadVolumes({
       volumes: [
         {
-          type: 'minc',
-          filename: 'data/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_003.mnc'
+          type: "minc",
+          header_url: "data/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_003.mnc?minc_headers=true",
+          raw_data_url: "data/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_003.mnc?raw_data=true"
         },
         {
-          type: 'minc',
-          filename: 'data/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_004.mnc'
+          type: "minc",
+          header_url: "data/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_004.mnc?minc_headers=true",
+          raw_data_url: "data/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_004.mnc?raw_data=true"
         }
       ],
       overlay: true

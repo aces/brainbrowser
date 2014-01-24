@@ -21,43 +21,61 @@
 
 // Plugin for UI functionality used by both
 // surface viewer and macacc.
+//
+// The object BrainBrowser.SurfaceViewer.modules contains
+// functions that will automatically be run when the viewer
+// is started. The created viewer object will be passed to it
+// before the the viewer begins running. This can be a way 
+// to add functionality to the viewer. (Just make sure
+// the name of your module doesn't conflict with the 
+// modules that already exist!)
 BrainBrowser.SurfaceViewer.modules.ui = function(viewer) {
   "use strict";
 
+  // Add the three.js 3D anaglyph effect to the viewer.
   viewer.addEffect("AnaglyphEffect");
 
+  // Some keyboard controls for the viewer.
   $("body").keydown(function(e) {
-    var key_code = e.which;
+    var key_code = e.keyCode;
     var keys = {
+      // Space
+      32: function() { viewer.separateHalves(); },
+      // Up arrow
       38: function() { viewer.zoom(1.1); },
-      40: function() { viewer.zoom(1/1.1); },
-      32: function() { viewer.separateHalves(); }
+      // Down arrow
+      40: function() { viewer.zoom(1/1.1); }
     };
   
-    if (key_code in keys) {
+    if (keys.hasOwnProperty(key_code)) {
       keys[key_code]();
       return false;
     }
-  
-    return true; // If we got here, key was not captured.
+
   });
 
+  // Set the background color.
   $("#clear_color").change(function(e){
     viewer.setClearColor(parseInt($(e.target).val(), 16));
   });
   
-  //Setups the view events and handlers
-  $('#resetview').click(function() {
-    viewer.setView($('[name=hem_view]:checked').val());
+  // Reset to the default view.
+  $("#resetview").click(function() {
+    // Setting the view to its current view type will 
+    // automatically reset its position.
+    viewer.setView($("[name=hem_view]:checked").val());
   });
 
-  $('.visibility').change(function() {
+  // Set the visibility of the currently loaded model.
+  $(".visibility").change(function() {
     var input  = $(this);
     var hemisphere = input.data("hemisphere");
     var shape = viewer.model.getObjectByName(hemisphere);
 
     if (!shape) return;
 
+    // If the shapes wireframe is currently being displayed,
+    // set the wireframe's visibility.
     if (shape.wireframe_active) {
       shape = shape.getObjectByName("__wireframe__") || shape;
     }
@@ -65,53 +83,64 @@ BrainBrowser.SurfaceViewer.modules.ui = function(viewer) {
     shape.visible = input.is(":checked");
   });
   
-  $('[name=hem_view]').change(function() {
-    viewer.setView($('[name=hem_view]:checked').val());
+  // Set the view type (medial, lateral,
+  // inferior, anterior, posterior).
+  $("[name=hem_view]").change(function() {
+    viewer.setView($("[name=hem_view]:checked").val());
   });
   
-  $('#meshmode').change(function() {
+  // Toggle wireframe.
+  $("#meshmode").change(function() {
     viewer.setWireframe($(this).is(":checked"));
   });
   
-  $('#threedee').change(function() {
+  // Toggle 3D anaglyph effect.
+  $("#threedee").change(function() {
     viewer.setEffect($(this).is(":checked") ? "AnaglyphEffect" : "None");
   });
   
+  // Grab a screenshot of the canvas.
   $("#openImage").click(function() {
     var view_window = viewer.view_window;
     var canvas = document.createElement("canvas");
     var spectrum_canvas = document.getElementById("spectrum-canvas");
     var context = canvas.getContext("2d");
-    var img = new Image();
+    var viewer_image = new Image();
     
     canvas.width = view_window.offsetWidth;
     canvas.height = view_window.offsetHeight;
   
+    // Display the final image in a dialog box.
     function displayImage() {
-      var img = new Image();
+      var result_image = new Image();
       
-      img.onload = function() {
-        $("<div></div>").append(img).dialog({
+      result_image.onload = function() {
+        $("<div></div>").append(result_image).dialog({
           title: "Screenshot",
-          height: img.height,
-          width: img.width
+          height: result_image.height,
+          width: result_image.width
         });
       };
       
-      img.src = canvas.toDataURL();
+      result_image.src = canvas.toDataURL();
     }
-  
+ 
+    // Grab the spectrum canvas to display with the
+    // image.
     function getSpectrumImage() {
-      var img = new Image();
-      img.onload = function(){
-        context.drawImage(img, 0, 0); // Or at whatever offset you like
+      var spectrum_image = new Image();
+      spectrum_image.onload = function(){
+        context.drawImage(spectrum_image, 0, 0);
         displayImage();
       };
-      img.src = spectrum_canvas.toDataURL();
+      spectrum_image.src = spectrum_canvas.toDataURL();
     }
-      
-    img.onload = function(){
-      context.drawImage(img, 0, 0); // Or at whatever offset you like
+    
+    // Draw an image of the viewer area, add the spectrum
+    // image it its available, and display everything
+    // in a dialog box.
+    viewer_image.onload = function(){
+      context.drawImage(viewer_image, 0, 0);
       if ($(spectrum_canvas).is(":visible")) {
         getSpectrumImage();
       } else {
@@ -119,9 +148,10 @@ BrainBrowser.SurfaceViewer.modules.ui = function(viewer) {
       }
     };
     
-    img.src = viewer.canvasDataURL();
+    viewer_image.src = viewer.canvasDataURL();
   });
   
+  // Control autorotation.
   $("#autorotate-controls").children().change(function () {
     viewer.autorotate.x = $("#autorotateX").is(":checked");
     viewer.autorotate.y = $("#autorotateY").is(":checked");

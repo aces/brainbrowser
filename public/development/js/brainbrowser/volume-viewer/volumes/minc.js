@@ -25,21 +25,12 @@
      
   var VolumeViewer = BrainBrowser.VolumeViewer;
 
-  /**
-   * Fetch the parameters of the minc file. sends a request to http://filename/?minc_headers=true or whatever getHeadersParams says
-   * @param {String} filename url/filename of the file to load minc headers
-   */
-  function getHeaders(filename, header_params, callback) {
+  function getHeaders(url, callback) {
     var request = new XMLHttpRequest();
     var status;
     var response_text;
 
-    Object.keys(header_params).forEach(function(k) {
-      filename += (filename.match(/\?/) ? "&" : "?") +
-                  k + "=" + header_params[k];
-    });
-
-    request.open("GET", filename);
+    request.open("GET", url);
     request.onreadystatechange = function() {
       if (request.readyState === 4){
         status = request.status;
@@ -57,7 +48,7 @@
           if (callback) callback(response_text);
         } else {
           throw new Error(
-            "error loading URL: " + filename + "\n" +
+            "error loading URL: " + url + "\n" +
             "HTTP Response: " + request.status + "\n" +
             "HTTP Status: " + request.statusText + "\n" +
             "Response was: \n" + request.response
@@ -75,12 +66,8 @@
    * @param {Function}  callback  function to call when data is done loading
    * @param {Object}    extraArgs with extraArgs to pass to callback when data is done loading
    */
-  function getData(filename, raw_data_params, callback){
-    Object.keys(raw_data_params).forEach(function(k) {
-      filename += (filename.match(/\?/) ? "&" : "?") +
-                  k + "=" + raw_data_params[k];
-    });
-    VolumeViewer.loader.loadArrayBuffer(filename, function(data) {
+  function getData(url, callback){
+    VolumeViewer.loader.loadArrayBuffer(url, function(data) {
       callback(data);
     });
   }
@@ -148,15 +135,12 @@
 
   VolumeViewer.volumeType.minc = function(description, callback) {
     var volume = Object.create(minc_volume_proto);
-      //What get parameter will be used in request to server
-    var raw_data_params = description.raw_data_params || { raw_data: true };
-    var header_params = description.header_params || { minc_headers : true };
     var data;
     volume.current_time = 0;
     
     
-    getHeaders(description.filename, header_params, function(headers) {
-      getData(description.filename, raw_data_params, function(arrayBuffer){
+    getHeaders(description.header_url, function(headers) {
+      getData(description.raw_data_url, function(arrayBuffer){
         data =  new Uint8Array(arrayBuffer);
         volume.data = VolumeViewer.mincData(description.filename, headers, data);
         volume.header = volume.data.header;

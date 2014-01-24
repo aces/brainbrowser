@@ -42,11 +42,13 @@
 *       volumes: [
 *         {
 *           type: 'minc',
-*           filename: 'volume1.mnc'
+            header_url: "data/volume1.mnc?minc_headers=true",
+            raw_data_url: "data/volume1.mnc?raw_data=true"
 *         },
 *         {
 *           type: 'minc',
-*           filename: 'volume2.mnc'
+*           header_url: "data/volume2.mnc?minc_headers=true",
+            raw_data_url: "data/volume2.mnc?raw_data=true"
 *         }
 *       ],
 *       overlay: true
@@ -123,11 +125,14 @@
   *        volumes: [
   *          {
   *            type: 'minc',
-  *            filename: 'volume1.mnc'
+  *            header_url: "data/volume1.mnc?minc_headers=true",
+  *            raw_data_url: "data/volume1.mnc?raw_data=true"
+  *         },
   *          },
   *          {
   *            type: 'minc',
-  *            filename: 'volume2.mnc'
+  *            header_url: "data/volume2.mnc?minc_headers=true",
+  *            raw_data_url: "data/volume2.mnc?raw_data=true"
   *          }
   *        ],
   *        overlay: true
@@ -565,29 +570,23 @@
     *       volumes: [
     *         {
     *           type: 'minc',
-    *           filename: 'volume1.mnc',
-    *           header_params:  { get_headers: true },
-    *           raw_data_params: { get_raw_data: true }
+    *           header_url: "data/volume1.mnc?minc_headers=true",
+    *           raw_data_url: "data/volume1.mnc?raw_data=true"
     *         },
     *         {
     *           type: 'minc',
-    *           filename: 'volume2.mnc',
-    *           header_params:  { get_headers: true },
-    *           raw_data_params: { get_raw_data: true }
+    *           header_url: "data/volume2.mnc?minc_headers=true",
+    *           raw_data_url: "data/volume2.mnc?raw_data=true"
     *         }
     *       ],
     *       overlay: true
     *     });
     *   });
     * ```
-    * The **header\_params** and **raw\_data\_params** options passed for each volume are
-    * used to create the URLs to fetch the headers and raw data for each volume. The
-    * Volume Viewer expects to send to requests to a single address, but with different
-    * query parameters for each type of data. For example, the data for the first volume
-    * described above would be fetched from the following two URLs:
-    *
-    * * /volume1.mnc?get_headers=true
-    * * /volume1.mnc?get\_raw\_data=true
+    * The volume viewer requires three parameters for each volume to be loaded:
+    * * **type** The type of volume (currently, 'minc' is the only valid option).
+    * * **header\_url** The URL from which to get header data for the MINC volume.
+    * * **raw\_data\_url** The URL from which to get the raw MINC data.
     */
     viewer.loadVolumes = function(options) {
 

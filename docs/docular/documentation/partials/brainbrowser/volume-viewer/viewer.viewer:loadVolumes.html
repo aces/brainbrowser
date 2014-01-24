@@ -16,31 +16,23 @@
       volumes: [
         {
           type: 'minc',
-          filename: 'volume1.mnc',
-          header_params:  { get_headers: true },
-          raw_data_params: { get_raw_data: true }
+          header_url: "data/volume1.mnc?minc_headers=true",
+          raw_data_url: "data/volume1.mnc?raw_data=true"
         },
         {
           type: 'minc',
-          filename: 'volume2.mnc',
-          header_params:  { get_headers: true },
-          raw_data_params: { get_raw_data: true }
+          header_url: "data/volume2.mnc?minc_headers=true",
+          raw_data_url: "data/volume2.mnc?raw_data=true"
         }
       ],
       overlay: true
     });
   });
 </pre>
-The <strong>header_params</strong> and <strong>raw_data_params</strong> options passed for each volume are
-used to create the URLs to fetch the headers and raw data for each volume. The
-Volume Viewer expects to send to requests to a single address, but with different
-query parameters for each type of data. For example, the data for the first volume
-described above would be fetched from the following two URLs:</p>
-
-<ul>
-<li>/volume1.mnc?get_headers=true</li>
-<li>/volume1.mnc?get_raw_data=true</li>
-</ul></div>
+The volume viewer requires three parameters for each volume to be loaded:
+* <strong>type</strong> The type of volume (currently, 'minc' is the only valid option).
+* <strong>header_url</strong> The URL from which to get header data for the MINC volume.
+* <strong>raw_data_url</strong> The URL from which to get the raw MINC data.</p></div>
 <h2 id="Parameters">Parameters</h2>
 <ul class="parameters"><li><code class="plain">options – {object} – </code>
 <p>Description of volumes to load:

@@ -37,11 +37,13 @@ $(function() {
       volumes: [
         {
           type: 'minc',
-          filename: 'data/ibis_410023_LIVING_PHANTOM_STL_SD_HOS_20121212_SCAN1_ep2d_bold_001.mnc'
+          header_url: "data/ibis_410023_LIVING_PHANTOM_STL_SD_HOS_20121212_SCAN1_ep2d_bold_001.mnc?minc_headers=true",
+          raw_data_url: "data/ibis_410023_LIVING_PHANTOM_STL_SD_HOS_20121212_SCAN1_ep2d_bold_001.mnc?raw_data=true",
         },
         {
           type: 'minc',
-          filename: 'data/ibis_410023_LIVING_PHANTOM_STL_SD_HOS_20121212_SCAN1_dti_001.mnc'
+          header_url: "data/ibis_410023_LIVING_PHANTOM_STL_SD_HOS_20121212_SCAN1_dti_001.mnc?minc_headers=true",
+          raw_data_url: "data/ibis_410023_LIVING_PHANTOM_STL_SD_HOS_20121212_SCAN1_dti_001.mnc?raw_data=true",
         }
       ]
     });

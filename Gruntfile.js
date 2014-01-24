@@ -173,8 +173,7 @@ module.exports = function(grunt) {
         "<%= prod_js %>/brainbrowser"
       ],
       tmp: "tmp/*.js",
-      docs: ["docs/docular/.htaccess", "docs/docular/favicon.ico", "docs/docular/configs", "docs/docular/controller", "docs/docular/php"],
-      release: "<%= release_dir %>/*.tar.gz"
+      docs: ["docs/docular/.htaccess", "docs/docular/favicon.ico", "docs/docular/configs", "docs/docular/controller", "docs/docular/php"]
     },
     symlink: {
       explicit: {

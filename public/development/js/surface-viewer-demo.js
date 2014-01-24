@@ -20,44 +20,50 @@
 * @author: Nicolas Kassis
 */
 
+// This script is meant to be a demonstration of how to 
+// use most of the functionality available in the 
+// BrainBrowser Surface Viewer.
 $(function() {
   "use strict";
   
+  // Request variables used to cancel the current request
+  // if another request is started.
   var current_request = 0;
   var current_request_name = "";
+
+  // Hide or display loading icon.
   var loading_div = $("#loading");
   function showLoading() { loading_div.show(); }
   function hideLoading() { loading_div.hide(); }
   
+
+  // Make sure WebGL is available.
   if (!BrainBrowser.utils.webglEnabled()) {
     $("#brainbrowser").html(BrainBrowser.utils.webGLErrorMessage());
     return;
   }
 
+  /////////////////////////////////////
+  // Start running the Surface Viewer
+  /////////////////////////////////////
   BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
- 
-    var color_map_select = $('<select id="color-map-select"></select>').change(function (e) {
-      viewer.loadColorMapFromURL($(this).val());
-    });
 
-    BrainBrowser.config.surface_viewer.color_maps.forEach(function(map) {
-      color_map_select.append('<option value="' + map.url + '">' + map.name +'</option>');
-    });
-
-    $("#color-map-box").append(color_map_select);
-
-    //setting up some defaults
-    viewer.setAttribute("clamp_colors", true); //By default clamp range.
-    viewer.setAttribute("flip_colors", false);
+    // Set up some defaults
+    viewer.setAttribute("clamp_colors", true); // By default clamp range.
+    viewer.setAttribute("flip_colors", false); // Don't flip intensity-color relationship.
 
     ///////////////////////////////////
     // Event Listeners
     ///////////////////////////////////
 
+    // If something goes wrong while loading, we don't 
+    // want the loading icon to stay on the screen.
     viewer.addEventListener("error", hideLoading);
 
+    // When a new color map is loaded display a spectrum representing
+    // the color mapping.
     viewer.addEventListener("loadcolormap", function (color_map) {
-      var canvas = color_map.createCanvasWithScale(0, 100, null);
+      var canvas = color_map.createCanvasWithScale(0, 100);
       var spectrum_div = document.getElementById("color-bar");
       
       canvas.id = "spectrum-canvas";
@@ -68,10 +74,13 @@ $(function() {
       }
     });
 
+    // When a new model is added to the viewer, create a transparancy slider
+    // for each shape that makes up the model.
     viewer.addEventListener("displaymodel", function(object) {
       var slider, slider_div;
       var children = object.children;
       var current_count = $("#shapes").children().length;
+
       if(children.length - current_count > 0 ) {
         children.slice(current_count).forEach(function(shape, i) {
           slider_div = $("<div id=\"shape_" + i + "\" class=\"shape\">" +
@@ -99,18 +108,24 @@ $(function() {
       }
     });
 
+    // When the screen is cleared, remove all UI related
+    // to the displayed models.
     viewer.addEventListener("clearscreen", function() {
       $("#shapes").html("");
       $("#data-range-box").hide();
       $("#color-map-box").hide();
     });
 
+    // When the intensity range changes, adjust the displayed spectrum.
     viewer.addEventListener("rangechange", function(intensity_data) {
-      var canvas = viewer.color_map.createCanvasWithScale(intensity_data.range_min, intensity_data.range_max, null);
+      var canvas = viewer.color_map.createCanvasWithScale(intensity_data.range_min, intensity_data.range_max);
       canvas.id = "spectrum-canvas";
       $("#color-bar").html(canvas);
     });
 
+    // When new intensity data is loaded, create all UI related to 
+    // controlling the relationship between the instensity data and 
+    // the color mapping (range, flip colors, clamp colors, fix range).
     viewer.addEventListener("loadintensitydata", function(intensity_data) {
       var container = $("#data-range");
       var headers = '<div id="data-range-multiple"><ul>';
@@ -219,6 +234,8 @@ $(function() {
 
     }); // end loadintensitydata listener
     
+    // If two color maps are loaded to be blended, create
+    // slider to control the blending ratios.
     viewer.addEventListener("blendcolormaps", function(){
       var div = $("#blend-box");
       div.html("Blend Ratio: ");
@@ -235,16 +252,30 @@ $(function() {
     });
 
     ////////////////////////////////////
-    //  Start rendering the scene.
+    //  START RENDERING
     ////////////////////////////////////
     viewer.render();
 
+    // Load a color map (required for displaying intensity data).
     viewer.loadColorMapFromURL(BrainBrowser.config.surface_viewer.color_maps[0].url);
 
     ///////////////////////////////////
     // UI
     ///////////////////////////////////
 
+    // Color map URLs are read from the config file and added to the 
+    // color map select box.
+    var color_map_select = $('<select id="color-map-select"></select>').change(function (e) {
+      viewer.loadColorMapFromURL($(this).val());
+    });
+
+    BrainBrowser.config.surface_viewer.color_maps.forEach(function(map) {
+      color_map_select.append('<option value="' + map.url + '">' + map.name +'</option>');
+    });
+
+    $("#color-map-box").append(color_map_select);
+
+    // Remove currently loaded models.
     $('#clearshapes').click(function() {
       viewer.clearScreen();
       current_request = 0;
@@ -252,6 +283,7 @@ $(function() {
       loading_div.hide();
     });
 
+    // Load demo models.
     $("#examples").click(function(e) {
       current_request++;
       
@@ -315,7 +347,10 @@ $(function() {
             complete: hideLoading,
             cancel: defaultCancelOptions(current_request)
           });
-          viewer.setCamera(0, 0, 100);
+
+          // This model is somewhat small so zoom in and
+          // give it a dramatic angle.
+          viewer.zoom(5);
 
           matrixRotX = new THREE.Matrix4();
           matrixRotX.makeRotationX(-0.25 * Math.PI);
@@ -334,7 +369,10 @@ $(function() {
             complete: hideLoading,
             cancel: defaultCancelOptions(current_request)
           });
-          viewer.setCamera(0, 0, 75);
+
+          // This model is somewhat small so zoom in and
+          // give it a dramatic angle.
+          viewer.zoom(7);
 
           matrixRotX = new THREE.Matrix4();
           matrixRotX.makeRotationX(-0.25 * Math.PI);
@@ -364,13 +402,17 @@ $(function() {
             format: "MNIObj",
             complete: function() {
               setTimeout(function() {
+                // Set the transparency of the outer shell and move the slider
+                // to the right position.
                 $(".opacity-slider[data-shape-name='mouse_brain_outline.obj']").slider("value", 50);
                 viewer.setTransparency('mouse_brain_outline.obj', 0.5);
               }, 0);
             },
             cancel: defaultCancelOptions(current_request)
           });
-          viewer.setCamera(0, 0, 40);
+
+          // Smaller model so zoom in.
+          viewer.zoom(11);
         }
       };
       
@@ -382,27 +424,33 @@ $(function() {
       
     });
 
+    // If the user changes the format that's being submitted,
+    // display a hint if one has been configured.
     $("#obj_file_format").change(function () {
       var format = $("#obj_file_format").closest("#obj_file_select").find("#obj_file_format option:selected").val();
       $("#format_hint").html(BrainBrowser.config.surface_viewer.filetypes[format].format_hint || "");
     });
 
+    // Load a new model from a file that the user has 
+    // selected.
     $("#obj_file_submit").click(function () {
       var format = $("#obj_file_format").closest("#obj_file_select").find("#obj_file_format option:selected").val();
       viewer.loadModelFromFile(document.getElementById("objfile"), {
         format: format,
-        beforeLoad: showLoading,
+        before: showLoading,
         complete: hideLoading
       });
 
       return false;
     });
 
+    // Load a selected intensity data file.
     $(".datafile").change(function() {
       var filenum = parseInt(this.id.slice(-1), 10);
       viewer.loadIntensityDataFromFile(this, { blend_index : filenum - 1 });
     });
 
+    // Load a color map select by the user.
     $("#color-map").change(function() {
       viewer.loadColorMapFromFile(document.getElementById("color-map"));
     });

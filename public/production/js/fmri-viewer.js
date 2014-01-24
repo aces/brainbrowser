@@ -16,10 +16,10 @@
  */
 
 /*
-* BrainBrowser v1.4.1
+* BrainBrowser v1.4.2
 * https://brainbrowser.cbrain.mcgill.ca/
 *
 * Author: Tarek Sherif  <tsherif@gmail.com> (http://tareksherif.ca/)
 * Author: Nicolas Kassis
 */
-$(function(){"use strict";BrainBrowser.VolumeViewer.start("brainbrowser",function(a){var b=$("#loading");a.addEventListener("ready",function(){b.hide(),$("#brainbrowser").slideDown({duration:600}),$(".button").button()}),b.show(),a.loadVolumes({volumes:[{type:"minc",filename:"data/ibis_410023_LIVING_PHANTOM_STL_SD_HOS_20121212_SCAN1_ep2d_bold_001.mnc"},{type:"minc",filename:"data/ibis_410023_LIVING_PHANTOM_STL_SD_HOS_20121212_SCAN1_dti_001.mnc"}]})})});
+$(function(){"use strict";BrainBrowser.VolumeViewer.start("brainbrowser",function(a){var b=$("#loading");a.addEventListener("ready",function(){b.hide(),$("#brainbrowser").slideDown({duration:600}),$(".button").button()}),b.show(),a.loadVolumes({volumes:[{type:"minc",header_url:"data/ibis_410023_LIVING_PHANTOM_STL_SD_HOS_20121212_SCAN1_ep2d_bold_001.mnc?minc_headers=true",raw_data_url:"data/ibis_410023_LIVING_PHANTOM_STL_SD_HOS_20121212_SCAN1_ep2d_bold_001.mnc?raw_data=true"},{type:"minc",header_url:"data/ibis_410023_LIVING_PHANTOM_STL_SD_HOS_20121212_SCAN1_dti_001.mnc?minc_headers=true",raw_data_url:"data/ibis_410023_LIVING_PHANTOM_STL_SD_HOS_20121212_SCAN1_dti_001.mnc?raw_data=true"}]})})});

@@ -15,11 +15,13 @@ to that callback function to set up interaction with the viewr:
       volumes: [
         {
           type: 'minc',
-          filename: 'volume1.mnc'
+            header_url: "data/volume1.mnc?minc_headers=true",
+            raw_data_url: "data/volume1.mnc?raw_data=true"
         },
         {
           type: 'minc',
-          filename: 'volume2.mnc'
+          header_url: "data/volume2.mnc?minc_headers=true",
+            raw_data_url: "data/volume2.mnc?raw_data=true"
         }
       ],
       overlay: true

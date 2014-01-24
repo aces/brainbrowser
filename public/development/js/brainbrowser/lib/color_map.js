@@ -71,19 +71,16 @@
       * @name color_map.color_map:createCanvasWithScale
       * @param {number} min Min value of the color data.
       * @param {number} max Max value of the color data.
-      * @param {array} colors Array of color data.
       * @param {boolean} flip Array of color data.
       * 
       * @description
       * Create a canvas color_map from the given colors and provide the scale for it.
       */
-      createCanvasWithScale: function(min, max, colors, flip) {
+      createCanvasWithScale: function(min, max, flip) {
         var canvas;
         var context;
-      
-        if (colors === null) {
-          colors = color_map.colors;
-        }
+        var colors = color_map.colors;
+        
         canvas = createCanvas(colors, 20, 40, flip);
         context = canvas.getContext("2d");
 
@@ -180,10 +177,10 @@
 
     // Creates an canvas with the color_map of colors
     // from low(left) to high(right) values
-    // colors == array of colors
-    // color_height  == height of the color bar
-    // full_height == height of the canvas
-    // flip == boolean should the colors be reversed
+    //   colors: array of colors
+    //   color_height: height of the color bar
+    //   full_height: height of the canvas
+    //   flip: boolean should the colors be reversed
     function createCanvas(colors, color_height, full_height, flip) {
       var canvas = document.createElement("canvas");
       var value_array  = new Array(256);

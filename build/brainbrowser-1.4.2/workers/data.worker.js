@@ -22,4 +22,4 @@
 * Author: Tarek Sherif  <tsherif@gmail.com> (http://tareksherif.ca/)
 * Author: Nicolas Kassis
 */
-$(function(){"use strict";BrainBrowser.VolumeViewer.start("brainbrowser",function(a){var b=$("#loading");a.addEventListener("ready",function(){b.hide(),$("#brainbrowser").slideDown({duration:600}),$(".button").button()}),b.show(),a.loadVolumes({volumes:[{type:"minc",header_url:"data/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_003.mnc?minc_headers=true",raw_data_url:"data/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_003.mnc?raw_data=true"},{type:"minc",header_url:"data/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_004.mnc?minc_headers=true",raw_data_url:"data/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_004.mnc?raw_data=true"}],overlay:!0})})});
+!function(){"use strict";function a(a){var b,c,d,e,f={};for(a=a.replace(/^\s+/,"").replace(/\s+$/,""),f.values=a.split(/\s+/),d=f.values[0],e=f.values[0],b=0,c=f.values.length;c>b;b++)f.values[b]=parseFloat(f.values[b]),d=Math.min(d,f.values[b]),e=Math.max(e,f.values[b]);return f.min=d,f.max=e,f}self.addEventListener("message",function(b){var c=b.data,d=c.data;self.postMessage(a(d))})}();

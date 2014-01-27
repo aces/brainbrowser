@@ -30,30 +30,43 @@
 * which takes a callback function as its second argument, and then using the **viewer** object passed
 * to that callback function to set up interaction with the viewr:
 *  ```js
-*    BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
+*  BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
 *
-*     // Add an event listener.
-*     viewer.addEventListener("ready", function() {
-*       console.log("Viewer is ready!");
-*     });
+*    // Add an event listener.
+*    viewer.addEventListener("ready", function() {
+*      console.log("Viewer is ready!");
+*    });
 *
-*     // Load minc volumes.
-*     viewer.loadVolumes({
-*       volumes: [
-*         {
-*           type: 'minc',
-*           header_url: "data/volume1.mnc?minc_headers=true",
-*           raw_data_url: "data/volume1.mnc?raw_data=true"
-*         },
-*         {
-*           type: 'minc',
-*           header_url: "data/volume2.mnc?minc_headers=true",
-*           raw_data_url: "data/volume2.mnc?raw_data=true"
-*         }
-*       ],
-*       overlay: true
-*     });
-*   });
+*    // Load minc volumes.
+*    viewer.loadVolumes({
+*      volumes: [
+*        {
+*          type: "minc",
+*          header_url: "volume1.mnc?minc_headers=true",
+*          raw_data_url: "volume1.mnc?raw_data=true",
+*          template: {
+*            element_id: "volume-ui-template",
+*            viewer_insert_class: "volume-viewer-display"
+*          }
+*        },
+*        {
+*          type: "minc",
+*          header_url: "volume2.mnc?minc_headers=true",
+*          raw_data_url: "volume2.mnc?raw_data=true",
+*          template: {
+*            element_id: "volume-ui-template",
+*            viewer_insert_class: "volume-viewer-display"
+*          }
+*        }
+*      ],
+*      overlay: {
+*        template: {
+*          element_id: "overlay-ui-template",
+*          viewer_insert_class: "overlay-viewer-display"
+*        }
+*      }
+*    });
+*  });
 *  ```
 */
 
@@ -113,34 +126,43 @@
   *  supplied by the user.
   *
   *  ```js
+  *  BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
+  *
+  *    // Add an event listener.
+  *    viewer.addEventListener("ready", function() {
+  *      console.log("Viewer is ready!");
+  *    });
+  *
+  *    // Load minc volumes.
   *    viewer.loadVolumes({
-  *     volumes: [
-  *       {
-  *         type: "minc",
-  *         header_url: "volume1.mnc?minc_headers=true",
-  *         raw_data_url: "volume1.mnc?raw_data=true",
-  *         template: {
-  *           element_id: "volume-ui-template",
-  *           viewer_insert_class: "volume-viewer-display"
-  *         }
-  *       },
-  *       {
-  *         type: "minc",
-  *         header_url: "volume2.mnc?minc_headers=true",
-  *         raw_data_url: "volume2.mnc?raw_data=true",
-  *         template: {
-  *           element_id: "volume-ui-template",
-  *           viewer_insert_class: "volume-viewer-display"
-  *         }
-  *       }
-  *     ],
-  *     overlay: {
-  *       template: {
-  *         element_id: "overlay-ui-template",
-  *         viewer_insert_class: "overlay-viewer-display"
-  *       }
-  *     }
-  *   });
+  *      volumes: [
+  *        {
+  *          type: "minc",
+  *          header_url: "volume1.mnc?minc_headers=true",
+  *          raw_data_url: "volume1.mnc?raw_data=true",
+  *          template: {
+  *            element_id: "volume-ui-template",
+  *            viewer_insert_class: "volume-viewer-display"
+  *          }
+  *        },
+  *        {
+  *          type: "minc",
+  *          header_url: "volume2.mnc?minc_headers=true",
+  *          raw_data_url: "volume2.mnc?raw_data=true",
+  *          template: {
+  *            element_id: "volume-ui-template",
+  *            viewer_insert_class: "volume-viewer-display"
+  *          }
+  *        }
+  *      ],
+  *      overlay: {
+  *        template: {
+  *          element_id: "overlay-ui-template",
+  *          viewer_insert_class: "overlay-viewer-display"
+  *        }
+  *      }
+  *    });
+  *  });
   *  ```
   */
   VolumeViewer.start = function(element_id, callback) {
@@ -590,35 +612,44 @@
     * @description
     * Initial load of volumes. Usage:
     * ```js
-    *   BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
-    *
-    *     // Add an event listener.
-    *     viewer.addEventListener("ready", function() {
-    *       console.log("Viewer is ready!");
-    *     });
-    *
-    *     // Load minc volumes.
-    *     viewer.loadVolumes({
-    *       volumes: [
-    *         {
-    *           type: 'minc',
-    *           header_url: "data/volume1.mnc?minc_headers=true",
-    *           raw_data_url: "data/volume1.mnc?raw_data=true"
-    *         },
-    *         {
-    *           type: 'minc',
-    *           header_url: "data/volume2.mnc?minc_headers=true",
-    *           raw_data_url: "data/volume2.mnc?raw_data=true"
-    *         }
-    *       ],
-    *       overlay: true
-    *     });
-    *   });
+    * viewer.loadVolumes({
+    *   volumes: [
+    *     {
+    *       type: "minc",
+    *       header_url: "volume1.mnc?minc_headers=true",
+    *       raw_data_url: "volume1.mnc?raw_data=true",
+    *       template: {
+    *         element_id: "volume-ui-template",
+    *         viewer_insert_class: "volume-viewer-display"
+    *       }
+    *     },
+    *     {
+    *       type: "minc",
+    *       header_url: "volume2.mnc?minc_headers=true",
+    *       raw_data_url: "volume2.mnc?raw_data=true",
+    *       template: {
+    *         element_id: "volume-ui-template",
+    *         viewer_insert_class: "volume-viewer-display"
+    *       }
+    *     }
+    *   ],
+    *   overlay: {
+    *     template: {
+    *       element_id: "overlay-ui-template",
+    *       viewer_insert_class: "overlay-viewer-display"
+    *     }
+    *   }
+    * });
     * ```
     * The volume viewer requires three parameters for each volume to be loaded:
     * * **type** The type of volume (currently, 'minc' is the only valid option).
     * * **header\_url** The URL from which to get header data for the MINC volume.
     * * **raw\_data\_url** The URL from which to get the raw MINC data.
+    * * **template** Object containing information about the template to use
+    *   to produce the UI for each volume. Its properties include **element\_id**, 
+    *   the id of the element containing the template, and
+    *   **viewer\_insert\_class**, the class of the element within the template
+    *   in which to insert the volume's display panels.
     */
     viewer.loadVolumes = function(options) {
 

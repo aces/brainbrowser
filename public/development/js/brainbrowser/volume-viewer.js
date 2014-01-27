@@ -42,13 +42,13 @@
 *       volumes: [
 *         {
 *           type: 'minc',
-            header_url: "data/volume1.mnc?minc_headers=true",
-            raw_data_url: "data/volume1.mnc?raw_data=true"
+*           header_url: "data/volume1.mnc?minc_headers=true",
+*           raw_data_url: "data/volume1.mnc?raw_data=true"
 *         },
 *         {
 *           type: 'minc',
 *           header_url: "data/volume2.mnc?minc_headers=true",
-            raw_data_url: "data/volume2.mnc?raw_data=true"
+*           raw_data_url: "data/volume2.mnc?raw_data=true"
 *         }
 *       ],
 *       overlay: true
@@ -67,7 +67,7 @@
 * to define their name, the URL at which the color scale file is located, and, optionally, the color
 * to use for the cursor when the defined color scale is active:
 *
-```js
+*```js
 * BrainBrowser.config = {
 *
 *   volume_viewer: {
@@ -113,36 +113,38 @@
   *  supplied by the user.
   *
   *  ```js
-  *    BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
-  *
-  *      // Add an event listener.
-  *      viewer.addEventListener("ready", function() {
-  *        console.log("Viewer is ready!");
-  *      });
-  *
-  *      // Load minc volumes.
-  *      viewer.loadVolumes({
-  *        volumes: [
-  *          {
-  *            type: 'minc',
-  *            header_url: "data/volume1.mnc?minc_headers=true",
-  *            raw_data_url: "data/volume1.mnc?raw_data=true"
-  *         },
-  *          },
-  *          {
-  *            type: 'minc',
-  *            header_url: "data/volume2.mnc?minc_headers=true",
-  *            raw_data_url: "data/volume2.mnc?raw_data=true"
-  *          }
-  *        ],
-  *        overlay: true
-  *      });
-  *    });
+  *    viewer.loadVolumes({
+  *     volumes: [
+  *       {
+  *         type: "minc",
+  *         header_url: "volume1.mnc?minc_headers=true",
+  *         raw_data_url: "volume1.mnc?raw_data=true",
+  *         template: {
+  *           element_id: "volume-ui-template",
+  *           viewer_insert_class: "volume-viewer-display"
+  *         }
+  *       },
+  *       {
+  *         type: "minc",
+  *         header_url: "volume2.mnc?minc_headers=true",
+  *         raw_data_url: "volume2.mnc?raw_data=true",
+  *         template: {
+  *           element_id: "volume-ui-template",
+  *           viewer_insert_class: "volume-viewer-display"
+  *         }
+  *       }
+  *     ],
+  *     overlay: {
+  *       template: {
+  *         element_id: "overlay-ui-template",
+  *         viewer_insert_class: "overlay-viewer-display"
+  *       }
+  *     }
+  *   });
   *  ```
   */
   VolumeViewer.start = function(element_id, callback) {
     var volumes = [];
-    var container;
     var viewer_element;
     var numVolumes;
     
@@ -251,15 +253,7 @@
   
     
     // Initialize the viewer with first slices
-    function startViewer() {
-      var i;
-      var div;
-      var volume;
-      var slices;
-      var k;
-
-      numVolumes = volumes.length;
-      
+    function startViewer(volume_descriptions) {
       if (viewer.globalUIControls) {
         if (viewer.globalUIControls.defer_until_page_load) {
           viewer.addEventListener("ready", function() {
@@ -271,15 +265,15 @@
       }
       
       setupInterface();
-      for(i = 0; i < numVolumes; i++) {
+      volumes.forEach(function(volume, i) {
 
-        div = document.createElement("div");
-        volume = volumes[i];
-        slices = [];
+        var div = document.createElement("div");
+        var slices = [];
+        var k;
         
         div.classList.add("volume-container");
         viewer_element.appendChild(div);
-        viewer.displays.push(addVolumeInterface(div, volumes[i], i));
+        viewer.displays.push(addVolumeInterface(div, volumes[i], i, volume_descriptions[i]));
         viewer.cachedSlices[i] = [];
         
         volume.position.xspace = Math.floor(volume.header.xspace.space_length / 2);
@@ -296,9 +290,8 @@
           slices[k].max = volume.max;
         }
         viewer.updateVolume(i, slices);
-      }
+      });
       
-      container.appendChild(viewer_element);
       viewer.triggerEvent("ready");
       viewer.triggerEvent("sliceupdate");
       
@@ -349,9 +342,34 @@
       }, false);
     }
       
+    function getTemplate(viewer_element, volID, template_id, viewer_insert_class) {
+      var template = document.getElementById(template_id).innerHTML.replace(/\{\{VOLID\}\}/gm, volID);
+      var temp = document.createElement("div");
+      temp.innerHTML = template;
+      var template_elements = temp.childNodes;
+      var viewer_insert = temp.getElementsByClassName(viewer_insert_class)[0];
+
+      var i, count;
+      var node;
+
+      for (i = 0, count = viewer_element.childNodes.length; i < count; i++) {
+        node = viewer_element.childNodes[i];
+        if (node.nodeType === 1) {
+          viewer_insert.appendChild(node);
+          i--;
+          count--;
+        }
+      } 
+
+      return template_elements;
+    }
+
     // Create canvases and add mouse interface.
-    function addVolumeInterface(div, volume, volID) {
+    function addVolumeInterface(div, volume, volID, volume_description) {
+      volume_description = volume_description || {};
       var displays = [];
+      var template_options = volume_description.template || {};
+      var template;
       
       function captureMouse(canvas) {
         var mouse = {x: 0, y: 0};
@@ -404,7 +422,21 @@
           })
         );
       });
-      
+
+      if (template_options.element_id && template_options.viewer_insert_class) {
+        template = getTemplate(div, volID, template_options.element_id, template_options.viewer_insert_class);
+
+        if (typeof template_options.complete === "function") {
+          template_options.complete(volume, template);
+        }
+
+        Array.prototype.forEach.call(template, function(node) {
+          if (node.nodeType === 1) {
+            div.appendChild(node);
+          }
+        });
+      }      
+
       if (viewer.volumeUIControls) {
         var controls  = document.createElement("div");
         controls.className = "volume-viewer-controls volume-controls";
@@ -598,10 +630,9 @@
       }
 
       options = options || {};
+      var overlay_options = options.overlay && typeof options.overlay === "object" ? options.overlay : {};
       
-      container = document.getElementById(element_id);
-      viewer_element = document.createElement("div");
-      viewer_element.id = "volume-viewer";
+      viewer_element = document.getElementById(element_id);
       
       var volume_descriptions = options.volumes;
       var num_descriptions = options.volumes.length;
@@ -630,16 +661,16 @@
               if (options.overlay && num_descriptions > 1) {
                 openVolume({
                     volumes: viewer.volumes,
-                    type: 'multivolume'
+                    type: "multivolume",
                   },
                   function(volume) {
                     volume.position = {};
                     volumes.push(volume);
-                    startViewer();
+                    startViewer(options.volumes.concat(overlay_options));
                   }
                 );
               } else {
-                startViewer();
+                startViewer(options.volumes.concat(overlay_options));
               }
             });
           }

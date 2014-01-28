@@ -239,23 +239,23 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
     });
   };
   
-  viewer.color_mapUI = function(controls, volume, vol_id) {
-    var color_mapOption = $("<select></select>");
+  viewer.colorMapUI = function(controls, volume, vol_id) {
+    var color_map_option = $("<select></select>");
     var list = "";
     VolumeViewer.color_maps.forEach(function(scale, i) {
       list += "<option value=\"" + i + "\"" +
               (viewer.default_color_map === scale ? " SELECTED" : "") +
               ">" + scale.name + "</option>";
     });
-    color_mapOption.html(list);
+    color_map_option.html(list);
     
     //On change update color scale of volume and redraw.
-    color_mapOption.change(function(event) {
+    color_map_option.change(function(event) {
       volume.color_map = VolumeViewer.color_maps[+$(event.target).val()];
       viewer.redrawVolumes();
     });
     
-    controls.append($("<div class=\"control-heading\" id=\"color-scale-heading"+vol_id+"\" >Color Scale: </div>").append(color_mapOption));
+    controls.append($("<div class=\"control-heading\" id=\"color-scale-heading"+vol_id+"\" >Color Scale: </div>").append(color_map_option));
   };
   
   viewer.thresholdUI = function(controls, volume, vol_id) {

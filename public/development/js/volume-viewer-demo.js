@@ -353,7 +353,9 @@ $(function() {
           element_id: "overlay-ui-template",
           viewer_insert_class: "overlay-viewer-display"
         }
-      }
+      },
+      panel_width: 256,
+      panel_height: 256
     });
 
   });

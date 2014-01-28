@@ -271,7 +271,11 @@
     * @name viewer.viewer:loadVolumes
     * @param {object} options Description of volumes to load:
     * * **volumes** {array} An array of volume descriptions.
-    * * **overlay** {boolean} Create a display overlaying the other loaded volumes?
+    * * **overlay** {boolean|object} Set to true to display an overlay of 
+    *   the loaded volumes with out any interface, or provide and object 
+    *   containing a description of the template to use for the UI (see below).
+    * * **panel_width** {number} Width of an individual slice panel in the display.
+    * * **panel_height** {number} Height of an individual slice panel in the display.
     *
     * @description
     * Initial load of volumes. Usage:
@@ -302,14 +306,16 @@
     *       element_id: "overlay-ui-template",
     *       viewer_insert_class: "overlay-viewer-display"
     *     }
-    *   }
+    *   },
+    *   panel_width: 256,
+    *   panel_height: 256
     * });
     * ```
     * The volume viewer requires three parameters for each volume to be loaded:
     * * **type** The type of volume (currently, 'minc' is the only valid option).
     * * **header\_url** The URL from which to get header data for the MINC volume.
     * * **raw\_data\_url** The URL from which to get the raw MINC data.
-    * * **template** Object containing information about the template to use
+    * * **template** (optional) Object containing information about the template to use
     *   to produce the UI for each volume. Its properties include **element\_id**,
     *   the id of the element containing the template, and
     *   **viewer\_insert\_class**, the class of the element within the template
@@ -354,6 +360,8 @@
                 return;
               }
               if (options.overlay && num_descriptions > 1) {
+                options.volumes.push(overlay_options);
+
                 openVolume({
                     volumes: viewer.volumes,
                     type: "overlay",
@@ -361,11 +369,11 @@
                   function(volume) {
                     volume.position = {};
                     volumes.push(volume);
-                    startViewer(options.volumes.concat(overlay_options));
+                    startViewer(options);
                   }
                 );
               } else {
-                startViewer(options.volumes.concat(overlay_options));
+                startViewer(options);
               }
             });
           }
@@ -537,7 +545,7 @@
     /////////////////////////
     // PRIVATE FUNCTIONS
     /////////////////////////
-     
+
     // Open volume using appropriate volume loader
     function openVolume(volume_description, callback){
       var loader = VolumeViewer.volumes[volume_description.type];
@@ -569,7 +577,9 @@
 
     
     // Initialize the viewer with first slices
-    function startViewer(volume_descriptions) {
+    function startViewer(options) {
+      options = options || {};
+
       if (viewer.globalUIControls) {
         if (viewer.globalUIControls.defer_until_page_load) {
           viewer.addEventListener("ready", function() {
@@ -589,7 +599,7 @@
         
         div.classList.add("volume-container");
         viewer_element.appendChild(div);
-        viewer.displays.push(addVolumeInterface(div, volumes[i], i, volume_descriptions[i]));
+        viewer.displays.push(addVolumeInterface(div, volumes[i], i, options));
         viewer.cachedSlices[i] = [];
         
         volume.position.xspace = Math.floor(volume.header.xspace.space_length / 2);
@@ -615,14 +625,12 @@
       viewer.triggerEvent("ready");
       viewer.triggerEvent("sliceupdate");
       
-      animate();
-    }
-
-    // Start animating
-    function animate() {
-      window.requestAnimationFrame(animate);
-
-      viewer.draw();
+      // Start animating
+      (function animate() {
+        window.requestAnimationFrame(animate);
+  
+        viewer.draw();
+      })();
     }
 
     // Set up global keyboard interactions.
@@ -685,8 +693,12 @@
     }
 
     // Create canvases and add mouse interface.
-    function addVolumeInterface(div, volume, vol_id, volume_description) {
-      volume_description = volume_description || {};
+    function addVolumeInterface(div, volume, vol_id, options) {
+      options = options || {};
+      
+      var volume_descriptions = options.volumes || [];
+      var volume_description = volume_descriptions[vol_id] || {};
+      
       var displays = [];
       var template_options = volume_description.template || {};
       var template;
@@ -716,8 +728,8 @@
       ["xspace", "yspace", "zspace"].forEach(function(axis_name) {
         var canvas = document.createElement("canvas");
         var context = canvas.getContext('2d');
-        canvas.width = 256;
-        canvas.height = 256;
+        canvas.width = options.panel_width || 256;
+        canvas.height = options.panel_height || 256;
         canvas.setAttribute("data-volume-id", vol_id);
         canvas.setAttribute("data-axis-name", axis_name);
         canvas.classList.add("slice-display");

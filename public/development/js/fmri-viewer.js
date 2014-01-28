@@ -306,7 +306,9 @@ $(function() {
             viewer_insert_class: "volume-viewer-display"
           }
         }
-      ]
+      ],
+      panel_width: 256,
+      panel_height: 256
     });
   });
 });

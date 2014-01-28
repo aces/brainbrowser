@@ -89,30 +89,30 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
     $(element).append(controls);
   };
   
-  viewer.volumeUIControls = function(controls, volume, volID) {
+  viewer.volumeUIControls = function(controls, volume, vol_id) {
     controls = $(controls);
 
-    viewer.coordinateUI(controls, volume, volID);
+    viewer.coordinateUI(controls, volume, vol_id);
     
-    if(volume.type === "multivolume") {
-      viewer.blendUI(controls, volume, volID);
+    if(volume.type === "overlay") {
+      viewer.blendUI(controls, volume, vol_id);
     } else {
-      viewer.colorScaleUI(controls, volume, volID);
-      viewer.thresholdUI(controls, volume, volID);
+      viewer.colorMapUI(controls, volume, vol_id);
+      viewer.thresholdUI(controls, volume, vol_id);
       if (volume.data.time) {
-        viewer.timeUI(controls, volume, volID);
+        viewer.timeUI(controls, volume, vol_id);
       }
-      viewer.sliceSeriesUI(controls, volume, volID);
+      viewer.sliceSeriesUI(controls, volume, vol_id);
     }
   };
   
-  viewer.coordinateUI = function(controls, volume, volID) {
+  viewer.coordinateUI = function(controls, volume, vol_id) {
     var coords, world_coords_div, voxel_coords_div;
     if (volume.getWorldCoords) {
       coords = $('<div class="coords"></div>');
 
       world_coords_div = $(
-        '<div class="control-heading" id="world-coordinates-heading'+volID+'">World Coordinates: </div>' +
+        '<div class="control-heading" id="world-coordinates-heading'+vol_id+'">World Coordinates: </div>' +
         '<div class="world-coords">' +
         
         'X:<input id="world-x" class="control-inputs"></input>' +
@@ -148,7 +148,7 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
       });
       
       voxel_coords_div = $(
-        '<div class="control-heading" id="voxel-coordinates-heading'+volID+'">Voxel Coordinates: </div>' +
+        '<div class="control-heading" id="voxel-coordinates-heading'+vol_id+'">Voxel Coordinates: </div>' +
         '<div class="voxel-coords">' +
         
         'X:<input id="voxel-x" class="control-inputs"></input>' +
@@ -199,9 +199,9 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
     controls.append(coords);
   };
   
-  viewer.blendUI = function(controls, volume, volID) {
+  viewer.blendUI = function(controls, volume, vol_id) {
     var blendSlider = $("<div id=\"blend-slider\" class=\"slider volume-viewer-blend\"></div>");
-    var blend = $("<div class=\"control-heading\" id=\"blend-heading"+volID+"\">Blend (-50 to 50): </div>");
+    var blend = $("<div class=\"control-heading\" id=\"blend-heading"+vol_id+"\">Blend (-50 to 50): </div>");
     var blend_val = $("<input class=\"control-inputs\" value=\"0\" id =\"blend-val\"/>");
     blend.append(blend_val);
     
@@ -224,7 +224,7 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
     });
     
     //change blend value based on user input in text field
-    blend_val.change(function () {
+    blend_val.change(function() {
       var value = parseFloat(this.value);
       if (!BrainBrowser.utils.isNumeric(value)) {
         value = 0;
@@ -239,27 +239,27 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
     });
   };
   
-  viewer.colorScaleUI = function(controls, volume, volID) {
-    var colorScaleOption = $("<select></select>");
+  viewer.color_mapUI = function(controls, volume, vol_id) {
+    var color_mapOption = $("<select></select>");
     var list = "";
-    VolumeViewer.colorScales.forEach(function(scale, i) {
+    VolumeViewer.color_maps.forEach(function(scale, i) {
       list += "<option value=\"" + i + "\"" +
-              (viewer.defaultScale === scale ? " SELECTED" : "") +
+              (viewer.default_color_map === scale ? " SELECTED" : "") +
               ">" + scale.name + "</option>";
     });
-    colorScaleOption.html(list);
+    color_mapOption.html(list);
     
     //On change update color scale of volume and redraw.
-    colorScaleOption.change(function(event) {
-      volume.colorScale = VolumeViewer.colorScales[+$(event.target).val()];
+    color_mapOption.change(function(event) {
+      volume.color_map = VolumeViewer.color_maps[+$(event.target).val()];
       viewer.redrawVolumes();
     });
     
-    controls.append($("<div class=\"control-heading\" id=\"color-scale-heading"+volID+"\" >Color Scale: </div>").append(colorScaleOption));
+    controls.append($("<div class=\"control-heading\" id=\"color-scale-heading"+vol_id+"\" >Color Scale: </div>").append(color_mapOption));
   };
   
-  viewer.thresholdUI = function(controls, volume, volID) {
-    var thresh_slider = $('<div class="slider volume-viewer-threshold" id="threshold-slider'+volID+'"></div>');
+  viewer.thresholdUI = function(controls, volume, vol_id) {
+    var thresh_slider = $('<div class="slider volume-viewer-threshold" id="threshold-slider'+vol_id+'"></div>');
     var thresholds = $("<div class=\"control-heading\" class=\"slider-div\">Threshold: </div>");
     var min_input = $('<input class="control-inputs thresh-input-left" value="0"/>');
     var max_input = $('<input class="control-inputs thresh-input-right" value="255"/>');
@@ -290,7 +290,7 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
     });
         
     //change min value based on user input and update slider
-    min_input.change(function () {
+    min_input.change(function() {
       var value = parseFloat(this.value);
       if (!BrainBrowser.utils.isNumeric(value)) {
         value = 0;
@@ -305,7 +305,7 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
     });
     
     //change max value based on user input and update slider
-    max_input.change(function () {
+    max_input.change(function() {
       var value = parseFloat(this.value);
       if (!BrainBrowser.utils.isNumeric(value)) {
         value = 255;
@@ -320,11 +320,11 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
     });
   };
   
-  viewer.timeUI = function(controls, volume, volID) {
+  viewer.timeUI = function(controls, volume, vol_id) {
     var time_controls = $("<div class=\"control-heading\" class=\"slider-div\">Time: </div>");
-    var time_slider = $('<div class="slider volume-viewer-threshold" id="threshold-time-slider'+volID+'"></div>');
+    var time_slider = $('<div class="slider volume-viewer-threshold" id="threshold-time-slider'+vol_id+'"></div>');
     var time_val = $("<input class=\"control-inputs\" value=\"0\" id =\"time-val\"/>");
-    var play_button = $('<input type="checkbox" class="button" id="play-' + volID +'"><label for="play-' + volID + '">Play</label>');
+    var play_button = $('<input type="checkbox" class="button" id="play-' + vol_id +'"><label for="play-' + vol_id + '">Play</label>');
     var min = 0;
     var max = volume.data.time.space_length - 1;
     var play_interval;
@@ -345,7 +345,7 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
       }
     });
     
-    time_val.change(function () {
+    time_val.change(function() {
       var value = parseInt(this.value, 10);
       if (!BrainBrowser.utils.isNumeric(value)) {
         value = 0;
@@ -382,9 +382,9 @@ BrainBrowser.VolumeViewer.modules.uiControls = function(viewer) {
     controls.append(play_button);
   };
   
-  viewer.sliceSeriesUI = function(controls, volume, volID) {
-    var slice_controls = $("<div class=\"control-heading\" id=\"slice-series-heading"+volID+"\">All slices: </div>");
-    var button_div = $("<div id=\"slice-series-buttons"+volID+"\"></div>");
+  viewer.sliceSeriesUI = function(controls, volume, vol_id) {
+    var slice_controls = $("<div class=\"control-heading\" id=\"slice-series-heading"+vol_id+"\">All slices: </div>");
+    var button_div = $("<div id=\"slice-series-buttons"+vol_id+"\"></div>");
     var xspace_button = $('<span class="slice-series button" data-axis="xspace" style="font-size: 11px">Sagittal</span>');
     var yspace_button = $('<span class="slice-series button" data-axis="yspace" style="font-size: 11px">Coronal</span>');
     var zspace_button = $('<span class="slice-series button" data-axis="zspace" style="font-size: 11px">Transverse</span>');

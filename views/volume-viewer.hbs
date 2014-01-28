@@ -117,9 +117,9 @@
         </div>
       </div>
 
-      <div class="blend-div">
-        <span class="control-heading" id="blend-heading\{{VOLID}}">Blend (-50 to 50):</span>
-        <input class="control-inputs" value="0" id="blend-val"/>
+      <div class="blend-div" data-volume-id="\{{VOLID}}">
+        <span class="control-heading" id="blend-heading\{{VOLID}}">Blend (0.0 to 1.0):</span>
+        <input class="control-inputs" value="0.5" id="blend-val"/>
         <div id="blend-slider" class="slider volume-viewer-blend"></div>
       </div>
       
@@ -144,11 +144,10 @@
     <script type="text/javascript" src="/js/brainbrowser/lib/utils.js"></script>
     <script type="text/javascript" src="/js/brainbrowser/lib/color_map.js"></script> 
     <script src="/js/brainbrowser/volume-viewer.js"></script>
-    <script src="/js/brainbrowser/volume-viewer/modules/navigation.js"></script>
     <script src="/js/brainbrowser/volume-viewer/lib/display.js"></script>
     <script src="/js/brainbrowser/volume-viewer/lib/loader.js"></script>
     <script src="/js/brainbrowser/volume-viewer/lib/utils.js"></script>
-    <script src="/js/brainbrowser/volume-viewer/volumes/multivolume.js"></script>
+    <script src="/js/brainbrowser/volume-viewer/volumes/overlay.js"></script>
     <script src="/js/brainbrowser/volume-viewer/volumes/minc_data.js"></script>
     <script src="/js/brainbrowser/volume-viewer/volumes/minc.js"></script>
     {{#ifenv "loris"}}

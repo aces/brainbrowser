@@ -90,7 +90,7 @@ $(function() {
 
       $(".color-map-select").change(function(event) {
         var volume = viewer.volumes[$(this).data("volume-id")];
-        volume.colorScale = BrainBrowser.VolumeViewer.colorScales[+$(event.target).val()];
+        volume.color_map = BrainBrowser.VolumeViewer.color_maps[+$(event.target).val()];
         viewer.redrawVolumes();
       });
 
@@ -122,7 +122,7 @@ $(function() {
           }
         });
 
-        min_input.change(function () {
+        min_input.change(function() {
           var value = parseFloat(this.value);
           if (!BrainBrowser.utils.isNumeric(value)) {
             value = 0;
@@ -136,7 +136,7 @@ $(function() {
           viewer.redrawVolumes();
         });
 
-        max_input.change(function () {
+        max_input.change(function() {
           var value = parseFloat(this.value);
           if (!BrainBrowser.utils.isNumeric(value)) {
             value = 255;
@@ -158,7 +158,7 @@ $(function() {
         var volume = viewer.volumes[vol_id];
         
         var slider = div.find(".slider");
-        var value = div.find("#time-val-" + vol_id);
+        var time_input = div.find("#time-val-" + vol_id);
         var play_button = div.find("#play-" + vol_id);
 
         var min = 0;
@@ -172,7 +172,7 @@ $(function() {
           step: 1,
           slide: function(event, ui) {
             var value = +ui.value;
-            value.val(value);
+            time_input.val(value);
             volume.current_time = value;
             viewer.redrawVolumes();
           },
@@ -181,7 +181,7 @@ $(function() {
           }
         });
         
-        value.change(function () {
+        time_input.change(function() {
           var value = parseInt(this.value, 10);
           if (!BrainBrowser.utils.isNumeric(value)) {
             value = 0;
@@ -190,7 +190,7 @@ $(function() {
           value = Math.max(min, Math.min(value, max));
 
           this.value = value;
-          value.val(value);
+          time_input.val(value);
           slider.slider("value", value);
           volume.current_time = value;
           viewer.redrawVolumes();
@@ -203,7 +203,7 @@ $(function() {
               var value = volume.current_time + 1;
               value = value > max ? 0 : value;
               volume.current_time = value;
-              value.val(value);
+              time_input.val(value);
               slider.slider("value", value);
               viewer.redrawVolumes();
             }, 200);
@@ -262,46 +262,26 @@ $(function() {
         });
       });
 
-      $(".blend-div").each(function() {
-        var div = $(this);
-        var slider = div.find(".slider");
-        var value = div.find("#blend-val")
-
-        slider.slider({
-          min: -50,
-          max: 50,
-          step: 1,
-          slide: function(event, ui) {
-            var newVal = parseInt(ui.value, 10);
-            volume.updateBlendRatio(newVal);
-            viewer.redrawVolumes();
-            value.val( newVal );
-          },
-          stop: function() {
-            $(this).find("a").blur();
-          }
-        });
-        
-        //change blend value based on user input in text field
-        value.change(function () {
-          var value = parseFloat(this.value);
-          if (!BrainBrowser.utils.isNumeric(value)) {
-            value = 0;
-          }
-
-          value = Math.max(-50, Math.min(value, 50));
-
-          this.value = value;
-          slider.slider("value", value);
-          volume.updateBlendRatio(value);
-          viewer.redrawVolumes();
-        });
-      })
-
 
       loading_div.hide();
       $("#brainbrowser-wrapper").slideDown({duration: 600});
       $(".button").button();
+    });
+
+    // Update coordinate display as slices are updated
+    // by the user.
+    viewer.addEventListener("sliceupdate", function() {
+      viewer.volumes.forEach(function(volume, vol_id) {
+        var world_coords = volume.getWorldCoords();
+        var voxel_coords = volume.getVoxelCoords();
+        $("#world-x-" + vol_id).val(world_coords.x.toPrecision(6));
+        $("#world-y-" + vol_id).val(world_coords.y.toPrecision(6));
+        $("#world-z-" + vol_id).val(world_coords.z.toPrecision(6));
+
+        $("#voxel-x-" + vol_id).val(voxel_coords.x.toPrecision(6));
+        $("#voxel-y-" + vol_id).val(voxel_coords.y.toPrecision(6));
+        $("#voxel-z-" + vol_id).val(voxel_coords.z.toPrecision(6));
+      });
     });
     
     loading_div.show();

@@ -76,7 +76,7 @@
   var minc_volume_proto = {
     slice: function(axis, number, time) {
       var slice = this.data.slice(axis, number, time);
-      slice.colorScale = this.colorScale || VolumeViewer.colorScales[0];
+      slice.color_map = this.color_map || VolumeViewer.color_maps[0];
       slice.min  = this.min;
       slice.max  = this.max;
       slice.axis = axis;
@@ -85,9 +85,9 @@
         zoom = zoom || 1;
 
         var context = document.createElement("canvas").getContext("2d");
-        var colorScale = this.colorScale;
+        var color_map = this.color_map;
         var imageData = context.createImageData(this.width, this.height);
-        colorScale.mapColors(this.data, {
+        color_map.mapColors(this.data, {
           min: this.min,
           max: this.max,
           scale255: true,
@@ -133,7 +133,7 @@
     }
   };
 
-  VolumeViewer.volumeType.minc = function(description, callback) {
+  VolumeViewer.volumes.minc = function(description, callback) {
     var volume = Object.create(minc_volume_proto);
     var data;
     volume.current_time = 0;

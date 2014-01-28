@@ -167,7 +167,7 @@
     };
     
     // Default should be redefined by appliction.
-    collection.getDataControls = function () {
+    collection.getDataControls = function() {
       return {modality: "", sk: "", statistic: "" };
     };
     
@@ -221,7 +221,7 @@
             callback(dataset);
           });
         },
-        error: function () {
+        error: function() {
           alert("Error loading map");
         }
       });

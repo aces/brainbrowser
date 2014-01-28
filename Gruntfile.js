@@ -60,19 +60,9 @@ module.exports = function(grunt) {
           "<%= build_dir %>/brainbrowser.surface-viewer.min.js": "<%= concat.surface.dest %>"
         }
       },
-      surface_ui: {
-        files: {
-          "<%= prod_js %>/brainbrowser.surface-viewer.ui.min.js": "<%= dev_js %>/ui/brainbrowser.surface-viewer.ui.js"
-        }
-      },
       volume: {
         files: {
           "<%= build_dir %>/brainbrowser.volume-viewer.min.js": "<%= concat.volume.dest %>"
-        }
-      },
-      volume_ui: {
-        files: {
-          "<%= build_dir %>/brainbrowser.volume-viewer.ui-controls.min.js": "<%= dev_js %>/ui/brainbrowser.volume-viewer.ui-controls.js"
         }
       },
       demos: {
@@ -140,12 +130,11 @@ module.exports = function(grunt) {
         src: [
           "<%= dev_js %>/index.js",
           "<%= concat.surface.src %>",
-          "<%= dev_js %>/surface-viewer.js",
-          "<%= dev_js %>/macacc/macacc.js",
-          "<%= dev_js %>/macacc-viewer.js",
           "<%= concat.volume.src %>",
-          "<%= dev_js %>/fmri-viewer.js",
-          "<%= dev_js %>/ui/*.js"
+          "<%= concat.macacc.src %>",
+          "<%= dev_js %>/surface-viewer-demo.js",
+          "<%= dev_js %>/volume-viewer-demo.js",
+          "<%= dev_js %>/fmri-viewer.js"
         ]
       },
       workers: {

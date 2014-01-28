@@ -48,6 +48,9 @@ $(function() {
   /////////////////////////////////////
   BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
 
+    // Add the three.js 3D anaglyph effect to the viewer.
+    viewer.addEffect("AnaglyphEffect");
+
     // Set up some defaults
     viewer.setAttribute("clamp_colors", true); // By default clamp range.
     viewer.setAttribute("flip_colors", false); // Don't flip intensity-color relationship.
@@ -62,7 +65,7 @@ $(function() {
 
     // When a new color map is loaded display a spectrum representing
     // the color mapping.
-    viewer.addEventListener("loadcolormap", function (color_map) {
+    viewer.addEventListener("loadcolormap", function(color_map) {
       var canvas = color_map.createCanvasWithScale(0, 100);
       var spectrum_div = document.getElementById("color-bar");
       
@@ -195,22 +198,23 @@ $(function() {
         min_input.val(range_min);
         max_input.val(range_max);
 
-        function inputRangeChange(e) {
-          var min = parseFloat(min_input.val())
-          var max = parseFloat(max_input.val())
+        function inputRangeChange() {
+          var min = parseFloat(min_input.val());
+          var max = parseFloat(max_input.val());
           
           slider.slider('values', 0, min);
           slider.slider('values', 1, max);
           viewer.setIntensityRange(min, max, controls.find("#clamp_range").is(":checked"));
         }
+
         $("#data-range-min").change(inputRangeChange);
         $("#data-range-max").change(inputRangeChange);
 
-        $("#fix_range").click(function(event) {
+        $("#fix_range").click(function() {
           viewer.setAttribute("fix_color_range", $(this).is(":checked"));
         });
 
-        $("#clamp_range").change(function(e) {
+        $("#clamp_range").change(function() {
           var min = parseFloat(min_input.val());
           var max = parseFloat(max_input.val());
 
@@ -220,7 +224,7 @@ $(function() {
         });
 
 
-        $("#flip_range").change(function(e) {
+        $("#flip_range").change(function() {
           var min = parseFloat(min_input.val());
           var max = parseFloat(max_input.val());
 
@@ -263,9 +267,132 @@ $(function() {
     // UI
     ///////////////////////////////////
 
+    // Some keyboard controls for the viewer.
+    $("body").keydown(function(e) {
+      var key_code = e.keyCode;
+      var keys = {
+        // Space
+        32: function() { viewer.separateHalves(); },
+        // Up arrow
+        38: function() { viewer.zoom(1.1); },
+        // Down arrow
+        40: function() { viewer.zoom(1/1.1); }
+      };
+    
+      if (keys.hasOwnProperty(key_code)) {
+        keys[key_code]();
+        return false;
+      }
+
+    });
+
+    // Set the background color.
+    $("#clear_color").change(function(e){
+      viewer.setClearColor(parseInt($(e.target).val(), 16));
+    });
+    
+    // Reset to the default view.
+    $("#resetview").click(function() {
+      // Setting the view to its current view type will 
+      // automatically reset its position.
+      viewer.setView($("[name=hem_view]:checked").val());
+    });
+
+    // Set the visibility of the currently loaded model.
+    $(".visibility").change(function() {
+      var input  = $(this);
+      var hemisphere = input.data("hemisphere");
+      var shape = viewer.model.getObjectByName(hemisphere);
+
+      if (!shape) return;
+
+      // If the shapes wireframe is currently being displayed,
+      // set the wireframe's visibility.
+      if (shape.wireframe_active) {
+        shape = shape.getObjectByName("__wireframe__") || shape;
+      }
+
+      shape.visible = input.is(":checked");
+    });
+    
+    // Set the view type (medial, lateral,
+    // inferior, anterior, posterior).
+    $("[name=hem_view]").change(function() {
+      viewer.setView($("[name=hem_view]:checked").val());
+    });
+    
+    // Toggle wireframe.
+    $("#meshmode").change(function() {
+      viewer.setWireframe($(this).is(":checked"));
+    });
+    
+    // Toggle 3D anaglyph effect.
+    $("#threedee").change(function() {
+      viewer.setEffect($(this).is(":checked") ? "AnaglyphEffect" : "None");
+    });
+    
+    // Grab a screenshot of the canvas.
+    $("#openImage").click(function() {
+      var view_window = viewer.view_window;
+      var canvas = document.createElement("canvas");
+      var spectrum_canvas = document.getElementById("spectrum-canvas");
+      var context = canvas.getContext("2d");
+      var viewer_image = new Image();
+      
+      canvas.width = view_window.offsetWidth;
+      canvas.height = view_window.offsetHeight;
+    
+      // Display the final image in a dialog box.
+      function displayImage() {
+        var result_image = new Image();
+        
+        result_image.onload = function() {
+          $("<div></div>").append(result_image).dialog({
+            title: "Screenshot",
+            height: result_image.height,
+            width: result_image.width
+          });
+        };
+        
+        result_image.src = canvas.toDataURL();
+      }
+   
+      // Grab the spectrum canvas to display with the
+      // image.
+      function getSpectrumImage() {
+        var spectrum_image = new Image();
+        spectrum_image.onload = function(){
+          context.drawImage(spectrum_image, 0, 0);
+          displayImage();
+        };
+        spectrum_image.src = spectrum_canvas.toDataURL();
+      }
+      
+      // Draw an image of the viewer area, add the spectrum
+      // image it its available, and display everything
+      // in a dialog box.
+      viewer_image.onload = function(){
+        context.drawImage(viewer_image, 0, 0);
+        if ($(spectrum_canvas).is(":visible")) {
+          getSpectrumImage();
+        } else {
+          displayImage();
+        }
+      };
+      
+      viewer_image.src = viewer.canvasDataURL();
+    });
+    
+    // Control autorotation.
+    $("#autorotate-controls").children().change(function() {
+      viewer.autorotate.x = $("#autorotateX").is(":checked");
+      viewer.autorotate.y = $("#autorotateY").is(":checked");
+      viewer.autorotate.z = $("#autorotateZ").is(":checked");
+    });
+
     // Color map URLs are read from the config file and added to the 
     // color map select box.
-    var color_map_select = $('<select id="color-map-select"></select>').change(function (e) {
+    var color_map_select = $('<select id="color-map-select"></select>').change(function() {
       viewer.loadColorMapFromURL($(this).val());
     });
 
@@ -426,14 +553,14 @@ $(function() {
 
     // If the user changes the format that's being submitted,
     // display a hint if one has been configured.
-    $("#obj_file_format").change(function () {
+    $("#obj_file_format").change(function() {
       var format = $("#obj_file_format").closest("#obj_file_select").find("#obj_file_format option:selected").val();
       $("#format_hint").html(BrainBrowser.config.surface_viewer.filetypes[format].format_hint || "");
     });
 
     // Load a new model from a file that the user has 
     // selected.
-    $("#obj_file_submit").click(function () {
+    $("#obj_file_submit").click(function() {
       var format = $("#obj_file_format").closest("#obj_file_select").find("#obj_file_format option:selected").val();
       viewer.loadModelFromFile(document.getElementById("objfile"), {
         format: format,

@@ -49,7 +49,6 @@ module.exports = function(grunt) {
         banner: "<%= license %>\n" +
                 "/*\n" +
                 "* <%= pkg.name %> v<%= pkg.version %>\n" +
-                "* https://brainbrowser.cbrain.mcgill.ca/\n" +
                 "*\n" +
                 "* Author: Tarek Sherif  <tsherif@gmail.com> (http://tareksherif.ca/)\n" +
                 "* Author: Nicolas Kassis\n" +
@@ -168,7 +167,9 @@ module.exports = function(grunt) {
       explicit: {
         files: {
           "<%= prod_js %>/brainbrowser": "<%= build_dir %>",
-          "<%= prod_js %>/brainbrowser-<%= pkg.version %>": "<%= build_dir %>"
+          "<%= prod_js %>/brainbrowser-<%= pkg.version %>": "<%= build_dir %>", 
+          "<%= prod_js %>/surface-viewer-demo.js": "<%= dev_js %>/surface-viewer-demo.js",
+          "<%= prod_js %>/volume-viewer-demo.js": "<%= dev_js %>/volume-viewer-demo.js"
         }
       }
     },

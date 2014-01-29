@@ -275,8 +275,8 @@ $(function() {
           value: 0.5,
           slide: function(event, ui) {
             var value = parseFloat(ui.value);
-            volume.blend_ratios[0] = value;
-            volume.blend_ratios[1] = 1 - value;
+            volume.blend_ratios[0] = 1 - value;
+            volume.blend_ratios[1] = value;
             
 
 
@@ -301,8 +301,8 @@ $(function() {
 
           // Update slider and redraw volumes.
           slider.slider("value", value);
-          volume.blend_ratios[0] = value;
-          volume.blend_ratios[1] = 1 - value;
+          volume.blend_ratios[0] = 1 - value;
+          volume.blend_ratios[1] = value;
           viewer.redrawVolumes();
         });
       });

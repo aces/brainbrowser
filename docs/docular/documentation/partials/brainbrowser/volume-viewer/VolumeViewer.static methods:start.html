@@ -7,31 +7,43 @@
 It creates a viewer object that is then passed to the callback function
 supplied by the user.</p>
 
-<pre class="prettyprint linenums">  BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
+<pre class="prettyprint linenums">BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
 
-    // Add an event listener.
-    viewer.addEventListener("ready", function() {
-      console.log("Viewer is ready!");
-    });
-
-    // Load minc volumes.
-    viewer.loadVolumes({
-      volumes: [
-        {
-          type: 'minc',
-          header_url: "data/volume1.mnc?minc_headers=true",
-          raw_data_url: "data/volume1.mnc?raw_data=true"
-       },
-        },
-        {
-          type: 'minc',
-          header_url: "data/volume2.mnc?minc_headers=true",
-          raw_data_url: "data/volume2.mnc?raw_data=true"
-        }
-      ],
-      overlay: true
-    });
+  // Add an event listener.
+  viewer.addEventListener("ready", function() {
+    console.log("Viewer is ready!");
   });
+
+  // Load minc volumes.
+  viewer.loadVolumes({
+    volumes: [
+      {
+        type: "minc",
+        header_url: "volume1.mnc?minc_headers=true",
+        raw_data_url: "volume1.mnc?raw_data=true",
+        template: {
+          element_id: "volume-ui-template",
+          viewer_insert_class: "volume-viewer-display"
+        }
+      },
+      {
+        type: "minc",
+        header_url: "volume2.mnc?minc_headers=true",
+        raw_data_url: "volume2.mnc?raw_data=true",
+        template: {
+          element_id: "volume-ui-template",
+          viewer_insert_class: "volume-viewer-display"
+        }
+      }
+    ],
+    overlay: {
+      template: {
+        element_id: "overlay-ui-template",
+        viewer_insert_class: "overlay-viewer-display"
+      }
+    }
+  });
+});
 </pre></div>
 <h2 id="Parameters">Parameters</h2>
 <ul class="parameters"><li><code class="plain">element_id – {string} – </code>

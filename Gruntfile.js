@@ -66,9 +66,7 @@ module.exports = function(grunt) {
       },
       demos: {
         files: {
-          "<%= prod_js %>/surface-viewer-demo.js": "<%= dev_js %>/surface-viewer-demo.js",
           "<%= prod_js %>/macacc-viewer-combined.min.js": "<%= concat.macacc.dest %>",
-          "<%= prod_js %>/volume-viewer-demo.js": "<%= dev_js %>/volume-viewer-demo.js",
           "<%= prod_js %>/fmri-viewer.js": "<%= dev_js %>/fmri-viewer.js"
         }
       },
@@ -167,9 +165,7 @@ module.exports = function(grunt) {
       explicit: {
         files: {
           "<%= prod_js %>/brainbrowser": "<%= build_dir %>",
-          "<%= prod_js %>/brainbrowser-<%= pkg.version %>": "<%= build_dir %>", 
-          "<%= prod_js %>/surface-viewer-demo.js": "<%= dev_js %>/surface-viewer-demo.js",
-          "<%= prod_js %>/volume-viewer-demo.js": "<%= dev_js %>/volume-viewer-demo.js"
+          "<%= prod_js %>/brainbrowser-<%= pkg.version %>": "<%= build_dir %>"
         }
       }
     },

@@ -227,7 +227,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
   function loadModel(data, filename, options) {
     options = options || {};
-    var filetype = options.format || "MNIObj";
+    var filetype = options.format || "mniobj";
     var parse_options = options.parse || {};
     
     // Parse model info based on the given file type.

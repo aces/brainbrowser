@@ -24,7 +24,10 @@ var pkg = require("../package.json");
 var threejs_versions = require("../threejs-versions.json");
 
 exports.index = function(req, res) {
-  res.render('index', {version: pkg.version});
+  res.render('index', {
+    version: pkg.version,
+    web_service_version: pkg.webServiceVersion
+  });
 };
 
 exports.surface = function(req, res) {

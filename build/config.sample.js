@@ -28,14 +28,14 @@
       worker_dir: "/js/brainbrowser/workers/",
 
       filetypes: {
-        MNIObj: {
+        mniobj: {
           worker: "mniobj.worker.js",
         },
-        WavefrontObj: {
-          worker: "wavefront_obj.worker.js"
+        wavefrontobj: {
+          worker: "wavefrontobj.worker.js"
         },
-        FreeSurferAsc: {
-          worker: "freesurfer_asc.worker.js",
+        freesurferasc: {
+          worker: "freesurferasc.worker.js",
           format_hint: 'You can use <a href="http://surfer.nmr.mgh.harvard.edu/fswiki/mris_convert" target="_blank">mris_convert</a> to convert your binary surface files into .asc format.'
         }
       },

@@ -74,14 +74,14 @@
 *     worker_dir: "js/brainbrowser/workers/",
 *
 *     filetypes: {
-*       MNIObj: {
+*       mniobj: {
 *         worker: "mniobj.worker.js",
 *       },
-*       WavefrontObj: {
-*         worker: "wavefront_obj.worker.js"
+*       wavefrontobj: {
+*         worker: "wavefrontobj.worker.js"
 *       },
-*       FreeSurferAsc: {
-*         worker: "freesurfer_asc.worker.js",
+*       freesurferasc: {
+*         worker: "freesurferasc.worker.js",
 *       }
 *     }
 *

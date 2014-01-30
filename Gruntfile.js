@@ -80,8 +80,8 @@ module.exports = function(grunt) {
       workers: {
         files: {
           "<%= build_dir %>/workers/mniobj.worker.js": "<%= dev_js %>/brainbrowser/workers/mniobj.worker.js",
-          "<%= build_dir %>/workers/wavefront_obj.worker.js": "<%= dev_js %>/brainbrowser/workers/wavefront_obj.worker.js",
-          "<%= build_dir %>/workers/freesurfer_asc.worker.js": "<%= dev_js %>/brainbrowser/workers/freesurfer_asc.worker.js",
+          "<%= build_dir %>/workers/wavefrontobj.worker.js": "<%= dev_js %>/brainbrowser/workers/wavefrontobj.worker.js",
+          "<%= build_dir %>/workers/freesurferasc.worker.js": "<%= dev_js %>/brainbrowser/workers/freesurferasc.worker.js",
           "<%= build_dir %>/workers/data.worker.js": "<%= dev_js %>/brainbrowser/workers/data.worker.js",
           "<%= build_dir %>/workers/deindex.worker.js": "<%= dev_js %>/brainbrowser/workers/deindex.worker.js"
         }

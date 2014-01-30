@@ -435,7 +435,7 @@ $(function() {
       var examples = {
         basic: function() {
           viewer.loadModelFromURL('/models/surf_reg_model_both.obj', {
-            format: "MNIObj",
+            format: "mniobj",
             complete: hideLoading,
             cancel: defaultCancelOptions(current_request),
             parse: { split: true }
@@ -443,23 +443,23 @@ $(function() {
         },
         punkdti: function() {
           viewer.loadModelFromURL('/models/dti.obj', {
-            format: "MNIObj",
+            format: "mniobj",
             render_depth: 999,
             complete: hideLoading,
             cancel: defaultCancelOptions(current_request)
           });
           viewer.loadModelFromURL('/models/left_color.obj', {
-            format: "MNIObj",
+            format: "mniobj",
             cancel: defaultCancelOptions(current_request)
           });
           viewer.loadModelFromURL('/models/right_color.obj', {
-            format: "MNIObj",
+            format: "mniobj",
             cancel: defaultCancelOptions(current_request)
           });
         },
         realct: function() {
           viewer.loadModelFromURL('/models/realct.obj', {
-            format: "MNIObj",
+            format: "mniobj",
             parse: { split: true },
             complete: function() {
               viewer.loadIntensityDataFromURL('/models/realct.txt', {
@@ -473,7 +473,7 @@ $(function() {
         },
         car: function() {
           viewer.loadModelFromURL('/models/car.obj', {
-            format: "WavefrontObj",
+            format: "wavefrontobj",
             complete: hideLoading,
             cancel: defaultCancelOptions(current_request)
           });
@@ -491,11 +491,11 @@ $(function() {
         },
         plane: function() {
           viewer.loadModelFromURL('/models/dlr_bigger.streamlines.obj', {
-            format: "MNIObj",
+            format: "mniobj",
             cancel: defaultCancelOptions(current_request)
           });
           viewer.loadModelFromURL('/models/dlr.model.obj', {
-            format: "MNIObj",
+            format: "mniobj",
             complete: hideLoading,
             cancel: defaultCancelOptions(current_request)
           });
@@ -513,7 +513,7 @@ $(function() {
         },
         mouse: function() {
           viewer.loadModelFromURL('/models/mouse_surf.obj', {
-            format: "MNIObj",
+            format: "mniobj",
             render_depth: 999,
             complete: function() {
               viewer.loadIntensityDataFromURL('/models/mouse_alzheimer_map.txt', {
@@ -529,7 +529,7 @@ $(function() {
             cancel: defaultCancelOptions(current_request)
           });
           viewer.loadModelFromURL('/models/mouse_brain_outline.obj', {
-            format: "MNIObj",
+            format: "mniobj",
             complete: function() {
               setTimeout(function() {
                 // Set the transparency of the outer shell and move the slider

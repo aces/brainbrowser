@@ -1,4 +1,4 @@
-<h2>Surface Viewer Web Service (alpha)</h2>
+<h2>Surface Viewer Web Service (v{{web_service_version}})</h2>
 <p>
   <strong>
     Please note the Surface Viewer Web Service is still in its early stages of development. Performance is not guaranteed and the API may change rapidly.
@@ -19,7 +19,7 @@
   Examples
 </h2>
 <p>
-  Load brain.obj MNIObj model into a 200 X 200 viewer:
+  Load brain.obj MNI Object model into a 200 X 200 viewer:
   <pre>
     <span style='color:#808030; '>&lt;</span><span style='color:#603000; '>div</span> id<span style='color:#808030; '>=</span><span style='color:#800000; '>"</span><span style='color:#0000e6; '>display</span><span style='color:#800000; '>"</span><span style='color:#808030; '>></span><span style='color:#808030; '>&lt;</span><span style='color:#808030; '>/</span><span style='color:#603000; '>div</span><span style='color:#808030; '>></span>
     <span style='color:#808030; '>&lt;</span>script src<span style='color:#808030; '>=</span><span style='color:#800000; '>"</span><span style='color:#0000e6; '>jquery.min.js</span><span style='color:#800000; '>"</span><span style='color:#808030; '>></span><span style='color:#808030; '>&lt;</span><span style='color:#808030; '>/</span>script<span style='color:#808030; '>></span>
@@ -40,7 +40,7 @@
           viewer<span style='color:#808030; '>.</span>setWireframe<span style='color:#808030; '>(</span>$<span style='color:#808030; '>(</span><span style='color:#800000; font-weight:bold; '>this</span><span style='color:#808030; '>)</span><span style='color:#808030; '>.</span>is<span style='color:#808030; '>(</span><span style='color:#800000; '>"</span><span style='color:#0000e6; '>:checked</span><span style='color:#800000; '>"</span><span style='color:#808030; '>)</span><span style='color:#808030; '>)</span><span style='color:#800080; '>;</span>
         <span style='color:#800080; '>}</span><span style='color:#808030; '>)</span><span style='color:#800080; '>;</span>
       <span style='color:#800080; '>}</span>
-      $<span style='color:#808030; '>(</span><span style='color:#800000; '>"</span><span style='color:#0000e6; '>#display</span><span style='color:#800000; '>"</span><span style='color:#808030; '>)</span><span style='color:#808030; '>.</span>load<span style='color:#808030; '>(</span><span style='color:#800000; '>"</span><span style='color:#0000e6; '>https://brainbrowser.cbrain.mcgill.ca/surface-viewer-widget?version=1.4.1&amp;viewer_callback=init&amp;model=brain.obj</span><span style='color:#800000; '>"</span><span style='color:#808030; '>)</span><span style='color:#800080; '>;</span>   
+      $<span style='color:#808030; '>(</span><span style='color:#800000; '>"</span><span style='color:#0000e6; '>#display</span><span style='color:#800000; '>"</span><span style='color:#808030; '>)</span><span style='color:#808030; '>.</span>load<span style='color:#808030; '>(</span><span style='color:#800000; '>"</span><span style='color:#0000e6; '>https://brainbrowser.cbrain.mcgill.ca/surface-viewer-widget?version={{version}}&amp;viewer_callback=init&amp;model=brain.obj</span><span style='color:#800000; '>"</span><span style='color:#808030; '>)</span><span style='color:#800080; '>;</span>   
     <span style='color:#808030; '>&lt;</span><span style='color:#808030; '>/</span>script<span style='color:#808030; '>></span>
   </pre>
 </p>
@@ -52,12 +52,13 @@
 <dl>
   <dt class="credit-title">version</dt>
   <dd>
-    Version of the Surface Viewer to use. Set this explicitly to prevent future updates from breaking your widget (default: latest)
+    Version of the Surface Viewer to use. Set this explicitly to prevent future updates from breaking your widget. The
+    web service must be used with version 1.5.1 or higher (default: latest)
   </dd>
   <dt class="credit-title">width</dt><dd>Width of the loaded viewer in pixels (default: 400)</dd>
   <dt class="credit-title">height</dt><dd>Height of the loaded viewer in pixels (default: 400)</dd>
   <dt class="credit-title">model</dt><dd>URL of a model file to load</dd>
-  <dt class="credit-title">format</dt><dd>File format of the model file (MNIObj, WavefrontObj or FreesurferAsc. Default: MNIObj)</dd>
+  <dt class="credit-title">format</dt><dd>File format of the model file (mniobj, wavefrontobj or freesurferasc. Default: mniobj)</dd>
   <dt class="credit-title">intensity_data</dt><dd>URL of an intensity data file to map onto the model (requires a color map)</dd>
   <dt class="credit-title">color_map</dt><dd>URL of a color map file to use in mapping the intensity data</dd>
   <dt class="credit-title">zoom</dt><dd>Initial zoom level on the model (default: 1.0)</dd>

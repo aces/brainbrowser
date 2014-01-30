@@ -1,6 +1,7 @@
 {
   "name": "BrainBrowser",
-  "version": "1.5.0",
+  "version": "1.5.1",
+  "webServiceVersion": "0.2.0",
   "private": true,
   "scripts": {
     "start": "node app.js"

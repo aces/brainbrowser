@@ -227,11 +227,11 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
   function loadModel(data, filename, options) {
     options = options || {};
-    var filetype = options.format || "mniobj";
+    var type = options.format || "mniobj";
     var parse_options = options.parse || {};
     
     // Parse model info based on the given file type.
-    parseModel(filetype, data, parse_options, function(obj) {
+    parseModel(data, type, parse_options, function(obj) {
       if (!cancelLoad(options)) {
         displayModel(obj, filename, options);
       }
@@ -241,6 +241,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   function loadIntensityData(text, filename, options) {
     options = options || {};
     var name = options.name || filename;
+    var type = options.format || "mniobj";
     var model_data = viewer.model_data;
     var blend_index = options.blend_index || 0;
     var other_index = 1 - blend_index; // 1 or 0
@@ -257,7 +258,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
     viewer.blendData = viewer.blendData || [];
 
-    SurfaceViewer.parseIntensityData(text, function(data) {
+    SurfaceViewer.parseIntensityData(text, type, function(data) {
       var min;
       var max;
 
@@ -361,8 +362,10 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   // PARSE LOADED MODELS
   ///////////////////////////////////////////
 
-  function parseModel(type, data, options, callback) {
+  function parseModel(data, type, options, callback) {
     var error_message;
+
+    var worker_url_type = type + "_model";
 
     if (!BrainBrowser.utils.checkConfig("surface_viewer.worker_dir")) {
       throw new Error(
@@ -371,15 +374,15 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       );
     }
 
-    if (!SurfaceViewer.worker_urls[type]) {
+    if (!SurfaceViewer.worker_urls[worker_url_type]) {
       error_message = "error in SurfaceViewer configuration.\n" +
-        "Worker URL for " + type + " not defined.";
+        "Model worker URL for " + type + " not defined.";
 
       viewer.triggerEvent("error", error_message);
       throw new Error(error_message);
     }
     
-    var parse_worker = new Worker(SurfaceViewer.worker_urls[type]);
+    var parse_worker = new Worker(SurfaceViewer.worker_urls[worker_url_type]);
     var deindex_worker;
     
     parse_worker.addEventListener("message", function(e) {

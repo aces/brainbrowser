@@ -51,9 +51,6 @@ exports.surface_widget = function(req, res) {
   var protocol = query.http ? "http" : "https";
   var brainbrowser = query.version ? "brainbrowser-" + query.version : "brainbrowser";
 
-  console.log(threejs_versions);
-  console.log(getThreeJsVersion(query.version || pkg.version));
-
   res.render('surface-viewer-widget', {
     host: protocol + "://" + req.get("host"),
     layout: false,

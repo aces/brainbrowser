@@ -27,15 +27,25 @@
 
       worker_dir: "/js/brainbrowser/workers/",
 
-      filetypes: {
+      model_types: {
         mniobj: {
-          worker: "mniobj.worker.js",
+          worker: "mniobj.worker.js"
         },
         wavefrontobj: {
           worker: "wavefrontobj.worker.js"
         },
         freesurferasc: {
           worker: "freesurferasc.worker.js",
+          format_hint: 'You can use <a href="http://surfer.nmr.mgh.harvard.edu/fswiki/mris_convert" target="_blank">mris_convert</a> to convert your binary surface files into .asc format.'
+        }
+      },
+
+      intensity_data_types: {
+        mniobj: {
+          worker: "mniobj.intensity.worker.js"
+        },
+        freesurferasc: {
+          worker: "freesurferasc.intensity.worker.js",
           format_hint: 'You can use <a href="http://surfer.nmr.mgh.harvard.edu/fswiki/mris_convert" target="_blank">mris_convert</a> to convert your binary surface files into .asc format.'
         }
       },

@@ -31,7 +31,8 @@
               </li>
                <li><a href="#" class="example" data-example-name="basic">Basic Brain Surface</a> (81924 vertices)</li>
                <li><a href="#" class="example" data-example-name="plane" title="DLR-F6 Geometry 2nd AIAA CFD Drag Prediction Workshop, 2003">Aeroplane with Air Density and Air Flow</a> (198375 vertices)</li>
-               <li><a href="#" class="example" data-example-name="car">Automobile</a> (29795 vertices)</li> 
+               <li><a href="#" class="example" data-example-name="freesurfer">Freesurfer ASC Left Hemisphere</a> (137720 vertices)</li>
+               <li><a href="#" class="example" data-example-name="car">Wavefront OBJ Automobile</a> (29795 vertices)</li> 
             </ul>
           </div>
           <div id="surface_choice" class="box full_box">
@@ -39,25 +40,47 @@
             <p>
               (Note: your data will remain on your computer and will not be transferred to the BrainBrowser server.)
             </p>     
-              <div id="obj_file_select">
+              <div id="obj_file_select" class="file-select">
                 Object File:
                 <input type="file" name="objfile" id="objfile"><br>
                 Format: 
-                <select  id="obj_file_format" name="format">
+                <select  id="obj_file_format" class="file-format" name="format">
                   <option value="mniobj">MNI OBJ</option>
                   <option value="wavefrontobj">Wavefront OBJ</option>
                   <option value="freesurferasc">Freesurfer ASC</option>
                 </select><br>
-                <div id="format_hint"></div>
-                <div id="obj_file_submit_div">
+                <div class="format-hint"></div>
+                <div id="obj_file_submit_div" class="file-submit-div">
                   <span id="obj_file_submit" class="button">Load</span><br>
                 </div>
               </div>
-              <p>
-                Data 1: <input type="file" name="datafile1" id="datafile1" class="datafile"><br />
+              <div id="data1-file-select" class="file-select">
+                Data 1: <input type="file" name="datafile1" id="datafile1" class="datafile"><br>
+                Format: 
+                <select  id="data1-file-format" class="file-format" name="format">
+                  <option value="mniobj">MNI OBJ</option>
+                  <option value="freesurferasc">Freesurfer ASC</option>
+                </select><br>
+                <div class="format-hint"></div>
+                <div id="data1-submit-div" class="file-submit-div">
+                  <span id="data1-submit" class="button">Load</span><br>
+                </div>
+              </div>
+              <div id="data2-file-select" class="file-select">
                 Data 2: <input type="file" name="datafile2" id="datafile2" class="datafile"> <br />
+                Format: 
+                <select  id="data2-file-format" class="file-format" name="format">
+                  <option value="mniobj">MNI OBJ</option>
+                  <option value="freesurferasc">Freesurfer ASC</option>
+                </select><br>
+                <div class="format-hint"></div>
+                <div id="data2-submit-div" class="file-submit-div">
+                  <span id="data2-submit" class="button">Load</span><br>
+                </div>
+              </div>
+              <div>                
                 Color Map: <input type="file" name="color-map" id="color-map"><br />
-              </p>
+              </div>
               <span id="clearshapes" class="button">Clear Shapes</span>
           </div>
           <div id="color-map-box" class="box full_box">

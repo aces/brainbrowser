@@ -53,9 +53,9 @@
 
           worker_dir: "{{host}}/js/{{brainbrowser}}/workers/",
 
-          filetypes: {
+          model_types: {
             mniobj: {
-              worker: "mniobj.worker.js",
+              worker: "mniobj.worker.js"
             },
             wavefrontobj: {
               worker: "wavefrontobj.worker.js"
@@ -63,10 +63,21 @@
             freesurferasc: {
               worker: "freesurferasc.worker.js"
             }
-          }
+          },
 
+          intensity_data_types: {
+            mniobj: {
+              worker: "mniobj.intensity.worker.js"
+            },
+            freesurferasc: {
+              worker: "freesurferasc.intensity.worker.js"
+            }
+          }
         }
       };
+
+      // For backwards compatibility v1.5.1
+      BrainBrowser.config.surface_viewer.filetypes = BrainBrowser.config.surface_viewer.model_types;
 
       BrainBrowser.SurfaceViewer.start("{{element_id}}", function(viewer) {
         {{#if color_map}}

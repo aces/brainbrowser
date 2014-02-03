@@ -150,7 +150,7 @@ if (cluster.isMaster) {
     }
   });
   
-  app.get(/\.(obj|txt)$/, toGzip);
+  app.get(/\.(obj|txt|asc)$/, toGzip);
   
   hbs.registerPartials(__dirname + '/views/partials');
   

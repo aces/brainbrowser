@@ -219,7 +219,7 @@
         data: data_object,
         dataType: 'text',
         success: function(result) {
-          BrainBrowser.SurfaceViewer.parseIntensityData(result, function(data) {
+          BrainBrowser.SurfaceViewer.parseIntensityData(result, "mniobj", function(data) {
             dataset.current_data = data;
             callback(dataset);
           });

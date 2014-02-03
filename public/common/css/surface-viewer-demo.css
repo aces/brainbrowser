@@ -144,7 +144,7 @@ html {
   overflow: hidden;
 }
 
-div#obj_file_select {
+div.file-select {
   margin-bottom: 1.5em;
   background-color: gray;
   padding: 0.5em;
@@ -152,7 +152,7 @@ div#obj_file_select {
 
 }
 
-div#obj_file_submit_div {
+div.file-submit-div {
   text-align: center;
 }
 

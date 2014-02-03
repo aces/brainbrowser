@@ -33,8 +33,10 @@
  * @description
  * Parse vertex intensity data from a string of text.
  */
-BrainBrowser.SurfaceViewer.parseIntensityData = function(raw, callback) {
+BrainBrowser.SurfaceViewer.parseIntensityData = function(raw, type, callback) {
   "use strict";
+
+  var worker_url_type = type + "_intensity";
   
   if (!BrainBrowser.utils.checkConfig("surface_viewer.worker_dir")) {
     throw new Error(
@@ -43,10 +45,10 @@ BrainBrowser.SurfaceViewer.parseIntensityData = function(raw, callback) {
     );
   }
 
-  if (!BrainBrowser.SurfaceViewer.worker_urls.data) {
+  if (!BrainBrowser.SurfaceViewer.worker_urls[worker_url_type]) {
     throw new Error(
       "error in SurfaceViewer configuration.\n" +
-      "Worker URL for Data not defined."
+      "Intensity data worker URL for " + type + " not defined."
     );
   }
 
@@ -54,7 +56,9 @@ BrainBrowser.SurfaceViewer.parseIntensityData = function(raw, callback) {
   var data_obj = {};
   
   function parse() {
-    var worker = new Worker(BrainBrowser.SurfaceViewer.worker_urls.data);
+
+
+    var worker = new Worker(BrainBrowser.SurfaceViewer.worker_urls[worker_url_type]);
   
     worker.addEventListener("message", function(e) {
       var result = e.data;

@@ -385,14 +385,19 @@
   // them using Blob URLs if possible.
   function setupWorkers() {
     var workers = {
-      data: "data.worker.js",
       deindex: "deindex.worker.js"
     };
     var config = BrainBrowser.config.surface_viewer;
 
-    if (BrainBrowser.utils.checkConfig("surface_viewer.filetypes")) {
-      Object.keys(config.filetypes).forEach(function(type) {
-        workers[type] = config.filetypes[type].worker;
+    if (BrainBrowser.utils.checkConfig("surface_viewer.model_types")) {
+      Object.keys(config.model_types).forEach(function(type) {
+        workers[type + "_model"] = config.model_types[type].worker;
+      });
+    }
+
+    if (BrainBrowser.utils.checkConfig("surface_viewer.intensity_data_types")) {
+      Object.keys(config.intensity_data_types).forEach(function(type) {
+        workers[type + "_intensity"] = config.intensity_data_types[type].worker;
       });
     }
 

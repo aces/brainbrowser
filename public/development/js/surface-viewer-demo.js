@@ -543,6 +543,21 @@ $(function() {
 
           // Smaller model so zoom in.
           viewer.zoom(11);
+        },
+        freesurfer: function() {
+          viewer.loadModelFromURL('/models/lh.white.asc', {
+            format: "freesurferasc",
+            complete: function() {
+              viewer.loadIntensityDataFromURL("/models/lh.thickness.asc", {
+                  format: "freesurferasc",
+                  name: "Cortical Thickness",
+                  complete: hideLoading,
+                  cancel: defaultCancelOptions(current_request)
+                }
+              );
+            },
+            cancel: defaultCancelOptions(current_request)
+          });
         }
       };
       
@@ -556,15 +571,16 @@ $(function() {
 
     // If the user changes the format that's being submitted,
     // display a hint if one has been configured.
-    $("#obj_file_format").change(function() {
-      var format = $("#obj_file_format").closest("#obj_file_select").find("#obj_file_format option:selected").val();
-      $("#format_hint").html(BrainBrowser.config.surface_viewer.filetypes[format].format_hint || "");
+    $(".file-format").change(function() {
+      var div = $(this).closest(".file-select");
+      var format = div.find("option:selected").val();
+      div.find(".format-hint").html(BrainBrowser.config.surface_viewer.model_types[format].format_hint || "");
     });
 
     // Load a new model from a file that the user has 
     // selected.
     $("#obj_file_submit").click(function() {
-      var format = $("#obj_file_format").closest("#obj_file_select").find("#obj_file_format option:selected").val();
+      var format = $(this).closest(".file-select").find("option:selected").val();
       viewer.loadModelFromFile(document.getElementById("objfile"), {
         format: format,
         before: showLoading,
@@ -574,11 +590,29 @@ $(function() {
       return false;
     });
 
-    // Load a selected intensity data file.
-    $(".datafile").change(function() {
-      var filenum = parseInt(this.id.slice(-1), 10);
-      viewer.loadIntensityDataFromFile(this, { blend_index : filenum - 1 });
+    $("#data1-submit").click(function() {
+      var format = $(this).closest(".file-select").find("option:selected").val();
+      var file = document.getElementById("datafile1");
+      viewer.loadIntensityDataFromFile(file, { 
+        format: format,
+        blend_index : 0 
+      });
     });
+
+    $("#data2-submit").click(function() {
+      var format = $(this).closest(".file-select").find("option:selected").val();
+      var file = document.getElementById("datafile2");
+      viewer.loadIntensityDataFromFile(file, { 
+        format: format,
+        blend_index : 1
+      });
+    });
+
+    // Load a selected intensity data file.
+    // $(".datafile").change(function() {
+    //   var filenum = parseInt(this.id.slice(-1), 10);
+    //   viewer.loadIntensityDataFromFile(this, { blend_index : filenum - 1 });
+    // });
 
     // Load a color map select by the user.
     $("#color-map").change(function() {

@@ -20,10 +20,6 @@
 
 "use strict";
 
-/**
-* Module dependencies.
-*/
-
 var express = require("express");
 var routes = require("./routes/routes");
 var http = require("http");
@@ -33,18 +29,14 @@ var fs = require("fs");
 var zlib = require("zlib");
 var minc = require('./lib/minc-server');
 var cluster = require("cluster");
+var canarie_service = require("./routes/canarie-rpi-routes");
+
+var MAX_INT = Math.pow(2, 32);
 
 var num_instances = +process.argv[2] || 1;
-var i;
-
-function toGzip(req, res, next) {
-  req.url = req.url + '.gz';
-  res.set('Content-Encoding', 'gzip');
-  next();
-}
 
 if (cluster.isMaster) {
-  for (i = 0; i < num_instances; i++) {
+  while (num_instances--) {
     cluster.fork();
   }
   
@@ -54,7 +46,6 @@ if (cluster.isMaster) {
 } else {
   var app = express();
 
-  // all environments
   app.set("port", process.env.PORT || 5000);
   app.set("views", __dirname + "/views");
   app.set("view engine", "hbs");
@@ -69,7 +60,6 @@ if (cluster.isMaster) {
   app.use(express.methodOverride());
   app.use(app.router);
   
-  // development only
   if (app.get("env") === "production") {
     app.use(express.static(path.join(__dirname, "public", "production")));
   } else {
@@ -83,7 +73,38 @@ if (cluster.isMaster) {
   app.get("/macacc-viewer", routes.macacc);
   app.get("/volume-viewer", routes.volume);
   app.get("/fmri-viewer", routes.fmri);
-  app.get("/surface-viewer-widget", routes.surface_widget);
+  app.get("/surface-viewer-widget", function(req, res) {
+    fs.readFile("canarie-rpi/stats.json", { encoding: "utf8" }, function(err, data) {
+      var stats;
+
+      try {
+        if (err) {
+          stats = {
+            invocations: 0,
+            lastReset: new Date().toISOString()
+          };
+        } else {
+          stats = JSON.parse(data);
+        }
+
+        stats.invocations++;
+
+        if (stats.invocations > MAX_INT) {
+          stats.invocations = 0;
+          stats.lastReset = new Date().toISOString();
+        }
+
+        fs.writeFile("canarie-rpi/stats.json", JSON.stringify(stats, null, 2));
+
+      } catch (e) {
+        console.log(e);
+        console.error("Error updating stats file.");
+      }
+
+    });
+
+    routes.surface_widget(req, res);
+  });
 
   app.get('/data/:filename', function(req, res) {
     var filename = req.params.filename;
@@ -150,7 +171,23 @@ if (cluster.isMaster) {
     }
   });
   
-  app.get(/\.(obj|txt|asc)$/, toGzip);
+  app.get(/\.(obj|txt|asc)$/, function(req, res, next) {
+    req.url = req.url + '.gz';
+    res.set('Content-Encoding', 'gzip');
+    next();
+  });
+
+  app.get("/service/:service_name", function(req, res, next) {
+    var service_name = req.params.service_name;
+    service_name = service_name === "provenance" ? "info" : service_name;
+
+    if (canarie_service.hasOwnProperty(service_name) && 
+          typeof canarie_service[service_name] === "function") {
+      canarie_service[service_name](req, res);
+    } else {
+      next();
+    }
+  });
   
   hbs.registerPartials(__dirname + '/views/partials');
   

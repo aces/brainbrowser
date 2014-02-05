@@ -24,3 +24,4 @@ docs/docular/.htaccess
 docs/docular/configs
 docs/docular/controller
 docs/docular/php
+canarie/stats.json

@@ -19,7 +19,7 @@
 */
 
 /*
-* BrainBrowser v1.5.1
+* BrainBrowser v1.5.2
 *
 * Author: Tarek Sherif  <tsherif@gmail.com> (http://tareksherif.ca/)
 * Author: Nicolas Kassis

@@ -24,4 +24,4 @@
 * Author: Tarek Sherif  <tsherif@gmail.com> (http://tareksherif.ca/)
 * Author: Nicolas Kassis
 */
-$(function(){"use strict";$(".button").button(),$(".tabs").tabs();var a=$("#html5-warnings");a&&(BrainBrowser.utils.canvasEnabled()||(a.css("display","inline-block"),a.find("#canvas-warning").show()),BrainBrowser.utils.webglEnabled()||(a.css("display","inline-block"),a.find("#webgl-warning").show()),BrainBrowser.utils.webWorkersEnabled()||(a.css("display","inline-block"),a.find("#webworker-warning").show()))});
+!function(){"use strict";function a(a){var b,c,d,e,f={};for(a=a.replace(/^\s+/,"").replace(/\s+$/,""),f.values=a.split(/\s+/),d=f.values[0],e=f.values[0],b=0,c=f.values.length;c>b;b++)f.values[b]=parseFloat(f.values[b]),d=Math.min(d,f.values[b]),e=Math.max(e,f.values[b]);return f.min=d,f.max=e,f}self.addEventListener("message",function(b){var c=b.data,d=c.data;self.postMessage(a(d))})}();

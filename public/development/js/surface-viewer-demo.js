@@ -593,16 +593,16 @@ $(function() {
     $("#data1-submit").click(function() {
       var format = $(this).closest(".file-select").find("option:selected").val();
       var file = document.getElementById("datafile1");
-      viewer.loadIntensityDataFromFile(file, { 
+      viewer.loadIntensityDataFromFile(file, {
         format: format,
-        blend_index : 0 
+        blend_index : 0
       });
     });
 
     $("#data2-submit").click(function() {
       var format = $(this).closest(".file-select").find("option:selected").val();
       var file = document.getElementById("datafile2");
-      viewer.loadIntensityDataFromFile(file, { 
+      viewer.loadIntensityDataFromFile(file, {
         format: format,
         blend_index : 1
       });

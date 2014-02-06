@@ -36,7 +36,7 @@
     var result = {
       values: []
     };
-    var lines, line, value;
+    var lines, value;
     var i, count, min, max;
   
     string = string.replace(/^\s+/, '').replace(/\s+$/, '');

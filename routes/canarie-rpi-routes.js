@@ -53,7 +53,7 @@ exports.stats = function(req, res) {
     } else {
       stats = JSON.parse(data);
     }
-    res.send(JSON.stringify(stats, null, 2));
+    res.type("application/json").send(JSON.stringify(stats, null, 2));
   });
 };
 

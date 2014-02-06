@@ -91,7 +91,7 @@ if (cluster.isMaster) {
 
         if (stats.invocations > MAX_INT) {
           stats.invocations = 0;
-          stats.lastReset = new Date().toISOString();
+          stats.lastReset = new Date().toISOString().replace(/\.\d+Z/, "Z");;
         }
 
         fs.writeFile("canarie-rpi/stats.json", JSON.stringify(stats, null, 2));

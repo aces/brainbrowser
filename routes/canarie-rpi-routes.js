@@ -35,7 +35,7 @@ exports.info = function(req, res) {
     },
     
     json: function(){
-      res.type("application/json").send(JSON.stringify(info, null, 2));
+      res.send(JSON.stringify(info, null, 2));
     }
   });
 
@@ -48,12 +48,12 @@ exports.stats = function(req, res) {
     if (err) {
       stats = {
         invocations: 0,
-        lastReset: new Date().toISOString()
+        lastReset: new Date().toISOString().replace(/\.\d+Z/, "Z")
       };
     } else {
       stats = JSON.parse(data);
     }
-    res.type("application/json").send(JSON.stringify(stats, null, 2));
+    res.send(JSON.stringify(stats, null, 2));
   });
 };
 

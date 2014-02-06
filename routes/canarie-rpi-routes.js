@@ -35,7 +35,7 @@ exports.info = function(req, res) {
     },
     
     json: function(){
-      res.send(info);
+      res.type("application/json").send(JSON.stringify(info, null, 2));
     }
   });
 
@@ -53,8 +53,7 @@ exports.stats = function(req, res) {
     } else {
       stats = JSON.parse(data);
     }
-
-    res.send(stats);
+    res.type("application/json").send(JSON.stringify(stats, null, 2));
   });
 };
 

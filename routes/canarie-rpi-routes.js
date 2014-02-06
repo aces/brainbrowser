@@ -53,7 +53,16 @@ exports.stats = function(req, res) {
     } else {
       stats = JSON.parse(data);
     }
-    res.type("application/json").send(JSON.stringify(stats, null, 2));
+    
+    res.format({
+      html: function(){
+        res.render("canarie/stats", { stats: stats });
+      },
+      
+      json: function(){
+        res.type("application/json").send(JSON.stringify(stats, null, 2));
+      }
+    });
   });
 };
 

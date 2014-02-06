@@ -35,7 +35,7 @@ exports.info = function(req, res) {
     },
     
     json: function(){
-      res.send(JSON.stringify(info, null, 2));
+      res.type("application/json").send(JSON.stringify(info, null, 2));
     }
   });
 

@@ -166,7 +166,11 @@
     
     // Show the atlas.
     collection.showAtlas = function() {
-      viewer.loadIntensityDataFromURL("/assets/aal_atlas.txt");
+      viewer.loadIntensityDataFromURL("/assets/aal_atlas.txt", { 
+        complete: function() {
+          $("#loading").hide();
+        }
+      });
     };
     
     // Default should be redefined by appliction.

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">  
+<head>
+  <meta charset="utf-8">
+  <title>BrainBrowser</title>
+  <link rel="stylesheet" href="css/reveal.min.css">
+  <link rel="stylesheet" href="css/theme/default.css" id="theme"> 
+  <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+  <link rel="icon" type="image/png" href="img/brainbrowser.png">
+  <style>
+    #web-service {
+      width: 500px;
+      height: 500px;
+      margin: 20px auto;
+    }
+
+    .reveal .slide-number {
+      font-size: 24px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="reveal">
+    <div class="slides">
+      <section>
+        <h1>BrainBrowser</h1>
+        <h3>Neurological Visualization for the Web</h3>
+        <p>Tarek Sherif</p>    
+      </section>
+
+      <section>
+        <h2>BrainBrowser</h2>
+        <ul>
+          <li>
+            A suite of web-enabled visualization tools for neurology data
+            <ul>
+              <li>
+                Volume Viewer: Slice-by-slice visualization of volumetric data
+              </li>
+              <li>
+                Surface Viewer: Real-time 3D visualization of surface data
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+      
+      <section>
+        <h2>Motivation</h2>
+        <ul>
+          <li>Visualizing your data generally means:</li>
+          <ul>
+            <li>
+              Installing visualization software on your machine
+              <ul>
+                <li>E.g. Display, Register</li>
+                <li>
+                  Make sure it works with your:
+                  <ul>
+                    <li>Operating System</li>
+                    <li>Installed Libraries</li>
+                  </ul>
+                </li>
+                
+              </ul>
+            </li>
+            <li>If everything works: VISUALIZE!</li>
+          </ul>
+        </ul>   
+      </section>
+      
+      <section>
+        <h2>BrainBrowser is a Web Application</h2>
+        <ul>
+          <li>
+            This means all you need is a modern web browser*
+            <ul>
+              <li>No other software to install on your machine</li>
+            </ul>
+          </li>
+          <li>(* Preferably Chrome or Firefox)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Standards Compliant</h2>
+        <ul>
+          <li>
+            BrainBrowser uses standards-compliant web technologies
+            <ul>
+              <li>HTML5</li>
+              <li>CSS</li>
+              <li>JavaScript</li>
+              <li>Canvas</li>
+              <li>WebGL (three.js)</li>
+            </ul>
+          </li>
+          <li>
+            No plugins to install
+            <ul>
+              <li>Java, Flash, Unity, etc.</li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+      
+      <section>
+        <h2>Volume Viewer</h2>
+        <ul>
+          <li>Navigate volumetric data in a slice-by-slice manner
+            <ul>
+              <li>
+                Load one or more volumes 
+              </li>
+              <li>
+                Load a color map 
+              </li>
+              <li>
+                Navigate through the data
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+      <section>
+        <h2>Load Volumes</h2>
+        <ul>
+          <li>Fetch raw and header data from the server</li>
+          <li>Structural or functional data</li>
+          <li>Multiple volumes can be overlayed</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Load Color Map</h2>
+          <ul>
+            <li>
+              Text file with color values 
+            </li>
+            <li>
+              Used to map intensity data to colors
+            </li>
+          </ul> 
+      </section>
+
+      <section>
+        <h2>Navigate</h2>
+        <ul>
+          <li>
+            Sagittal, Coronal and Transverse slices are displayed for a given point in
+            3D space
+          </li>
+          <li>
+            Manipulate the point being viewed by moving a cursor with the mouse
+          </li>
+          <li>
+            Step through time increments for functional data
+          </li>
+        </ul> 
+      </section>
+      
+      <section>
+        <h2>Demos</h2>
+        <ul>
+          <li>
+            <a href="https://brainbrowser.cbrain.mcgill.ca/volume-viewer">Structural Data</a> 
+          </li>
+          <li>
+            <a href="https://brainbrowser.cbrain.mcgill.ca/fmri-viewer">Functional Data</a> 
+          </li>
+        </ul>
+      </section>
+      
+      <section>
+        <h2>Surface Viewer</h2>
+        <ul>
+          <li>Manipulate surface data in real-time 3D
+            <ul>
+              <li>
+                Load one or more surfaces
+              </li>
+              <li>
+                Load a color map 
+              </li>
+              <li>
+                Load intensity data 
+              </li>
+              <li>
+                Manipulate the data 
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+      
+      <section>
+        <h2>Load Surfaces</h2>
+        <ul>
+          <li>
+            Supported formats:
+            <ul>
+              <li>
+              MNI Object (polygon or line data)
+              </li>
+              <li>
+                Wavefront Object
+              </li>
+              <li>
+                Freesurfer ASCII
+              </li>
+            </ul>
+          </li>
+          <li>
+            Extensible plugin architecture:
+            <ul>
+              <li>
+                If you write a parser for another file format,
+                it can simply be added to BrainBrowser
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+      
+      <section>
+        <h2>Load a Color Map</h2>
+        <ul>
+          <li>
+            Text file with color values
+          </li>
+          <li>
+            Used to map intensity data to colors
+          </li>
+        </ul> 
+      </section>
+
+      <section>
+        <h2>Load Intensity Data</h2>
+        <ul>
+          <li>
+            MNI TXT and Freesurfer ASC currently supported
+          </li>
+          <li>
+            Map intensities to colors using the color map 
+          </li>
+          <li>
+            Apply colors to the loaded surface
+          </li>
+        </ul> 
+      </section>
+      
+      <section>
+        <h2>Manipulate the Data</h2>
+        <ul>
+          <li>
+            Rotate, pan, zoom
+          </li>
+          <li>
+            Change range of intensities displayed
+          </li>
+          <li>
+            Adjust transparency on different parts of the surface
+          </li>
+          <li>
+            View mesh
+          </li>
+        </ul>
+      </section>
+      
+      <section>
+        <h2>Demos</h2>
+        <ul>
+          <li>
+            <a href="https://brainbrowser.cbrain.mcgill.ca/surface-viewer">Surface Viewer</a> 
+          </li>
+          <li>
+            <a href="https://brainbrowser.cbrain.mcgill.ca/macacc-viewer">The MACACC dataset</a> 
+          </li>
+        </ul>
+      </section>
+      
+      <section>
+        <h2>Using BrainBrowser</h2>
+        <ul>
+          <li>
+            Try out the demos: 
+            <a href="https://brainbrowser.cbrain.mcgill.ca">
+              https://brainbrowser.cbrain.mcgill.ca
+            </a>
+          </li>
+          <li>
+            <a href="https://brainbrowser.cbrain.mcgill.ca/#get-brainbrowser">Download</a> and add to your website 
+          </li>
+          <li>
+            Use the <a href="https://brainbrowser.cbrain.mcgill.ca/#web-service">web service</a> 
+          </li>
+        </ul>
+        <div id="web-service">
+        </div>
+      </section>
+      
+      <section>
+        <h2>Thanks!</h2>
+          <div>Questions or feedback?</div> 
+          <div>
+            <a href="mailto:tsherif@bic.mni.mcgill.ca">tsherif@bic.mni.mcgill.ca</a>
+          </div> 
+      </section>
+      
+    </div>
+  </div>
+  <script src="lib/js/head.min.js"></script>
+  <script src="js/reveal.min.js"></script>
+  <script>
+    Reveal.initialize({
+      history: true,
+      slideNumber: true,
+      controls: false,
+      transition: "linear"
+    });
+    function breathe(viewer) {
+      (function update() {
+        requestAnimationFrame(update);
+
+        var scalex =  Math.sin(Date.now() / 500) * 0.05 + 1;
+        var scaley =  Math.sin(Date.now() / 500 + Math.PI) * 0.05 + 1;
+
+        viewer.model.scale.set(scalex, scaley, 1);
+      })();
+    }
+    $("#web-service").load("https://brainbrowser.cbrain.mcgill.ca/surface-viewer-widget?version=1.5.1&model=models/realct.obj&color_map=models/spectral.txt&intensity_data=models/realct.txt&height=500&width=500&viewer_callback=breathe");
+  </script>
+</body>
+</html>s

@@ -58,6 +58,20 @@ $(function() {
       complete: function() {
         hideLoading();
         macacc = MACACC.collection(viewer, path_prefix);
+
+        macacc.atlas_labels = {};
+
+        $.get("/assets/aal_label.txt", function(data) {
+          var lines = data.split("\n");
+          var regex = /'(.+)'\s+(\d+)/;
+
+          lines.forEach(function(line) {
+            var match = line.match(regex);
+            if (match) {
+              macacc.atlas_labels[match[2]] = match[1];
+            }
+          });
+        });
                 
         macacc.dataOptions = function() {
           return {
@@ -277,7 +291,7 @@ $(function() {
 
     $('#screenshot').click(function() {$(this).attr("href", viewer.client.toDataUR());});
     
-    $("#brainbrowser").mousedown(function(e) {
+    $("#brainbrowser").click(function(e) {
       var view_window = viewer.view_window;
       var pointer_setting = $('[name=pointer]:checked').val();
       var offset = BrainBrowser.utils.getOffset(view_window);
@@ -287,7 +301,11 @@ $(function() {
       if(e.ctrlKey || pointer_setting === "check") {
         macacc.valueAtPoint(viewer.pick(mouseX, mouseY));
       } else if(e.shiftKey || pointer_setting === "select") {
-        macacc.pick(viewer.pick(mouseX, mouseY));
+        if (macacc.atlas_mode) {
+          $("#atlas-label").html(macacc.atlas_labels[macacc.valueAtPoint(viewer.pick(mouseX, mouseY))]);
+        } else {
+          macacc.pick(viewer.pick(mouseX, mouseY));
+        }
       }
     });
 

@@ -6,11 +6,14 @@ body {
 
 #app-name {
   display: none;
+  top: 15px;
+  left: 15px;
+}
+
+.app-label {
   font-size: 24px;
   white-space: nowrap;
   position: absolute;
-  top: 15px;
-  left: 15px;
   margin: 0;
   padding: 0.4em;
   color: white;
@@ -22,11 +25,11 @@ body {
   background-image: -webkit-linear-gradient(left bottom, rgb(51,51,51) 1%, rgb(30,143,255) 87%);
   background-image: -ms-linear-gradient(left bottom, rgb(51,51,51) 1%, rgb(30,143,255) 87%);
   background-image: -webkit-gradient(
-  	linear,
-  	left bottom,
-  	right top,
-  	color-stop(0.01, rgb(51,51,51)),
-  	color-stop(0.87, rgb(30,143,255))
+    linear,
+    left bottom,
+    right top,
+    color-stop(0.01, rgb(51,51,51)),
+    color-stop(0.87, rgb(30,143,255))
   );
 }
 

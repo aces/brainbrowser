@@ -198,3 +198,9 @@ div#format_hints {
 #blend-box {
   padding: 0.6em;
 }
+
+#atlas-label {
+  display: none;
+  left: 15px;
+  top: 145px;
+}

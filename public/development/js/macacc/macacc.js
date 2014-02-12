@@ -56,6 +56,8 @@
       if (!vertex_data) return;
       var value = collection.dataArray ? collection.dataArray[vertex_data.index] : 0;
       if (collection.afterVertexUpdate) collection.afterVertexUpdate(vertex_data, value);
+
+      return value;
     };
   
     // Main method for updating the displayed map based on the vertex selected
@@ -155,11 +157,17 @@
     // Callback for changes in data controls.
     collection.dataControlChange = function() {
       var controls  = collection.getDataControls();
-      
+      var atlas_label = $("#atlas-label");
+
       if (controls.modality === "AAL") {
         if (collection.beforeUpdateMap) collection.beforeUpdateMap();
+        
+        atlas_label.show();
+        collection.atlas_mode = true;
         collection.showAtlas();
       } else {
+        collection.atlas_mode = false;
+        atlas_label.hide();
         loadMap();
       }
     };
@@ -168,6 +176,7 @@
     collection.showAtlas = function() {
       viewer.loadIntensityDataFromURL("/assets/aal_atlas.txt", {
         complete: function() {
+          collection.dataArray = viewer.model_data.intensity_data.values;
           $("#loading").hide();
         }
       });

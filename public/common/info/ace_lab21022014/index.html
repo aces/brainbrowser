@@ -31,7 +31,7 @@
       </section>
 
       <section>
-        <h2>BrainBrowser</h2>
+        <h2>What is BrainBrowser?</h2>
         <ul>
           <li>
             A suite of web-enabled visualization tools for neurology data
@@ -44,6 +44,12 @@
               </li>
             </ul>
           </li>
+          <li>
+            At a lower level:
+            <ul>
+              <li>A set of JavaScript libraries to run data visualizers on a web page</li>
+            </ul>
+          </li>
         </ul>
       </section>
       
@@ -52,6 +58,9 @@
         <ul>
           <li>Visualizing your data generally means:</li>
           <ul>
+            <li>
+              Having all data on your machine
+            </li>
             <li>
               Installing visualization software on your machine
               <ul>
@@ -62,8 +71,7 @@
                     <li>Operating System</li>
                     <li>Installed Libraries</li>
                   </ul>
-                </li>
-                
+                </li>    
               </ul>
             </li>
             <li>If everything works: VISUALIZE!</li>
@@ -75,13 +83,28 @@
         <h2>BrainBrowser is a Web Application</h2>
         <ul>
           <li>
-            This means all you need is a modern web browser*
+            Web as a platform
             <ul>
-              <li>No other software to install on your machine</li>
+              <li>Integrate into existing web pages</li>
+              <li>
+                Interact with anything else on the web
+                <ul>
+                  <li>Data</li>
+                  <li>APIs</li>
+                  <li>Facebook? Twitter?</li>
+                </ul>
+              </li>
             </ul>
           </li>
-          <li>(* Preferably Chrome or Firefox)</li>
+          <li>
+            All users need is a modern web browser
+            <ul>
+              <li>No other software to install on their machines</li>
+            </ul>
+          </li>
         </ul>
+        <div id="web-service">
+        </div>
       </section>
 
       <section>
@@ -98,9 +121,12 @@
             </ul>
           </li>
           <li>
-            No plugins to install
+            Standard technologies for developers
+          </li>
+          <li>
+            No plugins to install for users
             <ul>
-              <li>Java, Flash, Unity, etc.</li>
+              <li>No Java, Flash, Unity, etc.</li>
             </ul>
           </li>
         </ul>
@@ -213,7 +239,7 @@
             </ul>
           </li>
           <li>
-            Extensible plugin architecture:
+            Extensible plugin architecture
             <ul>
               <li>
                 If you write a parser for another file format,
@@ -240,13 +266,30 @@
         <h2>Load Intensity Data</h2>
         <ul>
           <li>
-            MNI TXT and Freesurfer ASC currently supported
-          </li>
-          <li>
             Map intensities to colors using the color map 
           </li>
           <li>
-            Apply colors to the loaded surface
+            MNI TXT and Freesurfer ASC currently supported
+            <ul>
+              <li>Essentially any per-vertex data format</li>
+            </ul>
+          </li>
+          <li>
+            Extensible plugin architecture
+            <ul>
+              <li>
+                If you write a parser for another file format,
+                it can simply be added to BrainBrowser
+              </li>
+            </ul>
+          </li>
+          <li>
+            Optionally tie other data to vertices
+            <ul>
+              <li>Region information</li>
+              <li>Text descriptions</li>
+              <li>Images</li>
+            </ul>
           </li>
         </ul> 
       </section>
@@ -291,14 +334,22 @@
             </a>
           </li>
           <li>
-            <a href="https://brainbrowser.cbrain.mcgill.ca/#get-brainbrowser">Download</a> and add to your website 
+            <a href="https://brainbrowser.cbrain.mcgill.ca/#get-brainbrowser">Download</a> and add to your website
+            <ul>
+              <li>Fine-grained control of configuration</li>
+              <li>Extend with plugins</li>
+              <li>Must be programmed</li>
+            </ul>
           </li>
           <li>
-            Use the <a href="https://brainbrowser.cbrain.mcgill.ca/#web-service">web service</a> 
+            Use the <a href="https://brainbrowser.cbrain.mcgill.ca/#web-service">web service</a>
+            <ul>
+              <li>Loads all libraries and dependencies</li>
+              <li>Some aspects can be configured without programming</li>
+              <li>Surface Viewer only</li>
+            </ul>
           </li>
         </ul>
-        <div id="web-service">
-        </div>
       </section>
       
       <section>
@@ -330,7 +381,7 @@
         viewer.model.scale.set(scalex, scaley, 1);
       })();
     }
-    $("#web-service").load("https://brainbrowser.cbrain.mcgill.ca/surface-viewer-widget?version=1.5.1&model=/models/realct.obj&color_map=/color_maps/spectral.txt&intensity_data=/models/realct.txt&height=500&width=500&viewer_callback=breathe");
+    $("#web-service").load("https://brainbrowser.cbrain.mcgill.ca/surface-viewer-widget?version=1.5.1&model=/models/realct.obj&color_map=/color_maps/spectral.txt&intensity_data=/models/realct.txt&height=350&width=350&viewer_callback=breathe");
   </script>
 </body>
 </html>s

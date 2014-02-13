@@ -13,6 +13,18 @@
       <!-- The webgl window and loading messages if any -->
     <div id="display">
       <h1 id="app-name" class="app-label">Surface Viewer v{{version}}</h1><a id="control-button" class="button">Hide Controls</a>
+      
+      <div id="vertex-data-wrapper">
+        <div id="vertex-data">
+          <h3>Select a point on the surface<BR>(shift-click)</h3>
+          <div>X: <span id="pick-x" class="pick-data"></span></div>
+          <div>Y: <span id="pick-y" class="pick-data"></span></div>
+          <div>Z: <span id="pick-z" class="pick-data"></span></div>
+          <div>Vertex number: <span id="pick-index" class="pick-data"></span></div>
+          <div id="pick-value-wrapper" style="display:none">Value: <span id="pick-value" class="pick-data"></span></div>
+          <div id="pick-label-wrapper" style="display:none">Description: <span id="pick-label" class="pick-data"></span></div>
+        </div>
+      </div>
       <!-- Loading image from: http://www.ajaxload.info/ -->
       <div id="loading" style="display: none"><img src="/img/ajax-loader.gif" /></div>
       <div id="brainbrowser"></div>
@@ -21,15 +33,15 @@
           <div id="examples" class="box full_box">
             <h3>Sample Models</h3>
             <ul>
-               <li><a href="#" class="example" data-example-name="realct">Brain with Cortical Thickness Map</a> (81924 vertices)</li>
-               <li><a href="#" span class="example" data-example-name="punkdti">DTI and Mesh Brain</a> (560674 vertices)</li>
-               <li>
-                 <a href="#" span class="example" data-example-name="mouse" title="Surface-Projected Cortical Amyloid Deposition of a Cohort of 18 Month-Old Transgenic Mice with Alzheimer's Disease">
-                   Mouse Brain with Alzheimer's Disease
+              <li><a href="#" class="example" data-example-name="atlas">Brain Atlas</a> (81924 vertices)</li>
+              <li><a href="#" class="example" data-example-name="realct">Brain with Cortical Thickness Map</a> (81924 vertices)</li>
+              <li><a href="#" span class="example" data-example-name="punkdti">DTI and Mesh Brain</a> (560674 vertices)</li>
+              <li>
+                <a href="#" span class="example" data-example-name="mouse" title="Surface-Projected Cortical Amyloid Deposition of a Cohort of 18 Month-Old Transgenic Mice with Alzheimer's Disease">
+                  Mouse Brain with Alzheimer's Disease
                 </a>
                 (79016 vertices)
               </li>
-               <li><a href="#" class="example" data-example-name="basic">Basic Brain Surface</a> (81924 vertices)</li>
                <li><a href="#" class="example" data-example-name="plane" title="DLR-F6 Geometry 2nd AIAA CFD Drag Prediction Workshop, 2003">Aeroplane with Air Density and Air Flow</a> (198375 vertices)</li>
                <li><a href="#" class="example" data-example-name="freesurfer">Freesurfer ASC Left Hemisphere</a> (137720 vertices)</li>
                <li><a href="#" class="example" data-example-name="car">Wavefront OBJ Automobile</a> (29795 vertices)</li> 

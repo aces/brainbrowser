@@ -29,6 +29,8 @@
 $(function() {
   "use strict";
   
+  var atlas_labels = {};
+
   // Request variables used to cancel the current request
   // if another request is started.
   var current_request = 0;
@@ -45,6 +47,18 @@ $(function() {
     $("#brainbrowser").html(BrainBrowser.utils.webGLErrorMessage());
     return;
   }
+
+  $.get("/assets/aal_label.txt", function(data) {
+    var lines = data.split("\n");
+    var regex = /'(.+)'\s+(\d+)/;
+
+    lines.forEach(function(line) {
+      var match = line.match(regex);
+      if (match) {
+        atlas_labels[match[2]] = match[1];
+      }
+    });
+  });
 
   /////////////////////////////////////
   // Start running the Surface Viewer
@@ -120,6 +134,15 @@ $(function() {
       $("#shapes").html("");
       $("#data-range-box").hide();
       $("#color-map-box").hide();
+      $("#vertex-data-wrapper").hide();
+      $("#pick-value-wrapper").hide();
+      $("#pick-label-wrapper").hide();      
+      $("#pick-x").html("");
+      $("#pick-y").html("");
+      $("#pick-z").html("");
+      $("#pick-index").html("");
+      $("#pick-value").html("");
+      $("#pick-label").html("");
     });
 
     // When the intensity range changes, adjust the displayed spectrum.
@@ -413,6 +436,43 @@ $(function() {
       loading_div.hide();
     });
 
+    $("#brainbrowser").click(function(event) {
+      if (!event.shiftKey) return; 
+      if (!viewer.model_data) return;
+
+      var offset = BrainBrowser.utils.getOffset(viewer.view_window);
+      var x = event.clientX - offset.left + window.scrollX;
+      var y = event.clientY - offset.top + window.scrollY;
+      
+      var pick_info = viewer.pick(x, y);
+      var value, label, text;
+
+      if (pick_info) {
+        $("#pick-x").html(pick_info.point.x.toPrecision(4));
+        $("#pick-y").html(pick_info.point.y.toPrecision(4));
+        $("#pick-z").html(pick_info.point.z.toPrecision(4));
+        $("#pick-index").html(pick_info.index);
+
+        if (viewer.model_data.intensity_data) {
+          value = viewer.model_data.intensity_data.values[pick_info.index];
+          $("#pick-value").html(value);
+          label = atlas_labels[value];
+          if (label) {
+            text = label + '<BR><a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/?term=' + 
+              label.split(/\s+/).join("+") + 
+              '">Search on PubMed</a>';
+            text += '<BR><a target="_blank" href="http://scholar.google.com/scholar?q=' + 
+              label.split(/\s+/).join("+") + 
+              '">Search on Google Scholar</a>';
+          } else {
+            text = "None";
+          }
+          $("#pick-label").html(text);
+        }
+      }
+  
+    });
+
     // Load demo models.
     $("#examples").click(function(e) {
       current_request++;
@@ -433,10 +493,17 @@ $(function() {
       viewer.clearScreen();
 
       var examples = {
-        basic: function() {
+        atlas: function() {
           viewer.loadModelFromURL('/models/surf_reg_model_both.obj', {
             format: "mniobj",
-            complete: hideLoading,
+            complete: function() {
+              $("#vertex-data-wrapper").show();
+              $("#pick-value-wrapper").show();
+              $("#pick-label-wrapper").show();
+              viewer.loadIntensityDataFromURL("/assets/aal_atlas.txt", {
+                complete: hideLoading
+              });
+            },
             cancel: defaultCancelOptions(current_request),
             parse: { split: true }
           });
@@ -462,6 +529,8 @@ $(function() {
             format: "mniobj",
             parse: { split: true },
             complete: function() {
+              $("#vertex-data-wrapper").show();
+              $("#pick-value-wrapper").show();
               viewer.loadIntensityDataFromURL('/models/realct.txt', {
                 name: "Cortical Thickness",
                 complete: hideLoading,
@@ -474,7 +543,10 @@ $(function() {
         car: function() {
           viewer.loadModelFromURL('/models/car.obj', {
             format: "wavefrontobj",
-            complete: hideLoading,
+            complete: function() {
+              $("#vertex-data-wrapper").show();
+              hideLoading();
+            },
             cancel: defaultCancelOptions(current_request)
           });
 
@@ -496,7 +568,10 @@ $(function() {
           });
           viewer.loadModelFromURL('/models/dlr.model.obj', {
             format: "mniobj",
-            complete: hideLoading,
+            complete: function() {
+              $("#vertex-data-wrapper").show();
+              hideLoading();
+            },
             cancel: defaultCancelOptions(current_request)
           });
 
@@ -516,6 +591,7 @@ $(function() {
             format: "mniobj",
             render_depth: 999,
             complete: function() {
+              $("#vertex-data-wrapper").show();
               viewer.loadIntensityDataFromURL('/models/mouse_alzheimer_map.txt', {
                   name: 'Cortical Amyloid Burden, Tg AD Mouse, 18 Months Old',
                   shape: "mouse_surf.obj",
@@ -548,6 +624,8 @@ $(function() {
           viewer.loadModelFromURL('/models/lh.white.asc', {
             format: "freesurferasc",
             complete: function() {
+              $("#vertex-data-wrapper").show();
+              $("#pick-value-wrapper").show();
               viewer.loadIntensityDataFromURL("/models/lh.thickness.asc", {
                   format: "freesurferasc",
                   name: "Cortical Thickness",
@@ -620,7 +698,7 @@ $(function() {
     });
 
     // Load first model.
-    $("a.example[data-example-name=realct]").click();
+    $("a.example[data-example-name=atlas]").click();
   });
 });
 

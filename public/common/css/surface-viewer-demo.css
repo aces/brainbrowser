@@ -199,8 +199,29 @@ div#format_hints {
   padding: 0.6em;
 }
 
-#atlas-label {
-  display: none;
+#vertex-data-wrapper {
+  position: absolute;
   left: 15px;
   top: 145px;
+  padding: 5px;
+  background-color: white;
+  border-radius: 10px;
+}
+
+#vertex-data {
+  background-color: gray;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 1em;
+  border-radius: 10px;
+}
+
+#vertex-data h3 {
+  font-size: 18px;
+  margin-top: 0;
+}
+
+.pick-data {
+  font-weight: normal;
 }

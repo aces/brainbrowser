@@ -2,7 +2,7 @@
 * BrainBrowser: Web-based Neurological Visualization Tools
 * (https://brainbrowser.cbrain.mcgill.ca)
 *
-* Copyright (C) 2011 McGill University 
+* Copyright (C) 2011 McGill University
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Affero General Public License as
@@ -23,8 +23,8 @@
 * Author: Nicolas Kassis
 */
 
-// This script is meant to be a demonstration of how to 
-// use most of the functionality available in the 
+// This script is meant to be a demonstration of how to
+// use most of the functionality available in the
 // BrainBrowser Surface Viewer.
 $(function() {
   "use strict";
@@ -76,7 +76,7 @@ $(function() {
     // Event Listeners
     ///////////////////////////////////
 
-    // If something goes wrong while loading, we don't 
+    // If something goes wrong while loading, we don't
     // want the loading icon to stay on the screen.
     viewer.addEventListener("error", hideLoading);
 
@@ -136,7 +136,7 @@ $(function() {
       $("#color-map-box").hide();
       $("#vertex-data-wrapper").hide();
       $("#pick-value-wrapper").hide();
-      $("#pick-label-wrapper").hide();      
+      $("#pick-label-wrapper").hide();
       $("#pick-x").html("");
       $("#pick-y").html("");
       $("#pick-z").html("");
@@ -152,8 +152,8 @@ $(function() {
       $("#color-bar").html(canvas);
     });
 
-    // When new intensity data is loaded, create all UI related to 
-    // controlling the relationship between the instensity data and 
+    // When new intensity data is loaded, create all UI related to
+    // controlling the relationship between the instensity data and
     // the color mapping (range, flip colors, clamp colors, fix range).
     viewer.addEventListener("loadintensitydata", function(intensity_data) {
       var container = $("#data-range");
@@ -319,7 +319,7 @@ $(function() {
     
     // Reset to the default view.
     $("#resetview").click(function() {
-      // Setting the view to its current view type will 
+      // Setting the view to its current view type will
       // automatically reset its position.
       viewer.setView($("[name=hem_view]:checked").val());
     });
@@ -416,7 +416,7 @@ $(function() {
       viewer.autorotate.z = $("#autorotateZ").is(":checked");
     });
 
-    // Color map URLs are read from the config file and added to the 
+    // Color map URLs are read from the config file and added to the
     // color map select box.
     var color_map_select = $('<select id="color-map-select"></select>').change(function() {
       viewer.loadColorMapFromURL($(this).val());
@@ -437,7 +437,7 @@ $(function() {
     });
 
     $("#brainbrowser").click(function(event) {
-      if (!event.shiftKey) return; 
+      if (!event.shiftKey) return;
       if (!viewer.model_data) return;
 
       var offset = BrainBrowser.utils.getOffset(viewer.view_window);
@@ -458,11 +458,11 @@ $(function() {
           $("#pick-value").html(value);
           label = atlas_labels[value];
           if (label) {
-            text = label + '<BR><a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/?term=' + 
-              label.split(/\s+/).join("+") + 
+            text = label + '<BR><a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/?term=' +
+              label.split(/\s+/).join("+") +
               '">Search on PubMed</a>';
-            text += '<BR><a target="_blank" href="http://scholar.google.com/scholar?q=' + 
-              label.split(/\s+/).join("+") + 
+            text += '<BR><a target="_blank" href="http://scholar.google.com/scholar?q=' +
+              label.split(/\s+/).join("+") +
               '">Search on Google Scholar</a>';
           } else {
             text = "None";
@@ -655,7 +655,7 @@ $(function() {
       div.find(".format-hint").html(BrainBrowser.config.surface_viewer.model_types[format].format_hint || "");
     });
 
-    // Load a new model from a file that the user has 
+    // Load a new model from a file that the user has
     // selected.
     $("#obj_file_submit").click(function() {
       var format = $(this).closest(".file-select").find("option:selected").val();

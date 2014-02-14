@@ -225,3 +225,11 @@ div#format_hints {
 .pick-data {
   font-weight: normal;
 }
+
+#atlas-label {
+  position: absolute;
+  left: 15px;
+  top: 145px;
+  display: none;
+}
+

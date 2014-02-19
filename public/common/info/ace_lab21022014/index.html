@@ -9,14 +9,48 @@
   <link rel="icon" type="image/png" href="img/brainbrowser.png">
   <style>
     #web-service {
-      width: 500px;
-      height: 500px;
+      width: 200px;
+      height: 200px;
       margin: 20px auto;
     }
 
     .reveal .slide-number {
       font-size: 24px;
       font-weight: bold;
+    }
+
+    .reveal section img {
+      height: 130px;
+      margin-top: 30px;
+    }
+
+    #dti {
+      position: absolute;
+      left: 610px;
+    }
+
+    #volume-viewer {
+      position: absolute;
+      left: 160px;
+    }
+
+    #html5 {
+      background-color:white;
+      position: absolute;
+      height: 200px;
+      right: 50px;
+      top: 200px;
+    }
+
+    #volume-viewer2 {
+      height: 200px;
+      margin-top: 50px;
+    }
+    #atlas {
+      position: absolute;
+      top: 200px;
+      right: 50px;
+      height: 250px;
     }
   </style>
 </head>
@@ -51,6 +85,8 @@
             </ul>
           </li>
         </ul>
+        <img id="volume-viewer" src="img/volume-viewer.png"/>
+        <img id="dti" src="img/dti.png" />
       </section>
       
       <section>
@@ -130,6 +166,7 @@
             </ul>
           </li>
         </ul>
+        <img id="html5" src="img/HTML5.png" />
       </section>
       
       <section>
@@ -138,7 +175,11 @@
           <li>Navigate volumetric data in a slice-by-slice manner
             <ul>
               <li>
-                Load one or more volumes 
+                Load one or more volumes
+                  <ul>
+                    <li>Currently, only MINC data is supported</li>
+                    <li>Plugin architecture leaves door open for other formats</li>
+                  </ul>
               </li>
               <li>
                 Load a color map 
@@ -149,11 +190,13 @@
             </ul>
           </li>
         </ul>
+        <img id="volume-viewer2" src="img/volume-viewer.png" />
       </section>
+
       <section>
         <h2>Load Volumes</h2>
         <ul>
-          <li>Fetch raw and header data from the server</li>
+          <li>Fetch raw and header data</li>
           <li>Structural or functional data</li>
           <li>Multiple volumes can be overlayed</li>
         </ul>
@@ -219,6 +262,7 @@
             </ul>
           </li>
         </ul>
+        <img id="atlas" src="img/atlas.png" />
       </section>
       
       <section>
@@ -381,7 +425,7 @@
         viewer.model.scale.set(scalex, scaley, 1);
       })();
     }
-    $("#web-service").load("https://brainbrowser.cbrain.mcgill.ca/surface-viewer-widget?version=1.5.1&model=/models/realct.obj&color_map=/color_maps/spectral.txt&intensity_data=/models/realct.txt&height=350&width=350&viewer_callback=breathe");
+    $("#web-service").load("https://brainbrowser.cbrain.mcgill.ca/surface-viewer-widget?version=1.5.1&model=/models/realct.obj&color_map=/color_maps/spectral.txt&intensity_data=/models/realct.txt&height=200&width=200&viewer_callback=breathe");
   </script>
 </body>
 </html>s

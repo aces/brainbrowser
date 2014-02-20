@@ -172,17 +172,11 @@
       <section>
         <h2>Volume Viewer</h2>
         <ul>
-          <li>Navigate volumetric data in a slice-by-slice manner
+          <li>
+            Navigate volumetric data in a slice-by-slice manner
             <ul>
               <li>
                 Load one or more volumes
-                  <ul>
-                    <li>Currently, only MINC data is supported</li>
-                    <li>Plugin architecture leaves door open for other formats</li>
-                  </ul>
-              </li>
-              <li>
-                Load a color map 
               </li>
               <li>
                 Navigate through the data
@@ -196,22 +190,15 @@
       <section>
         <h2>Load Volumes</h2>
         <ul>
-          <li>Fetch raw and header data</li>
+          <li>Currently, only MINC data is supported
+            <ul>
+              <li>Load raw and header data</li>
+              <li>Plugin architecture leaves door open for other formats</li>
+            </ul>
+          </li>
           <li>Structural or functional data</li>
           <li>Multiple volumes can be overlayed</li>
         </ul>
-      </section>
-
-      <section>
-        <h2>Load Color Map</h2>
-          <ul>
-            <li>
-              Text file with color values 
-            </li>
-            <li>
-              Used to map intensity data to colors
-            </li>
-          </ul> 
       </section>
 
       <section>
@@ -234,10 +221,10 @@
         <h2>Demos</h2>
         <ul>
           <li>
-            <a href="https://brainbrowser.cbrain.mcgill.ca/volume-viewer">Structural Data</a> 
+            <a href="https://brainbrowser.cbrain.mcgill.ca/volume-viewer" target="_blank">Structural Data</a> 
           </li>
           <li>
-            <a href="https://brainbrowser.cbrain.mcgill.ca/fmri-viewer">Functional Data</a> 
+            <a href="https://brainbrowser.cbrain.mcgill.ca/fmri-viewer" target="_blank">Functional Data</a> 
           </li>
         </ul>
       </section>
@@ -249,9 +236,6 @@
             <ul>
               <li>
                 Load one or more surfaces
-              </li>
-              <li>
-                Load a color map 
               </li>
               <li>
                 Load intensity data 
@@ -293,31 +277,11 @@
           </li>
         </ul>
       </section>
-      
-      <section>
-        <h2>Load a Color Map</h2>
-        <ul>
-          <li>
-            Text file with color values
-          </li>
-          <li>
-            Used to map intensity data to colors
-          </li>
-        </ul> 
-      </section>
 
       <section>
         <h2>Load Intensity Data</h2>
         <ul>
-          <li>
-            Map intensities to colors using the color map 
-          </li>
-          <li>
-            MNI TXT and Freesurfer ASC currently supported
-            <ul>
-              <li>Essentially any per-vertex data format</li>
-            </ul>
-          </li>
+          <li>MNI TXT and Freesurfer ASC currently supported</li>
           <li>
             Extensible plugin architecture
             <ul>
@@ -325,6 +289,7 @@
                 If you write a parser for another file format,
                 it can simply be added to BrainBrowser
               </li>
+              <li>Essentially any per-vertex data format</li>
             </ul>
           </li>
           <li>
@@ -360,10 +325,10 @@
         <h2>Demos</h2>
         <ul>
           <li>
-            <a href="https://brainbrowser.cbrain.mcgill.ca/surface-viewer">Surface Viewer</a> 
+            <a href="https://brainbrowser.cbrain.mcgill.ca/surface-viewer" target="_blank">Surface Viewer</a> 
           </li>
           <li>
-            <a href="https://brainbrowser.cbrain.mcgill.ca/macacc-viewer">The MACACC dataset</a> 
+            <a href="https://brainbrowser.cbrain.mcgill.ca/macacc-viewer" target="_blank">The MACACC dataset</a> 
           </li>
         </ul>
       </section>
@@ -373,12 +338,12 @@
         <ul>
           <li>
             Try out the demos: 
-            <a href="https://brainbrowser.cbrain.mcgill.ca">
+            <a href="https://brainbrowser.cbrain.mcgill.ca" target="_blank">
               https://brainbrowser.cbrain.mcgill.ca
             </a>
           </li>
           <li>
-            <a href="https://brainbrowser.cbrain.mcgill.ca/#get-brainbrowser">Download</a> and add to your website
+            Download the <a href="https://brainbrowser.cbrain.mcgill.ca/#get-brainbrowser" target="_blank">JavaScript library</a> and add it to your website
             <ul>
               <li>Fine-grained control over configuration</li>
               <li>Extend with plugins</li>
@@ -386,7 +351,7 @@
             </ul>
           </li>
           <li>
-            Use the <a href="https://brainbrowser.cbrain.mcgill.ca/#web-service">web service</a>
+            Use the <a href="https://brainbrowser.cbrain.mcgill.ca/#web-service" target="_blank">web service</a>
             <ul>
               <li>Loads all libraries and dependencies</li>
               <li>Some aspects can be configured without programming</li>

@@ -41,7 +41,13 @@ $(function() {
 
       // Should cursors in all panels be synchronized?
       $("#sync-volumes").change(function() {
-        viewer.synced = $(this).is(":checked");
+        var synced = $(this).is(":checked");
+        if (synced) {
+          viewer.resetDisplays();  
+        }
+        
+        viewer.redrawVolumes();
+        viewer.synced = synced;
       });
 
       // This will create an image of all the display panels

@@ -46,7 +46,6 @@
     /**
     * @doc function
     * @name display.display:updateCursor
-    * @param {object} volume The volume whose cursor will be updated.
     * @description
     * Update the display cursor based on the current position with the given volume.
     */
@@ -58,6 +57,37 @@
         this.cursor.x = (volume.position[slice.width_space.name] * Math.abs(slice.width_space.step) * this.zoom) + origin.x;
         this.cursor.y = (slice.height_space.space_length - volume.position[slice.height_space.name]) * Math.abs(slice.height_space.step) * this.zoom  + origin.y;
       }
+    },
+
+    /**
+    * @doc function
+    * @name display.display:followCursor
+    * @param {object} cursor The cursor to follow.
+    * @description
+    * Will translate the image by the same amount that the cursor has moved since
+    * this method was last called.
+    */
+    followCursor: function(cursor) {
+      var dx = cursor.x - this.last_cursor.x;
+      var dy = cursor.y - this.last_cursor.y;
+      this.image_center.x += dx;
+      this.image_center.y += dy;
+      this.cursor.x += dx;
+      this.cursor.y += dy;
+      this.last_cursor.x = cursor.x;
+      this.last_cursor.y = cursor.y;
+    },
+
+    /**
+    * @doc function
+    * @name display.display:reset
+    * @description
+    * Reset image to it's original position and zoom level.
+    */
+    reset: function() {
+      this.zoom = 1;
+      this.image_center.x = this.canvas.width / 2;
+      this.image_center.y = this.canvas.height / 2;
     },
     
     /**

@@ -538,6 +538,22 @@
       });
     };
 
+    /**
+    * @doc function
+    * @name viewer.volumes:resetDisplays
+    *
+    * @description
+    * Reset all displays.
+    */
+    viewer.resetDisplays = function() {
+
+      viewer.displays.forEach(function(display_set) {
+        display_set.forEach(function(display) {
+          display.reset();
+        });          
+      });
+      
+    };
 
     ////////////////////////////
     // Pass viewer to callback
@@ -805,26 +821,14 @@
               x: mouse.x,
               y: mouse.y
             };
-            
-            function translate(d) {
-              var dx, dy;
-              dx = cursor.x - d.last_cursor.x;
-              dy = cursor.y - d.last_cursor.y;
-              d.image_center.x += dx;
-              d.image_center.y += dy;
-              d.cursor.x += dx;
-              d.cursor.y += dy;
-              d.last_cursor.x = cursor.x;
-              d.last_cursor.y = cursor.y;
-            }
                     
             if(e.target === current_target) {
               if(e.shiftKey) {
-                translate(display);
+                display.followCursor(cursor);
                 if (viewer.synced){
                   viewer.displays.forEach(function(display, synced_vol_id) {
                     if (synced_vol_id !== vol_id) {
-                      translate(display[slice_num]);
+                      display[slice_num].followCursor(cursor);
                     }
                   });
                 }

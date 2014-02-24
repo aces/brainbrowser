@@ -32,7 +32,13 @@ $(function() {
       $(".button").button();
 
       $("#sync-volumes").change(function() {
-        viewer.synced = $(this).is(":checked");
+        var synced = $(this).is(":checked");
+        if (synced) {
+          viewer.resetDisplays();  
+          viewer.redrawVolumes();
+        }
+        
+        viewer.synced = synced;
       });
 
       $("#capture-slices").click(function() {

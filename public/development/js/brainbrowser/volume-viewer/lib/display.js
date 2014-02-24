@@ -24,7 +24,7 @@
 
 /**
 * @doc object
-* @name display
+* @name panel
 * @property {object} volume The volume being displayed.
 * @property {string} axis The name of the axis being displayed (xspace, yspace or zspace).
 * @property {object} slice The slice currently being displayed.
@@ -32,11 +32,11 @@
 * @property {object} context The 2D context of the canvas. 
 * @property {object} image_center The **x** and **y** coordinates of the
 *   center of the slice currently being displayed.
-* @property {number} zoom The current zoom level of the display. 
+* @property {number} zoom The current zoom level of the panel. 
 * @property {object} cursor The current **x** and **y** coordinates of the cursor. 
 * @property {object} mouse The current **x** and **y** coordinates of the mouse. 
 * @description
-* Object representing an individual canvas display.
+* Object representing an individual canvas panel.
 */
 (function() {
   "use strict";
@@ -45,9 +45,9 @@
 
     /**
     * @doc function
-    * @name display.display:updateCursor
+    * @name panel.panel:updateCursor
     * @description
-    * Update the display cursor based on the current position with the given volume.
+    * Update the panel cursor based on the current position with the given volume.
     */
     updateCursor: function() {
       var volume = this.volume;
@@ -61,7 +61,7 @@
 
     /**
     * @doc function
-    * @name display.display:followCursor
+    * @name panel.panel:followCursor
     * @param {object} cursor The cursor to follow.
     * @description
     * Will translate the image by the same amount that the cursor has moved since
@@ -80,7 +80,7 @@
 
     /**
     * @doc function
-    * @name display.display:reset
+    * @name panel.panel:reset
     * @description
     * Reset image to it's original position and zoom level.
     */
@@ -92,9 +92,9 @@
     
     /**
     * @doc function
-    * @name display.display:getImageOrigin
+    * @name panel.panel:getImageOrigin
     * @returns {object} Returns an object containing the **x** and **y** coordinates of the
-    * top-left corner of the currently displayed slice on the display.
+    * top-left corner of the currently displayed slice on the panel.
     * @description
     * Get the coordinates of the top-left corner of the slice currently being displayed.
     */
@@ -107,7 +107,7 @@
     
     /**
     * @doc function
-    * @name display.display:drawSlice
+    * @name panel.panel:drawSlice
     * @description
     * Draw the displays current slice to the canvas.
     */
@@ -119,7 +119,7 @@
     
     /**
     * @doc function
-    * @name display.display:drawCursor
+    * @name panel.panel:drawCursor
     * @param {string} color The cursor color.
     * @description
     * Draw the cursor at its current position on the canvas.
@@ -151,7 +151,7 @@
     }
   };
 
-  BrainBrowser.VolumeViewer.display = function(options) {
+  BrainBrowser.VolumeViewer.panel = function(options) {
     options = options || {};
 
     var defaults = {
@@ -170,17 +170,17 @@
       zoom: 1
     };
 
-    var display = Object.create(display_proto);
+    var panel = Object.create(display_proto);
     
     Object.keys(defaults).forEach(function(k) {
-      display[k] = defaults[k];
+      panel[k] = defaults[k];
     });
 
     Object.keys(options).forEach(function(k) {
-      display[k] = options[k];
+      panel[k] = options[k];
     });
 
-    return display;
+    return panel;
   };
 
 })();

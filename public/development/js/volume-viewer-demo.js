@@ -44,9 +44,9 @@ $(function() {
         var synced = $(this).is(":checked");
         if (synced) {
           viewer.resetDisplays();  
+          viewer.redrawVolumes();
         }
         
-        viewer.redrawVolumes();
         viewer.synced = synced;
       });
 

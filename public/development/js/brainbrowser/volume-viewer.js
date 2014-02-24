@@ -416,18 +416,18 @@
       var color_map;
 
       volumes.forEach(function(volume, i) {
-        viewer.displays[i].forEach(function(display, display_num) {
-          canvas = display.canvas;
-          context = display.context;
+        viewer.displays[i].forEach(function(panel, panel_num) {
+          canvas = panel.canvas;
+          context = panel.context;
           volume = volumes[i];
           context.globalAlpha = 255;
           context.clearRect(0, 0, canvas.width, canvas.height);
           //draw slices in order
-          slice = viewer.cachedSlices[i][display_num];
+          slice = viewer.cachedSlices[i][panel_num];
           if (slice){
             color_map = volume.color_map || viewer.default_color_map;
-            display.drawSlice();
-            display.drawCursor(color_map.cursor_color);
+            panel.drawSlice();
+            panel.drawCursor(color_map.cursor_color);
           }
           if (canvas === viewer.active_canvas) {
             context.save();
@@ -503,13 +503,13 @@
     viewer.setCursor = function(volume_num, axis_name, cursor) {
       var axis_num = axis_to_number[axis_name];
       var slice = viewer.cachedSlices[volume_num][axis_num];
-      var display = viewer.displays[volume_num][axis_num];
-      var image_origin = display.getImageOrigin();
-      var zoom = display.zoom;
+      var panel = viewer.displays[volume_num][axis_num];
+      var image_origin = panel.getImageOrigin();
+      var zoom = panel.zoom;
       var x, y;
       
-      display.cursor.x = cursor.x;
-      display.cursor.y = cursor.y;
+      panel.cursor.x = cursor.x;
+      panel.cursor.y = cursor.y;
 
       if (cursor) {
         x = Math.floor((cursor.x - image_origin.x) / zoom / Math.abs(slice.width_space.step));
@@ -547,9 +547,9 @@
     */
     viewer.resetDisplays = function() {
 
-      viewer.displays.forEach(function(display_set) {
-        display_set.forEach(function(display) {
-          display.reset();
+      viewer.displays.forEach(function(display) {
+        display.forEach(function(panel) {
+          panel.reset();
         });          
       });
       
@@ -585,13 +585,13 @@
         width_space: width_space,
         height_space: height_space,
       };
-      var display = viewer.displays[volume_num][axis_num];
+      var panel = viewer.displays[volume_num][axis_num];
       
-      cached_slice.image = slice.getImage(display.zoom);
+      cached_slice.image = slice.getImage(panel.zoom);
       viewer.cachedSlices[volume_num][axis_num] = cached_slice;
       
-      display.slice = cached_slice;
-      display.updateCursor();
+      panel.slice = cached_slice;
+      panel.updateCursor();
     }
 
     
@@ -719,7 +719,7 @@
       var volume_descriptions = options.volumes || [];
       var volume_description = volume_descriptions[vol_id] || {};
       
-      var displays = [];
+      var display = [];
       var template_options = volume_description.template || {};
       var template;
       
@@ -756,8 +756,8 @@
         canvas.style.backgroundColor = "#000000";
         div.appendChild(canvas);
         context.clearRect(0, 0, canvas.width, canvas.height);
-        displays.push(
-          VolumeViewer.display({
+        display.push(
+          VolumeViewer.panel({
             volume: volume,
             axis: axis_name,
             canvas: canvas,
@@ -812,9 +812,9 @@
         var current_target = null;
         
         ["xspace", "yspace", "zspace"].forEach(function(axis_name, slice_num) {
-          var display = displays[slice_num];
-          var canvas = display.canvas;
-          var mouse = display.mouse;
+          var panel = display[slice_num];
+          var canvas = panel.canvas;
+          var mouse = panel.mouse;
           
           function drag(e) {
             var cursor = {
@@ -824,7 +824,7 @@
                     
             if(e.target === current_target) {
               if(e.shiftKey) {
-                display.followCursor(cursor);
+                panel.followCursor(cursor);
                 if (viewer.synced){
                   viewer.displays.forEach(function(display, synced_vol_id) {
                     if (synced_vol_id !== vol_id) {
@@ -841,7 +841,7 @@
                     }
                   });
                 }
-                display.cursor = viewer.active_cursor = cursor;
+                panel.cursor = viewer.active_cursor = cursor;
               }
             }
           }
@@ -863,14 +863,14 @@
             e.stopPropagation();
             
             if (e.shiftKey) {
-              display.last_cursor.x = cursor.x;
-              display.last_cursor.y = cursor.y;
+              panel.last_cursor.x = cursor.x;
+              panel.last_cursor.y = cursor.y;
               if (viewer.synced){
                 viewer.displays.forEach(function(display, synced_vol_id) {
                   if (synced_vol_id !== vol_id) {
-                    var d = display[slice_num];
-                    d.last_cursor.x = cursor.x;
-                    d.last_cursor.y = cursor.y;
+                    var panel = display[slice_num];
+                    panel.last_cursor.x = cursor.x;
+                    panel.last_cursor.y = cursor.y;
                   }
                 });
               }
@@ -883,7 +883,7 @@
                   }
                 });
               }
-              display.cursor = viewer.active_cursor = cursor;
+              panel.cursor = viewer.active_cursor = cursor;
             }
             viewer.active_canvas = e.target;
             document.addEventListener("mousemove", drag, false);
@@ -897,14 +897,14 @@
             e.preventDefault();
             e.stopPropagation();
 
-            display.zoom = Math.max(display.zoom + delta * 0.05, 0.05);
+            panel.zoom = Math.max(panel.zoom + delta * 0.05, 0.05);
             
             viewer.fetchSlice(vol_id, ["xspace", "yspace", "zspace"][slice_num]);
             if (viewer.synced){
               viewer.displays.forEach(function(display, synced_vol_id) {
                 if (synced_vol_id !== vol_id) {
-                  var d = display[slice_num];
-                  d.zoom = Math.max(d.zoom + delta * 0.05, 0.05);
+                  var panel = display[slice_num];
+                  panel.zoom = Math.max(panel.zoom + delta * 0.05, 0.05);
                   viewer.fetchSlice(synced_vol_id, ["xspace", "yspace", "zspace"][slice_num]);
                 }
               });
@@ -917,7 +917,7 @@
       })();
       
       
-      return displays;
+      return display;
     }
   };
 

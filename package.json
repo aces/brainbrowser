@@ -2,6 +2,7 @@
   "name": "BrainBrowser",
   "version": "1.5.2",
   "private": true,
+  "license": "GNU Affero GPL 3.0",
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-contrib-jshint": "~0.6.4",

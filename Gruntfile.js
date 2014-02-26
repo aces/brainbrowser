@@ -56,7 +56,7 @@ module.exports = function(grunt) {
         report: "min",
         banner: "<%= license %>\n" +
                 "/*\n" +
-                "* <%= pkg.name %> v<%= pkg.version %>\n" +
+                "* BrainBrowser v<%= pkg.version %>\n" +
                 "*\n" +
                 "* Author: Tarek Sherif  <tsherif@gmail.com> (http://tareksherif.ca/)\n" +
                 "* Author: Nicolas Kassis\n" +

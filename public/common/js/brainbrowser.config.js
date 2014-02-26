@@ -1,1 +1,0 @@
-../../../build/config.sample.js

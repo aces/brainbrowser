@@ -1,1 +1,0 @@
-../../development/js/surface-viewer-demo.js

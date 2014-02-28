@@ -36,10 +36,3 @@ The BrainBrowser Volume Viewer allows users to display and manipulate volumetric
 
 Full documentation of the Volume Viewer API can be found [here](https://brainbrowser.cbrain.mcgill.ca/documentation/brainbrowser/volume-viewer).
 
-
-Credits
--------
-BrainBrowser is currently developed and maintained by [Tarek Sherif](https://github.com/tsherif).
-
-BrainBrowser was originally created by [Nicolas Kassis](https://github.com/nkassis).
-

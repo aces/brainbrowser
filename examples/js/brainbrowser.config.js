@@ -27,7 +27,7 @@
 
     surface_viewer: {
 
-      worker_dir: "/js/brainbrowser/workers/",
+      worker_dir: "js/brainbrowser/workers/",
 
       model_types: {
         mniobj: {
@@ -55,23 +55,23 @@
       color_maps: [
         {
           name: "Spectral",
-          url: "/color_maps/spectral.txt",
+          url: "color_maps/spectral.txt",
         },
         {
           name: "Thermal",
-          url: "/color_maps/thermal.txt",
+          url: "color_maps/thermal.txt",
         },
         {
           name: "Gray",
-          url: "/color_maps/gray_scale.txt",
+          url: "color_maps/gray_scale.txt",
         },
         {
           name: "Blue",
-          url: "/color_maps/blue.txt",
+          url: "color_maps/blue.txt",
         },
         {
           name: "Green",
-          url: "/color_maps/green.txt",
+          url: "color_maps/green.txt",
         }
       ]
 
@@ -81,27 +81,27 @@
       color_maps: [
         {
           name: "Spectral",
-          url: "/color_maps/spectral-brainview.txt",
+          url: "color_maps/spectral-brainview.txt",
           cursor_color: "#FFFFFF"
         },
         {
           name: "Thermal",
-          url: "/color_maps/thermal.txt",
+          url: "color_maps/thermal.txt",
           cursor_color: "#FFFFFF"
         },
         {
           name: "Gray",
-          url: "/color_maps/gray_scale.txt",
+          url: "color_maps/gray_scale.txt",
           cursor_color: "#FF0000"
         },
         {
           name: "Blue",
-          url: "/color_maps/blue.txt",
+          url: "color_maps/blue.txt",
           cursor_color: "#FFFFFF"
         },
         {
           name: "Green",
-          url: "/color_maps/green.txt",
+          url: "color_maps/green.txt",
           cursor_color: "#FF0000"
         }
       ]

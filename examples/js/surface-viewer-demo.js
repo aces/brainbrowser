@@ -48,7 +48,7 @@ $(function() {
     return;
   }
 
-  $.get("/assets/aal_label.txt", function(data) {
+  $.get("models/atlas_labels.txt", function(data) {
     var lines = data.split("\n");
     var regex = /'(.+)'\s+(\d+)/;
 
@@ -115,8 +115,8 @@ $(function() {
             max: 101,
             slide: function(event) {
               var target = event.target;
-              var shape_name = $(target).attr('data-shape-name');
-              var alpha = $(target).slider('value');
+              var shape_name = $(target).attr("data-shape-name");
+              var alpha = $(target).slider("value");
               alpha = Math.min(100, Math.max(0, alpha)) / 100.0;
 
               viewer.setTransparency(shape_name, alpha);
@@ -219,8 +219,8 @@ $(function() {
           }
         });
 
-        slider.slider('values', 0, parseFloat(range_min));
-        slider.slider('values', 1, parseFloat(range_max));
+        slider.slider("values", 0, parseFloat(range_min));
+        slider.slider("values", 1, parseFloat(range_max));
         min_input.val(range_min);
         max_input.val(range_max);
 
@@ -228,8 +228,8 @@ $(function() {
           var min = parseFloat(min_input.val());
           var max = parseFloat(max_input.val());
           
-          slider.slider('values', 0, min);
-          slider.slider('values', 1, max);
+          slider.slider("values", 0, min);
+          slider.slider("values", 1, max);
           viewer.setIntensityRange(min, max, controls.find("#clamp_range").is(":checked"));
         }
 
@@ -429,7 +429,7 @@ $(function() {
     $("#color-map-box").append(color_map_select);
 
     // Remove currently loaded models.
-    $('#clearshapes').click(function() {
+    $("#clearshapes").click(function() {
       viewer.clearScreen();
       current_request = 0;
       current_request_name = "";
@@ -477,7 +477,7 @@ $(function() {
     $("#examples").click(function(e) {
       current_request++;
       
-      var name = $(e.target).attr('data-example-name');
+      var name = $(e.target).attr("data-example-name");
       var matrixRotX, matrixRotY;
       
       if (current_request_name === name) return;
@@ -494,13 +494,13 @@ $(function() {
 
       var examples = {
         atlas: function() {
-          viewer.loadModelFromURL('/models/surf_reg_model_both.obj', {
+          viewer.loadModelFromURL("models/brain_surface.obj", {
             format: "mniobj",
             complete: function() {
               $("#vertex-data-wrapper").show();
               $("#pick-value-wrapper").show();
               $("#pick-label-wrapper").show();
-              viewer.loadIntensityDataFromURL("/assets/aal_atlas.txt", {
+              viewer.loadIntensityDataFromURL("models/atlas_values.txt", {
                 complete: hideLoading
               });
             },
@@ -508,30 +508,30 @@ $(function() {
             parse: { split: true }
           });
         },
-        punkdti: function() {
-          viewer.loadModelFromURL('/models/dti.obj', {
+        dti: function() {
+          viewer.loadModelFromURL("models/dti.obj", {
             format: "mniobj",
             render_depth: 999,
             complete: hideLoading,
             cancel: defaultCancelOptions(current_request)
           });
-          viewer.loadModelFromURL('/models/left_color.obj', {
+          viewer.loadModelFromURL("models/left_color_mesh.obj", {
             format: "mniobj",
             cancel: defaultCancelOptions(current_request)
           });
-          viewer.loadModelFromURL('/models/right_color.obj', {
+          viewer.loadModelFromURL("models/right_color_mesh.obj", {
             format: "mniobj",
             cancel: defaultCancelOptions(current_request)
           });
         },
-        realct: function() {
-          viewer.loadModelFromURL('/models/realct.obj', {
+        cortical_thickness: function() {
+          viewer.loadModelFromURL("models/brain_surface.obj", {
             format: "mniobj",
             parse: { split: true },
             complete: function() {
               $("#vertex-data-wrapper").show();
               $("#pick-value-wrapper").show();
-              viewer.loadIntensityDataFromURL('/models/realct.txt', {
+              viewer.loadIntensityDataFromURL("models/cortical_thickness.txt", {
                 name: "Cortical Thickness",
                 complete: hideLoading,
                 cancel: defaultCancelOptions(current_request)
@@ -541,7 +541,7 @@ $(function() {
           });
         },
         car: function() {
-          viewer.loadModelFromURL('/models/car.obj', {
+          viewer.loadModelFromURL("models/car.obj", {
             format: "wavefrontobj",
             complete: function() {
               $("#vertex-data-wrapper").show();
@@ -561,72 +561,13 @@ $(function() {
 
           viewer.model.applyMatrix(matrixRotY.multiply(matrixRotX));
         },
-        plane: function() {
-          viewer.loadModelFromURL('/models/dlr_bigger.streamlines.obj', {
-            format: "mniobj",
-            cancel: defaultCancelOptions(current_request)
-          });
-          viewer.loadModelFromURL('/models/dlr.model.obj', {
-            format: "mniobj",
-            complete: function() {
-              $("#vertex-data-wrapper").show();
-              hideLoading();
-            },
-            cancel: defaultCancelOptions(current_request)
-          });
-
-          // This model is somewhat small so zoom in and
-          // give it a dramatic angle.
-          viewer.zoom(7);
-
-          matrixRotX = new THREE.Matrix4();
-          matrixRotX.makeRotationX(-0.25 * Math.PI);
-          matrixRotY = new THREE.Matrix4();
-          matrixRotY.makeRotationY(0.4 * Math.PI);
-
-          viewer.model.applyMatrix(matrixRotY.multiply(matrixRotX));
-        },
-        mouse: function() {
-          viewer.loadModelFromURL('/models/mouse_surf.obj', {
-            format: "mniobj",
-            render_depth: 999,
-            complete: function() {
-              $("#vertex-data-wrapper").show();
-              viewer.loadIntensityDataFromURL('/models/mouse_alzheimer_map.txt', {
-                  name: 'Cortical Amyloid Burden, Tg AD Mouse, 18 Months Old',
-                  shape: "mouse_surf.obj",
-                  min: 0.0,
-                  max: 0.25,
-                  complete: hideLoading,
-                  cancel: defaultCancelOptions(current_request)
-                }
-              );
-            },
-            cancel: defaultCancelOptions(current_request)
-          });
-          viewer.loadModelFromURL('/models/mouse_brain_outline.obj', {
-            format: "mniobj",
-            complete: function() {
-              setTimeout(function() {
-                // Set the transparency of the outer shell and move the slider
-                // to the right position.
-                $(".opacity-slider[data-shape-name='mouse_brain_outline.obj']").slider("value", 50);
-                viewer.setTransparency('mouse_brain_outline.obj', 0.5);
-              }, 0);
-            },
-            cancel: defaultCancelOptions(current_request)
-          });
-
-          // Smaller model so zoom in.
-          viewer.zoom(11);
-        },
         freesurfer: function() {
-          viewer.loadModelFromURL('/models/lh.white.asc', {
+          viewer.loadModelFromURL("models/lh.white.asc", {
             format: "freesurferasc",
             complete: function() {
               $("#vertex-data-wrapper").show();
               $("#pick-value-wrapper").show();
-              viewer.loadIntensityDataFromURL("/models/lh.thickness.asc", {
+              viewer.loadIntensityDataFromURL("models/lh.thickness.asc", {
                   format: "freesurferasc",
                   name: "Cortical Thickness",
                   complete: hideLoading,

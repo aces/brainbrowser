@@ -27,9 +27,9 @@
   <head>  
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">  
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <link type="text/css" href="/css/ui-darkness/jquery-ui-1.8.10.custom.css" rel="Stylesheet" />
-    <link type="text/css" href="/css/common.css" rel="Stylesheet" />
-    <link type="text/css" href="/css/surface-viewer-demo.css" rel="Stylesheet" />
+    <link type="text/css" href="css/ui-darkness/jquery-ui-1.8.10.custom.css" rel="Stylesheet" />
+    <link type="text/css" href="css/common.css" rel="Stylesheet" />
+    <link type="text/css" href="css/surface-viewer-demo.css" rel="Stylesheet" />
     <title>BrainBrowser Surface Viewer</title>  
   </head>  
   <body>  
@@ -47,7 +47,7 @@
         </div>
       </div>
       <!-- Loading image from: http://www.ajaxload.info/ -->
-      <div id="loading" style="display: none"><img src="/img/ajax-loader.gif" /></div>
+      <div id="loading" style="display: none"><img src="img/ajax-loader.gif" /></div>
       <div id="brainbrowser"></div>
       <div id="controls">
         <div id="controls-content">
@@ -55,17 +55,10 @@
             <h3>Sample Models</h3>
             <ul>
               <li><a href="#" class="example" data-example-name="atlas">Brain Atlas</a> (81924 vertices)</li>
-              <li><a href="#" class="example" data-example-name="realct">Brain with Cortical Thickness Map</a> (81924 vertices)</li>
-              <li><a href="#" span class="example" data-example-name="punkdti">DTI and Mesh Brain</a> (560674 vertices)</li>
-              <li>
-                <a href="#" span class="example" data-example-name="mouse" title="Surface-Projected Cortical Amyloid Deposition of a Cohort of 18 Month-Old Transgenic Mice with Alzheimer's Disease">
-                  Mouse Brain with Alzheimer's Disease
-                </a>
-                (79016 vertices)
-              </li>
-               <li><a href="#" class="example" data-example-name="plane" title="DLR-F6 Geometry 2nd AIAA CFD Drag Prediction Workshop, 2003">Aeroplane with Air Density and Air Flow</a> (198375 vertices)</li>
-               <li><a href="#" class="example" data-example-name="freesurfer">Freesurfer ASC Left Hemisphere</a> (137720 vertices)</li>
-               <li><a href="#" class="example" data-example-name="car">Wavefront OBJ Automobile</a> (29795 vertices)</li> 
+              <li><a href="#" class="example" data-example-name="cortical_thickness">Brain with Cortical Thickness Map</a> (81924 vertices)</li>
+              <li><a href="#" class="example" data-example-name="dti">DTI and Mesh Brain</a> (560674 vertices)</li>
+              <li><a href="#" class="example" data-example-name="freesurfer">Freesurfer ASC Left Hemisphere</a> (137720 vertices)</li>
+              <li><a href="#" class="example" data-example-name="car">Wavefront OBJ Automobile</a> (29795 vertices)</li> 
             </ul>
           </div>
           <div id="surface_choice" class="box full_box">
@@ -189,20 +182,20 @@
     </div>
 
     <!-- all the scripts -->
-    <script src="/js/jquery-1.6.4.min.js"></script>
-    <script src="/js/jquery-ui-1.8.10.custom.min.js"></script>
-    <script src="/js/three.r62.min.js"></script>
-    <script src="/js/AnaglyphEffect.js"></script>
-    <script src="/js/ui.js"></script>
-    <script src="/js/brainbrowser/lib/utils.js"></script>
-    <script src="/js/brainbrowser/lib/color_map.js"></script> 
-    <script src="/js/brainbrowser/surface-viewer.js"></script>
-    <script src="/js/brainbrowser/surface-viewer/lib/parse_intensity_data.js"></script> 
-    <script src="/js/brainbrowser/surface-viewer/modules/color.js"></script>
-    <script src="/js/brainbrowser/surface-viewer/modules/loading.js"></script>
-    <script src="/js/brainbrowser/surface-viewer/modules/rendering.js"></script>
-    <script src="/js/brainbrowser/surface-viewer/modules/views.js"></script>
-    <script src="/js/brainbrowser.config.js"></script> 
-    <script src="/js/surface-viewer-demo.js"></script> 
+    <script src="js/jquery-1.6.4.min.js"></script>
+    <script src="js/jquery-ui-1.8.10.custom.min.js"></script>
+    <script src="js/three.r62.min.js"></script>
+    <script src="js/AnaglyphEffect.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/brainbrowser/lib/utils.js"></script>
+    <script src="js/brainbrowser/lib/color_map.js"></script> 
+    <script src="js/brainbrowser/surface-viewer.js"></script>
+    <script src="js/brainbrowser/surface-viewer/lib/parse_intensity_data.js"></script> 
+    <script src="js/brainbrowser/surface-viewer/modules/color.js"></script>
+    <script src="js/brainbrowser/surface-viewer/modules/loading.js"></script>
+    <script src="js/brainbrowser/surface-viewer/modules/rendering.js"></script>
+    <script src="js/brainbrowser/surface-viewer/modules/views.js"></script>
+    <script src="js/brainbrowser.config.js"></script> 
+    <script src="js/surface-viewer-demo.js"></script> 
   </body>  
 </html>  

@@ -409,8 +409,8 @@ $(function() {
       volumes: [
         {
           type: "minc",
-          header_url: "models/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_003.mnc.headers",
-          raw_data_url: "models/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_003.mnc.raw",
+          header_url: "models/structural1.mnc.headers",
+          raw_data_url: "models/structural1.mnc.raw",
           template: {
             element_id: "volume-ui-template",
             viewer_insert_class: "volume-viewer-display"
@@ -418,8 +418,8 @@ $(function() {
         },
         {
           type: 'minc',
-          header_url: "models/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_004.mnc.headers",
-          raw_data_url: "models/ibis_411025_living_phantom_UNC_SD_HOS_20100112_t1w_004.mnc.raw",
+          header_url: "models/structural2.mnc.headers",
+          raw_data_url: "models/structural2.mnc.raw",
           template: {
             element_id: "volume-ui-template",
             viewer_insert_class: "volume-viewer-display"

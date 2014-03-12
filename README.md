@@ -8,6 +8,18 @@ JavaScript and WebGL. The Surface Viewer uses [three.js](http://threejs.org/) fo
 
 Demonstrations of available funcionality are available at the [BrainBrowser web site](https://brainbrowser.cbrain.mcgill.ca/).
 
+Getting Started
+---------------
+To try out some BrainBrowser sample applications, simply make the **examples** directory available through a server and navigate to it. The following is an example that uses the [mongoose](https://code.google.com/p/mongoose/) server to accomplish this:
+
+```Shell
+  $ git clone https://github.com/aces/brainbrowser.git
+  $ cd brainbrowser/examples
+  $ mongoose
+```
+
+Once the server is running, navigate to localhost:8080 in your browser and open either **surface-viewer.html** or **volume-viewer.html**.
+
 Surface Viewer
 --------------
 

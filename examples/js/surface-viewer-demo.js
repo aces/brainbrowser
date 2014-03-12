@@ -562,12 +562,12 @@ $(function() {
           viewer.model.applyMatrix(matrixRotY.multiply(matrixRotX));
         },
         freesurfer: function() {
-          viewer.loadModelFromURL("models/lh.white.asc", {
+          viewer.loadModelFromURL("models/freesurfer_surface.asc", {
             format: "freesurferasc",
             complete: function() {
               $("#vertex-data-wrapper").show();
               $("#pick-value-wrapper").show();
-              viewer.loadIntensityDataFromURL("models/lh.thickness.asc", {
+              viewer.loadIntensityDataFromURL("models/freesurfer_thickness.asc", {
                   format: "freesurferasc",
                   name: "Cortical Thickness",
                   complete: hideLoading,

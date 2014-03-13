@@ -4,7 +4,7 @@ BrainBrowser Coding Style Guidelines
 Variable Naming
 ---------------
 
-BrainBrowser uses variable naming conventions that differ somewhat from most JavaScript projects. In particular, we differentiate between **data** and **function** variables. **Function variables** are references to functions. **Data variables** are references to anything else.
+BrainBrowser uses conventions for naming variables that differ somewhat from most JavaScript projects. In particular, we differentiate between **data** and **function** variables. **Function variables** are references to functions. **Data variables** are references to anything else.
 
 **Data variables** should be underscored:
 
@@ -88,7 +88,7 @@ Use strict equality always.
   }
 ```
 
-Contstructors
+Constructors
 ----------------------
 
 Don't write any. If you want a function to create objects, write a factory function instead.

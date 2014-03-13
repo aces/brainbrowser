@@ -6,3 +6,9 @@ log/*
 tmp
 node_modules
 docs
+examples/color_maps/*.txt
+examples/models/*.txt
+examples/models/*.obj
+examples/models/*.asc
+examples/models/*.headers
+examples/models/*.raw

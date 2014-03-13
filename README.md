@@ -20,6 +20,14 @@ To try out some BrainBrowser sample applications, simply make the **examples** d
 
 Once the server is running, navigate to localhost:8080 in your browser and open either **surface-viewer.html** or **volume-viewer.html**.
 
+**Note:** If the server server you're using doesn't support serving gzipped content, you'll have to unzip the contents of the directories **examples/color_maps** and **examples/models**. Git will ignore the unzipped files, and you can checkout the **examples** directory to restore the compressed files.
+
+```Shell
+  $ cd brainbrowser/examples
+  $ gunzip color_maps/*.gz models/*.gz
+  $ git checkout .
+```
+
 Surface Viewer
 --------------
 

@@ -2,7 +2,9 @@
 * BrainBrowser: Web-based Neurological Visualization Tools
 * (https://brainbrowser.cbrain.mcgill.ca)
 *
-* Copyright (C) 2011 Alan Evans, McGill University 
+* Copyright (C) 2011 
+* The Royal Institution for the Advancement of Learning
+* McGill University
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Affero General Public License as

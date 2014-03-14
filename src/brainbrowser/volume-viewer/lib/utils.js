@@ -2,7 +2,9 @@
 * BrainBrowser: Web-based Neurological Visualization Tools
 * (https://brainbrowser.cbrain.mcgill.ca)
 *
-* Copyright (C) 2011 Alan Evans, McGill University 
+* Copyright (C) 2011
+* The Royal Institution for the Advancement of Learning
+* McGill University
 *
 * This program is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Affero General Public License as
@@ -46,16 +48,16 @@ BrainBrowser.VolumeViewer.utils = (function() {
   }
   
   /**
-   * @doc function
-   * @name utils.utils.nearestNeighbor
-   *
-   * @param {array} orig Original image
-   * @param {number} new_width Width of scaled image.
-   * @param {number} new_height Height of scaled image.
-   * @returns {ImageData} The scaled image.
-   * @description
-   * Scale an image using nearest neighbor interpolation.
-   */
+  * @doc function
+  * @name utils.utils.nearestNeighbor
+  *
+  * @param {array} orig Original image
+  * @param {number} new_width Width of scaled image.
+  * @param {number} new_height Height of scaled image.
+  * @returns {ImageData} The scaled image.
+  * @description
+  * Scale an image using nearest neighbor interpolation.
+  */
   function nearestNeighbor(orig, new_width, new_height) {
     var data = orig.data;
     var width = orig.width;

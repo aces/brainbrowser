@@ -229,8 +229,11 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var raycaster = new THREE.Raycaster();
     var vector = new THREE.Vector3(x, y, camera.near);
     var intersects, intersection, vertex_data;
-    var intersect_object, intersect_point, intersect_vertex_index, min_distance;
-    var verts, distance;
+    var intersect_object, intersect_point, intersect_indices;
+    var intersect_vertex_index;
+    var min_distance;
+    var original_vertices, original_indices;
+    var index, distance;
     var i, count;
     var centroid, cx, cy, cz;
 
@@ -249,6 +252,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       // Find closest point to intersection.
       intersection = intersects[0];
       intersect_object = intersection.object;
+      intersect_indices = intersection.indices;
 
       // Objects have their origins centered 
       // to help with transparency, so to check
@@ -262,14 +266,35 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       inv_matrix.getInverse(intersect_object.matrixWorld);
       intersect_point = intersection.point.applyMatrix4(inv_matrix);
 
-      verts = intersect_object.geometry.original_data.vertices;
-      min_distance = intersect_point.distanceTo(new THREE.Vector3(verts[0] - cx, verts[1] - cy, verts[2] - cz));
-      for (i = 1, count = verts.length / 3; i < count; i++) {
-        distance = intersect_point.distanceTo(new THREE.Vector3(verts[i*3] - cx, verts[i*3+1] - cy, verts[i*3+2] - cz));
-        if ( distance < min_distance) {
-          intersect_vertex_index = i;
+      original_vertices = intersect_object.geometry.original_data.vertices;
+      original_indices = intersect_object.geometry.original_data.indices;
+
+      // Have to get the vertex pointed to by the original index because of
+      // the de-indexing (see workers/deindex.worker.js)
+      intersect_vertex_index = index = original_indices[intersect_indices[0]];
+      min_distance = intersect_point.distanceTo(
+        new THREE.Vector3(
+          original_vertices[index*3] - cx,
+          original_vertices[index*3+1] - cy,
+          original_vertices[index*3+2] - cz
+        )
+      );
+
+      for (i = 1, count = intersect_indices.length; i < count; i++) {
+        index = original_indices[intersect_indices[i]];
+        distance = intersect_point.distanceTo(
+          new THREE.Vector3(
+            original_vertices[index*3] - cx,
+            original_vertices[index*3+1] - cy,
+            original_vertices[index*3+2] - cz
+          )
+        );
+
+        if (distance < min_distance) {
+          intersect_vertex_index = index;
           min_distance = distance;
         }
+
       }
 
       vertex_data = {

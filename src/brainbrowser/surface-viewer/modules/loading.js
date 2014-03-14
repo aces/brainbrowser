@@ -515,7 +515,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       material = new THREE.LineBasicMaterial({vertexColors: THREE.VertexColors});
       shape = new THREE.Line(geometry, material, THREE.LinePieces);
     } else {
-      material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0x0A0A0A, specular: 0xFFFFFF, shininess: 100, vertexColors: THREE.VertexColors});
+      material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0xFFFFFF, specular: 0x101010, shininess: 150, vertexColors: THREE.VertexColors});
       shape = new THREE.Mesh(geometry, material);
       shape.add(createWireframe(shape, wireframe));
     }

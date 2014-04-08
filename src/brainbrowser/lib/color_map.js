@@ -85,31 +85,32 @@
         var canvas;
         var context;
         var colors = color_map.colors;
+        var range = max - min;
         
         canvas = createCanvas(colors, 20, 40, flip);
         context = canvas.getContext("2d");
 
         context.fillStyle = "#FFA000";
 
-        //min mark
+        // Min mark
         context.fillRect(0.5, 20, 1, 10);
-        context.fillText(min.toPrecision(3), 0.5, 40 );
+        context.fillText(min.toPrecision(3), 0.5, 40);
 
-        //quater mark
-        context.fillRect(canvas.width/4.0, 20, 1, 10);
-        context.fillText(((min+max)/4.0).toPrecision(3), canvas.width/4.0, 40);
+        // Quarter mark
+        context.fillRect(canvas.width / 4, 20, 1, 10);
+        context.fillText((min + 0.25 * range).toPrecision(3), 0.25 * canvas.width, 40);
 
-        //middle mark
-        context.fillRect(canvas.width/2.0, 20, 1, 10);
-        context.fillText(((min+max)/2.0).toPrecision(3), canvas.width/2.0, 40);
+        // Middle mark
+        context.fillRect(canvas.width / 2, 20, 1, 10);
+        context.fillText((min + 0.5 * range).toPrecision(3), 0.5 * canvas.width, 40);
 
-        //3quater mark
-        context.fillRect(3*(canvas.width/4.0), 20, 1, 10);
-        context.fillText((3*((min+max)/4.0)).toPrecision(3), 3*(canvas.width/4.0), 40);
+        // Three-quarter mark
+        context.fillRect(3 * canvas.width / 4, 20, 1, 10);
+        context.fillText((min + 0.75 * range).toPrecision(3), 0.75 * canvas.width, 40);
 
 
-        //max mark
-        context.fillRect(canvas.width-0.5, 20, 1, 10);
+        // Max mark
+        context.fillRect(canvas.width - 0.5, 20, 1, 10);
         context.fillText(max.toPrecision(3), canvas.width - 20, 40);
 
         return canvas;

@@ -1,6 +1,6 @@
 {
   "name": "brainbrowser",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "license": "GNU Affero GPL 3.0",
   "devDependencies": {
     "grunt": "~0.4.1",

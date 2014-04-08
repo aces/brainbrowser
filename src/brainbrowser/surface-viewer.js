@@ -365,14 +365,15 @@
         SurfaceViewer.modules[m](viewer);
       });
 
-      if (BrainBrowser.utils.checkConfig("surface_viewer.worker_dir")) {
-        setupWorkers();
-      }
-
       //////////////////////////////////////////////////////  
-      // Pass SurfaceViewer instance to calling application. 
+      // Prepare workers and pass SurfaceViewer instance 
+      // to calling application. 
       ////////////////////////////////////////////////////// 
-      callback(viewer);
+      
+      setupWorkers(function() {
+        callback(viewer);
+      });
+      
     }
   };
 
@@ -385,11 +386,20 @@
 
   // Build worker URLs and attempt to inline 
   // them using Blob URLs if possible.
-  function setupWorkers() {
+  function setupWorkers(callback) {
+    
+    if (!BrainBrowser.utils.checkConfig("surface_viewer.worker_dir")) {
+      callback();
+      return;
+    }
+
     var workers = {
       deindex: "deindex.worker.js"
     };
     var config = BrainBrowser.config.surface_viewer;
+
+    var workers_loaded = 0;
+    var worker_names;
 
     if (BrainBrowser.utils.checkConfig("surface_viewer.model_types")) {
       Object.keys(config.model_types).forEach(function(type) {
@@ -403,9 +413,18 @@
       });
     }
 
-    Object.keys(workers).forEach(function(type) {
-      var url = config.worker_dir + "/" + workers[type];
-      if (window.URL && window.URL.createObjectURL) {
+    worker_names = Object.keys(workers);
+
+    if (worker_names.length === 0) {
+      callback();
+      return;
+    }
+
+    if (window.URL && window.URL.createObjectURL) {
+
+      worker_names.forEach(function(name) {
+        var url = config.worker_dir + "/" + workers[name];
+
         var request = new XMLHttpRequest();
         var status, blob;
 
@@ -417,18 +436,31 @@
             // Based on jQuery's "success" codes.
             if(status >= 200 && status < 300 || status === 304) {
               blob = new Blob([request.response], {type : "application/javascript"});
-              SurfaceViewer.worker_urls[type] = window.URL.createObjectURL(blob);
+              SurfaceViewer.worker_urls[name] = window.URL.createObjectURL(blob);
             } else {
-              SurfaceViewer.worker_urls[type] = url;
+              SurfaceViewer.worker_urls[name] = url;
+            }
+
+            if (++workers_loaded === worker_names.length) {
+              callback();
             }
           }
         };
 
         request.send();
-      } else {
-        SurfaceViewer.worker_urls[type] = url;
-      }
-    });
+
+      });
+
+    } else {
+
+      worker_names.forEach(function(name) {
+        SurfaceViewer.worker_urls[name] = config.worker_dir + "/" + workers[name];
+      });
+
+      callback();
+
+    }
+
   }
   
 })();

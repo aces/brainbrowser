@@ -26,14 +26,15 @@
 */
 
 /**
- * @doc function
- * @name BrainBrowser.static methods:createColorMap
- * @param {string}  data The color map data as a string.
- * 
- * @description
- * Factory function to produce color map object from a string of data. A given
- * color map is a set of colors to which intensity data can be mapped for display.
- */
+* @doc function
+* @name BrainBrowser.static methods:createColorMap
+* @param {string}  data The color map data as a string.
+* @returns {object} Color map object.
+* 
+* @description
+* Factory function to produce color map object from a string of data. A given
+* color map is a set of colors to which intensity data can be mapped for display.
+*/
 
 (function() {
   "use strict";

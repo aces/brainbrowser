@@ -602,9 +602,9 @@ $(function() {
     // selected.
     $("#obj_file_submit").click(function() {
       var format = $(this).closest(".file-select").find("option:selected").val();
+      showLoading();
       viewer.loadModelFromFile(document.getElementById("objfile"), {
         format: format,
-        before: showLoading,
         complete: hideLoading
       });
 

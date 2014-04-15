@@ -55,6 +55,7 @@ BrainBrowser.VolumeViewer.utils = (function() {
   * @param {number} new_width Width of scaled image.
   * @param {number} new_height Height of scaled image.
   * @returns {ImageData} The scaled image.
+  *
   * @description
   * Scale an image using nearest neighbor interpolation.
   */

@@ -202,10 +202,10 @@
         *
         * Currently, the following attributes are used by the Surface Viewer:
         *
-        * * clamp_colors: clamp intensity values outside the current range to maximum
+        * * **clamp\_colors** Clamp intensity values outside the current range to maximum
         *   and minimum values of the color map.
-        * * flip_colors: invert the intensity to color map relationship.
-        * * fix_color_range: maintain the current intensity range, even if new data is 
+        * * **flip\_colors** Invert the intensity to color map relationship.
+        * * **fix\_color\_range** Maintain the current intensity range, even if new data is 
         *   loaded.
         */
         getAttribute: function(name) {
@@ -225,10 +225,10 @@
         *
         * Currently, the following attributes are used by the Surface Viewer:
         *
-        * * clamp_colors: clamp intensity values outside the current range to maximum
+        * * **clamp\_colors** Clamp intensity values outside the current range to maximum
         *   and minimum values of the color map.
-        * * flip_colors: invert the intensity to color map relationship.
-        * * fix_color_range: maintain the current intensity range, even if new data is 
+        * * **flip\_colors** Invert the intensity to color map relationship.
+        * * **fix\_color\_range** Maintain the current intensity range, even if new data is 
         *   loaded.
         */
         setAttribute: function(name, value) {

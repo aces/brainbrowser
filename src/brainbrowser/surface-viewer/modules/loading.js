@@ -29,6 +29,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   "use strict";
   
   var SurfaceViewer = BrainBrowser.SurfaceViewer;
+  var loader = BrainBrowser.loader;
 
   ////////////////////////////////////
   // Interface
@@ -45,14 +46,13 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * * **render_depth** Force rendering at the given depth (can help with transparency).
   * * **parse** Parsing options to pass to the worker that will be used to parse the
   *   input file.
-  * * **before** A callback to be called before loading starts.
   * * **error** A callback function that will be called if there's a parsing error.
   *
   * @description
   * Load and parse a model from the specified URL.
   */
   viewer.loadModelFromURL = function(url, options) {
-    loadFromURL(url, options, loadModel);
+    loader.loadFromURL(url, loadModel, triggerError, options);
   };
 
   /**
@@ -66,13 +66,12 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * * **render_depth** Force rendering at the given depth (can help with transparency).
   * * **parse** Parsing options to pass to the worker that will be used to parse the
   *   input file.
-  * * **before** A callback to be called before loading starts.
   *
   * @description
   * Load and parse a model from a local file.
   */
   viewer.loadModelFromFile = function(file_input, options) {
-    loadFromFile(file_input, options, loadModel);
+    loader.loadFromFile(file_input, loadModel, triggerError, options);
   };
   
   /**
@@ -85,14 +84,13 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * * **max** Maximum value of the intensity.
   * * **shape** The name of a specific shape to which this map will be applied.
   * * **blend_index** Index of this map in the array of blended color data (0 or 1).
-  * * **before** A callback to be called before loading starts.
   * * **complete** Callback function to call when the color update is done.
   *
   * @description
   * Load a color map from the specified URL.
   */
   viewer.loadIntensityDataFromURL = function(url, options) {
-    loadFromURL(url, options, loadIntensityData);
+    loader.loadFromURL(url, loadIntensityData, triggerError, options);
   };
   
   
@@ -106,20 +104,13 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * * **max** Maximum value of the intensity.
   * * **shape** The name of a specific shape to which this map will be applied.
   * * **blend_index** Index of this map in the array of blended color data (0 or 1).
-  * * **before** A callback to be called before loading starts.
   * * **complete** Callback function to call when the color update is done.
   *
   * @description
   * Load a color map from a local file.
   */
   viewer.loadIntensityDataFromFile = function(file_input, options) {
-    var filename = file_input.files[0].name;
-
-    if(filename.match(/.*.mnc|.*.nii/)) {
-      evaluate_volume(filename, loadIntensityData);
-    } else {
-      loadFromFile(file_input, options, loadIntensityData);
-    }
+    loader.loadFromFile(file_input, loadIntensityData, triggerError, options);
   };
 
   /**
@@ -128,13 +119,11 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * @param {string} url URL of the model file to load.
   * @param {object} options Options for the color map loading, which include the following:
   *
-  * * **before** A callback to be called before loading starts.
-  *
   * @description
   * Load and parse color map data from the specified URL.
   */
   viewer.loadColorMapFromURL  = function(url, options) {
-    loadFromURL(url, options, loadColorMap);
+    loader.loadColorMapFromURL(url, loadColorMap, triggerError, options);
   };
 
   
@@ -145,86 +134,20 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * @param {object} file_input Object representing the local file to load.
   * @param {object} options Options for the color map loading, which include the following:
   *
-  * * **before** A callback to be called before loading starts.
-  *
   * @description
   * Load and parse color map data from a local file.
   */
   viewer.loadColorMapFromFile = function(file_input, options){
-    loadFromFile(file_input, options, loadColorMap);
+    loader.loadColorMapFromFile(file_input, loadColorMap, triggerError, options);
   };
   
   
   ////////////////////////////////////
   // PRIVATE FUNCTIONS
   ////////////////////////////////////
-  
-  // General function for loading data from a url.
-  // Callback should interpret data as necessary.
-  function loadFromURL(url, options, callback) {
-    options = options || {};
-    var before = options.before;
-    var request = new XMLHttpRequest();
-    var status;
-    var parts = url.split("/");
-    var filename = parts[parts.length-1];
 
-    if (before) {
-      before();
-      delete options.before;
-    }
-
-    request.open("GET", url);
-    request.onreadystatechange = function() {
-      if (request.readyState === 4){
-        status = request.status;
-
-        // Based on jQuery's "success" codes.
-        if(status >= 200 && status < 300 || status === 304) {
-          if (!cancelLoad(options)) {
-            callback(request.response, filename, options);
-          }
-        } else {
-          var error_message = "error loading URL: " + url + "\n" +
-            "HTTP Response: " + request.status + "\n" +
-            "HTTP Status: " + request.statusText + "\n" +
-            "Response was: \n" + request.response;
-          viewer.triggerEvent("error", error_message);
-          throw new Error(error_message);
-        }
-      }
-    };
-    request.send();
-
-  }
-  
-  // General function for loading data from a local file.
-  // Callback should interpret data as necessary.
-  function loadFromFile(file_input, options, callback) {
-    var files = file_input.files;
-    
-    if (files.length === 0) {
-      return;
-    }
-
-    options = options || {};
-    var before = options.before;
-    var reader = new FileReader();
-    var parts = file_input.value.split("\\");
-    var filename = parts[parts.length-1];
-    
-    reader.file = files[0];
-    
-    if (before) {
-      before();
-      delete options.before;
-    }
-    
-    reader.onloadend = function(e) {
-      callback(e.target.result, filename, options);
-    };
-    
-    reader.readAsText(files[0]);
+  function triggerError(message) {
+    viewer.triggerEvent("error", message)
   }
 
   function loadModel(data, filename, options) {
@@ -234,7 +157,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     
     // Parse model info based on the given file type.
     parseModel(data, type, parse_options, function(obj) {
-      if (!cancelLoad(options)) {
+      if (!BrainBrowser.loader.checkCancel(options.cancel)) {
         displayModel(obj, filename, options);
       }
     });
@@ -300,64 +223,15 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     });
   }
   
-  function loadColorMap(data) {
+  function loadColorMap(color_map) {
     var model_data = viewer.model_data;
-    viewer.color_map = BrainBrowser.createColorMap(data);
+    viewer.color_map = color_map;
     
-    viewer.triggerEvent("loadcolormap", viewer.color_map);
+    viewer.triggerEvent("loadcolormap", color_map);
 
     if (model_data && model_data.intensity_data) {
       viewer.updateColors(model_data.intensity_data);
     }
-  }
-
-  /*
-   * If the data file is a mnc or nii, we need to send it to the server and
-   * have the server process it with volume_object_evaluate which projects the
-   * data on the surface file.
-  */
-  function evaluate_volume(filename, onfinish) {
-    var xhr;
-    var form_data;
-    var text_data;
-    
-    
-    xhr = new XMLHttpRequest();
-    if(filename.match(/.*.mnc/)) {
-      xhr.open('POST', '/minc/volume_object_evaluate', false);
-    }else {
-      xhr.open('POST', '/nii/volume_object_evaluate', false);
-    }
-    form_data = new FormData(document.getElementById('datafile-form'));
-    xhr.send(form_data);
-    text_data = xhr.response;
-    onfinish(text_data);
-  }
-  
-  // Allows the loading of data to be cancelled after the request is sent
-  // or processing has begun (it must happen before the model begins to be
-  // loaded to the canvas though).
-  // Argument 'options' should either be a function that returns 'true' if the
-  // loading should be cancelled or a hash containting the test function in
-  // the property 'test' and optionally, a function to do cleanup after the
-  // cancellation in the property 'cleanup'.
-  function cancelLoad(options) {
-    options = options || {};
-    var cancel_opts = options.cancel || {};
-    if (BrainBrowser.utils.isFunction(cancel_opts)) {
-      cancel_opts = { test: cancel_opts };
-    }
-    
-    var cancelTest = cancel_opts.test;
-    var cancelCleanup = cancel_opts.cleanup;
-    var cancelled = false;
-    
-    if (cancelTest && cancelTest()) {
-      cancelled = true;
-      if (cancelCleanup) cancelCleanup();
-    }
-    
-    return cancelled;
   }
 
   ///////////////////////////////////////////

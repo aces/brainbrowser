@@ -64,18 +64,6 @@
     request.send();
 
   }
-
-  /**
-   * Make request to server for Minc file's data block.
-   * @param {String}    filename  url/filename of the minc file
-   * @param {Function}  callback  function to call when data is done loading
-   * @param {Object}    extraArgs with extraArgs to pass to callback when data is done loading
-   */
-  function getData(url, callback){
-    VolumeViewer.loader.loadArrayBuffer(url, function(data) {
-      callback(data);
-    });
-  }
   
   // Prototype for minc volume.
   var minc_volume_proto = {
@@ -145,14 +133,16 @@
     
     
     getHeaders(description.header_url, function(headers) {
-      getData(description.raw_data_url, function(arrayBuffer){
+      BrainBrowser.loader.loadFromURL(description.raw_data_url, function(arrayBuffer){
         data =  new Uint8Array(arrayBuffer);
         volume.data = VolumeViewer.mincData(description.filename, headers, data);
         volume.header = volume.data.header;
         volume.min = 0;
         volume.max = 255;
-        if (callback) callback(volume);
-      });
+        if (typeof callback === "function") {
+          callback(volume);
+        } 
+      }, null, {response_type: "arraybuffer"});
     });
   };
    

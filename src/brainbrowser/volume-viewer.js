@@ -344,26 +344,29 @@
       var num_descriptions = options.volumes.length;
 
       var config = BrainBrowser.config.volume_viewer;
-      var color_map = config.color_maps[0];
+      var color_map_description = config.color_maps[0];
 
-      VolumeViewer.loader.loadColorScaleFromURL(
-        color_map.url,
-        color_map.name,
-        function(scale) {
+      BrainBrowser.loader.loadColorMapFromURL(
+        color_map_description.url,
+        function(color_map) {
           var num_loaded = 0;
           var i;
+
+          color_map.name = color_map_description.name
           
-          scale.cursor_color = color_map.cursor_color;
-          viewer.default_color_map = scale;
-          VolumeViewer.color_maps[0] = scale;
+          color_map.cursor_color = color_map_description.cursor_color;
+          viewer.default_color_map = color_map;
+          VolumeViewer.color_maps[0] = color_map;
           
           function loadVolume(i) {
             openVolume(volume_descriptions[i], function(volume) {
               volume.position = {};
               volumes[i] = volume;
+              
               if (++num_loaded < num_descriptions) {
                 return;
               }
+              
               if (options.overlay && num_descriptions > 1) {
                 options.volumes.push(overlay_options);
 
@@ -389,13 +392,13 @@
         }
       );
 
-      config.color_maps.slice(1).forEach(function(cs, i) {
-        VolumeViewer.loader.loadColorScaleFromURL(
-          cs.url,
-          cs.name,
-          function(scale) {
-            scale.cursor_color = cs.cursor_color;
-            VolumeViewer.color_maps[i+1] = scale;
+      config.color_maps.slice(1).forEach(function(color_map_description, i) {
+        BrainBrowser.loader.loadColorMapFromURL(
+          color_map_description.url,
+          function(color_map) {
+            color_map.name = color_map_description.name;
+            color_map.cursor_color = color_map_description.cursor_color;
+            VolumeViewer.color_maps[i+1] = color_map;
           }
         );
       });

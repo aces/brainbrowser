@@ -173,7 +173,7 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
     }
         
     viewer.resetView();
-    viewer.triggerEvent("clearscreen");
+    BrainBrowser.events.triggerEvent("clearscreen");
   };
 
   /**

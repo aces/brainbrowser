@@ -35,23 +35,21 @@
     * @doc function
     * @name BrainBrowser.loader:loadFromURL
     * @param {string}  url URL to send the request to.
-    * @param {function} success Callback to call if the request is successful. The
+    * @param {function} callback Function to call if the request is successful. The
     *   callback will receive the following information as arguments:
     *
     * * The response from the server.
     * * The name of the file requested.
     * * Any options that were passed to loadFromURL
     *
-    * @param {function} error Callback if the request fails. Receives the error message
-    *   as argument.
     * @param {object} options The only option used by this method is **response_type**, 
     *   which can be used to indicate the response type desired for the AJAX request. Other
-    *   options are passed on to the **success** callback.
+    *   options are passed on to the **callback** function.
     * 
     * @description
     * Fetch data from a URL and pass the results to a callback.
     */
-    loadFromURL: function(url, success, error, options) {
+    loadFromURL: function(url, callback, options) {
       options = options || {};
       var request = new XMLHttpRequest();
       var response_type = options.response_type;
@@ -72,7 +70,7 @@
           // Based on jQuery's "success" codes.
           if(status >= 200 && status < 300 || status === 304) {
             if (!loader.checkCancel(options)) {
-              success(request.response, filename, options);
+              callback(request.response, filename, options);
             }
           } else {
             var error_message = "error loading URL: " + url + "\n" +
@@ -80,9 +78,7 @@
               "HTTP Status: " + request.statusText + "\n" +
               "Response was: \n" + request.response;
 
-            if (typeof error === "function") {
-              error(error_message);
-            }
+            BrainBrowser.events.triggerEvent("error", error_message);
 
             throw new Error(error_message);
           }
@@ -97,21 +93,19 @@
     * @doc function
     * @name BrainBrowser.loader:loadFromFile
     * @param {string}  file_input File input DOM object.
-    * @param {function} success Callback to call if the request is successful. The
+    * @param {function} callback Function to call if the request is successful. The
     *   callback will receive the following information as arguments:
     *
     * * The data from the file.
     * * The name of the file.
     * * Any options that were passed to loadFromFile
     *
-    * @param {function} error Callback if the request fails. Receives the error message
-    *   as argument.
-    * @param {object} options Any options are passed on to the **success** callback.
+    * @param {object} options Any options are passed on to the **callback** function.
     * 
     * @description
     * Fetch data from a local file and pass the results to a callback.
     */
-    loadFromFile: function(file_input, success, error, options) {
+    loadFromFile: function(file_input, callback, options) {
       var files = file_input.files;
       
       if (files.length === 0) {
@@ -126,15 +120,13 @@
       reader.file = files[0];
       
       reader.onloadend = function(event) {
-        success(event.target.result, filename, options);
+        callback(event.target.result, filename, options);
       };
 
       reader.onerror = function(event) {
         var error_message = "error reading file: " + filename;
 
-        if (typeof error === "function") {
-          error(error_message);
-        }
+        BrainBrowser.events.triggerEvent("error", error_message);
 
         throw new Error(error_message);
       };
@@ -146,24 +138,22 @@
     * @doc function
     * @name BrainBrowser.loader:loadColorMapFromURL
     * @param {string}  url URL to send the request to.
-    * @param {function} success Callback to call if the request is successful. The
+    * @param {function} callback Function to call if the request is successful. The
     *   callback will receive the following information as arguments:
     *
     * * The created color map object.
     * * The name of the file requested.
     * * Any options that were passed to loadColorMapFromURL
     *
-    * @param {function} error Callback if the request fails. Receives the error message
-    *   as argument.
-    * @param {object} options Any options are passed on to the **success** callback.
+    * @param {object} options Any options are passed on to the **callback** function.
     * 
     * @description
     * Wrapper for loadFromURL that parses the received data into a color map object.
     */
-    loadColorMapFromURL: function(url, success, error, options) {
+    loadColorMapFromURL: function(url, callback, options) {
       BrainBrowser.loader.loadFromURL(url, function(data, filename, options) {
-        success(BrainBrowser.createColorMap(data), filename, options);
-      }, error, options);
+        callback(BrainBrowser.createColorMap(data), filename, options);
+      }, options);
     },
 
 
@@ -171,24 +161,22 @@
     * @doc function
     * @name BrainBrowser.loader:loadColorMapFromFile
     * @param {string}  file_input File input DOM object.
-    * @param {function} success Callback to call if the request is successful. The
+    * @param {function} callback Function to call if the request is successful. The
     *   callback will receive the following information as arguments:
     *
     * * The created color map object.
     * * The name of the file.
     * * Any options that were passed to loadColorMapFromFile
     *
-    * @param {function} error Callback if the request fails. Receives the error message
-    *   as argument.
-    * @param {object} options Any options are passed on to the **success** callback.
+    * @param {object} options Any options are passed on to the **callback** function.
     * 
     * @description
     * Wrapper for loadFromFile that parses the data into a color map object.
     */
-    loadColorMapFromFile: function(file_input, success, error, options) {
+    loadColorMapFromFile: function(file_input, callback, options) {
       BrainBrowser.loader.loadFromFile(file_input, function(data, filename, options) {
-        success(BrainBrowser.createColorMap(data), filename, options);
-      }, error, options);
+        callback(BrainBrowser.createColorMap(data), filename, options);
+      }, options);
     },
  
 

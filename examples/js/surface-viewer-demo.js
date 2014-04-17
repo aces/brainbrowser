@@ -80,11 +80,11 @@ $(function() {
 
     // If something goes wrong while loading, we don't
     // want the loading icon to stay on the screen.
-    viewer.addEventListener("error", hideLoading);
+    BrainBrowser.events.addEventListener("error", hideLoading);
 
     // When a new color map is loaded display a spectrum representing
     // the color mapping.
-    viewer.addEventListener("loadcolormap", function(color_map) {
+    BrainBrowser.events.addEventListener("loadcolormap", function(color_map) {
       var canvas = color_map.createCanvasWithScale(0, 100);
       var spectrum_div = document.getElementById("color-bar");
       
@@ -98,7 +98,7 @@ $(function() {
 
     // When a new model is added to the viewer, create a transparancy slider
     // for each shape that makes up the model.
-    viewer.addEventListener("displaymodel", function(object) {
+    BrainBrowser.events.addEventListener("displaymodel", function(object) {
       var slider, slider_div;
       var children = object.children;
       var current_count = $("#shapes").children().length;
@@ -132,7 +132,7 @@ $(function() {
 
     // When the screen is cleared, remove all UI related
     // to the displayed models.
-    viewer.addEventListener("clearscreen", function() {
+    BrainBrowser.events.addEventListener("clearscreen", function() {
       $("#shapes").html("");
       $("#data-range-box").hide();
       $("#color-map-box").hide();
@@ -148,7 +148,7 @@ $(function() {
     });
 
     // When the intensity range changes, adjust the displayed spectrum.
-    viewer.addEventListener("rangechange", function(intensity_data) {
+    BrainBrowser.events.addEventListener("rangechange", function(intensity_data) {
       var canvas = viewer.color_map.createCanvasWithScale(intensity_data.range_min, intensity_data.range_max);
       canvas.id = "spectrum-canvas";
       $("#color-bar").html(canvas);
@@ -157,7 +157,7 @@ $(function() {
     // When new intensity data is loaded, create all UI related to
     // controlling the relationship between the instensity data and
     // the color mapping (range, flip colors, clamp colors, fix range).
-    viewer.addEventListener("loadintensitydata", function(intensity_data) {
+    BrainBrowser.events.addEventListener("loadintensitydata", function(intensity_data) {
       var container = $("#data-range");
       var headers = '<div id="data-range-multiple"><ul>';
       var controls = "";
@@ -261,14 +261,14 @@ $(function() {
           viewer.setIntensityRange(min, max);
         });
 
-        viewer.triggerEvent("rangechange", intensity_data);
+        BrainBrowser.events.triggerEvent("rangechange", intensity_data);
       });
 
     }); // end loadintensitydata listener
     
     // If two color maps are loaded to be blended, create
     // slider to control the blending ratios.
-    viewer.addEventListener("blendcolormaps", function(){
+    BrainBrowser.events.addEventListener("blendcolormaps", function(){
       var div = $("#blend-box");
       div.html("Blend Ratio: ");
       $("<span id=\"blend_value\">0.5</span>").appendTo(div);

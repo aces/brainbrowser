@@ -38,7 +38,7 @@
 *    BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
 *      
 *      //Add an event listener.
-*      viewer.addEventListener("displaymodel", function(model) {
+*      BrainBrowser.events.addEventListener("displaymodel", function(model) {
 *        console.log("We have a model!");
 *      });
 *
@@ -116,7 +116,7 @@
     *    BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
     *      
     *      //Add an event listener.
-    *      viewer.addEventListener("displaymodel", function(model) {
+    *      BrainBrowser.events.addEventListener("displaymodel", function(model) {
     *        console.log("We have a model!");
     *      });
     *
@@ -161,9 +161,9 @@
       * 
       * @description
       * The viewer object encapsulates all functionality of the Surface Viewer.
-      * Handlers can be attached to the viewer to listen for certain events 
-      * occuring over its lifetime. Currently, the following viewer events 
-      * can be listened for:
+      * Handlers can be attached to the **BrainBrowser.events** object to listen 
+      * for certain events occuring over the viewer's lifetime. Currently, the 
+      * following viewer events can be listened for:
       * 
       * * **displaymodel** A new model has been displayed on the viewer.
       * * **loadintensitydata** New intensity data has been loaded.
@@ -173,11 +173,11 @@
       * * **clearscreen** The viewer has been cleared of objects.
       * * **error** An error has occured.
       *
-      * To listen for an event, simply use the viewer's **addEventListener()** method with 
+      * To listen for an event, simply use the **BrainBrowser.events.addEventListener()** method with 
       * with the event name and a callback funtion:
       *
       * ```js
-      *    viewer.addEventListener("displaymodel", function() {
+      *    BrainBrowser.events.addEventListener("displaymodel", function() {
       *      console.log("Model displayed!");
       *    });
       *
@@ -241,104 +241,85 @@
       //////////////////////////////
 
       /**
-      * @doc function
-      * @name viewer.events:addEventListener
-      * @param {string} e The event name.
-      * @param {function} fn The event handler. 
-      *
-      * @description
-      * Add an event handler to handle event **e**.
-      */
-      /**
-      * @doc function
-      * @name viewer.events:triggerEvent
-      * @param {string} e The event name. 
-      *
-      * @description
-      * Trigger all handlers associated with event **e**.
-      * Any arguments after the first will be passed to the 
-      * event handler.
-      */
-      /**
       * @doc object
-      * @name viewer.events:displaymodel
+      * @name SurfaceViewer.events:displaymodel
       *
       * @description
       * Triggered when a model new model is displayed on the viewer. The displayed model, as a THREE.Object3D
       * object, will be passed to the event handler:
       *
       * ```js
-      *    viewer.addEventListener("displaymodel", function(model) {
+      *    BrainBrowser.events.addEventListener("displaymodel", function(model) {
       *      //...
       *    });
       * ```
       */
       /**
       * @doc object
-      * @name viewer.events:loadintensitydata
+      * @name SurfaceViewer.events:loadintensitydata
       *
       * @description
       * Triggered when a new intensity is loaded. The new intensity data
       * object will be passed to the event handler:
       *
       * ```js
-      *    viewer.addEventListener("loadintensitydata", function(intensity_data) {
+      *    BrainBrowser.events.addEventListener("loadintensitydata", function(intensity_data) {
       *      //...
       *    });
       * ```
       */
       /**
       * @doc object
-      * @name viewer.events:loadcolormap
+      * @name SurfaceViewer.events:loadcolormap
       *
       * @description
       * Triggered when a new color map has finished loading. The loaded color map
       * object will be passed to the event handler:
       *
       * ```js
-      *    viewer.addEventListener("loadcolormap", function(color_map) {
+      *    BrainBrowser.events.addEventListener("loadcolormap", function(color_map) {
       *      //...
       *    });
       * ```
       */
       /**
       * @doc object
-      * @name viewer.events:clearscreen
+      * @name SurfaceViewer.events:clearscreen
       *
       * @description
       * Triggered when the screen is cleared. The event handler receives
       * no arguments.
       *
       * ```js
-      *    viewer.addEventListener("clearscreen", function() {
+      *    BrainBrowser.events.addEventListener("clearscreen", function() {
       *      //...
       *    });
       * ```
       */
       /**
       * @doc object
-      * @name viewer.events:rangechange
+      * @name SurfaceViewer.events:rangechange
       *
       * @description
       * Triggered when the intensity range changes. The modified intensity data
       * object will be passed to the event handler:
       *
       * ```js
-      *    viewer.addEventListener("rangechange", function(intensity_data) {
+      *    BrainBrowser.events.addEventListener("rangechange", function(intensity_data) {
       *      //...
       *    });
       * ```
       */
       /**
       * @doc object
-      * @name viewer.events:blenddata
+      * @name SurfaceViewer.events:blenddata
       *
       * @description
       * Triggered when two sets of intensity data have been loaded and blended. 
       * The event handler receives no arguments.
       *
       * ```js
-      *    viewer.addEventListener("blenddata", function() {
+      *    BrainBrowser.events.addEventListener("blenddata", function() {
       *      //...
       *    });
       * ```
@@ -346,20 +327,19 @@
       */
       /**
       * @doc object
-      * @name viewer.events:error
+      * @name SurfaceViewer.events:error
       *
       * @description
       * Triggered when an error of some sort has occured. The error message, if any,
       * is passed as the callbacks sole argument.
       *
       * ```js
-      *    viewer.addEventListener("error", function(error_message) {
+      *    BrainBrowser.events.addEventListener("error", function(error_message) {
       *      //...
       *    });
       * ```
       *
       */
-      BrainBrowser.utils.eventModel(viewer);
 
       Object.keys(SurfaceViewer.modules).forEach(function(m) {
         SurfaceViewer.modules[m](viewer);

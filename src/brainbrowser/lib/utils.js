@@ -170,39 +170,6 @@
 
     /**
     * @doc function
-    * @name BrainBrowser.utils:eventModel
-    * @param {object} viewer Viewer to add the event model method to.
-    *
-    * @description
-    * Add event model methods, **addEventListener()** and
-    * **triggerEvent()** to the viewer passed as argument.
-    */
-    eventModel: function(viewer) {
-
-      var event_listeners = [];
-
-      viewer.addEventListener = function(e, fn) {
-        if (!event_listeners[e]) {
-          event_listeners[e] = [];
-        }
-        
-        event_listeners[e].push(fn);
-      };
-      
-      viewer.triggerEvent = function(e) {
-        var args = Array.prototype.slice.call(arguments, 1);
-        if (event_listeners[e]) {
-          event_listeners[e].forEach(function(fn) {
-            setTimeout(function() {
-              fn.apply(viewer, args);
-            }, 0);
-          });
-        }
-      };
-    },
-
-    /**
-    * @doc function
     * @name BrainBrowser.utils:min
     * @param {array|multiple} arguments List of items to processed. Can be given 
     * as an array or directly as arguments.

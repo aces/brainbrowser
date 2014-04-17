@@ -38,7 +38,7 @@ $(function() {
     var loading_div = $("#loading");
   
     // Set up UI hooks once the viewer has been loaded.
-    viewer.addEventListener("ready", function() {
+    BrainBrowser.events.addEventListener("ready", function() {
       $(".button").button();
 
       // Should cursors in all panels be synchronized?
@@ -390,7 +390,7 @@ $(function() {
 
     // Update coordinate display as slices are updated
     // by the user.
-    viewer.addEventListener("sliceupdate", function() {
+    BrainBrowser.events.addEventListener("sliceupdate", function() {
       viewer.volumes.forEach(function(volume, vol_id) {
         var world_coords = volume.getWorldCoords();
         var voxel_coords = volume.getVoxelCoords();

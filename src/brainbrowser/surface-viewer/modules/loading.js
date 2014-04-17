@@ -52,7 +52,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * Load and parse a model from the specified URL.
   */
   viewer.loadModelFromURL = function(url, options) {
-    loader.loadFromURL(url, loadModel, triggerError, options);
+    loader.loadFromURL(url, loadModel, options);
   };
 
   /**
@@ -71,7 +71,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * Load and parse a model from a local file.
   */
   viewer.loadModelFromFile = function(file_input, options) {
-    loader.loadFromFile(file_input, loadModel, triggerError, options);
+    loader.loadFromFile(file_input, loadModel, options);
   };
   
   /**
@@ -90,7 +90,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * Load a color map from the specified URL.
   */
   viewer.loadIntensityDataFromURL = function(url, options) {
-    loader.loadFromURL(url, loadIntensityData, triggerError, options);
+    loader.loadFromURL(url, loadIntensityData, options);
   };
   
   
@@ -110,7 +110,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * Load a color map from a local file.
   */
   viewer.loadIntensityDataFromFile = function(file_input, options) {
-    loader.loadFromFile(file_input, loadIntensityData, triggerError, options);
+    loader.loadFromFile(file_input, loadIntensityData, options);
   };
 
   /**
@@ -123,7 +123,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * Load and parse color map data from the specified URL.
   */
   viewer.loadColorMapFromURL  = function(url, options) {
-    loader.loadColorMapFromURL(url, loadColorMap, triggerError, options);
+    loader.loadColorMapFromURL(url, loadColorMap, options);
   };
 
   
@@ -138,17 +138,13 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * Load and parse color map data from a local file.
   */
   viewer.loadColorMapFromFile = function(file_input, options){
-    loader.loadColorMapFromFile(file_input, loadColorMap, triggerError, options);
+    loader.loadColorMapFromFile(file_input, loadColorMap, options);
   };
   
   
   ////////////////////////////////////
   // PRIVATE FUNCTIONS
   ////////////////////////////////////
-
-  function triggerError(message) {
-    viewer.triggerEvent("error", message)
-  }
 
   function loadModel(data, filename, options) {
     options = options || {};
@@ -210,10 +206,10 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
         viewer.blend(0.5);
 
-        viewer.triggerEvent("loadintensitydata", viewer.blendData);
-        viewer.triggerEvent("blendcolormaps", data.range_min, data.range_max, data);
+        BrainBrowser.events.triggerEvent("loadintensitydata", viewer.blendData);
+        BrainBrowser.events.triggerEvent("blendcolormaps", data.range_min, data.range_max, data);
       } else {
-        viewer.triggerEvent("loadintensitydata", data);
+        BrainBrowser.events.triggerEvent("loadintensitydata", data);
         viewer.updateColors(data, {
           complete: options.complete
         });
@@ -227,7 +223,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var model_data = viewer.model_data;
     viewer.color_map = color_map;
     
-    viewer.triggerEvent("loadcolormap", color_map);
+    BrainBrowser.events.triggerEvent("loadcolormap", color_map);
 
     if (model_data && model_data.intensity_data) {
       viewer.updateColors(model_data.intensity_data);
@@ -254,7 +250,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       error_message = "error in SurfaceViewer configuration.\n" +
         "Model worker URL for " + type + " not defined.";
 
-      viewer.triggerEvent("error", error_message);
+      BrainBrowser.events.triggerEvent("error", error_message);
       throw new Error(error_message);
     }
     
@@ -269,7 +265,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
           result.error_message + "\n" +
           "File type: " + type + "\n" +
           "Options: " + JSON.stringify(options);
-        viewer.triggerEvent("error", error_message);
+        BrainBrowser.events.triggerEvent("error", error_message);
         throw new Error(error_message);
       } else if (callback) {
         deindex_worker = new Worker(SurfaceViewer.worker_urls.deindex);
@@ -304,7 +300,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
     addObject(model_data, filename, render_depth);
 
-    viewer.triggerEvent("displaymodel", viewer.model);
+    BrainBrowser.events.triggerEvent("displaymodel", viewer.model);
 
     if (complete) complete();
   }

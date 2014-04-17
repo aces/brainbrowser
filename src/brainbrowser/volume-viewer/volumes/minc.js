@@ -142,7 +142,7 @@
         if (typeof callback === "function") {
           callback(volume);
         } 
-      }, null, {response_type: "arraybuffer"});
+      }, { response_type: "arraybuffer" });
     });
   };
    

@@ -38,7 +38,7 @@
 *  BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
 *
 *    // Add an event listener.
-*    viewer.addEventListener("ready", function() {
+*    BrainBrowser.events.addEventListener("ready", function() {
 *      console.log("Viewer is ready!");
 *    });
 *
@@ -134,7 +134,7 @@
   *  BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
   *
   *    // Add an event listener.
-  *    viewer.addEventListener("ready", function() {
+  *    BrainBrowser.events.addEventListener("ready", function() {
   *      console.log("Viewer is ready!");
   *    });
   *
@@ -190,8 +190,9 @@
     *
     * @description
     * The viewer object encapsulates all functionality of the Surface Viewer.
-    * Handlers can be attached to the viewer to listen for certain events
-    * occuring over its lifetime. Currently, the following viewer events can be listened for:
+    * Handlers can be attached to the  **BrainBrowser.events** object to listen 
+    * for certain events occuring over the viewer's lifetime. Currently, the 
+    * following viewer events can be listened for:
     *
     * * **ready** Viewer is completely loaded and ready to be manipulated.
     * * **sliceupdate** A new slice has been rendered to the viewer.
@@ -200,7 +201,7 @@
     * with the event name and a callback funtion:
     *
     * ```js
-    *    viewer.addEventListener("sliceupdate", function() {
+    *    BrainBrowser.events.addEventListener("sliceupdate", function() {
     *      console.log("Slice updated!");
     *    });
     *
@@ -215,53 +216,33 @@
     };
 
     /**
-    * @doc function
-    * @name viewer.events:addEventListener
-    * @param {string} e The event name.
-    * @param {function} fn The event handler.
-    *
-    * @description
-    * Add an event handler to handle event **e**.
-    */
-    /**
-    * @doc function
-    * @name viewer.events:triggerEvent
-    * @param {string} e The event name.
-    *
-    * @description
-    * Trigger all handlers associated with event **e**.
-    * Any arguments after the first will be passed to the
-    * event handler.
-    */
-    /**
     * @doc object
-    * @name viewer.events:ready
+    * @name VolumeViewer.events:ready
     *
     * @description
     * Triggered when the viewer is fully loaded and ready for interaction.
     * The event handler receives no arguments.
     *
     * ```js
-    *    viewer.addEventListener("ready", function() {
+    *    BrainBrowser.events.addEventListener("ready", function() {
     *      //...
     *    });
     * ```
     */
     /**
     * @doc object
-    * @name viewer.events:sliceupdate
+    * @name VolumeViewer.events:sliceupdate
     *
     * @description
     * Triggered when the slice currently being displayed is updated.
     * The event handler receives no arguments.
     *
     * ```js
-    *    viewer.addEventListener("sliceupdate", function() {
+    *    BrainBrowser.events.addEventListener("sliceupdate", function() {
     *      //...
     *    });
     * ```
     */
-    BrainBrowser.utils.eventModel(viewer);
     
     Object.keys(VolumeViewer.modules).forEach(function(m) {
       VolumeViewer.modules[m](viewer);
@@ -490,7 +471,7 @@
         slice.max = volume.max;
         updateSlice(volume_num, axis_name, slice);
             
-        viewer.triggerEvent("sliceupdate");
+        BrainBrowser.events.triggerEvent("sliceupdate");
       }, 0);
     };
 
@@ -606,7 +587,7 @@
 
       if (viewer.globalUIControls) {
         if (viewer.globalUIControls.defer_until_page_load) {
-          viewer.addEventListener("ready", function() {
+          BrainBrowser.events.addEventListener("ready", function() {
             viewer.globalUIControls(viewer_element);
           });
         } else {
@@ -646,8 +627,8 @@
 
       });
       
-      viewer.triggerEvent("ready");
-      viewer.triggerEvent("sliceupdate");
+      BrainBrowser.events.triggerEvent("ready");
+      BrainBrowser.events.triggerEvent("sliceupdate");
       
       // Start animating
       (function animate() {
@@ -799,7 +780,7 @@
         var controls  = document.createElement("div");
         controls.className = "volume-viewer-controls volume-controls";
         if (viewer.volumeUIControls.defer_until_page_load) {
-          viewer.addEventListener("ready", function() {
+          BrainBrowser.events.addEventListener("ready", function() {
             div.appendChild(controls);
             viewer.volumeUIControls(controls, volume, vol_id);
           });

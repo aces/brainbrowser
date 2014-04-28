@@ -28,33 +28,35 @@
 BrainBrowser.VolumeViewer.mincData = (function() {
   "use strict";
 
-  /*
-   * some utilities
-   */
+  // Some utilities
   function rotateUint16Array90Left(array, width, height){
     var new_array = new Uint16Array(width*height);
+    var i, j;
     
-    for(var i = 0; i < width; i++){
-      for(var j = 0; j < height; j++)  {
+    for (i = 0; i < width; i++) {
+      for (j = 0; j < height; j++) {
         new_array[i*height+j] = array[j*width+(width-i)];
   
       }
     }
+
     return new_array;
   }
   
   
   function rotateUint16Array90Right(array, width, height){
     var new_array = new Uint16Array(width*height);
-    
-    for(var i = 0; i < width; i++){
-      for(var j = 0; j < height; j++)  {
+    var i, j;
+
+    for (i = 0; i < width; i++) {
+      for (j = 0; j < height; j++) {
         new_array[i*height+j] = array[(height-j)*width+i];
       }
     }
     return new_array;
   }
 
+  // Minc data prototype
   var minc_data_proto = {
     parseHeader: function(data) {
       this.header = data;

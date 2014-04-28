@@ -105,7 +105,7 @@
         result.split = true;
         splitHemispheres(result, stack);
       }
-    } else if ( result.type === "line") {
+    } else if (result.type === "line") {
       indices = result.indices;
       end_indices = result.end_indices;
       nitems = result.nitems;

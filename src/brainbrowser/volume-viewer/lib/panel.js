@@ -43,7 +43,7 @@
 (function() {
   "use strict";
     
-  var display_proto = {
+  var panel_proto = {
 
     /**
     * @doc function
@@ -153,7 +153,17 @@
     }
   };
 
-  BrainBrowser.VolumeViewer.panel = function(options) {
+  /**
+  * @doc function
+  * @name Volume Viewer.static methods:createPanel
+  * @param {object} options Options used to create the panel.
+  * @returns {object} Panel object used to control display of a slice.
+  * 
+  * @description
+  * Factory function to produce the panel object used to control the 
+  * display of a slice.
+  */
+  BrainBrowser.VolumeViewer.createPanel = function(options) {
     options = options || {};
 
     var defaults = {
@@ -172,7 +182,7 @@
       zoom: 1
     };
 
-    var panel = Object.create(display_proto);
+    var panel = Object.create(panel_proto);
     
     Object.keys(defaults).forEach(function(k) {
       panel[k] = defaults[k];

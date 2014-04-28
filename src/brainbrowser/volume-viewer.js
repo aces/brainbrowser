@@ -171,8 +171,7 @@
   *  ```
   */
   VolumeViewer.start = function(element_id, callback) {
-    var volumes = [];
-    var viewer_element;
+    var viewer_element = document.getElementById(element_id);
     var axis_to_number = {
       xspace: 0,
       yspace: 1,
@@ -208,10 +207,11 @@
     * ```
     */
     var viewer = {
-      volumes: volumes,
-      displays: [],
+      volumes: [],
       synced: false,
       default_zoom_level: 1,
+      panel_width: 256,
+      panel_height: 256
     };
 
     /**
@@ -248,8 +248,6 @@
     });
 
     console.log("BrainBrowser Volume Viewer v" + BrainBrowser.version);
-
-    
 
     /**
     * @doc function
@@ -317,14 +315,14 @@
 
       options = options || {};
       var overlay_options = options.overlay && typeof options.overlay === "object" ? options.overlay : {};
-      
-      viewer_element = document.getElementById(element_id);
-      
+            
       var volume_descriptions = options.volumes;
       var num_descriptions = options.volumes.length;
 
       var config = BrainBrowser.config.volume_viewer;
       var color_map_description = config.color_maps[0];
+
+      viewer.setPanelDimensions(options.panel_width, options.panel_height);
 
       BrainBrowser.loader.loadColorMapFromURL(
         color_map_description.url,
@@ -341,27 +339,27 @@
           function loadVolume(i) {
             openVolume(volume_descriptions[i], function(volume) {
               volume.position = {};
-              volumes[i] = volume;
+              volume.description = volume_descriptions[i];
+              viewer.volumes[i] = volume;
               
               if (++num_loaded < num_descriptions) {
                 return;
               }
               
               if (options.overlay && num_descriptions > 1) {
-                options.volumes.push(overlay_options);
-
                 openVolume({
                     volumes: viewer.volumes,
                     type: "overlay",
                   },
                   function(volume) {
                     volume.position = {};
-                    volumes.push(volume);
-                    startViewer(options);
+                    volume.description = overlay_options;
+                    viewer.volumes.push(volume);
+                    startViewer();
                   }
                 );
               } else {
-                startViewer(options);
+                startViewer();
               }
             });
           }
@@ -400,11 +398,10 @@
       var half_frame_width = frame_width/2;
       var color_map;
 
-      volumes.forEach(function(volume, i) {
+      viewer.volumes.forEach(function(volume) {
         volume.display.forEach(function(panel, panel_num) {
           canvas = panel.canvas;
           context = panel.context;
-          volume = volumes[i];
           context.globalAlpha = 255;
           context.clearRect(0, 0, canvas.width, canvas.height);
           //draw slices in order
@@ -542,6 +539,11 @@
       
     };
 
+    viewer.setPanelDimensions = function(width, height) {
+      viewer.panel_width = width > 0 ? width : viewer.panel_width;
+      viewer.panel_height = height > 0 ? height : viewer.panel_height;
+    };
+
     ////////////////////////////
     // Pass viewer to callback
     ////////////////////////////
@@ -584,9 +586,7 @@
 
     
     // Initialize the viewer with first slices
-    function startViewer(options) {
-      options = options || {};
-
+    function startViewer() {
       if (viewer.globalUIControls) {
         if (viewer.globalUIControls.defer_until_page_load) {
           BrainBrowser.events.addEventListener("ready", function() {
@@ -598,9 +598,9 @@
       }
       
       setupInterface();
-      volumes.forEach(function(volume, vol_id) {
+      viewer.volumes.forEach(function(volume, vol_id) {
 
-        volume.display = createVolumeDisplay(viewer_element, vol_id, options);
+        volume.display = createVolumeDisplay(viewer_element, vol_id);
         volume.cached_slices = [];
 
         ["xspace", "yspace", "zspace"].forEach(function(axis, slice_num) {
@@ -689,17 +689,14 @@
     }
 
     // Create canvases and add mouse interface.
-    function createVolumeDisplay(viewer_element, vol_id, options) {
-      options = options || {};
-
+    function createVolumeDisplay(viewer_element, vol_id) {
       var div = document.createElement("div");
       var volume = viewer.volumes[vol_id];
       
       div.classList.add("volume-container");
       viewer_element.appendChild(div);
       
-      var volume_descriptions = options.volumes || [];
-      var volume_description = volume_descriptions[vol_id] || {};
+      var volume_description = viewer.volumes[vol_id].description;
       
       var display = [];
       var template_options = volume_description.template || {};
@@ -730,8 +727,8 @@
       ["xspace", "yspace", "zspace"].forEach(function(axis_name) {
         var canvas = document.createElement("canvas");
         var context = canvas.getContext('2d');
-        canvas.width = options.panel_width || 256;
-        canvas.height = options.panel_height || 256;
+        canvas.width = viewer.panel_width;
+        canvas.height = viewer.panel_height;
         canvas.setAttribute("data-volume-id", vol_id);
         canvas.setAttribute("data-axis-name", axis_name);
         canvas.classList.add("slice-display");
@@ -739,7 +736,7 @@
         div.appendChild(canvas);
         context.clearRect(0, 0, canvas.width, canvas.height);
         display.push(
-          VolumeViewer.panel({
+          VolumeViewer.createPanel({
             volume: volume,
             axis: axis_name,
             canvas: canvas,

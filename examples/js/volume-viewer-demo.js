@@ -31,73 +31,92 @@
 $(function() {
   "use strict";
   
+   $(".button").button();
+
   /////////////////////////////////////
   // Start running the Volume Viewer
   /////////////////////////////////////
   BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
-    var loading_div = $("#loading");
-  
-    // Set up UI hooks once the viewer has been loaded.
-    BrainBrowser.events.addEventListener("ready", function() {
-      $(".button").button();
+    var loading_div = $("#loading"); 
 
-      // Should cursors in all panels be synchronized?
-      $("#sync-volumes").change(function() {
-        var synced = $(this).is(":checked");
-        if (synced) {
-          viewer.resetDisplays();
-          viewer.redrawVolumes();
-        }
-        
-        viewer.synced = synced;
-      });
+    ///////////////////////////
+    // Set up global UI hooks.
+    ///////////////////////////
 
-      // This will create an image of all the display panels
-      // currently being shown in the viewer.
-      $("#capture-slices").click(function() {
-        var width = viewer.displays[0][0].canvas.width;
-        var height = viewer.displays[0][0].canvas.height;
-        var active_canvas = viewer.active_canvas;
-        
-        // Create a canvas on which we'll draw the images.
-        var canvas = document.createElement("canvas");
-        var context = canvas.getContext("2d");
-        var img = new Image();
-        
-        canvas.width = width * viewer.displays.length;
-        canvas.height = height * 3;
-        context.fillStyle = "#000000";
-        context.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // The active canvas is highlighted by the viewer,
-        // so we set it to null and redraw the highlighting
-        // isn't shown in the image.
-        viewer.active_canvas = null;
-        viewer.draw();
-        viewer.displays.forEach(function(display, x) {
-          display.forEach(function(panel, y) {
-            context.drawImage(panel.canvas, x * width, y * height);
-          });
+    // Should cursors in all panels be synchronized?
+    $("#sync-volumes").change(function() {
+      var synced = $(this).is(":checked");
+      if (synced) {
+        viewer.resetDisplays();
+        viewer.redrawVolumes();
+      }
+      
+      viewer.synced = synced;
+    });
+
+    // This will create an image of all the display panels
+    // currently being shown in the viewer.
+    $("#capture-slices").click(function() {
+      var width = viewer.panel_width;
+      var height = viewer.panel_height;
+      var active_canvas = viewer.active_canvas;
+      
+      // Create a canvas on which we'll draw the images.
+      var canvas = document.createElement("canvas");
+      var context = canvas.getContext("2d");
+      var img = new Image();
+      
+      canvas.width = width * viewer.volumes.length;
+      canvas.height = height * 3;
+      context.fillStyle = "#000000";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // The active canvas is highlighted by the viewer,
+      // so we set it to null and redraw the highlighting
+      // isn't shown in the image.
+      viewer.active_canvas = null;
+      viewer.draw();
+      viewer.volumes.forEach(function(volume, x) {
+        volume.display.forEach(function(panel, y) {
+          context.drawImage(panel.canvas, x * width, y * height);
         });
-
-        // Restore the active canvas.
-        viewer.active_canvas = active_canvas;
-        viewer.draw();
-        
-        // Show the created image in a dialog box.
-        img.onload = function() {
-          $("<div></div>").append(img).dialog({
-            title: "Slices",
-            height: img.height,
-            width: img.width
-          });
-        };
-
-        img.src = canvas.toDataURL();
       });
+
+      // Restore the active canvas.
+      viewer.active_canvas = active_canvas;
+      viewer.draw();
+      
+      // Show the created image in a dialog box.
+      img.onload = function() {
+        $("<div></div>").append(img).dialog({
+          title: "Slices",
+          height: img.height,
+          width: img.width
+        });
+      };
+
+      img.src = canvas.toDataURL();
+    });
+
+
+    //////////////////////////////////////////
+    // Some effects for when rendering begins.
+    //////////////////////////////////////////
+    BrainBrowser.events.addEventListener("rendering", function() {
+      loading_div.hide();
+      $("#brainbrowser-wrapper").slideDown({duration: 600});
+    });
+
+    //////////////////////////////////
+    // Per volume UI hooks go in here.
+    //////////////////////////////////
+    BrainBrowser.events.addEventListener("volumeuiloaded", function(container) {
+      container = $(container);
+
+      container.find(".button").button();
 
       // The world coordinate input fields.
-      $(".world-coords").change(function() {
+      container.find(".world-coords").change(function() {
         var div = $(this);
 
         // Get the volume ID of the volume being displayed.
@@ -126,14 +145,14 @@ $(function() {
       });
 
       // Change the color map currently being used to display data.
-      $(".color-map-select").change(function(event) {
+      container.find(".color-map-select").change(function(event) {
         var volume = viewer.volumes[$(this).data("volume-id")];
         volume.color_map = BrainBrowser.VolumeViewer.color_maps[+$(event.target).val()];
         viewer.redrawVolumes();
       });
 
       // Change the range of intensities that will be displayed.
-      $(".threshold-div").each(function() {
+      container.find(".threshold-div").each(function() {
         var div = $(this);
         var vol_id = div.data("volume-id");
         var volume = viewer.volumes[vol_id];
@@ -207,7 +226,7 @@ $(function() {
 
       });
 
-      $(".time-div").each(function() {
+      container.find(".time-div").each(function() {
         var div = $(this);
         var vol_id = div.data("volume-id");
         var volume = viewer.volumes[vol_id];
@@ -277,7 +296,7 @@ $(function() {
 
       // Create an image of all slices in a certain
       // orientation.
-      $(".slice-series-div").each(function() {
+      container.find(".slice-series-div").each(function() {
         var div = $(this);
         var vol_id = div.data("volume-id");
         var volume = viewer.volumes[vol_id];
@@ -335,7 +354,7 @@ $(function() {
       });
 
       // Blend controls for a multivolume overlay.
-      $(".blend-div").each(function() {
+      container.find(".blend-div").each(function() {
         var div = $(this);
         var slider = div.find(".slider");
         var blend_input = div.find("#blend-val");
@@ -382,14 +401,11 @@ $(function() {
           viewer.redrawVolumes();
         });
       });
-
-
-      loading_div.hide();
-      $("#brainbrowser-wrapper").slideDown({duration: 600});
     });
 
-    // Update coordinate display as slices are updated
-    // by the user.
+     /////////////////////////////////////////////////////
+    // UI updates to be performed after each slice update.
+    //////////////////////////////////////////////////////
     BrainBrowser.events.addEventListener("sliceupdate", function() {
       viewer.volumes.forEach(function(volume, vol_id) {
         var world_coords = volume.getWorldCoords();
@@ -406,7 +422,9 @@ $(function() {
 
     loading_div.show();
 
+    /////////////////////
     // Load the volumes.
+    /////////////////////
     viewer.loadVolumes({
       volumes: [
         {

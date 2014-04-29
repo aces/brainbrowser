@@ -337,29 +337,19 @@
           VolumeViewer.color_maps[0] = color_map;
           
           function loadVolume(i) {
-            openVolume(volume_descriptions[i], function(volume) {
-              volume.position = {};
-              volume.description = volume_descriptions[i];
-              viewer.volumes[i] = volume;
-              
+            setVolume(i, volume_descriptions[i], function(volume) {
               if (++num_loaded < num_descriptions) {
                 return;
               }
               
               if (options.overlay && num_descriptions > 1) {
-                openVolume({
-                    volumes: viewer.volumes,
-                    type: "overlay",
-                  },
-                  function(volume) {
-                    volume.position = {};
-                    volume.description = overlay_options;
-                    viewer.volumes.push(volume);
-                    startViewer();
-                  }
-                );
+                viewer.createOverlay(overlay_options, function() {
+                  viewer.render();
+                  BrainBrowser.events.triggerEvent("volumesloaded");
+                });
               } else {
-                startViewer();
+                viewer.render();
+                BrainBrowser.events.triggerEvent("volumesloaded");
               }
             });
           }
@@ -384,6 +374,61 @@
 
     /**
     * @doc function
+    * @name viewer.volumes:loadVolume
+    * @param {object} volume_description Description of the volume to be loaded. 
+    *   Must contain at least a **type** property that maps to the volume loaders in
+    *   **BrainBrowser.volume_loaders.** May contain a **template** property that 
+    *   indicates the template to be used for the volume's UI. Other properties will be
+    *   specific to a particular volume type.  
+    * @param {function} callback Callback to which the new volume object will be passed
+    *   after loading.
+    *
+    * @description
+    * Load a new volume.
+    */
+    viewer.loadVolume = function(volume_description, callback) {     
+      setVolume(viewer.volumes.length, volume_description, callback);
+    };
+
+    /**
+    * @doc function
+    * @name viewer.volumes:clearVolumes
+    *
+    * @description
+    * Clear all loaded volumes.
+    */
+    viewer.clearVolumes = function() {
+      viewer.volumes = [];
+      viewer.active_canvas = null;
+      viewer.active_cursor = null;
+      viewer_element.innerHTML = "";
+    };
+
+    /**
+    * @doc function
+    * @name viewer.volumes:createOverlay
+    * @param {object} volume_description Will contain at most a **template** 
+    *   property indicating the template to use for the UI.
+    * @param {function} callback Callback to which the new overlay volume object 
+    *   will be passed after loading.
+    *
+    * @description
+    * Create an overlay of the currently loaded volumes.
+    */
+    viewer.createOverlay = function(description, callback) {
+      description = description || {};
+
+      viewer.loadVolume({
+          volumes: viewer.volumes,
+          type: "overlay",
+          template: description.template
+        },
+        callback
+      );
+    };
+
+    /**
+    * @doc function
     * @name viewer.viewer:draw
     *
     * @description
@@ -395,7 +440,7 @@
       var context;
       var canvas;
       var frame_width = 4;
-      var half_frame_width = frame_width/2;
+      var half_frame_width = frame_width / 2;
       var color_map;
 
       viewer.volumes.forEach(function(volume) {
@@ -425,6 +470,23 @@
           }
         });
       });
+    };
+
+    /**
+    * @doc function
+    * @name viewer.viewer:rendering
+    *
+    * @description
+    * Start render loop around **viewer.draw()**.
+    */
+    viewer.render = function() {
+      BrainBrowser.events.triggerEvent("rendering");
+
+      (function render() {
+        window.requestAnimationFrame(render);
+  
+        viewer.draw();
+      })();
     };
 
     /**
@@ -544,6 +606,9 @@
       viewer.panel_height = height > 0 ? height : viewer.panel_height;
     };
 
+    // Add keyboard controls
+    keyboardControls();
+
     ////////////////////////////
     // Pass viewer to callback
     ////////////////////////////
@@ -562,6 +627,36 @@
       } else {
         throw new Error("Unsuported Volume Type");
       }
+    }
+
+    // Place a volume at a certain position in the volumes array.
+    // This function should be used with care as empty places in the volumes
+    // array will cause problems with rendering.
+    function setVolume(vol_id, volume_description, callback) {     
+      openVolume(volume_description, function(volume) {
+        volume.position = {};
+        volume.display = createVolumeDisplay(viewer_element, vol_id, volume_description);
+        volume.cached_slices = [];
+        viewer.volumes[vol_id] = volume;
+
+        ["xspace", "yspace", "zspace"].forEach(function(axis, slice_num) {
+          var position = volume.position[axis] = Math.floor(volume.header[axis].space_length / 2);
+          var slice = volume.slice(axis, position);
+
+          slice.vol_id = vol_id;
+          slice.axis_number = slice_num;
+          slice.min = volume.min;
+          slice.max = volume.max;
+
+          updateSlice(vol_id, axis, slice);
+        });
+
+        BrainBrowser.events.triggerEvent("sliceupdate");
+
+        if (BrainBrowser.utils.isFunction(callback)) {
+          callback(volume);
+        } 
+      });
     }
 
     // Update the slice currently being displayed
@@ -584,52 +679,9 @@
       panel.updateCursor();
     }
 
-    
-    // Initialize the viewer with first slices
-    function startViewer() {
-      if (viewer.globalUIControls) {
-        if (viewer.globalUIControls.defer_until_page_load) {
-          BrainBrowser.events.addEventListener("ready", function() {
-            viewer.globalUIControls(viewer_element);
-          });
-        } else {
-          viewer.globalUIControls(viewer_element);
-        }
-      }
-      
-      setupInterface();
-      viewer.volumes.forEach(function(volume, vol_id) {
-
-        volume.display = createVolumeDisplay(viewer_element, vol_id);
-        volume.cached_slices = [];
-
-        ["xspace", "yspace", "zspace"].forEach(function(axis, slice_num) {
-          var position = volume.position[axis] = Math.floor(volume.header[axis].space_length / 2);
-          var slice = volume.slice(axis, position);
-
-          slice.vol_id = vol_id;
-          slice.axis_number = slice_num;
-          slice.min = volume.min;
-          slice.max = volume.max;
-
-          updateSlice(vol_id, axis, slice);
-        });
-
-      });
-      
-      BrainBrowser.events.triggerEvent("ready");
-      BrainBrowser.events.triggerEvent("sliceupdate");
-      
-      // Start animating
-      (function animate() {
-        window.requestAnimationFrame(animate);
-  
-        viewer.draw();
-      })();
-    }
 
     // Set up global keyboard interactions.
-    function setupInterface() {
+    function keyboardControls() {
       document.addEventListener("keydown", function(e) {
         if (!viewer.active_canvas) return;
         var canvas = viewer.active_canvas;
@@ -689,18 +741,15 @@
     }
 
     // Create canvases and add mouse interface.
-    function createVolumeDisplay(viewer_element, vol_id) {
-      var div = document.createElement("div");
+    function createVolumeDisplay(viewer_element, vol_id, volume_description) {
+      var container = document.createElement("div");
       var volume = viewer.volumes[vol_id];
-      
-      div.classList.add("volume-container");
-      viewer_element.appendChild(div);
-      
-      var volume_description = viewer.volumes[vol_id].description;
-      
+            
       var display = [];
       var template_options = volume_description.template || {};
       var template;
+
+      container.classList.add("volume-container");
       
       function captureMouse(canvas) {
         var mouse = {x: 0, y: 0};
@@ -733,7 +782,7 @@
         canvas.setAttribute("data-axis-name", axis_name);
         canvas.classList.add("slice-display");
         canvas.style.backgroundColor = "#000000";
-        div.appendChild(canvas);
+        container.appendChild(canvas);
         context.clearRect(0, 0, canvas.width, canvas.height);
         display.push(
           VolumeViewer.createPanel({
@@ -756,7 +805,7 @@
       });
 
       if (template_options.element_id && template_options.viewer_insert_class) {
-        template = getTemplate(div, vol_id, template_options.element_id, template_options.viewer_insert_class);
+        template = getTemplate(container, vol_id, template_options.element_id, template_options.viewer_insert_class);
 
         if (typeof template_options.complete === "function") {
           template_options.complete(volume, template);
@@ -764,7 +813,7 @@
 
         Array.prototype.forEach.call(template, function(node) {
           if (node.nodeType === 1) {
-            div.appendChild(node);
+            container.appendChild(node);
           }
         });
       }
@@ -774,12 +823,12 @@
         controls.className = "volume-viewer-controls volume-controls";
         if (viewer.volumeUIControls.defer_until_page_load) {
           BrainBrowser.events.addEventListener("ready", function() {
-            div.appendChild(controls);
+            container.appendChild(controls);
             viewer.volumeUIControls(controls, volume, vol_id);
           });
         } else {
           viewer.volumeUIControls(controls, volume, vol_id);
-          div.appendChild(controls);
+          container.appendChild(controls);
         }
       }
     
@@ -831,17 +880,17 @@
             current_target = null;
           }
           
-          canvas.addEventListener("mousedown", function startDrag(e) {
-            current_target = e.target;
+          canvas.addEventListener("mousedown", function startDrag(event) {
+            current_target = event.target;
             var cursor = {
               x: mouse.x,
               y: mouse.y
             };
 
-            e.preventDefault();
-            e.stopPropagation();
+            event.preventDefault();
+            event.stopPropagation();
             
-            if (e.shiftKey) {
+            if (event.shiftKey) {
               panel.last_cursor.x = cursor.x;
               panel.last_cursor.y = cursor.y;
               if (viewer.synced){
@@ -864,17 +913,17 @@
               }
               panel.cursor = viewer.active_cursor = cursor;
             }
-            viewer.active_canvas = e.target;
+            viewer.active_canvas = event.target;
             document.addEventListener("mousemove", drag, false);
             document.addEventListener("mouseup", stopDrag, false);
 
           }, false);
           
-          function wheelHandler(e) {
-            var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+          function wheelHandler(event) {
+            var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
 
-            e.preventDefault();
-            e.stopPropagation();
+            event.preventDefault();
+            event.stopPropagation();
 
             panel.zoom = Math.max(panel.zoom + delta * 0.05, 0.05);
             
@@ -895,7 +944,9 @@
         });
       })();
       
-      
+      viewer_element.appendChild(container);
+      BrainBrowser.events.triggerEvent("volumeuiloaded", container);
+
       return display;
     }
   };

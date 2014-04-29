@@ -98,15 +98,6 @@ $(function() {
       img.src = canvas.toDataURL();
     });
 
-
-    //////////////////////////////////////////
-    // Some effects for when rendering begins.
-    //////////////////////////////////////////
-    BrainBrowser.events.addEventListener("rendering", function() {
-      loading_div.hide();
-      $("#brainbrowser-wrapper").slideDown({duration: 600});
-    });
-
     //////////////////////////////////
     // Per volume UI hooks go in here.
     //////////////////////////////////
@@ -422,6 +413,9 @@ $(function() {
 
     loading_div.show();
 
+    viewer.setPanelDimensions(256, 256);
+    viewer.render();
+
     /////////////////////
     // Load the volumes.
     /////////////////////
@@ -452,8 +446,10 @@ $(function() {
           viewer_insert_class: "overlay-viewer-display"
         }
       },
-      panel_width: 256,
-      panel_height: 256
+      complete: function() {
+        loading_div.hide();
+        $("#brainbrowser-wrapper").slideDown({duration: 600});
+      }
     });
 
   });

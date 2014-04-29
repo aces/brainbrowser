@@ -257,8 +257,7 @@
     * * **overlay** {boolean|object} Set to true to display an overlay of 
     *   the loaded volumes with out any interface, or provide and object 
     *   containing a description of the template to use for the UI (see below).
-    * * **panel_width** {number} Width of an individual slice panel in the display.
-    * * **panel_height** {number} Height of an individual slice panel in the display.
+    * * **complete** {function} Callback invoked once all volumes are loaded.
     *
     * @description
     * Initial load of volumes. Usage:
@@ -289,9 +288,7 @@
     *       element_id: "overlay-ui-template",
     *       viewer_insert_class: "overlay-viewer-display"
     *     }
-    *   },
-    *   panel_width: 256,
-    *   panel_height: 256
+    *   }
     * });
     * ```
     * The volume viewer requires three parameters for each volume to be loaded:
@@ -321,6 +318,7 @@
 
       var config = BrainBrowser.config.volume_viewer;
       var color_map_description = config.color_maps[0];
+      var complete = options.complete;
 
       viewer.setPanelDimensions(options.panel_width, options.panel_height);
 
@@ -344,11 +342,17 @@
               
               if (options.overlay && num_descriptions > 1) {
                 viewer.createOverlay(overlay_options, function() {
-                  viewer.render();
+                  if (BrainBrowser.utils.isFunction(complete)) {
+                    complete();
+                  }
+
                   BrainBrowser.events.triggerEvent("volumesloaded");
                 });
               } else {
-                viewer.render();
+                if (BrainBrowser.utils.isFunction(complete)) {
+                  complete();
+                }
+
                 BrainBrowser.events.triggerEvent("volumesloaded");
               }
             });

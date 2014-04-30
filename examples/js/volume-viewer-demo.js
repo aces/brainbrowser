@@ -43,6 +43,56 @@ $(function() {
     // Set up global UI hooks.
     ///////////////////////////
 
+    $("#volume-type").change(function() {
+      if ($(this).val() === "functional") {
+        $("#sync-volumes-wrapper").hide();
+        viewer.clearVolumes();
+        viewer.loadVolume({
+          type: "minc",
+          header_url: "models/functional.mnc.headers",
+          raw_data_url: "models/functional.mnc.raw",
+          template: {
+            element_id: "volume-ui-template",
+            viewer_insert_class: "volume-viewer-display"
+          }
+        }, function() {
+          $(".slice-display").css("display", "inline");
+          $(".volume-controls").css("width", "auto");
+        });
+      } else {
+        $("#sync-volumes-wrapper").show();
+        viewer.clearVolumes();
+        viewer.loadVolumes({
+          volumes: [
+            {
+              type: "minc",
+              header_url: "models/structural1.mnc.headers",
+              raw_data_url: "models/structural1.mnc.raw",
+              template: {
+                element_id: "volume-ui-template",
+                viewer_insert_class: "volume-viewer-display"
+              }
+            },
+            {
+              type: 'minc',
+              header_url: "models/structural2.mnc.headers",
+              raw_data_url: "models/structural2.mnc.raw",
+              template: {
+                element_id: "volume-ui-template",
+                viewer_insert_class: "volume-viewer-display"
+              }
+            }
+          ],
+          overlay: {
+            template: {
+              element_id: "overlay-ui-template",
+              viewer_insert_class: "overlay-viewer-display"
+            }
+          }
+        });
+      }
+    });
+
     // Should cursors in all panels be synchronized?
     $("#sync-volumes").change(function() {
       var synced = $(this).is(":checked");
@@ -56,7 +106,7 @@ $(function() {
 
     // This will create an image of all the display panels
     // currently being shown in the viewer.
-    $("#capture-slices").click(function() {
+    $("#screenshot").click(function() {
       var width = viewer.panel_width;
       var height = viewer.panel_height;
       var active_canvas = viewer.active_canvas;

@@ -133,8 +133,15 @@
   <div id="brainbrowser-wrapper" style="display:none">
     <div id="volume-viewer">
       <div id="global-controls" class="volume-viewer-controls">
-        <input type="checkbox" class="button" id="sync-volumes"><label for="sync-volumes">Sync Volumes</label>
-        <span id="capture-slices" class="button">Capture Slices</span>
+        <span class="control-heading">Volume type:</span>
+        <select id="volume-type">
+          <option value="structural">Structural</option>
+          <option value="functional">Functional</option>
+        </select>
+        <span id="sync-volumes-wrapper">
+          <input type="checkbox" class="button" id="sync-volumes"><label for="sync-volumes">Synchronize</label>
+        </span>
+        <span id="screenshot" class="button">Screenshot</span>
       </div>
       <div id="brainbrowser"></div>
     </div>

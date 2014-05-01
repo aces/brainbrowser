@@ -42,8 +42,8 @@
     * * The name of the file requested.
     * * Any options that were passed to loadFromURL
     *
-    * @param {object} options The only option used by this method is **response_type**, 
-    *   which can be used to indicate the response type desired for the AJAX request. Other
+    * @param {object} options The only option used by this method is **result_type**, 
+    *   which can be set to **text** or **arraybuffer** (default is **text**). Other
     *   options are passed on to the **callback** function.
     * 
     * @description
@@ -52,15 +52,15 @@
     loadFromURL: function(url, callback, options) {
       options = options || {};
       var request = new XMLHttpRequest();
-      var response_type = options.response_type;
+      var result_type = options.result_type;
       var status;
       var parts = url.split("/");
       var filename = parts[parts.length-1];
 
       request.open("GET", url);
 
-      if (response_type) {
-        request.responseType = response_type;
+      if (result_type === "arraybuffer") {
+        request.responseType = "arraybuffer";
       }
       
       request.onreadystatechange = function() {
@@ -100,7 +100,9 @@
     * * The name of the file.
     * * Any options that were passed to loadFromFile
     *
-    * @param {object} options Any options are passed on to the **callback** function.
+    * @param {object} options The only option used by this method is **result_type**, 
+    *   which can be set to **text** or **arraybuffer** (default is **text**). Other
+    *   options are passed on to the **callback** function.
     * 
     * @description
     * Fetch data from a local file and pass the results to a callback.
@@ -113,6 +115,8 @@
       }
 
       options = options || {};
+      var result_type = options.result_type;
+
       var reader = new FileReader();
       var parts = file_input.value.split("\\");
       var filename = parts[parts.length-1];
@@ -131,7 +135,11 @@
         throw new Error(error_message);
       };
       
-      reader.readAsText(files[0]);
+      if (result_type === "arraybuffer") {
+        reader.readAsArrayBuffer(files[0]);
+      } else {
+        reader.readAsText(files[0]);
+      }
     },
 
     /**

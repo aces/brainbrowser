@@ -119,7 +119,6 @@
         <input class="control-inputs" value="0.5" id="blend-val"/>
         <div id="blend-slider" class="slider volume-viewer-blend"></div>
       </div>
-      
     </div>
   </script>
   <div id="loading" style="display: none"><img src="img/ajax-loader.gif" /></div>
@@ -130,11 +129,28 @@
         <select id="volume-type">
           <option value="structural">Structural</option>
           <option value="functional">Functional</option>
+          <option value="file">Load your own volume!</option>
         </select>
         <span id="sync-volumes-wrapper">
           <input type="checkbox" class="button" id="sync-volumes"><label for="sync-volumes">Synchronize</label>
         </span>
         <span id="screenshot" class="button">Screenshot</span>
+        <div id="volume-file" class="file-select">
+          <div>
+            <span class="control-heading">Header file: </span><input type="file" name="header-file" id="header-file">
+          </div>
+          <div>
+            <span class="control-heading">Raw data file: </span><input type="file" name="raw-data-file" id="raw-data-file">
+          </div>
+          <div id="volume-file-hint">
+            Use <a href="scripts/minc2volume-viewer.js" target="_blank">minc2volume-viewer.js</a> to convert your 
+            MINC files into the header and raw data files required by the volume viewer (requires 
+            installation of the <a href="http://www.bic.mni.mcgill.ca/ServicesSoftware/MINC" target="_blank">MINC tools</a>).
+          </div>
+          <div id="volume-file-submit">
+            <span class="button">Load</span>
+          </div>
+        </div>
       </div>
       <div id="brainbrowser"></div>
     </div>

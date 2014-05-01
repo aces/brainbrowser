@@ -236,7 +236,8 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
   // Open volume using appropriate volume loader
   function openVolume(volume_description, callback){
-    var loader = VolumeViewer.volumes[volume_description.type];
+    var loader = VolumeViewer.volume_loaders[volume_description.type];
+    
     if(loader){
       loader(volume_description, callback);
     } else {

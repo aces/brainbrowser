@@ -56,68 +56,71 @@ BrainBrowser.VolumeViewer.mincData = (function() {
     return new_array;
   }
 
+  function parseHeader(minc_data, header) {
+    minc_data.header = header;
+    minc_data.order = header.order;
+    
+    if(minc_data.order.length === 4) {
+      minc_data.order = minc_data.order.slice(1);
+      minc_data.time = header.time;
+    }
+
+    minc_data.xspace = header.xspace;
+    minc_data.yspace = header.yspace;
+    minc_data.zspace = header.zspace;
+    minc_data.xspace.name = "xspace";
+    minc_data.yspace.name = "yspace";
+    minc_data.zspace.name = "zspace";
+    
+    minc_data.xspace.space_length = parseFloat(minc_data.xspace.space_length);
+    minc_data.yspace.space_length = parseFloat(minc_data.yspace.space_length);
+    minc_data.zspace.space_length = parseFloat(minc_data.zspace.space_length);
+
+    minc_data.xspace.start = parseFloat(minc_data.xspace.start);
+    minc_data.yspace.start = parseFloat(minc_data.yspace.start);
+    minc_data.zspace.start = parseFloat(minc_data.zspace.start);
+
+    minc_data.xspace.step = parseFloat(minc_data.xspace.step);
+    minc_data.yspace.step = parseFloat(minc_data.yspace.step);
+    minc_data.zspace.step = parseFloat(minc_data.zspace.step);
+
+
+    if(minc_data.order.length === 4) {
+      minc_data.time.space_length = parseFloat(minc_data.time.space_length);
+      minc_data.time.start = parseFloat(minc_data.time.start);
+      minc_data.time.step = parseFloat(minc_data.time.step);
+    }
+    
+    //figure out height and width of each slices in each direction
+    var order0 = minc_data[minc_data.order[0]];
+    var order1 = minc_data[minc_data.order[1]];
+    var order2 = minc_data[minc_data.order[2]];
+
+
+    order0.height        = parseFloat(order1.space_length);
+    order0.height_space  = order1;
+    order0.width         = parseFloat(order2.space_length);
+    order0.width_space   = order2;
+
+    order1.height = parseFloat(order2.space_length);
+    order1.height_space = order2;
+    order1.width = parseFloat(order0.space_length);
+    order1.width_space = order0;
+
+    order2.height = parseFloat(order1.space_length);
+    order2.height_space = order1;
+    order2.width = parseFloat(order0.space_length);
+    order2.width_space = order0;
+
+    //calculate the offsets for each element of a slice
+    order0.offset=parseFloat(order1.space_length)*parseFloat(order2.space_length);
+    order1.offset=parseFloat(order0.space_length);
+    order2.offset=parseFloat(order0.space_length);
+    order0.slice_length = order0.height * order0.width;
+  }
+
   // Minc data prototype
   var minc_data_proto = {
-    parseHeader: function(data) {
-      this.header = data;
-      this.order = data.order;
-      if(this.order.length === 4) {
-        this.order = this.order.slice(1);
-        this.time = data.time;
-      }
-      this.xspace = data.xspace;
-      this.yspace = data.yspace;
-      this.zspace = data.zspace;
-      this.xspace.name = "xspace";
-      this.yspace.name = "yspace";
-      this.zspace.name = "zspace";
-      
-      this.xspace.space_length = parseFloat(this.xspace.space_length);
-      this.yspace.space_length = parseFloat(this.yspace.space_length);
-      this.zspace.space_length = parseFloat(this.zspace.space_length);
-
-      this.xspace.start = parseFloat(this.xspace.start);
-      this.yspace.start = parseFloat(this.yspace.start);
-      this.zspace.start = parseFloat(this.zspace.start);
-
-      this.xspace.step = parseFloat(this.xspace.step);
-      this.yspace.step = parseFloat(this.yspace.step);
-      this.zspace.step = parseFloat(this.zspace.step);
-
-
-      if(this.order.length === 4) {
-        this.time.space_length = parseFloat(this.time.space_length);
-        this.time.start = parseFloat(this.time.start);
-        this.time.step = parseFloat(this.time.step);
-      }
-      
-      //figure out height and width of each slices in each direction
-      var order0 = this[this.order[0]];
-      var order1 = this[this.order[1]];
-      var order2 = this[this.order[2]];
-
-
-      order0.height        = parseFloat(order1.space_length);
-      order0.height_space  = order1;
-      order0.width         = parseFloat(order2.space_length);
-      order0.width_space   = order2;
-
-      order1.height=parseFloat(order2.space_length);
-      order1.height_space=order2;
-      order1.width=parseFloat(order0.space_length);
-      order1.width_space = order0;
-
-      order2.height=parseFloat(order1.space_length);
-      order2.height_space=order1;
-      order2.width=parseFloat(order0.space_length);
-      order2.width_space = order0;
-
-      //calculate the offsets for each element of a slice
-      order0.offset=parseFloat(order1.space_length)*parseFloat(order2.space_length);
-      order1.offset=parseFloat(order0.space_length);
-      order2.offset=parseFloat(order0.space_length);
-      order0.slice_length = order0.height * order0.width;
-    },
     /*
      * Warning: This function can get a little crazy
      * We are trying to get a slice out of the array. To do this we need to be careful this
@@ -249,7 +252,7 @@ BrainBrowser.VolumeViewer.mincData = (function() {
       slice.height = height;
       
       
-      //Checks if the slices are need to be rotated
+      //Checks if the slices need to be rotated
       //xspace should have yspace on the x axis and zspace on the y axis
       if(axis === "xspace" && this.xspace.height_space.name === "yspace"){
         if (this.zspace.step < 0){
@@ -298,13 +301,13 @@ BrainBrowser.VolumeViewer.mincData = (function() {
     }
   };
 
-
   // The actual factory function!!
-  return function(filename, headers, data) {
+  return function(header, data) {
     
     var minc_data = Object.create(minc_data_proto);
+  
+    parseHeader(minc_data, header);
     minc_data.cachedSlices = {};
-    minc_data.parseHeader(headers);
     minc_data.data = data;
 
     return minc_data;

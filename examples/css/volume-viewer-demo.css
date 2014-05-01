@@ -54,7 +54,6 @@ canvas.slice-display {
   font-size: 12px;
   padding: 10px;
   margin: 3px 5px;
-  padding-bottom: 18px; 
   background: #555555;
   color: #F0F0F0;
 }
@@ -139,4 +138,20 @@ canvas.slice-display {
   font-size: 11px;
 }
 
+#volume-file {
+  margin-top: 12px;
+  margin-bottom: 10px;
+  display: none;
+}
 
+#volume-file-submit {
+  margin-top: 6px;
+}
+
+#volume-file-hint {
+  margin: 4px;
+}
+
+#volume-file-hint a {
+  color: orange;
+}

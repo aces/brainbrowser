@@ -82,9 +82,8 @@
 
   var VolumeViewer = BrainBrowser.VolumeViewer = {};
   
-  VolumeViewer.volumes = {};
-  VolumeViewer.color_maps = [];
   VolumeViewer.modules = {};
+  VolumeViewer.volume_loaders = {};
   
 
   /**
@@ -286,6 +285,8 @@
     * @param {number} vol_id Index of the volume where the slice is being rendered.
     * @param {string} axis_name Name of the axis where the slice is being rendered.
     * @param {number} slice_num Index of the slice to render.
+    * @param {function} callback Callback invoked after fetching with the fetched 
+    *   slice as argument.
     *
     * @description
     * Fetch a new slice from a loaded volume.

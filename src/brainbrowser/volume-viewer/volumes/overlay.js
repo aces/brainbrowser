@@ -34,9 +34,7 @@
   
   var VolumeViewer = BrainBrowser.VolumeViewer;
 
-  /*
-   * Blend the pixels of two images using the alpha value of each
-   */
+  // Blend the pixels of two images using the alpha value of each
   function blendImages(images, dest) {
     var n_images = images.length;
     var final_image = dest.data;
@@ -176,28 +174,26 @@
     }
   };
 
-  function overlayData(volumes) {
-    var data = Object.create(overlay_proto);
+  VolumeViewer.volume_loaders.overlay = function(options, callback) {
+    options = options || {};
+    var volumes = options.volumes || [];
+
+    var overlay_volume = Object.create(overlay_proto);
     
-    data.volumes = [];
-    data.blend_ratios = [];
+    overlay_volume.type = "overlay";
+    overlay_volume.header = volumes[0] ? volumes[0].header : {};
+    overlay_volume.min = 0;
+    overlay_volume.max = 255;
+    overlay_volume.volumes = [];
+    overlay_volume.blend_ratios = [];
 
     volumes.forEach(function(volume) {
-      data.volumes.push(volume);
-      data.blend_ratios.push(1 / volumes.length);
+      overlay_volume.volumes.push(volume);
+      overlay_volume.blend_ratios.push(1 / volumes.length);
     });
-
-    return data;
-  }
-
-  VolumeViewer.volumes.overlay = function(opt, callback) {
-    var volume = overlayData(opt.volumes);
-    volume.type = "overlay";
-    volume.min = 0;
-    volume.max = 255;
-    volume.header = opt.volumes[0].header;
+    
     if (BrainBrowser.utils.isFunction(callback)) {
-      callback(volume);
+      callback(overlay_volume);
     } 
   };
 }());

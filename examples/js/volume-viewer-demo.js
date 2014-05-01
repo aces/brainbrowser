@@ -44,8 +44,10 @@ $(function() {
     ///////////////////////////
 
     $("#volume-type").change(function() {
+      $("#sync-volumes-wrapper").hide();
+      $("#volume-file").hide();
+
       if ($(this).val() === "functional") {
-        $("#sync-volumes-wrapper").hide();
         viewer.clearVolumes();
         viewer.loadVolume({
           type: "minc",
@@ -59,7 +61,7 @@ $(function() {
           $(".slice-display").css("display", "inline");
           $(".volume-controls").css("width", "auto");
         });
-      } else {
+      } else if ($(this).val() === "structural") {
         $("#sync-volumes-wrapper").show();
         viewer.clearVolumes();
         viewer.loadVolumes({
@@ -90,6 +92,9 @@ $(function() {
             }
           }
         });
+      } else {
+        $("#volume-file").show();
+        viewer.clearVolumes();
       }
     });
 
@@ -146,6 +151,23 @@ $(function() {
       };
 
       img.src = canvas.toDataURL();
+    });
+
+    // Load a new model from a file that the user has
+    // selected.
+    $("#volume-file-submit").click(function() {
+      viewer.loadVolume({
+        type: "minc",
+        header_file: document.getElementById("header-file"),
+        raw_data_file: document.getElementById("raw-data-file"),
+        template: {
+          element_id: "volume-ui-template",
+          viewer_insert_class: "volume-viewer-display"
+        }
+      }, function() {
+        $(".slice-display").css("display", "inline");
+        $(".volume-controls").css("width", "auto");
+      });
     });
 
     //////////////////////////////////

@@ -91,36 +91,59 @@
     }
   };
 
-  VolumeViewer.volumes.minc = function(description, callback) {
-    var volume = Object.create(minc_volume_proto);
-    var data;
-    volume.current_time = 0;
+  VolumeViewer.volume_loaders.minc = function(description, callback) {
     
+    if (description.header_url && description.raw_data_url) {
+      BrainBrowser.loader.loadFromURL(description.header_url, function(header_text) {
+        parseHeader(header_text, function(header) {
+          BrainBrowser.loader.loadFromURL(description.raw_data_url, function(raw_data) {
+            createMincVolume(header, raw_data, callback);
+          }, { result_type: "arraybuffer" });
+        })
+      });
+    } else if (description.header_file && description.raw_data_file) {
+      BrainBrowser.loader.loadFromFile(description.header_file, function(header_text) {
+        parseHeader(header_text, function(header) {
+          BrainBrowser.loader.loadFromFile(description.raw_data_file, function(raw_data) {
+            createMincVolume(header, raw_data, callback);
+          }, { result_type: "arraybuffer" });
+        })
+      });
+    } else {
+      throw new Error("invalid volume description");
+    }
     
-    BrainBrowser.loader.loadFromURL(description.header_url, function(header_text) {
-
-      var headers;
-
-      try{
-        headers = JSON.parse(header_text);
-      } catch(error) {
-        throw new Error(
-          "server did not respond with valid JSON" + "\n" +
-          "Response was: \n" + header_text
-        );
-      }
-
-      BrainBrowser.loader.loadFromURL(description.raw_data_url, function(arrayBuffer){
-        data =  new Uint8Array(arrayBuffer);
-        volume.data = VolumeViewer.mincData(description.filename, headers, data);
-        volume.header = volume.data.header;
-        volume.min = 0;
-        volume.max = 255;
-        if (BrainBrowser.utils.isFunction(callback)) {
-          callback(volume);
-        } 
-      }, { response_type: "arraybuffer" });
-    });
   };
+
+  function parseHeader(header_text, callback) {
+    var header;
+
+    try{
+      header = JSON.parse(header_text);
+    } catch(error) {
+      throw new Error(
+        "server did not respond with valid JSON" + "\n" +
+        "Response was: \n" + header_text
+      );
+    }
+
+    if (BrainBrowser.utils.isFunction(callback)) {
+      callback(header);
+    }
+  }
+
+  function createMincVolume(header, raw_data, callback){
+    var volume = Object.create(minc_volume_proto);
+
+    volume.current_time = 0;
+    volume.data = VolumeViewer.mincData(header, new Uint8Array(raw_data));
+    volume.header = volume.data.header;
+    volume.min = 0;
+    volume.max = 255;
+    
+    if (BrainBrowser.utils.isFunction(callback)) {
+      callback(volume);
+    } 
+  }
    
 }());

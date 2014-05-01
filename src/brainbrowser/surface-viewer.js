@@ -155,7 +155,7 @@
       /**
       * @doc object
       * @name viewer
-      * @property {DOMElement} view_window The DOM element where the viewer
+      * @property {DOMElement} dom_element The DOM element where the viewer
       * will be inserted.
       * @property {THREE.Object3D} model The currently loaded surface model.
       * 
@@ -187,7 +187,7 @@
       var attributes = {};
 
       var viewer = {
-        view_window: document.getElementById(element_id), // Div where the canvas will be loaded.
+        dom_element: document.getElementById(element_id), // Div where the canvas will be loaded.
         model: null,                                      // The currently loaded model. Should be set by rendering.
         /**
         * @doc function

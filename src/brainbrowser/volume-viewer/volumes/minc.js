@@ -29,47 +29,12 @@
   "use strict";
      
   var VolumeViewer = BrainBrowser.VolumeViewer;
-
-  function getHeaders(url, callback) {
-    var request = new XMLHttpRequest();
-    var status;
-    var response_text;
-
-    request.open("GET", url);
-    request.onreadystatechange = function() {
-      if (request.readyState === 4){
-        status = request.status;
-
-        // Based on jQuery's "success" codes.
-        if(status >= 200 && status < 300 || status === 304) {
-          try{
-            response_text = JSON.parse(request.response);
-          } catch(error) {
-            throw new Error(
-              "server did not respond with valid JSON" + "\n" +
-              "Response was: \n" + request.response
-            );
-          }
-          if (callback) callback(response_text);
-        } else {
-          throw new Error(
-            "error loading URL: " + url + "\n" +
-            "HTTP Response: " + request.status + "\n" +
-            "HTTP Status: " + request.statusText + "\n" +
-            "Response was: \n" + request.response
-          );
-        }
-      }
-    };
-    request.send();
-
-  }
   
   // Prototype for minc volume.
   var minc_volume_proto = {
     slice: function(axis, number, time) {
       var slice = this.data.slice(axis, number, time);
-      slice.color_map = this.color_map || VolumeViewer.color_maps[0];
+      slice.color_map = this.color_map;
       slice.min  = this.min;
       slice.max  = this.max;
       slice.axis = axis;
@@ -132,14 +97,26 @@
     volume.current_time = 0;
     
     
-    getHeaders(description.header_url, function(headers) {
+    BrainBrowser.loader.loadFromURL(description.header_url, function(header_text) {
+
+      var headers;
+
+      try{
+        headers = JSON.parse(header_text);
+      } catch(error) {
+        throw new Error(
+          "server did not respond with valid JSON" + "\n" +
+          "Response was: \n" + header_text
+        );
+      }
+
       BrainBrowser.loader.loadFromURL(description.raw_data_url, function(arrayBuffer){
         data =  new Uint8Array(arrayBuffer);
         volume.data = VolumeViewer.mincData(description.filename, headers, data);
         volume.header = volume.data.header;
         volume.min = 0;
         volume.max = 255;
-        if (typeof callback === "function") {
+        if (BrainBrowser.utils.isFunction(callback)) {
           callback(volume);
         } 
       }, { response_type: "arraybuffer" });

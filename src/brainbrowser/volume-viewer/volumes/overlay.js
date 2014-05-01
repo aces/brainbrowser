@@ -196,9 +196,9 @@
     volume.min = 0;
     volume.max = 255;
     volume.header = opt.volumes[0].header;
-    setTimeout(function() {
+    if (BrainBrowser.utils.isFunction(callback)) {
       callback(volume);
-    }, 0);
+    } 
   };
 }());
 

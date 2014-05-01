@@ -361,14 +361,14 @@ $(function() {
     
     // Grab a screenshot of the canvas.
     $("#openImage").click(function() {
-      var view_window = viewer.view_window;
+      var dom_element = viewer.dom_element;
       var canvas = document.createElement("canvas");
       var spectrum_canvas = document.getElementById("spectrum-canvas");
       var context = canvas.getContext("2d");
       var viewer_image = new Image();
       
-      canvas.width = view_window.offsetWidth;
-      canvas.height = view_window.offsetHeight;
+      canvas.width = dom_element.offsetWidth;
+      canvas.height = dom_element.offsetHeight;
     
       // Display the final image in a dialog box.
       function displayImage() {
@@ -424,8 +424,8 @@ $(function() {
       viewer.loadColorMapFromURL($(this).val());
     });
 
-    BrainBrowser.config.surface_viewer.color_maps.forEach(function(map) {
-      color_map_select.append('<option value="' + map.url + '">' + map.name +'</option>');
+    BrainBrowser.config.surface_viewer.color_maps.forEach(function(color_map) {
+      color_map_select.append('<option value="' + color_map.url + '">' + color_map.name +'</option>');
     });
 
     $("#color-map-box").append(color_map_select);
@@ -442,7 +442,7 @@ $(function() {
       if (!event.shiftKey) return;
       if (!viewer.model_data) return;
 
-      var offset = BrainBrowser.utils.getOffset(viewer.view_window);
+      var offset = BrainBrowser.utils.getOffset(viewer.dom_element);
       var x = event.clientX - offset.left + window.scrollX;
       var y = event.clientY - offset.top + window.scrollY;
       

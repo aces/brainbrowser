@@ -151,7 +151,7 @@ $(function() {
     //////////////////////////////////
     // Per volume UI hooks go in here.
     //////////////////////////////////
-    BrainBrowser.events.addEventListener("volumeuiloaded", function(container) {
+    BrainBrowser.events.addEventListener("volumeuiloaded", function(container, vol_id) {
       container = $(container);
 
       container.find(".button").button();
@@ -185,12 +185,24 @@ $(function() {
         viewer.redrawVolumes();
       });
 
-      // Change the color map currently being used to display data.
-      container.find(".color-map-select").change(function(event) {
-        var volume = viewer.volumes[$(this).data("volume-id")];
-        volume.color_map = BrainBrowser.VolumeViewer.color_maps[+$(event.target).val()];
-        viewer.redrawVolumes();
+      // Color map URLs are read from the config file and added to the
+      // color map select box.
+      var color_map_select = $('<select id="color-map-select"></select>').change(function(event) {
+        var selection = $(this).find(":selected");
+
+        viewer.loadVolumeColorMap(vol_id, selection.val(), selection.data("cursor-color"), function() {
+          viewer.redrawVolumes();
+        });
       });
+
+      BrainBrowser.config.volume_viewer.color_maps.forEach(function(color_map) {
+        color_map_select.append('<option value="' + color_map.url + 
+          '" data-cursor-color="' + color_map.cursor_color + '">' + 
+          color_map.name +'</option>'
+        );
+      });
+
+      $("#color-map-" + vol_id).append(color_map_select);
 
       // Change the range of intensities that will be displayed.
       container.find(".threshold-div").each(function() {
@@ -461,8 +473,11 @@ $(function() {
       });
     });
 
+    var color_map_config = BrainBrowser.config.volume_viewer.color_maps[0];
+
     loading_div.show();
 
+    viewer.loadDefaultColorMap(color_map_config.url, color_map_config.cursor_color);
     viewer.setPanelDimensions(256, 256);
     viewer.render();
 

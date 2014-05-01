@@ -29,7 +29,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   
   var renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
   var scene = new THREE.Scene();
-  var camera = new THREE.PerspectiveCamera(30, viewer.view_window.offsetWidth / viewer.view_window.offsetHeight, 1, 10000);
+  var camera = new THREE.PerspectiveCamera(30, viewer.dom_element.offsetWidth / viewer.dom_element.offsetHeight, 1, 10000);
   var light = new THREE.PointLight(0xFFFFFF);
   var current_frame;
   var last_frame;
@@ -48,10 +48,10 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * Render the scene.
   */
   viewer.render = function() {
-    var view_window = viewer.view_window;
+    var dom_element = viewer.dom_element;
     renderer.setClearColor(0x000000);
-    renderer.setSize(view_window.offsetWidth, view_window.offsetHeight);
-    view_window.appendChild(renderer.domElement);
+    renderer.setSize(dom_element.offsetWidth, dom_element.offsetHeight);
+    dom_element.appendChild(renderer.domElement);
     
     camera.position.z = 500;
     
@@ -61,8 +61,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     viewer.autorotate = {};
     
     window.onresize = function() {
-      effect.setSize(view_window.offsetWidth, view_window.offsetHeight);
-      camera.aspect = view_window.offsetWidth/view_window.offsetHeight;
+      effect.setSize(dom_element.offsetWidth, dom_element.offsetHeight);
+      camera.aspect = dom_element.offsetWidth / dom_element.offsetHeight;
       camera.updateProjectionMatrix();
     };
     
@@ -114,7 +114,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var effect;
     if (THREE[effect_name]) {
       effect = new THREE[effect_name](renderer);
-      effect.setSize(viewer.view_window.offsetWidth, viewer.view_window.offsetHeight);
+      effect.setSize(viewer.dom_element.offsetWidth, viewer.dom_element.offsetHeight);
       effects[effect_name] = effect;
     }
   };
@@ -221,8 +221,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   */
   viewer.pick = function(x, y) {
     // Convert to normalized coordinates.
-    x = (x / viewer.view_window.offsetWidth) * 2 - 1;
-    y = (-y / viewer.view_window.offsetHeight) * 2 + 1;
+    x = (x / viewer.dom_element.offsetWidth) * 2 - 1;
+    y = (-y / viewer.dom_element.offsetHeight) * 2 + 1;
 
     var model = viewer.model;
     var projector = new THREE.Projector();

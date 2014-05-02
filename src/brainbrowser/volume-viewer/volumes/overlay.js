@@ -93,8 +93,6 @@
 
       var overlay_volume = this;
       var slices = [];
-      var slice_num = this.position[axis];
-      var time = this.current_time;
 
       overlay_volume.volumes.forEach(function(volume, i) {
         var slice = volume.slice(axis, slice_num, time);
@@ -200,7 +198,7 @@
     
     if (BrainBrowser.utils.isFunction(callback)) {
       callback(overlay_volume);
-    } 
+    }
   };
 }());
 

@@ -226,7 +226,6 @@
     *
     */
     viewer.draw = function() {
-      var slice;
       var context;
       var canvas;
       var frame_width = 4;
@@ -234,7 +233,7 @@
       var color_map;
 
       viewer.volumes.forEach(function(volume) {
-        volume.display.forEach(function(panel, panel_num) {
+        volume.display.forEach(function(panel) {
           canvas = panel.canvas;
           context = panel.context;
           context.globalAlpha = 255;
@@ -419,7 +418,7 @@
         old_width = viewer.panel_width;
         old_height = viewer.panel_height;
         ratio = Math.min(width / old_width, height / old_height);
-      } 
+      }
 
       viewer.panel_width = width > 0 ? width : viewer.panel_width;
       viewer.panel_height = height > 0 ? height : viewer.panel_height;
@@ -430,7 +429,7 @@
 
           panel.setSize(viewer.panel_width, viewer.panel_height, options);
 
-          if (scale_image) {       
+          if (scale_image) {
             panel.zoom = panel.zoom * ratio;
             panel.image_center.x = width / 2;
             panel.image_center.y = height / 2;
@@ -443,7 +442,7 @@
         });
       });
 
-      if (scale_image) {       
+      if (scale_image) {
         viewer.redrawVolumes();
       }
 
@@ -464,11 +463,8 @@
 
     // Update the slice currently being displayed
     function updateSlice(vol_id, axis_name, slice) {
-
-      var width_space = slice.width_space;
-      var height_space = slice.height_space;
       var axis_num = axis_to_number[axis_name];
-      var volume = viewer.volumes[vol_id]; 
+      var volume = viewer.volumes[vol_id];
       var panel = volume.display[axis_num];
       
       panel.setSlice(slice);

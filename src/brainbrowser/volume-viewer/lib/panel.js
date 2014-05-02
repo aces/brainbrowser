@@ -66,7 +66,7 @@
     * Set the volume slice to be rendered on the panel.
     */
     setSlice: function(slice) {
-      this.slice = slice
+      this.slice = slice;
       this.slice_image = this.slice.getImage(this.zoom);
     },
 

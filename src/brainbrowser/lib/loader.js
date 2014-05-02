@@ -127,7 +127,7 @@
         callback(event.target.result, filename, options);
       };
 
-      reader.onerror = function(event) {
+      reader.onerror = function() {
         var error_message = "error reading file: " + filename;
 
         BrainBrowser.events.triggerEvent("error", error_message);

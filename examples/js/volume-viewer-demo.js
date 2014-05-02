@@ -31,13 +31,13 @@
 $(function() {
   "use strict";
   
-   $(".button").button();
+  $(".button").button();
 
   /////////////////////////////////////
   // Start running the Volume Viewer
   /////////////////////////////////////
   BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
-    var loading_div = $("#loading"); 
+    var loading_div = $("#loading");
 
     ///////////////////////////
     // Set up global UI hooks.
@@ -216,7 +216,7 @@ $(function() {
 
       // Color map URLs are read from the config file and added to the
       // color map select box.
-      var color_map_select = $('<select id="color-map-select"></select>').change(function(event) {
+      var color_map_select = $('<select id="color-map-select"></select>').change(function() {
         var selection = $(this).find(":selected");
 
         viewer.loadVolumeColorMapFromURL(vol_id, selection.val(), selection.data("cursor-color"), function() {
@@ -225,8 +225,8 @@ $(function() {
       });
 
       BrainBrowser.config.volume_viewer.color_maps.forEach(function(color_map) {
-        color_map_select.append('<option value="' + color_map.url + 
-          '" data-cursor-color="' + color_map.cursor_color + '">' + 
+        color_map_select.append('<option value="' + color_map.url +
+          '" data-cursor-color="' + color_map.cursor_color + '">' +
           color_map.name +'</option>'
         );
       });

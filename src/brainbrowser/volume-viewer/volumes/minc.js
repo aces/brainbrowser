@@ -103,7 +103,7 @@
           BrainBrowser.loader.loadFromURL(description.raw_data_url, function(raw_data) {
             createMincVolume(header, raw_data, callback);
           }, { result_type: "arraybuffer" });
-        })
+        });
       });
     } else if (description.header_file && description.raw_data_file) {
       BrainBrowser.loader.loadFromFile(description.header_file, function(header_text) {
@@ -111,7 +111,7 @@
           BrainBrowser.loader.loadFromFile(description.raw_data_file, function(raw_data) {
             createMincVolume(header, raw_data, callback);
           }, { result_type: "arraybuffer" });
-        })
+        });
       });
     } else {
       throw new Error("invalid volume description");
@@ -148,7 +148,7 @@
     
     if (BrainBrowser.utils.isFunction(callback)) {
       callback(volume);
-    } 
+    }
   }
    
 }());

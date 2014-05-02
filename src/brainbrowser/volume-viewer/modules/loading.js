@@ -94,11 +94,11 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
     var i;
         
     function loadVolume(i) {
-      setVolume(i, volume_descriptions[i], function(volume) {
+      setVolume(i, volume_descriptions[i], function() {
         if (++num_loaded < num_descriptions) {
           return;
         }
-        
+
         if (options.overlay && num_descriptions > 1) {
           viewer.createOverlay(overlay_options, function() {
             if (BrainBrowser.utils.isFunction(complete)) {
@@ -219,7 +219,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   * @description
   * Load a new volume.
   */
-  viewer.loadVolume = function(volume_description, callback) {     
+  viewer.loadVolume = function(volume_description, callback) {
     setVolume(viewer.volumes.length, volume_description, callback);
   };
 
@@ -275,7 +275,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   // Place a volume at a certain position in the volumes array.
   // This function should be used with care as empty places in the volumes
   // array will cause problems with rendering.
-  function setVolume(vol_id, volume_description, callback) {     
+  function setVolume(vol_id, volume_description, callback) {
     openVolume(volume_description, function(volume) {
       var slices_loaded = 0;
 
@@ -283,7 +283,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       volume.display = createVolumeDisplay(viewer.dom_element, vol_id, volume_description);
       volume.color_map = viewer.default_color_map;
 
-      ["xspace", "yspace", "zspace"].forEach(function(axis, axis_num) {
+      ["xspace", "yspace", "zspace"].forEach(function(axis) {
         var position = volume.position[axis] = Math.floor(volume.header[axis].space_length / 2);
         
         viewer.fetchSlice(vol_id, axis, position, function() {

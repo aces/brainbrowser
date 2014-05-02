@@ -87,13 +87,18 @@
 
   var overlay_proto = {
 
-    slice: function(axis, number, time) {
-      var self = this;
-      var slices = [];
+    slice: function(axis, slice_num, time) {
+      slice_num = slice_num || this.position[axis];
+      time = time || this.current_time;
 
-      self.volumes.forEach(function(volume, i) {
-        var slice = volume.slice(axis, number, time);
-        slice.alpha = self.blend_ratios[i];
+      var overlay_volume = this;
+      var slices = [];
+      var slice_num = this.position[axis];
+      var time = this.current_time;
+
+      overlay_volume.volumes.forEach(function(volume, i) {
+        var slice = volume.slice(axis, slice_num, time);
+        slice.alpha = overlay_volume.blend_ratios[i];
         slices.push(slice);
       });
       
@@ -181,6 +186,7 @@
     var overlay_volume = Object.create(overlay_proto);
     
     overlay_volume.type = "overlay";
+    overlay_volume.position = {};
     overlay_volume.header = volumes[0] ? volumes[0].header : {};
     overlay_volume.min = 0;
     overlay_volume.max = 255;

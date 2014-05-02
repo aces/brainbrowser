@@ -253,7 +253,6 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       var slices_loaded = 0;
 
       viewer.volumes[vol_id] = volume;
-      volume.position = {};
       volume.display = createVolumeDisplay(viewer.dom_element, vol_id, volume_description);
       volume.color_map = viewer.default_color_map;
 

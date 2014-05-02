@@ -32,8 +32,12 @@
   
   // Prototype for minc volume.
   var minc_volume_proto = {
-    slice: function(axis, number, time) {
-      var slice = this.data.slice(axis, number, time);
+    slice: function(axis, slice_num, time) {
+      slice_num = slice_num || this.position[axis];
+      time = time || this.current_time;
+      
+      var slice = this.data.slice(axis, slice_num, time);
+
       slice.color_map = this.color_map;
       slice.min  = this.min;
       slice.max  = this.max;
@@ -135,6 +139,7 @@
   function createMincVolume(header, raw_data, callback){
     var volume = Object.create(minc_volume_proto);
 
+    volume.position = {};
     volume.current_time = 0;
     volume.data = VolumeViewer.mincData(header, new Uint8Array(raw_data));
     volume.header = volume.data.header;

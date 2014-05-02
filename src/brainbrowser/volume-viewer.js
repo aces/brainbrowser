@@ -307,12 +307,10 @@
         var slice;
         
         if (slice_num !== undefined) {
-          slice_num = volume.position[axis_name];
+          volume.position[axis_name] = slice_num;
         }
 
-        volume.position[axis_name] = slice_num;
-
-        slice = volume.slice(axis_name, slice_num, volume.current_time);
+        slice = volume.slice(axis_name);
         slice.vol_id = vol_id;
         slice.axis_number = axis_num;
         slice.min = volume.min;

@@ -27,6 +27,12 @@
 
 BrainBrowser.VolumeViewer.utils = (function() {
   "use strict";
+
+  var axis_to_number = {
+    xspace: 0,
+    yspace: 1,
+    zspace: 2
+  };
   
   function flipImage(src, width, height, flipx, flipy, block_size) {
     var dest = [];
@@ -95,6 +101,7 @@ BrainBrowser.VolumeViewer.utils = (function() {
   }
   
   return {
+    axis_to_number: axis_to_number,
     nearestNeighbor: nearestNeighbor
   };
   

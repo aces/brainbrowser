@@ -30,7 +30,7 @@ module.exports = function(grunt) {
     BRAINBROWSER_VERSION: "<%= pkg.version %>",
     build_dir: "build/brainbrowser-<%= BRAINBROWSER_VERSION %>",
     release_dir: "public/common/release",
-    license: grunt.file.read("license_header.txt"),
+    license: grunt.file.read("license-header.txt"),
     concat: {
       options: {
         separator: ";",

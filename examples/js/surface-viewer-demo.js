@@ -50,7 +50,7 @@ $(function() {
     return;
   }
 
-  $.get("models/atlas_labels.txt", function(data) {
+  $.get("models/atlas-labels.txt", function(data) {
     var lines = data.split("\n");
     var regex = /'(.+)'\s+(\d+)/;
 
@@ -496,13 +496,13 @@ $(function() {
 
       var examples = {
         atlas: function() {
-          viewer.loadModelFromURL("models/brain_surface.obj", {
+          viewer.loadModelFromURL("models/brain-surface.obj", {
             format: "mniobj",
             complete: function() {
               $("#vertex-data-wrapper").show();
               $("#pick-value-wrapper").show();
               $("#pick-label-wrapper").show();
-              viewer.loadIntensityDataFromURL("models/atlas_values.txt", {
+              viewer.loadIntensityDataFromURL("models/atlas-values.txt", {
                 complete: hideLoading
               });
             },
@@ -517,23 +517,23 @@ $(function() {
             complete: hideLoading,
             cancel: defaultCancelOptions(current_request)
           });
-          viewer.loadModelFromURL("models/left_color_mesh.obj", {
+          viewer.loadModelFromURL("models/left-color-mesh.obj", {
             format: "mniobj",
             cancel: defaultCancelOptions(current_request)
           });
-          viewer.loadModelFromURL("models/right_color_mesh.obj", {
+          viewer.loadModelFromURL("models/right-color-mesh.obj", {
             format: "mniobj",
             cancel: defaultCancelOptions(current_request)
           });
         },
         cortical_thickness: function() {
-          viewer.loadModelFromURL("models/brain_surface.obj", {
+          viewer.loadModelFromURL("models/brain-surface.obj", {
             format: "mniobj",
             parse: { split: true },
             complete: function() {
               $("#vertex-data-wrapper").show();
               $("#pick-value-wrapper").show();
-              viewer.loadIntensityDataFromURL("models/cortical_thickness.txt", {
+              viewer.loadIntensityDataFromURL("models/cortical-thickness.txt", {
                 name: "Cortical Thickness",
                 complete: hideLoading,
                 cancel: defaultCancelOptions(current_request)
@@ -564,12 +564,12 @@ $(function() {
           viewer.model.applyMatrix(matrixRotY.multiply(matrixRotX));
         },
         freesurfer: function() {
-          viewer.loadModelFromURL("models/freesurfer_surface.asc", {
+          viewer.loadModelFromURL("models/freesurfer-surface.asc", {
             format: "freesurferasc",
             complete: function() {
               $("#vertex-data-wrapper").show();
               $("#pick-value-wrapper").show();
-              viewer.loadIntensityDataFromURL("models/freesurfer_thickness.asc", {
+              viewer.loadIntensityDataFromURL("models/freesurfer-thickness.asc", {
                   format: "freesurferasc",
                   name: "Cortical Thickness",
                   complete: hideLoading,

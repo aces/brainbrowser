@@ -252,12 +252,11 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
     openVolume(volume_description, function(volume) {
       var slices_loaded = 0;
 
+      viewer.volumes[vol_id] = volume;
       volume.position = {};
       volume.display = createVolumeDisplay(viewer.dom_element, vol_id, volume_description);
       volume.cached_slices = [];
       volume.color_map = viewer.default_color_map;
-
-      viewer.volumes[vol_id] = volume;
 
       ["xspace", "yspace", "zspace"].forEach(function(axis, axis_num) {
         var position = volume.position[axis] = Math.floor(volume.header[axis].space_length / 2);
@@ -395,8 +394,8 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
     (function() {
       var current_target = null;
       
-      ["xspace", "yspace", "zspace"].forEach(function(axis_name, slice_num) {
-        var panel = display[slice_num];
+      ["xspace", "yspace", "zspace"].forEach(function(axis_name, axis_num) {
+        var panel = display[axis_num];
         var canvas = panel.canvas;
         var mouse = panel.mouse;
         
@@ -412,7 +411,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
               if (viewer.synced){
                 viewer.volumes.forEach(function(volume, synced_vol_id) {
                   if (synced_vol_id !== vol_id) {
-                    volume.display[slice_num].followCursor(cursor);
+                    volume.display[axis_num].followCursor(cursor);
                   }
                 });
               }
@@ -452,7 +451,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
             if (viewer.synced){
               viewer.volumes.forEach(function(volume, synced_vol_id) {
                 if (synced_vol_id !== vol_id) {
-                  var panel = volume.display[slice_num];
+                  var panel = volume.display[axis_num];
                   panel.last_cursor.x = cursor.x;
                   panel.last_cursor.y = cursor.y;
                 }
@@ -483,13 +482,13 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
           panel.zoom = Math.max(panel.zoom + delta * 0.05, 0.05);
           
-          viewer.fetchSlice(vol_id, ["xspace", "yspace", "zspace"][slice_num]);
+          viewer.fetchSlice(vol_id, ["xspace", "yspace", "zspace"][axis_num]);
           if (viewer.synced){
             viewer.volumes.forEach(function(volume, synced_vol_id) {
               if (synced_vol_id !== vol_id) {
-                var panel = volume.display[slice_num];
+                var panel = volume.display[axis_num];
                 panel.zoom = Math.max(panel.zoom + delta * 0.05, 0.05);
-                viewer.fetchSlice(synced_vol_id, ["xspace", "yspace", "zspace"][slice_num]);
+                viewer.fetchSlice(synced_vol_id, ["xspace", "yspace", "zspace"][axis_num]);
               }
             });
           }

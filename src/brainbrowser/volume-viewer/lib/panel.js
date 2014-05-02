@@ -47,6 +47,19 @@
 
     /**
     * @doc function
+    * @name panel.panel:setSize
+    * @param {number} width Width of the panel canvas.
+    * @param {number} height Height of the panel canvas.
+    * @description
+    * Set the size of the panel canvas.
+    */
+    setSize: function(width, height) {
+      this.canvas.width = width;
+      this.canvas.height = height;
+    },
+
+    /**
+    * @doc function
     * @name panel.panel:updateCursor
     * @description
     * Update the panel cursor based on the current position with the given volume.
@@ -55,10 +68,9 @@
       var volume = this.volume;
       var slice = this.slice;
       var origin = this.getImageOrigin();
-      if (volume && slice) {
-        this.cursor.x = (volume.position[slice.width_space.name] * Math.abs(slice.width_space.step) * this.zoom) + origin.x;
-        this.cursor.y = (slice.height_space.space_length - volume.position[slice.height_space.name]) * Math.abs(slice.height_space.step) * this.zoom  + origin.y;
-      }
+      
+      this.cursor.x = (volume.position[slice.width_space.name] * Math.abs(slice.width_space.step) * this.zoom) + origin.x;
+      this.cursor.y = (slice.height_space.space_length - volume.position[slice.height_space.name]) * Math.abs(slice.height_space.step) * this.zoom  + origin.y;
     },
 
     /**

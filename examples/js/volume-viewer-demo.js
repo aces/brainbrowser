@@ -98,6 +98,13 @@ $(function() {
       }
     });
 
+    // Change viewer panel canvas size.
+    $("#panel-size").change(function() {
+      var size = parseInt($(this).val(), 10);
+
+      viewer.setPanelSize(size, size, { scale_image: true });
+    });
+
     // Should cursors in all panels be synchronized?
     $("#sync-volumes").change(function() {
       var synced = $(this).is(":checked");
@@ -499,8 +506,19 @@ $(function() {
 
     loading_div.show();
 
+    //////////////////////////////
+    // Load the default color map.
+    //////////////////////////////
     viewer.loadDefaultColorMap(color_map_config.url, color_map_config.cursor_color);
-    viewer.setPanelDimensions(256, 256);
+
+    ////////////////////////////////////////
+    // Set the size of slice display panels.
+    ////////////////////////////////////////
+    viewer.setPanelSize(256, 256);
+
+    ///////////////////
+    // Start rendering.
+    ///////////////////
     viewer.render();
 
     /////////////////////

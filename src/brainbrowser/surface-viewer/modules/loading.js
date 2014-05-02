@@ -58,7 +58,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   /**
   * @doc function
   * @name viewer.loading:loadModelFromFile
-  * @param {object} file_input Object representing the local file to load.
+  * @param {DOMElement} file_input File input element representing the local file to load.
   * @param {object} options Options for the color update, which include the following:
   *
   * * **format** The format of input file. Should be one of the filetypes described in
@@ -77,7 +77,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   /**
   * @doc function
   * @name viewer.loading:loadIntensityDataFromURL
-  * @param {object} file_input Object representing the local file to load.
+  * @param {string} url URL of the intensity data file to load.
   * @param {object} options Options for the color update, which include the following:
   *
   * * **min** Minimum value of the intensity.
@@ -97,7 +97,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   /**
   * @doc function
   * @name viewer.loading:loadIntensityDataFromFile
-  * @param {object} file_input Object representing the local file to load.
+  * @param {DOMElement} file_input File input element representing the local file to load.
   * @param {object} options Options for the color update, which include the following:
   *
   * * **min** Minimum value of the intensity.
@@ -116,7 +116,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   /**
   * @doc function
   * @name viewer.loading:loadColorMapFromURL
-  * @param {string} url URL of the model file to load.
+  * @param {string} url URL of the color map file to load.
   * @param {object} options Options for the color map loading, which include the following:
   *
   * @description
@@ -131,7 +131,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   /**
   * @doc function
   * @name viewer.loading:loadColorMapFromFile
-  * @param {object} file_input Object representing the local file to load.
+  * @param {DOMElement} file_input File input element representing the local file to load.
   * @param {object} options Options for the color map loading, which include the following:
   *
   * @description

@@ -219,7 +219,7 @@ $(function() {
       var color_map_select = $('<select id="color-map-select"></select>').change(function(event) {
         var selection = $(this).find(":selected");
 
-        viewer.loadVolumeColorMap(vol_id, selection.val(), selection.data("cursor-color"), function() {
+        viewer.loadVolumeColorMapFromURL(vol_id, selection.val(), selection.data("cursor-color"), function() {
           viewer.redrawVolumes();
         });
       });
@@ -232,6 +232,13 @@ $(function() {
       });
 
       $("#color-map-" + vol_id).append(color_map_select);
+
+      // Load a color map select by the user.
+      container.find(".color-map-file").change(function() {
+        viewer.loadVolumeColorMapFromFile(vol_id, this, "#FF0000", function() {
+          viewer.redrawVolumes();
+        });
+      });
 
       // Change the range of intensities that will be displayed.
       container.find(".threshold-div").each(function() {
@@ -509,7 +516,7 @@ $(function() {
     //////////////////////////////
     // Load the default color map.
     //////////////////////////////
-    viewer.loadDefaultColorMap(color_map_config.url, color_map_config.cursor_color);
+    viewer.loadDefaultColorMapFromURL(color_map_config.url, color_map_config.cursor_color);
 
     ////////////////////////////////////////
     // Set the size of slice display panels.

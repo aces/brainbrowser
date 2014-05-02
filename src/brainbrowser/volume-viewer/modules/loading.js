@@ -125,7 +125,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
   /**
   * @doc function
-  * @name viewer.volumes:loadVolumeColorMap
+  * @name viewer.volumes:loadVolumeColorMapFromURL
   * @param {number} vol_id Index of the volume to be updated. 
   * @param {string} url URL of the color map file. 
   * @param {string} cursor_color Color to be used for the cursor.
@@ -135,21 +135,15 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   * @description
   * Load a color map for the specified volume.
   */
-  viewer.loadVolumeColorMap = function(vol_id, url, cursor_color, callback) {
+  viewer.loadVolumeColorMapFromURL = function(vol_id, url, cursor_color, callback) {
     BrainBrowser.loader.loadColorMapFromURL(url, function(color_map) {
-      color_map.cursor_color = cursor_color;
-      viewer.setVolumeColorMap(vol_id, color_map);
-      
-      if (BrainBrowser.utils.isFunction(callback)) {
-        callback(viewer.volumes[vol_id], color_map);
-      }
-
+      setVolumeColorMap(vol_id, color_map, cursor_color, callback);
     });
   };
 
   /**
   * @doc function
-  * @name viewer.volumes:loadDefaultColorMap
+  * @name viewer.volumes:loadDefaultColorMapFromURL
   * @param {string} url URL of the color map file. 
   * @param {string} cursor_color Color to be used for the cursor.
   *
@@ -157,10 +151,43 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   * Load a default color map for the viewer. Used when a given volume
   *   doesn't have its color map set.
   */
-  viewer.loadDefaultColorMap = function(url, cursor_color) {
+  viewer.loadDefaultColorMapFromURL = function(url, cursor_color, callback) {
     BrainBrowser.loader.loadColorMapFromURL(url, function(color_map) {
-      color_map.cursor_color = cursor_color;
-      viewer.default_color_map = color_map;
+      setDefaultColorMap(color_map, cursor_color, callback);
+    });
+  };
+
+  /**
+  * @doc function
+  * @name viewer.volumes:loadVolumeColorMapFromFile
+  * @param {number} vol_id Index of the volume to be updated. 
+  * @param {DOMElement} file_input File input element representing the color map file to load.
+  * @param {string} cursor_color Color to be used for the cursor.
+  * @param {function} callback Callback to which the color map object will be passed
+  *   after loading.
+  *
+  * @description
+  * Load a color map for the specified volume.
+  */
+  viewer.loadVolumeColorMapFromFile = function(vol_id, file_input, cursor_color, callback) {
+    BrainBrowser.loader.loadColorMapFromFile(file_input, function(color_map) {
+      setVolumeColorMap(vol_id, color_map, cursor_color, callback);
+    });
+  };
+
+  /**
+  * @doc function
+  * @name viewer.volumes:loadDefaultColorMapFromFileDOMElement
+  * @param {DOMElement} file_input File input element representing the color map file to load.
+  * @param {string} cursor_color Color to be used for the cursor.
+  *
+  * @description
+  * Load a default color map for the viewer. Used when a given volume
+  *   doesn't have its color map set.
+  */
+  viewer.loadDefaultColorMapFromFile = function(file_input, cursor_color, callback) {
+    BrainBrowser.loader.loadColorMapFromFile(file_input, function(color_map) {
+      setDefaultColorMap(color_map, cursor_color, callback);
     });
   };
 
@@ -268,6 +295,24 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       });
 
     });
+  }
+
+  function setDefaultColorMap(color_map, cursor_color, callback) {
+    color_map.cursor_color = cursor_color;
+    viewer.default_color_map = color_map;
+
+    if (BrainBrowser.utils.isFunction(callback)) {
+      callback(color_map);
+    }
+  }
+
+  function setVolumeColorMap(vol_id, color_map, cursor_color, callback) {
+    color_map.cursor_color = cursor_color;
+    viewer.setVolumeColorMap(vol_id, color_map);
+    
+    if (BrainBrowser.utils.isFunction(callback)) {
+      callback(viewer.volumes[vol_id], color_map);
+    }
   }
 
   function getTemplate(dom_element, vol_id, template_id, viewer_insert_class) {

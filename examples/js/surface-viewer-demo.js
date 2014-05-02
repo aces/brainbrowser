@@ -629,15 +629,9 @@ $(function() {
       });
     });
 
-    // Load a selected intensity data file.
-    // $(".datafile").change(function() {
-    //   var filenum = parseInt(this.id.slice(-1), 10);
-    //   viewer.loadIntensityDataFromFile(this, { blend_index : filenum - 1 });
-    // });
-
     // Load a color map select by the user.
     $("#color-map").change(function() {
-      viewer.loadColorMapFromFile(document.getElementById("color-map"));
+      viewer.loadColorMapFromFile(this);
     });
 
     // Load first model.

@@ -60,6 +60,18 @@
 
     /**
     * @doc function
+    * @name panel.panel:setSlice
+    * @param {object} slice Slice object to render on the panel.
+    * @description
+    * Set the volume slice to be rendered on the panel.
+    */
+    setSlice: function(slice) {
+      this.slice = slice
+      this.slice_image = this.slice.getImage(this.zoom);
+    },
+
+    /**
+    * @doc function
     * @name panel.panel:updateCursor
     * @description
     * Update the panel cursor based on the current position with the given volume.
@@ -68,7 +80,7 @@
       var volume = this.volume;
       var slice = this.slice;
       var origin = this.getImageOrigin();
-      
+
       this.cursor.x = (volume.position[slice.width_space.name] * Math.abs(slice.width_space.step) * this.zoom) + origin.x;
       this.cursor.y = (slice.height_space.space_length - volume.position[slice.height_space.name]) * Math.abs(slice.height_space.step) * this.zoom  + origin.y;
     },
@@ -114,8 +126,8 @@
     */
     getImageOrigin: function() {
       return {
-        x: this.image_center.x - this.slice.image.width / 2,
-        y: this.image_center.y - this.slice.image.height / 2
+        x: this.image_center.x - this.slice_image.width / 2,
+        y: this.image_center.y - this.slice_image.height / 2
       };
     },
     
@@ -126,9 +138,14 @@
     * Draw the displays current slice to the canvas.
     */
     drawSlice: function() {
-      var img = this.slice.image;
-      var origin = this.getImageOrigin();
-      this.context.putImageData(img, origin.x, origin.y);
+      var image = this.slice_image;
+      var origin;
+
+      if (image) {
+        origin = this.getImageOrigin();
+        this.context.putImageData(image, origin.x, origin.y);
+      }
+
     },
     
     /**

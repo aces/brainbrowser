@@ -113,9 +113,9 @@ BrainBrowser.VolumeViewer.mincData = (function() {
     order2.width_space = order0;
 
     //calculate the offsets for each element of a slice
-    order0.offset=parseFloat(order1.space_length)*parseFloat(order2.space_length);
-    order1.offset=parseFloat(order0.space_length);
-    order2.offset=parseFloat(order0.space_length);
+    order0.offset = parseFloat(order1.space_length) * parseFloat(order2.space_length);
+    order1.offset = parseFloat(order0.space_length);
+    order2.offset = parseFloat(order0.space_length);
     order0.slice_length = order0.height * order0.width;
   }
 
@@ -129,17 +129,19 @@ BrainBrowser.VolumeViewer.mincData = (function() {
      */
     slice: function(axis, number, time) {
       var slice;
-      var cachedSlices = this.cachedSlices;
+      var cached_slices = this.cached_slices;
       var order0 = this[this.order[0]];
       time = time || 0;
       
-      cachedSlices[axis] = cachedSlices[axis] || [];
-      cachedSlices[axis][time] =  cachedSlices[axis][time] || [];
+      cached_slices[axis] = cached_slices[axis] || [];
+      cached_slices[axis][time] =  cached_slices[axis][time] || [];
+      
       if(this[axis].step < 0) {
         number = this[axis].space_length - number;
       }
-      if(cachedSlices[axis][time][number] !== undefined) {
-        slice = cachedSlices[axis][time][number];
+      
+      if(cached_slices[axis][time][number] !== undefined) {
+        slice = cached_slices[axis][time][number];
         slice.alpha = 1;
         slice.number = number;
         return slice;
@@ -246,8 +248,8 @@ BrainBrowser.VolumeViewer.mincData = (function() {
       }
       
       //set the spaces on each axis
-      slice.x = this[axis].width_space;
-      slice.y = this[axis].height_space;
+      slice.width_space = this[axis].width_space;
+      slice.height_space = this[axis].height_space;
       slice.width = row_length;
       slice.height = height;
       
@@ -260,8 +262,8 @@ BrainBrowser.VolumeViewer.mincData = (function() {
         } else {
           slice_data = rotateUint16Array90Left(slice_data,slice.width,slice.height);
         }
-        slice.x = this[axis].height_space;
-        slice.y = this[axis].width_space;
+        slice.width_space = this[axis].height_space;
+        slice.height_space = this[axis].width_space;
         slice.width = height;
         slice.height = row_length;
         
@@ -273,8 +275,8 @@ BrainBrowser.VolumeViewer.mincData = (function() {
         }else {
           slice_data = rotateUint16Array90Left(slice_data,slice.width,slice.height);
         }
-        slice.x = this[axis].height_space;
-        slice.y = this[axis].width_space;
+        slice.width_space = this[axis].height_space;
+        slice.height_space = this[axis].width_space;
         slice.width = height;
         slice.height = row_length;
         
@@ -282,8 +284,8 @@ BrainBrowser.VolumeViewer.mincData = (function() {
       //zspace should be XxY
       if(axis === "zspace" && this.zspace.height_space.name === "xspace"){
         slice_data = rotateUint16Array90Left(slice_data,slice.width,slice.height);
-        slice.x = this[axis].width_space;
-        slice.y = this[axis].height_space;
+        slice.width_space = this[axis].width_space;
+        slice.height_space = this[axis].height_space;
         slice.width = height;
         slice.height = row_length;
         
@@ -291,11 +293,11 @@ BrainBrowser.VolumeViewer.mincData = (function() {
       
       slice.data = slice_data;
       //set the spaces on each axis
-      slice.x = slice.x || this[axis].width_space;
-      slice.y = slice.y || this[axis].height_space;
+      slice.width_space = slice.width_space || this[axis].width_space;
+      slice.height_space = slice.height_space || this[axis].height_space;
       slice.width = slice.width || row_length;
       slice.height = slice.height || height;
-      cachedSlices[axis][time][number] = slice;
+      cached_slices[axis][time][number] = slice;
 
       return slice;
     }
@@ -307,7 +309,7 @@ BrainBrowser.VolumeViewer.mincData = (function() {
     var minc_data = Object.create(minc_data_proto);
   
     parseHeader(minc_data, header);
-    minc_data.cachedSlices = {};
+    minc_data.cached_slices = {};
     minc_data.data = data;
 
     return minc_data;

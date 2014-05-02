@@ -239,13 +239,11 @@
           context = panel.context;
           context.globalAlpha = 255;
           context.clearRect(0, 0, canvas.width, canvas.height);
-          //draw slices in order
-          slice = volume.cached_slices[panel_num];
-          if (slice){
-            color_map = volume.color_map || viewer.default_color_map;
-            panel.drawSlice();
-            panel.drawCursor(color_map.cursor_color);
-          }
+
+          color_map = volume.color_map || viewer.default_color_map;
+          panel.drawSlice();
+          panel.drawCursor(color_map.cursor_color);
+
           if (canvas === viewer.active_canvas) {
             context.save();
             context.strokeStyle = "#EC2121";
@@ -305,20 +303,22 @@
 
       timeouts[vol_id][axis_name] = setTimeout(function() {
         var volume = viewer.volumes[vol_id];
-        var slice;
         var axis_num = axis_to_number[axis_name];
+        var slice;
         
-        if (slice_num === undefined) {
+        if (slice_num !== undefined) {
           slice_num = volume.position[axis_name];
         }
-        
+
+        volume.position[axis_name] = slice_num;
+
         slice = volume.slice(axis_name, slice_num, volume.current_time);
         slice.vol_id = vol_id;
         slice.axis_number = axis_num;
-        volume.position[axis_name] = slice_num;
-
         slice.min = volume.min;
         slice.max = volume.max;
+        
+
         updateSlice(vol_id, axis_name, slice);
             
         BrainBrowser.events.triggerEvent("sliceupdate");
@@ -345,8 +345,8 @@
       var volume = viewer.volumes[vol_id];
       var axis_num = axis_to_number[axis_name];
 
-      var slice = volume.cached_slices[axis_num];
       var panel = volume.display[axis_num];
+      var slice = panel.slice;
       var image_origin = panel.getImageOrigin();
       var zoom = panel.zoom;
       var x, y;
@@ -466,21 +466,14 @@
 
     // Update the slice currently being displayed
     function updateSlice(vol_id, axis_name, slice) {
-      var width_space = slice.x;
-      var height_space = slice.y;
+
+      var width_space = slice.width_space;
+      var height_space = slice.height_space;
       var axis_num = axis_to_number[axis_name];
-      var volume = viewer.volumes[vol_id];
-      
-      var cached_slice = volume.cached_slices[axis_num] || {
-        width_space: width_space,
-        height_space: height_space,
-      };
+      var volume = viewer.volumes[vol_id]; 
       var panel = volume.display[axis_num];
       
-      cached_slice.image = slice.getImage(panel.zoom);
-      volume.cached_slices[axis_num] = cached_slice;
-      
-      panel.slice = cached_slice;
+      panel.setSlice(slice);
       panel.updateCursor();
     }
 

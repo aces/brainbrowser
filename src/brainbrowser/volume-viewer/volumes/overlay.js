@@ -98,8 +98,8 @@
       });
       
       return {
-        x: slices[0].x,
-        y: slices[0].y,
+        height_space: slices[0].height_space,
+        width_space: slices[0].width_space,
         getImage: function(zoom) {
           zoom = zoom || 1;
           
@@ -111,8 +111,8 @@
           slices.forEach(function(slice) {
             var color_map = slice.color_map;
             var image_data = context.createImageData(slice.width, slice.height);
-            var result_width = Math.floor(slice.width * slice.x.step * zoom);
-            var result_height = Math.floor(slice.height * slice.y.step * zoom);
+            var result_width = Math.floor(slice.width * slice.width_space.step * zoom);
+            var result_height = Math.floor(slice.height * slice.height_space.step * zoom);
             
             color_map.mapColors(slice.data, {
               min: slice.min,

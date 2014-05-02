@@ -43,21 +43,21 @@
         zoom = zoom || 1;
 
         var context = document.createElement("canvas").getContext("2d");
-        var color_map = this.color_map;
-        var imageData = context.createImageData(this.width, this.height);
-        color_map.mapColors(this.data, {
-          min: this.min,
-          max: this.max,
+        var color_map = slice.color_map;
+        var imageData = context.createImageData(slice.width, slice.height);
+        color_map.mapColors(slice.data, {
+          min: slice.min,
+          max: slice.max,
           scale255: true,
           brightness: 0,
           contrast: 1,
-          alpha: this.alpha,
+          alpha: slice.alpha,
           destination: imageData.data
         });
-  
-        var xstep = this.x.step;
-        var ystep = this.y.step;
-        return VolumeViewer.utils.nearestNeighbor(imageData, Math.floor(this.width * xstep * zoom), Math.floor(this.height * ystep * zoom));
+
+        var xstep = slice.width_space.step;
+        var ystep = slice.height_space.step;
+        return VolumeViewer.utils.nearestNeighbor(imageData, Math.floor(slice.width * xstep * zoom), Math.floor(slice.height * ystep * zoom));
       };
       
       return slice;

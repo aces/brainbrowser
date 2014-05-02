@@ -255,7 +255,6 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       viewer.volumes[vol_id] = volume;
       volume.position = {};
       volume.display = createVolumeDisplay(viewer.dom_element, vol_id, volume_description);
-      volume.cached_slices = [];
       volume.color_map = viewer.default_color_map;
 
       ["xspace", "yspace", "zspace"].forEach(function(axis, axis_num) {

@@ -27,8 +27,6 @@
 (function() {
   "use strict";
 
-  var BrainBrowser = window.BrainBrowser = window.BrainBrowser || {};
-
   var loader = BrainBrowser.loader = {
     
     /**

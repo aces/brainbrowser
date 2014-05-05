@@ -27,11 +27,7 @@
 (function() {
   "use strict";
 
-  var BrainBrowser = window.BrainBrowser = window.BrainBrowser || {};
-
   var event_listeners = [];
-
-
 
   BrainBrowser.events = {
 

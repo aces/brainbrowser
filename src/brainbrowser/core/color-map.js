@@ -39,8 +39,6 @@
 (function() {
   "use strict";
 
-  var BrainBrowser = window.BrainBrowser = window.BrainBrowser || {};
-
   BrainBrowser.createColorMap = function(data) {
 
     /**

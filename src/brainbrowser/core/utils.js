@@ -68,10 +68,6 @@
   * @description
   * The main BrainBrowser namespace.
   */
-  var BrainBrowser = window.BrainBrowser = window.BrainBrowser || {};
-
-  var version = "<%= BRAINBROWSER_VERSION %>";
-  BrainBrowser.version = version.indexOf("BRAINBROWSER_VERSION") > 0 ? "D.E.V" : version;
 
   BrainBrowser.utils = {
     
@@ -300,20 +296,6 @@
   
   };
 
-  // Shims for requestAnimationFrame (mainly for old Safari)
-  window.requestAnimationFrame =  window.requestAnimationFrame ||
-                                  window.webkitRequestAnimationFrame ||
-                                  window.mozRequestAnimationFrame ||
-                                  window.oRequestAnimationFrame ||
-                                  window.msRequestAnimationFrame ||
-                                  function(callback){
-                                    return window.setTimeout(callback, 1000 / 60);
-                                  };
-
-  window.cancelAnimationFrame = window.cancelAnimationFrame ||
-                                function(id){
-                                  window.clearTimeout(id);
-                                };
 })();
 
 

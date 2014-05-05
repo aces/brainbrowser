@@ -21,8 +21,8 @@
 */
 
 /*
-* @author: Tarek Sherif
-* @author: Nicolas Kassis
+* Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
+* Author: Nicolas Kassis
 */
 
 BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {

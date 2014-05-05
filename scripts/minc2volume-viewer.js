@@ -21,7 +21,7 @@
 */
 
 /*
-* Author: Tarek Sherif  <tsherif@gmail.com> (http://tareksherif.ca/)
+* Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
 * Author: Nicolas Kassis
 */
 

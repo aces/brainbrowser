@@ -21,53 +21,11 @@
 */
 
 /*
-* @author Tarek Sherif
+* Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
 */
 
-/**
-* @doc overview
-* @name index
-* @property {string} version The current version of BrainBrowser.
-*
-* @description
-* Utilities for all BrainBrowser tools.
-*/
-
-/**
-* @doc overview
-* @name Configuration
-*
-* @description
-* BrainBrowser configuration is done by creating an object, **BrainBrowser.config**,
-* with two object properties, **surface\_viewer** and **volume\_viewer** that define
-* the configuration options for each of the tools. For more information on particular 
-* options for each tool, see the Surface Viewer and Volume Viewer configuration sections.
-* 
-* ```js
-* BrainBrowser.config = {
-*
-*   surface_viewer: {
-*     // ...
-*   }, 
-*
-*   volume_viewer: {
-*     // ...
-*   }
-*   
-* }
-* ```
-*/
 (function() {
   "use strict";
- 
-  /**
-  * @doc object
-  * @name BrainBrowser
-  * @property {string} version The current version of BrainBrowser.
-  *
-  * @description
-  * The main BrainBrowser namespace.
-  */
 
   BrainBrowser.utils = {
     
@@ -271,27 +229,6 @@
       }
 
       return true;
-    },
-
-    /**
-    * @doc function
-    * @name BrainBrowser.utils:drawDot
-    * @param {scene} The THREE.Scene to draw in.
-    * @param {number} The x coordinate.
-    * @param {number} The y coordinate.
-    * @param {number} The z coordinate.
-    *
-    * @description Draw a red dot in a THREE.Scene. Handy for debugging.
-    * 
-    */
-    drawDot: function(scene, x, y, z) {
-      var geometry = new THREE.SphereGeometry(2);
-      var material = new THREE.MeshBasicMaterial({color: 0xFF0000});
-    
-      var sphere = new THREE.Mesh(geometry, material);
-      sphere.position.set(x, y, z);
-    
-      scene.add(sphere);
     }
   
   };

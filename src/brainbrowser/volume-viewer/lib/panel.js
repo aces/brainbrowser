@@ -21,7 +21,7 @@
 */
 
 /*
-* @author: Tarek Sherif
+* Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
 */
 
 /**
@@ -184,15 +184,25 @@
 
   /**
   * @doc function
-  * @name Volume Viewer.static methods:createPanel
+  * @name VolumeViewer.static methods:createPanel
   * @param {object} options Options used to create the panel.
+  *  Options can include:
+  *
+  * * **volume** The volume being displayed on the panel.
+  * * **axis** The axis being displayed on the panel (xspace, yspace or zspace).
+  * * **canvas** The canvas on which to draw slices.
+  * * **cursor** An object containing the starting **x** and **y** positions of 
+  *     the cursor.
+  * * **image_center** An object containing the starting **x** and **y** positions of 
+  *     the slice image center.
+  *
   * @returns {object} Panel object used to control display of a slice.
-  * 
   * @description
   * Factory function to produce the panel object used to control the 
   * display of a slice.
   */
   BrainBrowser.VolumeViewer.createPanel = function(options) {
+
     options = options || {};
 
     var defaults = {
@@ -221,8 +231,35 @@
       panel[k] = options[k];
     });
 
+    if (panel.canvas && BrainBrowser.utils.isFunction(panel.canvas.getContext)) {
+      panel.context = panel.canvas.getContext("2d");
+      panel.mouse = captureMouse(panel.canvas);
+    }
+
     return panel;
   };
+
+  function captureMouse(canvas) {
+    var mouse = {x: 0, y: 0};
+
+    canvas.addEventListener("mousemove", function(e) {
+      var offset = BrainBrowser.utils.getOffset(canvas);
+      var x, y;
+
+      if (e.pageX !== undefined) {
+        x = e.pageX;
+        y = e.pageY;
+      } else {
+        x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+        y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+      }
+
+      mouse.x = x - offset.left;
+      mouse.y = y - offset.top;
+    }, false);
+
+    return mouse;
+  }
 
 })();
 

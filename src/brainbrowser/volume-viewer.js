@@ -21,8 +21,8 @@
 */
 
 /*
-* @author: Tarek Sherif
-* @author: Nicolas Kassis
+* Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
+* Author: Nicolas Kassis
 */
 
 /**
@@ -42,6 +42,16 @@
 *      console.log("Viewer is ready!");
 *    });
 *
+*    // Load the default color map.
+*    // (Second argument is the cursor color to use).
+*    viewer.loadDefaultColorMapFromURL(color_map_url, "#FF0000");
+*
+*    // Set the size of slice display panels.
+*    viewer.setPanelSize(256, 256);
+*
+*    // Start rendering.
+*    viewer.render();
+*
 *    // Load volumes.
 *    viewer.loadVolumes({
 *      volumes: [
@@ -56,8 +66,8 @@
 *        },
 *        {
 *          type: "minc",
-*          header_url: "volume2.mnc?minc_headers=true",
-*          raw_data_url: "volume2.mnc?raw_data=true",
+*          header_file: document.getElementById("header-file"),
+*          raw_data_file: document.getElementById("raw-data-file"),
 *          template: {
 *            element_id: "volume-ui-template",
 *            viewer_insert_class: "volume-viewer-display"
@@ -75,11 +85,76 @@
 *  ```
 */
 
+/**
+* @doc overview
+* @name Templates
+*
+* @description
+* If more than one volume is to be displayed by the Volume Viewer, or if volumes are
+* to be loaded and removed dynamically, the Volume Viewer's default behaviour of inserting
+* the viewer panels into the DOM element referred to in the **start** method might not be
+* sufficient. For cases such as these, the Volume Viewer provides a templating mechanism 
+* to allow UI to be created once and then reused for several volumes.
+* A template is simply unrendered HTML embedded in a web page using a
+* a **script** tag with a non-JavaScript type: 
+*
+* ```HTML
+* &lt;script id=&quot;volume-ui-template&quot; type=&quot;x-volume-ui-template&quot;&gt;
+*   &lt;div class=&quot;volume-viewer-display&quot;&gt;&lt;/div&gt;
+*   &lt;div class=&quot;volume-viewer-controls volume-controls&quot;&gt;
+*     &lt;div class=&quot;coords&quot;&gt;
+*       &lt;div class=&quot;control-heading&quot; id=&quot;voxel-coordinates-heading-&#123;&#123;VOLID&#125;&#125;&quot;&gt;
+*         Voxel Coordinates: 
+*       &lt;/div&gt;
+*       &lt;div class=&quot;voxel-coords&quot; data-volume-id=&quot;&#123;&#123;VOLID&#125;&#125;&quot;&gt;
+*         X:&lt;input id=&quot;voxel-x-&#123;&#123;VOLID&#125;&#125;&quot; class=&quot;control-inputs&quot;&gt;
+*         Y:&lt;input id=&quot;voxel-y-&#123;&#123;VOLID&#125;&#125;&quot; class=&quot;control-inputs&quot;&gt;
+*         Z:&lt;input id=&quot;voxel-z-&#123;&#123;VOLID&#125;&#125;&quot; class=&quot;control-inputs&quot;&gt;
+*       &lt;/div&gt;
+*     &lt;/div&gt;
+*   &lt;/div&gt;
+* &lt;/script&gt;
+* ```
+* 
+* Some important points about the template:
+*
+* * An element with a distinct class must be provided in which the viewer panels
+*   will be inserted. In the above example, this is the **div** with the class 
+*   **volume-viewer-display**.
+* * The placeholder **`{{VOLID}}`** will be replaced by the displayed volume's ID
+*   (i.e. its index in the **viewer.volumes** array). This can be useful if its
+*   necessary to refer from a element to the volume it applies to.
+* 
+* To use the template, simply refer to the template's **id** and the viewer panel's
+* **class** in the **option** of any of the volume loading functions:
+*
+* * **loadVolume**
+* * **loadVolumes**
+* * **createOverlay**
+*
+* For example, to load a single volume over the network and apply the above template,
+* something like the following would suffice:
+* ```js
+* viewer.loadVolume({
+*   type: "minc",
+*   header_url: "volume1.header",
+*   raw_data_url: "volume1.raw",
+*   template: {
+*     element_id: "volume-ui-template",
+*     viewer_insert_class: "volume-viewer-display"
+*   }
+* });
+* ```
+*
+* The key options are:
+*
+* * **element_id**: the **ID** of the template element.
+* * **viewer\_insert\_class**: the **class** of the element in which to insert the viewer
+*   panels.
+*/
 (function() {
   "use strict";
   
-  var BrainBrowser = window.BrainBrowser = window.BrainBrowser || {};
-
   var VolumeViewer = BrainBrowser.VolumeViewer = {};
   
   VolumeViewer.modules = {};
@@ -87,56 +162,68 @@
   
 
   /**
-  *  @doc function
-  *  @name VolumeViewer.static methods:start
-  *  @param {string} element_id ID of the DOM element
-  *  in which the viewer will be inserted.
-  *  @param {function} callback Callback function to which the viewer object
-  *  will be passed after creation.
-  *  @description
-  *  The start() function is the main point of entry to the Volume Viewer.
-  *  It creates a viewer object that is then passed to the callback function
-  *  supplied by the user.
+  * @doc function
+  * @name VolumeViewer.static methods:start
+  * @param {string} element_id ID of the DOM element
+  * in which the viewer will be inserted.
+  * @param {function} callback Callback function to which the viewer object
+  * will be passed after creation.
+  * @description
+  * The start() function is the main point of entry to the Volume Viewer.
+  * It creates a viewer object that is then passed to the callback function
+  * supplied by the user.
   *
-  *  ```js
-  *  BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
+  * ```js
+  * BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
   *
-  *    // Add an event listener.
-  *    BrainBrowser.events.addEventListener("ready", function() {
-  *      console.log("Viewer is ready!");
-  *    });
+  *   // Add an event listener.
+  *   BrainBrowser.events.addEventListener("volumesloaded", function() {
+  *     console.log("Viewer is ready!");
+  *   });
   *
-  *    // Load minc volumes.
-  *    viewer.loadVolumes({
-  *      volumes: [
-  *        {
-  *          type: "minc",
-  *          header_url: "volume1.mnc?minc_headers=true",
-  *          raw_data_url: "volume1.mnc?raw_data=true",
-  *          template: {
-  *            element_id: "volume-ui-template",
-  *            viewer_insert_class: "volume-viewer-display"
-  *          }
-  *        },
-  *        {
-  *          type: "minc",
-  *          header_url: "volume2.mnc?minc_headers=true",
-  *          raw_data_url: "volume2.mnc?raw_data=true",
-  *          template: {
-  *            element_id: "volume-ui-template",
-  *            viewer_insert_class: "volume-viewer-display"
-  *          }
-  *        }
-  *      ],
-  *      overlay: {
-  *        template: {
-  *          element_id: "overlay-ui-template",
-  *          viewer_insert_class: "overlay-viewer-display"
-  *        }
-  *      }
-  *    });
-  *  });
-  *  ```
+  *   // Load the default color map.
+  *   // (Second argument is the cursor color to use).
+  *   viewer.loadDefaultColorMapFromURL(color_map_url, "#FF0000");
+  *
+  *   // Set the size of slice display panels.
+  *   viewer.setPanelSize(256, 256);
+  *
+  *   // Start rendering.
+  *   viewer.render();
+  *
+  *   // Load minc volumes.
+  *   viewer.loadVolumes({
+  *     volumes: [
+  *       // Load a volume over the network.
+  *       {
+  *         type: "minc",
+  *         header_url: "volume1.mnc?minc_headers=true",
+  *         raw_data_url: "volume1.mnc?raw_data=true",
+  *         template: {
+  *           element_id: "volume-ui-template",
+  *           viewer_insert_class: "volume-viewer-display"
+  *         }
+  *       },
+  *       // Load a volume from a local file.
+  *       {
+  *         type: "minc",
+  *         header_file: document.getElementById("header-file"),
+  *         raw_data_file: document.getElementById("raw-data-file"),
+  *         template: {
+  *           element_id: "volume-ui-template",
+  *           viewer_insert_class: "volume-viewer-display"
+  *         }
+  *       }
+  *     ],
+  *     overlay: {
+  *       template: {
+  *         element_id: "overlay-ui-template",
+  *         viewer_insert_class: "overlay-viewer-display"
+  *       }
+  *     }
+  *   });
+  * });
+  * ```
   */
   VolumeViewer.start = function(element_id, callback) {
     
@@ -171,7 +258,6 @@
       dom_element: document.getElementById(element_id),
       volumes: [],
       synced: false,
-      default_zoom_level: 1,
       panel_width: 256,
       panel_height: 256
     };
@@ -213,7 +299,7 @@
 
     /**
     * @doc function
-    * @name viewer.volumes:fetchSlice
+    * @name viewer.viewer:fetchSlice
     * @param {number} vol_id Index of the volume where the slice is being rendered.
     * @param {string} axis_name Name of the axis where the slice is being rendered.
     * @param {number} slice_num Index of the slice to render.

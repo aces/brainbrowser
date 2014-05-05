@@ -21,7 +21,7 @@
 */
 
 /*
-* @author: Tarek Sherif
+* Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
 */
 
 BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
@@ -31,7 +31,7 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
 
   /**
   * @doc function
-  * @name viewer.viewer:draw
+  * @name viewer.rendering:draw
   *
   * @description
   * Draw current slices to the canvases.
@@ -74,7 +74,7 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
 
   /**
   * @doc function
-  * @name viewer.viewer:rendering
+  * @name viewer.rendering:rendering
   *
   * @description
   * Start render loop around **viewer.draw()**.
@@ -91,7 +91,7 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
 
   /**
   * @doc function
-  * @name viewer.volumes:setCursor
+  * @name viewer.rendering:setCursor
   * @param {number} vol_id Index of the volume.
   * @param {number} axis_num Volume axis to update.
   * @param {object} cursor Object containing the x and y coordinates of the 
@@ -127,7 +127,7 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
 
   /**
   * @doc function
-  * @name viewer.volumes:redrawVolumes
+  * @name viewer.rendering:redrawVolumes
   *
   * @description
   * Redraw all volumes at their current position.
@@ -142,7 +142,7 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
 
   /**
   * @doc function
-  * @name viewer.volumes:resetDisplays
+  * @name viewer.rendering:resetDisplays
   *
   * @description
   * Reset all displays.

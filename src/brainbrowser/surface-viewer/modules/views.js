@@ -21,7 +21,7 @@
 */
 
 /*
-* @author: Tarek Sherif
+* Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
 */
 
 BrainBrowser.SurfaceViewer.modules.views = function(viewer) {

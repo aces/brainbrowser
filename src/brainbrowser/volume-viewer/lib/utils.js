@@ -21,8 +21,8 @@
 */
 
 /*
-* @author: Tarek Sherif
-* @author: Nicolas Kassis
+* Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
+* Author: Nicolas Kassis
 */
 
 (function() {
@@ -80,6 +80,7 @@
       
       return image;
     },
+
     rotateUint16Array90Left: function(array, width, height){
       var new_array = new Uint16Array(width * height);
       var i, j;
@@ -92,6 +93,7 @@
 
       return new_array;
     },
+    
     rotateUint16Array90Right: function(array, width, height){
       var new_array = new Uint16Array(width * height);
       var i, j;

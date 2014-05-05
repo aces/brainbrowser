@@ -21,16 +21,23 @@
 */
 
 /*
-* @author Tarek Sherif
+* Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
 */
 
 /**
 * @doc overview
 * @name index
-* @property {string} version The current version of BrainBrowser.
 *
 * @description
-* Utilities for all BrainBrowser tools.
+* The main BrainBrowser namespace. Contains:
+*
+*  * **version**: the version of the current instance of BrainBrowser.
+*  * **utils**: general utilities for all applications.
+*  * **events**: event handler functions.
+*  * **createColorMap**: a factory function for creating color map objects.
+*  * **loader**: utility functions for loading data from URLs or from local files.
+*  * **SurfaceViewer**: The Surface Viewer application.
+*  * **VolumeViewer**: The Volume Viewer application.
 */
 
 /**
@@ -62,6 +69,12 @@
 * @doc object
 * @name BrainBrowser
 * @property {string} version The current version of BrainBrowser.
+* @property {object} utils General utilities for all applications.
+* @property {object} events Event handler functions.
+* @property {function} createColorMap A factory function for creating color map objects.
+* @property {object} loader utility Functions for loading data from URLs or from local files.
+* @property {object} SurfaceViewer The Surface Viewer application.
+* @property {object} VolumeViewer The Volume Viewer application.
 *
 * @description
 * The main BrainBrowser namespace.

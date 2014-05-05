@@ -38,6 +38,7 @@ module.exports = function(grunt) {
       },
       surface: {
         src: [
+          "src/brainbrowser/brainbrowser.js",
           "src/brainbrowser/lib/*.js",
           "src/brainbrowser/surface-viewer.js",
           "src/brainbrowser/surface-viewer/**/*.js"
@@ -46,6 +47,7 @@ module.exports = function(grunt) {
       },
       volume: {
         src: [
+          "src/brainbrowser/brainbrowser.js",
           "src/brainbrowser/lib/*.js",
           "src/brainbrowser/volume-viewer.js",
           "src/brainbrowser/volume-viewer/**/*.js"
@@ -155,9 +157,9 @@ module.exports = function(grunt) {
           showSource: false,
           sections: [
             {
-              title: "Utilities",
-              id: "utils",
-              scripts: ["src/brainbrowser/lib"]
+              title: "BrainBrowser",
+              id: "brainbrowser",
+              scripts: ["src/brainbrowser/brainbrowser.js", "src/brainbrowser/lib"]
             },
             {
               title: "Surface Viewer",

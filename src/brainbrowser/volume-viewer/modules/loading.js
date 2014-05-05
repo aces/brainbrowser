@@ -21,7 +21,7 @@
 */
 
 /*
-* @author: Tarek Sherif
+* Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
 */
 
 BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
@@ -55,8 +55,8 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   *     },
   *     {
   *       type: "minc",
-  *       header_url: "volume2.mnc?minc_headers=true",
-  *       raw_data_url: "volume2.mnc?raw_data=true",
+  *       header_file: document.getElementById("header-file"),
+  *       raw_data_file: document.getElementById("raw-data-file"),
   *       template: {
   *         element_id: "volume-ui-template",
   *         viewer_insert_class: "volume-viewer-display"
@@ -125,7 +125,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
   /**
   * @doc function
-  * @name viewer.volumes:loadVolumeColorMapFromURL
+  * @name viewer.loading:loadVolumeColorMapFromURL
   * @param {number} vol_id Index of the volume to be updated. 
   * @param {string} url URL of the color map file. 
   * @param {string} cursor_color Color to be used for the cursor.
@@ -143,9 +143,11 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
   /**
   * @doc function
-  * @name viewer.volumes:loadDefaultColorMapFromURL
+  * @name viewer.loading:loadDefaultColorMapFromURL
   * @param {string} url URL of the color map file. 
   * @param {string} cursor_color Color to be used for the cursor.
+  * @param {function} callback Callback to which the color map object will be passed
+  *   after loading.
   *
   * @description
   * Load a default color map for the viewer. Used when a given volume
@@ -159,7 +161,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
   /**
   * @doc function
-  * @name viewer.volumes:loadVolumeColorMapFromFile
+  * @name viewer.loading:loadVolumeColorMapFromFile
   * @param {number} vol_id Index of the volume to be updated. 
   * @param {DOMElement} file_input File input element representing the color map file to load.
   * @param {string} cursor_color Color to be used for the cursor.
@@ -177,9 +179,11 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
   /**
   * @doc function
-  * @name viewer.volumes:loadDefaultColorMapFromFileDOMElement
+  * @name viewer.loading:loadDefaultColorMapFromFile
   * @param {DOMElement} file_input File input element representing the color map file to load.
   * @param {string} cursor_color Color to be used for the cursor.
+  * @param {function} callback Callback to which the color map object will be passed
+  *   after loading.
   *
   * @description
   * Load a default color map for the viewer. Used when a given volume
@@ -193,7 +197,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
   /**
   * @doc function
-  * @name viewer.volumes:setVolumeColorMap
+  * @name viewer.loading:setVolumeColorMap
   * @param {number} vol_id Index of the volume to be updated. 
   * @param {object} color_map Color map to use for the indicated volume.
   *
@@ -218,6 +222,29 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   *
   * @description
   * Load a new volume.
+  * ```js
+  * // Load over the network.
+  * viewer.loadVolume({
+  *   type: "minc",
+  *   header_url: "volume1.mnc?minc_headers=true",
+  *   raw_data_url: "volume1.mnc?raw_data=true",
+  *   template: {
+  *     element_id: "volume-ui-template",
+  *     viewer_insert_class: "volume-viewer-display"
+  *   }
+  * });
+  *
+  * // Load from local files.
+  * viewer.loadVolume({
+  *   type: "minc",
+  *   header_file: document.getElementById("header-file"),
+  *   raw_data_file: document.getElementById("raw-data-file"),
+  *   template: {
+  *     element_id: "volume-ui-template",
+  *     viewer_insert_class: "volume-viewer-display"
+  *   }
+  * });
+  * ```
   */
   viewer.loadVolume = function(volume_description, callback) {
     setVolume(viewer.volumes.length, volume_description, callback);
@@ -247,6 +274,14 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   *
   * @description
   * Create an overlay of the currently loaded volumes.
+  * ```js
+  * viewer.createOverlay({
+  *   template: {
+  *     element_id: "overlay-ui-template",
+  *     viewer_insert_class: "overlay-viewer-display"
+  *   }
+  * });
+  * ```
   */
   viewer.createOverlay = function(description, callback) {
 
@@ -260,6 +295,10 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       callback
     );
   };
+
+  ///////////////////////////
+  // Private Functions
+  ///////////////////////////
 
   // Open volume using appropriate volume loader
   function openVolume(volume_description, callback){
@@ -349,31 +388,8 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
     container.classList.add("volume-container");
     
-    function captureMouse(canvas) {
-      var mouse = {x: 0, y: 0};
-
-      canvas.addEventListener("mousemove", function(e) {
-        var offset = BrainBrowser.utils.getOffset(canvas);
-        var x, y;
-
-        if (e.pageX !== undefined) {
-          x = e.pageX;
-          y = e.pageY;
-        } else {
-          x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-          y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
-        }
-
-        mouse.x = x - offset.left;
-        mouse.y = y - offset.top;
-      }, false);
-
-      return mouse;
-    }
-    
     ["xspace", "yspace", "zspace"].forEach(function(axis_name) {
       var canvas = document.createElement("canvas");
-      var context = canvas.getContext('2d');
       canvas.width = viewer.panel_width;
       canvas.height = viewer.panel_height;
       canvas.setAttribute("data-volume-id", vol_id);
@@ -381,13 +397,11 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       canvas.classList.add("slice-display");
       canvas.style.backgroundColor = "#000000";
       container.appendChild(canvas);
-      context.clearRect(0, 0, canvas.width, canvas.height);
       display.push(
         VolumeViewer.createPanel({
           volume: volume,
           axis: axis_name,
           canvas: canvas,
-          context: context,
           cursor: {
             x: canvas.width / 2,
             y: canvas.height / 2
@@ -395,9 +409,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
           image_center: {
             x: canvas.width / 2,
             y: canvas.height / 2
-          },
-          mouse: captureMouse(canvas),
-          zoom: viewer.default_zoom_level,
+          }
         })
       );
     });

@@ -21,8 +21,8 @@
 */
 
 /*
-* @author: Tarek Sherif
-* @author: Nicolas Kassis
+* Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
+* Author: Nicolas Kassis
 */
 
 /**
@@ -30,7 +30,7 @@
 * @name index
 *
 * @description
-* The BrainBrowser Surface Viewer is a tool for displayed and manipulating 3D datasets in real
+* The BrainBrowser Surface Viewer is a tool for displaying and manipulating 3D datasets in real
 * time. Basic usage consists of calling the **start()** method of the **SurfaceViewer** module, 
 * which takes a callback function as its second argument, and then using the **viewer** object passed
 * to that callback function to control how models are displayed:
@@ -95,8 +95,6 @@
 */
 (function() {
   "use strict";
-
-  var BrainBrowser = window.BrainBrowser = window.BrainBrowser || {};
   
   var SurfaceViewer = BrainBrowser.SurfaceViewer = {
 

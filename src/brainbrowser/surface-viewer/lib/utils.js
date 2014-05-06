@@ -28,7 +28,7 @@
 (function() {
   "use strict";
 
-  BrainBrowser.VolumeViewer.utils = {
+  BrainBrowser.SurfaceViewer.utils = {
     /**
     * @doc function
     * @name SurfaceViewer.utils:drawDot

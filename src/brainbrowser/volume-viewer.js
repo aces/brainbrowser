@@ -241,8 +241,11 @@
     * for certain events occuring over the viewer's lifetime. Currently, the 
     * following viewer events can be listened for:
     *
-    * * **ready** Viewer is completely loaded and ready to be manipulated.
+    * * **volumesloaded** Volumes loaded by **viewer.loadVolumes()** have finished loading.
+    * * **rendering** Viewer has started rendering.
+    * * **volumeuiloaded** A new volume UI has been created by the viewer.
     * * **sliceupdate** A new slice has been rendered to the viewer.
+    * * **error** An error has occured.
     *
     * To listen for an event, simply use the viewer's **addEventListener()** method with
     * with the event name and a callback funtion:
@@ -264,14 +267,42 @@
 
     /**
     * @doc object
-    * @name VolumeViewer.events:ready
+    * @name VolumeViewer.events:volumesloaded
     *
     * @description
-    * Triggered when the viewer is fully loaded and ready for interaction.
+    * Triggered when volumes loaded through **viewer.loadVolumes()** have completely
+    * finished loading. The event handler receives no arguments.
+    *
+    * ```js
+    *    BrainBrowser.events.addEventListener("volumesloaded", function() {
+    *      //...
+    *    });
+    * ```
+    */
+    /**
+    * @doc object
+    * @name VolumeViewer.events:rendering
+    *
+    * @description
+    * Triggered when the viewer begins rendering after a call to **viewer.render()**.
     * The event handler receives no arguments.
     *
     * ```js
-    *    BrainBrowser.events.addEventListener("ready", function() {
+    *    BrainBrowser.events.addEventListener("rendering", function() {
+    *      //...
+    *    });
+    * ```
+    */
+    /**
+    * @doc object
+    * @name VolumeViewer.events:volumeuiloaded
+    *
+    * @description
+    * Triggered after a UI is created for a newly loaded volume. The DOM element
+    * created and the volume ID are passed as arguments.
+    *
+    * ```js
+    *    BrainBrowser.events.addEventListener("volumeuiloaded", function(container, vol_id) {
     *      //...
     *    });
     * ```
@@ -289,6 +320,21 @@
     *      //...
     *    });
     * ```
+    */
+    /**
+    * @doc object
+    * @name VolumeViewer.events:error
+    *
+    * @description
+    * Triggered when an error of some sort has occured. The error message, if any,
+    * is passed as the callbacks sole argument.
+    *
+    * ```js
+    *    BrainBrowser.events.addEventListener("error", function(error_message) {
+    *      //...
+    *    });
+    * ```
+    *
     */
     
     Object.keys(VolumeViewer.modules).forEach(function(m) {

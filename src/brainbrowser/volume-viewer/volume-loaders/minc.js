@@ -296,7 +296,7 @@
         });
       });
     } else {
-      error_message = "invalid volume description.\n" + 
+      error_message = "invalid volume description.\n" +
         "Description must contain property pair 'header_url' and 'raw_data_url', or\n" +
         "'header_file' and 'raw_data_file'.";
 

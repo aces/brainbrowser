@@ -271,7 +271,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var worker_url_type = type + "_model";
 
     if (!BrainBrowser.utils.checkConfig("surface_viewer.worker_dir")) {
-       error_message = "error in SurfaceViewer configuration.\n" +
+      error_message = "error in SurfaceViewer configuration.\n" +
         "BrainBrowser.config.surface_viewer.worker_dir not defined.";
 
       BrainBrowser.events.triggerEvent("error", error_message);

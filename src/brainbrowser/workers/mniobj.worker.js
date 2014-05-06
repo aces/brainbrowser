@@ -177,30 +177,30 @@
   
   function parseColors(result, stack) {
     var colors = [];
-    var colorFlag = parseInt(stack.pop(), 10);
+    var color_flag = parseInt(stack.pop(), 10);
     var i, c, count;
     
-    if (colorFlag === 0) {
+    if (color_flag === 0) {
       for (i = 0; i < 4; i++){
         colors.push(parseFloat(stack.pop()));
       }
-    } else if (colorFlag === 1) {
+    } else if (color_flag === 1) {
       for (c = 0, count = result.num_polygons; c < count; c++){
         for (i = 0; i<4; i++){
           colors.push(parseFloat(stack.pop()));
         }
       }
-    } else if (colorFlag === 2) {
+    } else if (color_flag === 2) {
       for (c = 0, count = result.num_vertices; c < count; c++){
         for (i = 0; i < 4; i++){
           colors.push(parseFloat(stack.pop()));
         }
       }
     } else {
-      throw new Error("colorFlag not valid in that file");
+      throw new Error("color_flag not valid in that file");
     }
     
-    result.colorFlag = colorFlag;
+    result.color_flag = color_flag;
     result.colors = colors;
   }
   

@@ -329,11 +329,15 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   // Open volume using appropriate volume loader
   function openVolume(volume_description, callback){
     var loader = VolumeViewer.volume_loaders[volume_description.type];
+    var error_message;
     
     if(loader){
       loader(volume_description, callback);
     } else {
-      throw new Error("Unsuported Volume Type");
+      error_message = "Unsuported Volume Type";
+
+      BrainBrowser.events.triggerEvent("error", error_message);
+      throw new Error(error_message);
     }
   }
 

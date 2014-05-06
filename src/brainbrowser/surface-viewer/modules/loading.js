@@ -271,10 +271,11 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var worker_url_type = type + "_model";
 
     if (!BrainBrowser.utils.checkConfig("surface_viewer.worker_dir")) {
-      throw new Error(
-        "error in SurfaceViewer configuration.\n" +
-        "BrainBrowser.config.surface_viewer.worker_dir not defined."
-      );
+       error_message = "error in SurfaceViewer configuration.\n" +
+        "BrainBrowser.config.surface_viewer.worker_dir not defined.";
+
+      BrainBrowser.events.triggerEvent("error", error_message);
+      throw new Error(error_message);
     }
 
     if (!SurfaceViewer.worker_urls[worker_url_type]) {
@@ -296,6 +297,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
           result.error_message + "\n" +
           "File type: " + type + "\n" +
           "Options: " + JSON.stringify(options);
+
         BrainBrowser.events.triggerEvent("error", error_message);
         throw new Error(error_message);
       } else if (callback) {

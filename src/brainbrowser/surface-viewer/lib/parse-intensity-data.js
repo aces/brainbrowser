@@ -53,7 +53,6 @@ BrainBrowser.SurfaceViewer.parseIntensityData = function(data, type, callback) {
       "BrainBrowser.config.surface_viewer.worker_dir not defined.";
     
     BrainBrowser.events.triggerEvent("error", error_message);
-    
     throw new Error(error_message);
   }
 
@@ -62,7 +61,6 @@ BrainBrowser.SurfaceViewer.parseIntensityData = function(data, type, callback) {
       "Intensity data worker URL for " + type + " not defined.";
     
     BrainBrowser.events.triggerEvent("error", error_message);
-    
     throw new Error(error_message);
   }
 

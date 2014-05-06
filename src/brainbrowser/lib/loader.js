@@ -82,7 +82,6 @@
               "Response was: \n" + request.response;
 
             BrainBrowser.events.triggerEvent("error", error_message);
-
             throw new Error(error_message);
           }
         }
@@ -139,7 +138,6 @@
         var error_message = "error reading file: " + filename;
 
         BrainBrowser.events.triggerEvent("error", error_message);
-
         throw new Error(error_message);
       };
       

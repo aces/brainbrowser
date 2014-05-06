@@ -277,6 +277,7 @@
   };
 
   VolumeViewer.volume_loaders.minc = function(description, callback) {
+    var error_message;
     
     if (description.header_url && description.raw_data_url) {
       BrainBrowser.loader.loadFromURL(description.header_url, function(header_text) {
@@ -295,21 +296,28 @@
         });
       });
     } else {
-      throw new Error("invalid volume description");
+      error_message = "invalid volume description.\n" + 
+        "Description must contain property pair 'header_url' and 'raw_data_url', or\n" +
+        "'header_file' and 'raw_data_file'.";
+
+      BrainBrowser.events.triggerEvent("error", error_message);
+      throw new Error(error_message);
     }
     
   };
 
   function parseHeader(header_text, callback) {
     var header;
+    var error_message;
 
     try{
       header = JSON.parse(header_text);
     } catch(error) {
-      throw new Error(
-        "server did not respond with valid JSON" + "\n" +
-        "Response was: \n" + header_text
-      );
+      error_message = "server did not respond with valid JSON" + "\n" +
+        "Response was: \n" + header_text;
+
+      BrainBrowser.events.triggerEvent("error", error_message);
+      throw new Error(error_message);
     }
 
     if (BrainBrowser.utils.isFunction(callback)) {

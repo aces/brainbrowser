@@ -35,7 +35,9 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
   *
   * @description
   * Draw current slices to the canvases.
-  *
+  * ```js
+  * viewer.draw();
+  * ```
   */
   viewer.draw = function() {
     var context;
@@ -74,10 +76,13 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
 
   /**
   * @doc function
-  * @name viewer.rendering:rendering
+  * @name viewer.rendering:render
   *
   * @description
   * Start render loop around **viewer.draw()**.
+  * ```js
+  * viewer.render();
+  * ```
   */
   viewer.render = function() {
     BrainBrowser.events.triggerEvent("rendering");
@@ -93,12 +98,18 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
   * @doc function
   * @name viewer.rendering:setCursor
   * @param {number} vol_id Index of the volume.
-  * @param {number} axis_num Volume axis to update.
+  * @param {string} axis_name Volume axis to update.
   * @param {object} cursor Object containing the x and y coordinates of the 
   * cursor.
   *
   * @description
   * Set the cursor to a new position in the given volume and axis.
+  * ```js
+  * viewer.setCursor(vol_id, "xspace", {
+  *   x: 25,
+  *   y: 55
+  * });
+  * ```
   */
   viewer.setCursor = function(vol_id, axis_name, cursor) {
     var volume = viewer.volumes[vol_id];
@@ -131,6 +142,9 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
   *
   * @description
   * Redraw all volumes at their current position.
+  * ```js
+  * viewer.redrawVolumes();
+  * ```
   */
   viewer.redrawVolumes = function() {
     viewer.volumes.forEach(function(volume, vol_id) {
@@ -146,6 +160,9 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
   *
   * @description
   * Reset all displays.
+  * ```js
+  * viewer.resetDisplays();
+  * ```
   */
   viewer.resetDisplays = function() {
 

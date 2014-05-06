@@ -26,32 +26,44 @@
 */
 
 /**
- * @doc function
- * @name SurfaceViewer.static methods:parseIntensityData
- * @param {string} raw The intensity data as a string of text
- * @param {function} callback Callback to which the new intensity data object 
- * will be passed when parsing is complete.
- * 
- * @description
- * Parse vertex intensity data from a string of text.
- */
-BrainBrowser.SurfaceViewer.parseIntensityData = function(raw, type, callback) {
+* @doc function
+* @name SurfaceViewer.static methods:parseIntensityData
+* @param {string} data The intensity data as a string of text
+* @param {string} type The format of the intensity data string. Should patch
+*   one of the **intensity_data_types** in **BrainBrowser.config.surface_viewer**
+* @param {function} callback Callback to which the new intensity data object 
+* will be passed when parsing is complete.
+* 
+* @description
+* Parse vertex intensity data from a string of text.
+* ```js
+* BrainBrowser.SurfaceViewer.parseIntensityData(data, "mniobj", function(data_obj) { 
+*   // Manipulate intensity data object.
+* });
+* ```
+*/
+BrainBrowser.SurfaceViewer.parseIntensityData = function(data, type, callback) {
   "use strict";
 
   var worker_url_type = type + "_intensity";
-  
+  var error_message;
+
   if (!BrainBrowser.utils.checkConfig("surface_viewer.worker_dir")) {
-    throw new Error(
-      "error in SurfaceViewer configuration.\n" +
-      "BrainBrowser.config.surface_viewer.worker_dir not defined."
-    );
+    error_message = "error in SurfaceViewer configuration.\n" +
+      "BrainBrowser.config.surface_viewer.worker_dir not defined.";
+    
+    BrainBrowser.events.triggerEvent("error", error_message);
+    
+    throw new Error(error_message);
   }
 
   if (!BrainBrowser.SurfaceViewer.worker_urls[worker_url_type]) {
-    throw new Error(
-      "error in SurfaceViewer configuration.\n" +
-      "Intensity data worker URL for " + type + " not defined."
-    );
+    error_message = "error in SurfaceViewer configuration.\n" +
+      "Intensity data worker URL for " + type + " not defined.";
+    
+    BrainBrowser.events.triggerEvent("error", error_message);
+    
+    throw new Error(error_message);
   }
 
   // Allows a prototype to be defined for data object
@@ -75,7 +87,7 @@ BrainBrowser.SurfaceViewer.parseIntensityData = function(raw, type, callback) {
       worker.terminate();
     });
   
-    worker.postMessage({ cmd: "parse", data: raw });
+    worker.postMessage({ cmd: "parse", data: data });
   }
   
   data_obj.createColorArray = function createColorArray(min, max, color_map, flip, clamped, original_colors, model, callback) {
@@ -128,17 +140,17 @@ BrainBrowser.SurfaceViewer.parseIntensityData = function(raw, type, callback) {
   };
   
   
-  if (raw) {
-    if (typeof raw === "string") {
-      parse(raw);
-    } else if(raw.values){
-      data_obj.values = raw.values.concat();
+  if (data) {
+    if (typeof data === "string") {
+      parse(data);
+    } else if(data.values){
+      data_obj.values = data.values.concat();
       data_obj.min = BrainBrowser.utils.min(data_obj.values);
       data_obj.max = BrainBrowser.utils.max(data_obj.values);
     } else {
-      data_obj.values = raw;
-      data_obj.min = BrainBrowser.utils.min(raw);
-      data_obj.max = BrainBrowser.utils.max(raw);
+      data_obj.values = data;
+      data_obj.min = BrainBrowser.utils.min(data);
+      data_obj.max = BrainBrowser.utils.max(data);
     }
   }
   

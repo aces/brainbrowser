@@ -308,6 +308,11 @@
     *
     * @description
     * Fetch a new slice from a loaded volume.
+    * ```js
+    * viewer.fetchSlice(vol_id, "xspace", 25, function(slice) {
+    *   // Manipulate slice.
+    * });
+    * ```
     */
 
     // Keep track of timers.
@@ -360,6 +365,11 @@
     *
     * @description
     * Update the size of panel canvases.
+    * ```js
+    * viewer.setPanelSize(512, 512, {
+    *   scale_image: true
+    * });
+    * ```
     */
     viewer.setPanelSize = function(width, height, options) {
       options = options || {};

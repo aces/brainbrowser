@@ -46,6 +46,11 @@
     * 
     * @description
     * Fetch data from a URL and pass the results to a callback.
+    * ```js
+    * BrainBrowser.loader.loadFromURL(url, function(data) {
+    *   // Parse the data.
+    * });
+    * ```
     */
     loadFromURL: function(url, callback, options) {
       options = options || {};
@@ -90,7 +95,7 @@
     /**
     * @doc function
     * @name BrainBrowser.loader:loadFromFile
-    * @param {string}  file_input File input DOM object.
+    * @param {DOMElement}  file_input File input DOM object.
     * @param {function} callback Function to call if the request is successful. The
     *   callback will receive the following information as arguments:
     *
@@ -104,6 +109,11 @@
     * 
     * @description
     * Fetch data from a local file and pass the results to a callback.
+    * ```js
+    * BrainBrowser.loader.loadFromFile(file_input, function(data) {
+    *   // Parse the data.
+    * });
+    * ```
     */
     loadFromFile: function(file_input, callback, options) {
       var files = file_input.files;
@@ -155,6 +165,11 @@
     * 
     * @description
     * Wrapper for loadFromURL that parses the received data into a color map object.
+    * ```js
+    * BrainBrowser.loader.loadColorMapFromURL(url, function(color_map) {
+    *   // Manipulate color map object.
+    * });
+    * ```
     */
     loadColorMapFromURL: function(url, callback, options) {
       BrainBrowser.loader.loadFromURL(url, function(data, filename, options) {
@@ -178,6 +193,11 @@
     * 
     * @description
     * Wrapper for loadFromFile that parses the data into a color map object.
+    * ```js
+    * BrainBrowser.loader.loadColorMapFromFile(file_input, function(color_map) {
+    *   // Manipulate color map object.
+    * });
+    * ```
     */
     loadColorMapFromFile: function(file_input, callback, options) {
       BrainBrowser.loader.loadFromFile(file_input, function(data, filename, options) {
@@ -209,6 +229,11 @@
     * @description
     * Convenience method that calls a test function, returns its result and optionally runs
     * cleanup code if it's provided.
+    * ```js
+    * BrainBrowser.loader.checkCancel(function() { 
+    *   return request_number !== current_request; 
+    * });
+    * ```
     */
     checkCancel: function(options) {
       options = options || {};

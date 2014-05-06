@@ -46,6 +46,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * @name viewer.rendering:render
   * @description
   * Render the scene.
+  * ```js
+  * viewer.render();
+  * ```
   */
   viewer.render = function() {
     var dom_element = viewer.dom_element;
@@ -73,31 +76,14 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
   /**
   * @doc function
-  * @name viewer.rendering:getVertexInfo
-  * @param {number} index Index of the vertex to give info for.
-  *
-  * @description
-  * Change to a given view of a split data set. (**Note:** this is
-  * only effective for a split dataset, e.g. two hemispheres of a brain).
-  */
-  viewer.getVertexInfo = function(index) {
-    var vertices = viewer.model_data.vertices;
-    var i = index * 3;
-    
-    return {
-      index: index,
-      point: new THREE.Vector3(vertices[i], vertices[i+1], vertices[i+2])
-    };
-  };
-  
-
-  /**
-  * @doc function
   * @name viewer.rendering:canvasDataURL
   * @returns {string} The data URL.
   * @description
   * Returns the Data URL of the canvas the viewer is using
   * so it can be used to create an image.
+  * ```js
+  * viewer.canvasDataURL();
+  * ```
   */
   viewer.canvasDataURL = function() {
     return renderer.domElement.toDataURL();
@@ -109,10 +95,13 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * @param {string} effect_name The name of the effect as defined in three.js.
   * @description
   * Add a three.js postprocessing effect to the viewer.
+  * ```js
+  * viewer.addEffect("AnaglyphEffect");
+  * ```
   */
   viewer.addEffect = function(effect_name) {
     var effect;
-    if (THREE[effect_name]) {
+    if (BrainBrowser.utils.isFunction(THREE[effect_name])) {
       effect = new THREE[effect_name](renderer);
       effect.setSize(viewer.dom_element.offsetWidth, viewer.dom_element.offsetHeight);
       effects[effect_name] = effect;
@@ -125,6 +114,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * @param {string} effect_name The name of the effect as defined in three.js.
   * @description
   * Activate a previously added postprocessing effect.
+  * ```js
+  * viewer.setEffect("AnaglyphEffect");
+  * ```
   */
   viewer.setEffect = function(effect_name) {
     effect = effects[effect_name] ? effects[effect_name] : renderer;
@@ -132,14 +124,17 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   
   /**
   * @doc function
-  * @name viewer.rendering:setCamera
+  * @name viewer.rendering:setCameraPosition
   * @param {number} x The x coordinate of the camera.
   * @param {number} y The y coordinate of the camera.
   * @param {number} z The z coordinate of the camera.
   * @description
   * Set the camera position.
+  * ```js
+  * viewer.setCameraPosition(10, 25, 12);
+  * ```
   */
-  viewer.setCamera = function(x, y, z) {
+  viewer.setCameraPosition = function(x, y, z) {
     camera.position.set(x, y, z);
     light.position.set(x, y, z);
   };
@@ -149,6 +144,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * @name viewer.rendering:resetView
   * @description
   * Resets the view of the scene.
+  * ```js
+  * viewer.resetView();
+  * ```
   */
   viewer.resetView = function() {
     var model = viewer.model;
@@ -180,6 +178,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * @param {number} zoom The zoom level (default: 1.0).
   * @description
   * Zoom the view in or out.
+  * ```js
+  * viewer.zoom(1.2);
+  * ```
   */
   viewer.zoom = function(zoom) {
     var position = camera.position;
@@ -196,6 +197,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * @param {number} color A hexadecimal number representing the RGB color to use.
   * @description
   * Updates the clear color of the viewer.
+  * ```js
+  * viewer.setClearColor(0xFF0000);
+  * ```
   */
   viewer.setClearColor = function(color)  {
     renderer.setClearColor(color, 1.0);
@@ -217,7 +221,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * @description
   * Given an x and y coordinate on the viewer canvas, returns information about the
   * the point of intersection with a displayed object.
-  *
+  * ```js
+  * viewer.pick(125, 250);
+  * ```
   */
   viewer.pick = function(x, y) {
     // Convert to normalized coordinates.
@@ -310,6 +316,10 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     return vertex_data;
   };
   
+  ////////////////////////////////////
+  // PRIVATE FUNCTIONS
+  ////////////////////////////////////
+
   // Render a single frame on the viewer.
   function renderFrame(timestamp) {
     var model = viewer.model;

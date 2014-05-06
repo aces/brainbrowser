@@ -46,10 +46,14 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * * **render_depth** Force rendering at the given depth (can help with transparency).
   * * **parse** Parsing options to pass to the worker that will be used to parse the
   *   input file.
-  * * **error** A callback function that will be called if there's a parsing error.
   *
   * @description
   * Load and parse a model from the specified URL.
+  * ```js
+  * viewer.loadModelFromURL(url, {
+  *   format: "mniobj"
+  * });
+  * ```
   */
   viewer.loadModelFromURL = function(url, options) {
     loader.loadFromURL(url, loadModel, options);
@@ -69,6 +73,11 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   *
   * @description
   * Load and parse a model from a local file.
+  * ```js
+  * viewer.loadModelFromFile(file_input, {
+  *   format: "mniobj"
+  * });
+  * ```
   */
   viewer.loadModelFromFile = function(file_input, options) {
     loader.loadFromFile(file_input, loadModel, options);
@@ -88,6 +97,13 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   *
   * @description
   * Load a color map from the specified URL.
+  * ```js
+  * viewer.loadIntensityDataFromURL(url, {
+  *   min: 1.0,
+  *   max: 7.0,
+  *   shape: "shape1"
+  * });
+  * ```
   */
   viewer.loadIntensityDataFromURL = function(url, options) {
     loader.loadFromURL(url, loadIntensityData, options);
@@ -108,6 +124,13 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   *
   * @description
   * Load a color map from a local file.
+  * ```js
+  * viewer.loadIntensityDataFromFile(file_input, {
+  *   min: 1.0,
+  *   max: 7.0,
+  *   shape: "shape1"
+  * });
+  * ```
   */
   viewer.loadIntensityDataFromFile = function(file_input, options) {
     loader.loadFromFile(file_input, loadIntensityData, options);
@@ -117,10 +140,14 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * @doc function
   * @name viewer.loading:loadColorMapFromURL
   * @param {string} url URL of the color map file to load.
-  * @param {object} options Options for the color map loading, which include the following:
+  * @param {object} options Options are passed on to 
+  * **BrainBrowser.loader.loadColorMapFromURL()**
   *
   * @description
   * Load and parse color map data from the specified URL.
+  * ```js
+  * viewer.loadColorMapFromURL(url);
+  * ```
   */
   viewer.loadColorMapFromURL  = function(url, options) {
     loader.loadColorMapFromURL(url, loadColorMap, options);
@@ -132,10 +159,14 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * @doc function
   * @name viewer.loading:loadColorMapFromFile
   * @param {DOMElement} file_input File input element representing the local file to load.
-  * @param {object} options Options for the color map loading, which include the following:
+  * @param {object} options Options are passed on to 
+  * **BrainBrowser.loader.loadColorMapFromFile()**
   *
   * @description
   * Load and parse color map data from a local file.
+  * ```js
+  * viewer.loadColorMapFromFile(file_input);
+  * ```
   */
   viewer.loadColorMapFromFile = function(file_input, options){
     loader.loadColorMapFromFile(file_input, loadColorMap, options);
@@ -164,7 +195,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var name = options.name || filename;
     var type = options.format || "mniobj";
     var model_data = viewer.model_data;
-    var blend_index = options.blend_index || 0;
+    var blend_index = options.blend_index === 1 ? options.blend_index : 0;
     var other_index = 1 - blend_index; // 1 or 0
     
     var old_range = {};
@@ -177,7 +208,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     }
 
 
-    viewer.blendData = viewer.blendData || [];
+    viewer.blend_data = viewer.blend_data || [];
 
     SurfaceViewer.parseIntensityData(text, type, function(data) {
       var min;
@@ -196,17 +227,17 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       data.apply_to_shape = options.shape;
       data.applied = false;
       model_data.intensity_data = data;
-      viewer.blendData[blend_index] = data;
+      viewer.blend_data[blend_index] = data;
       data.range_min = min;
       data.range_max = max;
       
-      if (viewer.blendData[other_index] && viewer.blendData[other_index].applied) {
-        viewer.blendData[other_index].range_min = BrainBrowser.utils.min(viewer.blendData[other_index].values);
-        viewer.blendData[other_index].range_max = BrainBrowser.utils.max(viewer.blendData[other_index].values);
+      if (viewer.blend_data[other_index] && viewer.blend_data[other_index].applied) {
+        viewer.blend_data[other_index].range_min = BrainBrowser.utils.min(viewer.blend_data[other_index].values);
+        viewer.blend_data[other_index].range_max = BrainBrowser.utils.max(viewer.blend_data[other_index].values);
 
         viewer.blend(0.5);
 
-        BrainBrowser.events.triggerEvent("loadintensitydata", viewer.blendData);
+        BrainBrowser.events.triggerEvent("loadintensitydata", viewer.blend_data);
         BrainBrowser.events.triggerEvent("blendcolormaps", data.range_min, data.range_max, data);
       } else {
         BrainBrowser.events.triggerEvent("loadintensitydata", data);

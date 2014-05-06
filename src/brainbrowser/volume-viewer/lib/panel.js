@@ -52,6 +52,9 @@
     * @param {number} height Height of the panel canvas.
     * @description
     * Set the size of the panel canvas.
+    * ```js
+    * panel.setSize(512, 512);
+    * ```
     */
     setSize: function(width, height) {
       this.canvas.width = width;
@@ -64,6 +67,9 @@
     * @param {object} slice Slice object to render on the panel.
     * @description
     * Set the volume slice to be rendered on the panel.
+    * ```js
+    * panel.setSlice(slice);
+    * ```
     */
     setSlice: function(slice) {
       this.slice = slice;
@@ -75,6 +81,9 @@
     * @name panel.panel:updateCursor
     * @description
     * Update the panel cursor based on the current position with the given volume.
+    * ```js
+    * panel.updateCursor();
+    * ```
     */
     updateCursor: function() {
       var volume = this.volume;
@@ -92,6 +101,12 @@
     * @description
     * Will translate the image by the same amount that the cursor has moved since
     * this method was last called.
+    * ```js
+    * panel.followCursor({
+    *   x: 100,
+    *   y: 125
+    * });
+    * ```
     */
     followCursor: function(cursor) {
       var dx = cursor.x - this.last_cursor.x;
@@ -109,6 +124,9 @@
     * @name panel.panel:reset
     * @description
     * Reset image to it's original position and zoom level.
+    * ```js
+    * panel.reset();
+    * ```
     */
     reset: function() {
       this.zoom = 1;
@@ -123,6 +141,9 @@
     * top-left corner of the currently displayed slice on the panel.
     * @description
     * Get the coordinates of the top-left corner of the slice currently being displayed.
+    * ```js
+    * panel.getImageOrigin();
+    * ```
     */
     getImageOrigin: function() {
       return {
@@ -136,6 +157,9 @@
     * @name panel.panel:drawSlice
     * @description
     * Draw the displays current slice to the canvas.
+    * ```js
+    * panel.drawSlice();
+    * ```
     */
     drawSlice: function() {
       var image = this.slice_image;
@@ -154,6 +178,9 @@
     * @param {string} color The cursor color.
     * @description
     * Draw the cursor at its current position on the canvas.
+    * ```js
+    * panel.drawCursor("#FF0000");
+    * ```
     */
     drawCursor: function(color) {
       var context = this.context;
@@ -200,6 +227,21 @@
   * @description
   * Factory function to produce the panel object used to control the 
   * display of a slice.
+  * ```js
+  * BrainBrowser.VolumeViewer.createPanel({
+  *   volume: volume,
+  *   axis: "xspace",
+  *   canvas: canvas,
+  *   cursor: {
+  *     x: canvas.width / 2,
+  *     y: canvas.height / 2
+  *   },
+  *   image_center: {
+  *     x: canvas.width / 2,
+  *     y: canvas.height / 2
+  *   }
+  * });
+  * ```
   */
   BrainBrowser.VolumeViewer.createPanel = function(options) {
 

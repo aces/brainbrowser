@@ -29,32 +29,52 @@
   "use strict";
 
   BrainBrowser.VolumeViewer.utils = {
+    /**
+    * @doc object
+    * @name VolumeViewer.utils.axis_to_number
+    *
+    * @property {xspace} Index of x space (0)
+    * @property {yspace} Index of y space (1)
+    * @property {zspace} Index of z space (2)
+    *
+    * @description
+    * Convenience object for converting between space names
+    * and indices.
+    * ```js
+    * BrainBrowser.VolumeViewer.utils.axis_to_number["xspace"];
+    * ```
+    */
     axis_to_number: {
       xspace: 0,
       yspace: 1,
       zspace: 2
     },
+
     /**
     * @doc function
-    * @name utils.utils.nearestNeighbor
+    * @name VolumeViewer.utils.nearestNeighbor
     *
-    * @param {array} orig Original image
+    * @param {array} original Original image
     * @param {number} new_width Width of scaled image.
     * @param {number} new_height Height of scaled image.
     * @returns {ImageData} The scaled image.
     *
     * @description
     * Scale an image using nearest neighbor interpolation.
+    * ```js
+    * BrainBrowser.VolumeViewer.utils.nearestNeighbor(image, 512, 512);
+    * ```
     */
-    nearestNeighbor: function(orig, new_width, new_height) {
-      var data = orig.data;
-      var width = orig.width;
-      var height = orig.height;
+    nearestNeighbor: function(original, new_width, new_height) {
+      var data = original.data;
+      var width = original.width;
+      var height = original.height;
       var context = document.createElement("canvas").getContext("2d");
       var numElem   = 4;
+
       //Do nothing if height is the same
       if(width === new_width && height === new_height) {
-        return orig;
+        return original;
       }
       
       if (new_width < 0 && new_height > 0) {
@@ -81,6 +101,23 @@
       return image;
     },
 
+
+    /**
+    * @doc function
+    * @name VolumeViewer.utils.rotateUint16Array90Left
+    *
+    * @param {Uint16Array} array The array to rotate
+    * @param {number} width Width of the 2D interpretation of the array
+    * @param {number} height Height of the 2D interpretation of the array
+    * @returns {Uint16Array} The rotated array.
+    *
+    * @description
+    * Rotate an array to the left based on a width X height 2D interpretation 
+    * of the array data.
+    * ```js
+    * BrainBrowser.VolumeViewer.utils.rotateUint16Array90Left(array, 512, 512);
+    * ```
+    */
     rotateUint16Array90Left: function(array, width, height){
       var new_array = new Uint16Array(width * height);
       var i, j;
@@ -94,6 +131,22 @@
       return new_array;
     },
     
+    /**
+    * @doc function
+    * @name VolumeViewer.utils.rotateUint16Array90Right
+    *
+    * @param {Uint16Array} array The array to rotate
+    * @param {number} width Width of the 2D interpretation of the array
+    * @param {number} height Height of the 2D interpretation of the array
+    * @returns {Uint16Array} The rotated array.
+    *
+    * @description
+    * Rotate an array to the right based on a width X height 2D interpretation 
+    * of the array data.
+    * ```js
+    * BrainBrowser.VolumeViewer.utils.rotateUint16Array90Right(array, 512, 512);
+    * ```
+    */
     rotateUint16Array90Right: function(array, width, height){
       var new_array = new Uint16Array(width * height);
       var i, j;

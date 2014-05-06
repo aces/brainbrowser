@@ -43,6 +43,11 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   * 
   * @description
   * Update the vertex colors of the model based on data object passed as argument.
+  * ```js
+  * viewer.updateColors(data, {
+  *   blend: true
+  * });
+  * ```
   */
   var timeout = null;
   
@@ -65,6 +70,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
       } else {
         shapes = viewer.model.children;
       }
+
       colorModel(color_array, shapes);
 
       BrainBrowser.events.triggerEvent("updatecolors", data, min, max, color_map);
@@ -90,17 +96,19 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   };
 
   /** 
-   * @doc function
-   * @name viewer.color:setIntensityRange
-   * @param {number} min Minimum value of the range.
-   * @param {number} max Maximum value of the range.
-   * @param {boolean} clamped Should values be clampled to the min/max range?
-   * @param {object} options Options for the range change, which include the following: 
-   * 
-   * * **complete** Callback function to call when the color update is done.
-   * @description
-   * Update the range of colors being applied to the current model.
-   */
+  * @doc function
+  * @name viewer.color:setIntensityRange
+  * @param {number} min Minimum value of the range.
+  * @param {number} max Maximum value of the range.
+  * @param {object} options Options for the range change, which include the following: 
+  * 
+  * * **complete** Callback function to call when the color update is done.
+  * @description
+  * Update the range of colors being applied to the current model.
+  * ```js
+  * viewer.setIntensityRange(2.0, 3.0);
+  * ```
+  */
   viewer.setIntensityRange = function(min, max, options) {
     options = options || {};
     var data = viewer.model_data.intensity_data;
@@ -118,23 +126,29 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   /**
   * @doc function
   * @name viewer.color:blend
-  * @param {number} blend Blend ratio between two loaded color maps (between 0 and 1);
+  * @param {number} ratio Blend ratio between two loaded color maps (between 0 and 1).
   *
   * @description 
   * Blend two loaded color maps using the supplied ratio.
+  * ```js
+  * viewer.blend(0.3);
+  * ```
+  * **Note**: assumes two separate intesity data sets have been loaded using different
+  * **blend_index** values (see **loadIntensityDataFromURL()** or 
+  * **loadIntensityDataFromFile()**).
   */
-  viewer.blend = function(value) {
-    var blendData = viewer.blendData;
-    var blendDataLength = blendData.length;
+  viewer.blend = function(ratio) {
+    var blend_data = viewer.blend_data;
+    var blend_data_length = blend_data.length;
     var i;
     
-    blendData[0].alpha = value;
-    blendData[1].alpha = 1.0 - value;
-    for(i = 2; i < blendDataLength; i++) {
-      blendData[i].alpha = 0.0;
+    blend_data[0].alpha = ratio;
+    blend_data[1].alpha = 1.0 - ratio;
+    for(i = 2; i < blend_data_length; i++) {
+      blend_data[i].alpha = 0.0;
     }
 
-    viewer.updateColors(blendData, {
+    viewer.updateColors(blend_data, {
       blend: true
     });
   };

@@ -49,7 +49,7 @@
 *      viewer.loadModelFromURL("/models/brain_surface.obj");
 *       
 *      // Hook viewer behaviour into UI.
-*      $('#wireframe').change(function(e) {
+*      $("#wireframe").change(function(e) {
 *        viewer.setWireframe($(this).is(":checked"));
 *      });
 *
@@ -125,7 +125,7 @@
     *      viewer.loadModelFromURL("/models/brain_surface.obj");
     *       
     *      // Hook viewer behaviour into UI.
-    *      $('#wireframe').change(function(e) {
+    *      $("#wireframe").change(function(e) {
     *        viewer.setWireframe($(this).is(":checked"));
     *      });
     *
@@ -196,7 +196,10 @@
         * Retrieve the value of an attribute.
         *
         * The viewer object can maintain an arbitrary set of key-value
-        * to aid in the functioning of various parts of the system. 
+        * to aid in the functioning of various parts of the system.
+        * ```js
+        * viewer.getAttribute("clamp_colors");
+        * ```
         *
         * Currently, the following attributes are used by the Surface Viewer:
         *
@@ -219,7 +222,10 @@
         * Set the value of an attribute. 
         *
         * The viewer object can maintain an arbitrary set of key-value
-        * pairs to aid in the functioning of various parts of the system. 
+        * pairs to aid in the functioning of various parts of the system.
+        * ```js
+        * viewer.setAttribute("clamp_colors", false);
+        * ```
         *
         * Currently, the following attributes are used by the Surface Viewer:
         *
@@ -231,6 +237,25 @@
         */
         setAttribute: function(name, value) {
           attributes[name] = value;
+        },
+
+        /**
+        * @doc function
+        * @name viewer.viewer:getVertex
+        * @param {number} index Index of the vertex.
+        * @returns {THREE.Vertex3} The vertex.
+        *
+        * @description
+        * Get the vertex at the given index
+        * ```js
+        * viewer.getVertex(2356);
+        * ```
+        */
+        getVertex: function(index) {
+          var vertices = viewer.model_data.vertices;
+          var i = index * 3;
+          
+          return new THREE.Vector3(vertices[i], vertices[i+1], vertices[i+2]);
         }
       };
       
@@ -351,7 +376,7 @@
       setupWorkers(function() {
         callback(viewer);
       });
-      
+
     }
   };
 

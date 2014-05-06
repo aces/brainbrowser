@@ -38,7 +38,16 @@
     * @param {function} callback The event handler. 
     *
     * @description
-    * Add an event handler to handle event **e**.
+    * Add an event handler to handle event **event**.
+    * ```js
+    * BrainBrowser.events.addEventListener("error", function(message) {
+    *   // Handle error.
+    * });
+    * ```
+    *
+    * The arguments passed to the handler are those passed to **triggerEvent()**. 
+    * Consult documentation for the **Surface Viewer** or **Volume Viewer** for 
+    * details about normal lifecycle events for each app.
     */
     addEventListener: function(event, callback) {
       if (!event_listeners[event]) {
@@ -57,6 +66,9 @@
     * Trigger all handlers associated with event **event**.
     * Any arguments after the first will be passed to the 
     * event handler.
+    * ```js
+    * BrainBrowser.events.triggerEvent("error", "There was an error!");
+    * ```
     */
     triggerEvent: function(event) {
       var args = Array.prototype.slice.call(arguments, 1);

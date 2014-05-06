@@ -36,6 +36,9 @@
     *
     * @description
     * Test for canvas element support.
+    * ```js
+    * BrainBrowser.utils.canvasEnabled();
+    * ```
     */
     canvasEnabled: function() {
       return !!document.createElement("canvas");
@@ -48,15 +51,16 @@
     *
     * @description
     * Test for WebGL support.
-    */
-    /*!
-     * WebGL test taken from Detector.js by
-     * alteredq / http://alteredqualia.com/
-     * mr.doob / http://mrdoob.com/
+    * ```js
+    * BrainBrowser.utils.webglEnabled();
+    * ```
     */
     webglEnabled: function() {
+      var canvas = document.createElement("canvas");
+
       try {
-        return !!window.WebGLRenderingContext && !!document.createElement('canvas').getContext('experimental-webgl');
+        return !!canvas && !!window.WebGLRenderingContext && 
+          !!(canvas.getContext("webgl") || canvas.getContext("experimental-webgl"));
       } catch(e) {
         return false;
       }
@@ -69,6 +73,9 @@
     *
     * @description
     * Test for Web Worker support.
+    * ```js
+    * BrainBrowser.utils.webWorkersEnabled();
+    * ```
     */
     webWorkersEnabled: function() {
       return !!window.Worker;
@@ -81,6 +88,9 @@
     *
     * @description
     * Produce a simple error message for non-webgl browsers.
+    * ```js
+    * BrainBrowser.utils.webGLErrorMessage();
+    * ```
     */
     webGLErrorMessage: function() {
       var elem;
@@ -99,24 +109,30 @@
     /**
     * @doc function
     * @name BrainBrowser.utils:isFunction
-    * @param {object} obj The object to test.
+    * @param {object} object The object to test.
     * @returns {boolean} Whether or not the object is a function.
     *
     * @description
     * Test if the passed object is a function.
+    * ```js
+    * BrainBrowser.utils.isFunction(fn);
+    * ```
     */
-    isFunction: function(obj) {
-      return obj instanceof Function || typeof obj === "function";
+    isFunction: function(object) {
+      return object instanceof Function || typeof object === "function";
     },
 
     /**
     * @doc function
-    * @name BrainBrowser.utils:isFunction
-    * @param {object} obj The object to test.
-    * @returns {boolean} Whether or not the object is a function.
+    * @name BrainBrowser.utils:isNumeric
+    * @param {anything} n The data to test.
+    * @returns {boolean} Whether or not the object is a number.
     *
     * @description
-    * Test if the passed object is a function.
+    * Test if the passed data is a number.
+    * ```js
+    * BrainBrowser.utils.isNumeric(n);
+    * ```
     */
     isNumeric: function(n) {
       return !isNaN(parseFloat(n));
@@ -132,6 +148,9 @@
     * @description
     * Find the smallest item in a list. List can be passed as an array or 
     * directly as arguments.
+    * ```js
+    * BrainBrowser.utils.min(1, 2, 17 143 12 42);
+    * ```
     */
     min: function() {
       var array = Array.prototype.slice.call(arguments);
@@ -155,6 +174,9 @@
     * @description
     * Find the largest item in a list. List can be passed as an array or 
     * directly as arguments.
+    * ```js
+    * BrainBrowser.utils.max(1, 2, 17 143 12 42);
+    * ```
     */
     max: function() {
       var array = Array.prototype.slice.call(arguments);
@@ -171,7 +193,7 @@
     /**
     * @doc function
     * @name BrainBrowser.utils:getOffset
-    * @param {DOMElement} elem An element in the DOM.
+    * @param {DOMElement} element An element in the DOM.
     * @returns {object} An object containing the given element's offet info:
     *
     * * **top**: offset from the top of the window.
@@ -179,16 +201,19 @@
     *
     * @description
     * Return offset information about the given element.
+    * ```js
+    * BrainBrowser.utils.getOffset(dom_element);
+    * ```
     */
-    getOffset: function(elem) {
+    getOffset: function(element) {
       var top = 0;
       var left = 0;
       
-      while (elem.offsetParent) {
-        top += elem.offsetTop;
-        left += elem.offsetLeft;
+      while (element.offsetParent) {
+        top += element.offsetTop;
+        left += element.offsetLeft;
         
-        elem = elem.offsetParent;
+        element = element.offsetParent;
       }
       
       return {top: top, left: left};

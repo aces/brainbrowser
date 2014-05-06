@@ -25,20 +25,22 @@
 * Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
 */
 
-/**
-* @doc function
-* @name BrainBrowser.static methods:createColorMap
-* @param {string}  data The color map data as a string.
-* @returns {object} Color map object.
-* 
-* @description
-* Factory function to produce color map object from a string of data. A given
-* color map is a set of colors to which intensity data can be mapped for display.
-*/
-
 (function() {
   "use strict";
 
+  /**
+  * @doc function
+  * @name BrainBrowser.static methods:createColorMap
+  * @param {string}  data The color map data as a string.
+  * @returns {object} Color map object.
+  * 
+  * @description
+  * Factory function to produce color map object from a string of data. A given
+  * color map is a set of colors to which intensity data can be mapped for display.
+  * ```js
+  * BrainBrowser.createColorMap(data);
+  * ```
+  */
   BrainBrowser.createColorMap = function(data) {
 
     /**
@@ -52,38 +54,26 @@
 
       /**
       * @doc function
-      * @name color_map.color_map:createCanvas
-      * @param {array} colors Array of color data.
-      * 
-      * @description
-      * Create a canvas color_map from the given colors.
-      */
-      createCanvas: function(colors)  {
-        var canvas;
-        
-        if (!colors) {
-          colors = color_map.colors;
-        }
-        
-        canvas = createCanvas(colors, 20, 20, false);
-
-        return canvas;
-      },
-
-      /**
-      * @doc function
       * @name color_map.color_map:createCanvasWithScale
       * @param {number} min Min value of the color data.
       * @param {number} max Max value of the color data.
-      * @param {boolean} flip Array of color data.
+      * @param {object} options The only option currently supported is **flip_correlation**
+      *   which will flip the correlation between colors and intensities if set to **true**.
       * 
       * @description
       * Create a canvas color_map from the given colors and provide the scale for it.
+      * ```js
+      * color_map.createCanvasWithScale(0.0, 7.0, {
+      *   flip_correlation: true
+      * });
+      * ```
       */
-      createCanvasWithScale: function(min, max, flip) {
+      createCanvasWithScale: function(min, max, options) {
+        options = options || {};
         var canvas;
         var context;
         var colors = color_map.colors;
+        var flip = options.flip;
         var range = max - min;
         
         canvas = createCanvas(colors, 20, 40, flip);
@@ -118,7 +108,7 @@
       /**
       * @doc function
       * @name color_map.color_map:mapColors
-      * @param {array} values Original color values.
+      * @param {array} values Original intensity values.
       * @param {object} options Options for the color mapping.
       * Options include the following:
       *
@@ -128,11 +118,23 @@
       * * **contrast** {number} Color contrast.
       * * **brightness** {number} Color brightness.
       * * **alpha** {number} Opacity of the color map. 
+      * * **destination** {array} Array to write the colors to (instead of creating
+      *   a new array). 
       * 
       * @returns {array} Colors modified based on options.
       *
       * @description
       * Create a color map of the input values modified based on the options given.
+      * ```js
+      * color_map.mapColors(data, {
+      *   min: 0,
+      *   max: 7.0,
+      *   scale255: true,
+      *   brightness: 0,
+      *   contrast: 1,
+      *   alpha: 0.8
+      * });
+      * ```
       */
       mapColors: function(values, options) {
         options = options || {};
@@ -147,7 +149,8 @@
         var color_map_colors = color_map.colors;
         var color_map_length = color_map_colors.length;
         var range = max - min;
-        //calculate a slice of the data per color
+        
+        // Calculate a slice of the data per color
         var increment = ( range + range / color_map_length ) / color_map_length;
         var i, count;
         var color_index;

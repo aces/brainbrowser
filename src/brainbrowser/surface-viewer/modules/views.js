@@ -27,10 +27,6 @@
 BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   "use strict";
 
-  //////////////////////////////
-  // PRIVATE FUNCTIONS AND DATA
-  //////////////////////////////
-
   // View change functions
   var views = {
     medialView: function() {
@@ -78,16 +74,6 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
     }
   };
   
-  // Convert degrees to radians
-  function degToRad(deg) {
-    return deg * Math.PI/180;
-  }
-
-  
-  //////////////
-  // INTERFACE
-  //////////////
-  
   /**
   * @doc function
   * @name viewer.views:setTransparency
@@ -96,6 +82,9 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   * @param {number} alpha The value to set the opacity to (between 0 and 1).
   * @description
   * Change the opacity of an object in the scene.
+  * ```js
+  * viewer.setTransparency("shape1", 0.5);
+  * ```
   */
   viewer.setTransparency = function(shape_name, alpha) {
     var shape = viewer.model.getObjectByName(shape_name);
@@ -125,6 +114,9 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   * @param {boolean} is_wireframe Is the viewer in wireframe mode?
   * @description
   * Set wireframe mode on or off.
+  * ```js
+  * viewer.setWireframe(true);
+  * ```
   */
   viewer.setWireframe = function(is_wireframe) {
     var children = viewer.model.children;
@@ -148,6 +140,9 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   * @description
   * Change to a given view of a split data set. (**Note:** this is
   * only effective for a split dataset, e.g. two hemispheres of a brain).
+  * ```js
+  * viewer.setView("lateral");
+  * ```
   */
   viewer.setView = function(view_name) {
     var method_name = view_name + "View";
@@ -164,6 +159,9 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
    * @name viewer.views:clearScreen
    * @description
    * Delete all shapes on the screen.
+   * ```js
+   * viewer.clearScreen();
+   * ```
    */
   viewer.clearScreen = function() {
     var children = viewer.model.children;
@@ -183,6 +181,9 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   * @description
   * Add space between two halves of a split dataset. (**Note:** this is
   * only effective for a split dataset, e.g. two hemispheres of a brain).
+  * ```js
+   * viewer.separateHalves(1.5);
+   * ```
   */
   viewer.separateHalves = function(increment) {
     increment = increment || 1;
@@ -192,6 +193,15 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
       viewer.model.children[1].position.x += increment;
     }
   };
+
+  ////////////////////////////////////
+  // PRIVATE FUNCTIONS
+  ////////////////////////////////////
+
+  // Convert degrees to radians
+  function degToRad(deg) {
+    return deg * Math.PI/180;
+  }
   
 };
 

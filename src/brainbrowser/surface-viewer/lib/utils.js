@@ -32,13 +32,15 @@
     /**
     * @doc function
     * @name SurfaceViewer.utils:drawDot
-    * @param {scene} The THREE.Scene to draw in.
-    * @param {number} The x coordinate.
-    * @param {number} The y coordinate.
-    * @param {number} The z coordinate.
+    * @param {THREE.Scene} scene The scene to draw in.
+    * @param {number} x The x coordinate.
+    * @param {number} y The y coordinate.
+    * @param {number} z The z coordinate.
     *
     * @description Draw a red dot in a THREE.Scene. Handy for debugging.
-    * 
+    * ```js
+    * BrainBrowser.SurfaceViewer.utils.drawDot(scene, 10, 5, 15);
+    * ```
     */
     drawDot: function(scene, x, y, z) {
       var geometry = new THREE.SphereGeometry(2);

@@ -134,6 +134,11 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   *
   * @description
   * Load a color map for the specified volume.
+  * ```js
+  * viewer.loadVolumeColorMapFromURL(vol_id, url, "#FF0000", function(volume, color_map) {
+  *   // Manipulate volume or color map.
+  * });
+  * ```
   */
   viewer.loadVolumeColorMapFromURL = function(vol_id, url, cursor_color, callback) {
     BrainBrowser.loader.loadColorMapFromURL(url, function(color_map) {
@@ -152,6 +157,11 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   * @description
   * Load a default color map for the viewer. Used when a given volume
   *   doesn't have its color map set.
+  * ```js
+  * viewer.loadDefaultColorMapFromURL(url, "#FF0000", function(color_map) {
+  *   // Manipulate color map.
+  * });
+  * ```
   */
   viewer.loadDefaultColorMapFromURL = function(url, cursor_color, callback) {
     BrainBrowser.loader.loadColorMapFromURL(url, function(color_map) {
@@ -170,6 +180,11 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   *
   * @description
   * Load a color map for the specified volume.
+  * ```js
+  * viewer.loadVolumeColorMapFromFile(vol_id, file_input_element, "#FF0000", function(volume, color_map) {
+  *   // Manipulate volume or color map.
+  * });
+  * ```
   */
   viewer.loadVolumeColorMapFromFile = function(vol_id, file_input, cursor_color, callback) {
     BrainBrowser.loader.loadColorMapFromFile(file_input, function(color_map) {
@@ -188,6 +203,11 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   * @description
   * Load a default color map for the viewer. Used when a given volume
   *   doesn't have its color map set.
+  * ```js
+  * viewer.loadDefaultColorMapFromFile(file_input_element, "#FF0000", function(color_map) {
+  *   // Manipulate color map.
+  * });
+  * ```
   */
   viewer.loadDefaultColorMapFromFile = function(file_input, cursor_color, callback) {
     BrainBrowser.loader.loadColorMapFromFile(file_input, function(color_map) {
@@ -204,6 +224,9 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   * @description
   * Set the color map for the indicated volume using an actual color map 
   *   object.
+  * ```js
+  * viewer.setVolumeColorMap(vol_id, color_map));
+  * ```
   */
   viewer.setVolumeColorMap = function(vol_id, color_map) {
     viewer.volumes[vol_id].color_map = color_map;
@@ -256,6 +279,9 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   *
   * @description
   * Clear all loaded volumes.
+  * ```js
+  * viewer.clearVolumes();
+  * ```
   */
   viewer.clearVolumes = function() {
     viewer.volumes = [];

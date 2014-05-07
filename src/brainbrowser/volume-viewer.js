@@ -230,10 +230,9 @@
     /**
     * @doc object
     * @name viewer
-    * @property {array} volumes Array of object representing volumes to be displayed.
-    * @property {array} displays Array of objects representing the display areas.
+    * @property {array} volumes Volumes to be displayed.
+    * @property {array} displays Display areas (one per volume).
     * @property {boolean} synced Are the cursors being synced across volumes?
-    * @property {number} default_zoom_level The default zoom level for the viewer.
     *
     * @description
     * The viewer object encapsulates all functionality of the Surface Viewer.

@@ -1,3 +1,4 @@
+![LOGO](https://brainbrowser.cbrain.mcgill.ca/img/bb-logo-white-mini.png)
 BrainBrowser
 ============
 

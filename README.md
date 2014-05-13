@@ -4,7 +4,7 @@ BrainBrowser is a JavaScript library allowing for web-based, 2D and 3D visualiza
 
 BrainBrowser uses open web-standard technologies such as HTML5, CSS, JavaScript and WebGL. The Surface Viewer uses [three.js](http://threejs.org/) for 3D rendering.
 
-Demonstrations of available functionality can be found at the [BrainBrowser web site](https://brainbrowser.cbrain.mcgill.ca/).
+Demonstrations of available functionality can be found at the [BrainBrowser website](https://brainbrowser.cbrain.mcgill.ca/).
 
 Getting Started
 ---------------

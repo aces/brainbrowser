@@ -1,6 +1,4 @@
 ![LOGO](https://brainbrowser.cbrain.mcgill.ca/img/bb-logo-white-mini-cropped.png)
-BrainBrowser
-============
 
 BrainBrowser is a JavaScript library allowing for web-based, 2D and 3D visualization of neurological data. It consists of the **Surface Viewer**, a real-time 3D rendering tool for visualizing surface data, and the **Volume Viewer**, a slice-by-slice volumetric data analysis tool.
 

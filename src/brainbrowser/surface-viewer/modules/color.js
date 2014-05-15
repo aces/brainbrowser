@@ -56,12 +56,6 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     var blend = options.blend;
     var complete = options.complete;
 
-    var min = data.range_min;
-    var max = data.range_max;
-    var flip = viewer.getAttribute("flip_colors");
-    var clamped = viewer.getAttribute("clamp_colors");
-    var color_map = viewer.color_map;
-
     function applyColorArray(color_array) {
       var shapes;
       
@@ -73,7 +67,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
 
       colorModel(color_array, shapes);
 
-      BrainBrowser.events.triggerEvent("updatecolors", data, min, max, color_map);
+      BrainBrowser.events.triggerEvent("updatecolors", color_array);
 
 
       if (complete) {
@@ -90,7 +84,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
       if (blend) {
         applyColorArray(blendColorMap(color_map, data, 0, 1));
       } else {
-        data.createColorArray(min, max, color_map, flip, clamped, viewer.model_data.colors, viewer.model_data, applyColorArray);
+        createColorArray(data, applyColorArray);
       }
     }, 0);
   };
@@ -157,6 +151,80 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   // PRIVATE FUNCTIONS
   ///////////////////////////
   
+  // Create a color array from an intensity data map
+  function createColorArray(intensity_data, callback) {
+    var intensity_values = intensity_data.values;
+    var model_colors = viewer.model_data.colors;
+    var min = intensity_data.range_min;
+    var max = intensity_data.range_max;
+    var flip = viewer.getAttribute("flip_colors");
+    var clamped = viewer.getAttribute("clamp_colors");
+    var color_map = viewer.color_map.colors;
+    
+    var colors = new Float32Array(intensity_values.length * 4);
+    var color_map_length = color_map.length;
+    var range = max - min;
+    
+    // Calculate a slice of the data per color
+    var increment = ( range + range / color_map_length ) / color_map_length;
+    var use_model_color = false;
+    var i, ic, count;
+    var color_map_index;
+    var value;
+
+    // For each value, assign a color
+    for (i = 0, count = intensity_values.length; i < count; i++) {
+      value = intensity_values[i];
+      use_model_color = false;
+
+      if (value < min ) {
+        if (clamped){
+          color_map_index = 0;
+        } else {
+          use_model_color = true;
+        }
+      }else if (value > max){
+        if (clamped){
+          color_map_index = color_map_length - 1;
+        } else {
+          use_model_color = true;
+        }
+      } else {
+        color_map_index = Math.floor((value - min) / increment);
+      }
+
+      ic = i * 4;
+
+      //This inserts the RGBA values (R,G,B,A) independently
+      if(use_model_color) {
+        if(model_colors.length === 4){
+          colors[ic]     = model_colors[0];
+          colors[ic + 1] = model_colors[1];
+          colors[ic + 2] = model_colors[2];
+          colors[ic + 3] = model_colors[3];
+        } else {
+          colors[ic]     = model_colors[i * 4];
+          colors[ic + 1] = model_colors[i * 4 + 1];
+          colors[ic + 2] = model_colors[i * 4 + 2];
+          colors[ic + 3] = model_colors[i * 4 + 3];
+        }
+      } else if (flip) {
+        colors[ic]     = color_map[color_map_length - 1 - color_map_index][0];
+        colors[ic + 1] = color_map[color_map_length - 1 - color_map_index][1];
+        colors[ic + 2] = color_map[color_map_length - 1 - color_map_index][2];
+        colors[ic + 3] = color_map[color_map_length - 1 - color_map_index][3];
+      } else {
+        colors[ic]     = color_map[color_map_index][0];
+        colors[ic + 1] = color_map[color_map_index][1];
+        colors[ic + 2] = color_map[color_map_index][2];
+        colors[ic + 3] = color_map[color_map_index][3];
+      }
+    }
+
+    if (callback) callback(colors);
+  }
+
+  // Apply a color array to a model.
   function colorModel(color_array, shapes) {
     var geometry, shape, indices;
     var color_attribute, colors;

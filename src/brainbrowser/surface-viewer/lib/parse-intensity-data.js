@@ -37,7 +37,7 @@
 * @description
 * Parse vertex intensity data from a string of text.
 * ```js
-* BrainBrowser.SurfaceViewer.parseIntensityData(data, "mniobj", function(data_obj) { 
+* BrainBrowser.SurfaceViewer.parseIntensityData(data, "mniobj", function(intensity_data) { 
 *   // Manipulate intensity data object.
 * });
 * ```
@@ -64,8 +64,7 @@ BrainBrowser.SurfaceViewer.parseIntensityData = function(data, type, callback) {
     throw new Error(error_message);
   }
 
-  // Allows a prototype to be defined for data object
-  var data_obj = {};
+  var intensity_data = {};
   
   function parse() {
 
@@ -78,79 +77,27 @@ BrainBrowser.SurfaceViewer.parseIntensityData = function(data, type, callback) {
 
       for (prop in result) {
         if (result.hasOwnProperty(prop)){
-          data_obj[prop] = result[prop];
+          intensity_data[prop] = result[prop];
         }
       }
-      if (callback) callback(data_obj);
+      if (callback) callback(intensity_data);
       worker.terminate();
     });
   
     worker.postMessage({ cmd: "parse", data: data });
-  }
-  
-  data_obj.createColorArray = function(min, max, color_map, flip, clamped, original_colors, model, callback) {
-    color_map = color_map.colors;
-    var values = data_obj.values;
-    var colors = [];
-    var color_map_length = color_map.length;
-    var range = max - min;
-    
-    // Calculate a slice of the data per color
-    var increment = ( range + range / color_map_length ) / color_map_length;
-    var i, count;
-    var color_index;
-    var value;
-
-    // For each value, assign a color
-    for (i = 0, count = values.length; i < count; i++) {
-      value = values[i];
-      if (value <= min ) {
-        if (value < min && !clamped) {
-          color_index = -1;
-        } else {
-          color_index = 0;
-        }
-      }else if (value > max){
-        if (!clamped){
-          color_index = -1;
-        }else {
-          color_index = color_map_length - 1;
-        }
-      } else {
-        color_index = Math.floor((value - min) / increment);
-      }
-
-      //This inserts the RGBA values (R,G,B,A) independently
-      if (flip && color_index !== -1) {
-        colors.push.apply(colors, color_map[color_map_length - 1 - color_index]);
-      } else {
-        if(color_index === -1) {
-          if(original_colors.length === 4){
-            colors.push.apply(colors, original_colors);
-          } else {
-            colors.push(original_colors[i*4], original_colors[i*4+1], original_colors[i*4+2], original_colors[i*4+3]);
-          }
-        } else {
-          colors.push.apply(colors, color_map[color_index]);
-        }
-      }
-    }
-
-    if (callback) callback(colors);
-  };
-  
+  }  
   
   if (data) {
     if (typeof data === "string") {
       parse(data);
     } else if(data.values){
-      data_obj.values = data.values.concat();
-      data_obj.min = BrainBrowser.utils.min(data_obj.values);
-      data_obj.max = BrainBrowser.utils.max(data_obj.values);
+      intensity_data.values = data.values.concat();
+      intensity_data.min = BrainBrowser.utils.min(intensity_data.values);
+      intensity_data.max = BrainBrowser.utils.max(intensity_data.values);
     } else {
-      data_obj.values = data;
-      data_obj.min = BrainBrowser.utils.min(data);
-      data_obj.max = BrainBrowser.utils.max(data);
+      intensity_data.values = data;
+      intensity_data.min = BrainBrowser.utils.min(data);
+      intensity_data.max = BrainBrowser.utils.max(data);
     }
   }
   

@@ -77,20 +77,32 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   /**
   * @doc function
   * @name viewer.views:setTransparency
-  * @param {string} shape_name The name of the shape whose transparency
-  *        is being set.
   * @param {number} alpha The value to set the opacity to (between 0 and 1).
+  * @param {objects} options currently the only supported option is **shape_name**
+  *   which causes the transparency to apply only to the shape with the given name.
+  *
   * @description
   * Change the opacity of an object in the scene.
   * ```js
-  * viewer.setTransparency("shape1", 0.5);
+  * viewer.setTransparency(0.5, {
+  *   shape_name: "shape1"
+  * });
   * ```
   */
-  viewer.setTransparency = function(shape_name, alpha) {
+  viewer.setTransparency = function(alpha, options) {
+    options = options || {};
+
+    var shape_name = options.shape_name;
     var shape = viewer.model.getObjectByName(shape_name);
-    var material, wireframe;
+    var shapes, material, wireframe;
     
     if (shape) {
+      shapes = [shape];
+    } else {
+      shapes = viewer.model.children || [];
+    }
+
+    shapes.forEach(function(shape) {
       material = shape.material;
       material.opacity = alpha;
       
@@ -105,32 +117,46 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
         wireframe.material.opacity = material.opacity;
         wireframe.material.transparent = material.transparent;
       }
-    }
+    });
+      
   };
 
   /**
   * @doc function
   * @name viewer.views:setWireframe
   * @param {boolean} is_wireframe Is the viewer in wireframe mode?
+  * @param {objects} options currently the only supported option is **shape_name**
+  *   which causes only the wireframe shape with the given name to be toggled.
+  *
   * @description
-  * Set wireframe mode on or off.
+  * Change the opacity of an object in the scene.
   * ```js
-  * viewer.setWireframe(true);
+  * viewer.setWireframe(true, {
+  *   shape_name: "shape1"
+  * });
   * ```
   */
-  viewer.setWireframe = function(is_wireframe) {
-    var children = viewer.model.children;
-    var child, wireframe;
+  viewer.setWireframe = function(is_wireframe, options) {
+    options = options || {};
+
+    var shape_name = options.shape_name;
+    var shape = viewer.model.getObjectByName(shape_name);
+    var shapes, material, wireframe;
     
-    for (var i = 0; i < children.length; i++) {
-      child = children[i];
-      wireframe = child.getObjectByName("__wireframe__");
-      if (wireframe) {
-        child.visible = !is_wireframe;
-        wireframe.visible = is_wireframe;
-        child.wireframe_active = is_wireframe;
-      }
+    if (shape) {
+      shapes = [shape];
+    } else {
+      shapes = viewer.model.children || [];
     }
+
+    shapes.forEach(function(shape) {
+      wireframe = shape.getObjectByName("__wireframe__");
+      if (wireframe) {
+        shape.visible = !is_wireframe;
+        wireframe.visible = is_wireframe;
+        shape.wireframe_active = is_wireframe;
+      }
+    });
   };
 
   /**

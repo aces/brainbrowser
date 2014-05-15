@@ -88,19 +88,20 @@ BrainBrowser.SurfaceViewer.parseIntensityData = function(data, type, callback) {
     worker.postMessage({ cmd: "parse", data: data });
   }
   
-  data_obj.createColorArray = function createColorArray(min, max, color_map, flip, clamped, original_colors, model, callback) {
+  data_obj.createColorArray = function(min, max, color_map, flip, clamped, original_colors, model, callback) {
     color_map = color_map.colors;
     var values = data_obj.values;
     var colors = [];
     var color_map_length = color_map.length;
     var range = max - min;
-    //calculate a slice of the data per color
+    
+    // Calculate a slice of the data per color
     var increment = ( range + range / color_map_length ) / color_map_length;
     var i, count;
     var color_index;
     var value;
 
-    //for each value, assign a color
+    // For each value, assign a color
     for (i = 0, count = values.length; i < count; i++) {
       value = values[i];
       if (value <= min ) {
@@ -116,8 +117,9 @@ BrainBrowser.SurfaceViewer.parseIntensityData = function(data, type, callback) {
           color_index = color_map_length - 1;
         }
       } else {
-        color_index = Math.floor((value-min)/increment);
+        color_index = Math.floor((value - min) / increment);
       }
+
       //This inserts the RGBA values (R,G,B,A) independently
       if (flip && color_index !== -1) {
         colors.push.apply(colors, color_map[color_map_length - 1 - color_index]);

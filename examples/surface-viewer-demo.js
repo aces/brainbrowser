@@ -121,7 +121,9 @@ $(function() {
               var alpha = $(target).slider("value");
               alpha = Math.min(100, Math.max(0, alpha)) / 100.0;
 
-              viewer.setTransparency(shape_name, alpha);
+              viewer.setTransparency(alpha, {
+                shape_name: shape_name
+              });
             }
           });
           slider.appendTo(slider_div);

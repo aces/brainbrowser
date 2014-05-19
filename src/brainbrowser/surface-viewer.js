@@ -64,9 +64,11 @@
 * @description
 * The Surface Viewer is configured by defining the object **BrainBrowser.config.surface_viewer**.
 * Currently the properties available for configuration are the directory in which worker scripts 
-* are stored and desciptions of supported filetypes for defining models. The **worker\_dir** 
-* option indicates the base URL at which all worker scripts are stored, and the **filetypes** 
-* indicate the names of the filetypes as well as the specific worker script used to parse them:
+* are stored and desciptions of supported file types for defining models and intensity data. 
+* The **worker\_dir** option indicates the base URL at which all worker scripts are stored, the 
+* **model_types** indicate model filetypes and the worker scripts used to parse them, and the 
+* **intensity_data_types** indicate model filetypes and the worker scripts used to 
+* parse them:
 * 
 * ```js
 * BrainBrowser.config = {
@@ -75,15 +77,26 @@
 *
 *     worker_dir: "js/brainbrowser/workers/",
 *
-*     filetypes: {
+*     model_types: {
 *       mniobj: {
-*         worker: "mniobj.worker.js",
+*         worker: "mniobj.worker.js"
 *       },
 *       wavefrontobj: {
 *         worker: "wavefrontobj.worker.js"
 *       },
 *       freesurferasc: {
 *         worker: "freesurferasc.worker.js",
+*         format_hint: 'You can use <a href="http://surfer.nmr.mgh.harvard.edu/fswiki/mris_convert" target="_blank">mris_convert</a> to convert your binary surface files into .asc format.'
+*       }
+*     },
+*
+*     intensity_data_types: {
+*       mniobj: {
+*         worker: "mniobj.intensity.worker.js"
+*       },
+*       freesurferasc: {
+*         worker: "freesurferasc.intensity.worker.js",
+*         format_hint: 'You can use <a href="http://surfer.nmr.mgh.harvard.edu/fswiki/mris_convert" target="_blank">mris_convert</a> to convert your binary surface files into .asc format.'
 *       }
 *     }
 *

@@ -9,23 +9,17 @@ Demonstrations of available functionality can be found at the [BrainBrowser webs
 Getting Started
 ---------------
 
-To try out some BrainBrowser sample applications, simply make the **examples** directory available through a server and navigate to it. The following is an example that uses the [mongoose](https://code.google.com/p/mongoose/) server to accomplish this:
+To try out some BrainBrowser sample applications, simply clone this git repo, navigate to the **examples** directory, unzip the color maps and models, and launch the simple [node](http://nodejs.org/) example server:
 
 ```Shell
-  $ git clone https://github.com/aces/brainbrowser.git
+  $ git clone git@github.com:aces/brainbrowser-website.git
   $ cd brainbrowser/examples
-  $ mongoose
-```
-
-Once the server is running, navigate to localhost:8080 in your browser and open either **surface-viewer-demo.html** or **volume-viewer-demo.html**.
-
-**Note:** If the server you're using doesn't support serving gzipped content, you'll have to unzip the contents of the directories **examples/color_maps** and **examples/models**. Git will ignore the unzipped files, and you can checkout the **examples** directory to restore the compressed files.
-
-```Shell
-  $ cd brainbrowser/examples
-  $ gunzip color_maps/*.gz models/*.gz
+  $ gunzip color-maps/*.gz models/*.gz
   $ git checkout .
+  $ node server.js
 ```
+
+Once the server is running, navigate to localhost:5000 in your browser and select either of the **Surface Viewer** or **Volume Viewer** sample applications.
 
 Surface Viewer
 --------------
@@ -33,7 +27,7 @@ Surface Viewer
 The BrainBrowser Surface Viewer allows users to display and manipulate 3D surface data. The Surface Viewer is invoked by calling **BrainBrowser.SurfaceViewer.start()** with the id of the HTML element into which the viewer will be inserted, and a callback function to which a [viewer object](https://brainbrowser.cbrain.mcgill.ca/documentation/brainbrowser/surface-viewer/viewer) will be passed:
 
 ```JavaScript
-  BrainBrowser.SurfaceViewer.start("viewer_div", function(viewer) {
+  BrainBrowser.SurfaceViewer.start("viewer-div", function(viewer) {
     // Manipulate viewer object here.
   });
 ```
@@ -48,7 +42,7 @@ Volume Viewer
 The BrainBrowser Volume Viewer allows users to display and manipulate volumetric data in a slice-by-slice manner. The Volume Viewer is invoked by calling **BrainBrowser.VolumeViewer.start()** with the id of the HTML element into which the viewer will be inserted, and a callback function to which a [viewer object](https://brainbrowser.cbrain.mcgill.ca/documentation/brainbrowser/volume-viewer/viewer) will be passed:
 
 ```JavaScript
-  BrainBrowser.VolumeViewer.start("viewer_div", function(viewer) {
+  BrainBrowser.VolumeViewer.start("viewer-div", function(viewer) {
     // Manipulate viewer object here.
   });
 ```

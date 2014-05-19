@@ -6,7 +6,7 @@ log/*
 tmp
 node_modules
 docs/docular
-examples/color_maps/*.txt
+examples/color-maps/*.txt
 examples/models/*.txt
 examples/models/*.obj
 examples/models/*.asc

@@ -272,15 +272,19 @@ $(function() {
     // slider to control the blending ratios.
     BrainBrowser.events.addEventListener("blendcolormaps", function(){
       var div = $("#blend-box");
+      var blend_text = $("<span id=\"blend_value\">0.5</span>");
+
       div.html("Blend Ratio: ");
-      $("<span id=\"blend_value\">0.5</span>").appendTo(div);
+      blend_text.appendTo(div);
       $("<div class=\"blend_slider\" id=\"blend_slider\" width=\"100px\" + height=\"10\"></div>").slider({
         min: 0.1,
         max: 0.99,
         value: 0.5,
         step: 0.01,
         slide: function() {
-          viewer.blend($(this).slider("value"));
+          var value = $(this).slider("value");
+          viewer.blend(value);
+          blend_text.html(value);
         }
       }).appendTo(div);
     });

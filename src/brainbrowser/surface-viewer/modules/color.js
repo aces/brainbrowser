@@ -82,7 +82,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
 
     timeout = setTimeout(function() {
       if (blend) {
-        applyColorArray(blendColorMap(color_map, data, 0, 1));
+        applyColorArray(blendColors(data));
       } else {
         createColorArray(data, applyColorArray);
       }
@@ -312,45 +312,38 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
 
   }
 
-  function blendColors(color_arrays) {
-    var final_color = color_arrays[0];
-    var i, j, count1, count2;
-    var old_alpha, new_alpha;
+  // Blend two sets of colors.
+  function blendColors(value_arrays) {
+    var color_map = viewer.color_map;
+    var color_arrays = [];
+    var blended_color;
+    var i, j, ci, num_arrays, num_colors;
+    var alpha;
     
-    for (i = 0, count1 = color_arrays[0].length/4; i < count1; i++){
-      for (j = 1, count2 = color_arrays.length;  j < count2; j++) {
-        old_alpha = final_color[i*4+3];
-        new_alpha = color_arrays[j][i*4+3];
-        final_color[i*4]   = final_color[i*4] * old_alpha+color_arrays[j][i*4] * new_alpha;
-        final_color[i*4+1] = final_color[i*4+1] * old_alpha+color_arrays[j][i*4+1] * new_alpha;
-        final_color[i*4+2] = final_color[i*4+2] * old_alpha+color_arrays[j][i*4+2] * new_alpha;
-        final_color[i*4+3] = old_alpha + new_alpha;
+    value_arrays.forEach(function(value_array) {
+      color_arrays.push(
+        color_map.mapColors(value_array.values, {
+          min: value_array.range_min,
+          max: value_array.range_max,
+          alpha: value_array.alpha
+        })
+      );
+    });
+
+    blended_color = new Float32Array(color_arrays[0].length);
+    
+    for (i = 0, num_colors = color_arrays[0].length / 4; i < num_colors; i++){
+      for (j = 0, num_arrays = color_arrays.length; j < num_arrays; j++) {
+        ci = i * 4;
+        alpha = color_arrays[j][ci + 3];
+        blended_color[ci]   += color_arrays[j][ci] * alpha;
+        blended_color[ci + 1] += color_arrays[j][ci + 1] * alpha;
+        blended_color[ci + 2] += color_arrays[j][ci + 2] * alpha;
+        blended_color[ci + 3] += alpha;
       }
     }
-    return final_color;
-    
-  }
 
-
-  /**
-  * Blends two or more arrays of values into one color array
-  */
-  function blendColorMap(color_map, value_arrays) {
-    var count = value_arrays.length;
-    var color_arrays = new Array(count);
-    var i;
-    var value_array;
-    
-    for(i = 0; i < count; i++){
-      value_array = value_arrays[i];
-      color_arrays[i] = color_map.mapColors(value_array.values, {
-        min: value_array.range_min,
-        max: value_array.range_max,
-        alpha: value_array.alpha
-      });
-    }
-    
-    return blendColors(color_arrays);
+    return blended_color;
   }
 
 };

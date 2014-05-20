@@ -217,43 +217,6 @@
       }
       
       return {top: top, left: left};
-    },
-    
-    /**
-    * @doc function
-    * @name BrainBrowser.utils:checkConfig
-    * @param {string} config_string Dot-seperated list of nested configuration options to check for.
-    * @returns {boolean} Whether or not the configuration option is defined.
-    *
-    * @description
-    * Check for the existance of a configuration parameter. Argument is a dot-separated list
-    * of nested configuation parameter keys. Returns whether given parameter is set in the 
-    * current configuration. For example:
-    * ```js
-    *   BrainBrowser.utils.checkConfig("surface_viewer.worker_dir");
-    *   // returns true if BrainBrowser.config.surface_viewer.worker_dir has been set.
-    * ```
-    */
-    checkConfig: function(config_string) {
-      if (!BrainBrowser.config) {
-        return false;
-      }
-      config_string = config_string || "";
-      var config = BrainBrowser.config;
-      var config_params = config_string.split(".");
-      var current_param;
-      var i, count;
-
-
-      for (i = 0, count = config_params.length; i < count; i++) {
-        current_param = config_params[i];
-        if (!config[current_param]) {
-          return false;
-        }
-        config = config[current_param];
-      }
-
-      return true;
     }
   
   };

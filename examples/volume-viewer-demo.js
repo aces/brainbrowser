@@ -224,7 +224,7 @@ $(function() {
         });
       });
 
-      BrainBrowser.config.volume_viewer.color_maps.forEach(function(color_map) {
+      BrainBrowser.config.get("color_maps").forEach(function(color_map) {
         color_map_select.append('<option value="' + color_map.url +
           '" data-cursor-color="' + color_map.cursor_color + '">' +
           color_map.name +'</option>'
@@ -509,7 +509,7 @@ $(function() {
       });
     });
 
-    var color_map_config = BrainBrowser.config.volume_viewer.color_maps[0];
+    var color_map_config = BrainBrowser.config.get("color_maps")[0];
 
     loading_div.show();
 

@@ -45,23 +45,27 @@
 * @name Configuration
 *
 * @description
-* BrainBrowser configuration is done by creating an object, **BrainBrowser.config**,
-* with two object properties, **surface\_viewer** and **volume\_viewer** that define
-* the configuration options for each of the tools. For more information on particular 
-* options for each tool, see the Surface Viewer and Volume Viewer configuration sections.
-* 
+* BrainBrowser configuration is done using the **set** and **get**
+* methods on the **BrainBrowser.config** object. Configuration
+* properties can be namespaced using a "." to separate namespaces.
+*
 * ```js
-* BrainBrowser.config = {
+* BrainBrowser.set("color_maps.spectral.name", "Spectral");
 *
-*   surface_viewer: {
-*     // ...
-*   }, 
+* var name = BrainBrowser.get("color_maps.spectral.name");
+* ```
+* Namespaces are implemented as objects, so if a namespace is 
+* requested with **get**, the namespace object will be
+* returned. Using the previous **set**, the following **get**:
 *
-*   volume_viewer: {
-*     // ...
-*   }
-*   
-* }
+* ```js
+* BrainBrowser.get("color_maps.spectral");
+* ```
+*
+* would return the object:
+*
+* ```js
+*  { name: "Spectral" }
 * ```
 */
 

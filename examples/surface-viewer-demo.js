@@ -291,7 +291,7 @@ $(function() {
     viewer.render();
 
     // Load a color map (required for displaying intensity data).
-    viewer.loadColorMapFromURL(BrainBrowser.config.surface_viewer.color_maps[0].url);
+    viewer.loadColorMapFromURL(BrainBrowser.config.get("color_maps")[0].url);
 
     ///////////////////////////////////
     // UI
@@ -426,7 +426,7 @@ $(function() {
       viewer.loadColorMapFromURL($(this).val());
     });
 
-    BrainBrowser.config.surface_viewer.color_maps.forEach(function(color_map) {
+    BrainBrowser.config.get("color_maps").forEach(function(color_map) {
       color_map_select.append('<option value="' + color_map.url + '">' + color_map.name +'</option>');
     });
 
@@ -597,7 +597,7 @@ $(function() {
     $(".file-format").change(function() {
       var div = $(this).closest(".file-select");
       var format = div.find("option:selected").val();
-      div.find(".format-hint").html(BrainBrowser.config.surface_viewer.model_types[format].format_hint || "");
+      div.find(".format-hint").html(BrainBrowser.config.get("model_types." + format).format_hint || "");
     });
 
     // Load a new model from a file that the user has

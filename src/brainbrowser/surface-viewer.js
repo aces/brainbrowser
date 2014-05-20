@@ -62,47 +62,48 @@
 * @name Configuration
 *
 * @description
-* The Surface Viewer is configured by defining the object **BrainBrowser.config.surface_viewer**.
-* Currently the properties available for configuration are the directory in which worker scripts 
-* are stored and desciptions of supported file types for defining models and intensity data. 
-* The **worker\_dir** option indicates the base URL at which all worker scripts are stored, the 
-* **model_types** indicate model filetypes and the worker scripts used to parse them, and the 
-* **intensity_data_types** indicate model filetypes and the worker scripts used to 
-* parse them:
-* 
+* The Surface Viewer can be configured using the **set** and **get**
+* methods of the **BrainBrowser.config** object. The only configuration
+* parameter that must be manually set is **worker\_dir** which indicates
+* the path to the directory where the Web Worker scripts are stored: 
+*
 * ```js
-* BrainBrowser.config = {
-* 
-*   surface_viewer: {
+* BrainBrowser.config.set("worker_dir", "js/brainbrowser/workers");
+* ```
+* Configuration parameters used internally by the Surface Viewer also
+* include **model\_types** and **intensity\_data\_types** which are used to 
+* associate a Web Worker with each supported file type. Any other parameters
+* can be used without issue to create custom configuration for a given
+* app. 
 *
-*     worker_dir: "js/brainbrowser/workers/",
+* Configuration parameters can be retrieved using the **get** method:
 *
-*     model_types: {
-*       mniobj: {
-*         worker: "mniobj.worker.js"
-*       },
-*       wavefrontobj: {
-*         worker: "wavefrontobj.worker.js"
-*       },
-*       freesurferasc: {
-*         worker: "freesurferasc.worker.js",
-*         format_hint: 'You can use <a href="http://surfer.nmr.mgh.harvard.edu/fswiki/mris_convert" target="_blank">mris_convert</a> to convert your binary surface files into .asc format.'
-*       }
-*     },
+* ```js
+* var worker_dir = BrainBrowser.config.get("worker_dir");
+* ```
 *
-*     intensity_data_types: {
-*       mniobj: {
-*         worker: "mniobj.intensity.worker.js"
-*       },
-*       freesurferasc: {
-*         worker: "freesurferasc.intensity.worker.js",
-*         format_hint: 'You can use <a href="http://surfer.nmr.mgh.harvard.edu/fswiki/mris_convert" target="_blank">mris_convert</a> to convert your binary surface files into .asc format.'
-*       }
-*     }
+* If the requested parameter does not exist, **null** will be returned.
 *
-*   }
-*   
-* }
+* Configuration parameters can be namespaced, using a "." to separate namespaces,
+* so for example:
+*
+* ```js
+* BrainBrowser.set("color_maps.spectral.name", "Spectral");
+* ```
+*
+* will set the **name** property in the **spectral** namespace of the 
+* **color_maps** namespace. Namespaces are implemented as objects, so 
+* if a namespace is requested with **get**, the namespace object will be
+* returned. Using the previous **set**, the following **get**:
+*
+* ```js
+* BrainBrowser.get("color_maps.spectral");
+* ```
+*
+* would return the object:
+*
+* ```js
+*  { name: "Spectral" }
 * ```
 * 
 */
@@ -400,32 +401,47 @@
   // May be network or Blob URLs
   SurfaceViewer.worker_urls = {};
 
+  // Configuration for built-in parsers.
+  BrainBrowser.config.set("model_types.mniobj.worker", "mniobj.worker.js");
+  BrainBrowser.config.set("model_types.wavefrontobj.worker", "wavefrontobj.worker.js");
+  BrainBrowser.config.set("model_types.freesurferasc.worker", "freesurferasc.worker.js");
+  BrainBrowser.config.set("intensity_data_types.mniobj.worker", "mniobj.intensity.worker.js");
+  BrainBrowser.config.set("intensity_data_types.freesurferasc.worker", "freesurferasc.intensity.worker.js");
+
   // Build worker URLs and attempt to inline 
   // them using Blob URLs if possible.
   function setupWorkers(callback) {
     
-    if (!BrainBrowser.utils.checkConfig("surface_viewer.worker_dir")) {
-      callback();
-      return;
+    var worker_dir = BrainBrowser.config.get("worker_dir");
+    var error_message;
+
+    if (worker_dir === null) {
+      error_message = "error in SurfaceViewer configuration.\n" +
+        "BrainBrowser configuration parameter 'worker_dir' not defined.\n" +
+        "Use 'BrainBrowser.config.set(\"worker_dir\", ...)' to set it.";
+      
+      BrainBrowser.events.triggerEvent("error", error_message);
+      throw new Error(error_message);
     }
 
     var workers = {
       deindex: "deindex.worker.js"
     };
-    var config = BrainBrowser.config.surface_viewer;
 
     var workers_loaded = 0;
     var worker_names;
+    var model_types = BrainBrowser.config.get("model_types");
+    var intensity_data_types = BrainBrowser.config.get("intensity_data_types");
 
-    if (BrainBrowser.utils.checkConfig("surface_viewer.model_types")) {
-      Object.keys(config.model_types).forEach(function(type) {
-        workers[type + "_model"] = config.model_types[type].worker;
+    if (model_types !== null) {
+      Object.keys(model_types).forEach(function(type) {
+        workers[type + "_model"] = model_types[type].worker;
       });
     }
 
-    if (BrainBrowser.utils.checkConfig("surface_viewer.intensity_data_types")) {
-      Object.keys(config.intensity_data_types).forEach(function(type) {
-        workers[type + "_intensity"] = config.intensity_data_types[type].worker;
+    if (intensity_data_types !== null) {
+      Object.keys(intensity_data_types).forEach(function(type) {
+        workers[type + "_intensity"] = intensity_data_types[type].worker;
       });
     }
 
@@ -439,7 +455,7 @@
     if (window.URL && window.URL.createObjectURL) {
 
       worker_names.forEach(function(name) {
-        var url = config.worker_dir + "/" + workers[name];
+        var url = worker_dir + "/" + workers[name];
 
         var request = new XMLHttpRequest();
         var status, blob;
@@ -470,7 +486,7 @@
     } else {
 
       worker_names.forEach(function(name) {
-        SurfaceViewer.worker_urls[name] = config.worker_dir + "/" + workers[name];
+        SurfaceViewer.worker_urls[name] = worker_dir + "/" + workers[name];
       });
 
       callback();

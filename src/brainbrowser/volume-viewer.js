@@ -87,6 +87,52 @@
 
 /**
 * @doc overview
+* @name Configuration
+*
+* @description
+* The Volume Viewer can be configured using the **set** and **get**
+* methods of the **BrainBrowser.config** object. At this point, there
+* is no required configuration for the Volume Viewer, so this 
+* functionality can be safely used for custom app configuration.
+*
+* ```js
+* BrainBrowser.config.set("color_map_path", "color-maps/spectral.txt");
+* ```
+*
+* Configuration parameters can be retrieved using the **get** method:
+*
+* ```js
+* var color_map_path = BrainBrowser.config.get("color_map_path");
+* ```
+*
+* If the requested parameter does not exist, **null** will be returned.
+*
+* Configuration parameters can be namespaced, using a "." to separate namespaces,
+* so for example:
+*
+* ```js
+* BrainBrowser.set("color_maps.spectral.name", "Spectral");
+* ```
+*
+* will set the **name** property in the **spectral** namespace of the 
+* **color_maps** namespace. Namespaces are implemented as objects, so 
+* if a namespace is requested with **get**, the namespace object will be
+* returned. Using the previous **set**, the following **get**:
+*
+* ```js
+* BrainBrowser.get("color_maps.spectral");
+* ```
+*
+* would return the object:
+*
+* ```js
+*  { name: "Spectral" }
+* ```
+* 
+*/
+
+/**
+* @doc overview
 * @name Templates
 *
 * @description

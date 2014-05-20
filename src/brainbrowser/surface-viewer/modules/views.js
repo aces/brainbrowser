@@ -141,7 +141,7 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
 
     var shape_name = options.shape_name;
     var shape = viewer.model.getObjectByName(shape_name);
-    var shapes, material, wireframe;
+    var shapes, wireframe;
     
     if (shape) {
       shapes = [shape];

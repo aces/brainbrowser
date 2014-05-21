@@ -88,8 +88,8 @@
   var overlay_proto = {
 
     slice: function(axis, slice_num, time) {
-      slice_num = slice_num || this.position[axis];
-      time = time || this.current_time;
+      slice_num = slice_num === undefined ? this.position[axis] : slice_num;
+      time = time === undefined ? this.current_time : time;
 
       var overlay_volume = this;
       var slices = [];

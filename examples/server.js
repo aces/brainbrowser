@@ -24,6 +24,8 @@
 * Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
 */
 
+"use strict";
+
 var http = require('http');
 var fs = require('fs');
 var port = process.argv[2] || 5000;
@@ -33,6 +35,11 @@ http.createServer(function (req, res) {
   var path = "./" + (req.url.replace(/^\/+/, "") || "index.html");
   fs.exists(path, function(exists) {
     if (exists) {
+      if (path.match(/\.js$/)) {
+        res.setHeader("Content-Type", "text/javascript");
+      } else if (path.match(/\.css$/)) {
+        res.setHeader("Content-Type", "text/css");
+      }
       fs.readFile(path, function(err, content) {
         res.end(content);
       });
@@ -40,10 +47,10 @@ http.createServer(function (req, res) {
       res.writeHead(404);
       res.end("File " + req.url + " not found.");
     }
-  })
+  });
 }).listen(port, function() {
   console.log("BrainBrowser example server started on port " + port + ".");
   console.log("Navigate to http://localhost:" + port + "/surface-viewer-demo.html to view the Surface Viewer demo.");
-  console.log("Navigate to http://localhost:" + port + "/volume-viewer-demo.html to view the Volume Viewer demo.");  
+  console.log("Navigate to http://localhost:" + port + "/volume-viewer-demo.html to view the Volume Viewer demo.");
 });
 

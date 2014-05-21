@@ -108,7 +108,6 @@ module.exports = function(grunt) {
       brainbrowser: {
         options: {
           browser: true,
-          jquery: true,
           globals: {
             THREE: true,
             BrainBrowser: true,
@@ -118,9 +117,7 @@ module.exports = function(grunt) {
         },
         src: [
           "<%= concat.surface.src %>",
-          "<%= concat.volume.src %>",
-          "examples/js/surface-viewer-demo.js",
-          "examples/js/volume-viewer-demo.js",
+          "<%= concat.volume.src %>"
         ]
       },
       workers: {
@@ -131,6 +128,30 @@ module.exports = function(grunt) {
           }
         },
         src: ["src/brainbrowser/workers/*.js"]
+      },
+      examples: {
+        options: {
+          browser: true,
+          jquery: true,
+          globals: {
+            BrainBrowser: true,
+            THREE: true
+          }
+        },
+        src: [
+          "examples/surface-viewer-demo.js",
+          "examples/volume-viewer-demo.js",
+          "examples/surface-viewer-demo.config.js",
+          "examples/volume-viewer-demo.config.js"
+        ]
+      },
+      server: {
+        options: {
+          node: true
+        },
+        src: [
+          "examples/server.js"
+        ]
       }
     },
     clean: {

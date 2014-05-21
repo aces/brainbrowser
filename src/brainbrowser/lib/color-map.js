@@ -195,8 +195,8 @@
       var i, k;
       var context;
 
-      $(canvas).attr("width", 256);
-      $(canvas).attr("height", full_height);
+      canvas.width = 256;
+      canvas.height = full_height;
       
       for (i = 0; i < 256; i++) {
         if (flip) {

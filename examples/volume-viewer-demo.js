@@ -189,10 +189,6 @@ $(function() {
       container.find(".world-coords").change(function() {
         var div = $(this);
 
-        // Get the volume ID of the volume being displayed.
-        var vol_id = div.data("volume-id");
-
-
         var x = parseFloat(div.find("#world-x-" + vol_id).val());
         var y = parseFloat(div.find("#world-y-" + vol_id).val());
         var z = parseFloat(div.find("#world-z-" + vol_id).val());
@@ -210,6 +206,31 @@ $(function() {
 
         // Set coordinates and redraw.
         viewer.volumes[vol_id].setWorldCoords(x, y, z);
+
+        viewer.redrawVolumes();
+      });
+
+      // The world coordinate input fields.
+      container.find(".voxel-coords").change(function() {
+        var div = $(this);
+
+        var x = parseInt(div.find("#voxel-x-" + vol_id).val(), 10);
+        var y = parseInt(div.find("#voxel-y-" + vol_id).val(), 10);
+        var z = parseInt(div.find("#voxel-z-" + vol_id).val(), 10);
+        
+        // Make sure the values are numeric.
+        if (!BrainBrowser.utils.isNumeric(x)) {
+          x = 0;
+        }
+        if (!BrainBrowser.utils.isNumeric(y)) {
+          y = 0;
+        }
+        if (!BrainBrowser.utils.isNumeric(z)) {
+          z = 0;
+        }
+
+        // Set coordinates and redraw.
+        viewer.volumes[vol_id].setVoxelCoords(x, y, z);
 
         viewer.redrawVolumes();
       });
@@ -243,7 +264,6 @@ $(function() {
       // Change the range of intensities that will be displayed.
       container.find(".threshold-div").each(function() {
         var div = $(this);
-        var vol_id = div.data("volume-id");
         var volume = viewer.volumes[vol_id];
 
         // Input fields to input min and max thresholds directly.
@@ -317,7 +337,6 @@ $(function() {
 
       container.find(".time-div").each(function() {
         var div = $(this);
-        var vol_id = div.data("volume-id");
         var volume = viewer.volumes[vol_id];
 
         if (volume.data.time) {
@@ -387,7 +406,6 @@ $(function() {
       // orientation.
       container.find(".slice-series-div").each(function() {
         var div = $(this);
-        var vol_id = div.data("volume-id");
         var volume = viewer.volumes[vol_id];
 
         var space_names = {
@@ -447,8 +465,6 @@ $(function() {
         var div = $(this);
         var slider = div.find(".slider");
         var blend_input = div.find("#blend-val");
-
-        var vol_id = div.data("volume-id");
         var volume = viewer.volumes[vol_id];
 
         // Slider to select blend value.
@@ -503,9 +519,9 @@ $(function() {
         $("#world-y-" + vol_id).val(world_coords.y.toPrecision(6));
         $("#world-z-" + vol_id).val(world_coords.z.toPrecision(6));
 
-        $("#voxel-x-" + vol_id).val(voxel_coords.x.toPrecision(6));
-        $("#voxel-y-" + vol_id).val(voxel_coords.y.toPrecision(6));
-        $("#voxel-z-" + vol_id).val(voxel_coords.z.toPrecision(6));
+        $("#voxel-x-" + vol_id).val(parseInt(voxel_coords.x, 10));
+        $("#voxel-y-" + vol_id).val(parseInt(voxel_coords.y, 10));
+        $("#voxel-z-" + vol_id).val(parseInt(voxel_coords.z, 10));
       });
     });
 

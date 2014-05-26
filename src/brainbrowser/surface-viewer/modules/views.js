@@ -112,7 +112,7 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
         material.transparent = true;
       }
 
-      wireframe = shape.getObjectByName("__wireframe__");
+      wireframe = shape.getObjectByName("__WIREFRAME__");
       if (wireframe) {
         wireframe.material.opacity = material.opacity;
         wireframe.material.transparent = material.transparent;
@@ -150,7 +150,7 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
     }
 
     shapes.forEach(function(shape) {
-      wireframe = shape.getObjectByName("__wireframe__");
+      wireframe = shape.getObjectByName("__WIREFRAME__");
       if (wireframe) {
         shape.visible = !is_wireframe;
         wireframe.visible = is_wireframe;

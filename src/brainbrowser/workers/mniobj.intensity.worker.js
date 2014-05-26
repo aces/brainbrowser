@@ -38,15 +38,15 @@
     var result = {};
     var i, count, min, max;
   
-    string = string.replace(/^\s+/, '').replace(/\s+$/, '');
-    result.values = string.split(/\s+/);
+    result.values = string.replace(/^\s+/, "").replace(/\s+$/, "").split(/\s+/).map(parseFloat);
     min = result.values[0];
     max = result.values[0];
-    for(i = 0, count = result.values.length; i < count; i++) {
-      result.values[i] = parseFloat(result.values[i]);
+
+    for(i = 1, count = result.values.length; i < count; i++) {
       min = Math.min(min, result.values[i]);
       max = Math.max(max, result.values[i]);
     }
+
     result.min = min;
     result.max = max;
 

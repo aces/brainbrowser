@@ -168,7 +168,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       }
       child.rotation.set(0, 0, 0);
 
-      wireframe = child.getObjectByName("__wireframe__");
+      wireframe = child.getObjectByName("__WIREFRAME__");
     }
   };
 
@@ -204,6 +204,40 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   viewer.setClearColor = function(color)  {
     renderer.setClearColor(color, 1.0);
   };
+
+  /**
+  * @doc function
+  * @name SurfaceViewer.viewer:drawDot
+  * @param {number} x The x coordinate.
+  * @param {number} y The y coordinate.
+  * @param {number} z The z coordinate.
+  * @param {number} radius Radius of the sphere (default: 2).
+  * @param {number} color Color of the sphere as a hexadecimal integer (default: 0xFF0000).
+  *
+  * @description Draw a sphere in the current scene. Handy for debugging.
+  * ```js
+  * viewer..drawDot(10, 5, 15, 3, 0x00FF00);
+  * ```
+  */
+  viewer.drawDot = function(x, y, z, radius, color) {
+    radius = radius || 2;
+    radius = radius >= 0 ? radius : 0;
+    color = color >= 0 ? color : 0xFF0000;
+
+    var geometry = new THREE.SphereGeometry(radius);
+    var material = new THREE.MeshBasicMaterial({color: color});
+  
+    var sphere = new THREE.Mesh(geometry, material);
+    sphere.position.set(x, y, z);
+    sphere.__PICK_IGNORE__ = true;
+  
+    if (viewer.model) {
+      viewer.model.add(sphere);
+    } else {
+      scene.add(sphere);
+    }
+
+  }
   
   /**
   * @doc function
@@ -234,7 +268,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var projector = new THREE.Projector();
     var raycaster = new THREE.Raycaster();
     var vector = new THREE.Vector3(x, y, camera.near);
-    var intersects, intersection, vertex_data;
+    var intersection = null;
+    var intersects, vertex_data;
     var intersect_object, intersect_point, intersect_indices;
     var intersect_vertex_index;
     var min_distance;
@@ -253,10 +288,15 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     raycaster.set(camera.position, vector.sub(camera.position).normalize());
     intersects = raycaster.intersectObject(model, true);
 
-    if (intersects.length > 0) {
-      
-      // Find closest point to intersection.
-      intersection = intersects[0];
+    for (i = 0; i < intersects.length; i++) {
+      if (!intersects[i].object.__PICK_IGNORE__) {
+        intersection = intersects[i];
+        break;
+      }
+    }
+
+    if (intersection !== null) {
+
       intersect_object = intersection.object;
       intersect_indices = intersection.indices;
 

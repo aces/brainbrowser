@@ -43,24 +43,24 @@
     
     var result = {};
 
-    data = data.split('\n');
+    data = data.split("\n");
     result.shapes = [];
     current_shape = {name: data.name | "undefined", faces: [], indices: [] };
     result.shapes.push(current_shape);
     
-    counts = data[1].split(/\s+/);
+    counts = data[1].replace(/^\s+/, "").replace(/\s+$/, "").split(/\s+/);
     vertex_count = parseInt(counts[0], 10);
     face_count = parseInt(counts[1], 10);
     
     for (i = 2; i < vertex_count + 2; i++) {
-      line = data[i].split(/\s+/);
+      line = data[i].replace(/^\s+/, "").replace(/\s+$/, "").split(/\s+/);
       vertices.push(parseFloat(line[0]));
       vertices.push(parseFloat(line[1]));
       vertices.push(parseFloat(line[2]));
     }
     
     for (i = vertex_count + 2; i < vertex_count + face_count + 2; i++) {
-      line = data[i].split(/\s+/);
+      line = data[i].replace(/^\s+/, "").replace(/\s+$/, "").split(/\s+/);
       face = [];
       face.push(parseInt(line[0], 10));
       face.push(parseInt(line[1], 10));

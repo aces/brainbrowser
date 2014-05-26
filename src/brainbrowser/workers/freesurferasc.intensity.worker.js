@@ -41,19 +41,21 @@
     var lines, value;
     var i, count, min, max;
   
-    string = string.replace(/^\s+/, '').replace(/\s+$/, '');
+    string = string.replace(/^\s+/, "").replace(/\s+$/, "");
 
     lines = string.split("\n");
-    value = parseFloat(lines[0].split(/\s+/)[4]);
+    value = parseFloat(lines[0].replace(/^\s+/, "").replace(/\s+$/, "").split(/\s+/)[4]);
     result.values[0] = value;
     min = value;
     max = value;
+
     for(i = 1, count = lines.length; i < count; i++) {
-      value = parseFloat(lines[i].split(/\s+/)[4]);
+      value = parseFloat(lines[i].replace(/^\s+/, "").replace(/\s+$/, "").split(/\s+/)[4]);
       result.values[i] = value;
       min = Math.min(min, value);
       max = Math.max(max, value);
     }
+    
     result.min = min;
     result.max = max;
 

@@ -563,6 +563,7 @@
       }, false);
     }
 
+    return viewer;
   };
 
 })();

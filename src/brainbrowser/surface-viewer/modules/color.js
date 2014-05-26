@@ -237,7 +237,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
 
     for (j = 0, shape_count = shapes.length; j < shape_count; j++) {
       shape = shapes[j];
-      wireframe = shape.getObjectByName("__wireframe__");
+      wireframe = shape.getObjectByName("__WIREFRAME__");
 
       has_wireframe = !!wireframe;
 

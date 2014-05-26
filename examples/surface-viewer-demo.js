@@ -65,7 +65,7 @@ $(function() {
   /////////////////////////////////////
   // Start running the Surface Viewer
   /////////////////////////////////////
-  BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
+  window.viewer = BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
 
     // Add the three.js 3D anaglyph effect to the viewer.
     viewer.addEffect("AnaglyphEffect");
@@ -343,7 +343,7 @@ $(function() {
       // If the shapes wireframe is currently being displayed,
       // set the wireframe's visibility.
       if (shape.wireframe_active) {
-        shape = shape.getObjectByName("__wireframe__") || shape;
+        shape = shape.getObjectByName("__WIREFRAME__") || shape;
       }
 
       shape.visible = input.is(":checked");

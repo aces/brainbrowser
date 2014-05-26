@@ -46,12 +46,12 @@
    
     var result = {};
 
-    data = data.split('\n');
+    data = data.split("\n");
     result.shapes = [];
     current_shape = {name: data.name | "undefined", faces: [], indices: [], texture_indices:[], normal_indices: []};
     result.shapes.push(current_shape);
     for(i = 0, count = data.length; i < count; i++) {
-      line = data[i].split(/\s+/);
+      line = data[i].replace(/^\s+/, "").replace(/\s+$/, "").split(/\s+/);
       line_marker = line[0];
       line_length = line.length;
   
@@ -83,25 +83,24 @@
           texture_indices = current_shape.texture_indices;
           normal_indices = current_shape.normal_indices;
           
-          var first_elem = line[1].split('/');
+          var first_elem = line[1].split("/");
           
-
           for (k = 2; k < line_length - 1; k++){
-            face.push(parseInt(first_elem[0], 10)-1);
+            face.push(parseInt(first_elem[0], 10) - 1);
             indices.push(parseInt(first_elem[0], 10) - 1);
             texture_indices.push(parseInt(first_elem[1], 10) - 1);
             if (first_elem[2]) {
               normal_indices.push(parseInt(first_elem[2], 10) - 1);
             }
-            elem = line[k].split('/');
-            face.push(parseInt(elem[0], 10)-1);
+            elem = line[k].split("/");
+            face.push(parseInt(elem[0], 10) - 1);
             indices.push(parseInt(elem[0], 10) - 1);
             texture_indices.push(parseInt(elem[1], 10) - 1);
             if (elem[2]) {
               normal_indices.push(parseInt(elem[2], 10) - 1);
             }
-            elem = line[k+1].split('/');
-            face.push(parseInt(elem[0], 10)-1);
+            elem = line[k+1].split("/");
+            face.push(parseInt(elem[0], 10) - 1);
             indices.push(parseInt(elem[0], 10) - 1);
             texture_indices.push(parseInt(elem[1], 10) - 1);
             if (elem[2]) {

@@ -36,7 +36,7 @@ $(function() {
   /////////////////////////////////////
   // Start running the Volume Viewer
   /////////////////////////////////////
-  BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
+  window.viewer = BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
     var loading_div = $("#loading");
 
     ///////////////////////////

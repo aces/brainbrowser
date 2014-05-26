@@ -391,6 +391,7 @@
         callback(viewer);
       });
 
+      return viewer;
     }
   };
 

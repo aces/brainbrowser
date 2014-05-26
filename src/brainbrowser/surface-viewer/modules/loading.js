@@ -442,7 +442,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     material = new THREE.LineBasicMaterial({ vertexColors: THREE.VertexColors });
     wireframe = new THREE.Line(wire_geometry, material, THREE.LinePieces);
 
-    wireframe.name = "__wireframe__";
+    wireframe.name = "__WIREFRAME__";
     wireframe.visible = false;
     object.wireframe_active = false;
 

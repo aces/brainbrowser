@@ -27,7 +27,7 @@
 (function() {
   "use strict";
 
-  var config = {};
+  var config = BrainBrowser.createTreeStore();
 
   BrainBrowser.config = {
 
@@ -58,35 +58,18 @@
       config_string = config_string || "";
       var config_item = config;
       var config_params = config_string.split(".");
-      var current_param;
-      var i, count;
-      var error_message;
 
-      for (i = 0, count = config_params.length - 1; i < count; i++) {
-        current_param = config_params[i];
-        if (config_item[current_param] && typeof config_item[current_param] !== "object") {
-          error_message = "Configuration parameter '" + config_params.slice(0, i + 1).join(".") +
-            "' has already been set to a non-object value.\n" +
-            "Cannot set '" + config_string + "'";
-
-          BrainBrowser.events.triggerEvent("error", error_message);
-          throw new Error(error_message);
-        }
-        if (!config_item[current_param]) {
-          config_item[current_param] = {};
-        }
-        config_item = config_item[current_param];
-      }
-
-      current_param = config_params[i];
-
-      config_item[current_param] = value;
+      config_params.push(value);
+     
+      config.set.apply(config, config_params);
     },
 
     /**
     * @doc function
     * @name BrainBrowser.config:get
     * @param {string} config_string Namespaced configuration property.
+    *
+    * @returns The value of the cofiguration parameter (or **null** if it doesn't exist).
     *
     * @description
     * Retrieve a configuration parameter.
@@ -122,21 +105,8 @@
       config_string = config_string || "";
       var config_item = config;
       var config_params = config_string.split(".");
-      var current_param;
-      var i, count;
 
-
-      for (i = 0, count = config_params.length - 1; i < count; i++) {
-        current_param = config_params[i];
-        if (config_item[current_param] === undefined) {
-          return null;
-        }
-        config_item = config_item[current_param];
-      }
-
-      current_param = config_params[i];
-
-      return config_item[current_param] !== undefined ? config_item[current_param] : null;
+      return config.get.apply(config, config_params);
     }
   };
 

@@ -211,10 +211,12 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * @param {number} x The x coordinate.
   * @param {number} y The y coordinate.
   * @param {number} z The z coordinate.
+  * @param {number} radius Radius of the sphere (default: 2).
+  * @param {number} color Color of the sphere as a hexadecimal integer (default: 0xFF0000).
   *
-  * @description Draw a red dot in the current scene. Handy for debugging.
+  * @description Draw a sphere in the current scene. Handy for debugging.
   * ```js
-  * viewer..drawDot(scene, 10, 5, 15);
+  * viewer..drawDot(10, 5, 15, 3, 0x00FF00);
   * ```
   */
   viewer.drawDot = function(x, y, z, radius, color) {

@@ -147,6 +147,10 @@ $(function() {
       $("#pick-index").html("");
       $("#pick-value").html("");
       $("#pick-label").html("");
+      $("#annotation-media").html("");
+      $("#annotation-display").hide();
+      $("#annotation-wrapper").hide();
+      viewer.annotations.reset();
     });
 
     // When the intensity range changes, adjust the displayed spectrum.
@@ -301,25 +305,6 @@ $(function() {
     // UI
     ///////////////////////////////////
 
-    // Some keyboard controls for the viewer.
-    $("body").keydown(function(e) {
-      var key_code = e.keyCode;
-      var keys = {
-        // Space
-        32: function() { viewer.separateHalves(); },
-        // Up arrow
-        38: function() { viewer.zoom(1.1); },
-        // Down arrow
-        40: function() { viewer.zoom(1/1.1); }
-      };
-    
-      if (keys.hasOwnProperty(key_code)) {
-        keys[key_code]();
-        return false;
-      }
-
-    });
-
     // Set the background color.
     $("#clear_color").change(function(e){
       viewer.setClearColor(parseInt($(e.target).val(), 16));
@@ -448,20 +433,36 @@ $(function() {
       if (!event.shiftKey) return;
       if (!viewer.model_data) return;
 
+      var x, y;
       var offset = BrainBrowser.utils.getOffset(viewer.dom_element);
-      var x = event.clientX - offset.left + window.scrollX;
-      var y = event.clientY - offset.top + window.scrollY;
       
+      if (event.pageX !== undefined) {
+        x = event.pageX;
+        y = event.pageY;
+      } else {
+        x = event.clientX + window.pageXOffset;
+        y = event.clientY + window.pageYOffset;
+      }
+
+      x -= offset.left;
+      y -= offset.top;
+    
+      var annotation_display = $("#annotation-display");
+      var media = $("#annotation-media");
+      var current_annotation;
       var pick_info = viewer.pick(x, y);
       var value, label, text;
+      var index, point;
 
       if (pick_info) {
         $("#pick-x").html(pick_info.point.x.toPrecision(4));
         $("#pick-y").html(pick_info.point.y.toPrecision(4));
         $("#pick-z").html(pick_info.point.z.toPrecision(4));
         $("#pick-index").html(pick_info.index);
-
+        $("#annotation-wrapper").show();
+        
         if (viewer.model_data.intensity_data) {
+
           value = viewer.model_data.intensity_data.values[pick_info.index];
           $("#pick-value").html(value);
           label = atlas_labels[value];
@@ -476,9 +477,89 @@ $(function() {
             text = "None";
           }
           $("#pick-label").html(text);
+        
         }
+
+
+        current_annotation = viewer.annotations.get(pick_info.index) || {};
+
+        $("#annotation-image").val(current_annotation.image);
+        $("#annotation-url").val(current_annotation.url);
+        $("#annotation-text").val(current_annotation.text);
+
+        annotation_display.hide();
+        media.html("");
+
+        if (current_annotation.image) {
+          var image = new Image();
+          image.height = 200;
+          image.src = current_annotation.image;
+          annotation_display.show();
+          media.append(image);
+        }
+        if (current_annotation.url) {
+          annotation_display.show();
+          media.append($('<div><a href="' + current_annotation.url + '" target="_blank">' + current_annotation.url + '</a></div>'));
+        }
+
+        if (current_annotation.text) {
+          annotation_display.show();
+          media.append($('<div>' + current_annotation.text + '</div>'));
+        }
+
+      } else {
+        $("#pick-x").html("");
+        $("#pick-y").html("");
+        $("#pick-z").html("");
+        $("#pick-index").html("");
+        $("#annotation-wrapper").hide();
       }
   
+    });
+
+    $("#annotation-save").click(function() {
+      var vertex_num = parseInt($("#pick-index").html(), 10);
+      var annotation_display = $("#annotation-display");
+      var media = $("#annotation-media");
+
+      var current_annotation;
+      var vertex;
+
+      if (BrainBrowser.utils.isNumeric(vertex_num)) {
+        current_annotation = viewer.annotations.get(vertex_num);
+
+        if (current_annotation === null) {
+          current_annotation = {};
+          viewer.annotations.set(vertex_num, current_annotation);
+        }
+
+        var vertex = viewer.getVertex(vertex_num);
+
+        
+
+        current_annotation.image = $("#annotation-image").val();
+        current_annotation.url = $("#annotation-url").val();
+        current_annotation.text = $("#annotation-text").val();
+
+        media.html("");
+
+        if (current_annotation.image) {
+          var image = new Image();
+          image.width = 200;
+          image.src = current_annotation.image;
+          annotation_display.show();
+          media.append(image);
+        }
+        if (current_annotation.url) {
+          annotation_display.show();
+          media.append($('<div><a href="' + current_annotation.url + '" target="_blank">' + current_annotation.url + '</a></div>'));
+        }
+
+        if (current_annotation.text) {
+          annotation_display.show();
+          media.append($('<div>' + current_annotation.text + '</div>'));
+        }
+      }
     });
 
     // Load demo models.

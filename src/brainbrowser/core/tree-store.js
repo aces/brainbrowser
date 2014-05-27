@@ -159,9 +159,46 @@
         subtree[current_key] = undefined;
 
         return result;
+      },
+
+      /**
+      * @doc function
+      * @name BrainBrowser.tree store:reset
+      * @param {object} new_tree (Optional) new tree object to set this tree store to.
+      *
+      * @description
+      * Reset the tree to the object given as **new_tree**. If no argument is given, the
+      * tree store is cleared.
+      *
+      * ```js
+      * var ts = BrainBrowser.createTreeStore();
+      * ts.reset({ x: { y: "z" } });
+      * ```
+      *
+      */
+      reset: function(new_tree) {
+        new_tree = (new_tree && typeof new_tree === "object") ? new_tree : {};
+
+        tree = new_tree;
+      },
+
+      forEach: function(depth, callback) {
+        depth = depth > 0 ? depth : 1;
+        
+        forEach(tree, 1, depth, callback);
       }
     };
 
   };
+
+  function forEach(subtree, depth, max_depth, callback) {
+    if (depth > max_depth) {
+      return callback(subtree);
+    }
+
+    Object.keys(subtree).forEach(function(key) {
+      forEach(subtree[key], depth + 1, max_depth, callback);
+    });
+  }
 
 })();

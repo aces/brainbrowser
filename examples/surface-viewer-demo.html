@@ -46,6 +46,25 @@
           <div>Vertex number: <span id="pick-index" class="pick-data"></span></div>
           <div id="pick-value-wrapper" style="display:none">Value: <span id="pick-value" class="pick-data"></span></div>
           <div id="pick-label-wrapper" style="display:none">Region: <span id="pick-label" class="pick-data"></span></div>
+          <div id="annotation-wrapper" style="display:none">
+            <h4>
+              Add an annotation for this vertex!
+            </h4>
+            <div>
+              Image URL: <input type="text" id="annotation-image">
+            </div>
+            <div>
+              Link URL: <input type="text" id="annotation-url">
+            </div>
+            <div>
+              Text: <div><textarea id="annotation-text"></textarea></div>
+            </div>
+            <input type="submit" id="annotation-save" value="Save">
+          </div>
+          <div id="annotation-display" style="display:none">
+            <h3 id="annotation-header">Your Annotations</h3>
+            <div id="annotation-media"></div>
+          </div>
         </div>
       </div>
       <!-- Loading image from: http://www.ajaxload.info/ -->
@@ -198,6 +217,7 @@
     <script src="js/brainbrowser/lib/color-map.js"></script> 
     <script src="js/brainbrowser/surface-viewer.js"></script>
     <script src="js/brainbrowser/surface-viewer/lib/parse-intensity-data.js"></script> 
+    <script src="js/brainbrowser/surface-viewer/modules/annotations.js"></script>
     <script src="js/brainbrowser/surface-viewer/modules/color.js"></script>
     <script src="js/brainbrowser/surface-viewer/modules/loading.js"></script>
     <script src="js/brainbrowser/surface-viewer/modules/rendering.js"></script>

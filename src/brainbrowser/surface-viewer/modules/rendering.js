@@ -237,6 +237,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       scene.add(sphere);
     }
 
+    return sphere;
+
   }
   
   /**
@@ -271,10 +273,10 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var intersection = null;
     var intersects, vertex_data;
     var intersect_object, intersect_point, intersect_indices;
-    var intersect_vertex_index;
+    var intersect_vertex_index, intersect_vertex_coords;
     var min_distance;
     var original_vertices, original_indices;
-    var index, distance;
+    var index, coords, distance;
     var i, count;
     var centroid, cx, cy, cz;
 
@@ -318,26 +320,39 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       // Have to get the vertex pointed to by the original index because of
       // the de-indexing (see workers/deindex.worker.js)
       intersect_vertex_index = index = original_indices[intersect_indices[0]];
+      intersect_vertex_coords = new THREE.Vector3(
+        original_vertices[index*3],
+        original_vertices[index*3+1],
+        original_vertices[index*3+2]
+      );
+
+      //Compensate for a translated center.
       min_distance = intersect_point.distanceTo(
         new THREE.Vector3(
-          original_vertices[index*3] - cx,
-          original_vertices[index*3+1] - cy,
-          original_vertices[index*3+2] - cz
+          intersect_vertex_coords.x - cx,
+          intersect_vertex_coords.y - cy,
+          intersect_vertex_coords.z - cz
         )
       );
 
       for (i = 1, count = intersect_indices.length; i < count; i++) {
         index = original_indices[intersect_indices[i]];
+        coords = new THREE.Vector3(
+          original_vertices[index*3],
+          original_vertices[index*3+1],
+          original_vertices[index*3+2]
+        );
         distance = intersect_point.distanceTo(
           new THREE.Vector3(
-            original_vertices[index*3] - cx,
-            original_vertices[index*3+1] - cy,
-            original_vertices[index*3+2] - cz
+            coords.x - cx,
+            coords.y - cy,
+            coords.z - cz
           )
         );
 
         if (distance < min_distance) {
           intersect_vertex_index = index;
+          intersect_vertex_coords = coords;
           min_distance = distance;
         }
 
@@ -345,7 +360,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
       vertex_data = {
         index: intersect_vertex_index,
-        point: new THREE.Vector3(intersection.point.x, intersection.point.y, intersection.point.z),
+        point: intersect_vertex_coords,
         object: intersection.object
       };
 
@@ -398,17 +413,17 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var last_y = null;
     var last_touch_distance = null;
 
-    function getMousePosition(e) {
+    function getMousePosition(eventeventeventevent) {
       var x, y;
       var offset = BrainBrowser.utils.getOffset(canvas);
 
 
-      if (e.pageX !== undefined) {
-        x = e.pageX;
-        y = e.pageY;
+      if (eventeventeventevent.pageX !== undefined) {
+        x = eventeventeventevent.pageX;
+        y = eventeventeventevent.pageY;
       } else {
-        x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-        y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+        x = eventeventeventevent.clientX + window.pageXOffset;
+        y = eventeventeventevent.clientY + window.pageYOffset;
       }
 
       x -= offset.left;
@@ -420,10 +435,10 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       };
     }
 
-    function drag(e, multiplier) {
+    function drag(eventeventevent, multiplier) {
       multiplier = multiplier || 1.0;
       var inverse = new THREE.Matrix4();
-      var position = getMousePosition(e);
+      var position = getMousePosition(eventeventevent);
       var x = position.x;
       var y = position.y;
       var dx, dy;
@@ -457,9 +472,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     }
 
-    function touchZoom(e) {
-      var pos1 = getMousePosition(e.touches[0]);
-      var pos2 = getMousePosition(e.touches[1]);
+    function touchZoom(eventevent) {
+      var pos1 = getMousePosition(eventevent.touches[0]);
+      var pos2 = getMousePosition(eventevent.touches[1]);
       var dx = pos1.x - pos2.x;
       var dy = pos1.y - pos2.y;
 
@@ -475,19 +490,19 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       last_touch_distance = distance;
     }
 
-    function mouseDrag(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      drag(e, 0.25);
+    function mouseDrag(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      drag(event, 0.25);
     }
 
-    function touchDrag(e) {
-      e.preventDefault();
-      e.stopPropagation();
+    function touchDrag(event) {
+      event.preventDefault();
+      event.stopPropagation();
       if (movement === "zoom") {
-        touchZoom(e);
+        touchZoom(event);
       } else {
-        drag(e.touches[0], 1.0);
+        drag(event.touches[0], 1.0);
       }
     }
 
@@ -506,37 +521,37 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       last_touch_distance = null;
     }
 
-    function wheelHandler(e) {
-      var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+    function wheelHandler(eventevent) {
+      var delta = Math.max(-1, Math.min(1, (eventevent.wheelDelta || -eventevent.detail)));
 
-      e.preventDefault();
-      e.stopPropagation();
+      eventevent.preventDefault();
+      eventevent.stopPropagation();
 
       viewer.zoom(1.0 + 0.05 * delta);
     }
 
-    canvas.addEventListener("mousedown", function(e) {
+    canvas.addEventListener("mousedown", function(event) {
       document.addEventListener("mousemove", mouseDrag, false);
       document.addEventListener("mouseup", mouseDragEnd, false);
 
-      movement = e.which === 1 ? "rotate" : "translate" ;
+      movement = event.which === 1 ? "rotate" : "translate" ;
     }, false);
 
-    canvas.addEventListener("touchstart", function(e) {
+    canvas.addEventListener("touchstart", function(event) {
       document.addEventListener("touchmove", touchDrag, false);
       document.addEventListener("touchend", touchDragEnd, false);
 
-      movement = e.touches.length === 1 ? "rotate" :
-                 e.touches.length === 2 ? "zoom" :
+      movement = event.touches.length === 1 ? "rotate" :
+                 event.touches.length === 2 ? "zoom" :
                  "translate";
     }, false);
 
     canvas.addEventListener("mousewheel", wheelHandler, false);
     canvas.addEventListener("DOMMouseScroll", wheelHandler, false); // Dammit Firefox
     
-    canvas.addEventListener( 'contextmenu', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
+    canvas.addEventListener( 'contextmenu', function(event) {
+      event.preventDefault();
+      event.stopPropagation();
     }, false );
 
   })();

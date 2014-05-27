@@ -259,3 +259,21 @@ div#format_hints {
   display: none;
 }
 
+#annotation-wrapper {
+  margin-top: 12px;
+}
+
+#annotation-wrapper h4 {
+  margin-bottom: 2px;
+}
+
+#annotation-header {
+  margin-bottom: 10px;
+}
+
+#annotation-display {
+  background-color: #555555;
+  margin-top: 1em;
+  padding: 0.5em;
+}
+

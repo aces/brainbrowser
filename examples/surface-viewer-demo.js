@@ -449,7 +449,7 @@ $(function() {
     
       var annotation_display = $("#annotation-display");
       var media = $("#annotation-media");
-      var current_annotation;
+      var annotation_info;
       var pick_info = viewer.pick(x, y);
       var value, label, text;
       var index, point;
@@ -480,31 +480,36 @@ $(function() {
         
         }
 
+        annotation_info = pick_info.object.annotation_info;
 
-        current_annotation = viewer.annotations.get(pick_info.index) || {};
+        if (annotation_info) {
+          viewer.annotations.activate(pick_info.object)
+        } else {
+          annotation_info = { data : {} };
+        }
 
-        $("#annotation-image").val(current_annotation.image);
-        $("#annotation-url").val(current_annotation.url);
-        $("#annotation-text").val(current_annotation.text);
+        $("#annotation-image").val(annotation_info.data.image);
+        $("#annotation-url").val(annotation_info.data.url);
+        $("#annotation-text").val(annotation_info.data.text);
 
         annotation_display.hide();
         media.html("");
 
-        if (current_annotation.image) {
+        if (annotation_info.data.image) {
           var image = new Image();
           image.height = 200;
-          image.src = current_annotation.image;
+          image.src = annotation_info.data.image;
           annotation_display.show();
           media.append(image);
         }
-        if (current_annotation.url) {
+        if (annotation_info.data.url) {
           annotation_display.show();
-          media.append($('<div><a href="' + current_annotation.url + '" target="_blank">' + current_annotation.url + '</a></div>'));
+          media.append($('<div><a href="' + annotation_info.data.url + '" target="_blank">' + annotation_info.data.url + '</a></div>'));
         }
 
-        if (current_annotation.text) {
+        if (annotation_info.data.text) {
           annotation_display.show();
-          media.append($('<div>' + current_annotation.text + '</div>'));
+          media.append($('<div>' + annotation_info.data.text + '</div>'));
         }
 
       } else {
@@ -522,42 +527,42 @@ $(function() {
       var annotation_display = $("#annotation-display");
       var media = $("#annotation-media");
 
-      var current_annotation;
+      var annotation, annotation_data;
       var vertex;
 
       if (BrainBrowser.utils.isNumeric(vertex_num)) {
-        current_annotation = viewer.annotations.get(vertex_num);
+        annotation = viewer.annotations.get(vertex_num);
 
-        if (current_annotation === null) {
-          current_annotation = {};
-          viewer.annotations.set(vertex_num, current_annotation);
+        if (annotation) {
+          annotation_data = annotation.annotation_info.data
+        } else {
+          annotation_data = {};
+          viewer.annotations.add(vertex_num, annotation_data);
         }
 
         var vertex = viewer.getVertex(vertex_num);
 
-        
-
-        current_annotation.image = $("#annotation-image").val();
-        current_annotation.url = $("#annotation-url").val();
-        current_annotation.text = $("#annotation-text").val();
+        annotation_data.image = $("#annotation-image").val();
+        annotation_data.url = $("#annotation-url").val();
+        annotation_data.text = $("#annotation-text").val();
 
         media.html("");
 
-        if (current_annotation.image) {
+        if (annotation_data.image) {
           var image = new Image();
           image.width = 200;
-          image.src = current_annotation.image;
+          image.src = annotation_data.image;
           annotation_display.show();
           media.append(image);
         }
-        if (current_annotation.url) {
+        if (annotation_data.url) {
           annotation_display.show();
-          media.append($('<div><a href="' + current_annotation.url + '" target="_blank">' + current_annotation.url + '</a></div>'));
+          media.append($('<div><a href="' + annotation_data.url + '" target="_blank">' + annotation_data.url + '</a></div>'));
         }
 
-        if (current_annotation.text) {
+        if (annotation_data.text) {
           annotation_display.show();
-          media.append($('<div>' + current_annotation.text + '</div>'));
+          media.append($('<div>' + annotation_data.text + '</div>'));
         }
       }
     });
@@ -583,6 +588,7 @@ $(function() {
 
       var examples = {
         atlas: function() {
+          viewer.annotations.setMarkerRadius(1);
           viewer.loadModelFromURL("models/brain-surface.obj", {
             format: "mniobj",
             complete: function() {
@@ -614,6 +620,7 @@ $(function() {
           });
         },
         cortical_thickness: function() {
+          viewer.annotations.setMarkerRadius(1);
           viewer.loadModelFromURL("models/brain-surface.obj", {
             format: "mniobj",
             parse: { split: true },
@@ -630,6 +637,7 @@ $(function() {
           });
         },
         car: function() {
+          viewer.annotations.setMarkerRadius(0.3);
           viewer.loadModelFromURL("models/car.obj", {
             format: "wavefrontobj",
             complete: function() {
@@ -651,6 +659,7 @@ $(function() {
           viewer.model.applyMatrix(matrixRotY.multiply(matrixRotX));
         },
         freesurfer: function() {
+          viewer.annotations.setMarkerRadius(1);
           viewer.loadModelFromURL("models/freesurfer-surface.asc", {
             format: "freesurferasc",
             complete: function() {

@@ -28,39 +28,47 @@ BrainBrowser.SurfaceViewer.modules.annotations = function(viewer) {
   "use strict";
 
   var annotations = BrainBrowser.createTreeStore();
-  var markers = BrainBrowser.createTreeStore();
   var marker_radius = 0.5;
   var marker_on_color = 0x00FF00;
   var marker_off_color = 0xFF0000;
 
   viewer.annotations = {
-    set: function(vertex, value, options) {
+    add: function(vertex, data, options) {
+      options = options || {};
+
       var shape_name = getShapeName(options);
-      var position = viewer.getVertex(vertex);
+      var annotation, position;
 
       if (shape_name) {
-        this.forEachMarker(function(marker) {
-          marker.material.color.setHex(marker_off_color);
-        });
+        position = viewer.getVertex(vertex);
+        annotation = viewer.drawDot(position.x, position.y, position.z, marker_radius, marker_off_color);
 
-        markers.set(shape_name, vertex, viewer.drawDot(position.x, position.y, position.z, marker_radius, marker_on_color));
-        annotations.set(shape_name, vertex, value);
+        annotation.annotation_info = {
+          data: data,
+          shape_name: shape_name,
+          vertex: vertex,
+          position: position
+        };
+
+        annotations.set(shape_name, vertex, annotation);
+
+        if (options.activate !== false) {
+          this.activate(annotation);
+        }
       } 
     },
 
     get: function(vertex, options) {
+      options = options || {};
+
       var shape_name = getShapeName(options);
       var annotation;
 
       if (shape_name) {
         annotation = annotations.get(shape_name, vertex);
         
-        if (annotation) {
-          this.forEachMarker(function(marker) {
-            marker.material.color.setHex(marker_off_color);
-          });
-
-          markers.get(shape_name, vertex).material.color.setHex(marker_on_color);
+        if (options.activate !== false) {
+          this.activate(annotation);
         }
         
         return annotation;
@@ -70,30 +78,43 @@ BrainBrowser.SurfaceViewer.modules.annotations = function(viewer) {
     },
 
     remove: function(vertex, options) {
+      options = options || {};
+
       var shape_name = getShapeName(options);
+      var annotation;
 
       if (shape_name) {
-        markers.remove(shape_name, vertex);
-        return annotations.remove(shape_name, vertex);
+        annotation = annotations.remove(shape_name, vertex);
+        viewer.model.remove(annotation);
+        return annotation;
       } else {
         return null;
       }
     },
 
     reset: function() {
-      annotations.reset();
-      this.forEachMarker(function(marker) {
-        viewer.model.remove(marker);
+      this.forEach(function(annotation) {
+        viewer.model.remove(annotation);
       });
-      markers.reset();
+      annotations.reset();
+    },
+
+    activate: function(active_annotation) {
+      if (!active_annotation) {
+        return;
+      }
+
+      this.forEach(function(annotation) {
+        if (annotation === active_annotation) {
+          annotation.material.color.setHex(marker_on_color);
+        } else {
+          annotation.material.color.setHex(marker_off_color);
+        }
+      });
     },
 
     forEach: function(callback) {
       annotations.forEach(2, callback);
-    },
-
-    forEachMarker: function(callback) {
-      markers.forEach(2, callback);
     },
 
     setMarkerOnColor: function(color) {

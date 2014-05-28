@@ -243,8 +243,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   /**
   * @doc function
   * @name viewer.rendering:pick
-  * @param {number} x The x coordinate on the canvas.
-  * @param {number} y The y coordinate on the canvas.
+  * @param {number} x The x coordinate on the canvas (defaults to current mouse position).
+  * @param {number} y The y coordinate on the canvas (defaults to current mouse position).
   * @returns {object} If an intersection is detected, returns an object with the following information:
   *
   * * **object** The THREE.Object3D object with which the the click intersected.
@@ -254,13 +254,18 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * Otherwise returns **null**.
   *
   * @description
-  * Given an x and y coordinate on the viewer canvas, returns information about the
-  * the point of intersection with a displayed object.
+  * Returns information about the displayed object 
+  * and a certain x and y on the canvas. Defaults to
+  * the current mouse position. 
   * ```js
-  * viewer.pick(125, 250);
+  * viewer.pick();          // Pick at current mouse position.
+  * viewer.pick(125, 250);  // Pick at given position.
   * ```
   */
   viewer.pick = function(x, y) {
+    x = x === undefined ? viewer.mouse.x : x;
+    y = y === undefined ? viewer.mouse.y : y;
+
     // Convert to normalized coordinates.
     x = (x / viewer.dom_element.offsetWidth) * 2 - 1;
     y = (-y / viewer.dom_element.offsetHeight) * 2 + 1;

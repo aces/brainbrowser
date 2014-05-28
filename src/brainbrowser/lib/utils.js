@@ -217,6 +217,41 @@
       }
       
       return {top: top, left: left};
+    },
+
+    /**
+    * @doc function
+    * @name BrainBrowser.utils:captureMouse
+    * @param {DOMElement} element An element in the DOM.
+    * @returns {object} An object that tracks the mouse
+    * coordinates over the element.
+    *
+    * @description
+    * Return a mouse tracker for the DOM element given as argument.
+    * ```js
+    * BrainBrowser.utils.captureMouse(dom_element);
+    * ```
+    */
+    captureMouse: function(element) {
+      var mouse = { x: 0, y: 0 };
+
+      element.addEventListener("mousemove", function(event) {
+        var offset = BrainBrowser.utils.getOffset(element);
+        var x, y;
+
+        if (event.pageX !== undefined) {
+          x = event.pageX;
+          y = event.pageY;
+        } else {
+          x = event.clientX + window.pageXOffset;
+          y = event.clientY + window.pageYOffset;
+        }
+
+        mouse.x = x - offset.left;
+        mouse.y = y - offset.top;
+      }, false);
+
+      return mouse;
     }
   
   };

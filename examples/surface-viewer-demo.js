@@ -433,24 +433,10 @@ $(function() {
       if (!event.shiftKey) return;
       if (!viewer.model_data) return;
 
-      var x, y;
-      var offset = BrainBrowser.utils.getOffset(viewer.dom_element);
-      
-      if (event.pageX !== undefined) {
-        x = event.pageX;
-        y = event.pageY;
-      } else {
-        x = event.clientX + window.pageXOffset;
-        y = event.clientY + window.pageYOffset;
-      }
-
-      x -= offset.left;
-      y -= offset.top;
-    
       var annotation_display = $("#annotation-display");
       var media = $("#annotation-media");
       var annotation_info;
-      var pick_info = viewer.pick(x, y);
+      var pick_info = viewer.pick();
       var value, label, text;
       var index, point;
 

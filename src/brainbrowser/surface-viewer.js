@@ -197,10 +197,12 @@
       */
 
       var attributes = {};
+      var dom_element = document.getElementById(element_id); // Element where the viewer canvas will be loaded.
 
       var viewer = {
-        dom_element: document.getElementById(element_id), // Div where the canvas will be loaded.
+        dom_element: dom_element,
         model: null,                                      // The currently loaded model. Should be set by rendering.
+        mouse: BrainBrowser.utils.captureMouse(dom_element),
         /**
         * @doc function
         * @name viewer.attributes:getAttribute

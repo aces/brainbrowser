@@ -275,33 +275,12 @@
 
     if (panel.canvas && BrainBrowser.utils.isFunction(panel.canvas.getContext)) {
       panel.context = panel.canvas.getContext("2d");
-      panel.mouse = captureMouse(panel.canvas);
+      panel.mouse = BrainBrowser.utils.captureMouse(panel.canvas);
     }
 
     return panel;
   };
 
-  function captureMouse(canvas) {
-    var mouse = {x: 0, y: 0};
-
-    canvas.addEventListener("mousemove", function(e) {
-      var offset = BrainBrowser.utils.getOffset(canvas);
-      var x, y;
-
-      if (e.pageX !== undefined) {
-        x = e.pageX;
-        y = e.pageY;
-      } else {
-        x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-        y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
-      }
-
-      mouse.x = x - offset.left;
-      mouse.y = y - offset.top;
-    }, false);
-
-    return mouse;
-  }
 
 })();
 

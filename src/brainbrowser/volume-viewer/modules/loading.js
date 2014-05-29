@@ -517,6 +517,11 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
         function stopDrag() {
           document.removeEventListener("mousemove", drag, false);
           document.removeEventListener("mouseup", stopDrag, false);
+          viewer.volumes.forEach(function(volume) {
+            volume.display.forEach(function(panel) {
+              panel.anchor = null;
+            });
+          });
           current_target = null;
         }
         
@@ -530,6 +535,19 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
           event.preventDefault();
           event.stopPropagation();
           
+          if (event.ctrlKey) {
+            viewer.volumes.forEach(function(volume) {
+              volume.display.forEach(function(panel) {
+                panel.anchor = null;
+              });
+            });
+
+            panel.anchor = {
+              x: mouse.x,
+              y: mouse.y
+            };
+          }
+
           if (event.shiftKey) {
             panel.last_cursor.x = cursor.x;
             panel.last_cursor.y = cursor.y;
@@ -583,7 +601,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
         canvas.addEventListener("DOMMouseScroll", wheelHandler, false); // Dammit Firefox
       });
     })();
-    
+
     dom_element.appendChild(container);
     BrainBrowser.events.triggerEvent("volumeuiloaded", container, vol_id);
 

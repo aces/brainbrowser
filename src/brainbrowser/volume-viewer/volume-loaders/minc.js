@@ -88,6 +88,7 @@
         z: this.data.zspace.start + this.position.zspace * this.data.zspace.step
       };
     },
+    
     setWorldCoords: function(x, y, z) {
       this.position.xspace = Math.floor((x - this.data.xspace.start) / this.data.xspace.step);
       this.position.yspace = Math.floor((y - this.data.yspace.start) / this.data.yspace.step);

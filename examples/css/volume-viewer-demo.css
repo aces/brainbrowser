@@ -71,6 +71,11 @@ canvas.slice-display {
   -moz-border-radius: 10px 10px 0 0;
   -webkit-border-radius: 10px 10px 0 0;
   border-radius: 10px 10px 0 0;
+  padding-bottom: 0;
+}
+
+#global-controls .instructions {
+  padding: 10px 0 5px 0;
 }
 
 .control-heading {

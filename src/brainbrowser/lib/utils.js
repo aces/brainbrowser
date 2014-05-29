@@ -233,7 +233,7 @@
     * ```
     */
     captureMouse: function(element) {
-      var mouse = { x: 0, y: 0 };
+      var mouse = { x: 0, y: 0, left: false, middle: false, right: false};
 
       element.addEventListener("mousemove", function(event) {
         var offset = BrainBrowser.utils.getOffset(element);
@@ -249,6 +249,45 @@
 
         mouse.x = x - offset.left;
         mouse.y = y - offset.top;
+      }, false);
+
+      element.addEventListener("mousedown", function(event) {
+        event.preventDefault();
+
+        if (event.button === 0) {
+          mouse.left = true;
+        }
+        if (event.button === 1) {
+          mouse.middle = true;
+        }
+        if (event.button === 2) {
+          mouse.right = true;
+        }
+      }, false);
+
+      element.addEventListener("mouseup", function(event) {
+        event.preventDefault();
+
+        if (event.button === 0) {
+          mouse.left = false;
+        }
+        if (event.button === 1) {
+          mouse.middle = false;
+        }
+        if (event.button === 2) {
+          mouse.right = false;
+        }
+
+      }, false);
+
+      element.addEventListener("mouseleave", function(event) {
+        event.preventDefault();
+
+        mouse.left = mouse.middle = mouse.right = false;
+      }, false);
+
+      element.addEventListener("contextmenu", function(event) {
+        event.preventDefault();
       }, false);
 
       return mouse;

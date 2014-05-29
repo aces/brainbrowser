@@ -78,6 +78,19 @@
 
     /**
     * @doc function
+    * @name panel.panel:refreshSliceImage
+    * @description
+    * Set the volume slice to be rendered on the panel.
+    * ```js
+    * Refresh the slice image currently being displayed.
+    * ```
+    */
+    refreshSliceImage: function() {
+      this.slice_image = this.slice.getImage(this.zoom);
+    },
+
+    /**
+    * @doc function
     * @name panel.panel:updateCursor
     * @description
     * Update the panel cursor based on the current position with the given volume.
@@ -89,6 +102,7 @@
       var volume = this.volume;
       var slice = this.slice;
       var origin = this.getImageOrigin();
+      var dx, dy;
 
       this.cursor.x = (volume.position[slice.width_space.name] * Math.abs(slice.width_space.step) * this.zoom) + origin.x;
       this.cursor.y = (slice.height_space.space_length - volume.position[slice.height_space.name]) * Math.abs(slice.height_space.step) * this.zoom  + origin.y;
@@ -185,27 +199,71 @@
     drawCursor: function(color) {
       var context = this.context;
       var zoom = this.zoom;
-      var length = 8;
+      var length = 8 * zoom;
+      var x, y, space;
+      var distance;
+      var dx, dy;
       color = color || "#FF0000";
       
       context.save();
       
       context.strokeStyle = color;
-      context.translate(this.cursor.x, this.cursor.y);
-      context.scale(zoom, zoom);
-      context.lineWidth = 2;
+      context.fillStyle = color;
+
+      space = zoom;
+      x = this.cursor.x - space;
+      y = this.cursor.y - space;
+
+      context.lineWidth = space * 2;
       context.beginPath();
-      context.moveTo(0, -length);
-      context.lineTo(0, -2);
-      context.moveTo(0, 2);
-      context.lineTo(0, length);
-      context.moveTo(-length, 0);
-      context.lineTo(-2, 0);
-      context.moveTo(2, 0);
-      context.lineTo(length, 0);
+      context.moveTo(x, y - length);
+      context.lineTo(x, y - space);
+      context.moveTo(x, y + space);
+      context.lineTo(x, y + length);
+      context.moveTo(x - length, y);
+      context.lineTo(x - space, y);
+      context.moveTo(x + space, y);
+      context.lineTo(x + length, y);
       context.stroke();
-      
+
+      if (this.anchor) {
+        dx = (this.anchor.x - this.cursor.x) / this.zoom;
+        dy = (this.anchor.y - this.cursor.y) / this.zoom;
+        distance = Math.sqrt(dx * dx + dy * dy);
+
+        context.font = "bold 12px arial";
+
+        if (this.canvas.width - this.cursor.x < 50) {
+          context.textAlign = "right";
+          x = this.cursor.x - length;
+        } else {
+          context.textAlign = "left";
+          x = this.cursor.x + length;
+        }
+
+        if (this.cursor.y < 30) {
+          context.textBaseline = "top";
+          y = this.cursor.y + length;
+        } else {
+          context.textBaseline = "bottom";
+          y = this.cursor.y - length;
+        }
+
+        context.fillText(distance.toFixed(2), x, y);
+
+        context.lineWidth = 1;
+        context.beginPath();
+        context.arc(this.anchor.x, this.anchor.y, 2 * space, 0, 2 * Math.PI);
+        context.fill();
+        context.moveTo(this.anchor.x, this.anchor.y);
+        context.lineTo(this.cursor.x, this.cursor.y);
+        context.stroke();
+
+      }
+
       context.restore();
+
+
     }
   };
 
@@ -280,7 +338,6 @@
 
     return panel;
   };
-
 
 })();
 

@@ -532,34 +532,69 @@
         if (!viewer.active_canvas) return;
         var canvas = viewer.active_canvas;
       
-        var keyCode = e.which;
-        if (keyCode < 37 || keyCode > 40) return;
-        
-        e.preventDefault();
-        e.stopPropagation();
+        var key = e.which;
 
         var cursor = viewer.active_cursor;
         var vol_id = canvas.getAttribute("data-volume-id");
         var axis_name = canvas.getAttribute("data-axis-name");
         
-        ({
+        var keys = {
+          // CTRL key
+          17: function() {
+            var panel = viewer.volumes[vol_id].display[VolumeViewer.utils.axis_to_number[axis_name]];
+            if (panel.mouse.left || panel.mouse.middle || panel.mouse.right) {
+              panel.anchor = {
+                x: panel.mouse.x,
+                y: panel.mouse.y
+              };
+            }
+          },
           37: function() { cursor.x--; }, // Left
           38: function() { cursor.y--; }, // Up
           39: function() { cursor.x++; }, // Right
           40: function() { cursor.y++; }  // Down
-        })[keyCode]();
-        
-        viewer.setCursor(vol_id, axis_name, cursor);
-        
-        if (viewer.synced){
-          viewer.volumes.forEach(function(volume, synced_vol_id) {
-            if (synced_vol_id !== vol_id) {
-              viewer.setCursor(synced_vol_id, axis_name, cursor);
-            }
-          });
+        };
+
+        if (typeof keys[key] === "function") {
+          e.preventDefault();
+          keys[key]();
+
+          viewer.setCursor(vol_id, axis_name, cursor);
+          
+          if (viewer.synced){
+            viewer.volumes.forEach(function(volume, synced_vol_id) {
+              if (synced_vol_id !== vol_id) {
+                viewer.setCursor(synced_vol_id, axis_name, cursor);
+              }
+            });
+          }
+          
+          return false;
         }
-        
-        return false;
+
+      }, false);
+
+      document.addEventListener("keyup", function(e) {
+        var key = e.which;
+
+        var keys = {
+          // CTRL key
+          17: function() {
+            viewer.volumes.forEach(function(volume) {
+              volume.display.forEach(function(panel) {
+                panel.anchor = null;
+              });
+            });
+          }
+        };
+
+        if (typeof keys[key] === "function") {
+          e.preventDefault();
+          keys[key]();
+
+          return false;
+        }
+              
       }, false);
     }
 

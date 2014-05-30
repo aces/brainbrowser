@@ -511,18 +511,23 @@ $(function() {
      /////////////////////////////////////////////////////
     // UI updates to be performed after each slice update.
     //////////////////////////////////////////////////////
-    BrainBrowser.events.addEventListener("sliceupdate", function() {
-      viewer.volumes.forEach(function(volume, vol_id) {
-        var world_coords = volume.getWorldCoords();
-        var voxel_coords = volume.getVoxelCoords();
-        $("#world-x-" + vol_id).val(world_coords.x.toPrecision(6));
-        $("#world-y-" + vol_id).val(world_coords.y.toPrecision(6));
-        $("#world-z-" + vol_id).val(world_coords.z.toPrecision(6));
+    BrainBrowser.events.addEventListener("sliceupdate", function(vol_id) {
+      var volume = viewer.volumes[vol_id];
+      var world_coords = volume.getWorldCoords();
+      var voxel_coords = volume.getVoxelCoords();
+      
+      $("#world-x-" + vol_id).val(world_coords.x.toPrecision(6));
+      $("#world-y-" + vol_id).val(world_coords.y.toPrecision(6));
+      $("#world-z-" + vol_id).val(world_coords.z.toPrecision(6));
 
-        $("#voxel-x-" + vol_id).val(parseInt(voxel_coords.x, 10));
-        $("#voxel-y-" + vol_id).val(parseInt(voxel_coords.y, 10));
-        $("#voxel-z-" + vol_id).val(parseInt(voxel_coords.z, 10));
-      });
+      $("#voxel-x-" + vol_id).val(parseInt(voxel_coords.x, 10));
+      $("#voxel-y-" + vol_id).val(parseInt(voxel_coords.y, 10));
+      $("#voxel-z-" + vol_id).val(parseInt(voxel_coords.z, 10));
+
+      if (volume.data && volume.data.time) {
+        $("#time-slider-" + vol_id).slider("option", "value", volume.current_time);
+        $("#time-val-" + vol_id).val(volume.current_time);  
+      }
     });
 
     var color_map_config = BrainBrowser.config.get("color_maps")[0];

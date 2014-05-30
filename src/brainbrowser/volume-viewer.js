@@ -435,7 +435,7 @@
 
         updateSlice(vol_id, axis_name, slice);
             
-        BrainBrowser.events.triggerEvent("sliceupdate");
+        BrainBrowser.events.triggerEvent("sliceupdate", vol_id, axis_name, slice);
 
         if (BrainBrowser.utils.isFunction(callback)) {
           callback(slice);
@@ -528,20 +528,22 @@
 
     // Set up global keyboard interactions.
     function keyboardControls() {
-      document.addEventListener("keydown", function(e) {
+      document.addEventListener("keydown", function(event) {
         if (!viewer.active_canvas) return;
         var canvas = viewer.active_canvas;
       
-        var key = e.which;
+        var key = event.which;
 
         var cursor = viewer.active_cursor;
         var vol_id = canvas.getAttribute("data-volume-id");
+        var volume = viewer.volumes[vol_id];
         var axis_name = canvas.getAttribute("data-axis-name");
+        var time;
         
         var keys = {
           // CTRL key
           17: function() {
-            var panel = viewer.volumes[vol_id].display[VolumeViewer.utils.axis_to_number[axis_name]];
+            var panel = volume.display[VolumeViewer.utils.axis_to_number[axis_name]];
             if (panel.mouse.left || panel.mouse.middle || panel.mouse.right) {
               panel.anchor = {
                 x: panel.mouse.x,
@@ -556,7 +558,7 @@
         };
 
         if (typeof keys[key] === "function") {
-          e.preventDefault();
+          event.preventDefault();
           keys[key]();
 
           viewer.setCursor(vol_id, axis_name, cursor);
@@ -570,6 +572,39 @@
           }
           
           return false;
+        }
+
+        // Space
+        if (key === 32) {
+          event.preventDefault();
+
+          if (volume.data.time) {
+
+            if (event.shiftKey) {
+              time = Math.max(0, volume.current_time - 1);
+            } else {
+              time = Math.min(volume.current_time + 1, volume.data.time.space_length - 1);
+            }
+
+            volume.current_time = time;
+
+            if (viewer.synced){
+              viewer.volumes.forEach(function(volume, synced_vol_id) {
+                if (synced_vol_id !== vol_id) {
+                  if (event.shiftKey) {
+                    volume.current_time = Math.max(0, Math.min(time, volume.data.time.space_length - 1));
+                  } else {
+                    volume.current_time = Math.max(0, Math.min(time, volume.data.time.space_length - 1));
+                  }
+                }
+              });
+            }
+
+            viewer.redrawVolumes();
+
+            return false;
+          }
+
         }
 
       }, false);

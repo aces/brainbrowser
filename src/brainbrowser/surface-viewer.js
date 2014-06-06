@@ -405,6 +405,7 @@
   SurfaceViewer.worker_urls = {};
 
   // Configuration for built-in parsers.
+  BrainBrowser.config.set("model_types.json.worker", "json.worker.js");
   BrainBrowser.config.set("model_types.mniobj.worker", "mniobj.worker.js");
   BrainBrowser.config.set("model_types.wavefrontobj.worker", "wavefrontobj.worker.js");
   BrainBrowser.config.set("model_types.freesurferasc.worker", "freesurferasc.worker.js");

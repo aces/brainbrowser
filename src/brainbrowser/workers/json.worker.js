@@ -32,7 +32,7 @@
   });
 
   function parseData(data) {
-    var result = { shapes: [] };
+    var result = { name: data.name, shapes: [] };
     result.vertices = flatten(data.vertices);
 
     if (data.colors) {
@@ -60,7 +60,7 @@
       if (shape.one_indexed) {
         adjustIndices(indices);
       }
-      result.shapes.push({ indices: indices });
+      result.shapes.push({ name: shape.name, indices: indices });
     });
 
     return result;

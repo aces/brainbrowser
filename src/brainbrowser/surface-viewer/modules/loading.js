@@ -345,7 +345,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       for (i = 0, count = shapes.length; i < count; i++){
         shape_data = model_data.shapes[i];
         shape = createObject(shape_data, is_line);
-        shape.name = shape_data.name || filename;
+        shape.name = shape_data.name || filename + "_" + (i + 1);
         
         shape.geometry.original_data = {
           vertices: model_data.vertices,

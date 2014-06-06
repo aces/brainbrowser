@@ -186,7 +186,7 @@
       }
     } else if (color_flag === 1) {
       for (c = 0, count = result.num_polygons; c < count; c++){
-        for (i = 0; i<4; i++){
+        for (i = 0; i < 4; i++){
           colors.push(parseFloat(stack.pop()));
         }
       }

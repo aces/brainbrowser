@@ -12,7 +12,7 @@ Getting Started
 To try out some BrainBrowser sample applications, simply clone this git repo, navigate to the **examples** directory, unzip the color maps and models, and launch the simple [node](http://nodejs.org/) example server:
 
 ```Shell
-  $ git clone git@github.com:aces/brainbrowser-website.git
+  $ git clone https://github.com/aces/brainbrowser.git
   $ cd brainbrowser/examples
   $ gunzip color-maps/*.gz models/*.gz
   $ git checkout .

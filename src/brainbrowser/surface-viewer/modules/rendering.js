@@ -238,7 +238,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     return sphere;
 
-  }
+  };
   
   /**
   * @doc function
@@ -254,9 +254,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * Otherwise returns **null**.
   *
   * @description
-  * Returns information about the displayed object 
+  * Returns information about the displayed object
   * and a certain x and y on the canvas. Defaults to
-  * the current mouse position. 
+  * the current mouse position.
   * ```js
   * viewer.pick();          // Pick at current mouse position.
   * viewer.pick(125, 250);  // Pick at given position.
@@ -311,14 +311,14 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
           index: intersect_object.annotation_info.vertex,
           point: intersect_object.annotation_info.position,
           object: intersect_object
-        }; 
+        };
       } else {
         // We're dealing with an imported model.
 
-        // Objects have their origins centered 
+        // Objects have their origins centered
         // to help with transparency, so to check
         // check against original vertices we have
-        // move them back. 
+        // move them back.
         centroid = intersect_object.centroid;
         cx = centroid.x;
         cy = centroid.y;
@@ -375,7 +375,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
           index: intersect_vertex_index,
           point: intersect_vertex_coords,
           object: intersect_object
-        }; 
+        };
       }
       
 

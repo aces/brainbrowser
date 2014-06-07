@@ -661,6 +661,43 @@ $(function() {
             },
             cancel: defaultCancelOptions(current_request)
           });
+        },
+        dbs: function() {
+          viewer.annotations.setMarkerRadius(0.3);
+          viewer.loadModelFromURL("models/dbs.json", {
+            format: "json",
+            complete: function() {
+              var i;
+
+              hideLoading();
+              $("#vertex-data-wrapper").show();
+
+              viewer.setTransparency(0.7);
+
+              for (i = 1; i <= 16; i++) {
+                viewer.setTransparency(1, {
+                  shape_name: "dbs.json_" + i
+                });
+              }
+              
+              viewer.setTransparency(0, {
+                shape_name: "dbs.json_24"
+              });
+              viewer.setTransparency(0, {
+                shape_name: "dbs.json_25"
+              });
+            },
+            cancel: defaultCancelOptions(current_request)
+          });
+          viewer.setCameraPosition(-10, 10, 500);
+          viewer.zoom(2.5);
+
+          matrixRotX = new THREE.Matrix4();
+          matrixRotX.makeRotationX(-0.45 * Math.PI);
+          matrixRotY = new THREE.Matrix4();
+          matrixRotY.makeRotationY(-0.5 * Math.PI);
+
+          viewer.model.applyMatrix(matrixRotY.multiply(matrixRotX));
         }
       };
       

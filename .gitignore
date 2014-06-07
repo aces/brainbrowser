@@ -12,3 +12,4 @@ examples/models/*.obj
 examples/models/*.asc
 examples/models/*.headers
 examples/models/*.raw
+examples/models/*.json

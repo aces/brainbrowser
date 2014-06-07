@@ -55,7 +55,7 @@ BrainBrowser.SurfaceViewer.modules.annotations = function(viewer) {
         if (options.activate !== false) {
           this.activate(annotation);
         }
-      } 
+      }
     },
 
     get: function(vertex, options) {

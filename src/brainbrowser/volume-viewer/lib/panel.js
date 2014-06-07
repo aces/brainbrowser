@@ -102,7 +102,6 @@
       var volume = this.volume;
       var slice = this.slice;
       var origin = this.getImageOrigin();
-      var dx, dy;
 
       this.cursor.x = (volume.position[slice.width_space.name] * Math.abs(slice.width_space.step) * this.zoom) + origin.x;
       this.cursor.y = (slice.height_space.space_length - volume.position[slice.height_space.name]) * Math.abs(slice.height_space.step) * this.zoom  + origin.y;

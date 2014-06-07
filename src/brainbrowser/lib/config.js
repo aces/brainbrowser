@@ -56,7 +56,6 @@
     */
     set: function(config_string, value) {
       config_string = config_string || "";
-      var config_item = config;
       var config_params = config_string.split(".");
 
       config_params.push(value);
@@ -103,7 +102,6 @@
     */
     get: function(config_string) {
       config_string = config_string || "";
-      var config_item = config;
       var config_params = config_string.split(".");
 
       return config.get.apply(config, config_params);

@@ -38,7 +38,7 @@
     if (data.colors) {
       result.colors = flatten(data.colors);
 
-      if (result.vertices.length === result.colors.length) {
+      if (result.vertices.length === result.colors.length || result.colors.length === 3) {
         result.colors = insertColorAlpha(result.colors);
       }
 

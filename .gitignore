@@ -10,6 +10,6 @@ examples/color-maps/*.txt
 examples/models/*.txt
 examples/models/*.obj
 examples/models/*.asc
-examples/models/*.headers
+examples/models/*.header
 examples/models/*.raw
 examples/models/*.json

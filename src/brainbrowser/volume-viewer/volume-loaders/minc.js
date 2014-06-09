@@ -371,6 +371,9 @@
     minc_data.yspace.step = parseFloat(minc_data.yspace.step);
     minc_data.zspace.step = parseFloat(minc_data.zspace.step);
 
+    minc_data.xspace.direction_cosines = minc_data.xspace.direction_cosines.map(parseFloat);
+    minc_data.yspace.direction_cosines = minc_data.yspace.direction_cosines.map(parseFloat);
+    minc_data.zspace.direction_cosines = minc_data.zspace.direction_cosines.map(parseFloat);
 
     if(minc_data.order.length === 4) {
       minc_data.time.space_length = parseFloat(minc_data.time.space_length);

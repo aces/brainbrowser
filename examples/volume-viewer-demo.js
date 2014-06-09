@@ -51,7 +51,7 @@ $(function() {
         viewer.clearVolumes();
         viewer.loadVolume({
           type: "minc",
-          header_url: "models/functional.mnc.headers",
+          header_url: "models/functional.mnc.header",
           raw_data_url: "models/functional.mnc.raw",
           template: {
             element_id: "volume-ui-template",
@@ -68,7 +68,7 @@ $(function() {
           volumes: [
             {
               type: "minc",
-              header_url: "models/structural1.mnc.headers",
+              header_url: "models/structural1.mnc.header",
               raw_data_url: "models/structural1.mnc.raw",
               template: {
                 element_id: "volume-ui-template",
@@ -77,7 +77,7 @@ $(function() {
             },
             {
               type: 'minc',
-              header_url: "models/structural2.mnc.headers",
+              header_url: "models/structural2.mnc.header",
               raw_data_url: "models/structural2.mnc.raw",
               template: {
                 element_id: "volume-ui-template",
@@ -556,7 +556,7 @@ $(function() {
       volumes: [
         {
           type: "minc",
-          header_url: "models/structural1.mnc.headers",
+          header_url: "models/structural1.mnc.header",
           raw_data_url: "models/structural1.mnc.raw",
           template: {
             element_id: "volume-ui-template",
@@ -565,7 +565,7 @@ $(function() {
         },
         {
           type: 'minc',
-          header_url: "models/structural2.mnc.headers",
+          header_url: "models/structural2.mnc.header",
           raw_data_url: "models/structural2.mnc.raw",
           template: {
             element_id: "volume-ui-template",

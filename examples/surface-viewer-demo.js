@@ -558,7 +558,7 @@ $(function() {
       current_request++;
       
       var name = $(e.target).attr("data-example-name");
-      var matrixRotX, matrixRotY;
+      var matrixRotX, matrixRotY, matrixRotZ;
       
       if (current_request_name === name) return;
       current_request_name = name;
@@ -671,20 +671,34 @@ $(function() {
 
               hideLoading();
               $("#vertex-data-wrapper").show();
-
-              viewer.setTransparency(0.7);
-
-              for (i = 1; i <= 16; i++) {
-                viewer.setTransparency(1, {
-                  shape_name: "dbs.json_" + i
-                });
-              }
               
-              viewer.setTransparency(0, {
+              viewer.setTransparency(0.7, {
+                shape_name: "dbs.json_44"
+              });
+              viewer.setTransparency(0.7, {
+                shape_name: "dbs.json_46"
+              });
+              viewer.setTransparency(0.7, {
+                shape_name: "dbs.json_47"
+              });
+              viewer.setTransparency(0.7, {
+                shape_name: "dbs.json_81"
+              });
+              viewer.setTransparency(0.7, {
+                shape_name: "dbs.json_84"
+              });
+
+              viewer.setTransparency(0.3, {
                 shape_name: "dbs.json_24"
               });
-              viewer.setTransparency(0, {
+              viewer.setTransparency(0.3, {
                 shape_name: "dbs.json_25"
+              });
+              viewer.setTransparency(0.3, {
+                shape_name: "dbs.json_62"
+              });
+              viewer.setTransparency(0.3, {
+                shape_name: "dbs.json_63"
               });
             },
             cancel: defaultCancelOptions(current_request)
@@ -693,11 +707,13 @@ $(function() {
           viewer.zoom(2.5);
 
           matrixRotX = new THREE.Matrix4();
-          matrixRotX.makeRotationX(-0.45 * Math.PI);
+          matrixRotX.makeRotationX(-0.5 * Math.PI);
           matrixRotY = new THREE.Matrix4();
-          matrixRotY.makeRotationY(-0.5 * Math.PI);
+          matrixRotY.makeRotationY(-0.8 * Math.PI);
+          matrixRotZ = new THREE.Matrix4();
+          matrixRotZ.makeRotationZ(-0.1 * Math.PI);
 
-          viewer.model.applyMatrix(matrixRotY.multiply(matrixRotX));
+          viewer.model.applyMatrix(matrixRotY.multiply(matrixRotZ.multiply(matrixRotX)));
         }
       };
       

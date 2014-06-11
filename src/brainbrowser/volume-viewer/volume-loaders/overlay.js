@@ -158,22 +158,17 @@
       this.position.yspace = y;
       this.position.zspace = z;
     },
-    
-    getWorldCoords: function() {
-      var reference = this.volumes[0];
-      
-      return {
-        x: reference.data.xspace.start + this.position.xspace * reference.data.xspace.step,
-        y: reference.data.yspace.start + this.position.yspace * reference.data.yspace.step,
-        z: reference.data.zspace.start + this.position.zspace * reference.data.zspace.step
-      };
+
+    getWorldCoords: function() {      
+      return this.volumes[0].voxelToWorld(this.position.xspace, this.position.yspace, this.position.zspace);
     },
     
     setWorldCoords: function(x, y, z) {
-      var reference = this.volumes[0];
-      this.position.xspace = Math.floor((x - reference.data.xspace.start) / reference.data.xspace.step);
-      this.position.yspace = Math.floor((y - reference.data.yspace.start) / reference.data.yspace.step);
-      this.position.zspace = Math.floor((z - reference.data.zspace.start) / reference.data.zspace.step);
+      var voxel = this.volumes[0].worldToVoxel(x, y, z);
+
+      this.position.xspace = voxel.x;
+      this.position.yspace = voxel.y;
+      this.position.zspace = voxel.z;
     }
   };
 

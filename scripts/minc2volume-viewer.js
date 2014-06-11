@@ -110,7 +110,11 @@ function getHeader(filename, callback) {
           exec("mincinfo -attval " + space + ":direction_cosines " + filename, function(error, stdout) {
             checkExecutionError(error);
 
-            header[space].direction_cosines = stdout.replace(/^\s+/, "").replace(/\s+$/, "").split(/\s+/).map(parseFloat);
+            var direction_cosines = stdout.replace(/^\s+/, "").replace(/\s+$/, "").split(/\s+/);
+
+            if (direction_cosines.length > 1) {
+              header[space].direction_cosines = direction_cosines.map(parseFloat);
+            }
 
             callback(header);
           });

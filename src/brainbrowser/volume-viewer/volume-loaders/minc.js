@@ -82,17 +82,60 @@
     },
     
     getWorldCoords: function() {
-      return {
-        x: this.data.xspace.start + this.position.xspace * this.data.xspace.step,
-        y: this.data.yspace.start + this.position.yspace * this.data.yspace.step,
-        z: this.data.zspace.start + this.position.zspace * this.data.zspace.step
-      };
+      return this.voxelToWorld(this.position.xspace, this.position.yspace, this.position.zspace);
     },
     
     setWorldCoords: function(x, y, z) {
-      this.position.xspace = Math.floor((x - this.data.xspace.start) / this.data.xspace.step);
-      this.position.yspace = Math.floor((y - this.data.yspace.start) / this.data.yspace.step);
-      this.position.zspace = Math.floor((z - this.data.zspace.start) / this.data.zspace.step);
+      var voxel = this.worldToVoxel(x, y, z);
+
+      this.position.xspace = voxel.x;
+      this.position.yspace = voxel.y;
+      this.position.zspace = voxel.z;
+    },
+
+    // Matrix applied here is:
+    // cxx * stepx | cxy * stepx | cxz * stepx | ox
+    // cyx * stepy | cyy * stepy | cyz * stepy | oy
+    // czx * stepz | czy * stepz | czz * stepz | oz
+    // 0           | 0           | 0           | 1
+    voxelToWorld: function(x, y, z) {
+      var cx = this.data.xspace.direction_cosines;
+      var cy = this.data.yspace.direction_cosines;
+      var cz = this.data.zspace.direction_cosines;
+      var stepx = this.data.xspace.step;
+      var stepy = this.data.yspace.step;
+      var stepz = this.data.zspace.step;
+      var o = this.data.voxel_origin;
+
+      return {
+        x: cx[0] * stepx * x + cx[1] * stepx * y + cx[2] * stepx * z + o.x,
+        y: cy[0] * stepy * x + cy[1] * stepy * y + cy[2] * stepy * z + o.y,
+        z: cz[0] * stepz * x + cz[1] * stepz * y + cz[2] * stepz * z + o.z
+      };
+    },
+
+    // Matrix applied here is:
+    // cxx / stepx | cyx / stepy | czx / stepz | -ox * cxx / stepx - oy * cyx / stepy - oz * czx / stepz
+    // cxy / stepx | cyy / stepy | czy / stepz | -oy * cxy / stepx - oy * cyy / stepy - oz * czy / stepz
+    // cxz / stepx | cyz / stepy | czz / stepz | -oz * cxz / stepx - oy * cyz / stepy - oz * czz / stepz
+    // 0           | 0           | 0           | 1
+    worldToVoxel: function(x, y, z) {
+      var cx = this.data.xspace.direction_cosines;
+      var cy = this.data.yspace.direction_cosines;
+      var cz = this.data.zspace.direction_cosines;
+      var stepx = this.data.xspace.step;
+      var stepy = this.data.yspace.step;
+      var stepz = this.data.zspace.step;
+      var o = this.data.voxel_origin;
+      var tx = -o.x * cx[0] / stepx - o.y * cy[0] / stepy - o.z * cz[0] / stepz;
+      var ty = -o.x * cx[1] / stepx - o.y * cy[1] / stepy - o.z * cz[1] / stepz;
+      var tz = -o.x * cx[2] / stepx - o.y * cy[2] / stepy - o.z * cz[2] / stepz;
+
+      return {
+        x: Math.floor(x * cx[0] / stepx + y * cy[0] / stepy + z * cz[0] / stepz + tx),
+        y: Math.floor(x * cx[1] / stepx + y * cy[1] / stepy + z * cz[1] / stepz + ty),
+        z: Math.floor(x * cx[2] / stepx + y * cy[2] / stepy + z * cz[2] / stepz + tz)
+      };
     }
   };
 
@@ -343,6 +386,7 @@
 
   function createMincData(header, data) {
     var minc_data = Object.create(minc_data_proto);
+    var startx, starty, startz, cx, cy, cz;
     
     minc_data.header = header;
     minc_data.order = header.order;
@@ -363,17 +407,28 @@
     minc_data.yspace.space_length = parseFloat(minc_data.yspace.space_length);
     minc_data.zspace.space_length = parseFloat(minc_data.zspace.space_length);
 
-    minc_data.xspace.start = parseFloat(minc_data.xspace.start);
-    minc_data.yspace.start = parseFloat(minc_data.yspace.start);
-    minc_data.zspace.start = parseFloat(minc_data.zspace.start);
+    startx = minc_data.xspace.start = parseFloat(minc_data.xspace.start);
+    starty = minc_data.yspace.start = parseFloat(minc_data.yspace.start);
+    startz = minc_data.zspace.start = parseFloat(minc_data.zspace.start);
 
     minc_data.xspace.step = parseFloat(minc_data.xspace.step);
     minc_data.yspace.step = parseFloat(minc_data.yspace.step);
     minc_data.zspace.step = parseFloat(minc_data.zspace.step);
 
-    minc_data.xspace.direction_cosines = minc_data.xspace.direction_cosines.map(parseFloat);
-    minc_data.yspace.direction_cosines = minc_data.yspace.direction_cosines.map(parseFloat);
-    minc_data.zspace.direction_cosines = minc_data.zspace.direction_cosines.map(parseFloat);
+    minc_data.xspace.direction_cosines = minc_data.xspace.direction_cosines || [1, 0, 0]
+    minc_data.yspace.direction_cosines = minc_data.yspace.direction_cosines || [0, 1, 0]
+    minc_data.zspace.direction_cosines = minc_data.zspace.direction_cosines || [0, 0, 1]
+
+    cx = minc_data.xspace.direction_cosines = minc_data.xspace.direction_cosines.map(parseFloat);
+    cy = minc_data.yspace.direction_cosines = minc_data.yspace.direction_cosines.map(parseFloat);
+    cz = minc_data.zspace.direction_cosines = minc_data.zspace.direction_cosines.map(parseFloat);
+
+    minc_data.voxel_origin = {
+      x: startx * cx[0] + starty * cx[1] + startz * cx[2], 
+      y: startx * cy[0] + starty * cy[1] + startz * cy[2], 
+      z: startx * cz[0] + starty * cz[1] + startz * cz[2]
+    };
+
 
     if(minc_data.order.length === 4) {
       minc_data.time.space_length = parseFloat(minc_data.time.space_length);

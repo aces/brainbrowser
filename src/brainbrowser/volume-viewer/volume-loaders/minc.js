@@ -116,8 +116,8 @@
 
     // Matrix applied here is:
     // cxx / stepx | cyx / stepy | czx / stepz | -ox * cxx / stepx - oy * cyx / stepy - oz * czx / stepz
-    // cxy / stepx | cyy / stepy | czy / stepz | -oy * cxy / stepx - oy * cyy / stepy - oz * czy / stepz
-    // cxz / stepx | cyz / stepy | czz / stepz | -oz * cxz / stepx - oy * cyz / stepy - oz * czz / stepz
+    // cxy / stepx | cyy / stepy | czy / stepz | -ox * cxy / stepx - oy * cyy / stepy - oz * czy / stepz
+    // cxz / stepx | cyz / stepy | czz / stepz | -ox * cxz / stepx - oy * cyz / stepy - oz * czz / stepz
     // 0           | 0           | 0           | 1
     worldToVoxel: function(x, y, z) {
       var cx = this.data.xspace.direction_cosines;

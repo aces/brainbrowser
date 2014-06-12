@@ -585,7 +585,7 @@
           keys[key]();
 
           panel.updateCursor();
-          viewer.redrawVolume(vol_id, axis_name);
+          viewer.redrawVolume(vol_id);
 
           if (viewer.synced){
             viewer.volumes.forEach(function(volume, synced_vol_id) {

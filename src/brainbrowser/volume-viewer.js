@@ -534,16 +534,15 @@
       
         var key = event.which;
 
-        var cursor = viewer.active_cursor;
         var vol_id = canvas.getAttribute("data-volume-id");
         var volume = viewer.volumes[vol_id];
         var axis_name = canvas.getAttribute("data-axis-name");
-        var time;
+        var panel = volume.display[VolumeViewer.utils.axis_to_number[axis_name]];
+        var space_name, time;
         
         var keys = {
           // CTRL key
           17: function() {
-            var panel = volume.display[VolumeViewer.utils.axis_to_number[axis_name]];
             if (panel.mouse.left || panel.mouse.middle || panel.mouse.right) {
               panel.anchor = {
                 x: panel.mouse.x,
@@ -551,22 +550,47 @@
               };
             }
           },
-          37: function() { cursor.x--; }, // Left
-          38: function() { cursor.y--; }, // Up
-          39: function() { cursor.x++; }, // Right
-          40: function() { cursor.y++; }  // Down
+          // Left
+          37: function() { 
+            space_name = panel.slice.width_space.name;
+            if (volume.position[space_name] > 0) {
+              volume.position[space_name]--;
+            }
+          },
+          // Up
+          38: function() {
+            space_name = panel.slice.height_space.name;
+            if (volume.position[space_name] < panel.slice.height_space.space_length) {
+              volume.position[space_name]++;
+            }
+          }, 
+          // Right
+          39: function() {
+            space_name = panel.slice.width_space.name;
+            if (volume.position[space_name] < panel.slice.width_space.space_length) {
+              volume.position[space_name]++;
+            }
+          },
+          // Down 
+          40: function() { 
+            space_name = panel.slice.height_space.name;
+            if (volume.position[space_name] > 0) {
+              volume.position[space_name]--;
+            }
+          }
         };
 
         if (typeof keys[key] === "function") {
           event.preventDefault();
           keys[key]();
 
-          viewer.setCursor(vol_id, axis_name, cursor);
-          
+          panel.updateCursor();
+          viewer.redrawVolume(vol_id, axis_name);
+
           if (viewer.synced){
             viewer.volumes.forEach(function(volume, synced_vol_id) {
               if (synced_vol_id !== vol_id) {
-                viewer.setCursor(synced_vol_id, axis_name, cursor);
+                viewer.setCursor(synced_vol_id, axis_name, panel.cursor);
               }
             });
           }

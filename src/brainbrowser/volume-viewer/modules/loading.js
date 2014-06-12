@@ -286,7 +286,6 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   viewer.clearVolumes = function() {
     viewer.volumes = [];
     viewer.active_canvas = null;
-    viewer.active_cursor = null;
     viewer.dom_element.innerHTML = "";
   };
 
@@ -509,7 +508,8 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
                   }
                 });
               }
-              panel.cursor = viewer.active_cursor = cursor;
+              panel.cursor.x = cursor.x;
+              panel.cursor.y = cursor.y;
             }
           }
         }
@@ -569,7 +569,8 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
                 }
               });
             }
-            panel.cursor = viewer.active_cursor = cursor;
+            panel.cursor.x = cursor.x;
+            panel.cursor.y = cursor.y;
           }
           viewer.active_canvas = event.target;
           document.addEventListener("mousemove", drag, false);

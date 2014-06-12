@@ -93,11 +93,13 @@
       this.position.zspace = voxel.z;
     },
 
-    // Matrix applied here is:
+    // Voxel to world matrix applied here is:
     // cxx * stepx | cxy * stepx | cxz * stepx | ox
     // cyx * stepy | cyy * stepy | cyz * stepy | oy
     // czx * stepz | czy * stepz | czz * stepz | oz
     // 0           | 0           | 0           | 1
+    //
+    // Taken from (http://en.wikibooks.org/wiki/MINC/Reference/MINC2.0_File_Format_Reference)
     voxelToWorld: function(x, y, z) {
       var cx = this.data.xspace.direction_cosines;
       var cy = this.data.yspace.direction_cosines;
@@ -108,17 +110,19 @@
       var o = this.data.voxel_origin;
 
       return {
-        x: cx[0] * stepx * x + cx[1] * stepx * y + cx[2] * stepx * z + o.x,
-        y: cy[0] * stepy * x + cy[1] * stepy * y + cy[2] * stepy * z + o.y,
-        z: cz[0] * stepz * x + cz[1] * stepz * y + cz[2] * stepz * z + o.z
+        x: x * cx[0] * stepx + y * cx[1] * stepx + z * cx[2] * stepx + o.x,
+        y: x * cy[0] * stepy + y * cy[1] * stepy + z * cy[2] * stepy + o.y,
+        z: x * cz[0] * stepz + y * cz[1] * stepz + z * cz[2] * stepz + o.z
       };
     },
 
-    // Matrix applied here is:
+    // World to voxel matrix applied here is:
     // cxx / stepx | cyx / stepy | czx / stepz | -ox * cxx / stepx - oy * cyx / stepy - oz * czx / stepz
     // cxy / stepx | cyy / stepy | czy / stepz | -ox * cxy / stepx - oy * cyy / stepy - oz * czy / stepz
     // cxz / stepx | cyz / stepy | czz / stepz | -ox * cxz / stepx - oy * cyz / stepy - oz * czz / stepz
     // 0           | 0           | 0           | 1
+    //
+    // Inverse of the voxel to world matrix.
     worldToVoxel: function(x, y, z) {
       var cx = this.data.xspace.direction_cosines;
       var cy = this.data.yspace.direction_cosines;

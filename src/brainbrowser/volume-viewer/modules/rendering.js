@@ -138,6 +138,25 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
 
   /**
   * @doc function
+  * @name viewer.rendering:redrawVolume
+  * @param {number} vol_id The id of the volume to be redrawn.
+  *
+  * @description
+  * Redraw a single volume at its current position.
+  * ```js
+  * viewer.redrawVolume(vol_id);
+  * ```
+  */
+  viewer.redrawVolume = function(vol_id) {
+    var volume = viewer.volumes[vol_id];
+
+    viewer.fetchSlice(vol_id, "xspace", volume.position.xspace);
+    viewer.fetchSlice(vol_id, "yspace", volume.position.yspace);
+    viewer.fetchSlice(vol_id, "zspace", volume.position.zspace);
+  };
+
+  /**
+  * @doc function
   * @name viewer.rendering:redrawVolumes
   *
   * @description
@@ -148,9 +167,7 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
   */
   viewer.redrawVolumes = function() {
     viewer.volumes.forEach(function(volume, vol_id) {
-      viewer.fetchSlice(vol_id, "xspace", volume.position.xspace);
-      viewer.fetchSlice(vol_id, "yspace", volume.position.yspace);
-      viewer.fetchSlice(vol_id, "zspace", volume.position.zspace);
+      viewer.redrawVolume(vol_id);
     });
   };
 

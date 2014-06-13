@@ -82,18 +82,86 @@
     },
     
     getWorldCoords: function() {
-      return {
-        x: this.data.xspace.start + this.position.xspace * this.data.xspace.step,
-        y: this.data.yspace.start + this.position.yspace * this.data.yspace.step,
-        z: this.data.zspace.start + this.position.zspace * this.data.zspace.step
-      };
+      return this.voxelToWorld(this.position.xspace, this.position.yspace, this.position.zspace);
     },
     
     setWorldCoords: function(x, y, z) {
-      this.position.xspace = Math.floor((x - this.data.xspace.start) / this.data.xspace.step);
-      this.position.yspace = Math.floor((y - this.data.yspace.start) / this.data.yspace.step);
-      this.position.zspace = Math.floor((z - this.data.zspace.start) / this.data.zspace.step);
+      var voxel = this.worldToVoxel(x, y, z);
+
+      this.position.xspace = voxel.x;
+      this.position.yspace = voxel.y;
+      this.position.zspace = voxel.z;
+    },
+
+    // Voxel to world matrix applied here is:
+    // cxx * stepx | cyx * stepy | czx * stepz | ox
+    // cxy * stepx | cyy * stepy | czy * stepz | oy
+    // cxz * stepx | cyz * stepy | czz * stepz | oz
+    // 0           | 0           | 0           | 1
+    //
+    // Taken from (http://www.bic.mni.mcgill.ca/software/minc/minc2_format/node4.html)
+    voxelToWorld: function(x, y, z) {
+      var ordered = {};
+      ordered[this.data.order[0]] = x;
+      ordered[this.data.order[1]] = y;
+      ordered[this.data.order[2]] = z;
+
+      x = ordered.xspace;
+      y = ordered.yspace;
+      z = ordered.zspace;
+
+      var cx = this.data.xspace.direction_cosines;
+      var cy = this.data.yspace.direction_cosines;
+      var cz = this.data.zspace.direction_cosines;
+      var stepx = this.data.xspace.step;
+      var stepy = this.data.yspace.step;
+      var stepz = this.data.zspace.step;
+      var o = this.data.voxel_origin;
+
+      return {
+        x: x * cx[0] * stepx + y * cy[0] * stepy + z * cz[0] * stepz + o.x,
+        y: x * cx[1] * stepx + y * cy[1] * stepy + z * cz[1] * stepz + o.y,
+        z: x * cx[2] * stepx + y * cy[2] * stepy + z * cz[2] * stepz + o.z
+      };
+    },
+
+    // World to voxel matrix applied here is:
+    // cxx / stepx | cxy / stepx | cxz / stepx | (-o.x * cx[0] - o.y * cx[1] - o.z * cx[2]) / stepx
+    // cyx / stepy | cyy / stepy | cyz / stepy | (-o.x * cy[0] - o.y * cy[1] - o.z * cy[2]) / stepy
+    // czx / stepz | czy / stepz | czz / stepz | (-o.x * cz[0] - o.y * cz[1] - o.z * cz[2]) / stepz
+    // 0           | 0           | 0           | 1
+    //
+    // Inverse of the voxel to world matrix.
+    worldToVoxel: function(x, y, z) {
+      var cx = this.data.xspace.direction_cosines;
+      var cy = this.data.yspace.direction_cosines;
+      var cz = this.data.zspace.direction_cosines;
+      var stepx = this.data.xspace.step;
+      var stepy = this.data.yspace.step;
+      var stepz = this.data.zspace.step;
+      var o = this.data.voxel_origin;
+      var tx = (-o.x * cx[0] - o.y * cx[1] - o.z * cx[2]) / stepx;
+      var ty = (-o.x * cy[0] - o.y * cy[1] - o.z * cy[2]) / stepy;
+      var tz = (-o.x * cz[0] - o.y * cz[1] - o.z * cz[2]) / stepz;
+
+      var result = {
+        x: Math.round(x * cx[0] / stepx + y * cx[1] / stepx + z * cx[2] / stepx + tx),
+        y: Math.round(x * cy[0] / stepy + y * cy[1] / stepy + z * cy[2] / stepy + ty),
+        z: Math.round(x * cz[0] / stepz + y * cz[1] / stepz + z * cz[2] / stepz + tz)
+      };
+
+      var ordered = {};
+      ordered[this.data.order[0]] = result.x;
+      ordered[this.data.order[1]] = result.y;
+      ordered[this.data.order[2]] = result.z;
+
+      return {
+        x: ordered.xspace,
+        y: ordered.yspace,
+        z: ordered.zspace
+      };
     }
+    
   };
 
   // Prototype for the minc volume's data object.
@@ -343,6 +411,7 @@
 
   function createMincData(header, data) {
     var minc_data = Object.create(minc_data_proto);
+    var startx, starty, startz, cx, cy, cz;
     
     minc_data.header = header;
     minc_data.order = header.order;
@@ -363,13 +432,28 @@
     minc_data.yspace.space_length = parseFloat(minc_data.yspace.space_length);
     minc_data.zspace.space_length = parseFloat(minc_data.zspace.space_length);
 
-    minc_data.xspace.start = parseFloat(minc_data.xspace.start);
-    minc_data.yspace.start = parseFloat(minc_data.yspace.start);
-    minc_data.zspace.start = parseFloat(minc_data.zspace.start);
+    startx = minc_data.xspace.start = parseFloat(minc_data.xspace.start);
+    starty = minc_data.yspace.start = parseFloat(minc_data.yspace.start);
+    startz = minc_data.zspace.start = parseFloat(minc_data.zspace.start);
 
     minc_data.xspace.step = parseFloat(minc_data.xspace.step);
     minc_data.yspace.step = parseFloat(minc_data.yspace.step);
     minc_data.zspace.step = parseFloat(minc_data.zspace.step);
+
+    minc_data.xspace.direction_cosines = minc_data.xspace.direction_cosines || [1, 0, 0]
+    minc_data.yspace.direction_cosines = minc_data.yspace.direction_cosines || [0, 1, 0]
+    minc_data.zspace.direction_cosines = minc_data.zspace.direction_cosines || [0, 0, 1]
+
+    cx = minc_data.xspace.direction_cosines = minc_data.xspace.direction_cosines.map(parseFloat);
+    cy = minc_data.yspace.direction_cosines = minc_data.yspace.direction_cosines.map(parseFloat);
+    cz = minc_data.zspace.direction_cosines = minc_data.zspace.direction_cosines.map(parseFloat);
+
+    // Origin equation taken from (http://www.bic.mni.mcgill.ca/software/minc/minc2_format/node4.html)
+    minc_data.voxel_origin = {
+      x: startx * cx[0] + starty * cy[0] + startz * cz[0], 
+      y: startx * cx[1] + starty * cy[1] + startz * cz[1], 
+      z: startx * cx[2] + starty * cy[2] + startz * cz[2]
+    };
 
 
     if(minc_data.order.length === 4) {

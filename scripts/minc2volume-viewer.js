@@ -56,10 +56,10 @@ fs.exists(filename, function(exists) {
 
     console.log("Processing file:", filename);
 
-    console.log("Creating headers file.")
-    getHeaders(filename, function(headers) {
-      console.log("Writing headers file: ", basename + ".headers");
-      fs.writeFile(basename + ".headers", JSON.stringify(headers));
+    console.log("Creating header file.")
+    getHeader(filename, function(header) {
+      console.log("Writing header file: ", basename + ".header");
+      fs.writeFile(basename + ".header", JSON.stringify(header));
     });
 
     console.log("Creating raw data file.")
@@ -89,24 +89,35 @@ function getRawData(filename, callback) {
   });
 }
 
-function getHeaders(filename, callback) {
+function getHeader(filename, callback) {
   
-  function getSpace(filename, headers, space, callback) {
-    headers[space] = {};
+  function getSpace(filename, header, space, callback) {
+    header[space] = {};
     exec("mincinfo -attval " + space + ":start " + filename, function(error, stdout) {
       checkExecutionError(error);
 
-      headers[space].start = parseFloat(stdout);
+      header[space].start = parseFloat(stdout);
       exec("mincinfo -dimlength " + space + " " + filename, function(error, stdout) {
         checkExecutionError(error);
 
-        headers[space].space_length = parseFloat(stdout);
+        header[space].space_length = parseFloat(stdout);
         
         exec("mincinfo -attval " + space + ":step " + filename, function(error, stdout) {
           checkExecutionError(error);
 
-          headers[space].step = parseFloat(stdout);
-          callback(headers);
+          header[space].step = parseFloat(stdout);
+
+          exec("mincinfo -attval " + space + ":direction_cosines " + filename, function(error, stdout) {
+            checkExecutionError(error);
+
+            var direction_cosines = stdout.replace(/^\s+/, "").replace(/\s+$/, "").split(/\s+/);
+
+            if (direction_cosines.length > 1) {
+              header[space].direction_cosines = direction_cosines.map(parseFloat);
+            }
+
+            callback(header);
+          });
         });
 
       });
@@ -114,10 +125,10 @@ function getHeaders(filename, callback) {
     });
   }
 
-  function getOrder(headers, filename, callback) {
+  function getOrder(header, filename, callback) {
     
     function handleOrder(order, callback) {
-      headers.order = order;
+      header.order = order;
       
       if (order.length === 4) {
         exec("mincinfo -attval time:start " + filename, function(error, time_start) {
@@ -126,16 +137,16 @@ function getHeaders(filename, callback) {
           exec("mincinfo -dimlength time " + filename, function(error, time_length) {
             checkExecutionError(error);
 
-            headers.time = {
+            header.time = {
               start: parseFloat(time_start),
               space_length: parseFloat(time_length)
             };
-            callback(headers);
+            callback(header);
           });
         });
       
       } else {
-        callback(headers);
+        callback(header);
       }
     
     }
@@ -158,19 +169,19 @@ function getHeaders(filename, callback) {
     });
   }
 
-  function buildHeaders(filename, callback) {
-    var headers = {};
+  function buildHeader(filename, callback) {
+    var header = {};
    
-    getOrder(headers, filename, function(headers) {
-      getSpace(filename,headers, "xspace", function(headers) {
-        getSpace(filename,headers, "yspace", function(headers) {
-          getSpace(filename,headers, "zspace",function(headers) {
-            if(headers.order > 3) {
-              getSpace(filename, headers, "time", function(headers) {
-                callback(headers);
+    getOrder(header, filename, function(header) {
+      getSpace(filename, header, "xspace", function(header) {
+        getSpace(filename, header, "yspace", function(header) {
+          getSpace(filename, header, "zspace",function(header) {
+            if(header.order > 3) {
+              getSpace(filename, header, "time", function(header) {
+                callback(header);
               });
             } else {
-              callback(headers);
+              callback(header);
             }
           });
         });
@@ -178,11 +189,11 @@ function getHeaders(filename, callback) {
     });
   }
 
-  buildHeaders(filename, function(headers) {
-    if(headers) {
-      callback(headers);
+  buildHeader(filename, function(header) {
+    if(header) {
+      callback(header);
     } else {
-      console.error("Bad headers.");
+      console.error("Bad header.");
     }
   });
 }

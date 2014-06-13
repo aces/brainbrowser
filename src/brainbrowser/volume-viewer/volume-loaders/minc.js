@@ -94,13 +94,22 @@
     },
 
     // Voxel to world matrix applied here is:
-    // cxx * stepx | cxy * stepx | cxz * stepx | ox
-    // cyx * stepy | cyy * stepy | cyz * stepy | oy
-    // czx * stepz | czy * stepz | czz * stepz | oz
+    // cxx * stepx | cyx * stepy | czx * stepz | ox
+    // cxy * stepx | cyy * stepy | czy * stepz | oy
+    // cxz * stepx | cyz * stepy | czz * stepz | oz
     // 0           | 0           | 0           | 1
     //
-    // Taken from (http://en.wikibooks.org/wiki/MINC/Reference/MINC2.0_File_Format_Reference)
+    // Taken from (http://www.bic.mni.mcgill.ca/software/minc/minc2_format/node4.html)
     voxelToWorld: function(x, y, z) {
+      var ordered = {};
+      ordered[this.data.order[0]] = x;
+      ordered[this.data.order[1]] = y;
+      ordered[this.data.order[2]] = z;
+
+      x = ordered.xspace;
+      y = ordered.yspace;
+      z = ordered.zspace;
+
       var cx = this.data.xspace.direction_cosines;
       var cy = this.data.yspace.direction_cosines;
       var cz = this.data.zspace.direction_cosines;
@@ -110,16 +119,16 @@
       var o = this.data.voxel_origin;
 
       return {
-        x: x * cx[0] * stepx + y * cx[1] * stepx + z * cx[2] * stepx + o.x,
-        y: x * cy[0] * stepy + y * cy[1] * stepy + z * cy[2] * stepy + o.y,
-        z: x * cz[0] * stepz + y * cz[1] * stepz + z * cz[2] * stepz + o.z
+        x: x * cx[0] * stepx + y * cy[0] * stepy + z * cz[0] * stepz + o.x,
+        y: x * cx[1] * stepx + y * cy[1] * stepy + z * cz[1] * stepz + o.y,
+        z: x * cx[2] * stepx + y * cy[2] * stepy + z * cz[2] * stepz + o.z
       };
     },
 
     // World to voxel matrix applied here is:
-    // cxx / stepx | cyx / stepy | czx / stepz | -ox * cxx / stepx - oy * cyx / stepy - oz * czx / stepz
-    // cxy / stepx | cyy / stepy | czy / stepz | -ox * cxy / stepx - oy * cyy / stepy - oz * czy / stepz
-    // cxz / stepx | cyz / stepy | czz / stepz | -ox * cxz / stepx - oy * cyz / stepy - oz * czz / stepz
+    // cxx / stepx | cxy / stepx | cxz / stepx | (-o.x * cx[0] - o.y * cx[1] - o.z * cx[2]) / stepx
+    // cyx / stepy | cyy / stepy | cyz / stepy | (-o.x * cy[0] - o.y * cy[1] - o.z * cy[2]) / stepy
+    // czx / stepz | czy / stepz | czz / stepz | (-o.x * cz[0] - o.y * cz[1] - o.z * cz[2]) / stepz
     // 0           | 0           | 0           | 1
     //
     // Inverse of the voxel to world matrix.
@@ -131,16 +140,28 @@
       var stepy = this.data.yspace.step;
       var stepz = this.data.zspace.step;
       var o = this.data.voxel_origin;
-      var tx = -o.x * cx[0] / stepx - o.y * cy[0] / stepy - o.z * cz[0] / stepz;
-      var ty = -o.x * cx[1] / stepx - o.y * cy[1] / stepy - o.z * cz[1] / stepz;
-      var tz = -o.x * cx[2] / stepx - o.y * cy[2] / stepy - o.z * cz[2] / stepz;
+      var tx = (-o.x * cx[0] - o.y * cx[1] - o.z * cx[2]) / stepx;
+      var ty = (-o.x * cy[0] - o.y * cy[1] - o.z * cy[2]) / stepy;
+      var tz = (-o.x * cz[0] - o.y * cz[1] - o.z * cz[2]) / stepz;
+
+      var result = {
+        x: Math.round(x * cx[0] / stepx + y * cx[1] / stepx + z * cx[2] / stepx + tx),
+        y: Math.round(x * cy[0] / stepy + y * cy[1] / stepy + z * cy[2] / stepy + ty),
+        z: Math.round(x * cz[0] / stepz + y * cz[1] / stepz + z * cz[2] / stepz + tz)
+      };
+
+      var ordered = {};
+      ordered[this.data.order[0]] = result.x;
+      ordered[this.data.order[1]] = result.y;
+      ordered[this.data.order[2]] = result.z;
 
       return {
-        x: Math.floor(x * cx[0] / stepx + y * cy[0] / stepy + z * cz[0] / stepz + tx),
-        y: Math.floor(x * cx[1] / stepx + y * cy[1] / stepy + z * cz[1] / stepz + ty),
-        z: Math.floor(x * cx[2] / stepx + y * cy[2] / stepy + z * cz[2] / stepz + tz)
+        x: ordered.xspace,
+        y: ordered.yspace,
+        z: ordered.zspace
       };
     }
+    
   };
 
   // Prototype for the minc volume's data object.
@@ -427,10 +448,11 @@
     cy = minc_data.yspace.direction_cosines = minc_data.yspace.direction_cosines.map(parseFloat);
     cz = minc_data.zspace.direction_cosines = minc_data.zspace.direction_cosines.map(parseFloat);
 
+    // Origin equation taken from (http://www.bic.mni.mcgill.ca/software/minc/minc2_format/node4.html)
     minc_data.voxel_origin = {
-      x: startx * cx[0] + starty * cx[1] + startz * cx[2], 
-      y: startx * cy[0] + starty * cy[1] + startz * cy[2], 
-      z: startx * cz[0] + starty * cz[1] + startz * cz[2]
+      x: startx * cx[0] + starty * cy[0] + startz * cz[0], 
+      y: startx * cx[1] + starty * cy[1] + startz * cz[1], 
+      z: startx * cx[2] + starty * cy[2] + startz * cz[2]
     };
 
 

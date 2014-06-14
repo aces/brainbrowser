@@ -126,9 +126,9 @@
     },
 
     // World to voxel matrix applied here is:
-    // cxx / stepx | cxy / stepx | cxz / stepx | (-o.x * cx[0] - o.y * cx[1] - o.z * cx[2]) / stepx
-    // cyx / stepy | cyy / stepy | cyz / stepy | (-o.x * cy[0] - o.y * cy[1] - o.z * cy[2]) / stepy
-    // czx / stepz | czy / stepz | czz / stepz | (-o.x * cz[0] - o.y * cz[1] - o.z * cz[2]) / stepz
+    // cxx / stepx | cxy / stepx | cxz / stepx | (-o.x * cxx - o.y * cxy - o.z * cxz) / stepx
+    // cyx / stepy | cyy / stepy | cyz / stepy | (-o.x * cyx - o.y * cyy - o.z * cyz) / stepy
+    // czx / stepz | czy / stepz | czz / stepz | (-o.x * czx - o.y * czy - o.z * czz) / stepz
     // 0           | 0           | 0           | 1
     //
     // Inverse of the voxel to world matrix.

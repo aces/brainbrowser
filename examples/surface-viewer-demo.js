@@ -438,7 +438,6 @@ $(function() {
       var annotation_info;
       var pick_info = viewer.pick();
       var value, label, text;
-      var index, point;
 
       if (pick_info) {
         $("#pick-x").html(pick_info.point.x.toPrecision(4));
@@ -469,7 +468,7 @@ $(function() {
         annotation_info = pick_info.object.annotation_info;
 
         if (annotation_info) {
-          viewer.annotations.activate(pick_info.object)
+          viewer.annotations.activate(pick_info.object);
         } else {
           annotation_info = { data : {} };
         }
@@ -520,13 +519,13 @@ $(function() {
         annotation = viewer.annotations.get(vertex_num);
 
         if (annotation) {
-          annotation_data = annotation.annotation_info.data
+          annotation_data = annotation.annotation_info.data;
         } else {
           annotation_data = {};
           viewer.annotations.add(vertex_num, annotation_data);
         }
 
-        var vertex = viewer.getVertex(vertex_num);
+        vertex = viewer.getVertex(vertex_num);
 
         annotation_data.image = $("#annotation-image").val();
         annotation_data.url = $("#annotation-url").val();
@@ -667,8 +666,6 @@ $(function() {
           viewer.loadModelFromURL("models/dbs.json", {
             format: "json",
             complete: function() {
-              var i;
-
               hideLoading();
               $("#vertex-data-wrapper").show();
               

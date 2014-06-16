@@ -34,8 +34,8 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   * @name viewer.loading:loadVolumes
   * @param {object} options Description of volumes to load:
   * * **volumes** {array} An array of volume descriptions.
-  * * **overlay** {boolean|object} Set to true to display an overlay of 
-  *   the loaded volumes without any interface, or provide and object 
+  * * **overlay** {boolean|object} Set to true to display an overlay of
+  *   the loaded volumes without any interface, or provide and object
   *   containing a description of the template to use for the UI (see below).
   * * **complete** {function} Callback invoked once all volumes are loaded.
   *
@@ -126,8 +126,8 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   /**
   * @doc function
   * @name viewer.loading:loadVolumeColorMapFromURL
-  * @param {number} vol_id Index of the volume to be updated. 
-  * @param {string} url URL of the color map file. 
+  * @param {number} vol_id Index of the volume to be updated.
+  * @param {string} url URL of the color map file.
   * @param {string} cursor_color Color to be used for the cursor.
   * @param {function} callback Callback to which the color map object will be passed
   *   after loading.
@@ -149,7 +149,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   /**
   * @doc function
   * @name viewer.loading:loadDefaultColorMapFromURL
-  * @param {string} url URL of the color map file. 
+  * @param {string} url URL of the color map file.
   * @param {string} cursor_color Color to be used for the cursor.
   * @param {function} callback Callback to which the color map object will be passed
   *   after loading.
@@ -172,7 +172,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   /**
   * @doc function
   * @name viewer.loading:loadVolumeColorMapFromFile
-  * @param {number} vol_id Index of the volume to be updated. 
+  * @param {number} vol_id Index of the volume to be updated.
   * @param {DOMElement} file_input File input element representing the color map file to load.
   * @param {string} cursor_color Color to be used for the cursor.
   * @param {function} callback Callback to which the color map object will be passed
@@ -218,11 +218,11 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   /**
   * @doc function
   * @name viewer.loading:setVolumeColorMap
-  * @param {number} vol_id Index of the volume to be updated. 
+  * @param {number} vol_id Index of the volume to be updated.
   * @param {object} color_map Color map to use for the indicated volume.
   *
   * @description
-  * Set the color map for the indicated volume using an actual color map 
+  * Set the color map for the indicated volume using an actual color map
   *   object.
   * ```js
   * viewer.setVolumeColorMap(vol_id, color_map));
@@ -235,11 +235,11 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   /**
   * @doc function
   * @name viewer.loading:loadVolume
-  * @param {object} volume_description Description of the volume to be loaded. 
+  * @param {object} volume_description Description of the volume to be loaded.
   *   Must contain at least a **type** property that maps to the volume loaders in
-  *   **BrainBrowser.volume_loaders.** May contain a **template** property that 
+  *   **BrainBrowser.volume_loaders.** May contain a **template** property that
   *   indicates the template to be used for the volume's UI. Other properties will be
-  *   specific to a particular volume type.  
+  *   specific to a particular volume type.
   * @param {function} callback Callback to which the new volume object will be passed
   *   after loading.
   *
@@ -292,9 +292,9 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   /**
   * @doc function
   * @name viewer.loading:createOverlay
-  * @param {object} volume_description Will contain at most a **template** 
+  * @param {object} volume_description Will contain at most a **template**
   *   property indicating the template to use for the UI.
-  * @param {function} callback Callback to which the new overlay volume object 
+  * @param {function} callback Callback to which the new overlay volume object
   *   will be passed after loading.
   *
   * @description
@@ -481,9 +481,8 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       ["xspace", "yspace", "zspace"].forEach(function(axis_name, axis_num) {
         var panel = display[axis_num];
         var canvas = panel.canvas;
-        var mouse = panel.mouse;
-        var touch = panel.touch;
-        
+        var last_touch_distance = null;
+
         function startDrag(pointer, shift_key, ctrl_key) {
           current_target = event.target;
           var cursor = {
@@ -598,6 +597,29 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
           });
           current_target = null;
         }
+
+        function touchZoom() {
+          var dx = panel.touches[0].x - panel.touches[1].x;
+          var dy = panel.touches[0].y - panel.touches[1].y;
+
+          var distance = Math.sqrt(dx * dx + dy * dy);
+          var delta;
+
+          if (last_touch_distance !== null) {
+            delta = distance - last_touch_distance;
+
+            zoom(delta);
+          }
+
+          last_touch_distance = distance;
+        }
+
+        function touchZoomEnd() {
+          document.removeEventListener("touchmove", touchZoom, false);
+          document.removeEventListener("touchend", touchZoomEnd, false);
+
+          last_touch_distance = null;
+        }
         
         canvas.addEventListener("mousedown", function(event) {
           event.preventDefault();
@@ -613,15 +635,27 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
           event.preventDefault();
           event.stopPropagation();
 
-          document.addEventListener("touchmove", touchDrag, false);
-          document.addEventListener("touchend", touchDragEnd, false);
+          if (panel.touches.length === 2) {
+            document.removeEventListener("touchmove", touchDrag, false);
+            document.removeEventListener("touchend", touchDragEnd, false);
+            document.addEventListener("touchmove", touchZoom, false);
+            document.addEventListener("touchend", touchZoomEnd, false);
+          } else {
+            document.removeEventListener("touchmove", touchZoom, false);
+            document.removeEventListener("touchend", touchZoomEnd, false);
+            document.addEventListener("touchmove", touchDrag, false);
+            document.addEventListener("touchend", touchDragEnd, false);
 
-          startDrag(panel.touches[0], panel.touches.length === 3, true);
+            startDrag(panel.touches[0], panel.touches.length === 3, true);
+          }
+
         }, false);
         
         function wheelHandler(event) {
-          var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
+          zoom(Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail))));
+        }
 
+        function zoom(delta) {
           event.preventDefault();
           event.stopPropagation();
 

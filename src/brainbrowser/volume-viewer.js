@@ -92,7 +92,7 @@
 * @description
 * The Volume Viewer can be configured using the **set** and **get**
 * methods of the **BrainBrowser.config** object. At this point, there
-* is no required configuration for the Volume Viewer, so this 
+* is no required configuration for the Volume Viewer, so this
 * functionality can be safely used for custom app configuration.
 *
 * ```js
@@ -114,8 +114,8 @@
 * BrainBrowser.set("color_maps.spectral.name", "Spectral");
 * ```
 *
-* will set the **name** property in the **spectral** namespace of the 
-* **color_maps** namespace. Namespaces are implemented as objects, so 
+* will set the **name** property in the **spectral** namespace of the
+* **color_maps** namespace. Namespaces are implemented as objects, so
 * if a namespace is requested with **get**, the namespace object will be
 * returned. Using the previous **set**, the following **get**:
 *
@@ -128,7 +128,7 @@
 * ```js
 *  { name: "Spectral" }
 * ```
-* 
+*
 */
 
 /**
@@ -139,10 +139,10 @@
 * If more than one volume is to be displayed by the Volume Viewer, or if volumes are
 * to be loaded and removed dynamically, the Volume Viewer's default behaviour of inserting
 * the viewer panels into the DOM element referred to in the **start** method might not be
-* sufficient. For cases such as these, the Volume Viewer provides a templating mechanism 
+* sufficient. For cases such as these, the Volume Viewer provides a templating mechanism
 * to allow UI to be created once and then reused for several volumes.
 * A template is simply unrendered HTML embedded in a web page using a
-* a **script** tag with a non-JavaScript type: 
+* a **script** tag with a non-JavaScript type:
 *
 * ```HTML
 * &lt;script id=&quot;volume-ui-template&quot; type=&quot;x-volume-ui-template&quot;&gt;
@@ -150,7 +150,7 @@
 *   &lt;div class=&quot;volume-viewer-controls volume-controls&quot;&gt;
 *     &lt;div class=&quot;coords&quot;&gt;
 *       &lt;div class=&quot;control-heading&quot; id=&quot;voxel-coordinates-heading-&#123;&#123;VOLID&#125;&#125;&quot;&gt;
-*         Voxel Coordinates: 
+*         Voxel Coordinates:
 *       &lt;/div&gt;
 *       &lt;div class=&quot;voxel-coords&quot; data-volume-id=&quot;&#123;&#123;VOLID&#125;&#125;&quot;&gt;
 *         X:&lt;input id=&quot;voxel-x-&#123;&#123;VOLID&#125;&#125;&quot; class=&quot;control-inputs&quot;&gt;
@@ -161,16 +161,16 @@
 *   &lt;/div&gt;
 * &lt;/script&gt;
 * ```
-* 
+*
 * Some important points about the template:
 *
 * * An element with a distinct class must be provided in which the viewer panels
-*   will be inserted. In the above example, this is the **div** with the class 
+*   will be inserted. In the above example, this is the **div** with the class
 *   **volume-viewer-display**.
 * * The placeholder **`{{VOLID}}`** will be replaced by the displayed volume's ID
 *   (i.e. its index in the **viewer.volumes** array). This can be useful if its
 *   necessary to refer from a element to the volume it applies to.
-* 
+*
 * To use the template, simply refer to the template's **id** and the viewer panel's
 * **class** in the **option** of any of the volume loading functions:
 *
@@ -282,8 +282,8 @@
     *
     * @description
     * The viewer object encapsulates all functionality of the Surface Viewer.
-    * Handlers can be attached to the  **BrainBrowser.events** object to listen 
-    * for certain events occuring over the viewer's lifetime. Currently, the 
+    * Handlers can be attached to the  **BrainBrowser.events** object to listen
+    * for certain events occuring over the viewer's lifetime. Currently, the
     * following viewer events can be listened for:
     *
     * * **volumesloaded** Volumes loaded by **viewer.loadVolumes()** have finished loading.
@@ -394,7 +394,7 @@
     * @param {number} vol_id Index of the volume where the slice is being rendered.
     * @param {string} axis_name Name of the axis where the slice is being rendered.
     * @param {number} slice_num Index of the slice to render.
-    * @param {function} callback Callback invoked after fetching with the fetched 
+    * @param {function} callback Callback invoked after fetching with the fetched
     *   slice as argument.
     *
     * @description
@@ -407,8 +407,8 @@
     */
 
     // Keep track of timers.
-    // fetchSlice() is an expensive operation so 
-    // we call it asynchronously and don't want to 
+    // fetchSlice() is an expensive operation so
+    // we call it asynchronously and don't want to
     // call it unnecessarily.
     var timeouts = {};
 
@@ -551,7 +551,7 @@
             }
           },
           // Left
-          37: function() { 
+          37: function() {
             space_name = panel.slice.width_space.name;
             if (volume.position[space_name] > 0) {
               volume.position[space_name]--;
@@ -563,7 +563,7 @@
             if (volume.position[space_name] < panel.slice.height_space.space_length) {
               volume.position[space_name]++;
             }
-          }, 
+          },
           // Right
           39: function() {
             space_name = panel.slice.width_space.name;
@@ -571,8 +571,8 @@
               volume.position[space_name]++;
             }
           },
-          // Down 
-          40: function() { 
+          // Down
+          40: function() {
             space_name = panel.slice.height_space.name;
             if (volume.position[space_name] > 0) {
               volume.position[space_name]--;

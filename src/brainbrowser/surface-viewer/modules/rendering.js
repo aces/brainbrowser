@@ -393,7 +393,6 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   // Render a single frame on the viewer.
   function renderFrame(timestamp) {
     var model = viewer.model;
-    var mouse = viewer.mouse;
     var delta;
     var rotation;
     

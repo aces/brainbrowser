@@ -25,8 +25,8 @@
 * Author: Nicolas Kassis
 */
 
-// This script is meant to be a demonstration of how to 
-// use most of the functionality available in the 
+// This script is meant to be a demonstration of how to
+// use most of the functionality available in the
 // BrainBrowser Volume Viewer.
 $(function() {
   "use strict";
@@ -446,7 +446,7 @@ $(function() {
             context.putImageData(image_data, x, y);
           }
 
-          // Retrieve image from canvas and display it 
+          // Retrieve image from canvas and display it
           // in a dialog box.
           img.onload = function() {
             $("<div></div>").append(img).dialog({
@@ -526,7 +526,7 @@ $(function() {
 
       if (volume.data && volume.data.time) {
         $("#time-slider-" + vol_id).slider("option", "value", volume.current_time);
-        $("#time-val-" + vol_id).val(volume.current_time);  
+        $("#time-val-" + vol_id).val(volume.current_time);
       }
     });
 

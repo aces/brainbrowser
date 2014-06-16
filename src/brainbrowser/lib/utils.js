@@ -322,8 +322,9 @@
         }
       }
       
-      element.addEventListener("touchend", updateTouches, false);
+      element.addEventListener("touchstart", updateTouches, false);
       element.addEventListener("touchmove", updateTouches, false);
+      element.addEventListener("touchend", updateTouches, false);
       
       return touches;
     }

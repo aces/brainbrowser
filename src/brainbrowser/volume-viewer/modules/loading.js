@@ -482,60 +482,16 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
         var panel = display[axis_num];
         var canvas = panel.canvas;
         var mouse = panel.mouse;
+        var touch = panel.touch;
         
-        function drag(e) {
-          var cursor = {
-            x: mouse.x,
-            y: mouse.y
-          };
-                  
-          if(e.target === current_target) {
-            if(e.shiftKey) {
-              panel.followCursor(cursor);
-              if (viewer.synced){
-                viewer.volumes.forEach(function(volume, synced_vol_id) {
-                  if (synced_vol_id !== vol_id) {
-                    volume.display[axis_num].followCursor(cursor);
-                  }
-                });
-              }
-            } else {
-              viewer.setCursor(vol_id, axis_name, cursor);
-              if (viewer.synced){
-                viewer.volumes.forEach(function(volume, synced_vol_id) {
-                  if (synced_vol_id !== vol_id) {
-                    viewer.setCursor(synced_vol_id, axis_name, cursor);
-                  }
-                });
-              }
-              panel.cursor.x = cursor.x;
-              panel.cursor.y = cursor.y;
-            }
-          }
-        }
-        
-        function stopDrag() {
-          document.removeEventListener("mousemove", drag, false);
-          document.removeEventListener("mouseup", stopDrag, false);
-          viewer.volumes.forEach(function(volume) {
-            volume.display.forEach(function(panel) {
-              panel.anchor = null;
-            });
-          });
-          current_target = null;
-        }
-        
-        canvas.addEventListener("mousedown", function startDrag(event) {
+        function startDrag(pointer, shift_key, ctrl_key) {
           current_target = event.target;
           var cursor = {
-            x: mouse.x,
-            y: mouse.y
+            x: pointer.x,
+            y: pointer.y
           };
-
-          event.preventDefault();
-          event.stopPropagation();
           
-          if (event.ctrlKey) {
+          if (ctrl_key) {
             viewer.volumes.forEach(function(volume) {
               volume.display.forEach(function(panel) {
                 panel.anchor = null;
@@ -543,12 +499,12 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
             });
 
             panel.anchor = {
-              x: mouse.x,
-              y: mouse.y
+              x: pointer.x,
+              y: pointer.y
             };
           }
 
-          if (event.shiftKey) {
+          if (shift_key) {
             panel.last_cursor.x = cursor.x;
             panel.last_cursor.y = cursor.y;
             if (viewer.synced){
@@ -573,9 +529,94 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
             panel.cursor.y = cursor.y;
           }
           viewer.active_canvas = event.target;
-          document.addEventListener("mousemove", drag, false);
-          document.addEventListener("mouseup", stopDrag, false);
+        }
 
+        function drag(pointer, shift_key) {
+          var cursor = {
+            x: pointer.x,
+            y: pointer.y
+          };
+                  
+          
+          if(shift_key) {
+            panel.followCursor(cursor);
+            if (viewer.synced){
+              viewer.volumes.forEach(function(volume, synced_vol_id) {
+                if (synced_vol_id !== vol_id) {
+                  volume.display[axis_num].followCursor(cursor);
+                }
+              });
+            }
+          } else {
+            viewer.setCursor(vol_id, axis_name, cursor);
+            if (viewer.synced){
+              viewer.volumes.forEach(function(volume, synced_vol_id) {
+                if (synced_vol_id !== vol_id) {
+                  viewer.setCursor(synced_vol_id, axis_name, cursor);
+                }
+              });
+            }
+            panel.cursor.x = cursor.x;
+            panel.cursor.y = cursor.y;
+          }
+        }
+
+        function mouseDrag(event) {
+          if(event.target === current_target) {
+            event.preventDefault();
+            event.stopPropagation();
+            drag(panel.mouse, event.shiftKey);
+          }
+        }
+
+        function touchDrag(event) {
+          if(event.target === current_target) {
+            event.preventDefault();
+            event.stopPropagation();
+            drag(panel.touches[0], panel.touches.length === 3);
+          }
+        }
+        
+        function mouseDragEnd() {
+          document.removeEventListener("mousemove", mouseDrag, false);
+          document.removeEventListener("mouseup", mouseDragEnd, false);
+          viewer.volumes.forEach(function(volume) {
+            volume.display.forEach(function(panel) {
+              panel.anchor = null;
+            });
+          });
+          current_target = null;
+        }
+
+        function touchDragEnd() {
+          document.removeEventListener("touchmove", touchDrag, false);
+          document.removeEventListener("touchend", touchDragEnd, false);
+          viewer.volumes.forEach(function(volume) {
+            volume.display.forEach(function(panel) {
+              panel.anchor = null;
+            });
+          });
+          current_target = null;
+        }
+        
+        canvas.addEventListener("mousedown", function(event) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          document.addEventListener("mousemove", mouseDrag , false);
+          document.addEventListener("mouseup", mouseDragEnd, false);
+
+          startDrag(panel.mouse, event.shiftKey, event.ctrlKey);
+        }, false);
+
+        canvas.addEventListener("touchstart", function(event) {
+          event.preventDefault();
+          event.stopPropagation();
+
+          document.addEventListener("touchmove", touchDrag, false);
+          document.addEventListener("touchend", touchDragEnd, false);
+
+          startDrag(panel.touches[0], panel.touches.length === 3, true);
         }, false);
         
         function wheelHandler(event) {

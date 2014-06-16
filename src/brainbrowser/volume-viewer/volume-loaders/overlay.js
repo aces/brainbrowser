@@ -159,7 +159,7 @@
       this.position.zspace = z;
     },
 
-    getWorldCoords: function() {      
+    getWorldCoords: function() {
       return this.volumes[0].voxelToWorld(this.position.xspace, this.position.yspace, this.position.zspace);
     },
     

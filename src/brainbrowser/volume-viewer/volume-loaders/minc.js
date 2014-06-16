@@ -440,9 +440,9 @@
     minc_data.yspace.step = parseFloat(minc_data.yspace.step);
     minc_data.zspace.step = parseFloat(minc_data.zspace.step);
 
-    minc_data.xspace.direction_cosines = minc_data.xspace.direction_cosines || [1, 0, 0]
-    minc_data.yspace.direction_cosines = minc_data.yspace.direction_cosines || [0, 1, 0]
-    minc_data.zspace.direction_cosines = minc_data.zspace.direction_cosines || [0, 0, 1]
+    minc_data.xspace.direction_cosines = minc_data.xspace.direction_cosines || [1, 0, 0];
+    minc_data.yspace.direction_cosines = minc_data.yspace.direction_cosines || [0, 1, 0];
+    minc_data.zspace.direction_cosines = minc_data.zspace.direction_cosines || [0, 0, 1];
 
     cx = minc_data.xspace.direction_cosines = minc_data.xspace.direction_cosines.map(parseFloat);
     cy = minc_data.yspace.direction_cosines = minc_data.yspace.direction_cosines.map(parseFloat);
@@ -450,8 +450,8 @@
 
     // Origin equation taken from (http://www.bic.mni.mcgill.ca/software/minc/minc2_format/node4.html)
     minc_data.voxel_origin = {
-      x: startx * cx[0] + starty * cy[0] + startz * cz[0], 
-      y: startx * cx[1] + starty * cy[1] + startz * cz[1], 
+      x: startx * cx[0] + starty * cy[0] + startz * cz[0],
+      y: startx * cx[1] + starty * cy[1] + startz * cz[1],
       z: startx * cx[2] + starty * cy[2] + startz * cz[2]
     };
 

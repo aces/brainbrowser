@@ -203,6 +203,7 @@
         dom_element: dom_element,
         model: null,                                      // The currently loaded model. Should be set by rendering.
         mouse: BrainBrowser.utils.captureMouse(dom_element),
+        touches: BrainBrowser.utils.captureTouch(dom_element),
         /**
         * @doc function
         * @name viewer.attributes:getAttribute

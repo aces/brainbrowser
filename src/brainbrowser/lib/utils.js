@@ -291,6 +291,41 @@
       }, false);
 
       return mouse;
+    },
+
+    captureTouch: function(element) {
+      var touches = [];
+
+      function updateTouches(event) {
+        var offset = BrainBrowser.utils.getOffset(element);
+        var x, y;
+        var i, count;
+        var touch;
+
+        touches.length = count = event.touches.length;
+
+        for (i = 0; i < count; i++) {
+          touch = event.touches[i];
+
+          if (touch.pageX !== undefined) {
+            x = touch.pageX;
+            y = touch.pageY;
+          } else {
+            x = touch.clientX + window.pageXOffset;
+            y = touch.clientY + window.pageYOffset;
+          }
+
+          touches[i] = touches[i] || {};
+          
+          touches[i].x = x - offset.left;
+          touches[i].y = y - offset.top;
+        }
+      }
+      
+      element.addEventListener("touchend", updateTouches, false);
+      element.addEventListener("touchmove", updateTouches, false);
+      
+      return touches;
     }
   
   };

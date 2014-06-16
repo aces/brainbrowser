@@ -393,6 +393,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   // Render a single frame on the viewer.
   function renderFrame(timestamp) {
     var model = viewer.model;
+    var mouse = viewer.mouse;
     var delta;
     var rotation;
     
@@ -428,34 +429,11 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var last_y = null;
     var last_touch_distance = null;
 
-    function getMousePosition(eventeventeventevent) {
-      var x, y;
-      var offset = BrainBrowser.utils.getOffset(canvas);
-
-
-      if (eventeventeventevent.pageX !== undefined) {
-        x = eventeventeventevent.pageX;
-        y = eventeventeventevent.pageY;
-      } else {
-        x = eventeventeventevent.clientX + window.pageXOffset;
-        y = eventeventeventevent.clientY + window.pageYOffset;
-      }
-
-      x -= offset.left;
-      y -= offset.top;
-
-      return {
-        x: x,
-        y: y
-      };
-    }
-
-    function drag(eventeventevent, multiplier) {
+    function drag(pointer, multiplier) {
       multiplier = multiplier || 1.0;
       var inverse = new THREE.Matrix4();
-      var position = getMousePosition(eventeventevent);
-      var x = position.x;
-      var y = position.y;
+      var x = pointer.x;
+      var y = pointer.y;
       var dx, dy;
 
 
@@ -487,11 +465,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     }
 
-    function touchZoom(eventevent) {
-      var pos1 = getMousePosition(eventevent.touches[0]);
-      var pos2 = getMousePosition(eventevent.touches[1]);
-      var dx = pos1.x - pos2.x;
-      var dy = pos1.y - pos2.y;
+    function touchZoom() {
+      var dx = viewer.touches[0].x - viewer.touches[1].x;
+      var dy = viewer.touches[0].y - viewer.touches[1].y;
 
       var distance = Math.sqrt(dx * dx + dy * dy);
       var delta;
@@ -508,16 +484,16 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     function mouseDrag(event) {
       event.preventDefault();
       event.stopPropagation();
-      drag(event, 0.25);
+      drag(viewer.mouse, 0.25);
     }
 
     function touchDrag(event) {
       event.preventDefault();
       event.stopPropagation();
       if (movement === "zoom") {
-        touchZoom(event);
+        touchZoom();
       } else {
-        drag(event.touches[0], 1.0);
+        drag(viewer.touches[0], 1.0);
       }
     }
 
@@ -536,11 +512,11 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       last_touch_distance = null;
     }
 
-    function wheelHandler(eventevent) {
-      var delta = Math.max(-1, Math.min(1, (eventevent.wheelDelta || -eventevent.detail)));
+    function wheelHandler(event) {
+      var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
 
-      eventevent.preventDefault();
-      eventevent.stopPropagation();
+      event.preventDefault();
+      event.stopPropagation();
 
       viewer.zoom(1.0 + 0.05 * delta);
     }

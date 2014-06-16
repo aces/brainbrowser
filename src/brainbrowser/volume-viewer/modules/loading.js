@@ -608,7 +608,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
           if (last_touch_distance !== null) {
             delta = distance - last_touch_distance;
 
-            zoom(delta);
+            zoom(delta * 0.2);
           }
 
           last_touch_distance = distance;

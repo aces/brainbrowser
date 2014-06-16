@@ -29,7 +29,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   
   var renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
   var scene = new THREE.Scene();
-  var camera = new THREE.PerspectiveCamera(30, viewer.dom_element.offsetWidth / viewer.dom_element.offsetHeight, 1, 10000);
+  var camera = new THREE.PerspectiveCamera(30, viewer.dom_element.offsetWidth / viewer.dom_element.offsetHeight, 1, 3000);
   var light = new THREE.PointLight(0xFFFFFF);
   var current_frame;
   var last_frame;
@@ -429,7 +429,6 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var last_touch_distance = null;
 
     function drag(pointer, multiplier) {
-      multiplier = multiplier || 1.0;
       var inverse = new THREE.Matrix4();
       var x = pointer.x;
       var y = pointer.y;
@@ -452,10 +451,13 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
           axis = new THREE.Vector3(0, 1, 0).applyMatrix4(inverse).normalize();
           model.rotateOnAxis(axis, dx / 150);
         } else {
-          camera.position.x -= dx * multiplier;
-          light.position.x -= dx * multiplier;
-          camera.position.y += dy * multiplier;
-          light.position.y += dy * multiplier;
+          multiplier = multiplier || 1.0;
+          multiplier *= camera.position.z / 500;
+
+          camera.position.x -= dx * multiplier * 0.25;
+          light.position.x -= dx * multiplier * 0.25;
+          camera.position.y += dy * multiplier * 0.25;
+          light.position.y += dy * multiplier * 0.25;
         }
       }
 
@@ -483,7 +485,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     function mouseDrag(event) {
       event.preventDefault();
       event.stopPropagation();
-      drag(viewer.mouse, 0.25);
+      drag(viewer.mouse, 1.1);
     }
 
     function touchDrag(event) {
@@ -492,7 +494,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       if (movement === "zoom") {
         touchZoom();
       } else {
-        drag(viewer.touches[0], 1.0);
+        drag(viewer.touches[0], 2);
       }
     }
 

@@ -663,45 +663,48 @@ $(function() {
         },
         dbs: function() {
           viewer.annotations.setMarkerRadius(0.3);
+
           viewer.loadModelFromURL("models/dbs.json", {
             format: "json",
             complete: function() {
+              var i;
+
               hideLoading();
               $("#vertex-data-wrapper").show();
-              
-              viewer.setTransparency(0.7, {
-                shape_name: "dbs.json_44"
-              });
-              viewer.setTransparency(0.7, {
-                shape_name: "dbs.json_46"
-              });
-              viewer.setTransparency(0.7, {
-                shape_name: "dbs.json_47"
-              });
-              viewer.setTransparency(0.7, {
-                shape_name: "dbs.json_81"
-              });
-              viewer.setTransparency(0.7, {
-                shape_name: "dbs.json_84"
-              });
 
-              viewer.setTransparency(0.3, {
+              for (i = 17; i <= 93; i++) {
+                viewer.setTransparency(0.5, {
+                  shape_name: "dbs.json_" + i
+                });
+              }
+
+              viewer.setTransparency(0.2, {
                 shape_name: "dbs.json_24"
               });
-              viewer.setTransparency(0.3, {
+              viewer.setTransparency(0.2, {
                 shape_name: "dbs.json_25"
               });
-              viewer.setTransparency(0.3, {
+              viewer.setTransparency(0.2, {
                 shape_name: "dbs.json_62"
               });
-              viewer.setTransparency(0.3, {
+              viewer.setTransparency(0.2, {
                 shape_name: "dbs.json_63"
               });
             },
             cancel: defaultCancelOptions(current_request)
           });
-          viewer.setCameraPosition(-10, 10, 500);
-          viewer.zoom(2.5);
+
+          viewer.loadModelFromURL("models/dbs-fibers.json", {
+            format: "json",
+            cancel: defaultCancelOptions(current_request)
+          });
+
+          viewer.loadModelFromURL("models/dbs-vat.json", {
+            format: "json",
+            cancel: defaultCancelOptions(current_request)
+          });
+
+          viewer.zoom(1.8);
 
           matrixRotX = new THREE.Matrix4();
           matrixRotX.makeRotationX(-0.5 * Math.PI);

@@ -194,7 +194,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     options = options || {};
     var name = options.name || filename;
     var type = options.format || "mniobj";
-    var model_data = viewer.model_data;
+    var model_data = viewer.model_data.get(options.model_name);
     var blend_index = options.blend_index === 1 ? options.blend_index : 0;
     var other_index = 1 - blend_index; // 1 or 0
     
@@ -250,14 +250,15 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     });
   }
   
-  function loadColorMap(color_map) {
-    var model_data = viewer.model_data;
+  function loadColorMap(color_map, filename, options) {
+    options = options || {};
+    var model_data = viewer.model_data.get(options.model_name);
     viewer.color_map = color_map;
     
     BrainBrowser.events.triggerEvent("loadcolormap", color_map);
 
     if (model_data && model_data.intensity_data) {
-      viewer.updateColors(model_data.intensity_data);
+      viewer.updateColors(model_data.intensity_data, { filename: filename });
     }
   }
 
@@ -282,8 +283,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var parse_worker = new Worker(SurfaceViewer.worker_urls[worker_url_type]);
     var deindex_worker;
     
-    parse_worker.addEventListener("message", function(e) {
-      var result = e.data;
+    parse_worker.addEventListener("message", function(event) {
+      var result = event.data;
 
       if (result.error){
         error_message = "error parsing model.\n" +
@@ -296,8 +297,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       } else if (callback) {
         deindex_worker = new Worker(SurfaceViewer.worker_urls.deindex);
 
-        deindex_worker.addEventListener("message", function(e) {
-          callback(e.data);
+        deindex_worker.addEventListener("message", function(event) {
+          callback(event.data);
         });
 
         deindex_worker.postMessage(result);
@@ -334,17 +335,20 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   // Add a polygon object to the scene.
   function addObject(model_data, filename, render_depth){
     var model = viewer.model;
+    var shapes = model_data.shapes;
+    var model_name = model_data.name || filename;
+    var is_line = model_data.type === "line";
     var shape, shape_data;
     var i, count;
-    var shapes = model_data.shapes;
 
-    var is_line = model_data.type === "line";
 
-    viewer.model_data = model_data;
+    viewer.model_data.add(model_name, model_data);
+
     if (shapes){
       for (i = 0, count = shapes.length; i < count; i++){
         shape_data = model_data.shapes[i];
         shape = createObject(shape_data, is_line);
+        shape.model_name = model_name;
         shape.name = shape_data.name || filename + "_" + (i + 1);
         
         shape.geometry.original_data = {

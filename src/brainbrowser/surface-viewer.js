@@ -202,6 +202,7 @@
       var viewer = {
         dom_element: dom_element,
         model: null,                                      // The currently loaded model. Should be set by rendering.
+        model_data: BrainBrowser.SurfaceViewer.createModelData(),
         mouse: BrainBrowser.utils.captureMouse(dom_element),
         touches: BrainBrowser.utils.captureTouch(dom_element),
         /**
@@ -267,9 +268,16 @@
         * ```js
         * viewer.getVertex(2356);
         * ```
+        *
+        * If more than one model file has been loaded, refer to the appropriate
+        * model using the **model_name** option:
+        * ```js
+        * viewer.getVertex(2356, { model_name: "brain.obj" });
+        * ```
         */
-        getVertex: function(index) {
-          var vertices = viewer.model_data.vertices;
+        getVertex: function(index, options) {
+          options = options || {};
+          var vertices = viewer.model_data.get(options.model_name).vertices;
           var i = index * 3;
           
           return new THREE.Vector3(vertices[i], vertices[i+1], vertices[i+2]);

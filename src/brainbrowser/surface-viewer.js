@@ -107,6 +107,60 @@
 * ```
 * 
 */
+
+/**
+* @doc overview
+* @name Object Model
+*
+* @description
+* Data parsers producing models to be read by BrainBrowser must
+* output their data according to the following object model:
+* ```js
+* {
+*   type: ("line" | "polygon"),
+*   name: "...",
+*   vertices: [...],
+*   normals: [...],
+*   colors: [...],
+*   shapes: [
+*     {
+*       name: "...",
+*       indices: [...]  
+*     },
+*     {
+*       name: "...",
+*       indices: [...]  
+*     }
+*   ]
+* }
+* ```
+* 
+* Assuming a model with **n** vertices:
+*
+* * **type** (optional) is a string indicating whether the model consists 
+*   of line or triangle data. Default: "polygon".  
+* * **name** (optional) is a string identifier for the model. Default: 
+*   the name of the file that the data was parsed from.  
+* * **vertices** is a flat array of vertex **x**, **y**, **z** coordinates. 
+*   Size: **n** X 3.
+* * **normals** (optional) is a flat array of vertex normal vector **x**, 
+*   **y**, **z** components. Size: **n** X 3. If a **normals** array is not 
+*   provided, the Surface Viewer will attempt to appoximate the normals based 
+*   on the vertex data.
+* * **colors** (optional) is a flat array of **r**, **g**, **b**, **a** color 
+*   values. Size: n X 4. If no color data is provided vertex colors will all 
+*   be set to gray.
+* * **shapes** is an array containing objects describing the different 
+*   shapes the model represents. Each object will contain an **indices**
+*   property which contains an array of indices pointing into the 
+*   **vertices**, **colors** and **normals** arrays, indicating how to 
+*   assemble them into triangles or line pieces. For **polygon** models,
+*   each triplet of indices should describe a triangle. For **line** models,
+*   each pair of indices should describe a line segment. Optionally, each
+*   shape can also be given a **name** property that identifies it. If none is 
+*   provided, the **name** property defaults to a value based on the name 
+*   of the file that contained the model and the shape's index number.   
+*/
 (function() {
   "use strict";
   

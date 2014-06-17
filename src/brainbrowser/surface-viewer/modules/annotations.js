@@ -33,42 +33,86 @@ BrainBrowser.SurfaceViewer.modules.annotations = function(viewer) {
   var marker_off_color = 0xFF0000;
 
   viewer.annotations = {
+    /**
+    * @doc function
+    * @name viewer.annotations:add
+    * @param {number} vertex The vertex number to be annotated.
+    * @param {any} data Arbitrary data to be associated with the vertex.
+    * @param {object} options Other options.
+    *
+    * @description
+    * Add an annotation to be associated with the provided vertex.
+    * ```js
+    * viewer.annotations.add(1234, { hello: true });
+    * ```
+    *
+    * If more than one model has been loaded, a **model_name**
+    * option can be provided to specify the model the vertex is 
+    * associated with.
+    * ```js
+    * viewer.annotations.add(1234, { hello: true }, {
+    *   model_name: "brain.obj"
+    * });
+    * ```
+    */
     add: function(vertex, data, options) {
       options = options || {};
 
-      var shape_name = getShapeName(options);
+      var model_name = getModelName(options);
       var annotation, position;
 
-      if (shape_name) {
+      if (model_name) {
         position = viewer.getVertex(vertex);
         annotation = viewer.drawDot(position.x, position.y, position.z, marker_radius, marker_off_color);
 
         annotation.annotation_info = {
           data: data,
-          shape_name: shape_name,
+          model_name: model_name,
           vertex: vertex,
           position: position
         };
 
-        annotations.set(shape_name, vertex, annotation);
+        annotations.set(model_name, vertex, annotation);
 
         if (options.activate !== false) {
-          this.activate(annotation);
+          this.activate(vertex, options);
         }
       }
     },
 
+    /**
+    * @doc function
+    * @name viewer.annotations:get
+    * @param {number} vertex The vertex number of the annotation to be
+    * retrieved.
+    * @param {object} options Other options.
+    *
+    * @description
+    * Retrieve a previously added annotation.
+    * ```js
+    * viewer.annotations.get(1234);
+    * ```
+    *
+    * If more than one model has been loaded, a **model_name**
+    * option can be provided to specify the model the vertex is 
+    * associated with.
+    * ```js
+    * viewer.annotations.get(1234, {
+    *   model_name: "brain.obj"
+    * });
+    * ```
+    */
     get: function(vertex, options) {
       options = options || {};
 
-      var shape_name = getShapeName(options);
+      var model_name = getModelName(options);
       var annotation;
 
-      if (shape_name) {
-        annotation = annotations.get(shape_name, vertex);
+      if (model_name) {
+        annotation = annotations.get(model_name, vertex);
         
         if (options.activate !== false) {
-          this.activate(annotation);
+          this.activate(vertex, options);
         }
         
         return annotation;
@@ -77,14 +121,36 @@ BrainBrowser.SurfaceViewer.modules.annotations = function(viewer) {
       }
     },
 
+    /**
+    * @doc function
+    * @name viewer.annotations:remove
+    * @param {number} vertex The vertex number of the annotation to be
+    * removed.
+    * @param {object} options Other options.
+    *
+    * @description
+    * Remove a previously added annotation.
+    * ```js
+    * viewer.annotations.remove(1234);
+    * ```
+    *
+    * If more than one model has been loaded, a **model_name**
+    * option can be provided to specify the model the vertex is 
+    * associated with.
+    * ```js
+    * viewer.annotations.remove(1234, {
+    *   model_name: "brain.obj"
+    * });
+    * ```
+    */
     remove: function(vertex, options) {
       options = options || {};
 
-      var shape_name = getShapeName(options);
+      var model_name = getModelName(options);
       var annotation;
 
-      if (shape_name) {
-        annotation = annotations.remove(shape_name, vertex);
+      if (model_name) {
+        annotation = annotations.remove(model_name, vertex);
         viewer.model.remove(annotation);
         return annotation;
       } else {
@@ -92,6 +158,16 @@ BrainBrowser.SurfaceViewer.modules.annotations = function(viewer) {
       }
     },
 
+    /**
+    * @doc function
+    * @name viewer.annotations:reset
+    *
+    * @description
+    * Remove all previously added annotations.
+    * ```js
+    * viewer.annotations.reset();
+    * ```
+    */
     reset: function() {
       this.forEach(function(annotation) {
         viewer.model.remove(annotation);
@@ -99,7 +175,35 @@ BrainBrowser.SurfaceViewer.modules.annotations = function(viewer) {
       annotations.reset();
     },
 
-    activate: function(active_annotation) {
+    /**
+    * @doc function
+    * @name viewer.annotations:activate
+    * @param {number} vertex The vertex number of the 
+    * annotation to activate.
+    *
+    * @description
+    * Activate an annotation (color it with the "on"
+    * color).
+    * ```js
+    * viewer.annotations.activate(1234);
+    * ```
+    * If more than one model has been loaded, a **model_name**
+    * option can be provided to specify the model the vertex is 
+    * associated with.
+    * ```js
+    * viewer.annotations.activate(1234, {
+    *   model_name: "brain.obj"
+    * });
+    * ```
+    */
+    activate: function(vertex, options) {
+      options = options || {};
+
+      var active_annotation = this.get(vertex, {
+        model_name: options.model_name,
+        activate: false
+      })
+
       if (!active_annotation) {
         return;
       }
@@ -113,18 +217,68 @@ BrainBrowser.SurfaceViewer.modules.annotations = function(viewer) {
       });
     },
 
+    /**
+    * @doc function
+    * @name viewer.annotations:forEach
+    * @param {function} callback Callback function to which
+    * the annotations will be passed.
+    *
+    * @description
+    * Iterate over annotations and pass them to a callback function.
+    * ```js
+    * viewer.annotations.forEach(function(annotation) {
+    *   console.log(annotation.annotation_info.data);
+    * });
+    * ```
+    */
     forEach: function(callback) {
       annotations.forEach(2, callback);
     },
 
+    /**
+    * @doc function
+    * @name viewer.annotations:setMarkerOnColor
+    * @param {number} color Hex number representing color for 
+    * active annotation markers.
+    *
+    * @description
+    * Set the color to be used for active annotation markers.
+    * ```js
+    * viewer.annotations.setMarkerOnColor(0xFF0000);
+    * ```
+    */
     setMarkerOnColor: function(color) {
       marker_on_color = color;
     },
 
+    /**
+    * @doc function
+    * @name viewer.annotations:setMarkerOffColor
+    * @param {number} color Hex number representing color for 
+    * non-active annotation markers.
+    *
+    * @description
+    * Set the color to be used for non-active annotation markers.
+    * ```js
+    * viewer.annotations.setMarkerOnColor(0x00FF00);
+    * ```
+    */
     setMarkerOffColor: function(color) {
       marker_off_color = color;
     },
 
+    /**
+    * @doc function
+    * @name viewer.annotations:setMarkerRadius
+    * @param {number} radius The radius to use for annotation
+    * markers.
+    *
+    * @description
+    * Set the radius to use for annotation markers.
+    * ```js
+    * viewer.annotations.setMarkerRadius(0.2);
+    * ```
+    */
     setMarkerRadius: function(radius) {
       marker_radius = radius;
     }
@@ -132,16 +286,16 @@ BrainBrowser.SurfaceViewer.modules.annotations = function(viewer) {
 
   // Private functions
 
-  function getShapeName(options) {
+  function getModelName(options) {
     options = options || {};
 
-    var shape_name = options.shape_name || null;
+    var model_name = options.model_name || null;
 
-    if (!shape_name && viewer.model.children[0]) {
-      shape_name = viewer.model.children[0].name;
+    if (!model_name && viewer.model.children[0]) {
+      model_name = viewer.model.children[0].model_name;
     }
 
-    return shape_name;
+    return model_name;
   }
 
 };

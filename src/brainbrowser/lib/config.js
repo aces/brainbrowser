@@ -68,7 +68,7 @@
     * @name BrainBrowser.config:get
     * @param {string} config_string Namespaced configuration property.
     *
-    * @returns The value of the cofiguration parameter (or **null** if it doesn't exist).
+    * @returns {any} The value of the configuration parameter (or **null** if it doesn't exist).
     *
     * @description
     * Retrieve a configuration parameter.

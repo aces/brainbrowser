@@ -473,7 +473,9 @@ $(function() {
         annotation_info = pick_info.object.annotation_info;
 
         if (annotation_info) {
-          viewer.annotations.activate(pick_info.object);
+          viewer.annotations.activate(annotation_info.vertex, {
+            model_name: annotation_info.model_name
+          });
         } else {
           annotation_info = { data : {} };
         }

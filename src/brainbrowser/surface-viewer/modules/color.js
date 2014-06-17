@@ -84,7 +84,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
       if (blend) {
         applyColorArray(blendColors(data));
       } else {
-        createColorArray(data, applyColorArray);
+        createColorArray(data, options.model_name, applyColorArray);
       }
     }, 0);
   };
@@ -102,10 +102,15 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   * ```js
   * viewer.setIntensityRange(2.0, 3.0);
   * ```
+  * If more than one model file has been loaded, indicate the model data
+  * the intensity data is associated with using the **model_name** option:
+  * ```js
+  * viewer.setIntensityRange(2.0, 3.0, { model_name: "brain.obj" });
+  * ```
   */
   viewer.setIntensityRange = function(min, max, options) {
     options = options || {};
-    var data = viewer.model_data.intensity_data;
+    var data = viewer.model_data.get(options.model_name).intensity_data;
     
     data.range_min = min;
     data.range_max = max;
@@ -152,9 +157,9 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   ///////////////////////////
   
   // Create a color array from an intensity data map
-  function createColorArray(intensity_data, callback) {
+  function createColorArray(intensity_data, model_name, callback) {
     var intensity_values = intensity_data.values;
-    var model_colors = viewer.model_data.colors;
+    var model_colors = viewer.model_data.get(model_name).colors;
     var min = intensity_data.range_min;
     var max = intensity_data.range_max;
     var flip = viewer.getAttribute("flip_colors");

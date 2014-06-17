@@ -29,10 +29,10 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
 
   // View change functions
   var views = {
-    medialView: function() {
+    medialView: function(model_data) {
       var model = viewer.model;
 
-      if(viewer.model_data.split ) {
+      if(model_data.split) {
         model.getObjectByName("left").position.x -= 100;
         model.getObjectByName("left").rotation.z -= degToRad(90);
         model.getObjectByName("right").position.x += 100;
@@ -41,11 +41,11 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
       }
     },
 
-    lateralView: function() {
+    lateralView: function(model_data) {
       var model = viewer.model;
       var left_child, right_child;
 
-      if(viewer.model_data.split ) {
+      if(model_data.split) {
         left_child = model.getObjectByName("left");
         right_child = model.getObjectByName("right");
 
@@ -170,13 +170,14 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   * viewer.setView("lateral");
   * ```
   */
-  viewer.setView = function(view_name) {
+  viewer.setView = function(view_name, model_name) {
     var method_name = view_name + "View";
+    var model_data = viewer.model_data.get(model_name);
+
     viewer.resetView();
-    if(viewer.model_data && viewer.model_data.split) {
-      if (typeof views[method_name] === "function") {
-        views[method_name]();
-      }
+
+    if(model_data && BrainBrowser.utils.isFunction(views[method_name])) {
+      views[method_name](model_data);
     }
   };
 
@@ -195,6 +196,8 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
     while (children.length > 0) {
       viewer.model.remove(children[0]);
     }
+
+    viewer.model_data.clear();
         
     viewer.resetView();
     BrainBrowser.events.triggerEvent("clearscreen");
@@ -208,13 +211,20 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   * Add space between two halves of a split dataset. (**Note:** this is
   * only effective for a split dataset, e.g. two hemispheres of a brain).
   * ```js
-   * viewer.separateHalves(1.5);
-   * ```
+  * viewer.separateHalves(1.5);
+  * ```
+  *
+  * If more than one model file has been loaded, refer to the appropriate
+  * model using the **model_name** option:
+  * ```js
+  * viewer.separateHalves(1.5, { model_name: "brain.obj" });
+  * ```
   */
-  viewer.separateHalves = function(increment) {
+  viewer.separateHalves = function(increment, options) {
     increment = increment || 1;
+    options = options || {};
 
-    if(viewer.model_data.split ) {
+    if(viewer.model_data.get(options.model_name).split ) {
       viewer.model.children[0].position.x -= increment;
       viewer.model.children[1].position.x += increment;
     }

@@ -196,8 +196,8 @@ $(function() {
       $("#color-map-box").show();
       container.find("#data-range-multiple").tabs();
 
-      container.find(".range-controls").each(function(index, element) {
-        var controls = $(element);
+      container.find(".range-controls").each(function(index) {
+        var controls = $(this);
         var intensity_data = data_set[index];
 
         var data_min = BrainBrowser.utils.min(intensity_data.values);
@@ -222,7 +222,9 @@ $(function() {
             max_input.val(max);
             intensity_data.range_min = min;
             intensity_data.range_max = max;
-            viewer.model_data.intensity_data = intensity_data;
+            viewer.model_data.forEach(function(model_data) {
+              model_data.intensity_data = intensity_data;
+            });
             viewer.setIntensityRange(min, max);
           }
         });
@@ -431,12 +433,13 @@ $(function() {
 
     $("#brainbrowser").click(function(event) {
       if (!event.shiftKey) return;
-      if (!viewer.model_data) return;
+      if (viewer.model.children.length === 0) return;
 
       var annotation_display = $("#annotation-display");
       var media = $("#annotation-media");
-      var annotation_info;
       var pick_info = viewer.pick();
+      var model_data;
+      var annotation_info;
       var value, label, text;
 
       if (pick_info) {
@@ -446,9 +449,11 @@ $(function() {
         $("#pick-index").html(pick_info.index);
         $("#annotation-wrapper").show();
         
-        if (viewer.model_data.intensity_data) {
+        model_data = viewer.model_data.get(pick_info.object.model_name);
 
-          value = viewer.model_data.intensity_data.values[pick_info.index];
+        if (model_data.intensity_data) {
+
+          value = model_data.intensity_data.values[pick_info.index];
           $("#pick-value").html(value);
           label = atlas_labels[value];
           if (label) {

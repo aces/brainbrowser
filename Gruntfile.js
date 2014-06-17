@@ -180,7 +180,7 @@ module.exports = function(grunt) {
             {
               title: "BrainBrowser",
               id: "brainbrowser",
-              scripts: ["src/brainbrowser/brainbrowser.js", "src/brainbrowser/lib"]
+              scripts: ["src/brainbrowser/brainbrowser.js", "src/brainbrowser/core", "src/brainbrowser/lib"]
             },
             {
               title: "Surface Viewer",

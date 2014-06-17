@@ -32,7 +32,7 @@
   });
 
   function parseData(data) {
-    var result = { name: data.name, shapes: [] };
+    var result = { name: data.name, type: data.type, shapes: [] };
     result.vertices = flatten(data.vertices);
 
     if (data.colors) {

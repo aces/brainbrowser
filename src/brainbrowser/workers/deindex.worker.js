@@ -59,7 +59,7 @@
     var wire_verts, wire_colors;
 
     var normals_given = norms.length > 0;
-    var data_color_0, data_color_1, data_color_2, all_gray;
+    var data_color_0, data_color_1, data_color_2, data_color_3, all_gray;
     var bounding_box = {};
     var centroid = {};
     var i, count;
@@ -72,6 +72,7 @@
       data_color_0 = colors[0];
       data_color_1 = colors[1];
       data_color_2 = colors[2];
+      data_color_3 = colors[3];
     }
 
     var unindexed_positions = new Float32Array(num_coords);
@@ -125,28 +126,28 @@
         unindexed_colors[ic]      = data_color_0;
         unindexed_colors[ic + 1]  = data_color_1;
         unindexed_colors[ic + 2]  = data_color_2;
-        unindexed_colors[ic + 3]  = 1.0;
+        unindexed_colors[ic + 3]  = data_color_3;
         unindexed_colors[ic + 4]  = data_color_0;
         unindexed_colors[ic + 5]  = data_color_1;
         unindexed_colors[ic + 6]  = data_color_2;
-        unindexed_colors[ic + 7]  = 1.0;
+        unindexed_colors[ic + 7]  = data_color_3;
         unindexed_colors[ic + 8]  = data_color_0;
         unindexed_colors[ic + 9]  = data_color_1;
         unindexed_colors[ic + 10] = data_color_2;
-        unindexed_colors[ic + 11] = 1.0;
+        unindexed_colors[ic + 11] = data_color_3;
       } else {
         unindexed_colors[ic]      = colors[indices[i] * 4];
         unindexed_colors[ic + 1]  = colors[indices[i] * 4 + 1];
         unindexed_colors[ic + 2]  = colors[indices[i] * 4 + 2];
-        unindexed_colors[ic + 3]  = 1.0;
+        unindexed_colors[ic + 3]  = colors[indices[i] * 4 + 3];
         unindexed_colors[ic + 4]  = colors[indices[i+1] * 4];
         unindexed_colors[ic + 5]  = colors[indices[i+1] * 4 + 1];
         unindexed_colors[ic + 6]  = colors[indices[i+1] * 4 + 2];
-        unindexed_colors[ic + 7]  = 1.0;
+        unindexed_colors[ic + 7]  = colors[indices[i+1] * 4 + 3];
         unindexed_colors[ic + 8]  = colors[indices[i+2] * 4];
         unindexed_colors[ic + 9]  = colors[indices[i+2] * 4 + 1];
         unindexed_colors[ic + 10] = colors[indices[i+2] * 4 + 2];
-        unindexed_colors[ic + 11] = 1.0;
+        unindexed_colors[ic + 11] = colors[indices[i+2] * 4 + 3];
       }
 
       if (wireframe) {

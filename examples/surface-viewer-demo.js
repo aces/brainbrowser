@@ -433,7 +433,7 @@ $(function() {
 
     $("#brainbrowser").click(function(event) {
       if (!event.shiftKey) return;
-      if (!viewer.model.children.length === 0) return;
+      if (viewer.model.children.length === 0) return;
 
       var annotation_display = $("#annotation-display");
       var media = $("#annotation-media");

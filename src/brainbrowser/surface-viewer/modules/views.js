@@ -182,28 +182,6 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   };
 
   /**
-   * @doc function
-   * @name viewer.views:clearScreen
-   * @description
-   * Delete all shapes on the screen.
-   * ```js
-   * viewer.clearScreen();
-   * ```
-   */
-  viewer.clearScreen = function() {
-    var children = viewer.model.children;
-    
-    while (children.length > 0) {
-      viewer.model.remove(children[0]);
-    }
-
-    viewer.model_data.clear();
-        
-    viewer.resetView();
-    BrainBrowser.events.triggerEvent("clearscreen");
-  };
-
-  /**
   * @doc function
   * @name viewer.views:separateHalves
   * @param {number} increment Amount of space to put between halves.

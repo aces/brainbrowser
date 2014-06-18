@@ -28,6 +28,17 @@
 (function() {
   "use strict";
 
+  /**
+  * @doc function
+  * @name BrainBrowser.static methods:createTreeStore
+  * @returns {object} Tree store object.
+  * 
+  * @description
+  * Factory function to create a flexible tree storage abstract data type.
+  * ```js
+  * BrainBrowser.createTreeStore();
+  * ```
+  */
   BrainBrowser.createTreeStore = function() {
 
     var tree = {};
@@ -85,7 +96,7 @@
       * @name BrainBrowser.tree store:get
       * @param {multiple} keys Keys that indicate the path to the node of the tree from which to retrieve the value.
       *
-      * @returns The value stored at the node (or **null** if it doesn't exist).
+      * @returns {any} The value stored at the node (or **null** if it doesn't exist).
       *
       * @description
       * Retrieve a configuration parameter.
@@ -119,10 +130,10 @@
 
       /**
       * @doc function
-      * @name BrainBrowser.tree store:get
+      * @name BrainBrowser.tree store:remove
       * @param {multiple} keys Keys that indicate the  path to the node to remove.
       *
-      * @returns The value stored at the node (or **null** if it doesn't exist).
+      * @returns {any} The value stored at the node (or **null** if it doesn't exist).
       *
       * @description
       * Remove a node from the tree store.
@@ -182,6 +193,24 @@
         tree = new_tree;
       },
 
+      /**
+      * @doc function
+      * @name BrainBrowser.tree store:forEach
+      * @param {number} depth The depth at which to iterate.
+      * @param {function} callback Callback function to which
+      * the tree nodes will be passed.
+      *
+      * @description
+      * Iterate over tree nodes at a certain depth
+      * and pass them to a callback function.
+      * ```js
+      * var ts = BrainBrowser.createTreeStore();
+      * ts.reset({ x: { a: "z" , b: "y"} });
+      * ts.forEach(2, function(node) {  // => prints "z" and "y"
+      *  console.log(node);
+      * }); 
+      * ```
+      */
       forEach: function(depth, callback) {
         depth = depth > 0 ? depth : 1;
         

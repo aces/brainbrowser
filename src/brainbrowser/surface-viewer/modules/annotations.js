@@ -62,7 +62,10 @@ BrainBrowser.SurfaceViewer.modules.annotations = function(viewer) {
       var annotation, position;
 
       if (model_name) {
-        position = viewer.getVertex(vertex);
+        position = viewer.getVertex(vertex, {
+          model_name: options.model_name
+        });
+        
         annotation = viewer.drawDot(position.x, position.y, position.z, marker_radius, marker_off_color);
 
         annotation.annotation_info = {

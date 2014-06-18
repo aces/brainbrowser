@@ -255,8 +255,8 @@
 
       var viewer = {
         dom_element: dom_element,
-        model: null,                                      // The currently loaded model. Should be set by rendering.
-        model_data: BrainBrowser.SurfaceViewer.createModelData(),
+        model: null,                                      // Scene graph root. Created in rendering module.
+        model_data: null,                                 // Descriptions of all models. Created in loading module.
         mouse: BrainBrowser.utils.captureMouse(dom_element),
         touches: BrainBrowser.utils.captureTouch(dom_element),
         /**

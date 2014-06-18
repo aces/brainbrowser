@@ -31,10 +31,26 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   var SurfaceViewer = BrainBrowser.SurfaceViewer;
   var loader = BrainBrowser.loader;
 
+  var model_data = {};
+
   ////////////////////////////////////
   // Interface
   ////////////////////////////////////
   
+  viewer.model_data = {
+    get: function(name) {
+      name = name || Object.keys(model_data)[0];
+
+      return model_data[name] || null;
+    },
+
+    forEach: function(callback) {
+      Object.keys(model_data).forEach(function(name, i) {
+        callback(model_data[name], name, i)
+      });
+    }
+  };
+
   /**
   * @doc function
   * @name viewer.loading:loadModelFromURL
@@ -170,6 +186,28 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   */
   viewer.loadColorMapFromFile = function(file_input, options){
     loader.loadColorMapFromFile(file_input, loadColorMap, options);
+  };
+
+  /**
+  * @doc function
+  * @name viewer.loading:clearScreen
+  * @description
+  * Remove all loaded models on the screen.
+  * ```js
+  * viewer.clearScreen();
+  * ```
+  */
+  viewer.clearScreen = function() {
+    var children = viewer.model.children;
+    
+    while (children.length > 0) {
+      viewer.model.remove(children[0]);
+    }
+
+    clearModelData();
+        
+    viewer.resetView();
+    BrainBrowser.events.triggerEvent("clearscreen");
   };
   
   
@@ -342,7 +380,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var i, count;
 
 
-    viewer.model_data.add(model_name, model_data);
+    addModelData(model_name, model_data);
 
     if (shapes){
       for (i = 0, count = shapes.length; i < count; i++){
@@ -451,6 +489,14 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     object.wireframe_active = false;
 
     return wireframe;
+  }
+
+  function addModelData(name, data) {
+    model_data[name] = data;
+  }
+
+  function clearModelData() {
+    model_data = {};
   }
   
 };

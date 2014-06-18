@@ -67,6 +67,8 @@ $(function() {
   /////////////////////////////////////
   window.viewer = BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
 
+    var picked_object = null;
+
     // Add the three.js 3D anaglyph effect to the viewer.
     viewer.addEffect("AnaglyphEffect");
 
@@ -151,6 +153,7 @@ $(function() {
       $("#annotation-display").hide();
       $("#annotation-wrapper").hide();
       viewer.annotations.reset();
+      picked_object = null;
     });
 
     // When the intensity range changes, adjust the displayed spectrum.
@@ -449,7 +452,8 @@ $(function() {
         $("#pick-index").html(pick_info.index);
         $("#annotation-wrapper").show();
         
-        model_data = viewer.model_data.get(pick_info.object.model_name);
+        picked_object = pick_info.object;
+        model_data = viewer.model_data.get(picked_object.model_name);
 
         if (model_data.intensity_data) {
 
@@ -523,13 +527,17 @@ $(function() {
       var vertex;
 
       if (BrainBrowser.utils.isNumeric(vertex_num)) {
-        annotation = viewer.annotations.get(vertex_num);
+        annotation = viewer.annotations.get(vertex_num, {
+          model_name: picked_object.model_name
+        });
 
         if (annotation) {
           annotation_data = annotation.annotation_info.data;
         } else {
           annotation_data = {};
-          viewer.annotations.add(vertex_num, annotation_data);
+          viewer.annotations.add(vertex_num, annotation_data, {
+            model_name: picked_object.model_name
+          });
         }
 
         vertex = viewer.getVertex(vertex_num);

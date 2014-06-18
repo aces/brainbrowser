@@ -168,6 +168,9 @@ module.exports = function(grunt) {
         src: "brainbrowser-<%= BRAINBROWSER_VERSION %>/**"
       }
     },
+    qunit: {
+      all: ["test/*.html"]
+    },
     docular: {
       docular_webapp_target: "docs/docular",
       docular_partial_home: "docs/docular_brainbrowser_home.html",
@@ -203,10 +206,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-concat");
   grunt.loadNpmTasks("grunt-contrib-clean");
   grunt.loadNpmTasks("grunt-contrib-compress");
+  grunt.loadNpmTasks("grunt-contrib-qunit");
   grunt.loadNpmTasks("grunt-docular");
 
   grunt.registerTask("compile", ["clean", "concat", "uglify"]);
   grunt.registerTask("build", ["jshint", "compile", "compress"]);
+  grunt.registerTask("test", ["jshint", "qunit"]);
   grunt.registerTask("docs", ["docular", "clean:docs"]);
   grunt.registerTask("default", "jshint");
 };

@@ -84,7 +84,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     */
     forEach: function(callback) {
       Object.keys(model_data).forEach(function(name) {
-        callback(model_data[name], name)
+        callback(model_data[name], name);
       });
     }
   };

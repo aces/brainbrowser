@@ -202,7 +202,7 @@ BrainBrowser.SurfaceViewer.modules.annotations = function(viewer) {
       var active_annotation = this.get(vertex, {
         model_name: options.model_name,
         activate: false
-      })
+      });
 
       if (!active_annotation) {
         return;

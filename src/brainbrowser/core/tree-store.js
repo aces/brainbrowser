@@ -114,6 +114,9 @@
         var current_key;
         var i, count;
 
+        if (keys.length === 0) {
+          return tree;
+        }
 
         for (i = 0, count = keys.length - 1; i < count; i++) {
           current_key = keys[i];

@@ -38,15 +38,53 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   ////////////////////////////////////
   
   viewer.model_data = {
+    /**
+    * @doc function
+    * @name viewer.model_data:get
+    * @param {string} name (Optional) Identifier for the model description to
+    * retrieve.
+    *
+    * @returns {object} Object containing a model description.
+    *
+    * @description
+    * Retrieve the description of a loaded model. The model description will be
+    * an object containing the vertices, normals and other data extracted from 
+    * a given model file.
+    * ```js
+    * viewer.model_data.get("brain.obj");
+    * ```
+    * Note that **viewer.model\_data.get()** will return the first loaded model
+    * if no argument is given, and this can act as a convenient shorthand if only
+    * one model is loaded.
+    * ```js
+    * viewer.model_data.get();
+    * ```
+    */
     get: function(name) {
       name = name || Object.keys(model_data)[0];
 
       return model_data[name] || null;
     },
 
+    /**
+    * @doc function
+    * @name viewer.model_data:forEach
+    * @param {function} callback Callback function to which the
+    * model descriptions will be passed.
+    *
+    * @description
+    * Iterate over all model descriptions and pass them to the provided callback
+    * function. The function will receive the model description and the model name
+    * as arguments.
+    * ```js
+    * viewer.model_data.forEach(function(mode_data, model_name) {
+    *   console.log(model_name, model_data.vertices.length);
+    * });
+    * ```
+    */
     forEach: function(callback) {
-      Object.keys(model_data).forEach(function(name, i) {
-        callback(model_data[name], name, i)
+      Object.keys(model_data).forEach(function(name) {
+        callback(model_data[name], name)
       });
     }
   };

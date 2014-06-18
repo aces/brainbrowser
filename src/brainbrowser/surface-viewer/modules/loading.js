@@ -300,7 +300,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       }
       
       data.filename = name;
-      data.apply_to_shape = options.shape;
+      data.apply_to_shape = options.apply_to_shape;
       data.applied = false;
       model_data.intensity_data = data;
       viewer.blend_data[blend_index] = data;

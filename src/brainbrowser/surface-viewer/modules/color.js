@@ -58,9 +58,10 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
 
     function applyColorArray(color_array) {
       var shapes;
-      
-      if (data.apply_to_shape) {
-        shapes = [viewer.model.getObjectByName(data.apply_to_shape, true)];
+      var shape = viewer.model.getObjectByName(data.apply_to_shape, true);
+
+      if (shape) {
+        shapes = [shape];
       } else {
         shapes = viewer.model.children;
       }

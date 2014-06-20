@@ -39,6 +39,7 @@ module.exports = function(grunt) {
       surface: {
         src: [
           "src/brainbrowser/brainbrowser.js",
+          "src/brainbrowser/core/*.js",
           "src/brainbrowser/lib/*.js",
           "src/brainbrowser/surface-viewer.js",
           "src/brainbrowser/surface-viewer/**/*.js"
@@ -48,6 +49,7 @@ module.exports = function(grunt) {
       volume: {
         src: [
           "src/brainbrowser/brainbrowser.js",
+          "src/brainbrowser/core/*.js",
           "src/brainbrowser/lib/*.js",
           "src/brainbrowser/volume-viewer.js",
           "src/brainbrowser/volume-viewer/**/*.js"
@@ -79,6 +81,7 @@ module.exports = function(grunt) {
       workers: {
         files: {
           "<%= build_dir %>/workers/mniobj.worker.js": "src/brainbrowser/workers/mniobj.worker.js",
+          "<%= build_dir %>/workers/json.worker.js": "src/brainbrowser/workers/json.worker.js",
           "<%= build_dir %>/workers/wavefrontobj.worker.js": "src/brainbrowser/workers/wavefrontobj.worker.js",
           "<%= build_dir %>/workers/freesurferasc.worker.js": "src/brainbrowser/workers/freesurferasc.worker.js",
           "<%= build_dir %>/workers/mniobj.intensity.worker.js": "src/brainbrowser/workers/mniobj.intensity.worker.js",
@@ -210,7 +213,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-docular");
 
   grunt.registerTask("compile", ["clean", "concat", "uglify"]);
-  grunt.registerTask("build", ["jshint", "compile", "compress"]);
+  grunt.registerTask("build", ["test", "compile", "compress"]);
   grunt.registerTask("test", ["jshint", "qunit"]);
   grunt.registerTask("docs", ["docular", "clean:docs"]);
   grunt.registerTask("default", "jshint");

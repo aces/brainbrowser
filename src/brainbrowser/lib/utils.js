@@ -235,7 +235,7 @@
     captureMouse: function(element) {
       var mouse = { x: 0, y: 0, left: false, middle: false, right: false};
 
-      element.addEventListener("mousemove", function(event) {
+      document.addEventListener("mousemove", function(event) {
         var offset = BrainBrowser.utils.getOffset(element);
         var x, y;
 

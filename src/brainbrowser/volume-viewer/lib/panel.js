@@ -109,27 +109,27 @@
 
     /**
     * @doc function
-    * @name panel.panel:followCursor
-    * @param {object} cursor The cursor to follow.
+    * @name panel.panel:followPointer
+    * @param {object} pointer The pointer to follow.
     * @description
-    * Will translate the image by the same amount that the cursor has moved since
+    * Will translate the image by the same amount that the pointer has moved since
     * this method was last called.
     * ```js
-    * panel.followCursor({
+    * panel.followPointer({
     *   x: 100,
     *   y: 125
     * });
     * ```
     */
-    followCursor: function(cursor) {
-      var dx = cursor.x - this.last_cursor.x;
-      var dy = cursor.y - this.last_cursor.y;
+    followPointer: function(pointer) {
+      var dx = pointer.x - this.last_position.x;
+      var dy = pointer.y - this.last_position.y;
       this.image_center.x += dx;
       this.image_center.y += dy;
       this.cursor.x += dx;
       this.cursor.y += dy;
-      this.last_cursor.x = cursor.x;
-      this.last_cursor.y = cursor.y;
+      this.last_position.x = pointer.x;
+      this.last_position.y = pointer.y;
     },
 
     /**
@@ -309,7 +309,7 @@
         x: 0,
         y: 0
       },
-      last_cursor: {
+      last_position: {
         x: 0,
         y: 0
       },

@@ -485,7 +485,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
         function startDrag(pointer, shift_key, ctrl_key) {
           current_target = event.target;
-          var cursor = {
+          var position = {
             x: pointer.x,
             y: pointer.y
           };
@@ -504,28 +504,26 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
           }
 
           if (shift_key) {
-            panel.last_cursor.x = cursor.x;
-            panel.last_cursor.y = cursor.y;
+            panel.last_position.x = position.x;
+            panel.last_position.y = position.y;
             if (viewer.synced){
               viewer.volumes.forEach(function(volume, synced_vol_id) {
                 if (synced_vol_id !== vol_id) {
                   var panel = volume.display[axis_num];
-                  panel.last_cursor.x = cursor.x;
-                  panel.last_cursor.y = cursor.y;
+                  panel.last_position.x = position.x;
+                  panel.last_position.y = position.y;
                 }
               });
             }
           } else {
-            viewer.setCursor(vol_id, axis_name, cursor);
+            viewer.setCursor(vol_id, axis_name, position);
             if (viewer.synced){
               viewer.volumes.forEach(function(volume, synced_vol_id) {
                 if (synced_vol_id !== vol_id) {
-                  viewer.setCursor(synced_vol_id, axis_name, cursor);
+                  viewer.setCursor(synced_vol_id, axis_name, position);
                 }
               });
             }
-            panel.cursor.x = cursor.x;
-            panel.cursor.y = cursor.y;
           }
           viewer.active_canvas = event.target;
         }
@@ -538,11 +536,11 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
                   
           
           if(shift_key) {
-            panel.followCursor(cursor);
+            panel.followPointer(cursor);
             if (viewer.synced){
               viewer.volumes.forEach(function(volume, synced_vol_id) {
                 if (synced_vol_id !== vol_id) {
-                  volume.display[axis_num].followCursor(cursor);
+                  volume.display[axis_num].followPointer(cursor);
                 }
               });
             }
@@ -555,8 +553,6 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
                 }
               });
             }
-            panel.cursor.x = cursor.x;
-            panel.cursor.y = cursor.y;
           }
         }
 

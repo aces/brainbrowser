@@ -110,7 +110,7 @@
     /**
     * @doc function
     * @name panel.panel:followPointer
-    * @param {object} pointer The cursor to follow.
+    * @param {object} pointer The pointer to follow.
     * @description
     * Will translate the image by the same amount that the pointer has moved since
     * this method was last called.

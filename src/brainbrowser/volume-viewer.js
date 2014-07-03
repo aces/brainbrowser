@@ -563,6 +563,10 @@
           },
           // CTRL
           17: function() {
+            if (panel.anchor) {
+              return;
+            }
+
             if (panel.mouse.left || panel.mouse.middle || panel.mouse.right) {
               panel.anchor = {
                 x: panel.mouse.x,

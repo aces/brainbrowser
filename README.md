@@ -9,17 +9,17 @@ Demonstrations of available functionality can be found at the [BrainBrowser webs
 Getting Started
 ---------------
 
-To try out some BrainBrowser sample applications, simply clone this git repo, navigate to the **examples** directory, unzip the color maps and models, and launch the simple [node](http://nodejs.org/) example server:
+To try out some BrainBrowser sample applications, simply clone this git repo, and make the **examples** directory available over HTTP. This can be done using [nano-server](https://www.npmjs.org/package/nano-server):
 
 ```Shell
   $ git clone https://github.com/aces/brainbrowser.git
-  $ cd brainbrowser/examples
-  $ gunzip color-maps/*.gz models/*.gz
-  $ git checkout .
-  $ node server.js
+  $ npm install -g nano-server
+  $ nano-server 5000 brainbrowser/examples
 ```
 
-Once the server is running, navigate to localhost:5000 in your browser and select either of the **Surface Viewer** or **Volume Viewer** sample applications.
+Note that [nano-server](https://www.npmjs.org/package/nano-server) is recommended because it can send **gzip** compressed versions of requested files. If a server without this functionality is used, files in **brainbrowser/examples/models/** and **brainbrowser/examples/color-maps/** will have to be **gunzipped**.
+
+Once the server is running, navigate to to appropriate address (localhost:5000 in the above example) in your browser and select either of the **Surface Viewer** or **Volume Viewer** sample applications.
 
 Surface Viewer
 --------------

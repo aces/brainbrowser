@@ -49,6 +49,9 @@ http.createServer(function (req, res) {
     }
   });
 }).listen(port, function() {
+  console.error("-- DEPRECATION WARNING: Please note that use of this BrainBrowser example server is deprecated.");
+  console.error("-- DEPRECATION WARNING: It will be removed in an upcoming update.");
+  console.error("-- DEPRECATION WARNING: We recommend using nano-server instead: https://www.npmjs.org/package/nano-server");
   console.log("BrainBrowser example server started on port " + port + ".");
   console.log("Navigate to http://localhost:" + port + "/surface-viewer-demo.html to view the Surface Viewer demo.");
   console.log("Navigate to http://localhost:" + port + "/volume-viewer-demo.html to view the Volume Viewer demo.");

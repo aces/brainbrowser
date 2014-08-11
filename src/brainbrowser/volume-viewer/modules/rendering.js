@@ -55,6 +55,7 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
 
         color_map = volume.color_map || viewer.default_color_map;
         panel.drawSlice();
+        BrainBrowser.events.triggerEvent("draw", volume, panel);
         panel.drawCursor(color_map.cursor_color);
 
         if (canvas === viewer.active_canvas) {
@@ -69,8 +70,6 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
           );
           context.restore();
         }
-
-        BrainBrowser.events.triggerEvent("draw", volume, panel);
       });
     });
   };

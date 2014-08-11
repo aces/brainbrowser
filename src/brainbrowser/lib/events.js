@@ -74,9 +74,7 @@
       var args = Array.prototype.slice.call(arguments, 1);
       if (event_listeners[event]) {
         event_listeners[event].forEach(function(callback) {
-          setTimeout(function() {
-            callback.apply(null, args);
-          }, 0);
+          callback.apply(null, args);
         });
       }
     }

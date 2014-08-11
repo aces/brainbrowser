@@ -290,6 +290,7 @@
     * * **rendering** Viewer has started rendering.
     * * **volumeuiloaded** A new volume UI has been created by the viewer.
     * * **sliceupdate** A new slice has been rendered to the viewer.
+    * * **draw** A panel is being re-drawn.
     * * **error** An error has occured.
     *
     * To listen for an event, simply use the viewer's **addEventListener()** method with
@@ -362,6 +363,20 @@
     *
     * ```js
     *    BrainBrowser.events.addEventListener("sliceupdate", function() {
+    *      //...
+    *    });
+    * ```
+    */
+    /**
+    * @doc object
+    * @name VolumeViewer.events:draw
+    *
+    * @description
+    * Triggered when a panel currently being displayed is re-drawn.
+    * The event handler receives two arguments: the volume and the panel.
+    *
+    * ```js
+    *    BrainBrowser.events.addEventListener("draw", function(volume, panel) {
     *      //...
     *    });
     * ```

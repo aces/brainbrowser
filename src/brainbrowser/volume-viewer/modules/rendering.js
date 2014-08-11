@@ -69,6 +69,8 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
           );
           context.restore();
         }
+
+        BrainBrowser.events.triggerEvent("draw", volume, panel);
       });
     });
   };
@@ -89,7 +91,7 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
 
     (function render() {
       window.requestAnimationFrame(render);
-  
+
       viewer.draw();
     })();
   };

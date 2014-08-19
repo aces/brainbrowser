@@ -30,6 +30,7 @@
 
 var fs = require("fs");
 var exec =  require("child_process").exec;
+var spawn = require("child_process").spawn;
 var version = "0.1"
 
 var filename = process.argv[2];
@@ -63,10 +64,10 @@ fs.exists(filename, function(exists) {
     });
 
     console.log("Creating raw data file.")
-    getRawData(filename, function(data) {
-      console.log("Writing raw data file: ", basename + ".raw");
-      fs.writeFile(basename + ".raw", data, { encoding: "binary" });
-    });  
+    console.log("Writing raw data file: ", basename + ".raw");
+    var rawDataStream = getRawDataStream(filename);
+    var rawFileStream = fs.createWriteStream(basename + ".raw", { encoding: "binary" });
+    rawDataStream.pipe(rawFileStream);
   })
 
 });
@@ -82,11 +83,16 @@ function printUsage() {
   console.log("\nUsage: node minc2volume-viewer.js <filename>\n");
 }
 
-function getRawData(filename, callback) {
-  exec("minctoraw -byte -unsigned -normalize " + filename, { encoding: "binary", maxBuffer: 524288000 }, function(error, stdout) {
-    checkExecutionError(error);
-    callback(stdout);
+function getRawDataStream(filename) {
+  var minctoraw = spawn("minctoraw", ["-byte", "-unsigned", "-normalize", filename]);
+  minctoraw.on("exit", function (code, signal) {
+    if (code === null || code !== 0) {
+      checkExecutionError(new Error('Process minctoraw failed with error code ' + code))
+    }
   });
+  minctoraw.on("error", checkExecutionError);
+  minctoraw.stdout.setEncoding("binary");
+  return minctoraw.stdout;
 }
 
 function getHeader(filename, callback) {

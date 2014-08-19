@@ -1,5 +1,4 @@
-#!/usr/local/bin/node
-
+#!/usr/bin/env node
 /*
 * BrainBrowser: Web-based Neurological Visualization Tools
 * (https://brainbrowser.cbrain.mcgill.ca)
@@ -31,7 +30,7 @@
 var fs = require("fs");
 var exec =  require("child_process").exec;
 var spawn = require("child_process").spawn;
-var version = "0.1"
+var version = "0.2";
 
 var filename = process.argv[2];
 
@@ -54,21 +53,20 @@ fs.exists(filename, function(exists) {
     }
 
     var basename = filename.match(/[^\/]+$/)[0];
+    var rawDataStream, rawFileStream;
 
     console.log("Processing file:", filename);
 
-    console.log("Creating header file.")
+    console.log("Creating header file: ", basename + ".header");
     getHeader(filename, function(header) {
-      console.log("Writing header file: ", basename + ".header");
       fs.writeFile(basename + ".header", JSON.stringify(header));
     });
 
-    console.log("Creating raw data file.")
-    console.log("Writing raw data file: ", basename + ".raw");
-    var rawDataStream = getRawDataStream(filename);
-    var rawFileStream = fs.createWriteStream(basename + ".raw", { encoding: "binary" });
+    console.log("Creating raw data file: ", basename + ".raw");
+    rawDataStream = getRawDataStream(filename);
+    rawFileStream = fs.createWriteStream(basename + ".raw", { encoding: "binary" });
     rawDataStream.pipe(rawFileStream);
-  })
+  });
 
 });
 
@@ -85,9 +83,9 @@ function printUsage() {
 
 function getRawDataStream(filename) {
   var minctoraw = spawn("minctoraw", ["-byte", "-unsigned", "-normalize", filename]);
-  minctoraw.on("exit", function (code, signal) {
+  minctoraw.on("exit", function (code) {
     if (code === null || code !== 0) {
-      checkExecutionError(new Error('Process minctoraw failed with error code ' + code))
+      checkExecutionError(new Error('Process minctoraw failed with error code ' + code));
     }
   });
   minctoraw.on("error", checkExecutionError);
@@ -138,7 +136,7 @@ function getHeader(filename, callback) {
       
       if (order.length === 4) {
         exec("mincinfo -attval time:start " + filename, function(error, time_start) {
-        checkExecutionError(error);
+          checkExecutionError(error);
 
           exec("mincinfo -dimlength time " + filename, function(error, time_length) {
             checkExecutionError(error);

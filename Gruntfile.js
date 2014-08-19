@@ -155,6 +155,14 @@ module.exports = function(grunt) {
         src: [
           "examples/server.js"
         ]
+      },
+      scripts: {
+        options: {
+          node: true
+        },
+        src: [
+          "scripts/minc2volume-viewer.js"
+        ]
       }
     },
     clean: {

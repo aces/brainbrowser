@@ -148,14 +148,6 @@ module.exports = function(grunt) {
           "examples/volume-viewer-demo.config.js"
         ]
       },
-      server: {
-        options: {
-          node: true
-        },
-        src: [
-          "examples/server.js"
-        ]
-      },
       scripts: {
         options: {
           node: true

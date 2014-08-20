@@ -101,7 +101,6 @@
       time = time === undefined ? this.current_time : time;
 
       var overlay_volume = this;
-      var data = this.volumes[0].data;
       var values = [];
 
       overlay_volume.volumes.forEach(function(volume) {
@@ -123,8 +122,8 @@
           slice_y = z;
         }
 
-        values.push(data[(slice.height_space.space_length - slice_y - 1) * slice.width + slice_x])
-      })
+        values.push(data[(slice.height_space.space_length - slice_y - 1) * slice.width + slice_x]);
+      });
 
       return values.reduce(function(intensity, current_value, i) {
         return intensity + current_value * overlay_volume.blend_ratios[i];

@@ -147,14 +147,13 @@
         var destination = options.destination || [];
 
         var i, count;
-        var value;
         var scale = scale255 ? 255 : 1;
         var colors = [];
 
         alpha *= scale;
           
         //for each value, assign a color
-        for (i = 0, count = values.length; i < count; i++) {          
+        for (i = 0, count = values.length; i < count; i++) {
           colors = color_map.colorFromValue(values[i], {
             min: min,
             max: max
@@ -211,7 +210,7 @@
           color_index = 0;
         } else if (value > max){
           color_index = color_map.colors.length - 1;
-        }else {
+        } else {
           color_index = Math.floor((value - min) / increment);
         }
 

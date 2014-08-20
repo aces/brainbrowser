@@ -160,3 +160,7 @@ canvas.slice-display {
 #volume-file-hint a {
   color: orange;
 }
+
+.intensity-value {
+  padding: 1px;
+}

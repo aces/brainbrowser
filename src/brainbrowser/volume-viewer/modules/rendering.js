@@ -127,7 +127,7 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
 
     if (cursor) {
       x = Math.floor((cursor.x - image_origin.x) / zoom / Math.abs(slice.width_space.step));
-      y = Math.floor(slice.height_space.space_length - (cursor.y - image_origin.y) / zoom  / Math.abs(slice.height_space.step));
+      y = Math.floor(slice.height_space.space_length - (cursor.y - image_origin.y) / zoom  / Math.abs(slice.height_space.step) - 1);
     } else {
       x = null;
       y = null;

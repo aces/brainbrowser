@@ -112,8 +112,8 @@
       * @param {object} options Options for the color mapping.
       * Options include the following:
       *
-      * * **min** {number} Minimum color value.
-      * * **max** {number} Maximum color value.
+      * * **min** {number} Minimum intensity value.
+      * * **max** {number} Maximum intensity value.
       * * **scale255** {boolean} Should the color values be scaled to a 0-255 range?
       * * **contrast** {number} Color contrast.
       * * **brightness** {number} Color brightness.
@@ -145,15 +145,8 @@
         var contrast = options.contrast === undefined ? 1 : options.contrast;
         var alpha = options.alpha === undefined ? 1 : options.alpha;
         var destination = options.destination || [];
-        
-        var color_map_colors = color_map.colors;
-        var color_map_length = color_map_colors.length;
-        var range = max - min;
-        
-        // Calculate a slice of the data per color
-        var increment = ( range + range / color_map_length ) / color_map_length;
+
         var i, count;
-        var color_index;
         var value;
         var scale = scale255 ? 255 : 1;
         var colors = [];
@@ -161,17 +154,11 @@
         alpha *= scale;
           
         //for each value, assign a color
-        for (i = 0, count = values.length; i < count; i++) {
-          value = values[i];
-          if (value <= min) {
-            color_index = 0;
-          } else if (values[i] > max){
-            color_index = color_map_length - 1;
-          }else {
-            color_index = Math.floor((value - min) / increment);
-          }
-          
-          colors = color_map_colors[color_index] || [0, 0, 0];
+        for (i = 0, count = values.length; i < count; i++) {          
+          colors = color_map.colorFromValue(values[i], {
+            min: min,
+            max: max
+          });
 
           destination[i*4+0] = scale * (colors[0] * contrast + brightness);
           destination[i*4+1] = scale * (colors[1] * contrast + brightness);
@@ -180,6 +167,75 @@
         }
 
         return destination;
+      },
+
+      /**
+      * @doc function
+      * @name color_map.color_map:colorFromValue
+      * @param {number} value Value to convert.
+      * @param {object} options Options for the color mapping.
+      * Options include the following:
+      *
+      * * **format** {string} Can be **float** for 0-1 range rgb array, 
+      *   **255** for 0-255 range rgb array, or "hex" for a hex string.
+      * * **min** {number} Minimum intensity value.
+      * * **max** {number} Maximum intensity value.
+      * 
+      * @returns {array|string} Color parsed from the value given.
+      *
+      * @description
+      * Convert an intensity value to a color.
+      * ```js
+      * color_map.colorFromValue(value, {
+      *   format: "float",
+      *   min: 0,
+      *   max: 7.0
+      * });
+      * ```
+      */
+      colorFromValue: function(value, options) {
+        options = options || {};
+        var format = options.format || "float";
+        var min = options.min === undefined ? 0 : options.min;
+        var max = options.max === undefined ? 255 : options.max;
+
+        var color_map_colors = color_map.colors;
+        var color_map_length = color_map_colors.length;
+        var range = max - min;
+        
+        // Calculate a slice of the data per color
+        var increment = ( range + range / color_map_length ) / color_map_length;
+        var color, color_index;
+
+        if (value <= min) {
+          color_index = 0;
+        } else if (value > max){
+          color_index = color_map.colors.length - 1;
+        }else {
+          color_index = Math.floor((value - min) / increment);
+        }
+
+        if (color_map_colors[color_index]) {
+          color = Array.prototype.slice.call(color_map_colors[color_index]);
+        } else {
+          color = [0, 0, 0];
+        }
+
+        if (format !== "float") {
+          color[0] = Math.floor(color[0] * 255);
+          color[1] = Math.floor(color[1] * 255);
+          color[2] = Math.floor(color[2] * 255);
+          color[3] = Math.floor(color[3] * 255);
+
+          if (format === "hex") {
+            color[0] = ("0" + color[0].toString(16)).slice(-2);
+            color[1] = ("0" + color[1].toString(16)).slice(-2);
+            color[2] = ("0" + color[2].toString(16)).slice(-2);
+            color = color.slice(0, 3).join("");
+          }
+        }
+
+        return color;
       }
     };
 

@@ -103,8 +103,8 @@
       var slice = this.slice;
       var origin = this.getImageOrigin();
 
-      this.cursor.x = (volume.position[slice.width_space.name] * Math.abs(slice.width_space.step) * this.zoom) + origin.x;
-      this.cursor.y = (slice.height_space.space_length - volume.position[slice.height_space.name]) * Math.abs(slice.height_space.step) * this.zoom  + origin.y;
+      this.cursor.x = volume.position[slice.width_space.name] * Math.abs(slice.width_space.step) * this.zoom + origin.x;
+      this.cursor.y = (slice.height_space.space_length - volume.position[slice.height_space.name] - 1) * Math.abs(slice.height_space.step) * this.zoom  + origin.y;
     },
 
     /**
@@ -210,8 +210,8 @@
       context.fillStyle = color;
 
       space = zoom;
-      x = this.cursor.x - space;
-      y = this.cursor.y - space;
+      x = this.cursor.x;
+      y = this.cursor.y;
 
       context.lineWidth = space * 2;
       context.beginPath();

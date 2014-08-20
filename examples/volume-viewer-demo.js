@@ -525,17 +525,15 @@ $(function() {
       $("#voxel-y-" + vol_id).val(parseInt(voxel_coords.y, 10));
       $("#voxel-z-" + vol_id).val(parseInt(voxel_coords.z, 10));
 
-      if (volume.getIntensityValue) {
-        value = volume.getIntensityValue();
-        $("#intensity-value-" + vol_id)
-        .css("background-color", "#" + volume.color_map.colorFromValue(value, {
-          format: "hex",
-          min: volume.min,
-          max: volume.max
-        }))
-        .html(value);
-      }
-
+      value = volume.getIntensityValue();
+      $("#intensity-value-" + vol_id)
+      .css("background-color", "#" + volume.color_map.colorFromValue(value, {
+        format: "hex",
+        min: volume.min,
+        max: volume.max
+      }))
+      .html(Math.floor(value));
+      
       if (volume.data && volume.data.time) {
         $("#time-slider-" + vol_id).slider("option", "value", volume.current_time);
         $("#time-val-" + vol_id).val(volume.current_time);

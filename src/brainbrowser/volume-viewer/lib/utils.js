@@ -70,15 +70,15 @@
       var width = original.width;
       var height = original.height;
       var context = document.createElement("canvas").getContext("2d");
-      var numElem   = 4;
+      var block_size = 4;
+
+      if (new_width < 0 && new_height > 0) {
+        data = flipImage(data, width, height, true, false, block_size);
+      }
 
       //Do nothing if height is the same
       if(width === new_width && height === new_height) {
         return original;
-      }
-      
-      if (new_width < 0 && new_height > 0) {
-        data = flipImage(data, width, height, true, false, numElem);
       }
       
       new_width = Math.abs(new_width);
@@ -92,8 +92,8 @@
         for (var j = 0; j < new_width; j++)  {
           var px = Math.floor(j * x_ratio);
           var py = Math.floor(i * y_ratio);
-          for (var k = 0; k < numElem; k++) {
-            imageData[Math.floor(i * new_width + j) * numElem + k] = data[Math.floor( py * width + px) * numElem + k];
+          for (var k = 0; k < block_size; k++) {
+            imageData[Math.floor(i * new_width + j) * block_size + k] = data[Math.floor( py * width + px) * block_size + k];
           }
         }
       }

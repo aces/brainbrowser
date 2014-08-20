@@ -48,7 +48,7 @@
 
         var context = document.createElement("canvas").getContext("2d");
         var color_map = slice.color_map;
-        var imageData = context.createImageData(slice.width, slice.height);
+        var image_data = context.createImageData(slice.width, slice.height);
         color_map.mapColors(slice.data, {
           min: slice.min,
           max: slice.max,
@@ -56,15 +56,42 @@
           brightness: 0,
           contrast: 1,
           alpha: slice.alpha,
-          destination: imageData.data
+          destination: image_data.data
         });
 
         var xstep = slice.width_space.step;
         var ystep = slice.height_space.step;
-        return VolumeViewer.utils.nearestNeighbor(imageData, Math.floor(slice.width * xstep * zoom), Math.floor(slice.height * ystep * zoom));
+        return VolumeViewer.utils.nearestNeighbor(image_data, Math.floor(slice.width * xstep * zoom), Math.floor(slice.height * ystep * zoom));
       };
       
       return slice;
+    },
+
+    getIntensityValue: function(x, y, z, time) {
+      x = x === undefined ? this.position.xspace : x;
+      y = y === undefined ? this.position.yspace : y;
+      z = z === undefined ? this.position.zspace : z;
+      time = time === undefined ? this.current_time : time;
+
+      if (x < 0 || x > this.data.xspace.space_length ||
+        y < 0 || y > this.data.yspace.space_length ||
+        z < 0 || z > this.data.zspace.space_length) {
+        return 0;
+      }
+
+      var slice = this.data.slice("zspace", z, time);
+      var data = slice.data;
+      var slice_x, slice_y;
+
+      if (slice.width_space.name === "xspace") {
+        slice_x = x;
+        slice_y = y;
+      } else {
+        slice_x = y;
+        slice_y = z;
+      }
+
+      return data[(slice.height_space.space_length - slice_y - 1) * slice.width + slice_x];
     },
     
     getVoxelCoords: function() {

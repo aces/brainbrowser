@@ -147,8 +147,10 @@ $(function() {
       $("#pick-y").html("");
       $("#pick-z").html("");
       $("#pick-index").html("");
-      $("#pick-value").html("");
+      $("#pick-value").val("");
+      $("#pick-color").css("background-color", "transparent");
       $("#pick-label").html("");
+      $("#intensity-data-export").hide();
       $("#annotation-media").html("");
       $("#annotation-display").hide();
       $("#annotation-wrapper").hide();
@@ -157,7 +159,7 @@ $(function() {
     });
 
     // When the intensity range changes, adjust the displayed spectrum.
-    BrainBrowser.events.addEventListener("rangechange", function(intensity_data) {
+    BrainBrowser.events.addEventListener("changeintensityrange", function(intensity_data) {
       var canvas = viewer.color_map.createCanvasWithScale(intensity_data.range_min, intensity_data.range_max);
       canvas.id = "spectrum-canvas";
       $("#color-bar").html(canvas);
@@ -272,7 +274,7 @@ $(function() {
           viewer.setIntensityRange(min, max);
         });
 
-        BrainBrowser.events.triggerEvent("rangechange", intensity_data);
+        BrainBrowser.events.triggerEvent("changeintensityrange", intensity_data);
       });
 
     }); // end loadintensitydata listener
@@ -296,6 +298,28 @@ $(function() {
           blend_text.html(value);
         }
       }).appendTo(div);
+    });
+
+    BrainBrowser.events.addEventListener("updatecolors", function() {
+      var value = parseFloat($("#pick-value").val());
+      var model_data;
+
+      if (BrainBrowser.utils.isNumeric(value)) {
+        model_data = viewer.model_data.get(picked_object.model_name);
+        $("#pick-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
+          format: "hex",
+          min: model_data.intensity_data.range_min,
+          max: model_data.intensity_data.range_max
+        }));
+      }
+    });
+
+    BrainBrowser.events.addEventListener("updateintensitydata", function(data) {
+      var link = $("#intensity-data-export-link");
+
+      link.attr("href", BrainBrowser.utils.createDataURL(data.values.join("\n")));
+      $("#intensity-data-export-link").attr("download", "intensity-values.txt");
+      $("#intensity-data-export").show();
     });
 
     ////////////////////////////////////
@@ -356,7 +380,7 @@ $(function() {
     });
     
     // Grab a screenshot of the canvas.
-    $("#openImage").click(function() {
+    $("#screenshot").click(function() {
       var dom_element = viewer.dom_element;
       var canvas = document.createElement("canvas");
       var spectrum_canvas = document.getElementById("spectrum-canvas");
@@ -458,7 +482,12 @@ $(function() {
         if (model_data.intensity_data) {
 
           value = model_data.intensity_data.values[pick_info.index];
-          $("#pick-value").html(value);
+          $("#pick-value").val(value.toString().slice(0, 7));
+          $("#pick-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
+            format: "hex",
+            min: model_data.intensity_data.range_min,
+            max: model_data.intensity_data.range_max
+          }));
           label = atlas_labels[value];
           if (label) {
             text = label + '<BR><a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/?term=' +
@@ -516,6 +545,15 @@ $(function() {
         $("#annotation-wrapper").hide();
       }
   
+    });
+
+    $("#pick-value").change(function() {
+      var index = parseInt($("#pick-index").html(), 10);
+      var value = parseFloat(this.value);
+
+      if (BrainBrowser.utils.isNumeric(index) && BrainBrowser.utils.isNumeric(value)) {
+        viewer.setIntensity(index, value);
+      }
     });
 
     $("#annotation-save").click(function() {

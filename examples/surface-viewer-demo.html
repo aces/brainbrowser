@@ -44,7 +44,13 @@
           <div>Y: <span id="pick-y" class="pick-data"></span></div>
           <div>Z: <span id="pick-z" class="pick-data"></span></div>
           <div>Vertex number: <span id="pick-index" class="pick-data"></span></div>
-          <div id="pick-value-wrapper" style="display:none">Value: <span id="pick-value" class="pick-data"></span></div>
+          <div id="pick-value-wrapper" style="display:none">
+            Value: <input id="pick-value" class="pick-data" size="5">
+            <span id="pick-color" class="pick-data"></span>
+            <div id="intensity-data-export" style="display:none">
+              <a id="intensity-data-export-link" target="_blank">Export new intensity values</a>
+            </div>
+          </div>
           <div id="pick-label-wrapper" style="display:none">Region: <span id="pick-label" class="pick-data"></span></div>
           <div id="annotation-wrapper" style="display:none">
             <h4>
@@ -192,7 +198,7 @@
               </p>
               <p>
                 <input type="checkbox" class="button" id="threedee"><label for="threedee">3D Glasses!</label>
-                <span id="openImage" class="button">Screenshot</span>
+                <span id="screenshot" class="button">Screenshot</span>
               </p>
             </div>
             <div id="shape-cell" class="box half_box">

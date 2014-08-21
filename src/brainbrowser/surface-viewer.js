@@ -233,8 +233,9 @@
       * 
       * * **displaymodel** A new model has been displayed on the viewer.
       * * **loadintensitydata** New intensity data has been loaded.
+      * * **updateintensitydata** The intensity data has been updated.
+      * * **changeintensityrange** The color range has been modified.
       * * **loadcolormap** A new color map has been loaded.
-      * * **rangechange** The color range has been modified.
       * * **blendcolormaps** Two color maps have been loaded and blended.
       * * **clearscreen** The viewer has been cleared of objects.
       * * **error** An error has occured.
@@ -400,14 +401,14 @@
       */
       /**
       * @doc object
-      * @name SurfaceViewer.events:rangechange
+      * @name SurfaceViewer.events:changeintensityrange
       *
       * @description
       * Triggered when the intensity range changes. The modified intensity data
       * object will be passed to the event handler:
       *
       * ```js
-      *    BrainBrowser.events.addEventListener("rangechange", function(intensity_data) {
+      *    BrainBrowser.events.addEventListener("changeintensityrange", function(intensity_data) {
       *      //...
       *    });
       * ```
@@ -525,7 +526,7 @@
         var url = worker_dir + "/" + workers[name];
 
         var request = new XMLHttpRequest();
-        var status, blob;
+        var status;
 
         request.open("GET", url);
         request.onreadystatechange = function() {
@@ -534,8 +535,7 @@
 
             // Based on jQuery's "success" codes.
             if(status >= 200 && status < 300 || status === 304) {
-              blob = new Blob([request.response], {type : "application/javascript"});
-              SurfaceViewer.worker_urls[name] = window.URL.createObjectURL(blob);
+              SurfaceViewer.worker_urls[name] = BrainBrowser.utils.createDataURL(request.response, "application/javascript");
             } else {
               SurfaceViewer.worker_urls[name] = url;
             }

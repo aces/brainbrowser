@@ -70,7 +70,6 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
 
       BrainBrowser.events.triggerEvent("updatecolors", color_array);
 
-
       if (complete) {
         complete();
       }
@@ -92,11 +91,46 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
 
   /** 
   * @doc function
+  * @name viewer.color:setIntensity
+  * @param {number} index Index at which to change the intensity value.
+  * @param {number} value New intensity value.
+  * @param {object} options Options for the range change, which include the following: 
+  * 
+  * * **model_name** The name of the model whose intensity data should be updated.
+  * * **complete** Callback function to call when the color update is done.
+  * @description
+  * Update the intensity value at the given index..
+  * ```js
+  * viewer.setIntensity(12124, 3.0);
+  * ```
+  * If more than one model file has been loaded, indicate the model data
+  * the intensity data is associated with using the **model_name** option:
+  * ```js
+  * viewer.setIntensity(12124, 3.0, { model_name: "brain.obj" });
+  * ```
+  */
+  viewer.setIntensity = function(index, value, options) {
+    options = options || {};
+    var data = viewer.model_data.get(options.model_name).intensity_data;
+    
+    if (data && index >= 0 && index < data.values.length) {
+      data.values[index] = value;
+
+      BrainBrowser.events.triggerEvent("updateintensitydata", data);
+      viewer.updateColors(data, {
+        complete: options.complete
+      });
+    }
+  };
+
+  /** 
+  * @doc function
   * @name viewer.color:setIntensityRange
   * @param {number} min Minimum value of the range.
   * @param {number} max Maximum value of the range.
   * @param {object} options Options for the range change, which include the following: 
   * 
+  * * **model_name** The name of the model whose intensity data should be updated.
   * * **complete** Callback function to call when the color update is done.
   * @description
   * Update the range of colors being applied to the current model.
@@ -120,7 +154,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
       complete: options.complete
     });
 
-    BrainBrowser.events.triggerEvent("rangechange", data);
+    BrainBrowser.events.triggerEvent("changeintensityrange", data);
   };
 
   /**
@@ -189,7 +223,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
         } else {
           use_model_color = true;
         }
-      }else if (value > max){
+      } else if (value > max){
         if (clamped){
           color_map_index = color_map_length - 1;
         } else {

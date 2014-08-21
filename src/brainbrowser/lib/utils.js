@@ -138,6 +138,23 @@
       return !isNaN(parseFloat(n));
     },
 
+    /** 
+    * @doc function
+    * @name viewer.color:createDataURL
+    * @param {any} data The data to create a URL for.
+    * @param {string} mime_type MIME type to give the data (default: text/plain).
+    *
+    * @description
+    * Create a data URL for arbitrary data.
+    */
+    createDataURL: function(data, mime_type) {
+      if (!window.URL || !window.URL.createObjectURL) {
+        throw new Error("createDataURL requires URL.createObjectURL which does not seem to be available is this browser.");
+      }
+
+      return window.URL.createObjectURL(new Blob([data], {type : mime_type || "text/plain"}));
+    },
+
     /**
     * @doc function
     * @name BrainBrowser.utils:min

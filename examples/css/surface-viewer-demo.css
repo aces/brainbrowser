@@ -252,6 +252,16 @@ div#format_hints {
   font-weight: normal;
 }
 
+#pick-color {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+}
+
+#intensity-data-export {
+  margin-bottom: 12px;
+}
+
 #atlas-label {
   position: absolute;
   left: 15px;

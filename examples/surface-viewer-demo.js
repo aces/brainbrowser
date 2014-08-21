@@ -174,6 +174,7 @@ $(function() {
       var controls = "";
       var i, count;
       var data_set = Array.isArray(intensity_data) ? intensity_data : [intensity_data];
+      var model_data = viewer.model_data.get();
 
       container.html("");
       for(i = 0, count = data_set.length; i < count; i++) {
@@ -277,6 +278,13 @@ $(function() {
         BrainBrowser.events.triggerEvent("changeintensityrange", intensity_data);
       });
 
+      $("#paint-value").val(model_data.intensity_data.values[0]);
+      $("#paint-color").css("background-color", "#" + viewer.color_map.colorFromValue(model_data.intensity_data.values[0], {
+        format: "hex",
+        min: model_data.intensity_data.range_min,
+        max: model_data.intensity_data.range_max
+      }));
+
     }); // end loadintensitydata listener
     
     // If two color maps are loaded to be blended, create
@@ -302,16 +310,26 @@ $(function() {
 
     BrainBrowser.events.addEventListener("updatecolors", function() {
       var value = parseFloat($("#pick-value").val());
-      var model_data;
+      var model_data = viewer.model_data.get();
 
       if (BrainBrowser.utils.isNumeric(value)) {
-        model_data = viewer.model_data.get(picked_object.model_name);
         $("#pick-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
           format: "hex",
           min: model_data.intensity_data.range_min,
           max: model_data.intensity_data.range_max
         }));
       }
+
+      value = parseFloat($("#paint-value").val());
+
+      if (BrainBrowser.utils.isNumeric(value)) {
+        $("#paint-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
+          format: "hex",
+          min: model_data.intensity_data.range_min,
+          max: model_data.intensity_data.range_max
+        }));
+      }
+
     });
 
     BrainBrowser.events.addEventListener("updateintensitydata", function(data) {
@@ -459,7 +477,7 @@ $(function() {
     });
 
     $("#brainbrowser").click(function(event) {
-      if (!event.shiftKey) return;
+      if (!event.shiftKey && !event.ctrlKey) return;
       if (viewer.model.children.length === 0) return;
 
       var annotation_display = $("#annotation-display");
@@ -480,6 +498,13 @@ $(function() {
         model_data = viewer.model_data.get(picked_object.model_name);
 
         if (model_data.intensity_data) {
+          if (event.ctrlKey) {
+            var value = parseFloat($("#paint-value").val());
+
+            if (BrainBrowser.utils.isNumeric(value)) {
+              viewer.setIntensity(pick_info.index, value);
+            }
+          }
 
           value = model_data.intensity_data.values[pick_info.index];
           $("#pick-value").val(value.toString().slice(0, 7));
@@ -500,7 +525,6 @@ $(function() {
             text = "None";
           }
           $("#pick-label").html(text);
-        
         }
 
         annotation_info = pick_info.object.annotation_info;
@@ -553,6 +577,19 @@ $(function() {
 
       if (BrainBrowser.utils.isNumeric(index) && BrainBrowser.utils.isNumeric(value)) {
         viewer.setIntensity(index, value);
+      }
+    });
+
+    $("#paint-value").change(function() {
+      var value = parseFloat(this.value);
+      var model_data = viewer.model_data.get();
+
+      if (BrainBrowser.utils.isNumeric(value)) {
+        $("#paint-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
+          format: "hex",
+          min: model_data.intensity_data.range_min,
+          max: model_data.intensity_data.range_max
+        }));
       }
     });
 

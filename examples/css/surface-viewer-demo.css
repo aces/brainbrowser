@@ -252,7 +252,7 @@ div#format_hints {
   font-weight: normal;
 }
 
-#pick-color {
+#pick-color, #paint-color {
   display: inline-block;
   width: 1em;
   height: 1em;

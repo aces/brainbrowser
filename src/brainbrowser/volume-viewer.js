@@ -292,6 +292,7 @@
     * * **sliceupdate** A new slice has been rendered to the viewer.
     * * **draw** A panel is being re-drawn.
     * * **error** An error has occured.
+    * * ***** All events.
     *
     * To listen for an event, simply use the viewer's **addEventListener()** method with
     * with the event name and a callback funtion:
@@ -391,6 +392,20 @@
     *
     * ```js
     *    BrainBrowser.events.addEventListener("error", function(error_message) {
+    *      //...
+    *    });
+    * ```
+    *
+    */
+    /**
+    * @doc object
+    * @name VolumeViewer.events:*
+    *
+    * @description
+    * Triggered on all events. The event name is passed as argument.
+    *
+    * ```js
+    *    BrainBrowser.events.addEventListener("*", function(event_name) {
     *      //...
     *    });
     * ```

@@ -499,7 +499,7 @@ $(function() {
 
         if (model_data.intensity_data) {
           if (event.ctrlKey) {
-            var value = parseFloat($("#paint-value").val());
+            value = parseFloat($("#paint-value").val());
 
             if (BrainBrowser.utils.isNumeric(value)) {
               viewer.setIntensity(pick_info.index, value);

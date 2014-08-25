@@ -234,11 +234,14 @@
       * * **displaymodel** A new model has been displayed on the viewer.
       * * **loadintensitydata** New intensity data has been loaded.
       * * **updateintensitydata** The intensity data has been updated.
-      * * **changeintensityrange** The color range has been modified.
+      * * **changeintensityrange** The intensity data range has been modified.
+      * * **updatecolors** The model's colors have been updated.
       * * **loadcolormap** A new color map has been loaded.
       * * **blendcolormaps** Two color maps have been loaded and blended.
       * * **clearscreen** The viewer has been cleared of objects.
+      * * **draw** The scene has been redrawn.
       * * **error** An error has occured.
+      * * ***** All events.
       *
       * To listen for an event, simply use the **BrainBrowser.events.addEventListener()** method with 
       * with the event name and a callback funtion:
@@ -260,6 +263,7 @@
         model_data: null,                                 // Descriptions of all models. Created in loading module.
         mouse: BrainBrowser.utils.captureMouse(dom_element),
         touches: BrainBrowser.utils.captureTouch(dom_element),
+        updated: true,
         /**
         * @doc function
         * @name viewer.attributes:getAttribute
@@ -401,6 +405,20 @@
       */
       /**
       * @doc object
+      * @name SurfaceViewer.events:updateintensitydata
+      *
+      * @description
+      * Triggered when the intensity is updated. The modified intensity data
+      * object will be passed to the event handler:
+      *
+      * ```js
+      *    BrainBrowser.events.addEventListener("updateintensitydata", function(intensity_data) {
+      *      //...
+      *    });
+      * ```
+      */
+      /**
+      * @doc object
       * @name SurfaceViewer.events:changeintensityrange
       *
       * @description
@@ -409,6 +427,20 @@
       *
       * ```js
       *    BrainBrowser.events.addEventListener("changeintensityrange", function(intensity_data) {
+      *      //...
+      *    });
+      * ```
+      */
+      /**
+      * @doc object
+      * @name SurfaceViewer.events:updatecolors
+      *
+      * @description
+      * Triggered when model's colors are udpated. The array of colors to be applied are
+      * are passed to the event handler:
+      *
+      * ```js
+      *    BrainBrowser.events.addEventListener("updatecolors", function(intensity_data) {
       *      //...
       *    });
       * ```
@@ -430,6 +462,20 @@
       */
       /**
       * @doc object
+      * @name SurfaceViewer.events:draw
+      *
+      * @description
+      * Triggered when the scene is redrawn. The event handler receives the three.js
+      * **renderer**, **scene** and **camera** as arguments.
+      *
+      * ```js
+      *    BrainBrowser.events.addEventListener("draw", function(renderer, scene, camera) {
+      *      //...
+      *    });
+      * ```
+      */
+      /**
+      * @doc object
       * @name SurfaceViewer.events:error
       *
       * @description
@@ -443,9 +489,30 @@
       * ```
       *
       */
+      /**
+      * @doc object
+      * @name SurfaceViewer.events:*
+      *
+      * @description
+      * Triggered on all events. The event name is passed as argument.
+      *
+      * ```js
+      *    BrainBrowser.events.addEventListener("*", function(event_name) {
+      *      //...
+      *    });
+      * ```
+      *
+      */
 
       Object.keys(SurfaceViewer.modules).forEach(function(m) {
         SurfaceViewer.modules[m](viewer);
+      });
+
+      // Trigger a redraw on any event.
+      BrainBrowser.events.addEventListener("*", function(event_name) {
+        if (event_name !== "draw") {
+          viewer.updated = true;
+        }
       });
 
       //////////////////////////////////////////////////////  

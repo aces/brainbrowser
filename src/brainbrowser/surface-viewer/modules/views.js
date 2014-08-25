@@ -118,7 +118,8 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
         wireframe.material.transparent = material.transparent;
       }
     });
-      
+    
+    viewer.updated = true;
   };
 
   /**
@@ -157,6 +158,8 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
         shape.wireframe_active = is_wireframe;
       }
     });
+
+    viewer.updated = true;
   };
 
   /**
@@ -179,6 +182,8 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
     if(model_data && BrainBrowser.utils.isFunction(views[method_name])) {
       views[method_name](model_data);
     }
+
+    viewer.updated = true;
   };
 
   /**
@@ -206,6 +211,8 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
       viewer.model.children[0].position.x -= increment;
       viewer.model.children[1].position.x += increment;
     }
+
+    viewer.updated = true;
   };
 
   ////////////////////////////////////

@@ -671,9 +671,12 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
                 var panel = volume.display[axis_num];
                 panel.zoom = Math.max(panel.zoom + delta * 0.05, 0.05);
                 viewer.fetchSlice(synced_vol_id, ["xspace", "yspace", "zspace"][axis_num]);
+                BrainBrowser.events.triggerEvent("zoom", volume, panel);
               }
             });
           }
+
+          BrainBrowser.events.triggerEvent("zoom", volume, panel);
         }
 
         canvas.addEventListener("mousewheel", wheelHandler, false);

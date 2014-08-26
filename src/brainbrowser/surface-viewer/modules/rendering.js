@@ -201,6 +201,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       light.position.z = new_z;
     }
 
+    BrainBrowser.events.triggerEvent("zoom", zoom);
+
     viewer.updated = true;
   };
   

@@ -553,6 +553,7 @@
       
       panel.setSlice(slice);
       panel.updateCursor();
+      panel.updated = true;
     }
 
 

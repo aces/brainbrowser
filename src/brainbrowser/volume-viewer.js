@@ -383,6 +383,20 @@
     */
     /**
     * @doc object
+    * @name VolumeViewer.events:zoom
+    *
+    * @description
+    * Triggered when the user changes the zoom level of a panel (scroll or touch events).
+    * The event handler receives two arguments: the volume and the panel.
+    *
+    * ```js
+    *    BrainBrowser.events.addEventListener("zoom", function(volume, panel) {
+    *      console.log("New zoom level:", panel.zoom);
+    *    });
+    * ```
+    */
+    /**
+    * @doc object
     * @name VolumeViewer.events:error
     *
     * @description

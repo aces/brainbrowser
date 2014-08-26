@@ -77,6 +77,12 @@
           callback.apply(null, args);
         });
       }
+
+      if (event_listeners["*"]) {
+        event_listeners["*"].forEach(function(callback) {
+          callback.call(null, event);
+        });
+      }
     }
   };
 

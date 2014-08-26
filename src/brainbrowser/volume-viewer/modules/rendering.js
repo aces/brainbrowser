@@ -40,36 +40,13 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
   * ```
   */
   viewer.draw = function() {
-    var context;
-    var canvas;
-    var frame_width = 4;
-    var half_frame_width = frame_width / 2;
-    var color_map;
 
     viewer.volumes.forEach(function(volume) {
       volume.display.forEach(function(panel) {
-        canvas = panel.canvas;
-        context = panel.context;
-        context.globalAlpha = 255;
-        context.clearRect(0, 0, canvas.width, canvas.height);
-
-        color_map = volume.color_map || viewer.default_color_map;
-        panel.drawSlice();
-        BrainBrowser.events.triggerEvent("draw", volume, panel);
-        panel.drawCursor(color_map.cursor_color);
-
-        if (canvas === viewer.active_canvas) {
-          context.save();
-          context.strokeStyle = "#EC2121";
-          context.lineWidth = frame_width;
-          context.strokeRect(
-            half_frame_width,
-            half_frame_width,
-            canvas.width - frame_width,
-            canvas.height - frame_width
-          );
-          context.restore();
-        }
+        panel.draw(
+          (volume.color_map || viewer.default_color_map).cursor_color,
+          viewer.active_canvas === panel.canvas
+        );
       });
     });
   };
@@ -135,6 +112,8 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
 
     viewer.fetchSlice(vol_id, slice.width_space.name, x);
     viewer.fetchSlice(vol_id, slice.height_space.name, y);
+
+    panel.updated = true;
   };
 
   /**

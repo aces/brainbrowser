@@ -45,7 +45,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * @doc function
   * @name viewer.rendering:render
   * @description
-  * Render the scene.
+  * Start the render loop.
   * ```js
   * viewer.render();
   * ```
@@ -67,6 +67,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       effect.setSize(dom_element.offsetWidth, dom_element.offsetHeight);
       camera.aspect = dom_element.offsetWidth / dom_element.offsetHeight;
       camera.updateProjectionMatrix();
+
+      viewer.updated = true;
     };
     
     window.onresize();
@@ -104,6 +106,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     if (BrainBrowser.utils.isFunction(THREE[effect_name])) {
       effect = new THREE[effect_name](renderer);
       effect.setSize(viewer.dom_element.offsetWidth, viewer.dom_element.offsetHeight);
+
       effects[effect_name] = effect;
     }
   };
@@ -120,6 +123,10 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   */
   viewer.setEffect = function(effect_name) {
     effect = effects[effect_name] ? effects[effect_name] : renderer;
+    effect.setSize(viewer.dom_element.offsetWidth, viewer.dom_element.offsetHeight);
+    effect.render(scene, camera);  // Not sure why: effects seem to need to render twice before they work properly.
+
+    viewer.updated = true;
   };
   
   /**
@@ -137,6 +144,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   viewer.setCameraPosition = function(x, y, z) {
     camera.position.set(x, y, z);
     light.position.set(x, y, z);
+
+    viewer.updated = true;
   };
   
   /**
@@ -170,6 +179,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
       wireframe = child.getObjectByName("__WIREFRAME__");
     }
+
+    viewer.updated = true;
   };
 
   /**
@@ -189,7 +200,10 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       position.z = new_z;
       light.position.z = new_z;
     }
+
     BrainBrowser.events.triggerEvent("zoom", zoom);
+
+    viewer.updated = true;
   };
   
   /**
@@ -204,6 +218,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   */
   viewer.setClearColor = function(color)  {
     renderer.setClearColor(color, 1.0);
+
+    viewer.updated = true;
   };
 
   /**
@@ -236,6 +252,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     } else {
       scene.add(sphere);
     }
+
+    viewer.updated = true;
 
     return sphere;
 
@@ -407,15 +425,22 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     if (viewer.autorotate.x) {
       model.rotation.x += rotation;
+      viewer.updated = true;
     }
     if (viewer.autorotate.y) {
       model.rotation.y += rotation;
+      viewer.updated = true;
     }
     if (viewer.autorotate.z) {
       model.rotation.z += rotation;
+      viewer.updated = true;
     }
 
-    effect.render(scene, camera);
+    if (viewer.updated) {
+      effect.render(scene, camera);
+      BrainBrowser.events.triggerEvent("draw", effect, scene, camera);
+      viewer.updated = false;
+    }
   }
 
   ////////////////////////////////
@@ -465,6 +490,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       last_x = x;
       last_y = y;
 
+      viewer.updated = true;
     }
 
     function touchZoom() {

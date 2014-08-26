@@ -511,9 +511,12 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
                   var panel = volume.display[axis_num];
                   panel.last_position.x = position.x;
                   panel.last_position.y = position.y;
+                  panel.updated = true;
                 }
               });
             }
+
+            panel.updated = true;
           } else {
             viewer.setCursor(vol_id, axis_name, position);
             if (viewer.synced){
@@ -539,9 +542,11 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
               viewer.volumes.forEach(function(volume, synced_vol_id) {
                 if (synced_vol_id !== vol_id) {
                   volume.display[axis_num].followPointer(cursor);
+                  volume.display[axis_num].updated = true;
                 }
               });
             }
+            panel.updated = true;
           } else {
             viewer.setCursor(vol_id, axis_name, cursor);
             if (viewer.synced){

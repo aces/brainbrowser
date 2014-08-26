@@ -28,6 +28,8 @@
 (function() {
   "use strict";
 
+  var image_creation_context = document.createElement("canvas").getContext("2d");
+
   BrainBrowser.VolumeViewer.utils = {
     /**
     * @doc object
@@ -69,7 +71,6 @@
       var data = original.data;
       var width = original.width;
       var height = original.height;
-      var context = document.createElement("canvas").getContext("2d");
       var block_size = 4;
 
       if (new_width < 0 && new_height > 0) {
@@ -84,8 +85,8 @@
       new_width = Math.abs(new_width);
       new_height = Math.abs(new_height);
       
-      var image     = context.createImageData(new_width, new_height);
-      var imageData = image.data;
+      var image     = image_creation_context.createImageData(new_width, new_height);
+      var image_data = image.data;
       var x_ratio   = width / new_width;
       var y_ratio   = height / new_height;
       for (var i = 0; i < new_height; i++) {
@@ -93,7 +94,7 @@
           var px = Math.floor(j * x_ratio);
           var py = Math.floor(i * y_ratio);
           for (var k = 0; k < block_size; k++) {
-            imageData[Math.floor(i * new_width + j) * block_size + k] = data[Math.floor( py * width + px) * block_size + k];
+            image_data[Math.floor(i * new_width + j) * block_size + k] = data[Math.floor( py * width + px) * block_size + k];
           }
         }
       }

@@ -263,6 +263,40 @@
       context.restore();
 
 
+    },
+
+    draw: function(cursor_color, active) {
+      if (!this.updated) {
+        return;
+      }
+
+      var volume = this.volume;
+      var canvas = this.canvas;
+      var context = this.context;
+      var frame_width = 4;
+      var half_frame_width = frame_width / 2;
+      
+      context.globalAlpha = 255;
+      context.clearRect(0, 0, canvas.width, canvas.height);
+
+      this.drawSlice();
+      BrainBrowser.events.triggerEvent("draw", volume, this);
+      this.drawCursor(cursor_color);
+
+      if (active) {
+        context.save();
+        context.strokeStyle = "#EC2121";
+        context.lineWidth = frame_width;
+        context.strokeRect(
+          half_frame_width,
+          half_frame_width,
+          canvas.width - frame_width,
+          canvas.height - frame_width
+        );
+        context.restore();
+      }
+
+      this.updated = false;
     }
   };
 
@@ -317,7 +351,8 @@
         x: 0,
         y: 0
       },
-      zoom: 1
+      zoom: 1,
+      updated: true
     };
 
     var panel = Object.create(panel_proto);

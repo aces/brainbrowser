@@ -154,10 +154,7 @@
           
         //for each value, assign a color
         for (i = 0, count = values.length; i < count; i++) {
-          colors = color_map.colorFromValue(values[i], {
-            min: min,
-            max: max
-          });
+          colors = mapColor(values[i], min, max);
 
           destination[i*4+0] = scale * (colors[0] * contrast + brightness);
           destination[i*4+1] = scale * (colors[1] * contrast + brightness);
@@ -197,28 +194,7 @@
         var format = options.format || "float";
         var min = options.min === undefined ? 0 : options.min;
         var max = options.max === undefined ? 255 : options.max;
-
-        var color_map_colors = color_map.colors;
-        var color_map_length = color_map_colors.length;
-        var range = max - min;
-        
-        // Calculate a slice of the data per color
-        var increment = ( range + range / color_map_length ) / color_map_length;
-        var color, color_index;
-
-        if (value <= min) {
-          color_index = 0;
-        } else if (value > max){
-          color_index = color_map.colors.length - 1;
-        } else {
-          color_index = Math.floor((value - min) / increment);
-        }
-
-        if (color_map_colors[color_index]) {
-          color = Array.prototype.slice.call(color_map_colors[color_index]);
-        } else {
-          color = [0, 0, 0];
-        }
+        var color = Array.prototype.slice.call(mapColor(value, min, max));
 
         if (format !== "float") {
           color[0] = Math.floor(color[0] * 255);
@@ -237,6 +213,32 @@
         return color;
       }
     };
+
+    function mapColor(value, min, max) {
+      var color_map_colors = color_map.colors;
+      var color_map_length = color_map_colors.length;
+      var range = max - min;
+      
+      // Calculate a slice of the data per color
+      var increment = ( range + range / color_map_length ) / color_map_length;
+      var color, color_index;
+
+      if (value <= min) {
+        color_index = 0;
+      } else if (value > max){
+        color_index = color_map_colors - 1;
+      } else {
+        color_index = Math.floor((value - min) / increment);
+      }
+
+      if (color_map_colors[color_index]) {
+        color = color_map_colors[color_index];
+      } else {
+        color = [0, 0, 0, 1];
+      }
+
+      return color;
+    }
 
     // Creates an canvas with the color_map of colors
     // from low(left) to high(right) values

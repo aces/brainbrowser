@@ -43,6 +43,9 @@
   */
   BrainBrowser.createColorMap = function(data) {
 
+    // Cache colors produced by mapColor.
+    var color_cache = {};
+
     /**
     * @doc object
     * @name color_map
@@ -146,19 +149,22 @@
         var alpha = options.alpha === undefined ? 1 : options.alpha;
         var destination = options.destination || [];
 
-        var i, count;
+        var range = max - min;
+        var increment = (range + range / color_map.colors.length) / color_map.colors.length;
         var scale = scale255 ? 255 : 1;
-        var colors = [];
+
+        var i, count;
+        var color;
 
         alpha *= scale;
           
         //for each value, assign a color
         for (i = 0, count = values.length; i < count; i++) {
-          colors = mapColor(values[i], min, max);
+          color = mapColor(values[i], min, max, range, increment);
 
-          destination[i*4+0] = scale * (colors[0] * contrast + brightness);
-          destination[i*4+1] = scale * (colors[1] * contrast + brightness);
-          destination[i*4+2] = scale * (colors[2] * contrast + brightness);
+          destination[i*4+0] = scale * (color[0] * contrast + brightness);
+          destination[i*4+1] = scale * (color[1] * contrast + brightness);
+          destination[i*4+2] = scale * (color[2] * contrast + brightness);
           destination[i*4+3] = alpha;
         }
 
@@ -194,7 +200,9 @@
         var format = options.format || "float";
         var min = options.min === undefined ? 0 : options.min;
         var max = options.max === undefined ? 255 : options.max;
-        var color = Array.prototype.slice.call(mapColor(value, min, max));
+        var range = max - min;
+        var increment = (range + range / color_map.colors.length) / color_map.colors.length;
+        var color = Array.prototype.slice.call(mapColor(value, min, max, range, increment));
 
         if (format !== "float") {
           color[0] = Math.floor(color[0] * 255);
@@ -214,19 +222,23 @@
       }
     };
 
-    function mapColor(value, min, max) {
+    // Map a single value to a color.
+    function mapColor(value, min, max, range, increment) {
+      var cached_value = checkCache(value, min, max);
+
+      if (cached_value !== undefined) {
+        return cached_value;
+      }
+
       var color_map_colors = color_map.colors;
-      var color_map_length = color_map_colors.length;
-      var range = max - min;
       
       // Calculate a slice of the data per color
-      var increment = ( range + range / color_map_length ) / color_map_length;
       var color, color_index;
 
       if (value <= min) {
         color_index = 0;
       } else if (value > max){
-        color_index = color_map_colors - 1;
+        color_index = color_map_colors.length - 1;
       } else {
         color_index = Math.floor((value - min) / increment);
       }
@@ -236,6 +248,8 @@
       } else {
         color = [0, 0, 0, 1];
       }
+
+      setCache(value, min, max, color);
 
       return color;
     }
@@ -277,9 +291,20 @@
 
     }
 
-    /*
-    * Parse the color_map data from a string
-    */
+    // Check if a color is cached.
+    function checkCache(value, min, max) {
+      return color_cache[value] && color_cache[value][min] && color_cache[value][min][max];
+    }
+
+    // Cache a color.
+    function setCache(value, min, max, color) {
+      color_cache[value] = color_cache[value] || {};
+      color_cache[value][min] = color_cache[value][min] || {};
+      color_cache[value][min][max] = color;
+    }
+
+    
+    // Parse the color_map data from a string
     (function() {
       if (!data) return;
 

@@ -184,52 +184,58 @@
   // Blend the pixels of two images using the alpha value of each
   function blendImages(images, dest) {
     var n_images = images.length;
+
+    if (n_images === 1) {
+      return images[0];
+    }
+
     var final_image = dest.data;
     var n_cols = dest.width;
     var n_rows = dest.height;
     var i, j, k;
     var image, pixel, alpha, current;
+    var row_offset;
 
     //This will be used to keep the position in each image of its next pixel
     var image_iter = [];
 
-    if(n_images > 1) {
-      for (i = 0; i < n_rows; i += 1) {
-        for (k = 0; k < n_cols; k += 1) {
-          for (j = 0; j < n_images; j += 1) {
-            image_iter[j] = image_iter[j] || 0;
-            image = images[j];
-            if(i < image.height &&  k < image.width) {
-              pixel = (i*n_cols + k) * 4;
-              alpha = (final_image[pixel  + 3] || 0)/255.0;
-              current = image_iter[j];
-        
-              final_image[pixel] = (final_image[pixel + 0] || 0)  *  //Red
-                                  alpha + image.data[current + 0] *
-                                  (image.data[current + 3]/255.0);
-        
-              final_image[pixel + 1] = (final_image[pixel + 1] || 0)  *  //Green
-                                       alpha + image.data[current + 1] *
-                                       (image.data[current+3]/255.0);
-        
-              final_image[pixel + 2] = (final_image[pixel + 2] || 0)  * //Blue
-                                       alpha + image.data[current + 2] *
-                                       (image.data[current + 3] / 255.0);
-        
-              final_image[pixel + 3] = (final_image[pixel + 3] || 0) + //combine alpha values
-                                       image.data[current + 3];
-              image_iter[j] += 4;
-            }
+    for (i = 0; i < n_rows; i += 1) {
+      row_offset = i * n_cols;
+
+      for (k = 0; k < n_cols; k += 1) {
+        pixel = (row_offset + k) * 4;
+
+        for (j = 0; j < n_images; j += 1) {
+          image_iter[j] = image_iter[j] || 0;
+          image = images[j];
+          if(i < image.height &&  k < image.width) {
+            alpha = (final_image[pixel + 3] || 0) / 255.0;
+            current = image_iter[j];
+      
+            final_image[pixel] = (final_image[pixel + 0] || 0)  *  //Red
+                                alpha + image.data[current + 0] *
+                                (image.data[current + 3] / 255.0);
+      
+            final_image[pixel + 1] = (final_image[pixel + 1] || 0)  *  //Green
+                                     alpha + image.data[current + 1] *
+                                     (image.data[current+3] / 255.0);
+      
+            final_image[pixel + 2] = (final_image[pixel + 2] || 0)  * //Blue
+                                     alpha + image.data[current + 2] *
+                                     (image.data[current + 3] / 255.0);
+      
+            final_image[pixel + 3] = (final_image[pixel + 3] || 0) + //combine alpha values
+                                     image.data[current + 3];
+            image_iter[j] += 4;
           }
         }
       }
-      for (i = 3; i < final_image.length; i += 4) {
-        final_image[i] = 255;
-      }
-      return dest;
-    } else {
-      return images[0];
     }
+    for (i = 3; i < final_image.length; i += 4) {
+      final_image[i] = 255;
+    }
+    return dest;
+  
   }
 
 }());

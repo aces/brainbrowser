@@ -72,12 +72,19 @@
       var width = original.width;
       var height = original.height;
       var block_size = 4;
+      var image, image_data;
+      var x_ratio, y_ratio;
+      var source_x, source_y;
+      var source_y_offset, source_block_offset;
+      var dest_x, dest_y;
+      var dest_y_offset, dest_block_offset;
+      var k;
 
       if (new_width < 0 && new_height > 0) {
         data = flipImage(data, width, height, true, false, block_size);
       }
 
-      //Do nothing if height is the same
+      //Do nothing if size is the same
       if(width === new_width && height === new_height) {
         return original;
       }
@@ -85,16 +92,20 @@
       new_width = Math.abs(new_width);
       new_height = Math.abs(new_height);
       
-      var image     = image_creation_context.createImageData(new_width, new_height);
-      var image_data = image.data;
-      var x_ratio   = width / new_width;
-      var y_ratio   = height / new_height;
-      for (var i = 0; i < new_height; i++) {
-        for (var j = 0; j < new_width; j++)  {
-          var px = Math.floor(j * x_ratio);
-          var py = Math.floor(i * y_ratio);
-          for (var k = 0; k < block_size; k++) {
-            image_data[Math.floor(i * new_width + j) * block_size + k] = data[Math.floor( py * width + px) * block_size + k];
+      image = image_creation_context.createImageData(new_width, new_height);
+      image_data = image.data;
+      x_ratio   = width / new_width;
+      y_ratio   = height / new_height;
+      for (dest_y = 0; dest_y < new_height; dest_y++) {
+        source_y_offset = Math.floor(dest_y * y_ratio) * width;
+        dest_y_offset = dest_y * new_width;
+
+        for (dest_x = 0; dest_x < new_width; dest_x++)  {
+          source_block_offset = (source_y_offset + Math.floor(dest_x * x_ratio)) * block_size;
+          dest_block_offset = (dest_y_offset + dest_x) * block_size;
+
+          for (k = 0; k < block_size; k++) {
+            image_data[dest_block_offset+ k] = data[source_block_offset + k];
           }
         }
       }

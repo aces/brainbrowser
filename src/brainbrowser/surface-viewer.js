@@ -443,6 +443,21 @@
       * ```
       *
       */
+      /**
+      * @doc object
+      * @name SurfaceViewer.events:zoom
+      *
+      * @description
+      * Triggered when the user changes the zoom level of the viewer (scroll or touch events).
+      * The event handler receives one argument: the new zoom level.
+      *
+      * ```js
+      *    BrainBrowser.events.addEventListener("zoom", function(zoom) {
+      *      //...
+      *    });
+      * ```
+      *
+      */
 
       Object.keys(SurfaceViewer.modules).forEach(function(m) {
         SurfaceViewer.modules[m](viewer);

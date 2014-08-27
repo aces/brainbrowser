@@ -61,7 +61,16 @@
 
         var xstep = slice.width_space.step;
         var ystep = slice.height_space.step;
-        return VolumeViewer.utils.nearestNeighbor(image_data, Math.floor(slice.width * xstep * zoom), Math.floor(slice.height * ystep * zoom));
+
+        image_data.data.set(VolumeViewer.utils.nearestNeighbor(
+          image_data.data,
+          image_data.width,
+          image_data.height,
+          Math.floor(slice.width * xstep * zoom),
+          Math.floor(slice.height * ystep * zoom),
+          {block_size: 4}
+        ));
+        return image_data;
       };
       
       return slice;

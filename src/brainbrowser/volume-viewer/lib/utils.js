@@ -56,9 +56,15 @@
     * @doc function
     * @name VolumeViewer.utils.nearestNeighbor
     *
-    * @param {array} original Original image
-    * @param {number} new_width Width of scaled image.
-    * @param {number} new_height Height of scaled image.
+    * @param {array} source Source image data.
+    * @param {number} width Width of source image.
+    * @param {number} height Height of source image.
+    * @param {number} target_width Width of scaled image.
+    * @param {number} target_height Height of scaled image.
+    * @param {object} options Extra options:
+    * * **block_size** The size of each unit for scaling (default: 1). 
+    * * **array_type** Constructor for the result array type (default: Uint8ClampedArray). 
+    * 
     * @returns {ImageData} The scaled image.
     *
     * @description
@@ -67,50 +73,52 @@
     * BrainBrowser.VolumeViewer.utils.nearestNeighbor(image, 512, 512);
     * ```
     */
-    nearestNeighbor: function(original, new_width, new_height) {
-      var data = original.data;
-      var width = original.width;
-      var height = original.height;
-      var block_size = 4;
+    nearestNeighbor: function(source, width, height, target_width, target_height, options) {
+      options = options || {};
+
       var image, image_data;
       var x_ratio, y_ratio;
       var source_x, source_y;
       var source_y_offset, source_block_offset;
-      var dest_x, dest_y;
-      var dest_y_offset, dest_block_offset;
+      var target;
+      var target_x, target_y;
+      var target_y_offset, target_block_offset;
       var k;
+      var block_size, ArrayType;
 
-      if (new_width < 0 && new_height > 0) {
-        data = flipImage(data, width, height, true, false, block_size);
+      block_size = options.block_size || 1;
+      ArrayType = options.array_type || Uint8ClampedArray;
+
+      if (target_width < 0 && target_height > 0) {
+        source = flipImage(source, width, height, true, false, block_size);
       }
 
       //Do nothing if size is the same
-      if(width === new_width && height === new_height) {
+      if(width === target_width && height === target_height) {
         return original;
       }
       
-      new_width = Math.abs(new_width);
-      new_height = Math.abs(new_height);
+      target_width = Math.abs(target_width);
+      target_height = Math.abs(target_height);
       
-      image = image_creation_context.createImageData(new_width, new_height);
-      image_data = image.data;
-      x_ratio   = width / new_width;
-      y_ratio   = height / new_height;
-      for (dest_y = 0; dest_y < new_height; dest_y++) {
-        source_y_offset = Math.floor(dest_y * y_ratio) * width;
-        dest_y_offset = dest_y * new_width;
+      target = new ArrayType(target_width * target_height * block_size);
+      x_ratio   = width / target_width;
+      y_ratio   = height / target_height;
+      for (target_y = 0; target_y < target_height; target_y++) {
+        source_y_offset = Math.floor(target_y * y_ratio) * width;
+        target_y_offset = target_y * target_width;
 
-        for (dest_x = 0; dest_x < new_width; dest_x++)  {
-          source_block_offset = (source_y_offset + Math.floor(dest_x * x_ratio)) * block_size;
-          dest_block_offset = (dest_y_offset + dest_x) * block_size;
+        for (target_x = 0; target_x < target_width; target_x++)  {
+          source_block_offset = (source_y_offset + Math.floor(target_x * x_ratio)) * block_size;
+          target_block_offset = (target_y_offset + target_x) * block_size;
 
           for (k = 0; k < block_size; k++) {
-            image_data[dest_block_offset+ k] = data[source_block_offset + k];
+            target[target_block_offset+ k] = source[source_block_offset + k];
           }
         }
       }
       
-      return image;
+      return target;
     },
 
 

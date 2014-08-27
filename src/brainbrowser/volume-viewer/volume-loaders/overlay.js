@@ -76,7 +76,14 @@
               destination: image_data.data
             });
             
-            image_data = VolumeViewer.utils.nearestNeighbor(image_data, result_width, result_height);
+            image_data.data.set(VolumeViewer.utils.nearestNeighbor(
+              image_data.data,
+              image_data.width,
+              image_data.height,
+              result_width, 
+              result_height,
+              {block_size: 4}
+            ));
             
             images.push(image_data);
           });

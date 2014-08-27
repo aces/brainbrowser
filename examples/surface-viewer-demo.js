@@ -724,7 +724,7 @@ $(function() {
 
           // This model is somewhat small so zoom in and
           // give it a dramatic angle.
-          viewer.zoom(5);
+          viewer.zoom = 5;
 
           matrixRotX = new THREE.Matrix4();
           matrixRotX.makeRotationX(-0.25 * Math.PI);
@@ -794,7 +794,7 @@ $(function() {
             cancel: defaultCancelOptions(current_request)
           });
 
-          viewer.zoom(1.8);
+          viewer.zoom = 1.8;
 
           matrixRotX = new THREE.Matrix4();
           matrixRotX.makeRotationX(-0.5 * Math.PI);

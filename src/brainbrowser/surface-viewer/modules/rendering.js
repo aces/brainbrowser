@@ -30,12 +30,14 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   var renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
   var scene = new THREE.Scene();
   var camera = new THREE.PerspectiveCamera(30, viewer.dom_element.offsetWidth / viewer.dom_element.offsetHeight, 1, 3000);
+  var default_camera_distance = 500;
   var light = new THREE.PointLight(0xFFFFFF);
   var current_frame;
   var last_frame;
   var effect = renderer;
   var effects = {};
   var canvas = renderer.domElement;
+  var old_zoom_level;
 
   viewer.model = new THREE.Object3D();
   
@@ -56,9 +58,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     renderer.setSize(dom_element.offsetWidth, dom_element.offsetHeight);
     dom_element.appendChild(renderer.domElement);
     
-    camera.position.z = 500;
+    camera.position.z = default_camera_distance;
     
-    light.position.set(0, 0, 500);
+    light.position.set(0, 0, default_camera_distance);
     scene.add(light);
     
     viewer.autorotate = {};
@@ -165,8 +167,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     inv.getInverse(model.matrix);
   
     model.applyMatrix(inv);
-    camera.position.set(0, 0, 500);
-    light.position.set(0, 0, 500);
+    camera.position.set(0, 0, default_camera_distance);
+    light.position.set(0, 0, default_camera_distance);
     
     for (i = 0, count = viewer.model.children.length; i < count; i++) {
       child = model.children[i];
@@ -179,29 +181,6 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
       wireframe = child.getObjectByName("__WIREFRAME__");
     }
-
-    viewer.updated = true;
-  };
-
-  /**
-  * @doc function
-  * @name viewer.rendering:zoom
-  * @param {number} zoom The zoom level (default: 1.0).
-  * @description
-  * Zoom the view in or out.
-  * ```js
-  * viewer.zoom(1.2);
-  * ```
-  */
-  viewer.zoom = function(zoom) {
-    var position = camera.position;
-    var new_z = position.z / zoom;
-    if (new_z > camera.near && new_z < 0.9 * camera.far) {
-      position.z = new_z;
-      light.position.z = new_z;
-    }
-
-    BrainBrowser.events.triggerEvent("zoom", zoom);
 
     viewer.updated = true;
   };
@@ -414,6 +393,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var model = viewer.model;
     var delta;
     var rotation;
+    var position = camera.position;
+    var new_z = default_camera_distance / viewer.zoom;
     
     window.requestAnimationFrame(renderFrame);
     
@@ -435,8 +416,17 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       model.rotation.z += rotation;
       viewer.updated = true;
     }
+    if (old_zoom_level !== viewer.zoom) {
+      old_zoom_level = viewer.zoom;
+      viewer.updated = true;
+      BrainBrowser.events.triggerEvent("zoom", viewer.zoom);
+    }
 
     if (viewer.updated) {
+      if (new_z > camera.near && new_z < 0.9 * camera.far) {
+        position.z = new_z;
+        light.position.z = new_z;
+      }
       effect.render(scene, camera);
       BrainBrowser.events.triggerEvent("draw", effect, scene, camera);
       viewer.updated = false;
@@ -478,7 +468,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
           model.rotateOnAxis(axis, dx / 150);
         } else {
           multiplier = multiplier || 1.0;
-          multiplier *= camera.position.z / 500;
+          multiplier *= camera.position.z / default_camera_distance;
 
           camera.position.x -= dx * multiplier * 0.25;
           light.position.x -= dx * multiplier * 0.25;
@@ -503,7 +493,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       if (last_touch_distance !== null) {
         delta = distance - last_touch_distance;
 
-        viewer.zoom(1.0 + 0.01 * delta);
+        viewer.zoom *= 1.0 + 0.01 * delta;
       }
 
       last_touch_distance = distance;
@@ -546,7 +536,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       event.preventDefault();
       event.stopPropagation();
 
-      viewer.zoom(1.0 + 0.05 * delta);
+      viewer.zoom *= 1.0 + 0.05 * delta;
     }
 
     canvas.addEventListener("mousedown", function(event) {

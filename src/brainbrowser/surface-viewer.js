@@ -224,6 +224,7 @@
       * @property {DOMElement} dom_element The DOM element where the viewer
       * will be inserted.
       * @property {THREE.Object3D} model The currently loaded surface model.
+      * @property {float} zoom The zoom level (default: 1.0).
       * 
       * @description
       * The viewer object encapsulates all functionality of the Surface Viewer.
@@ -264,6 +265,7 @@
         mouse: BrainBrowser.utils.captureMouse(dom_element),
         touches: BrainBrowser.utils.captureTouch(dom_element),
         updated: true,
+        zoom: 1,
         /**
         * @doc function
         * @name viewer.attributes:getAttribute

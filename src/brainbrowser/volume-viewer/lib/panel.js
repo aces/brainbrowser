@@ -266,6 +266,12 @@
     },
 
     draw: function(cursor_color, active) {
+      if (this.old_zoom_level !== this.zoom) {
+        this.old_zoom_level = this.zoom;
+        this.updated = true;
+        BrainBrowser.events.triggerEvent("zoom", this.volume, this);
+      }
+
       if (!this.updated) {
         return;
       }
@@ -352,6 +358,7 @@
         y: 0
       },
       zoom: 1,
+      old_zoom_level: undefined,
       updated: true
     };
 

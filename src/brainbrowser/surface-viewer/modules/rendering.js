@@ -30,6 +30,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   var renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
   var scene = new THREE.Scene();
   var camera = new THREE.PerspectiveCamera(30, viewer.dom_element.offsetWidth / viewer.dom_element.offsetHeight, 1, 3000);
+  var default_camera_distance = 500;
   var light = new THREE.PointLight(0xFFFFFF);
   var current_frame;
   var last_frame;
@@ -56,9 +57,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     renderer.setSize(dom_element.offsetWidth, dom_element.offsetHeight);
     dom_element.appendChild(renderer.domElement);
     
-    camera.position.z = 500;
+    camera.position.z = default_camera_distance;
     
-    light.position.set(0, 0, 500);
+    light.position.set(0, 0, default_camera_distance);
     scene.add(light);
     
     viewer.autorotate = {};
@@ -165,8 +166,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     inv.getInverse(model.matrix);
   
     model.applyMatrix(inv);
-    camera.position.set(0, 0, 500);
-    light.position.set(0, 0, 500);
+    camera.position.set(0, 0, default_camera_distance);
+    light.position.set(0, 0, default_camera_distance);
     
     for (i = 0, count = viewer.model.children.length; i < count; i++) {
       child = model.children[i];
@@ -478,7 +479,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
           model.rotateOnAxis(axis, dx / 150);
         } else {
           multiplier = multiplier || 1.0;
-          multiplier *= camera.position.z / 500;
+          multiplier *= camera.position.z / default_camera_distance;
 
           camera.position.x -= dx * multiplier * 0.25;
           light.position.x -= dx * multiplier * 0.25;

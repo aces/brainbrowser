@@ -33,6 +33,7 @@
   "use strict";
   
   var VolumeViewer = BrainBrowser.VolumeViewer;
+  var image_creation_context = document.createElement("canvas").getContext("2d");
 
   var overlay_proto = {
 
@@ -55,16 +56,15 @@
         getImage: function(zoom) {
           zoom = zoom || 1;
           
-          var context = document.createElement("canvas").getContext("2d");
           var images = [];
-          var max_width, max_height;
-          var final_image_data;
+          var max_width = 0;
+          var max_height = 0;
 
           slices.forEach(function(slice) {
             var color_map = slice.color_map;
-            var image_data = context.createImageData(slice.width, slice.height);
-            var result_width = Math.floor(slice.width * slice.width_space.step * zoom);
-            var result_height = Math.floor(slice.height * slice.height_space.step * zoom);
+            var image_data = image_creation_context.createImageData(slice.width, slice.height);
+            var target_width = Math.floor(slice.width * slice.width_space.step * zoom);
+            var target_height = Math.floor(slice.height * slice.height_space.step * zoom);
             
             color_map.mapColors(slice.data, {
               min: slice.min,
@@ -76,20 +76,26 @@
               destination: image_data.data
             });
             
-            image_data = VolumeViewer.utils.nearestNeighbor(image_data, result_width, result_height);
+            image_data.data.set(VolumeViewer.utils.nearestNeighbor(
+              image_data.data,
+              image_data.width,
+              image_data.height,
+              target_width,
+              target_height,
+              {block_size: 4}
+            ));
+
+            max_width = Math.max(max_width, image_data.width);
+            max_height = Math.max(max_height, image_data.height);
             
             images.push(image_data);
           });
-
-          // Getting the max width and height of all images to produce an image
-          // large enough to display them all
-          max_width = images.reduce(function(max_width, image) { return Math.max(max_width, image.width); }, 0);
-          max_height = images.reduce(function(max_height, image) { return Math.max(max_height, image.height); }, 0);
-
          
-          final_image_data = context.createImageData(max_width, max_height);
-
-          return blendImages(images, final_image_data);
+          return blendImages(
+            images,
+            overlay_volume.blend_ratios,
+            image_creation_context.createImageData(max_width, max_height)
+          );
         }
       };
     },
@@ -181,61 +187,66 @@
     }
   };
 
-  // Blend the pixels of two images using the alpha value of each
-  function blendImages(images, dest) {
-    var n_images = images.length;
+  // Blend the pixels of several images using the alpha value of each
+  function blendImages(images, blend_ratios, target) {
+    var num_images = images.length;
 
-    if (n_images === 1) {
+    if (num_images === 1) {
       return images[0];
     }
 
-    var final_image = dest.data;
-    var n_cols = dest.width;
-    var n_rows = dest.height;
-    var i, j, k;
-    var image, pixel, alpha, current;
+    var target_data = target.data;
+    var width = target.width;
+    var height = target.height;
+    var y, x;
+    var i;
+    var image, image_data, pixel, alpha, current;
     var row_offset;
 
     //This will be used to keep the position in each image of its next pixel
-    var image_iter = [];
+    var image_iter = new Uint32Array(images.length);
+    var alphas = new Float32Array(blend_ratios);
 
-    for (i = 0; i < n_rows; i += 1) {
-      row_offset = i * n_cols;
+    for (y = 0; y < height; y += 1) {
+      row_offset = y * width;
 
-      for (k = 0; k < n_cols; k += 1) {
-        pixel = (row_offset + k) * 4;
+      for (x = 0; x < width; x += 1) {
+        pixel = (row_offset + x) * 4;
+        alpha = 0;
 
-        for (j = 0; j < n_images; j += 1) {
-          image_iter[j] = image_iter[j] || 0;
-          image = images[j];
-          if(i < image.height &&  k < image.width) {
-            alpha = (final_image[pixel + 3] || 0) / 255.0;
-            current = image_iter[j];
+        for (i = 0; i < num_images; i += 1) {
+          image = images[i];
+
+          if(y < image.height &&  x < image.width) {
+            image_data = image.data;
+
+            current = image_iter[i];
       
-            final_image[pixel] = (final_image[pixel + 0] || 0)  *  //Red
-                                alpha + image.data[current + 0] *
-                                (image.data[current + 3] / 255.0);
+            //Red
+            target_data[pixel] = target_data[pixel] * alpha +
+                                  image_data[current] * alphas[i];
       
-            final_image[pixel + 1] = (final_image[pixel + 1] || 0)  *  //Green
-                                     alpha + image.data[current + 1] *
-                                     (image.data[current+3] / 255.0);
+            //Green
+            target_data[pixel + 1] = target_data[pixel + 1] * alpha +
+                                      image_data[current + 1] * alphas[i];
       
-            final_image[pixel + 2] = (final_image[pixel + 2] || 0)  * //Blue
-                                     alpha + image.data[current + 2] *
-                                     (image.data[current + 3] / 255.0);
+            //Blue
+            target_data[pixel + 2] = target_data[pixel + 2] * alpha +
+                                      image_data[current + 2] * alphas[i];
       
-            final_image[pixel + 3] = (final_image[pixel + 3] || 0) + //combine alpha values
-                                     image.data[current + 3];
-            image_iter[j] += 4;
+            target_data[pixel + 3] = 255;
+            alpha += alphas[i];
+            
+            image_iter[i] += 4;
           }
+
         }
+
       }
     }
-    for (i = 3; i < final_image.length; i += 4) {
-      final_image[i] = 255;
-    }
-    return dest;
-  
+
+    return target;
+
   }
 
 }());

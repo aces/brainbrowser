@@ -463,7 +463,6 @@
 
       timeouts[vol_id][axis_name] = setTimeout(function() {
         var volume = viewer.volumes[vol_id];
-        var axis_num = VolumeViewer.utils.axis_to_number[axis_name];
         var slice;
         
         if (slice_num !== undefined) {
@@ -471,8 +470,6 @@
         }
 
         slice = volume.slice(axis_name);
-        slice.vol_id = vol_id;
-        slice.axis_number = axis_num;
         slice.min = volume.min;
         slice.max = volume.max;
         
@@ -582,30 +579,10 @@
         var vol_id = canvas.getAttribute("data-volume-id");
         var volume = viewer.volumes[vol_id];
         var axis_name = canvas.getAttribute("data-axis-name");
-        var axis_num = VolumeViewer.utils.axis_to_number[axis_name];
         var panel = volume.display[VolumeViewer.utils.axis_to_number[axis_name]];
         var space_name, time;
         
         var keys = {
-          //Shift
-          16: function() {
-            var x = panel.mouse.x;
-            var y = panel.mouse.y;
-
-            if (panel.mouse.left || panel.mouse.middle || panel.mouse.right) {
-              panel.last_position.x = x;
-              panel.last_position.y = y;
-              if (viewer.synced){
-                viewer.volumes.forEach(function(volume, synced_vol_id) {
-                  if (synced_vol_id !== vol_id) {
-                    var panel = volume.display[axis_num];
-                    panel.last_position.x = x;
-                    panel.last_position.y = y;
-                  }
-                });
-              }
-            }
-          },
           // CTRL
           17: function() {
             if (panel.anchor) {

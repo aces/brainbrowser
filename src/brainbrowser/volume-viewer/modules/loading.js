@@ -503,14 +503,10 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
           }
 
           if (shift_key) {
-            panel.last_position.x = position.x;
-            panel.last_position.y = position.y;
             if (viewer.synced){
               viewer.volumes.forEach(function(volume, synced_vol_id) {
                 if (synced_vol_id !== vol_id) {
                   var panel = volume.display[axis_num];
-                  panel.last_position.x = position.x;
-                  panel.last_position.y = position.y;
                   panel.updated = true;
                 }
               });

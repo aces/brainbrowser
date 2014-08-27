@@ -93,13 +93,13 @@
         source = flipImage(source, width, height, true, false, block_size);
       }
 
-      //Do nothing if size is the same
-      if(width === target_width && height === target_height) {
-        return original;
-      }
-      
       target_width = Math.abs(target_width);
       target_height = Math.abs(target_height);
+
+      //Do nothing if size is the same
+      if(width === target_width && height === target_height) {
+        return source;
+      }
       
       target = new ArrayType(target_width * target_height * block_size);
       x_ratio   = width / target_width;

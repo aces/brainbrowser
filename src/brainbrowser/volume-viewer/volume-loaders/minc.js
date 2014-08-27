@@ -29,357 +29,6 @@
   "use strict";
      
   var VolumeViewer = BrainBrowser.VolumeViewer;
-  
-  // Prototype for minc volume.
-  var minc_volume_proto = {
-    slice: function(axis, slice_num, time) {
-      slice_num = slice_num === undefined ? this.position[axis] : slice_num;
-      time = time === undefined ? this.current_time : time;
-      
-      var slice = this.data.slice(axis, slice_num, time);
-
-      slice.color_map = this.color_map;
-      slice.min  = this.min;
-      slice.max  = this.max;
-      slice.axis = axis;
-
-      slice.getImage = function(zoom) {
-        zoom = zoom || 1;
-
-        var context = document.createElement("canvas").getContext("2d");
-        var color_map = slice.color_map;
-        var image_data = context.createImageData(slice.width, slice.height);
-        color_map.mapColors(slice.data, {
-          min: slice.min,
-          max: slice.max,
-          scale255: true,
-          brightness: 0,
-          contrast: 1,
-          alpha: slice.alpha,
-          destination: image_data.data
-        });
-
-        var xstep = slice.width_space.step;
-        var ystep = slice.height_space.step;
-
-        image_data.data.set(VolumeViewer.utils.nearestNeighbor(
-          image_data.data,
-          image_data.width,
-          image_data.height,
-          Math.floor(slice.width * xstep * zoom),
-          Math.floor(slice.height * ystep * zoom),
-          {block_size: 4}
-        ));
-        return image_data;
-      };
-      
-      return slice;
-    },
-
-    getIntensityValue: function(x, y, z, time) {
-      x = x === undefined ? this.position.xspace : x;
-      y = y === undefined ? this.position.yspace : y;
-      z = z === undefined ? this.position.zspace : z;
-      time = time === undefined ? this.current_time : time;
-
-      if (x < 0 || x > this.data.xspace.space_length ||
-        y < 0 || y > this.data.yspace.space_length ||
-        z < 0 || z > this.data.zspace.space_length) {
-        return 0;
-      }
-
-      var slice = this.data.slice("zspace", z, time);
-      var data = slice.data;
-      var slice_x, slice_y;
-
-      if (slice.width_space.name === "xspace") {
-        slice_x = x;
-        slice_y = y;
-      } else {
-        slice_x = y;
-        slice_y = z;
-      }
-
-      return data[(slice.height_space.space_length - slice_y - 1) * slice.width + slice_x];
-    },
-    
-    getVoxelCoords: function() {
-      return {
-        x: this.position.xspace,
-        y: this.position.yspace,
-        z: this.position.zspace
-      };
-    },
-    
-    setVoxelCoords: function(x, y, z) {
-      this.position.xspace = x;
-      this.position.yspace = y;
-      this.position.zspace = z;
-    },
-    
-    getWorldCoords: function() {
-      return this.voxelToWorld(this.position.xspace, this.position.yspace, this.position.zspace);
-    },
-    
-    setWorldCoords: function(x, y, z) {
-      var voxel = this.worldToVoxel(x, y, z);
-
-      this.position.xspace = voxel.x;
-      this.position.yspace = voxel.y;
-      this.position.zspace = voxel.z;
-    },
-
-    // Voxel to world matrix applied here is:
-    // cxx * stepx | cyx * stepy | czx * stepz | ox
-    // cxy * stepx | cyy * stepy | czy * stepz | oy
-    // cxz * stepx | cyz * stepy | czz * stepz | oz
-    // 0           | 0           | 0           | 1
-    //
-    // Taken from (http://www.bic.mni.mcgill.ca/software/minc/minc2_format/node4.html)
-    voxelToWorld: function(x, y, z) {
-      var ordered = {};
-      ordered[this.data.order[0]] = x;
-      ordered[this.data.order[1]] = y;
-      ordered[this.data.order[2]] = z;
-
-      x = ordered.xspace;
-      y = ordered.yspace;
-      z = ordered.zspace;
-
-      var cx = this.data.xspace.direction_cosines;
-      var cy = this.data.yspace.direction_cosines;
-      var cz = this.data.zspace.direction_cosines;
-      var stepx = this.data.xspace.step;
-      var stepy = this.data.yspace.step;
-      var stepz = this.data.zspace.step;
-      var o = this.data.voxel_origin;
-
-      return {
-        x: x * cx[0] * stepx + y * cy[0] * stepy + z * cz[0] * stepz + o.x,
-        y: x * cx[1] * stepx + y * cy[1] * stepy + z * cz[1] * stepz + o.y,
-        z: x * cx[2] * stepx + y * cy[2] * stepy + z * cz[2] * stepz + o.z
-      };
-    },
-
-    // World to voxel matrix applied here is:
-    // cxx / stepx | cxy / stepx | cxz / stepx | (-o.x * cxx - o.y * cxy - o.z * cxz) / stepx
-    // cyx / stepy | cyy / stepy | cyz / stepy | (-o.x * cyx - o.y * cyy - o.z * cyz) / stepy
-    // czx / stepz | czy / stepz | czz / stepz | (-o.x * czx - o.y * czy - o.z * czz) / stepz
-    // 0           | 0           | 0           | 1
-    //
-    // Inverse of the voxel to world matrix.
-    worldToVoxel: function(x, y, z) {
-      var cx = this.data.xspace.direction_cosines;
-      var cy = this.data.yspace.direction_cosines;
-      var cz = this.data.zspace.direction_cosines;
-      var stepx = this.data.xspace.step;
-      var stepy = this.data.yspace.step;
-      var stepz = this.data.zspace.step;
-      var o = this.data.voxel_origin;
-      var tx = (-o.x * cx[0] - o.y * cx[1] - o.z * cx[2]) / stepx;
-      var ty = (-o.x * cy[0] - o.y * cy[1] - o.z * cy[2]) / stepy;
-      var tz = (-o.x * cz[0] - o.y * cz[1] - o.z * cz[2]) / stepz;
-
-      var result = {
-        x: Math.round(x * cx[0] / stepx + y * cx[1] / stepx + z * cx[2] / stepx + tx),
-        y: Math.round(x * cy[0] / stepy + y * cy[1] / stepy + z * cy[2] / stepy + ty),
-        z: Math.round(x * cz[0] / stepz + y * cz[1] / stepz + z * cz[2] / stepz + tz)
-      };
-
-      var ordered = {};
-      ordered[this.data.order[0]] = result.x;
-      ordered[this.data.order[1]] = result.y;
-      ordered[this.data.order[2]] = result.z;
-
-      return {
-        x: ordered.xspace,
-        y: ordered.yspace,
-        z: ordered.zspace
-      };
-    }
-    
-  };
-
-  // Prototype for the minc volume's data object.
-  var minc_data_proto = {
-    // Warning: This function can get a little crazy
-    // We are trying to get a slice out of the array. To do this we need to be careful this
-    // we check for the orientation of the slice (steps positive or negative affect the orientation)
-    slice: function(axis, number, time) {
-      var slice;
-      var cached_slices = this.cached_slices;
-      var order0 = this[this.order[0]];
-      time = time || 0;
-      
-      cached_slices[axis] = cached_slices[axis] || [];
-      cached_slices[axis][time] =  cached_slices[axis][time] || [];
-      
-      if(this[axis].step < 0) {
-        number = this[axis].space_length - number;
-      }
-      
-      if(cached_slices[axis][time][number] !== undefined) {
-        slice = cached_slices[axis][time][number];
-        slice.alpha = 1;
-        slice.number = number;
-        return slice;
-      }
-      
-      if(this.order === undefined ) {
-        return false;
-      }
-      
-      var time_offset = 0;
-      
-      if(this.time) {
-        time_offset = time * order0.height * order0.width * parseFloat(order0.space_length);
-      }
-      
-      
-      var length_step = this[axis].width_space.step;
-      var height_step = this[axis].height_space.step;
-      slice = {};
-      var slice_data;
-      var slice_length, height, row_length, element_offset, row_offset, slice_offset;
-      var i, j, k;
-      
-      if(this.order[0] === axis) {
-        slice_length = this[axis].height*this[axis].width;
-        height = this[axis].height;
-        row_length = this[axis].width;
-        element_offset = 1;
-        row_offset = row_length;
-        slice_offset = slice_length;
-        slice_data = new Uint16Array(slice_length);
-        
-        if(length_step > 0) {
-          if(height_step > 0) {
-            for (i = 0; i < slice_length; i++) {
-              slice_data[i]=this.data[time_offset+ slice_offset*number+i];
-            }
-          } else {
-            for(i = height; i > 0; i--) {
-              for(j = 0; j < row_length; j++) {
-                slice_data[(height-i)*row_length+j] = this.data[time_offset+slice_offset*number+i*row_length + j];
-              }
-            }
-          }
-        } else {
-          if(height_step < 0) {
-            for(i = 0; i < height; i++) {
-              for(j = 0; j < row_length; j++) {
-                slice_data[i*row_length+j] = this.data[time_offset+slice_offset*number+i*row_length + row_length - j];
-              }
-            }
-          } else {
-            for(i = height; i > 0; i--) {
-              for(j = 0; j < row_length; j++) {
-                slice_data[(height-i)*row_length+j] = this.data[time_offset+slice_offset*number+i*row_length + row_length - j];
-              }
-            }
-          }
-        }
-        
-      } else if (this.order[1] === axis ) {
-        
-        height = this[axis].height;
-        slice_length = this[axis].height*this[axis].width;
-        row_length = this[axis].width;
-        element_offset = 1;
-        row_offset = order0.slice_length;
-        slice_offset = order0.width;
-        slice_data = new Uint8Array(slice_length);
-        
-        
-        if(height_step < 0) {
-          for(j = 0; j<height; j++) {
-            for(k = 0; k< row_length; k++){
-              slice_data[j*(row_length)+k] = this.data[time_offset+number*slice_offset+row_offset*k+j];
-            }
-          }
-        } else {
-          for (j = height; j >= 0; j--) {
-            for(k = 0; k < row_length; k++) {
-              slice_data[(height-j)*(row_length)+k] = this.data[time_offset+number*slice_offset+row_offset*k+j];
-            }
-          }
-        }
-        
-        
-      } else {
-        height = this[axis].height;
-        slice_length = this[axis].height*this[axis].width;
-        row_length = this[axis].width;
-        element_offset = order0.slice_length;
-        row_offset= order0.width;
-        slice_offset = 1;
-        slice_data = new Uint16Array(slice_length);
-        
-        
-        
-        
-        for ( j = 0; j < height; j++) {
-          for( k = 0; k < row_length; k++){
-            slice_data[j*row_length+k] = this.data[time_offset+number+order0.width*j+k*order0.slice_length];
-          }
-        }
-      }
-      
-      //set the spaces on each axis
-      slice.width_space = this[axis].width_space;
-      slice.height_space = this[axis].height_space;
-      slice.width = row_length;
-      slice.height = height;
-      
-      
-      //Checks if the slices need to be rotated
-      //xspace should have yspace on the x axis and zspace on the y axis
-      if(axis === "xspace" && this.xspace.height_space.name === "yspace"){
-        if (this.zspace.step < 0){
-          slice_data = VolumeViewer.utils.rotateUint16Array90Right(slice_data,slice.width,slice.height);
-        } else {
-          slice_data = VolumeViewer.utils.rotateUint16Array90Left(slice_data,slice.width,slice.height);
-        }
-        slice.width_space = this[axis].height_space;
-        slice.height_space = this[axis].width_space;
-        slice.width = height;
-        slice.height = row_length;
-        
-      }
-      //yspace should be XxZ
-      if(axis === "yspace" && this.yspace.height_space.name === "xspace"){
-        if(this.zspace.step < 0){
-          slice_data = VolumeViewer.utils.rotateUint16Array90Right(slice_data,slice.width,slice.height);
-        }else {
-          slice_data = VolumeViewer.utils.rotateUint16Array90Left(slice_data,slice.width,slice.height);
-        }
-        slice.width_space = this[axis].height_space;
-        slice.height_space = this[axis].width_space;
-        slice.width = height;
-        slice.height = row_length;
-        
-      }
-      //zspace should be XxY
-      if(axis === "zspace" && this.zspace.height_space.name === "xspace"){
-        slice_data = VolumeViewer.utils.rotateUint16Array90Left(slice_data,slice.width,slice.height);
-        slice.width_space = this[axis].width_space;
-        slice.height_space = this[axis].height_space;
-        slice.width = height;
-        slice.height = row_length;
-        
-      }
-      
-      slice.data = slice_data;
-      //set the spaces on each axis
-      slice.width_space = slice.width_space || this[axis].width_space;
-      slice.height_space = slice.height_space || this[axis].height_space;
-      slice.width = slice.width || row_length;
-      slice.height = slice.height || height;
-      cached_slices[axis][time][number] = slice;
-
-      return slice;
-    }
-  };
 
   VolumeViewer.volume_loaders.minc = function(description, callback) {
     var error_message;
@@ -431,14 +80,181 @@
   }
 
   function createMincVolume(header, raw_data, callback){
-    var volume = Object.create(minc_volume_proto);
+    var data = createMincData(header, new Uint8Array(raw_data));
 
-    volume.position = {};
-    volume.current_time = 0;
-    volume.data = createMincData(header, new Uint8Array(raw_data));
-    volume.header = volume.data.header;
-    volume.min = 0;
-    volume.max = 255;
+    var volume = {
+      position: {},
+      current_time: 0,
+      data: data,
+      header: data.header,
+      min: 0,
+      max: 255,
+      slice: function(axis, slice_num, time) {
+        slice_num = slice_num === undefined ? volume.position[axis] : slice_num;
+        time = time === undefined ? volume.current_time : time;
+        
+        var slice = volume.data.slice(axis, slice_num, time);
+
+        slice.color_map = volume.color_map;
+        slice.min  = volume.min;
+        slice.max  = volume.max;
+        slice.axis = axis;
+
+        slice.getImage = function(zoom) {
+          zoom = zoom || 1;
+
+          var context = document.createElement("canvas").getContext("2d");
+          var color_map = slice.color_map;
+          var image_data = context.createImageData(slice.width, slice.height);
+          color_map.mapColors(slice.data, {
+            min: slice.min,
+            max: slice.max,
+            scale255: true,
+            brightness: 0,
+            contrast: 1,
+            alpha: slice.alpha,
+            destination: image_data.data
+          });
+
+          var xstep = slice.width_space.step;
+          var ystep = slice.height_space.step;
+
+          image_data.data.set(VolumeViewer.utils.nearestNeighbor(
+            image_data.data,
+            image_data.width,
+            image_data.height,
+            Math.floor(slice.width * xstep * zoom),
+            Math.floor(slice.height * ystep * zoom),
+            {block_size: 4}
+          ));
+          return image_data;
+        };
+        
+        return slice;
+      },
+
+      getIntensityValue: function(x, y, z, time) {
+        x = x === undefined ? volume.position.xspace : x;
+        y = y === undefined ? volume.position.yspace : y;
+        z = z === undefined ? volume.position.zspace : z;
+        time = time === undefined ? volume.current_time : time;
+
+        if (x < 0 || x > volume.data.xspace.space_length ||
+          y < 0 || y > volume.data.yspace.space_length ||
+          z < 0 || z > volume.data.zspace.space_length) {
+          return 0;
+        }
+
+        var slice = volume.data.slice("zspace", z, time);
+        var data = slice.data;
+        var slice_x, slice_y;
+
+        if (slice.width_space.name === "xspace") {
+          slice_x = x;
+          slice_y = y;
+        } else {
+          slice_x = y;
+          slice_y = z;
+        }
+
+        return data[(slice.height_space.space_length - slice_y - 1) * slice.width + slice_x];
+      },
+      
+      getVoxelCoords: function() {
+        return {
+          x: volume.position.xspace,
+          y: volume.position.yspace,
+          z: volume.position.zspace
+        };
+      },
+      
+      setVoxelCoords: function(x, y, z) {
+        volume.position.xspace = x;
+        volume.position.yspace = y;
+        volume.position.zspace = z;
+      },
+      
+      getWorldCoords: function() {
+        return volume.voxelToWorld(volume.position.xspace, volume.position.yspace, volume.position.zspace);
+      },
+      
+      setWorldCoords: function(x, y, z) {
+        var voxel = volume.worldToVoxel(x, y, z);
+
+        volume.position.xspace = voxel.x;
+        volume.position.yspace = voxel.y;
+        volume.position.zspace = voxel.z;
+      },
+
+      // Voxel to world matrix applied here is:
+      // cxx * stepx | cyx * stepy | czx * stepz | ox
+      // cxy * stepx | cyy * stepy | czy * stepz | oy
+      // cxz * stepx | cyz * stepy | czz * stepz | oz
+      // 0           | 0           | 0           | 1
+      //
+      // Taken from (http://www.bic.mni.mcgill.ca/software/minc/minc2_format/node4.html)
+      voxelToWorld: function(x, y, z) {
+        var ordered = {};
+        ordered[volume.data.order[0]] = x;
+        ordered[volume.data.order[1]] = y;
+        ordered[volume.data.order[2]] = z;
+
+        x = ordered.xspace;
+        y = ordered.yspace;
+        z = ordered.zspace;
+
+        var cx = volume.data.xspace.direction_cosines;
+        var cy = volume.data.yspace.direction_cosines;
+        var cz = volume.data.zspace.direction_cosines;
+        var stepx = volume.data.xspace.step;
+        var stepy = volume.data.yspace.step;
+        var stepz = volume.data.zspace.step;
+        var o = volume.data.voxel_origin;
+
+        return {
+          x: x * cx[0] * stepx + y * cy[0] * stepy + z * cz[0] * stepz + o.x,
+          y: x * cx[1] * stepx + y * cy[1] * stepy + z * cz[1] * stepz + o.y,
+          z: x * cx[2] * stepx + y * cy[2] * stepy + z * cz[2] * stepz + o.z
+        };
+      },
+
+      // World to voxel matrix applied here is:
+      // cxx / stepx | cxy / stepx | cxz / stepx | (-o.x * cxx - o.y * cxy - o.z * cxz) / stepx
+      // cyx / stepy | cyy / stepy | cyz / stepy | (-o.x * cyx - o.y * cyy - o.z * cyz) / stepy
+      // czx / stepz | czy / stepz | czz / stepz | (-o.x * czx - o.y * czy - o.z * czz) / stepz
+      // 0           | 0           | 0           | 1
+      //
+      // Inverse of the voxel to world matrix.
+      worldToVoxel: function(x, y, z) {
+        var cx = volume.data.xspace.direction_cosines;
+        var cy = volume.data.yspace.direction_cosines;
+        var cz = volume.data.zspace.direction_cosines;
+        var stepx = volume.data.xspace.step;
+        var stepy = volume.data.yspace.step;
+        var stepz = volume.data.zspace.step;
+        var o = volume.data.voxel_origin;
+        var tx = (-o.x * cx[0] - o.y * cx[1] - o.z * cx[2]) / stepx;
+        var ty = (-o.x * cy[0] - o.y * cy[1] - o.z * cy[2]) / stepy;
+        var tz = (-o.x * cz[0] - o.y * cz[1] - o.z * cz[2]) / stepz;
+
+        var result = {
+          x: Math.round(x * cx[0] / stepx + y * cx[1] / stepx + z * cx[2] / stepx + tx),
+          y: Math.round(x * cy[0] / stepy + y * cy[1] / stepy + z * cy[2] / stepy + ty),
+          z: Math.round(x * cz[0] / stepz + y * cz[1] / stepz + z * cz[2] / stepz + tz)
+        };
+
+        var ordered = {};
+        ordered[volume.data.order[0]] = result.x;
+        ordered[volume.data.order[1]] = result.y;
+        ordered[volume.data.order[2]] = result.z;
+
+        return {
+          x: ordered.xspace,
+          y: ordered.yspace,
+          z: ordered.zspace
+        };
+      }
+    };
     
     if (BrainBrowser.utils.isFunction(callback)) {
       callback(volume);
@@ -446,9 +262,9 @@
   }
 
   function createMincData(header, data) {
-    var minc_data = Object.create(minc_data_proto);
     var startx, starty, startz, cx, cy, cz;
-    
+    var minc_data = {};
+
     minc_data.header = header;
     minc_data.order = header.order;
     
@@ -526,6 +342,181 @@
     order0.slice_length = order0.height * order0.width;
     minc_data.cached_slices = {};
     minc_data.data = data;
+
+    // Warning: This function can get a little crazy
+    // We are trying to get a slice out of the array. To do this we need to be careful this
+    // we check for the orientation of the slice (steps positive or negative affect the orientation)
+    minc_data.slice = function(axis, number, time) {
+      var slice;
+      var cached_slices = minc_data.cached_slices;
+      var order0 = minc_data[minc_data.order[0]];
+      time = time || 0;
+      
+      cached_slices[axis] = cached_slices[axis] || [];
+      cached_slices[axis][time] =  cached_slices[axis][time] || [];
+      
+      if(minc_data[axis].step < 0) {
+        number = minc_data[axis].space_length - number;
+      }
+      
+      if(cached_slices[axis][time][number] !== undefined) {
+        slice = cached_slices[axis][time][number];
+        slice.alpha = 1;
+        slice.number = number;
+        return slice;
+      }
+      
+      if(minc_data.order === undefined ) {
+        return false;
+      }
+      
+      var time_offset = 0;
+      
+      if(minc_data.time) {
+        time_offset = time * order0.height * order0.width * parseFloat(order0.space_length);
+      }
+      
+      
+      var length_step = minc_data[axis].width_space.step;
+      var height_step = minc_data[axis].height_space.step;
+      slice = {};
+      var slice_data;
+      var slice_length, height, row_length, element_offset, row_offset, slice_offset;
+      var i, j, k;
+      
+      if(minc_data.order[0] === axis) {
+        slice_length = minc_data[axis].height*minc_data[axis].width;
+        height = minc_data[axis].height;
+        row_length = minc_data[axis].width;
+        element_offset = 1;
+        row_offset = row_length;
+        slice_offset = slice_length;
+        slice_data = new Uint16Array(slice_length);
+        
+        if(length_step > 0) {
+          if(height_step > 0) {
+            for (i = 0; i < slice_length; i++) {
+              slice_data[i]=minc_data.data[time_offset + slice_offset*number+i];
+            }
+          } else {
+            for(i = height; i > 0; i--) {
+              for(j = 0; j < row_length; j++) {
+                slice_data[(height-i)*row_length+j] = minc_data.data[time_offset+slice_offset*number+i*row_length + j];
+              }
+            }
+          }
+        } else {
+          if(height_step < 0) {
+            for(i = 0; i < height; i++) {
+              for(j = 0; j < row_length; j++) {
+                slice_data[i*row_length+j] = minc_data.data[time_offset+slice_offset*number+i*row_length + row_length - j];
+              }
+            }
+          } else {
+            for(i = height; i > 0; i--) {
+              for(j = 0; j < row_length; j++) {
+                slice_data[(height-i)*row_length+j] = minc_data.data[time_offset+slice_offset*number+i*row_length + row_length - j];
+              }
+            }
+          }
+        }
+        
+      } else if (minc_data.order[1] === axis ) {
+        
+        height = minc_data[axis].height;
+        slice_length = minc_data[axis].height*minc_data[axis].width;
+        row_length = minc_data[axis].width;
+        element_offset = 1;
+        row_offset = order0.slice_length;
+        slice_offset = order0.width;
+        slice_data = new Uint8Array(slice_length);
+        
+        
+        if(height_step < 0) {
+          for(j = 0; j<height; j++) {
+            for(k = 0; k< row_length; k++){
+              slice_data[j*(row_length)+k] = minc_data.data[time_offset+number*slice_offset+row_offset*k+j];
+            }
+          }
+        } else {
+          for (j = height; j >= 0; j--) {
+            for(k = 0; k < row_length; k++) {
+              slice_data[(height-j)*(row_length)+k] = minc_data.data[time_offset+number*slice_offset+row_offset*k+j];
+            }
+          }
+        }
+        
+        
+      } else {
+        height = minc_data[axis].height;
+        slice_length = minc_data[axis].height*minc_data[axis].width;
+        row_length = minc_data[axis].width;
+        element_offset = order0.slice_length;
+        row_offset= order0.width;
+        slice_offset = 1;
+        slice_data = new Uint16Array(slice_length);
+        
+        for ( j = 0; j < height; j++) {
+          for( k = 0; k < row_length; k++){
+            slice_data[j*row_length+k] = minc_data.data[time_offset+number+order0.width*j+k*order0.slice_length];
+          }
+        }
+      }
+      
+      //set the spaces on each axis
+      slice.width_space = minc_data[axis].width_space;
+      slice.height_space = minc_data[axis].height_space;
+      slice.width = row_length;
+      slice.height = height;
+      
+      
+      //Checks if the slices need to be rotated
+      //xspace should have yspace on the x axis and zspace on the y axis
+      if(axis === "xspace" && minc_data.xspace.height_space.name === "yspace"){
+        if (minc_data.zspace.step < 0){
+          slice_data = VolumeViewer.utils.rotateUint16Array90Right(slice_data,slice.width,slice.height);
+        } else {
+          slice_data = VolumeViewer.utils.rotateUint16Array90Left(slice_data,slice.width,slice.height);
+        }
+        slice.width_space = minc_data[axis].height_space;
+        slice.height_space = minc_data[axis].width_space;
+        slice.width = height;
+        slice.height = row_length;
+        
+      }
+      //yspace should be XxZ
+      if(axis === "yspace" && minc_data.yspace.height_space.name === "xspace"){
+        if(minc_data.zspace.step < 0){
+          slice_data = VolumeViewer.utils.rotateUint16Array90Right(slice_data,slice.width,slice.height);
+        } else {
+          slice_data = VolumeViewer.utils.rotateUint16Array90Left(slice_data,slice.width,slice.height);
+        }
+        slice.width_space = minc_data[axis].height_space;
+        slice.height_space = minc_data[axis].width_space;
+        slice.width = height;
+        slice.height = row_length;
+        
+      }
+      //zspace should be XxY
+      if(axis === "zspace" && minc_data.zspace.height_space.name === "xspace"){
+        slice_data = VolumeViewer.utils.rotateUint16Array90Left(slice_data,slice.width,slice.height);
+        slice.width_space = minc_data[axis].width_space;
+        slice.height_space = minc_data[axis].height_space;
+        slice.width = height;
+        slice.height = row_length;
+        
+      }
+      
+      slice.data = slice_data;
+      //set the spaces on each axis
+      slice.width_space = slice.width_space || minc_data[axis].width_space;
+      slice.height_space = slice.height_space || minc_data[axis].height_space;
+      slice.width = slice.width || row_length;
+      slice.height = slice.height || height;
+      cached_slices[axis][time][number] = slice;
+
+      return slice;
+    };
 
     return minc_data;
   }

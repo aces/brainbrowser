@@ -35,147 +35,143 @@
   var VolumeViewer = BrainBrowser.VolumeViewer;
   var image_creation_context = document.createElement("canvas").getContext("2d");
 
-  var overlay_proto = {
-
-    slice: function(axis, slice_num, time) {
-      slice_num = slice_num === undefined ? this.position[axis] : slice_num;
-      time = time === undefined ? this.current_time : time;
-
-      var overlay_volume = this;
-      var slices = [];
-
-      overlay_volume.volumes.forEach(function(volume, i) {
-        var slice = volume.slice(axis, slice_num, time);
-        slice.alpha = overlay_volume.blend_ratios[i];
-        slices.push(slice);
-      });
-      
-      return {
-        height_space: slices[0].height_space,
-        width_space: slices[0].width_space,
-        getImage: function(zoom) {
-          zoom = zoom || 1;
-          
-          var images = [];
-          var max_width = 0;
-          var max_height = 0;
-
-          slices.forEach(function(slice) {
-            var color_map = slice.color_map;
-            var image_data = image_creation_context.createImageData(slice.width, slice.height);
-            var target_width = Math.floor(slice.width * slice.width_space.step * zoom);
-            var target_height = Math.floor(slice.height * slice.height_space.step * zoom);
-            
-            color_map.mapColors(slice.data, {
-              min: slice.min,
-              max: slice.max,
-              scale255: true,
-              brightness: 0,
-              contrast: 1,
-              alpha: slice.alpha,
-              destination: image_data.data
-            });
-            
-            image_data.data.set(VolumeViewer.utils.nearestNeighbor(
-              image_data.data,
-              image_data.width,
-              image_data.height,
-              target_width,
-              target_height,
-              {block_size: 4}
-            ));
-
-            max_width = Math.max(max_width, image_data.width);
-            max_height = Math.max(max_height, image_data.height);
-            
-            images.push(image_data);
-          });
-         
-          return blendImages(
-            images,
-            overlay_volume.blend_ratios,
-            image_creation_context.createImageData(max_width, max_height)
-          );
-        }
-      };
-    },
-
-    getIntensityValue: function(x, y, z, time) {
-      x = x === undefined ? this.position.xspace : x;
-      y = y === undefined ? this.position.yspace : y;
-      z = z === undefined ? this.position.zspace : z;
-      time = time === undefined ? this.current_time : time;
-
-      var overlay_volume = this;
-      var values = [];
-
-      overlay_volume.volumes.forEach(function(volume) {
-        if (x < 0 || x > volume.data.xspace.space_length ||
-          y < 0 || y > volume.data.yspace.space_length ||
-          z < 0 || z > volume.data.zspace.space_length) {
-          values.push(0);
-        }
-
-        var slice = volume.data.slice("zspace", z, time);
-        var data = slice.data;
-        var slice_x, slice_y;
-
-        if (slice.width_space.name === "xspace") {
-          slice_x = x;
-          slice_y = y;
-        } else {
-          slice_x = y;
-          slice_y = z;
-        }
-
-        values.push(data[(slice.height_space.space_length - slice_y - 1) * slice.width + slice_x]);
-      });
-
-      return values.reduce(function(intensity, current_value, i) {
-        return intensity + current_value * overlay_volume.blend_ratios[i];
-      }, 0);
-    },
-    
-    getVoxelCoords: function() {
-      return {
-        x: this.position.xspace,
-        y: this.position.yspace,
-        z: this.position.zspace
-      };
-    },
-    
-    setVoxelCoords: function(x, y, z) {
-      this.position.xspace = x;
-      this.position.yspace = y;
-      this.position.zspace = z;
-    },
-
-    getWorldCoords: function() {
-      return this.volumes[0].voxelToWorld(this.position.xspace, this.position.yspace, this.position.zspace);
-    },
-    
-    setWorldCoords: function(x, y, z) {
-      var voxel = this.volumes[0].worldToVoxel(x, y, z);
-
-      this.position.xspace = voxel.x;
-      this.position.yspace = voxel.y;
-      this.position.zspace = voxel.z;
-    }
-  };
-
   VolumeViewer.volume_loaders.overlay = function(options, callback) {
     options = options || {};
     var volumes = options.volumes || [];
 
-    var overlay_volume = Object.create(overlay_proto);
-    
-    overlay_volume.type = "overlay";
-    overlay_volume.position = {};
-    overlay_volume.header = volumes[0] ? volumes[0].header : {};
-    overlay_volume.min = 0;
-    overlay_volume.max = 255;
-    overlay_volume.volumes = [];
-    overlay_volume.blend_ratios = [];
+    var overlay_volume = {
+      type: "overlay",
+      position: {},
+      header: volumes[0] ? volumes[0].header : {},
+      min: 0,
+      max: 255,
+      volumes: [],
+      blend_ratios: [],
+      slice: function(axis, slice_num, time) {
+        slice_num = slice_num === undefined ? this.position[axis] : slice_num;
+        time = time === undefined ? this.current_time : time;
+
+        var overlay_volume = this;
+        var slices = [];
+
+        overlay_volume.volumes.forEach(function(volume, i) {
+          var slice = volume.slice(axis, slice_num, time);
+          slice.alpha = overlay_volume.blend_ratios[i];
+          slices.push(slice);
+        });
+        
+        return {
+          height_space: slices[0].height_space,
+          width_space: slices[0].width_space,
+          getImage: function(zoom) {
+            zoom = zoom || 1;
+            
+            var images = [];
+            var max_width = 0;
+            var max_height = 0;
+
+            slices.forEach(function(slice) {
+              var color_map = slice.color_map;
+              var image_data = image_creation_context.createImageData(slice.width, slice.height);
+              var target_width = Math.floor(slice.width * slice.width_space.step * zoom);
+              var target_height = Math.floor(slice.height * slice.height_space.step * zoom);
+              
+              color_map.mapColors(slice.data, {
+                min: slice.min,
+                max: slice.max,
+                scale255: true,
+                brightness: 0,
+                contrast: 1,
+                alpha: slice.alpha,
+                destination: image_data.data
+              });
+              
+              image_data.data.set(VolumeViewer.utils.nearestNeighbor(
+                image_data.data,
+                image_data.width,
+                image_data.height,
+                target_width,
+                target_height,
+                {block_size: 4}
+              ));
+
+              max_width = Math.max(max_width, image_data.width);
+              max_height = Math.max(max_height, image_data.height);
+              
+              images.push(image_data);
+            });
+           
+            return blendImages(
+              images,
+              overlay_volume.blend_ratios,
+              image_creation_context.createImageData(max_width, max_height)
+            );
+          }
+        };
+      },
+
+      getIntensityValue: function(x, y, z, time) {
+        x = x === undefined ? this.position.xspace : x;
+        y = y === undefined ? this.position.yspace : y;
+        z = z === undefined ? this.position.zspace : z;
+        time = time === undefined ? this.current_time : time;
+
+        var overlay_volume = this;
+        var values = [];
+
+        overlay_volume.volumes.forEach(function(volume) {
+          if (x < 0 || x > volume.data.xspace.space_length ||
+            y < 0 || y > volume.data.yspace.space_length ||
+            z < 0 || z > volume.data.zspace.space_length) {
+            values.push(0);
+          }
+
+          var slice = volume.data.slice("zspace", z, time);
+          var data = slice.data;
+          var slice_x, slice_y;
+
+          if (slice.width_space.name === "xspace") {
+            slice_x = x;
+            slice_y = y;
+          } else {
+            slice_x = y;
+            slice_y = z;
+          }
+
+          values.push(data[(slice.height_space.space_length - slice_y - 1) * slice.width + slice_x]);
+        });
+
+        return values.reduce(function(intensity, current_value, i) {
+          return intensity + current_value * overlay_volume.blend_ratios[i];
+        }, 0);
+      },
+      
+      getVoxelCoords: function() {
+        return {
+          x: this.position.xspace,
+          y: this.position.yspace,
+          z: this.position.zspace
+        };
+      },
+      
+      setVoxelCoords: function(x, y, z) {
+        this.position.xspace = x;
+        this.position.yspace = y;
+        this.position.zspace = z;
+      },
+
+      getWorldCoords: function() {
+        return this.volumes[0].voxelToWorld(this.position.xspace, this.position.yspace, this.position.zspace);
+      },
+      
+      setWorldCoords: function(x, y, z) {
+        var voxel = this.volumes[0].worldToVoxel(x, y, z);
+
+        this.position.xspace = voxel.x;
+        this.position.yspace = voxel.y;
+        this.position.zspace = voxel.z;
+      }
+    };
 
     volumes.forEach(function(volume) {
       overlay_volume.volumes.push(volume);

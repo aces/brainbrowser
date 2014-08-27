@@ -28,8 +28,6 @@
 (function() {
   "use strict";
 
-  var image_creation_context = document.createElement("canvas").getContext("2d");
-
   BrainBrowser.VolumeViewer.utils = {
     /**
     * @doc object
@@ -65,20 +63,18 @@
     * * **block_size** The size of each unit for scaling (default: 1). 
     * * **array_type** Constructor for the result array type (default: Uint8ClampedArray). 
     * 
-    * @returns {ImageData} The scaled image.
+    * @returns {array} The scaled image array.
     *
     * @description
     * Scale an image using nearest neighbor interpolation.
     * ```js
-    * BrainBrowser.VolumeViewer.utils.nearestNeighbor(image, 512, 512);
+    * BrainBrowser.VolumeViewer.utils.nearestNeighbor(image_data, 256, 256, 512, 512);
     * ```
     */
     nearestNeighbor: function(source, width, height, target_width, target_height, options) {
       options = options || {};
 
-      var image, image_data;
       var x_ratio, y_ratio;
-      var source_x, source_y;
       var source_y_offset, source_block_offset;
       var target;
       var target_x, target_y;

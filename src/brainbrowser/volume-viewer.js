@@ -314,6 +314,21 @@
 
     /**
     * @doc object
+    * @name VolumeViewer.events:volumeloaded
+    *
+    * @description
+    * Triggered when a volume loaded through **viewer.loadVolume()** or one of the
+    * volumes loaded from **viewer.loadVolume()** has completely finished loading.
+    * The event handler receives the volume as sole argument.
+    *
+    * ```js
+    *    BrainBrowser.events.addEventListener("volumeloaded", function(volume) {
+    *      //...
+    *    });
+    * ```
+    */
+    /**
+    * @doc object
     * @name VolumeViewer.events:volumesloaded
     *
     * @description

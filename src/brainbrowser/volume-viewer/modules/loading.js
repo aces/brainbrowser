@@ -355,8 +355,11 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
         var position = volume.position[axis] = Math.floor(volume.header[axis].space_length / 2);
         
         viewer.fetchSlice(vol_id, axis, position, function() {
-          if (++slices_loaded === 3 && BrainBrowser.utils.isFunction(callback)) {
-            callback(volume);
+          if (++slices_loaded === 3) {
+            BrainBrowser.events.triggerEvent("volumeloaded", volume);
+            if (BrainBrowser.utils.isFunction(callback)) {
+              callback(volume);
+            }
           }
         });
 

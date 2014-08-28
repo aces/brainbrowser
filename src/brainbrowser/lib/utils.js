@@ -310,6 +310,19 @@
       return mouse;
     },
 
+    /**
+    * @doc function
+    * @name BrainBrowser.utils:captureTouch
+    * @param {DOMElement} element An element in the DOM.
+    * @returns {array} An array of objects that track the touches
+    * currently active on the element.
+    *
+    * @description
+    * Return a touch tracker for the DOM element given as argument.
+    * ```js
+    * BrainBrowser.utils.captureTouch(dom_element);
+    * ```
+    */
     captureTouch: function(element) {
       var touches = [];
 

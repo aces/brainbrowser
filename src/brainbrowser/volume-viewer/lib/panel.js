@@ -76,6 +76,50 @@
   *   }
   * });
   * ```
+  * Handlers can be attached to the  **panel** object to listen
+  * for certain events occuring over the panel's lifetime. Currently, the
+  * following panel events can be listened for:
+  *
+  * * **zoom** The zoome level has changed on the panel.
+  * * **draw** The panel is being re-drawn.
+  *
+  * To listen for an event, simply use the viewer's **addEventListener()** method with
+  * with the event name and a callback funtion:
+  *
+  * ```js
+  *    viewer.addEventListener("sliceupdate", function() {
+  *      console.log("Slice updated!");
+  *    });
+  *
+  * ```
+  */
+  /**
+  * @doc object
+  * @name VolumeViewer.Panel Events:draw
+  *
+  * @description
+  * Triggered when the panel is redrawn
+  * The event handler receives the panel volume as argument.
+  *
+  * ```js
+  *    panel.addEventListener("draw", function(volume) {
+  *      console.log("New zoom level:", panel.zoom);
+  *    });
+  * ```
+  */
+  /**
+  * @doc object
+  * @name VolumeViewer.Panel Events:zoom
+  *
+  * @description
+  * Triggered when the user changes the zoom level of the panel (scroll or touch events).
+  * The event handler receives the panel volume as argument.
+  *
+  * ```js
+  *    panel.addEventListener("zoom", function(volume) {
+  *      console.log("New zoom level:", panel.zoom);
+  *    });
+  * ```
   */
   BrainBrowser.VolumeViewer.createPanel = function(options) {
 
@@ -323,7 +367,7 @@
         if (old_zoom_level !== panel.zoom) {
           old_zoom_level = panel.zoom;
           panel.updated = true;
-          BrainBrowser.events.triggerEvent("zoom", panel.volume, panel);
+          panel.triggerEvent("zoom", panel.volume);
         }
 
         if (!panel.updated) {
@@ -340,7 +384,7 @@
         context.clearRect(0, 0, canvas.width, canvas.height);
 
         panel.drawSlice();
-        BrainBrowser.events.triggerEvent("draw", volume, panel);
+        panel.triggerEvent("draw", volume);
         panel.drawCursor(cursor_color);
 
         if (active) {
@@ -374,10 +418,16 @@
       }
     });
 
+    BrainBrowser.events.addEventModel(panel);
+
     if (panel.canvas && BrainBrowser.utils.isFunction(panel.canvas.getContext)) {
       panel.context = panel.canvas.getContext("2d");
       panel.mouse = BrainBrowser.utils.captureMouse(panel.canvas);
       panel.touches = BrainBrowser.utils.captureTouch(panel.canvas);
+    }
+
+    if (panel.volume) {
+      panel.propagateEventTo("*", panel.volume);
     }
 
     return panel;

@@ -68,7 +68,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
 
       colorModel(color_array, shapes);
 
-      BrainBrowser.events.triggerEvent("updatecolors", color_array);
+      viewer.triggerEvent("updatecolors", color_array);
 
       if (complete) {
         complete();
@@ -116,7 +116,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     if (data && index >= 0 && index < data.values.length) {
       data.values[index] = value;
 
-      BrainBrowser.events.triggerEvent("updateintensitydata", data);
+      viewer.triggerEvent("updateintensitydata", data);
       viewer.updateColors(data, {
         complete: options.complete
       });
@@ -154,7 +154,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
       complete: options.complete
     });
 
-    BrainBrowser.events.triggerEvent("changeintensityrange", data);
+    viewer.triggerEvent("changeintensityrange", data);
   };
 
   /**

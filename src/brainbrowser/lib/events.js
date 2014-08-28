@@ -27,63 +27,143 @@
 (function() {
   "use strict";
 
-  var event_listeners = [];
-
   BrainBrowser.events = {
-
+    
     /**
     * @doc function
-    * @name BrainBrowser.events:addEventListener
-    * @param {string} event The event name.
-    * @param {function} callback The event handler. 
+    * @name BrainBrowser.events:addEventModel
+    * @param {object} object Any JavaScript object.
     *
     * @description
-    * Add an event handler to handle event **event**.
+    * Add event model methods to the object passed as argument.
     * ```js
-    * BrainBrowser.events.addEventListener("error", function(message) {
-    *   // Handle error.
-    * });
-    * ```
-    *
-    * The arguments passed to the handler are those passed to **triggerEvent()**. 
-    * Consult documentation for the **Surface Viewer** or **Volume Viewer** for 
-    * details about normal lifecycle events for each app.
-    */
-    addEventListener: function(event, callback) {
-      if (!event_listeners[event]) {
-        event_listeners[event] = [];
-      }
-      
-      event_listeners[event].push(callback);
-    },
-
-    /**
-    * @doc function
-    * @name BrainBrowser.events:triggerEvent
-    * @param {string} event The event name. 
-    *
-    * @description
-    * Trigger all handlers associated with event **event**.
-    * Any arguments after the first will be passed to the 
-    * event handler.
-    * ```js
-    * BrainBrowser.events.triggerEvent("error", "There was an error!");
+    * BrainBrowser.events.addEventModel(object);
     * ```
     */
-    triggerEvent: function(event) {
-      var args = Array.prototype.slice.call(arguments, 1);
-      if (event_listeners[event]) {
-        event_listeners[event].forEach(function(callback) {
-          callback.apply(null, args);
-        });
-      }
+    addEventModel: function(object) {
+      var event_listeners = [];
+      var propagated_events = {};
 
-      if (event_listeners["*"]) {
-        event_listeners["*"].forEach(function(callback) {
-          callback.call(null, event);
-        });
-      }
+      /**
+      * @doc function
+      * @name BrainBrowser.Event Model:addEventListener
+      * @param {string} event\_name The event name.
+      * @param {function} callback The event handler. 
+      *
+      * @description
+      * Add an event handler to handle event **event\_name**.
+      * ```js
+      * listening_object.addEventListener("my-event", function(message) {
+      *   // Handle event.
+      * });
+      * ```
+      *
+      * The arguments passed to the handler are those passed to **triggerEvent()**. 
+      * Consult documentation for the **Surface Viewer** or **Volume Viewer** for 
+      * details about normal lifecycle events for each app.
+      *
+      * Note that "*" can be given as the **event\_name** to add a handler to any
+      * event that is trigger on the object. The actual name of the triggered event
+      * will be passed as first argument to these types of handlers.
+      */
+      object.addEventListener = function(event_name, callback) {
+        if (!event_listeners[event_name]) {
+          event_listeners[event_name] = [];
+        }
+        
+        event_listeners[event_name].push(callback);
+      };
+
+      /**
+      * @doc function
+      * @name BrainBrowser.Event Model:triggerEvent
+      * @param {string} event\_name The event name. 
+      *
+      * @description
+      * Trigger all handlers associated with event **event\_name**.
+      * Any arguments after the first will be passed to the 
+      * event handler.
+      * ```js
+      * trigger_object.triggerEvent("my-event", "Some info");
+      * ```
+      */
+      object.triggerEvent = function(event_name) {
+        var trigger = this;
+        var full_args = Array.prototype.slice.call(arguments);
+        var args = full_args.slice(1);
+        if (event_listeners[event_name]) {
+          event_listeners[event_name].forEach(function(callback) {
+            callback.apply(trigger, args);
+          });
+        }
+
+        if (event_listeners["*"]) {
+          event_listeners["*"].forEach(function(callback) {
+            callback.apply(trigger, full_args);
+          });
+        }
+
+        if (propagated_events[event_name]) {
+          propagated_events[event_name].forEach(function(other) {
+            other.triggerEvent.apply(trigger, full_args);
+          });
+        }
+
+        if (propagated_events["*"]) {
+          propagated_events["*"].forEach(function(other) {
+            other.triggerEvent.apply(trigger, full_args);
+          });
+        }
+
+        if (!propagated_events[event_name] && !propagated_events["*"] &&
+            object !== BrainBrowser.events) {
+          BrainBrowser.events.triggerEvent.apply(trigger, full_args);
+        }
+      };
+
+      /**
+      * @doc function
+      * @name BrainBrowser.Event Model:propateEventTo
+      * @param {string} event\_name The event name.
+      * @param {object} other The object to propagate events to. 
+      *
+      * @description
+      * Propagate any events triggered on this object to the object given as
+      * argument.
+      * ```js
+      * source_object.propagateEventTo("my-event", target_object);
+      * ```
+      *
+      * Note that "*" can be given as the **event\_name** to propagate all
+      * events to the target object.
+      */
+      object.propagateEventTo = function(event_name, other) {
+        propagated_events[event_name] = propagated_events[event_name] || [];
+
+        propagated_events[event_name].push(other);
+      };
+
+      /**
+      * @doc function
+      * @name BrainBrowser.Event Model:propateEventFrom
+      * @param {string} event\_name The event name.
+      * @param {object} other The object to propagate events from. 
+      *
+      * @description
+      * Propagate any events triggered on the object given as
+      * argument to this object. 
+      * ```js
+      * target_object.propagateEventFrom("my-event", source_object);
+      * ```
+      *
+      * Note that "*" can be given as the **event\_name** to propagate all
+      * events to from the source object.
+      */
+      object.propagateEventFrom = function(event_name, other) {
+        other.propagateEventTo(event_name, object);
+      };
     }
   };
 
+  BrainBrowser.events.addEventModel(BrainBrowser.events);
 })();

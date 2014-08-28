@@ -63,7 +63,7 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
   * ```
   */
   viewer.render = function() {
-    BrainBrowser.events.triggerEvent("rendering");
+    viewer.triggerEvent("rendering");
 
     (function render() {
       window.requestAnimationFrame(render);

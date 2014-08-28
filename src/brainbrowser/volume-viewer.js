@@ -38,7 +38,7 @@
 *  BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
 *
 *    // Add an event listener.
-*    BrainBrowser.events.addEventListener("volumesloaded", function() {
+*    viewer.addEventListener("volumesloaded", function() {
 *      console.log("Viewer is ready!");
 *    });
 *
@@ -223,7 +223,7 @@
   * BrainBrowser.VolumeViewer.start("brainbrowser", function(viewer) {
   *
   *   // Add an event listener.
-  *   BrainBrowser.events.addEventListener("volumesloaded", function() {
+  *   viewer.addEventListener("volumesloaded", function() {
   *     console.log("Viewer is ready!");
   *   });
   *
@@ -282,7 +282,7 @@
     *
     * @description
     * The viewer object encapsulates all functionality of the Surface Viewer.
-    * Handlers can be attached to the  **BrainBrowser.events** object to listen
+    * Handlers can be attached to the  **viewer** object to listen
     * for certain events occuring over the viewer's lifetime. Currently, the
     * following viewer events can be listened for:
     *
@@ -290,15 +290,12 @@
     * * **rendering** Viewer has started rendering.
     * * **volumeuiloaded** A new volume UI has been created by the viewer.
     * * **sliceupdate** A new slice has been rendered to the viewer.
-    * * **draw** A panel is being re-drawn.
-    * * **error** An error has occured.
-    * * ***** All events.
     *
     * To listen for an event, simply use the viewer's **addEventListener()** method with
     * with the event name and a callback funtion:
     *
     * ```js
-    *    BrainBrowser.events.addEventListener("sliceupdate", function() {
+    *    viewer.addEventListener("sliceupdate", function() {
     *      console.log("Slice updated!");
     *    });
     *
@@ -314,7 +311,7 @@
 
     /**
     * @doc object
-    * @name VolumeViewer.events:volumeloaded
+    * @name VolumeViewer.Viewer Events:volumeloaded
     *
     * @description
     * Triggered when a volume loaded through **viewer.loadVolume()** or one of the
@@ -322,98 +319,85 @@
     * The event handler receives the volume as sole argument.
     *
     * ```js
-    *    BrainBrowser.events.addEventListener("volumeloaded", function(volume) {
+    *    viewer.addEventListener("volumeloaded", function(volume) {
     *      //...
     *    });
     * ```
     */
     /**
     * @doc object
-    * @name VolumeViewer.events:volumesloaded
+    * @name VolumeViewer.Viewer Events:volumesloaded
     *
     * @description
     * Triggered when volumes loaded through **viewer.loadVolumes()** have completely
     * finished loading. The event handler receives no arguments.
     *
     * ```js
-    *    BrainBrowser.events.addEventListener("volumesloaded", function() {
+    *    viewer.addEventListener("volumesloaded", function() {
     *      //...
     *    });
     * ```
     */
     /**
     * @doc object
-    * @name VolumeViewer.events:rendering
+    * @name VolumeViewer.Viewer Events:rendering
     *
     * @description
     * Triggered when the viewer begins rendering after a call to **viewer.render()**.
     * The event handler receives no arguments.
     *
     * ```js
-    *    BrainBrowser.events.addEventListener("rendering", function() {
+    *    viewer.addEventListener("rendering", function() {
     *      //...
     *    });
     * ```
     */
     /**
     * @doc object
-    * @name VolumeViewer.events:volumeuiloaded
+    * @name VolumeViewer.Viewer Events:volumeuiloaded
     *
     * @description
     * Triggered after a UI is created for a newly loaded volume. The DOM element
     * created and the volume ID are passed as arguments.
     *
     * ```js
-    *    BrainBrowser.events.addEventListener("volumeuiloaded", function(container, vol_id) {
+    *    viewer.addEventListener("volumeuiloaded", function(container, vol_id) {
     *      //...
     *    });
     * ```
     */
     /**
     * @doc object
-    * @name VolumeViewer.events:sliceupdate
+    * @name VolumeViewer.Viewer Events:sliceupdate
     *
     * @description
     * Triggered when the slice currently being displayed is updated.
     * The event handler receives no arguments.
     *
     * ```js
-    *    BrainBrowser.events.addEventListener("sliceupdate", function() {
+    *    viewer.addEventListener("sliceupdate", function() {
     *      //...
     *    });
     * ```
     */
     /**
     * @doc object
-    * @name VolumeViewer.events:draw
+    * @name VolumeViewer.Viewer Events:draw
     *
     * @description
     * Triggered when a panel currently being displayed is re-drawn.
     * The event handler receives two arguments: the volume and the panel.
     *
     * ```js
-    *    BrainBrowser.events.addEventListener("draw", function(volume, panel) {
+    *    viewer.addEventListener("draw", function(volume, panel) {
     *      //...
     *    });
     * ```
     */
+   
     /**
     * @doc object
-    * @name VolumeViewer.events:zoom
-    *
-    * @description
-    * Triggered when the user changes the zoom level of a panel (scroll or touch events).
-    * The event handler receives two arguments: the volume and the panel.
-    *
-    * ```js
-    *    BrainBrowser.events.addEventListener("zoom", function(volume, panel) {
-    *      console.log("New zoom level:", panel.zoom);
-    *    });
-    * ```
-    */
-    /**
-    * @doc object
-    * @name VolumeViewer.events:error
+    * @name VolumeViewer.Global Events:error
     *
     * @description
     * Triggered when an error of some sort has occured. The error message, if any,
@@ -426,24 +410,12 @@
     * ```
     *
     */
-    /**
-    * @doc object
-    * @name VolumeViewer.events:*
-    *
-    * @description
-    * Triggered on all events. The event name is passed as argument.
-    *
-    * ```js
-    *    BrainBrowser.events.addEventListener("*", function(event_name) {
-    *      //...
-    *    });
-    * ```
-    *
-    */
     
     Object.keys(VolumeViewer.modules).forEach(function(m) {
       VolumeViewer.modules[m](viewer);
     });
+
+    BrainBrowser.events.addEventModel(viewer);
 
     console.log("BrainBrowser Volume Viewer v" + BrainBrowser.version);
 
@@ -491,7 +463,7 @@
 
         updateSlice(vol_id, axis_name, slice);
             
-        BrainBrowser.events.triggerEvent("sliceupdate", vol_id, axis_name, slice);
+        viewer.triggerEvent("sliceupdate", vol_id, axis_name, slice);
 
         if (BrainBrowser.utils.isFunction(callback)) {
           callback(slice);

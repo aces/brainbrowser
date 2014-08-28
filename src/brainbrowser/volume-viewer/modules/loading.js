@@ -105,14 +105,14 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
               complete();
             }
 
-            BrainBrowser.events.triggerEvent("volumesloaded");
+            viewer.triggerEvent("volumesloaded");
           });
         } else {
           if (BrainBrowser.utils.isFunction(complete)) {
             complete();
           }
 
-          BrainBrowser.events.triggerEvent("volumesloaded");
+          viewer.triggerEvent("volumesloaded");
         }
       });
     }
@@ -351,12 +351,16 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       volume.display = createVolumeDisplay(viewer.dom_element, vol_id, volume_description);
       volume.color_map = viewer.default_color_map;
 
+      BrainBrowser.events.addEventModel(volume);
+
+      volume.propagateEventTo("*", viewer);
+
       ["xspace", "yspace", "zspace"].forEach(function(axis) {
         var position = volume.position[axis] = Math.floor(volume.header[axis].space_length / 2);
         
         viewer.fetchSlice(vol_id, axis, position, function() {
           if (++slices_loaded === 3) {
-            BrainBrowser.events.triggerEvent("volumeloaded", volume);
+            viewer.triggerEvent("volumeloaded", volume);
             if (BrainBrowser.utils.isFunction(callback)) {
               callback(volume);
             }
@@ -458,20 +462,6 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
           container.appendChild(node);
         }
       });
-    }
-
-    if (viewer.volumeUIControls) {
-      var controls  = document.createElement("div");
-      controls.className = "volume-viewer-controls volume-controls";
-      if (viewer.volumeUIControls.defer_until_page_load) {
-        BrainBrowser.events.addEventListener("ready", function() {
-          container.appendChild(controls);
-          viewer.volumeUIControls(controls, volume, vol_id);
-        });
-      } else {
-        viewer.volumeUIControls(controls, volume, vol_id);
-        container.appendChild(controls);
-      }
     }
   
     ///////////////////////////////////
@@ -681,7 +671,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
     })();
 
     dom_element.appendChild(container);
-    BrainBrowser.events.triggerEvent("volumeuiloaded", container, vol_id);
+    viewer.triggerEvent("volumeuiloaded", container, vol_id);
 
     return display;
   }

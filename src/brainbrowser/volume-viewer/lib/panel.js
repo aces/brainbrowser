@@ -356,8 +356,8 @@
           context.restore();
         }
 
-        last_position.x = this.cursor.x;
-        last_position.y = this.cursor.y;
+        last_position.x = this.mouse.x;
+        last_position.y = this.mouse.y;
         this.updated = false;
       }
     };

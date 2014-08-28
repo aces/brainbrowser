@@ -82,7 +82,7 @@
     options = options || {};
 
     var old_zoom_level = 0;
-    var last_position = {
+    var last_pointer_position = {
       x: 0,
       y: 0
     };
@@ -111,8 +111,8 @@
       * ```
       */
       setSize: function(width, height) {
-        this.canvas.width = width;
-        this.canvas.height = height;
+        panel.canvas.width = width;
+        panel.canvas.height = height;
       },
 
       /**
@@ -126,8 +126,8 @@
       * ```
       */
       setSlice: function(slice) {
-        this.slice = slice;
-        this.slice_image = this.slice.getImage(this.zoom);
+        panel.slice = slice;
+        panel.slice_image = panel.slice.getImage(panel.zoom);
       },
 
       /**
@@ -140,7 +140,7 @@
       * ```
       */
       refreshSliceImage: function() {
-        this.slice_image = this.slice.getImage(this.zoom);
+        panel.slice_image = panel.slice.getImage(panel.zoom);
       },
 
       /**
@@ -153,12 +153,12 @@
       * ```
       */
       updateCursor: function() {
-        var volume = this.volume;
-        var slice = this.slice;
-        var origin = this.getImageOrigin();
+        var volume = panel.volume;
+        var slice = panel.slice;
+        var origin = panel.getImageOrigin();
 
-        this.cursor.x = volume.position[slice.width_space.name] * Math.abs(slice.width_space.step) * this.zoom + origin.x;
-        this.cursor.y = (slice.height_space.space_length - volume.position[slice.height_space.name] - 1) * Math.abs(slice.height_space.step) * this.zoom  + origin.y;
+        panel.cursor.x = volume.position[slice.width_space.name] * Math.abs(slice.width_space.step) * panel.zoom + origin.x;
+        panel.cursor.y = (slice.height_space.space_length - volume.position[slice.height_space.name] - 1) * Math.abs(slice.height_space.step) * panel.zoom  + origin.y;
       },
 
       /**
@@ -176,14 +176,14 @@
       * ```
       */
       followPointer: function(pointer) {
-        var dx = pointer.x - last_position.x;
-        var dy = pointer.y - last_position.y;
-        this.image_center.x += dx;
-        this.image_center.y += dy;
-        this.cursor.x += dx;
-        this.cursor.y += dy;
-        last_position.x = pointer.x;
-        last_position.y = pointer.y;
+        var dx = pointer.x - last_pointer_position.x;
+        var dy = pointer.y - last_pointer_position.y;
+        panel.image_center.x += dx;
+        panel.image_center.y += dy;
+        panel.cursor.x += dx;
+        panel.cursor.y += dy;
+        last_pointer_position.x = pointer.x;
+        last_pointer_position.y = pointer.y;
       },
 
       /**
@@ -196,9 +196,9 @@
       * ```
       */
       reset: function() {
-        this.zoom = 1;
-        this.image_center.x = this.canvas.width / 2;
-        this.image_center.y = this.canvas.height / 2;
+        panel.zoom = 1;
+        panel.image_center.x = panel.canvas.width / 2;
+        panel.image_center.y = panel.canvas.height / 2;
       },
       
       /**
@@ -214,8 +214,8 @@
       */
       getImageOrigin: function() {
         return {
-          x: this.image_center.x - this.slice_image.width / 2,
-          y: this.image_center.y - this.slice_image.height / 2
+          x: panel.image_center.x - panel.slice_image.width / 2,
+          y: panel.image_center.y - panel.slice_image.height / 2
         };
       },
       
@@ -229,12 +229,12 @@
       * ```
       */
       drawSlice: function() {
-        var image = this.slice_image;
+        var image = panel.slice_image;
         var origin;
 
         if (image) {
-          origin = this.getImageOrigin();
-          this.context.putImageData(image, origin.x, origin.y);
+          origin = panel.getImageOrigin();
+          panel.context.putImageData(image, origin.x, origin.y);
         }
 
       },
@@ -250,8 +250,8 @@
       * ```
       */
       drawCursor: function(color) {
-        var context = this.context;
-        var zoom = this.zoom;
+        var context = panel.context;
+        var zoom = panel.zoom;
         var length = 8 * zoom;
         var x, y, space;
         var distance;
@@ -264,8 +264,8 @@
         context.fillStyle = color;
 
         space = zoom;
-        x = this.cursor.x;
-        y = this.cursor.y;
+        x = panel.cursor.x;
+        y = panel.cursor.y;
 
         context.lineWidth = space * 2;
         context.beginPath();
@@ -279,37 +279,37 @@
         context.lineTo(x + length, y);
         context.stroke();
 
-        if (this.anchor) {
-          dx = (this.anchor.x - this.cursor.x) / this.zoom;
-          dy = (this.anchor.y - this.cursor.y) / this.zoom;
+        if (panel.anchor) {
+          dx = (panel.anchor.x - panel.cursor.x) / panel.zoom;
+          dy = (panel.anchor.y - panel.cursor.y) / panel.zoom;
           distance = Math.sqrt(dx * dx + dy * dy);
 
           context.font = "bold 12px arial";
 
-          if (this.canvas.width - this.cursor.x < 50) {
+          if (panel.canvas.width - panel.cursor.x < 50) {
             context.textAlign = "right";
-            x = this.cursor.x - length;
+            x = panel.cursor.x - length;
           } else {
             context.textAlign = "left";
-            x = this.cursor.x + length;
+            x = panel.cursor.x + length;
           }
 
-          if (this.cursor.y < 30) {
+          if (panel.cursor.y < 30) {
             context.textBaseline = "top";
-            y = this.cursor.y + length;
+            y = panel.cursor.y + length;
           } else {
             context.textBaseline = "bottom";
-            y = this.cursor.y - length;
+            y = panel.cursor.y - length;
           }
 
           context.fillText(distance.toFixed(2), x, y);
 
           context.lineWidth = 1;
           context.beginPath();
-          context.arc(this.anchor.x, this.anchor.y, 2 * space, 0, 2 * Math.PI);
+          context.arc(panel.anchor.x, panel.anchor.y, 2 * space, 0, 2 * Math.PI);
           context.fill();
-          context.moveTo(this.anchor.x, this.anchor.y);
-          context.lineTo(this.cursor.x, this.cursor.y);
+          context.moveTo(panel.anchor.x, panel.anchor.y);
+          context.lineTo(panel.cursor.x, panel.cursor.y);
           context.stroke();
 
         }
@@ -320,28 +320,28 @@
       },
 
       draw: function(cursor_color, active) {
-        if (old_zoom_level !== this.zoom) {
-          old_zoom_level = this.zoom;
-          this.updated = true;
-          BrainBrowser.events.triggerEvent("zoom", this.volume, this);
+        if (old_zoom_level !== panel.zoom) {
+          old_zoom_level = panel.zoom;
+          panel.updated = true;
+          BrainBrowser.events.triggerEvent("zoom", panel.volume, panel);
         }
 
-        if (!this.updated) {
+        if (!panel.updated) {
           return;
         }
 
-        var volume = this.volume;
-        var canvas = this.canvas;
-        var context = this.context;
+        var volume = panel.volume;
+        var canvas = panel.canvas;
+        var context = panel.context;
         var frame_width = 4;
         var half_frame_width = frame_width / 2;
         
         context.globalAlpha = 255;
         context.clearRect(0, 0, canvas.width, canvas.height);
 
-        this.drawSlice();
-        BrainBrowser.events.triggerEvent("draw", volume, this);
-        this.drawCursor(cursor_color);
+        panel.drawSlice();
+        BrainBrowser.events.triggerEvent("draw", volume, panel);
+        panel.drawCursor(cursor_color);
 
         if (active) {
           context.save();
@@ -356,9 +356,15 @@
           context.restore();
         }
 
-        last_position.x = this.mouse.x;
-        last_position.y = this.mouse.y;
-        this.updated = false;
+        if (panel.touches[0]) {
+          last_pointer_position.x = panel.touches[0].x;
+          last_pointer_position.y = panel.touches[0].y;
+        } else {
+          last_pointer_position.x = panel.mouse.x;
+          last_pointer_position.y = panel.mouse.y;
+        }
+        
+        panel.updated = false;
       }
     };
 

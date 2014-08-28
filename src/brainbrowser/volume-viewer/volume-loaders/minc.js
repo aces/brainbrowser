@@ -29,6 +29,7 @@
   "use strict";
      
   var VolumeViewer = BrainBrowser.VolumeViewer;
+  var image_creation_context = document.createElement("canvas").getContext("2d");
 
   VolumeViewer.volume_loaders.minc = function(description, callback) {
     var error_message;
@@ -103,9 +104,16 @@
         slice.getImage = function(zoom) {
           zoom = zoom || 1;
 
-          var context = document.createElement("canvas").getContext("2d");
           var color_map = slice.color_map;
-          var image_data = context.createImageData(slice.width, slice.height);
+          var xstep = slice.width_space.step;
+          var ystep = slice.height_space.step;
+          var target_width = Math.floor(slice.width * xstep * zoom);
+          var target_height = Math.floor(slice.height * ystep * zoom);
+          var abs_target_width = Math.abs(target_width);
+          var abs_target_height = Math.abs(target_height);
+          var source_image = image_creation_context.createImageData(slice.width, slice.height);
+          var target_image = image_creation_context.createImageData(abs_target_width, abs_target_height);
+
           color_map.mapColors(slice.data, {
             min: slice.min,
             max: slice.max,
@@ -113,21 +121,19 @@
             brightness: 0,
             contrast: 1,
             alpha: slice.alpha,
-            destination: image_data.data
+            destination: source_image.data
           });
 
-          var xstep = slice.width_space.step;
-          var ystep = slice.height_space.step;
-
-          image_data.data.set(VolumeViewer.utils.nearestNeighbor(
-            image_data.data,
-            image_data.width,
-            image_data.height,
-            Math.floor(slice.width * xstep * zoom),
-            Math.floor(slice.height * ystep * zoom),
+          target_image.data.set(VolumeViewer.utils.nearestNeighbor(
+            source_image.data,
+            source_image.width,
+            source_image.height,
+            target_width,
+            target_height,
             {block_size: 4}
           ));
-          return image_data;
+
+          return target_image;
         };
         
         return slice;

@@ -72,10 +72,14 @@
 
             slices.forEach(function(slice) {
               var color_map = slice.color_map;
-              var image_data = image_creation_context.createImageData(slice.width, slice.height);
               var target_width = Math.floor(slice.width * slice.width_space.step * zoom);
               var target_height = Math.floor(slice.height * slice.height_space.step * zoom);
+              var abs_target_width = Math.abs(target_width);
+              var abs_target_height = Math.abs(target_height);
+              var source_image = image_creation_context.createImageData(slice.width, slice.height);
+              var target_image = image_creation_context.createImageData(abs_target_width, abs_target_height);
               
+
               color_map.mapColors(slice.data, {
                 min: slice.min,
                 max: slice.max,
@@ -83,22 +87,22 @@
                 brightness: 0,
                 contrast: 1,
                 alpha: slice.alpha,
-                destination: image_data.data
+                destination: source_image.data
               });
               
-              image_data.data.set(VolumeViewer.utils.nearestNeighbor(
-                image_data.data,
-                image_data.width,
-                image_data.height,
+              target_image.data.set(VolumeViewer.utils.nearestNeighbor(
+                source_image.data,
+                source_image.width,
+                source_image.height,
                 target_width,
                 target_height,
                 {block_size: 4}
               ));
 
-              max_width = Math.max(max_width, image_data.width);
-              max_height = Math.max(max_height, image_data.height);
+              max_width = Math.max(max_width, abs_target_width);
+              max_height = Math.max(max_height, abs_target_height);
               
-              images.push(image_data);
+              images.push(target_image);
             });
            
             return blendImages(

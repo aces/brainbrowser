@@ -53,8 +53,8 @@
       * @description
       * Add an event handler to handle event **event\_name**.
       * ```js
-      * listening_object.addEventListener("error", function(message) {
-      *   // Handle error.
+      * listening_object.addEventListener("my-event", function(message) {
+      *   // Handle event.
       * });
       * ```
       *
@@ -84,7 +84,7 @@
       * Any arguments after the first will be passed to the 
       * event handler.
       * ```js
-      * trigger_object.triggerEvent("error", "There was an error!");
+      * trigger_object.triggerEvent("my-event", "Some info");
       * ```
       */
       object.triggerEvent = function(event_name) {
@@ -97,15 +97,15 @@
           });
         }
 
-        if (propagated_events[event_name]) {
-          propagated_events[event_name].forEach(function(other) {
-            other.triggerEvent.apply(trigger, full_args);
-          });
-        }
-
         if (event_listeners["*"]) {
           event_listeners["*"].forEach(function(callback) {
             callback.apply(trigger, full_args);
+          });
+        }
+
+        if (propagated_events[event_name]) {
+          propagated_events[event_name].forEach(function(other) {
+            other.triggerEvent.apply(trigger, full_args);
           });
         }
 
@@ -113,6 +113,11 @@
           propagated_events["*"].forEach(function(other) {
             other.triggerEvent.apply(trigger, full_args);
           });
+        }
+
+        if (!propagated_events[event_name] && !propagated_events["*"] &&
+            object !== BrainBrowser.events) {
+          BrainBrowser.events.triggerEvent.apply(trigger, full_args);
         }
       };
 
@@ -155,19 +160,8 @@
       * events to from the source object.
       */
       object.propagateEventFrom = function(event_name, other) {
-        other.addEventListener(event_name, function() {
-          var trigger = this;
-          var args = Array.prototype.slice.call(arguments);
-          if (event_name !== "*") {
-            args.unshift(event_name);
-          }
-          object.triggerEvent.apply(trigger, args);
-        });
+        other.propagateEventTo(event_name, object);
       };
-
-      if (object !== BrainBrowser.events) {
-        object.propagateEventTo("*", BrainBrowser.events);
-      }
     }
   };
 

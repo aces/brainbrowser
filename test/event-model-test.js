@@ -354,15 +354,28 @@ QUnit.test("Send arguments when propagating all events from an object using '*'"
 
 QUnit.test("Propagate events to BrainBrowser.events", function(assert) {
   var source = {};
-  var target = {};
   var triggered = false;
 
   BrainBrowser.events.addEventModel(source);
-  BrainBrowser.events.addEventModel(target);
-
   BrainBrowser.events.addEventListener("event", function() { triggered = true; });
 
   source.triggerEvent("event");
 
   assert.ok(triggered);
+});
+
+QUnit.test("Propagate events to BrainBrowser.events only once in a chain", function(assert) {
+  var source = {};
+  var target = {};
+  var count = 0;
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target);
+
+  source.propagateEventTo("event", target);
+  BrainBrowser.events.addEventListener("event", function() { count++; });
+
+  source.triggerEvent("event");
+
+  assert.strictEqual(count, 1);
 });

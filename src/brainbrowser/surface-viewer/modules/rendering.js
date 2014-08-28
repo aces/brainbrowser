@@ -419,7 +419,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     if (old_zoom_level !== viewer.zoom) {
       old_zoom_level = viewer.zoom;
       viewer.updated = true;
-      BrainBrowser.events.triggerEvent("zoom", viewer.zoom);
+      viewer.triggerEvent("zoom", viewer.zoom);
     }
 
     if (viewer.updated) {
@@ -428,7 +428,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
         light.position.z = new_z;
       }
       effect.render(scene, camera);
-      BrainBrowser.events.triggerEvent("draw", effect, scene, camera);
+      viewer.triggerEvent("draw", effect, scene, camera);
       viewer.updated = false;
     }
   }

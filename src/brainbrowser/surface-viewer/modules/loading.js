@@ -245,7 +245,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     clearModelData();
         
     viewer.resetView();
-    BrainBrowser.events.triggerEvent("clearscreen");
+    viewer.triggerEvent("clearscreen");
   };
   
   
@@ -313,10 +313,10 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
         viewer.blend(0.5);
 
-        BrainBrowser.events.triggerEvent("loadintensitydata", viewer.blend_data);
-        BrainBrowser.events.triggerEvent("blendcolormaps", data.range_min, data.range_max, data);
+        viewer.triggerEvent("loadintensitydata", viewer.blend_data);
+        viewer.triggerEvent("blendcolormaps", data.range_min, data.range_max, data);
       } else {
-        BrainBrowser.events.triggerEvent("loadintensitydata", data);
+        viewer.triggerEvent("loadintensitydata", data);
         viewer.updateColors(data, {
           complete: options.complete
         });
@@ -331,7 +331,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var model_data = viewer.model_data.get(options.model_name);
     viewer.color_map = color_map;
     
-    BrainBrowser.events.triggerEvent("loadcolormap", color_map);
+    viewer.triggerEvent("loadcolormap", color_map);
 
     if (model_data && model_data.intensity_data) {
       viewer.updateColors(model_data.intensity_data, { filename: filename });
@@ -403,7 +403,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
     addObject(model_data, filename, render_depth);
 
-    BrainBrowser.events.triggerEvent("displaymodel", viewer.model);
+    viewer.triggerEvent("displaymodel", viewer.model);
 
     if (complete) complete();
   }

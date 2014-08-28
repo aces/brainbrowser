@@ -180,7 +180,7 @@ $(function() {
     //////////////////////////////////
     // Per volume UI hooks go in here.
     //////////////////////////////////
-    BrainBrowser.events.addEventListener("volumeuiloaded", function(container, vol_id) {
+    viewer.addEventListener("volumeuiloaded", function(container, vol_id) {
       container = $(container);
 
       container.find(".button").button();
@@ -511,7 +511,7 @@ $(function() {
      /////////////////////////////////////////////////////
     // UI updates to be performed after each slice update.
     //////////////////////////////////////////////////////
-    BrainBrowser.events.addEventListener("sliceupdate", function(vol_id) {
+    viewer.addEventListener("sliceupdate", function(vol_id) {
       var volume = viewer.volumes[vol_id];
       var world_coords = volume.getWorldCoords();
       var voxel_coords = volume.getVoxelCoords();

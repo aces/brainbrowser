@@ -310,6 +310,19 @@
       return mouse;
     },
 
+    /**
+    * @doc function
+    * @name BrainBrowser.utils:captureTouch
+    * @param {DOMElement} element An element in the DOM.
+    * @returns {array} An array of objects that track the touches
+    * currently active on the element.
+    *
+    * @description
+    * Return a touch tracker for the DOM element given as argument.
+    * ```js
+    * BrainBrowser.utils.captureTouch(dom_element);
+    * ```
+    */
     captureTouch: function(element) {
       var touches = [];
 
@@ -344,57 +357,6 @@
       element.addEventListener("touchend", updateTouches, false);
       
       return touches;
-    },
-
-    addEventModel: function(object) {
-      var event_listeners = [];
-      var propagated_events = {};
-
-      object.addEventListener = function(event_name, callback) {
-        if (!event_listeners[event_name]) {
-          event_listeners[event_name] = [];
-        }
-        
-        event_listeners[event_name].push(callback);
-      };
-
-      object.triggerEvent = function(event_name) {
-        var trigger = this;
-        var full_args = Array.prototype.slice.call(arguments);
-        var args = full_args.slice(1);
-        if (event_listeners[event_name]) {
-          event_listeners[event_name].forEach(function(callback) {
-            callback.apply(trigger, args);
-          });
-        }
-
-        if (propagated_events[event_name]) {
-          propagated_events[event_name].forEach(function(other) {
-            other.triggerEvent.apply(trigger, full_args);
-          });
-        }
-
-        if (event_listeners["*"]) {
-          event_listeners["*"].forEach(function(callback) {
-            callback.call(trigger, event_name);
-          });
-        }
-      };
-
-      object.propagateEventTo = function(event_name, other) {
-        propagated_events[event_name] = propagated_events[event_name] || [];
-
-        propagated_events[event_name].push(other);
-      };
-
-      object.propagateEventFrom = function(event_name, other) {
-        other.addEventListener(event_name, function() {
-          var trigger = this;
-          var args = Array.prototype.slice.call(arguments);
-          args.unshift(event_name);
-          object.triggerEvent.apply(trigger, args);
-        });
-      };
     }
   
   };

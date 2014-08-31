@@ -123,7 +123,7 @@
 
       /**
       * @doc function
-      * @name BrainBrowser.Event Model:propateEventTo
+      * @name BrainBrowser.Event Model:propagateEventTo
       * @param {string} event\_name The event name.
       * @param {object} other The object to propagate events to. 
       *
@@ -145,7 +145,7 @@
 
       /**
       * @doc function
-      * @name BrainBrowser.Event Model:propateEventFrom
+      * @name BrainBrowser.Event Model:propagateEventFrom
       * @param {string} event\_name The event name.
       * @param {object} other The object to propagate events from. 
       *

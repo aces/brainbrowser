@@ -497,6 +497,21 @@ QUnit.test("directPropagationTargets() should list '*' propagation uniquely", fu
   assert.deepEqual(source.directPropagationTargets("event"), [target]);
 });
 
+QUnit.test("directPropagationTargets() should default to listing all direct targets", function(assert) {
+  var source = {};
+  var target1 = {};
+  var target2 = {};
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target1);
+  BrainBrowser.events.addEventModel(target2);
+
+  source.propagateEventTo("event", target1);
+  source.propagateEventTo("event", target2);
+
+  assert.deepEqual(source.directPropagationTargets(), [target1, target2]);
+});
+
 QUnit.test("List all propagation targets", function(assert) {
   var source = {};
   var target = {};
@@ -580,6 +595,21 @@ QUnit.test("allPropagationTargets() should list '*' propagation uniquely", funct
   assert.deepEqual(source.allPropagationTargets("event"), [target]);
 });
 
+QUnit.test("allPropagationTargets() should default to listing all targets", function(assert) {
+  var source = {};
+  var target1 = {};
+  var target2 = {};
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target1);
+  BrainBrowser.events.addEventModel(target2);
+
+  source.propagateEventTo("event", target1);
+  target1.propagateEventTo("event", target2);
+
+  assert.deepEqual(source.allPropagationTargets(), [target1, target2]);
+});
+
 QUnit.test("Throw an exception on attempts to propagate to an object without an event model", function(assert) {
   var source = {};
 
@@ -623,3 +653,138 @@ QUnit.test("Throw an exception on cycles", function(assert) {
   );
 });
 
+QUnit.test("Stop propagating events", function(assert) {
+  var source = {};
+  var target = {};
+  var triggered = false;
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target);
+
+  source.propagateEventTo("event", target);
+  target.addEventListener("event", function() { triggered = true; });
+
+  source.triggerEvent("event");
+
+  assert.ok(triggered);
+
+  triggered = false;
+
+  source.stopPropagatingTo(target);
+  source.triggerEvent("event");
+
+  assert.strictEqual(triggered, false);
+});
+
+QUnit.test("Stop propagating events should only stop propagating to given object", function(assert) {
+  var source = {};
+  var target1 = {};
+  var target2 = {};
+  var triggered1 = false;
+  var triggered2 = false;
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target1);
+  BrainBrowser.events.addEventModel(target2);
+
+  source.propagateEventTo("event", target1);
+  source.propagateEventTo("event", target2);
+  target1.addEventListener("event", function() { triggered1 = true; });
+  target2.addEventListener("event", function() { triggered2 = true; });
+
+  source.triggerEvent("event");
+
+  assert.ok(triggered1);
+  assert.ok(triggered2);
+
+  triggered1 = false;
+  triggered2 = false;
+
+  source.stopPropagatingTo(target1);
+  source.triggerEvent("event");
+
+  assert.strictEqual(triggered1, false);
+  assert.ok(triggered2);
+});
+
+QUnit.test("Stop propagating '*'", function(assert) {
+  var source = {};
+  var target = {};
+  var triggered = false;
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target);
+
+  source.propagateEventTo("*", target);
+  target.addEventListener("event", function() { triggered = true; });
+
+  source.triggerEvent("event");
+
+  assert.ok(triggered);
+
+  triggered = false;
+
+  source.stopPropagatingTo(target);
+  source.triggerEvent("event");
+
+  assert.strictEqual(triggered, false);
+});
+
+QUnit.test("Triggering 'eventmodelcleanup' event should stop propagation", function(assert) {
+  var source = {};
+  var target = {};
+  var triggered = false;
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target);
+
+  source.propagateEventTo("event", target);
+  target.addEventListener("event", function() { triggered = true; });
+
+  source.triggerEvent("event");
+
+  assert.ok(triggered);
+
+  triggered = false;
+
+  target.triggerEvent("eventmodelcleanup");
+  source.triggerEvent("event");
+
+  assert.strictEqual(triggered, false);
+});
+
+QUnit.test("Triggering 'eventmodelcleanup' event should not interfere with other propagation in a chain", function(assert) {
+  var source = {};
+  var target1 = {};
+  var target2 = {};
+  var triggered1 = false;
+  var triggered2 = false;
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target1);
+  BrainBrowser.events.addEventModel(target2);
+
+  source.propagateEventTo("event", target1);
+  target1.propagateEventTo("event", target2);
+ 
+  target1.addEventListener("event", function() { triggered1 = true; });
+  target2.addEventListener("event", function() { triggered2 = true; });
+
+  source.triggerEvent("event");
+
+  assert.ok(triggered1);
+  assert.ok(triggered2);
+
+  triggered1 = false;
+  triggered2 = false;
+
+  target1.triggerEvent("eventmodelcleanup");
+
+  source.triggerEvent("event");
+  assert.strictEqual(triggered1, false);
+  assert.strictEqual(triggered2, false);
+
+  target1.triggerEvent("event");
+  assert.ok(triggered1);
+  assert.ok(triggered2);
+});

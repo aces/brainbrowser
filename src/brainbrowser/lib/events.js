@@ -129,6 +129,15 @@
       *
       * Note that "*" can be given as the **event\_name** to propagate all
       * events to the target object.
+      *
+      * **IMPORTANT:** There is a risk of memory leaks when propagating events
+      * as the source object will maintain a reference to the target object,
+      * preventing it from being garbage collected. To avoid this, trigger the
+      * the **eventmodelcleanup** event on the target object when it will no longer
+      * be used. This will remove all event model references to it.
+      * ```js
+      * target_object.triggerEvent("eventmodelcleanup");
+      * ```
       */
       object.propagateEventTo = function(event_name, other) {
         if (!BrainBrowser.utils.isFunction(other.allPropagationTargets)) {
@@ -141,9 +150,18 @@
 
         propagated_events[event_name] = propagated_events[event_name] || [];
 
+        if (object.directPropagationTargets().indexOf(other) === -1) {
+          other.addEventListener("eventmodelcleanup", function() {
+            if (this === other) {
+              object.stopPropagatingTo(other);
+            }
+          });
+        }
+
         if (propagated_events[event_name].indexOf(other) === -1) {
           propagated_events[event_name].push(other);
-        }  
+        }
+
       };
 
       /**
@@ -161,9 +179,36 @@
       *
       * Note that "*" can be given as the **event\_name** to propagate all
       * events to from the source object.
+      *
+      * **IMPORTANT:** There is a risk of memory leaks when propagating events
+      * as the source object will maintain a reference to the target object,
+      * preventing it from being garbage collected. To avoid this, trigger the
+      * the **eventmodelcleanup** event on the target object when it will no longer
+      * be used. This will remove all event model references to it.
+      * ```js
+      * target_object.triggerEvent("eventmodelcleanup");
+      * ```
       */
       object.propagateEventFrom = function(event_name, other) {
         other.propagateEventTo(event_name, object);
+      };
+
+      /**
+      * @doc function
+      * @name BrainBrowser.Event Model:stopPropagatingTo
+      * @param {object} other The object to cancel propagations to. 
+      *
+      * @description
+      * Cancel all propagations to the object given as argument.
+      *
+      * ```js
+      * source_object.stopPropagatingTo(target_object);
+      * ```
+      */
+      object.stopPropagatingTo = function(other) {
+        Object.keys(propagated_events).forEach(function(event_name) {
+          propagated_events[event_name] = propagated_events[event_name].filter(function(target) { return target !== other; });
+        });
       };
 
       /**
@@ -182,15 +227,17 @@
       *
       */
       object.directPropagationTargets = function(event_name) {
-        var propagation_targets = Array.prototype.slice.call(propagated_events[event_name] || []);
+        var propagation_targets = [];
+        var event_names = event_name === undefined ? Object.keys(propagated_events) : [event_name, "*"];
         
-        if (propagated_events["*"]) {
-          propagated_events["*"].forEach(function(other) {
+        event_names.forEach(function(event_name) {
+          var targets = propagated_events[event_name] || [];
+          targets.forEach(function(other) {
             if (propagation_targets.indexOf(other) === -1) {
               propagation_targets.push(other);
             }
           });
-        }
+        });
 
         return propagation_targets;
       };
@@ -213,7 +260,7 @@
       */
       object.allPropagationTargets = function(event_name) {
         var direct_targets = object.directPropagationTargets(event_name);
-        var propagation_targets = [].concat(direct_targets);
+        var propagation_targets = Array.prototype.slice.call(direct_targets);
 
         direct_targets.forEach(function(target) {
           target.allPropagationTargets(event_name).forEach(function(recursive_target) {

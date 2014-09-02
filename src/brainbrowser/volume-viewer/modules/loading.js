@@ -284,6 +284,10 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   * ```
   */
   viewer.clearVolumes = function() {
+    viewer.volumes.forEach(function(volume) {
+      volume.triggerEvent("eventmodelcleanup");
+    });
+
     viewer.volumes = [];
     viewer.active_canvas = null;
     viewer.dom_element.innerHTML = "";
@@ -348,6 +352,12 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       var slices_loaded = 0;
 
       BrainBrowser.events.addEventModel(volume);
+
+      volume.addEventListener("eventmodelcleanup", function() {
+        volume.display.forEach(function(panel) {
+          panel.triggerEvent("eventmodelcleanup");
+        });
+      });
 
       viewer.volumes[vol_id] = volume;
       volume.display = createVolumeDisplay(viewer.dom_element, vol_id, volume_description);

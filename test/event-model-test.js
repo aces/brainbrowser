@@ -116,6 +116,23 @@ QUnit.test("Propagate events", function(assert) {
   assert.ok(triggered);
 });
 
+QUnit.test("Propagate events uniquely", function(assert) {
+  var source = {};
+  var target = {};
+  var count = 0;
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target);
+
+  source.propagateEventTo("event", target);
+  source.propagateEventTo("event", target);
+  target.addEventListener("event", function() { count++; });
+
+  source.triggerEvent("event");
+
+  assert.strictEqual(count, 1);
+});
+
 QUnit.test("Propagate event arguments", function(assert) {
   var source = {};
   var target = {};
@@ -272,6 +289,23 @@ QUnit.test("Propagate all events using '*'", function(assert) {
   assert.ok(triggered);
 });
 
+QUnit.test("Propagate events uniquely when using '*'", function(assert) {
+  var source = {};
+  var target = {};
+  var count = 0;
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target);
+
+  source.propagateEventTo("event", target);
+  source.propagateEventTo("*", target);
+  target.addEventListener("event", function() { count++; });
+
+  source.triggerEvent("event");
+
+  assert.strictEqual(count, 1);
+});
+
 QUnit.test("Set 'this' to source object when propagating all events using '*'", function(assert) {
   var source = {};
   var target = {};
@@ -379,3 +413,213 @@ QUnit.test("Propagate events to BrainBrowser.events only once in a chain", funct
 
   assert.strictEqual(count, 1);
 });
+
+QUnit.test("List direct propagation targets", function(assert) {
+  var source = {};
+  var target = {};
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target);
+
+  source.propagateEventTo("event", target);
+
+  assert.deepEqual(source.directPropagationTargets("event"), [target]);
+});
+
+QUnit.test("directPropagationTargets() should list multiple propagation targets", function(assert) {
+  var source = {};
+  var target1 = {};
+  var target2 = {};
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target1);
+  BrainBrowser.events.addEventModel(target2);
+
+  source.propagateEventTo("event", target1);
+  source.propagateEventTo("event", target2);
+
+  assert.deepEqual(source.directPropagationTargets("event"), [target1, target2]);
+});
+
+QUnit.test("directPropagationTargets() should not list recursive targets", function(assert) {
+  var source = {};
+  var target1 = {};
+  var target2 = {};
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target1);
+  BrainBrowser.events.addEventModel(target2);
+
+  source.propagateEventTo("event", target1);
+  target1.propagateEventTo("event", target2);
+
+  assert.deepEqual(source.directPropagationTargets("event"), [target1]);
+});
+
+QUnit.test("directPropagationTargets() should list propagation targets uniquely", function(assert) {
+  var source = {};
+  var target1 = {};
+  var target2 = {};
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target1);
+  BrainBrowser.events.addEventModel(target2);
+
+  source.propagateEventTo("event", target1);
+  source.propagateEventTo("event", target2);
+  target1.propagateEventTo("event", target2);
+
+  assert.deepEqual(source.directPropagationTargets("event"), [target1, target2]);
+});
+
+QUnit.test("directPropagationTargets() should list '*' propagation", function(assert) {
+  var source = {};
+  var target = {};
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target);
+
+  source.propagateEventTo("*", target);
+
+  assert.deepEqual(source.directPropagationTargets("event"), [target]);
+});
+
+QUnit.test("directPropagationTargets() should list '*' propagation uniquely", function(assert) {
+  var source = {};
+  var target = {};
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target);
+
+  source.propagateEventTo("event", target);
+  source.propagateEventTo("*", target);
+
+  assert.deepEqual(source.directPropagationTargets("event"), [target]);
+});
+
+QUnit.test("List all propagation targets", function(assert) {
+  var source = {};
+  var target = {};
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target);
+
+  source.propagateEventTo("event", target);
+
+  assert.deepEqual(source.allPropagationTargets("event"), [target]);
+});
+
+QUnit.test("allPropagationTargets() should list multiple propagation targets", function(assert) {
+  var source = {};
+  var target1 = {};
+  var target2 = {};
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target1);
+  BrainBrowser.events.addEventModel(target2);
+
+  source.propagateEventTo("event", target1);
+  source.propagateEventTo("event", target2);
+
+  assert.deepEqual(source.allPropagationTargets("event"), [target1, target2]);
+});
+
+QUnit.test("allPropagationTargets() should list propagation targets recursively", function(assert) {
+  var source = {};
+  var target1 = {};
+  var target2 = {};
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target1);
+  BrainBrowser.events.addEventModel(target2);
+
+  source.propagateEventTo("event", target1);
+  target1.propagateEventTo("event", target2);
+
+  assert.deepEqual(source.allPropagationTargets("event"), [target1, target2]);
+});
+
+QUnit.test("allPropagationTargets() should list propagation targets uniquely", function(assert) {
+  var source = {};
+  var target1 = {};
+  var target2 = {};
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target1);
+  BrainBrowser.events.addEventModel(target2);
+
+  source.propagateEventTo("event", target1);
+  source.propagateEventTo("event", target2);
+  target1.propagateEventTo("event", target2);
+
+  assert.deepEqual(source.allPropagationTargets("event"), [target1, target2]);
+});
+
+QUnit.test("allPropagationTargets() should list '*' propagation", function(assert) {
+  var source = {};
+  var target = {};
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target);
+
+  source.propagateEventTo("*", target);
+
+  assert.deepEqual(source.allPropagationTargets("event"), [target]);
+});
+
+QUnit.test("allPropagationTargets() should list '*' propagation uniquely", function(assert) {
+  var source = {};
+  var target = {};
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target);
+
+  source.propagateEventTo("event", target);
+  source.propagateEventTo("*", target);
+
+  assert.deepEqual(source.allPropagationTargets("event"), [target]);
+});
+
+QUnit.test("Throw an exception on attempts to propagate to an object without an event model", function(assert) {
+  var source = {};
+
+  BrainBrowser.events.addEventModel(source);
+
+  assert.throws(function() {
+      source.propagateEventTo("event", {});
+    },
+    /event model/
+  );
+});
+
+QUnit.test("Throw an exception on attempts to propagate from BrainBrowser.events", function(assert) {
+  var target = {};
+
+  BrainBrowser.events.addEventModel(target);
+
+  assert.throws(function() {
+      BrainBrowser.events.propagateEventTo("event", target);
+    },
+    /cycle/
+  );
+});
+
+QUnit.test("Throw an exception on cycles", function(assert) {
+  var source = {};
+  var target1 = {};
+  var target2 = {};
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target1);
+  BrainBrowser.events.addEventModel(target2);
+
+  source.propagateEventTo("event", target1);
+  target1.propagateEventTo("event", target2);
+
+  assert.throws(function() {
+      target2.propagateEventTo("event", source);
+    },
+    /cycle/
+  );
+});
+

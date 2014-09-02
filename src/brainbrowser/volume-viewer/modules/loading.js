@@ -347,11 +347,11 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
     openVolume(volume_description, function(volume) {
       var slices_loaded = 0;
 
+      BrainBrowser.events.addEventModel(volume);
+
       viewer.volumes[vol_id] = volume;
       volume.display = createVolumeDisplay(viewer.dom_element, vol_id, volume_description);
       volume.color_map = viewer.default_color_map;
-
-      BrainBrowser.events.addEventModel(volume);
 
       volume.propagateEventTo("*", viewer);
 

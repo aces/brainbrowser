@@ -216,5 +216,5 @@ module.exports = function(grunt) {
   grunt.registerTask("build", ["test", "compile", "compress"]);
   grunt.registerTask("test", ["jshint", "qunit"]);
   grunt.registerTask("docs", ["docular", "clean:docs"]);
-  grunt.registerTask("default", "jshint");
+  grunt.registerTask("default", "test");
 };

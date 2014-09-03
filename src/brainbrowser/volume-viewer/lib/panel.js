@@ -180,34 +180,6 @@
 
       /**
       * @doc function
-      * @name panel.panel:setSlice
-      * @param {object} slice Slice object to render on the panel.
-      * @description
-      * Set the volume slice to be rendered on the panel.
-      * ```js
-      * panel.setSlice(slice);
-      * ```
-      */
-      setSlice: function(slice) {
-        panel.slice = slice;
-        panel.slice_image = panel.slice.getImage(panel.zoom);
-      },
-
-      /**
-      * @doc function
-      * @name panel.panel:refreshSliceImage
-      * @description
-      * Set the volume slice to be rendered on the panel.
-      * ```js
-      * Refresh the slice image currently being displayed.
-      * ```
-      */
-      refreshSliceImage: function() {
-        panel.slice_image = panel.slice.getImage(panel.zoom);
-      },
-
-      /**
-      * @doc function
       * @name panel.panel:followPointer
       * @param {object} pointer The pointer to follow.
       * @description
@@ -249,39 +221,20 @@
         panel.image_center.x = panel.canvas.width / 2;
         panel.image_center.y = panel.canvas.height / 2;
       },
-      
-      /**
-      * @doc function
-      * @name panel.panel:getImageOrigin
-      * @returns {object} Returns an object containing the **x** and **y** coordinates of the
-      * top-left corner of the currently displayed slice on the panel.
-      * @description
-      * Get the coordinates of the top-left corner of the slice currently being displayed.
-      * ```js
-      * panel.getImageOrigin();
-      * ```
-      */
-      getImageOrigin: function() {
-        var slice = panel.slice;
-        return {
-          x: panel.image_center.x - Math.abs(slice.width_space.step * slice.width_space.space_length * panel.zoom) / 2,
-          y: panel.image_center.y - Math.abs(slice.height_space.step * slice.height_space.space_length * panel.zoom) / 2
-        };
-      },
 
       /**
       * @doc function
-      * @name panel.panel:updateCursor
+      * @name panel.panel:getCursorPosition
       * @description
-      * Update the panel cursor based on the current position with the given volume.
+      * Get the current position of the cursor.
       * ```js
-      * panel.updateCursor();
+      * panel.getCursorPosition();
       * ```
       */
       getCursorPosition: function() {
         var volume = panel.volume;
         var slice = panel.slice;
-        var origin = panel.getImageOrigin();
+        var origin = getDrawingOrigin(panel);
 
         return {
           x: volume.position[slice.width_space.name] * Math.abs(slice.width_space.step) * panel.zoom + origin.x,
@@ -289,8 +242,21 @@
         };
       },
 
+      /**
+      * @doc function
+      * @name panel.panel:updateVolumePosition
+      * @param {number} x The x coordinate of the canvas position.
+      * @param {number} y The y coordinate of the canvas position.
+      * @description
+      * Update the volume position based on the given x and y
+      * coordinates on the panel. Can be used without arguments
+      * which will update based only on the zoom level.
+      * ```js
+      * panel.updateVolumePosition(x, y);
+      * ```
+      */
       updateVolumePosition: function(x, y) {
-        var image_origin = panel.getImageOrigin();
+        var origin = getDrawingOrigin(panel);
         var zoom = panel.zoom;
         var volume = panel.volume;
         var slice = panel.slice;
@@ -303,8 +269,8 @@
           y = cursor.y;
         }
 
-        slice_x = Math.round((x - image_origin.x) / zoom / Math.abs(slice.width_space.step));
-        slice_y = Math.round(slice.height_space.space_length - (y - image_origin.y) / zoom  / Math.abs(slice.height_space.step) - 1);
+        slice_x = Math.round((x - origin.x) / zoom / Math.abs(slice.width_space.step));
+        slice_y = Math.round(slice.height_space.space_length - (y - origin.y) / zoom  / Math.abs(slice.height_space.step) - 1);
 
         volume.position[panel.slice.width_space.name] = slice_x;
         volume.position[panel.slice.height_space.name] = slice_y;
@@ -312,6 +278,19 @@
         panel.updated = true;
       },
 
+      /**
+      * @doc function
+      * @name panel.panel:updateSlice
+      * @param {function} callback A callback function to call after
+      * the update is complete.
+      * @description
+      * Update the current slice being drawn based
+      * on the current volume position. This function
+      * is asynchronous.
+      * ```js
+      * panel.updateSlice();
+      * ```
+      */
       updateSlice: function(callback) {
         
         clearTimeout(update_timeout);
@@ -325,7 +304,7 @@
           slice.min = volume.min;
           slice.max = volume.max;
 
-          panel.setSlice(slice);
+          setSlice(panel, slice);
 
           panel.triggerEvent("sliceupdate", slice);
 
@@ -411,11 +390,21 @@
 
     if (panel.volume) {
       panel.propagateEventTo("*", panel.volume);
-      panel.setSlice(panel.volume.slice(panel.axis));
+      setSlice(panel, panel.volume.slice(panel.axis));
     }
 
     return panel;
   };
+
+  ///////////////////////
+  // Private functions
+  ///////////////////////
+
+  // Set the volume slice to be rendered on the panel.
+  function setSlice(panel, slice) {
+    panel.slice = slice;
+    panel.slice_image = panel.slice.getImage(panel.zoom);
+  }
 
   // Draw the cursor at its current position on the canvas.
   function drawCursor(panel, color) {
@@ -502,6 +491,15 @@
       panel.context.putImageData(image, origin.x, origin.y);
     }
 
+  }
+
+  // Get the origin at which slices should be drawn.
+  function getDrawingOrigin(panel) {
+    var slice = panel.slice;
+    return {
+      x: panel.image_center.x - Math.abs(slice.width_space.step * slice.width_space.space_length * panel.zoom) / 2,
+      y: panel.image_center.y - Math.abs(slice.height_space.step * slice.height_space.space_length * panel.zoom) / 2
+    };
   }
 
 })();

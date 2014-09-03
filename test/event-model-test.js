@@ -788,3 +788,21 @@ QUnit.test("Triggering 'eventmodelcleanup' event should not interfere with other
   assert.ok(triggered1);
   assert.ok(triggered2);
 });
+
+QUnit.test("Should not propagate unpropagated events", function(assert) {
+  var source = {};
+  var target = {};
+  var triggered = false;
+
+  BrainBrowser.events.unpropagatedEvent("unpropagated");
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target);
+
+  source.propagateEventTo("unpropagated", target);
+  target.addEventListener("unpropagated", function() { triggered = true; });
+
+  source.triggerEvent("unpropagated");
+
+  assert.strictEqual(triggered, false);
+});

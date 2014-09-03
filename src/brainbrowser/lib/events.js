@@ -27,8 +27,14 @@
 (function() {
   "use strict";
 
+  var unpropagated_events = ["eventmodelcleanup"];
+
   BrainBrowser.events = {
     
+    unpropagatedEvent: function(event_name) {
+      unpropagated_events.push(event_name);
+    },
+
     /**
     * @doc function
     * @name BrainBrowser.events:addEventModel
@@ -105,12 +111,14 @@
           });
         }
 
-        propagate_to.forEach(function(other) {
-          other.triggerEvent.apply(trigger, full_args);
-        });
+        if (unpropagated_events.indexOf(event_name) === -1) {
+          propagate_to.forEach(function(other) {
+            other.triggerEvent.apply(trigger, full_args);
+          });
 
-        if (propagate_to.length === 0 && object !== BrainBrowser.events) {
-          BrainBrowser.events.triggerEvent.apply(trigger, full_args);
+          if (propagate_to.length === 0 && object !== BrainBrowser.events) {
+            BrainBrowser.events.triggerEvent.apply(trigger, full_args);
+          }
         }
       };
 

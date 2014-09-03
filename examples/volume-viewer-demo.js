@@ -180,7 +180,7 @@ $(function() {
     //////////////////////////////////
     // Per volume UI hooks go in here.
     //////////////////////////////////
-    viewer.addEventListener("volumeuiloaded", function(container, vol_id) {
+    viewer.addEventListener("volumeuiloaded", function(container, volume, vol_id) {
       container = $(container);
 
       container.find(".button").button();
@@ -264,7 +264,6 @@ $(function() {
       // Change the range of intensities that will be displayed.
       container.find(".threshold-div").each(function() {
         var div = $(this);
-        var volume = viewer.volumes[vol_id];
 
         // Input fields to input min and max thresholds directly.
         var min_input = div.find("#min-threshold-" + vol_id);
@@ -337,7 +336,6 @@ $(function() {
 
       container.find(".time-div").each(function() {
         var div = $(this);
-        var volume = viewer.volumes[vol_id];
 
         if (volume.data.time) {
           div.show();
@@ -406,7 +404,6 @@ $(function() {
       // orientation.
       container.find(".slice-series-div").each(function() {
         var div = $(this);
-        var volume = viewer.volumes[vol_id];
 
         var space_names = {
           xspace: "Sagittal",
@@ -465,7 +462,6 @@ $(function() {
         var div = $(this);
         var slider = div.find(".slider");
         var blend_input = div.find("#blend-val");
-        var volume = viewer.volumes[vol_id];
 
         // Slider to select blend value.
         slider.slider({
@@ -506,38 +502,37 @@ $(function() {
           viewer.redrawVolumes();
         });
       });
-    });
 
-     /////////////////////////////////////////////////////
-    // UI updates to be performed after each slice update.
-    //////////////////////////////////////////////////////
-    viewer.addEventListener("sliceupdate", function(vol_id) {
-      var volume = viewer.volumes[vol_id];
-      var world_coords = volume.getWorldCoords();
-      var voxel_coords = volume.getVoxelCoords();
-      var value;
-      
-      $("#world-x-" + vol_id).val(world_coords.x.toPrecision(6));
-      $("#world-y-" + vol_id).val(world_coords.y.toPrecision(6));
-      $("#world-z-" + vol_id).val(world_coords.z.toPrecision(6));
+       /////////////////////////////////////////////////////
+      // UI updates to be performed after each slice update.
+      //////////////////////////////////////////////////////
+      volume.addEventListener("sliceupdate", function() {
+        var world_coords = volume.getWorldCoords();
+        var voxel_coords = volume.getVoxelCoords();
+        var value;
+        
+        $("#world-x-" + vol_id).val(world_coords.x.toPrecision(6));
+        $("#world-y-" + vol_id).val(world_coords.y.toPrecision(6));
+        $("#world-z-" + vol_id).val(world_coords.z.toPrecision(6));
 
-      $("#voxel-x-" + vol_id).val(parseInt(voxel_coords.x, 10));
-      $("#voxel-y-" + vol_id).val(parseInt(voxel_coords.y, 10));
-      $("#voxel-z-" + vol_id).val(parseInt(voxel_coords.z, 10));
+        $("#voxel-x-" + vol_id).val(parseInt(voxel_coords.x, 10));
+        $("#voxel-y-" + vol_id).val(parseInt(voxel_coords.y, 10));
+        $("#voxel-z-" + vol_id).val(parseInt(voxel_coords.z, 10));
 
-      value = volume.getIntensityValue();
-      $("#intensity-value-" + vol_id)
-      .css("background-color", "#" + volume.color_map.colorFromValue(value, {
-        format: "hex",
-        min: volume.min,
-        max: volume.max
-      }))
-      .html(Math.floor(value));
-      
-      if (volume.data && volume.data.time) {
-        $("#time-slider-" + vol_id).slider("option", "value", volume.current_time);
-        $("#time-val-" + vol_id).val(volume.current_time);
-      }
+        value = volume.getIntensityValue();
+        $("#intensity-value-" + vol_id)
+        .css("background-color", "#" + volume.color_map.colorFromValue(value, {
+          format: "hex",
+          min: volume.min,
+          max: volume.max
+        }))
+        .html(Math.floor(value));
+        
+        if (volume.data && volume.data.time) {
+          $("#time-slider-" + vol_id).slider("option", "value", volume.current_time);
+          $("#time-val-" + vol_id).val(volume.current_time);
+        }
+      });
     });
 
     var color_map_config = BrainBrowser.config.get("color_maps")[0];

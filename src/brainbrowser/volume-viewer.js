@@ -421,59 +421,6 @@
 
     /**
     * @doc function
-    * @name viewer.viewer:fetchSlice
-    * @param {number} vol_id Index of the volume where the slice is being rendered.
-    * @param {string} axis_name Name of the axis where the slice is being rendered.
-    * @param {number} slice_num Index of the slice to render.
-    * @param {function} callback Callback invoked after fetching with the fetched
-    *   slice as argument.
-    *
-    * @description
-    * Fetch a new slice from a loaded volume.
-    * ```js
-    * viewer.fetchSlice(vol_id, "xspace", 25, function(slice) {
-    *   // Manipulate slice.
-    * });
-    * ```
-    */
-
-    // Keep track of timers.
-    // fetchSlice() is an expensive operation so
-    // we call it asynchronously and don't want to
-    // call it unnecessarily.
-    var timeouts = {};
-
-    viewer.fetchSlice = function(vol_id, axis_name, slice_num, callback) {
-      timeouts[vol_id] = timeouts[vol_id] || {};
-      
-      clearTimeout(timeouts[vol_id][axis_name]);
-
-      timeouts[vol_id][axis_name] = setTimeout(function() {
-        var volume = viewer.volumes[vol_id];
-        var slice;
-        
-        if (slice_num !== undefined) {
-          volume.position[axis_name] = slice_num;
-        }
-
-        slice = volume.slice(axis_name);
-        slice.min = volume.min;
-        slice.max = volume.max;
-        
-
-        updateSlice(vol_id, axis_name, slice);
-            
-        viewer.triggerEvent("sliceupdate", vol_id, axis_name, slice);
-
-        if (BrainBrowser.utils.isFunction(callback)) {
-          callback(slice);
-        }
-
-      }, 0);
-    };
-
-    /**
-    * @doc function
     * @name viewer.viewer:setPanelSize
     * @param {number} width Panel width.
     * @param {number} height Panel height.
@@ -505,8 +452,8 @@
       viewer.panel_width = width > 0 ? width : viewer.panel_width;
       viewer.panel_height = height > 0 ? height : viewer.panel_height;
 
-      viewer.volumes.forEach(function(volume, vol_id) {
-        volume.display.forEach(function(panel, axis_num) {
+      viewer.volumes.forEach(function(volume) {
+        volume.display.forEach(function(panel) {
           
 
           panel.setSize(viewer.panel_width, viewer.panel_height, options);
@@ -515,10 +462,8 @@
             panel.zoom = panel.zoom * ratio;
             panel.image_center.x = width / 2;
             panel.image_center.y = height / 2;
-            viewer.setCursor(vol_id, ["xspace", "yspace", "zspace"][axis_num], {
-              x: panel.image_center.x,
-              y: panel.image_center.y
-            });
+            panel.updateVolumePosition();
+            panel.updateSlice();
           }
           
         });
@@ -543,18 +488,6 @@
     // PRIVATE FUNCTIONS
     /////////////////////////
 
-    // Update the slice currently being displayed
-    function updateSlice(vol_id, axis_name, slice) {
-      var axis_num = VolumeViewer.utils.axis_to_number[axis_name];
-      var volume = viewer.volumes[vol_id];
-      var panel = volume.display[axis_num];
-      
-      panel.setSlice(slice);
-      panel.updateCursor();
-      panel.updated = true;
-    }
-
-
     // Set up global keyboard interactions.
     function keyboardControls() {
       document.addEventListener("keydown", function(event) {
@@ -566,8 +499,10 @@
         var vol_id = canvas.getAttribute("data-volume-id");
         var volume = viewer.volumes[vol_id];
         var axis_name = canvas.getAttribute("data-axis-name");
-        var panel = volume.display[VolumeViewer.utils.axis_to_number[axis_name]];
+        var axis_num = VolumeViewer.utils.axis_to_number[axis_name];
+        var panel = volume.display[axis_num];
         var space_name, time;
+        var cursor;
         
         var keys = {
           // CTRL
@@ -617,13 +552,27 @@
           event.preventDefault();
           keys[key]();
 
-          panel.updateCursor();
-          viewer.redrawVolume(vol_id);
+          panel.updated = true;
+          volume.display.forEach(function(other_panel) {
+            if (panel !== other_panel) {
+              other_panel.updateSlice();
+            }
+          });
 
           if (viewer.synced){
-            viewer.volumes.forEach(function(volume, synced_vol_id) {
+            cursor = panel.getCursorPosition();
+
+            viewer.volumes.forEach(function(synced_volume, synced_vol_id) {
+              var synced_panel;
+              
               if (synced_vol_id !== vol_id) {
-                viewer.setCursor(synced_vol_id, axis_name, panel.cursor);
+                synced_panel = synced_volume.display[axis_num];
+                synced_panel.updateVolumePosition(cursor.x, cursor.y);
+                synced_volume.display.forEach(function(panel) {
+                  if (panel !== synced_panel) {
+                    panel.updateSlice();
+                  }
+                });
               }
             });
           }

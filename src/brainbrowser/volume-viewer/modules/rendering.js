@@ -27,8 +27,6 @@
 BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
   "use strict";
 
-  var VolumeViewer = BrainBrowser.VolumeViewer;
-
   /**
   * @doc function
   * @name viewer.rendering:draw
@@ -50,7 +48,6 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
       });
     });
   };
-
 
   /**
   * @doc function
@@ -74,50 +71,6 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
 
   /**
   * @doc function
-  * @name viewer.rendering:setCursor
-  * @param {number} vol_id Index of the volume.
-  * @param {string} axis_name Volume axis to update.
-  * @param {object} cursor Object containing the x and y coordinates of the 
-  * cursor.
-  *
-  * @description
-  * Set the cursor to a new position in the given volume and axis.
-  * ```js
-  * viewer.setCursor(vol_id, "xspace", {
-  *   x: 25,
-  *   y: 55
-  * });
-  * ```
-  */
-  viewer.setCursor = function(vol_id, axis_name, cursor) {
-    var volume = viewer.volumes[vol_id];
-    var axis_num = VolumeViewer.utils.axis_to_number[axis_name];
-
-    var panel = volume.display[axis_num];
-    var slice = panel.slice;
-    var image_origin = panel.getImageOrigin();
-    var zoom = panel.zoom;
-    var x, y;
-    
-    panel.cursor.x = cursor.x;
-    panel.cursor.y = cursor.y;
-
-    if (cursor) {
-      x = Math.floor((cursor.x - image_origin.x) / zoom / Math.abs(slice.width_space.step));
-      y = Math.floor(slice.height_space.space_length - (cursor.y - image_origin.y) / zoom  / Math.abs(slice.height_space.step) - 1);
-    } else {
-      x = null;
-      y = null;
-    }
-
-    viewer.fetchSlice(vol_id, slice.width_space.name, x);
-    viewer.fetchSlice(vol_id, slice.height_space.name, y);
-
-    panel.updated = true;
-  };
-
-  /**
-  * @doc function
   * @name viewer.rendering:redrawVolume
   * @param {number} vol_id The id of the volume to be redrawn.
   *
@@ -130,9 +83,9 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
   viewer.redrawVolume = function(vol_id) {
     var volume = viewer.volumes[vol_id];
 
-    viewer.fetchSlice(vol_id, "xspace", volume.position.xspace);
-    viewer.fetchSlice(vol_id, "yspace", volume.position.yspace);
-    viewer.fetchSlice(vol_id, "zspace", volume.position.zspace);
+    volume.display.forEach(function(panel) {
+      panel.updateSlice();
+    });
   };
 
   /**

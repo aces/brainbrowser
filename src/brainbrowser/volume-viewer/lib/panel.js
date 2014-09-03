@@ -153,12 +153,9 @@
       y: 0
     };
 
+    var update_timeout = null;
+
     var panel = {
-      cursor: {
-        x: 0,
-        y: 0
-      },
-      
       image_center: {
         x: 0,
         y: 0
@@ -183,52 +180,6 @@
 
       /**
       * @doc function
-      * @name panel.panel:setSlice
-      * @param {object} slice Slice object to render on the panel.
-      * @description
-      * Set the volume slice to be rendered on the panel.
-      * ```js
-      * panel.setSlice(slice);
-      * ```
-      */
-      setSlice: function(slice) {
-        panel.slice = slice;
-        panel.slice_image = panel.slice.getImage(panel.zoom);
-      },
-
-      /**
-      * @doc function
-      * @name panel.panel:refreshSliceImage
-      * @description
-      * Set the volume slice to be rendered on the panel.
-      * ```js
-      * Refresh the slice image currently being displayed.
-      * ```
-      */
-      refreshSliceImage: function() {
-        panel.slice_image = panel.slice.getImage(panel.zoom);
-      },
-
-      /**
-      * @doc function
-      * @name panel.panel:updateCursor
-      * @description
-      * Update the panel cursor based on the current position with the given volume.
-      * ```js
-      * panel.updateCursor();
-      * ```
-      */
-      updateCursor: function() {
-        var volume = panel.volume;
-        var slice = panel.slice;
-        var origin = panel.getImageOrigin();
-
-        panel.cursor.x = volume.position[slice.width_space.name] * Math.abs(slice.width_space.step) * panel.zoom + origin.x;
-        panel.cursor.y = (slice.height_space.space_length - volume.position[slice.height_space.name] - 1) * Math.abs(slice.height_space.step) * panel.zoom  + origin.y;
-      },
-
-      /**
-      * @doc function
       * @name panel.panel:followPointer
       * @param {object} pointer The pointer to follow.
       * @description
@@ -244,12 +195,16 @@
       followPointer: function(pointer) {
         var dx = pointer.x - old_pointer_position.x;
         var dy = pointer.y - old_pointer_position.y;
+        var cursor = panel.getCursorPosition();
+
         panel.image_center.x += dx;
         panel.image_center.y += dy;
-        panel.cursor.x += dx;
-        panel.cursor.y += dy;
+        cursor.x += dx;
+        cursor.y += dy;
         old_pointer_position.x = pointer.x;
         old_pointer_position.y = pointer.y;
+
+        panel.updated = true;
       },
 
       /**
@@ -266,134 +221,123 @@
         panel.image_center.x = panel.canvas.width / 2;
         panel.image_center.y = panel.canvas.height / 2;
       },
-      
+
       /**
       * @doc function
-      * @name panel.panel:getImageOrigin
-      * @returns {object} Returns an object containing the **x** and **y** coordinates of the
-      * top-left corner of the currently displayed slice on the panel.
+      * @name panel.panel:getCursorPosition
       * @description
-      * Get the coordinates of the top-left corner of the slice currently being displayed.
+      * Get the current position of the cursor.
       * ```js
-      * panel.getImageOrigin();
+      * panel.getCursorPosition();
       * ```
       */
-      getImageOrigin: function() {
+      getCursorPosition: function() {
+        var volume = panel.volume;
+        var slice = panel.slice;
+        var origin = getDrawingOrigin(panel);
+
         return {
-          x: panel.image_center.x - panel.slice_image.width / 2,
-          y: panel.image_center.y - panel.slice_image.height / 2
+          x: volume.position[slice.width_space.name] * Math.abs(slice.width_space.step) * panel.zoom + origin.x,
+          y: (slice.height_space.space_length - volume.position[slice.height_space.name] - 1) * Math.abs(slice.height_space.step) * panel.zoom  + origin.y
         };
       },
-      
+
       /**
       * @doc function
-      * @name panel.panel:drawSlice
+      * @name panel.panel:updateVolumePosition
+      * @param {number} x The x coordinate of the canvas position.
+      * @param {number} y The y coordinate of the canvas position.
       * @description
-      * Draw the displays current slice to the canvas.
+      * Update the volume position based on the given x and y
+      * coordinates on the panel. Can be used without arguments
+      * which will update based only on the zoom level.
       * ```js
-      * panel.drawSlice();
+      * panel.updateVolumePosition(x, y);
       * ```
       */
-      drawSlice: function() {
-        var image = panel.slice_image;
-        var origin;
-
-        if (image) {
-          origin = panel.getImageOrigin();
-          panel.context.putImageData(image, origin.x, origin.y);
-        }
-
-      },
-      
-      /**
-      * @doc function
-      * @name panel.panel:drawCursor
-      * @param {string} color The cursor color.
-      * @description
-      * Draw the cursor at its current position on the canvas.
-      * ```js
-      * panel.drawCursor("#FF0000");
-      * ```
-      */
-      drawCursor: function(color) {
-        var context = panel.context;
+      updateVolumePosition: function(x, y) {
+        var origin = getDrawingOrigin(panel);
         var zoom = panel.zoom;
-        var length = 8 * zoom;
-        var x, y, space;
-        var distance;
-        var dx, dy;
-        color = color || "#FF0000";
-        
-        context.save();
-        
-        context.strokeStyle = color;
-        context.fillStyle = color;
+        var volume = panel.volume;
+        var slice = panel.slice;
+        var cursor;
+        var slice_x, slice_y;
 
-        space = zoom;
-        x = panel.cursor.x;
-        y = panel.cursor.y;
-
-        context.lineWidth = space * 2;
-        context.beginPath();
-        context.moveTo(x, y - length);
-        context.lineTo(x, y - space);
-        context.moveTo(x, y + space);
-        context.lineTo(x, y + length);
-        context.moveTo(x - length, y);
-        context.lineTo(x - space, y);
-        context.moveTo(x + space, y);
-        context.lineTo(x + length, y);
-        context.stroke();
-
-        if (panel.anchor) {
-          dx = (panel.anchor.x - panel.cursor.x) / panel.zoom;
-          dy = (panel.anchor.y - panel.cursor.y) / panel.zoom;
-          distance = Math.sqrt(dx * dx + dy * dy);
-
-          context.font = "bold 12px arial";
-
-          if (panel.canvas.width - panel.cursor.x < 50) {
-            context.textAlign = "right";
-            x = panel.cursor.x - length;
-          } else {
-            context.textAlign = "left";
-            x = panel.cursor.x + length;
-          }
-
-          if (panel.cursor.y < 30) {
-            context.textBaseline = "top";
-            y = panel.cursor.y + length;
-          } else {
-            context.textBaseline = "bottom";
-            y = panel.cursor.y - length;
-          }
-
-          context.fillText(distance.toFixed(2), x, y);
-
-          context.lineWidth = 1;
-          context.beginPath();
-          context.arc(panel.anchor.x, panel.anchor.y, 2 * space, 0, 2 * Math.PI);
-          context.fill();
-          context.moveTo(panel.anchor.x, panel.anchor.y);
-          context.lineTo(panel.cursor.x, panel.cursor.y);
-          context.stroke();
-
+        if (x === undefined || y === undefined) {
+          cursor = panel.getCursorPosition();
+          x = cursor.x;
+          y = cursor.y;
         }
 
-        context.restore();
+        slice_x = Math.round((x - origin.x) / zoom / Math.abs(slice.width_space.step));
+        slice_y = Math.round(slice.height_space.space_length - (y - origin.y) / zoom  / Math.abs(slice.height_space.step) - 1);
 
+        volume.position[panel.slice.width_space.name] = slice_x;
+        volume.position[panel.slice.height_space.name] = slice_y;
 
+        panel.updated = true;
+      },
+
+      /**
+      * @doc function
+      * @name panel.panel:updateSlice
+      * @param {function} callback A callback function to call after
+      * the update is complete.
+      * @description
+      * Update the current slice being drawn based
+      * on the current volume position. This function
+      * is asynchronous.
+      * ```js
+      * panel.updateSlice();
+      * ```
+      */
+      updateSlice: function(callback) {
+        
+        clearTimeout(update_timeout);
+
+        update_timeout = setTimeout(function() {
+          var volume = panel.volume;
+          var slice;
+          
+          slice = volume.slice(panel.axis);
+
+          slice.min = volume.min;
+          slice.max = volume.max;
+
+          setSlice(panel, slice);
+
+          panel.triggerEvent("sliceupdate", slice);
+
+          panel.updated = true;
+
+          if (BrainBrowser.utils.isFunction(callback)) {
+            callback(slice);
+          }
+        }, 0);
       },
 
       draw: function(cursor_color, active) {
+        var cursor = panel.getCursorPosition();
+
+        if (old_cursor_position.x !== cursor.x || old_cursor_position.y !== cursor.y) {
+          old_cursor_position.x = cursor.x;
+          old_cursor_position.y = cursor.y;
+          panel.updated = true;
+          panel.triggerEvent("cursorupdate", cursor);
+        }
+
         if (old_zoom_level !== panel.zoom) {
+          old_zoom_level = panel.zoom;
           panel.updated = true;
           panel.triggerEvent("zoom", panel.volume);
         }
 
-        if (old_cursor_position.x !== panel.cursor.x || old_cursor_position.y !== panel.cursor.y) {
-          panel.updated = true;
-          panel.triggerEvent("cursorupdate", panel.cursor);
+        if (panel.touches[0]) {
+          old_pointer_position.x = panel.touches[0].x;
+          old_pointer_position.y = panel.touches[0].y;
+        } else {
+          old_pointer_position.x = panel.mouse.x;
+          old_pointer_position.y = panel.mouse.y;
         }
 
         if (!panel.updated) {
@@ -409,9 +353,9 @@
         context.globalAlpha = 255;
         context.clearRect(0, 0, canvas.width, canvas.height);
 
-        panel.drawSlice();
+        drawSlice(panel);
         panel.triggerEvent("draw", volume);
-        panel.drawCursor(cursor_color);
+        drawCursor(panel, cursor_color);
 
         if (active) {
           context.save();
@@ -426,17 +370,6 @@
           context.restore();
         }
 
-        if (panel.touches[0]) {
-          old_pointer_position.x = panel.touches[0].x;
-          old_pointer_position.y = panel.touches[0].y;
-        } else {
-          old_pointer_position.x = panel.mouse.x;
-          old_pointer_position.y = panel.mouse.y;
-        }
-        old_zoom_level = panel.zoom;
-        old_cursor_position.x = panel.cursor.x;
-        old_cursor_position.y = panel.cursor.y;
-        
         panel.updated = false;
       }
     };
@@ -457,10 +390,117 @@
 
     if (panel.volume) {
       panel.propagateEventTo("*", panel.volume);
+      setSlice(panel, panel.volume.slice(panel.axis));
     }
 
     return panel;
   };
+
+  ///////////////////////
+  // Private functions
+  ///////////////////////
+
+  // Set the volume slice to be rendered on the panel.
+  function setSlice(panel, slice) {
+    panel.slice = slice;
+    panel.slice_image = panel.slice.getImage(panel.zoom);
+  }
+
+  // Draw the cursor at its current position on the canvas.
+  function drawCursor(panel, color) {
+    var context = panel.context;
+    var cursor = panel.getCursorPosition();
+    var zoom = panel.zoom;
+    var length = 8 * zoom;
+    var x, y, space;
+    var distance;
+    var dx, dy;
+    color = color || "#FF0000";
+    
+    context.save();
+    
+    context.strokeStyle = color;
+    context.fillStyle = color;
+
+    space = zoom;
+    x = cursor.x;
+    y = cursor.y;
+
+    context.lineWidth = space * 2;
+    context.beginPath();
+    context.moveTo(x, y - length);
+    context.lineTo(x, y - space);
+    context.moveTo(x, y + space);
+    context.lineTo(x, y + length);
+    context.moveTo(x - length, y);
+    context.lineTo(x - space, y);
+    context.moveTo(x + space, y);
+    context.lineTo(x + length, y);
+    context.stroke();
+
+    if (panel.anchor) {
+      dx = (panel.anchor.x - cursor.x) / panel.zoom;
+      dy = (panel.anchor.y - cursor.y) / panel.zoom;
+      distance = Math.sqrt(dx * dx + dy * dy);
+
+      context.font = "bold 12px arial";
+
+      if (panel.canvas.width - cursor.x < 50) {
+        context.textAlign = "right";
+        x = cursor.x - length;
+      } else {
+        context.textAlign = "left";
+        x = cursor.x + length;
+      }
+
+      if (cursor.y < 30) {
+        context.textBaseline = "top";
+        y = cursor.y + length;
+      } else {
+        context.textBaseline = "bottom";
+        y = cursor.y - length;
+      }
+
+      context.fillText(distance.toFixed(2), x, y);
+
+      context.lineWidth = 1;
+      context.beginPath();
+      context.arc(panel.anchor.x, panel.anchor.y, 2 * space, 0, 2 * Math.PI);
+      context.fill();
+      context.moveTo(panel.anchor.x, panel.anchor.y);
+      context.lineTo(cursor.x, cursor.y);
+      context.stroke();
+
+    }
+
+    context.restore();
+
+
+  }
+
+  // Draw the current slice to the canvas.
+  function drawSlice(panel) {
+    var image = panel.slice_image;
+    var origin;
+
+    if (image) {
+      origin = {
+        x: panel.image_center.x - panel.slice_image.width / 2,
+        y: panel.image_center.y - panel.slice_image.height / 2,
+      };
+      panel.context.putImageData(image, origin.x, origin.y);
+    }
+
+  }
+
+  // Get the origin at which slices should be drawn.
+  function getDrawingOrigin(panel) {
+    var slice = panel.slice;
+    return {
+      x: panel.image_center.x - Math.abs(slice.width_space.step * slice.width_space.space_length * panel.zoom) / 2,
+      y: panel.image_center.y - Math.abs(slice.height_space.step * slice.height_space.space_length * panel.zoom) / 2
+    };
+  }
 
 })();
 

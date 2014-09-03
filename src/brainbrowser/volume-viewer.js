@@ -499,7 +499,7 @@
         var vol_id = canvas.getAttribute("data-volume-id");
         var volume = viewer.volumes[vol_id];
         var axis_name = canvas.getAttribute("data-axis-name");
-        var axis_num = VolumeViewer.utils.axis_to_number[axis_name]
+        var axis_num = VolumeViewer.utils.axis_to_number[axis_name];
         var panel = volume.display[axis_num];
         var space_name, time;
         var cursor;

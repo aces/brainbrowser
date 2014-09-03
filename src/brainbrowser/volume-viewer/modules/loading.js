@@ -487,10 +487,6 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
         var last_touch_distance = null;
 
         function startDrag(pointer, shift_key, ctrl_key) {
-          var position = {
-            x: pointer.x,
-            y: pointer.y
-          };
           
           if (ctrl_key) {
             viewer.volumes.forEach(function(volume) {
@@ -517,11 +513,11 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
             panel.updated = true;
           } else {
-            viewer.setCursor(vol_id, axis_name, position);
+            viewer.setCursor(vol_id, axis_name, pointer);
             if (viewer.synced){
               viewer.volumes.forEach(function(volume, synced_vol_id) {
                 if (synced_vol_id !== vol_id) {
-                  viewer.setCursor(synced_vol_id, axis_name, position);
+                  viewer.setCursor(synced_vol_id, axis_name, pointer);
                 }
               });
             }
@@ -529,29 +525,24 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
         }
 
         function drag(pointer, shift_key) {
-          var cursor = {
-            x: pointer.x,
-            y: pointer.y
-          };
-                  
           
           if(shift_key) {
-            panel.followPointer(cursor);
+            panel.followPointer(pointer);
             if (viewer.synced){
               viewer.volumes.forEach(function(volume, synced_vol_id) {
                 if (synced_vol_id !== vol_id) {
-                  volume.display[axis_num].followPointer(cursor);
+                  volume.display[axis_num].followPointer(pointer);
                   volume.display[axis_num].updated = true;
                 }
               });
             }
             panel.updated = true;
           } else {
-            viewer.setCursor(vol_id, axis_name, cursor);
+            viewer.setCursor(vol_id, axis_name, pointer);
             if (viewer.synced){
               viewer.volumes.forEach(function(volume, synced_vol_id) {
                 if (synced_vol_id !== vol_id) {
-                  viewer.setCursor(synced_vol_id, axis_name, cursor);
+                  viewer.setCursor(synced_vol_id, axis_name, pointer);
                 }
               });
             }

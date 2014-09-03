@@ -140,11 +140,15 @@
     options = options || {};
 
     var old_zoom_level = 0;
+    
+    // Where the cursor used to be.
     var old_cursor_position = {
       x: 0,
       y: 0
     };
-    var last_pointer_position = {
+
+    // Where the mouse or touch used to be.
+    var old_pointer_position = {
       x: 0,
       y: 0
     };
@@ -238,14 +242,14 @@
       * ```
       */
       followPointer: function(pointer) {
-        var dx = pointer.x - last_pointer_position.x;
-        var dy = pointer.y - last_pointer_position.y;
+        var dx = pointer.x - old_pointer_position.x;
+        var dy = pointer.y - old_pointer_position.y;
         panel.image_center.x += dx;
         panel.image_center.y += dy;
         panel.cursor.x += dx;
         panel.cursor.y += dy;
-        last_pointer_position.x = pointer.x;
-        last_pointer_position.y = pointer.y;
+        old_pointer_position.x = pointer.x;
+        old_pointer_position.y = pointer.y;
       },
 
       /**
@@ -383,14 +387,11 @@
 
       draw: function(cursor_color, active) {
         if (old_zoom_level !== panel.zoom) {
-          old_zoom_level = panel.zoom;
           panel.updated = true;
           panel.triggerEvent("zoom", panel.volume);
         }
 
-        if ( (old_cursor_position.x !== panel.cursor.x) || (old_cursor_position.y !== panel.cursor.y) ) {
-          old_cursor_position.x = panel.cursor.x;
-          old_cursor_position.y = panel.cursor.y;
+        if (old_cursor_position.x !== panel.cursor.x || old_cursor_position.y !== panel.cursor.y) {
           panel.updated = true;
           panel.triggerEvent("cursorupdate", panel.cursor);
         }
@@ -426,12 +427,15 @@
         }
 
         if (panel.touches[0]) {
-          last_pointer_position.x = panel.touches[0].x;
-          last_pointer_position.y = panel.touches[0].y;
+          old_pointer_position.x = panel.touches[0].x;
+          old_pointer_position.y = panel.touches[0].y;
         } else {
-          last_pointer_position.x = panel.mouse.x;
-          last_pointer_position.y = panel.mouse.y;
+          old_pointer_position.x = panel.mouse.x;
+          old_pointer_position.y = panel.mouse.y;
         }
+        old_zoom_level = panel.zoom;
+        old_cursor_position.x = panel.cursor.x;
+        old_cursor_position.y = panel.cursor.y;
         
         panel.updated = false;
       }

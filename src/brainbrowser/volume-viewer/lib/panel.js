@@ -121,11 +121,29 @@
   *    });
   * ```
   */
+  /**
+  * @doc object
+  * @name VolumeViewer.Panel Events:cursorupdate
+  *
+  * @description
+  * Triggered when the user changes the cursor's position in the panel.
+  * The event handler receives the new cursor position as argument.
+  *
+  * ```js
+  *    panel.addEventListener("cursorupdate", function(cursor) {
+  *      console.log("New cursor position:", cursor.x, cursor.y);
+  *    });
+  * ```
+  */
   BrainBrowser.VolumeViewer.createPanel = function(options) {
 
     options = options || {};
 
     var old_zoom_level = 0;
+    var old_cursor_position = {
+      x: 0,
+      y: 0
+    };
     var last_pointer_position = {
       x: 0,
       y: 0
@@ -368,6 +386,13 @@
           old_zoom_level = panel.zoom;
           panel.updated = true;
           panel.triggerEvent("zoom", panel.volume);
+        }
+
+        if ( (old_cursor_position.x !== panel.cursor.x) || (old_cursor_position.y !== panel.cursor.y) ) {
+          old_cursor_position.x = panel.cursor.x;
+          old_cursor_position.y = panel.cursor.y;
+          panel.updated = true;
+          panel.triggerEvent("cursorupdate", panel.cursor);
         }
 
         if (!panel.updated) {

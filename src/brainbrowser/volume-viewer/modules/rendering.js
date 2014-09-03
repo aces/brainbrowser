@@ -113,8 +113,6 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
     viewer.fetchSlice(vol_id, slice.width_space.name, x);
     viewer.fetchSlice(vol_id, slice.height_space.name, y);
 
-    panel.triggerEvent("cursorupdate", cursor);
-
     panel.updated = true;
   };
 

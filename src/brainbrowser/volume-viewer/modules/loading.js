@@ -28,6 +28,8 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   "use strict";
 
   var VolumeViewer = BrainBrowser.VolumeViewer;
+  var default_panel_width = 256;
+  var default_panel_height = 256;
 
   /**
   * @doc function
@@ -88,7 +90,6 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
           
     var volume_descriptions = options.volumes;
     var num_descriptions = options.volumes.length;
-
     var complete = options.complete;
     var num_loaded = 0;
     var i;
@@ -325,6 +326,23 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
     );
   };
 
+  /**
+  * @doc function
+  * @name viewer.loading:setDefaultPanelSize
+  * @param {number} width Panel width.
+  * @param {number} height Panel height.
+  *
+  * @description
+  * Set the default size for panel canvases.
+  * ```js
+  * viewer.setDefaultPanelSize(512, 512);
+  * ```
+  */
+  viewer.setDefaultPanelSize = function(width, height) {
+    default_panel_width = width;
+    default_panel_height = height;
+  };
+
   ///////////////////////////
   // Private Functions
   ///////////////////////////
@@ -436,8 +454,8 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
     
     ["xspace", "yspace", "zspace"].forEach(function(axis_name) {
       var canvas = document.createElement("canvas");
-      canvas.width = viewer.panel_width;
-      canvas.height = viewer.panel_height;
+      canvas.width = default_panel_width;
+      canvas.height = default_panel_height;
       canvas.setAttribute("data-volume-id", vol_id);
       canvas.setAttribute("data-axis-name", axis_name);
       canvas.classList.add("slice-display");

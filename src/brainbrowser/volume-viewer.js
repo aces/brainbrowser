@@ -304,9 +304,7 @@
     var viewer = {
       dom_element: document.getElementById(element_id),
       volumes: [],
-      synced: false,
-      panel_width: 256,
-      panel_height: 256
+      synced: false
     };
 
     /**
@@ -418,62 +416,6 @@
     BrainBrowser.events.addEventModel(viewer);
 
     console.log("BrainBrowser Volume Viewer v" + BrainBrowser.version);
-
-    /**
-    * @doc function
-    * @name viewer.viewer:setPanelSize
-    * @param {number} width Panel width.
-    * @param {number} height Panel height.
-    * @param {object} options The only currently supported
-    *   option is **scale_image** which, if set to **true**
-    *   will scale the displayed slice by the same proportion
-    *   as the panel.
-    *
-    * @description
-    * Update the size of panel canvases.
-    * ```js
-    * viewer.setPanelSize(512, 512, {
-    *   scale_image: true
-    * });
-    * ```
-    */
-    viewer.setPanelSize = function(width, height, options) {
-      options = options || {};
-
-      var scale_image = options.scale_image;
-      var old_width, old_height, ratio;
-
-      if (scale_image) {
-        old_width = viewer.panel_width;
-        old_height = viewer.panel_height;
-        ratio = Math.min(width / old_width, height / old_height);
-      }
-
-      viewer.panel_width = width > 0 ? width : viewer.panel_width;
-      viewer.panel_height = height > 0 ? height : viewer.panel_height;
-
-      viewer.volumes.forEach(function(volume) {
-        volume.display.forEach(function(panel) {
-          
-
-          panel.setSize(viewer.panel_width, viewer.panel_height, options);
-
-          if (scale_image) {
-            panel.zoom = panel.zoom * ratio;
-            panel.image_center.x = width / 2;
-            panel.image_center.y = height / 2;
-            panel.updateVolumePosition();
-            panel.updateSlice();
-          }
-          
-        });
-      });
-
-      if (scale_image) {
-        viewer.redrawVolumes();
-      }
-
-    };
 
     // Add keyboard controls
     keyboardControls();

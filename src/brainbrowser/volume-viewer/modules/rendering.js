@@ -143,37 +143,10 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
   * ```
   */
   viewer.setPanelSize = function(width, height, options) {
-    options = options || {};
-    width = width > 0 ? width : 0;
-    height = height > 0 ? height : 0;
-
-    var scale_image = options.scale_image;
-    var old_width, old_height, ratio;
-
     viewer.volumes.forEach(function(volume) {
-      volume.display.forEach(function(panel) {
-        if (scale_image) {
-          old_width = panel.canvas.width;
-          old_height = panel.canvas.width;
-          ratio = Math.min(width / old_width, height / old_height);
-        }
-
+      volume.display.forEach(function(panel) {       
         panel.setSize(width, height, options);
-        
-        if (scale_image) {
-          panel.zoom = panel.zoom * ratio;
-          panel.image_center.x = width / 2;
-          panel.image_center.y = height / 2;
-          panel.updateVolumePosition();
-          panel.updateSlice();
-        }
-        
       });
     });
-
-    if (scale_image) {
-      viewer.redrawVolumes();
-    }
-
   };
 };

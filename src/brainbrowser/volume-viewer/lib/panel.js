@@ -52,10 +52,9 @@
   * * **volume** The volume being displayed on the panel.
   * * **axis** The axis being displayed on the panel (xspace, yspace or zspace).
   * * **canvas** The canvas on which to draw slices.
-  * * **cursor** An object containing the starting **x** and **y** positions of 
-  *     the cursor.
   * * **image_center** An object containing the starting **x** and **y** positions of 
   *     the slice image center.
+  * * **updated** Boolean value indicating whether the panel should be redrawn.
   *
   * @returns {object} Panel object used to control display of a slice.
   * @description
@@ -66,10 +65,6 @@
   *   volume: volume,
   *   axis: "xspace",
   *   canvas: canvas,
-  *   cursor: {
-  *     x: canvas.width / 2,
-  *     y: canvas.height / 2
-  *   },
   *   image_center: {
   *     x: canvas.width / 2,
   *     y: canvas.height / 2

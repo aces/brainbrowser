@@ -72,12 +72,12 @@
 
             slices.forEach(function(slice) {
               var color_map = slice.color_map;
-              var target_width = Math.floor(slice.width * slice.width_space.step * zoom);
-              var target_height = Math.floor(slice.height * slice.height_space.step * zoom);
-              var abs_target_width = Math.abs(target_width);
-              var abs_target_height = Math.abs(target_height);
+              var xstep = slice.width_space.step;
+              var ystep = slice.height_space.step;
+              var target_width = Math.abs(Math.floor(slice.width * xstep * zoom));
+              var target_height = Math.abs(Math.floor(slice.height * ystep * zoom));
               var source_image = image_creation_context.createImageData(slice.width, slice.height);
-              var target_image = image_creation_context.createImageData(abs_target_width, abs_target_height);
+              var target_image = image_creation_context.createImageData(target_width, target_height);
               
 
               color_map.mapColors(slice.data, {
@@ -89,6 +89,16 @@
                 alpha: slice.alpha,
                 destination: source_image.data
               });
+
+              if (xstep < 0 && ystep > 0) {
+                source_image.data.set(
+                  VolumeViewer.utils.flipImage(source_image.data, source_image.width, source_image.height, {
+                    flipx: true,
+                    flipy: false,
+                    block_size: 4
+                  })
+                );
+              }
               
               target_image.data.set(VolumeViewer.utils.nearestNeighbor(
                 source_image.data,
@@ -99,8 +109,8 @@
                 {block_size: 4}
               ));
 
-              max_width = Math.max(max_width, abs_target_width);
-              max_height = Math.max(max_height, abs_target_height);
+              max_width = Math.max(max_width, target_width);
+              max_height = Math.max(max_height, target_height);
               
               images.push(target_image);
             });

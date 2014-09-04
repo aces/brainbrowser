@@ -61,7 +61,7 @@
     * @param {number} target_height Height of scaled image.
     * @param {object} options Extra options:
     * * **block_size** The size of each unit for scaling (default: 1). 
-    * * **array_type** Constructor for the result array type (default: Uint8ClampedArray). 
+    * * **ArrayType** Constructor for the result array type (default: Uint8ClampedArray). 
     * 
     * @returns {array} The scaled image array.
     *
@@ -74,23 +74,15 @@
     nearestNeighbor: function(source, width, height, target_width, target_height, options) {
       options = options || {};
 
+      var block_size = options.block_size || 1;
+      var ArrayType = options.array_type || Uint8ClampedArray;
+
       var x_ratio, y_ratio;
       var source_y_offset, source_block_offset;
       var target;
       var target_x, target_y;
       var target_y_offset, target_block_offset;
       var k;
-      var block_size, ArrayType;
-
-      block_size = options.block_size || 1;
-      ArrayType = options.array_type || Uint8ClampedArray;
-
-      if (target_width < 0 && target_height > 0) {
-        source = flipImage(source, width, height, true, false, block_size);
-      }
-
-      target_width = Math.abs(target_width);
-      target_height = Math.abs(target_height);
 
       //Do nothing if size is the same
       if(width === target_width && height === target_height) {
@@ -117,6 +109,58 @@
       return target;
     },
 
+    /**
+    * @doc function
+    * @name VolumeViewer.utils.flipImage
+    *
+    * @param {array} source Source image data.
+    * @param {number} width Width of source image.
+    * @param {number} height Height of source image.
+    * @param {object} options Extra options:
+    * * **flipx** Whether or not to flip along the x axis (default: false). 
+    * * **flipy** Whether or not to flip along the y axis (default: false). 
+    * * **block_size** The size of each unit for scaling (default: 1). 
+    * * **ArrayType** Constructor for the result array type (default: Uint8ClampedArray). 
+    * 
+    * @returns {array} The flipped image array.
+    *
+    * @description
+    * Flip an image array along either the x or y axis.
+    * ```js
+    * BrainBrowser.VolumeViewer.utils.flipImage(image_data, 256, 256, { flipx: true });
+    * ```
+    */
+    flipImage: function(source, width, height, options) {
+      options = options || {};
+
+      var flipx = options.flipx || false;
+      var flipy = options.flipy || false;
+      var block_size = options.block_size || 1;
+      var ArrayType = options.array_type || Uint8ClampedArray;
+      var target = new ArrayType(width * height * block_size);
+      var i, j, k;
+      var x, y;
+      var target_row_offset, target_offset;
+      var source_row_offset, source_offset;
+
+      for (j = 0; j < height; j++) {
+        target_row_offset = j * width;
+        y = flipy ? height - j - 1 : j;
+        source_row_offset = y * width;
+
+        for (i = 0; i < width; i++) {
+          target_offset = (target_row_offset + i) * block_size;
+          x = flipx ? width - i - 1 : i;
+          source_offset = (source_row_offset + x) * block_size;
+          
+          for (k = 0; k < block_size; k++) {
+            target[target_offset + k] = source[source_offset + k];
+          }
+        }
+      }
+      
+      return target;
+    },
 
     /**
     * @doc function
@@ -175,30 +219,6 @@
       return new_array;
     }
   };
-
-  
-  ///////////////////////////////////
-  // Private Functions
-  ///////////////////////////////////
-
-  function flipImage(src, width, height, flipx, flipy, block_size) {
-    var dest = [];
-    var i, j, k;
-    var x, y;
-    block_size = block_size || 1;
-
-    for (i = 0; i < width; i++) {
-      for (j = 0; j < height; j++) {
-        x = flipx ? width - i - 1 : i;
-        y = flipy ? height - j - 1 : j;
-        for (k = 0; k < block_size; k++) {
-          dest[(j * width + i) * block_size + k] = src[(y * width + x) * block_size + k];
-        }
-      }
-    }
-    
-    return dest;
-  }
     
 })();
 

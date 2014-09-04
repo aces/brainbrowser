@@ -107,12 +107,10 @@
           var color_map = slice.color_map;
           var xstep = slice.width_space.step;
           var ystep = slice.height_space.step;
-          var target_width = Math.floor(slice.width * xstep * zoom);
-          var target_height = Math.floor(slice.height * ystep * zoom);
-          var abs_target_width = Math.abs(target_width);
-          var abs_target_height = Math.abs(target_height);
+          var target_width = Math.abs(Math.floor(slice.width * xstep * zoom));
+          var target_height = Math.abs(Math.floor(slice.height * ystep * zoom));
           var source_image = image_creation_context.createImageData(slice.width, slice.height);
-          var target_image = image_creation_context.createImageData(abs_target_width, abs_target_height);
+          var target_image = image_creation_context.createImageData(target_width, target_height);
 
           color_map.mapColors(slice.data, {
             min: slice.min,
@@ -124,14 +122,26 @@
             destination: source_image.data
           });
 
-          target_image.data.set(VolumeViewer.utils.nearestNeighbor(
-            source_image.data,
-            source_image.width,
-            source_image.height,
-            target_width,
-            target_height,
-            {block_size: 4}
-          ));
+          if (xstep < 0 && ystep > 0) {
+            source_image.data.set(
+              VolumeViewer.utils.flipImage(source_image.data, source_image.width, source_image.height, {
+                flipx: true,
+                flipy: false,
+                block_size: 4
+              })
+            );
+          }
+
+          target_image.data.set(
+            VolumeViewer.utils.nearestNeighbor(
+              source_image.data,
+              source_image.width,
+              source_image.height,
+              target_width,
+              target_height,
+              {block_size: 4}
+            )
+          );
 
           return target_image;
         };

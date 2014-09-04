@@ -173,9 +173,32 @@
       * panel.setSize(512, 512);
       * ```
       */
-      setSize: function(width, height) {
+      setSize: function(width, height, options) {
+        options = options || {};
+        width = width > 0 ? width : 0;
+        height = height > 0 ? height : 0;
+
+        var scale_image = options.scale_image;
+        var old_width, old_height, ratio;
+
+        if (scale_image) {
+          old_width = panel.canvas.width;
+          old_height = panel.canvas.width;
+          ratio = Math.min(width / old_width, height / old_height);
+        }
+
         panel.canvas.width = width;
         panel.canvas.height = height;
+
+        if (scale_image) {
+          panel.zoom = panel.zoom * ratio;
+          panel.image_center.x = width / 2;
+          panel.image_center.y = height / 2;
+          panel.updateVolumePosition();
+          panel.updateSlice();
+        }
+
+        panel.updated = true;
       },
 
       /**

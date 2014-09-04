@@ -144,7 +144,7 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
   */
   viewer.setPanelSize = function(width, height, options) {
     viewer.volumes.forEach(function(volume) {
-      volume.display.forEach(function(panel) {       
+      volume.display.forEach(function(panel) {
         panel.setSize(width, height, options);
       });
     });

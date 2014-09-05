@@ -561,7 +561,8 @@
     }
 
     var workers = {
-      deindex: "deindex.worker.js"
+      deindex: "deindex.worker.js",
+      wireframe: "wireframe.worker.js"
     };
 
     var workers_loaded = 0;

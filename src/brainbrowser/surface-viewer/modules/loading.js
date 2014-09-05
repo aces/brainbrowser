@@ -451,7 +451,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
   function createObject(shape_data, is_line) {
     var unindexed = shape_data.unindexed;
-    var wireframe = shape_data.wireframe;
     var centroid = shape_data.centroid;
 
     var position = unindexed.position;
@@ -493,40 +492,13 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     } else {
       material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0xFFFFFF, specular: 0x101010, shininess: 150, vertexColors: THREE.VertexColors});
       shape = new THREE.Mesh(geometry, material);
-      shape.add(createWireframe(shape, wireframe));
+      shape.has_wireframe = true;
     }
 
     shape.centroid = centroid;
     shape.position.set(centroid.x, centroid.y, centroid.z);
   
     return shape;
-  }
-
-  function createWireframe(object, wireframe_data) {
-    var wire_geometry = new THREE.BufferGeometry();
-    var material, wireframe;
-
-    wire_geometry.attributes.position = {
-      itemSize: 3,
-      array: wireframe_data.position,
-      numItems: wireframe_data.position.length
-    };
-
-    wire_geometry.attributes.color = {
-      itemSize: 4,
-      array: wireframe_data.color,
-    };
-
-    wire_geometry.attributes.color.needsUpdate = true;
-
-    material = new THREE.LineBasicMaterial({ vertexColors: THREE.VertexColors });
-    wireframe = new THREE.Line(wire_geometry, material, THREE.LinePieces);
-
-    wireframe.name = "__WIREFRAME__";
-    wireframe.visible = false;
-    object.wireframe_active = false;
-
-    return wireframe;
   }
 
   function addModelData(name, data) {

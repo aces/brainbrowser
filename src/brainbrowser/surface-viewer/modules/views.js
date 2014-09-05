@@ -34,10 +34,10 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
 
       if(model_data.split) {
         model.getObjectByName("left").position.x -= 100;
-        model.getObjectByName("left").rotation.z -= degToRad(90);
+        model.getObjectByName("left").rotation.z -= Math.PI / 2;
         model.getObjectByName("right").position.x += 100;
-        model.getObjectByName("right").rotation.z += degToRad(90);
-        model.rotation.x += degToRad(-90);
+        model.getObjectByName("right").rotation.z += Math.PI / 2;
+        model.rotation.x -= Math.PI / 2;
       }
     },
 
@@ -50,27 +50,27 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
         right_child = model.getObjectByName("right");
 
         left_child.position.x -= 100;
-        left_child.rotation.z += degToRad(-90);
+        left_child.rotation.z -= Math.PI / 2;
         right_child.position.x += 100;
-        right_child.rotation.z += degToRad(90);
-        model.rotation.x += degToRad(90);
-        model.rotation.y += degToRad(180);
+        right_child.rotation.z += Math.PI / 2;
+        model.rotation.x += Math.PI / 2;
+        model.rotation.y += Math.PI;
       }
     },
 
     inferiorView: function() {
-      viewer.model.rotation.y += degToRad(180);
+      viewer.model.rotation.y += Math.PI;
     },
 
     anteriorView: function() {
       viewer.resetView();
-      viewer.model.rotation.x += degToRad(-90);
-      viewer.model.rotation.z += degToRad(180);
+      viewer.model.rotation.x -= Math.PI / 2;
+      viewer.model.rotation.z += Math.PI;
     },
 
     posteriorView : function() {
       viewer.resetView();
-      viewer.model.rotation.x += degToRad(-90);
+      viewer.model.rotation.x -= Math.PI / 2;
     }
   };
   
@@ -153,13 +153,13 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
     shapes.forEach(function(shape) {
       wireframe = shape.getObjectByName("__WIREFRAME__");
       if (wireframe) {
-        shape.visible = !is_wireframe;
-        wireframe.visible = is_wireframe;
-        shape.wireframe_active = is_wireframe;
+        toggleWireframe(shape, wireframe, is_wireframe);
+      } else if (shape.has_wireframe) {
+        createWireframe(shape, function(wireframe) {
+          toggleWireframe(shape, wireframe, is_wireframe);
+        });
       }
     });
-
-    viewer.updated = true;
   };
 
   /**
@@ -219,9 +219,51 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   // PRIVATE FUNCTIONS
   ////////////////////////////////////
 
-  // Convert degrees to radians
-  function degToRad(deg) {
-    return deg * Math.PI/180;
+  function createWireframe(shape, callback) {
+    var worker = new Worker(BrainBrowser.SurfaceViewer.worker_urls.wireframe);
+    var geometry = shape.geometry.attributes;
+
+    worker.addEventListener("message", function(event) {
+      var positions = event.data.positions;
+      var colors = event.data.colors;
+
+      var wire_geometry = new THREE.BufferGeometry();
+      var material, wireframe;
+
+      wire_geometry.attributes.position = {
+        itemSize: 3,
+        array: positions,
+        numItems: positions.length
+      };
+
+      wire_geometry.attributes.color = {
+        itemSize: 4,
+        array: colors,
+      };
+
+      wire_geometry.attributes.color.needsUpdate = true;
+
+      material = new THREE.LineBasicMaterial({ vertexColors: THREE.VertexColors });
+      wireframe = new THREE.Line(wire_geometry, material, THREE.LinePieces);
+
+      wireframe.name = "__WIREFRAME__";
+      wireframe.visible = false;
+      shape.wireframe_active = false;
+      shape.add(wireframe);
+      callback(wireframe);
+    });
+
+    worker.postMessage({
+      positions: geometry.position.array,
+      colors: geometry.color.array,
+    });
+  }
+
+  function toggleWireframe(shape, wireframe, is_wireframe) {
+    shape.visible = !is_wireframe;
+    wireframe.visible = is_wireframe;
+    shape.wireframe_active = is_wireframe;
+    viewer.updated = true;
   }
   
 };

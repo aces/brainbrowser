@@ -50,6 +50,7 @@
   *  Options can include:
   *
   * * **volume** The volume being displayed on the panel.
+  * * **volume_id** The ID of the volume being displayed on the panel.
   * * **axis** The axis being displayed on the panel (xspace, yspace or zspace).
   * * **canvas** The canvas on which to draw slices.
   * * **image_center** An object containing the starting **x** and **y** positions of 

@@ -119,15 +119,22 @@ $(function() {
     // This will create an image of all the display panels
     // currently being shown in the viewer.
     $("#screenshot").click(function() {
-      var width = viewer.panel_width;
-      var height = viewer.panel_height;
+      var width = 0;
+      var height = 0;
       var active_panel = viewer.active_panel;
-      
+
       // Create a canvas on which we'll draw the images.
       var canvas = document.createElement("canvas");
       var context = canvas.getContext("2d");
       var img = new Image();
       
+      viewer.volumes.forEach(function(volume) {
+        volume.display.forEach(function(panel) {
+          width = Math.max(width, panel.canvas.width);
+          height = Math.max(height, panel.canvas.height);
+        });
+      });
+
       canvas.width = width * viewer.volumes.length;
       canvas.height = height * 3;
       context.fillStyle = "#000000";
@@ -502,37 +509,42 @@ $(function() {
           viewer.redrawVolumes();
         });
       });
+    });
 
-       /////////////////////////////////////////////////////
-      // UI updates to be performed after each slice update.
-      //////////////////////////////////////////////////////
-      volume.addEventListener("sliceupdate", function() {
-        var world_coords = volume.getWorldCoords();
-        var voxel_coords = volume.getVoxelCoords();
-        var value;
-        
-        $("#world-x-" + vol_id).val(world_coords.x.toPrecision(6));
-        $("#world-y-" + vol_id).val(world_coords.y.toPrecision(6));
-        $("#world-z-" + vol_id).val(world_coords.z.toPrecision(6));
+    /////////////////////////////////////////////////////
+    // UI updates to be performed after each slice update.
+    //////////////////////////////////////////////////////
+    viewer.addEventListener("sliceupdate", function() {
+      // 'this' gets bound to the panel that triggered the
+      // sliceupdate event
+      var panel = this;
+      var volume = panel.volume;
+      var vol_id = panel.volume_id;
+      var world_coords = volume.getWorldCoords();
+      var voxel_coords = volume.getVoxelCoords();
+      var value;
+      
+      $("#world-x-" + vol_id).val(world_coords.x.toPrecision(6));
+      $("#world-y-" + vol_id).val(world_coords.y.toPrecision(6));
+      $("#world-z-" + vol_id).val(world_coords.z.toPrecision(6));
 
-        $("#voxel-x-" + vol_id).val(parseInt(voxel_coords.x, 10));
-        $("#voxel-y-" + vol_id).val(parseInt(voxel_coords.y, 10));
-        $("#voxel-z-" + vol_id).val(parseInt(voxel_coords.z, 10));
+      $("#voxel-x-" + vol_id).val(parseInt(voxel_coords.x, 10));
+      $("#voxel-y-" + vol_id).val(parseInt(voxel_coords.y, 10));
+      $("#voxel-z-" + vol_id).val(parseInt(voxel_coords.z, 10));
 
-        value = volume.getIntensityValue();
-        $("#intensity-value-" + vol_id)
-        .css("background-color", "#" + volume.color_map.colorFromValue(value, {
-          format: "hex",
-          min: volume.min,
-          max: volume.max
-        }))
-        .html(Math.floor(value));
-        
-        if (volume.data && volume.data.time) {
-          $("#time-slider-" + vol_id).slider("option", "value", volume.current_time);
-          $("#time-val-" + vol_id).val(volume.current_time);
-        }
-      });
+      value = volume.getIntensityValue();
+      $("#intensity-value-" + vol_id)
+      .css("background-color", "#" + volume.color_map.colorFromValue(value, {
+        format: "hex",
+        min: volume.min,
+        max: volume.max
+      }))
+      .html(Math.floor(value));
+      
+      if (volume.data && volume.data.time) {
+        $("#time-slider-" + vol_id).slider("option", "value", volume.current_time);
+        $("#time-val-" + vol_id).val(volume.current_time);
+      }
     });
 
     var color_map_config = BrainBrowser.config.get("color_maps")[0];

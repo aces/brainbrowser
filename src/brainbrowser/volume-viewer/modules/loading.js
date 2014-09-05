@@ -456,14 +456,13 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       var canvas = document.createElement("canvas");
       canvas.width = default_panel_width;
       canvas.height = default_panel_height;
-      canvas.setAttribute("data-volume-id", vol_id);
-      canvas.setAttribute("data-axis-name", axis_name);
       canvas.classList.add("slice-display");
       canvas.style.backgroundColor = "#000000";
       container.appendChild(canvas);
       display.push(
         VolumeViewer.createPanel({
           volume: volume,
+          volume_id: vol_id,
           axis: axis_name,
           canvas: canvas,
           cursor: {

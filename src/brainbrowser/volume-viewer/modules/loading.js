@@ -290,7 +290,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
     });
 
     viewer.volumes = [];
-    viewer.active_canvas = null;
+    viewer.active_panel = null;
     viewer.dom_element.innerHTML = "";
   };
 
@@ -654,7 +654,12 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
           event.preventDefault();
           event.stopPropagation();
 
-          viewer.active_canvas = current_target = event.target;
+          current_target = event.target;
+          
+          if (viewer.active_panel) {
+            viewer.active_panel.updated = true;
+          }
+          viewer.active_panel = panel;
 
           document.addEventListener("mousemove", mouseDrag , false);
           document.addEventListener("mouseup", mouseDragEnd, false);
@@ -666,7 +671,12 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
           event.preventDefault();
           event.stopPropagation();
 
-          viewer.active_canvas = current_target = event.target;
+          current_target = event.target;
+
+          if (viewer.active_panel) {
+            viewer.active_panel.updated = true;
+          }
+          viewer.active_panel = panel;
 
           if (panel.touches.length === 2) {
             document.removeEventListener("touchmove", touchDrag, false);

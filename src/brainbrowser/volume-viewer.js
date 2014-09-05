@@ -433,16 +433,15 @@
     // Set up global keyboard interactions.
     function keyboardControls() {
       document.addEventListener("keydown", function(event) {
-        if (!viewer.active_canvas) return;
-        var canvas = viewer.active_canvas;
-      
-        var key = event.which;
+        if (!viewer.active_panel) return;
+        var panel = viewer.active_panel;
+        var canvas = panel.canvas;
+        var volume = panel.volume;
+        var axis_name = panel.axis;
 
-        var vol_id = canvas.getAttribute("data-volume-id");
-        var volume = viewer.volumes[vol_id];
-        var axis_name = canvas.getAttribute("data-axis-name");
+        var key = event.which;
         var axis_num = VolumeViewer.utils.axis_to_number[axis_name];
-        var panel = volume.display[axis_num];
+        
         var space_name, time;
         var cursor;
         
@@ -504,10 +503,10 @@
           if (viewer.synced){
             cursor = panel.getCursorPosition();
 
-            viewer.volumes.forEach(function(synced_volume, synced_vol_id) {
+            viewer.volumes.forEach(function(synced_volume) {
               var synced_panel;
               
-              if (synced_vol_id !== vol_id) {
+              if (synced_volume !== volume) {
                 synced_panel = synced_volume.display[axis_num];
                 synced_panel.updateVolumePosition(cursor.x, cursor.y);
                 synced_volume.display.forEach(function(panel) {

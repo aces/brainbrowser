@@ -43,7 +43,7 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
       volume.display.forEach(function(panel) {
         panel.draw(
           (volume.color_map || viewer.default_color_map).cursor_color,
-          viewer.active_canvas === panel.canvas
+          viewer.active_panel === panel
         );
       });
     });

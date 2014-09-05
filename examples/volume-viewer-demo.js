@@ -121,7 +121,7 @@ $(function() {
     $("#screenshot").click(function() {
       var width = viewer.panel_width;
       var height = viewer.panel_height;
-      var active_canvas = viewer.active_canvas;
+      var active_panel = viewer.active_panel;
       
       // Create a canvas on which we'll draw the images.
       var canvas = document.createElement("canvas");
@@ -136,7 +136,7 @@ $(function() {
       // The active canvas is highlighted by the viewer,
       // so we set it to null and redraw the highlighting
       // isn't shown in the image.
-      viewer.active_canvas = null;
+      viewer.active_panel = null;
       viewer.draw();
       viewer.volumes.forEach(function(volume, x) {
         volume.display.forEach(function(panel, y) {
@@ -145,7 +145,7 @@ $(function() {
       });
 
       // Restore the active canvas.
-      viewer.active_canvas = active_canvas;
+      viewer.active_panel = active_panel;
       viewer.draw();
       
       // Show the created image in a dialog box.

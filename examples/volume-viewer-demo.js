@@ -51,8 +51,8 @@ $(function() {
         viewer.clearVolumes();
         viewer.loadVolume({
           type: "minc",
-          header_url: "models/functional.mnc.header",
-          raw_data_url: "models/functional.mnc.raw",
+          header_url: "models/functional.mnc.header.gz",
+          raw_data_url: "models/functional.mnc.raw.gz",
           template: {
             element_id: "volume-ui-template",
             viewer_insert_class: "volume-viewer-display"
@@ -68,8 +68,8 @@ $(function() {
           volumes: [
             {
               type: "minc",
-              header_url: "models/structural1.mnc.header",
-              raw_data_url: "models/structural1.mnc.raw",
+              header_url: "models/structural1.mnc.header.gz",
+              raw_data_url: "models/structural1.mnc.raw.gz",
               template: {
                 element_id: "volume-ui-template",
                 viewer_insert_class: "volume-viewer-display"
@@ -77,8 +77,8 @@ $(function() {
             },
             {
               type: 'minc',
-              header_url: "models/structural2.mnc.header",
-              raw_data_url: "models/structural2.mnc.raw",
+              header_url: "models/structural2.mnc.header.gz",
+              raw_data_url: "models/structural2.mnc.raw.gz",
               template: {
                 element_id: "volume-ui-template",
                 viewer_insert_class: "volume-viewer-display"
@@ -573,8 +573,8 @@ $(function() {
       volumes: [
         {
           type: "minc",
-          header_url: "models/structural1.mnc.header",
-          raw_data_url: "models/structural1.mnc.raw",
+          header_url: "models/structural1.mnc.header.gz",
+          raw_data_url: "models/structural1.mnc.raw.gz",
           template: {
             element_id: "volume-ui-template",
             viewer_insert_class: "volume-viewer-display"
@@ -582,8 +582,8 @@ $(function() {
         },
         {
           type: 'minc',
-          header_url: "models/structural2.mnc.header",
-          raw_data_url: "models/structural2.mnc.raw",
+          header_url: "models/structural2.mnc.header.gz",
+          raw_data_url: "models/structural2.mnc.raw.gz",
           template: {
             element_id: "volume-ui-template",
             viewer_insert_class: "volume-viewer-display"

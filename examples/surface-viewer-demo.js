@@ -50,7 +50,7 @@ $(function() {
     return;
   }
 
-  $.get("models/atlas-labels.txt", function(data) {
+  $.get("models/atlas-labels.txt.gz", function(data) {
     var lines = data.split("\n");
     var regex = /'(.+)'\s+(\d+)/;
 
@@ -336,7 +336,7 @@ $(function() {
       var link = $("#intensity-data-export-link");
 
       link.attr("href", BrainBrowser.utils.createDataURL(data.values.join("\n")));
-      $("#intensity-data-export-link").attr("download", "intensity-values.txt");
+      $("#intensity-data-export-link").attr("download", "intensity-values.txt.gz");
       $("#intensity-data-export").show();
     });
 
@@ -664,13 +664,13 @@ $(function() {
       var examples = {
         atlas: function() {
           viewer.annotations.setMarkerRadius(1);
-          viewer.loadModelFromURL("models/brain-surface.obj", {
+          viewer.loadModelFromURL("models/brain-surface.obj.gz", {
             format: "mniobj",
             complete: function() {
               $("#vertex-data-wrapper").show();
               $("#pick-value-wrapper").show();
               $("#pick-label-wrapper").show();
-              viewer.loadIntensityDataFromURL("models/atlas-values.txt", {
+              viewer.loadIntensityDataFromURL("models/atlas-values.txt.gz", {
                 complete: hideLoading
               });
             },
@@ -679,30 +679,30 @@ $(function() {
           });
         },
         dti: function() {
-          viewer.loadModelFromURL("models/dti.obj", {
+          viewer.loadModelFromURL("models/dti.obj.gz", {
             format: "mniobj",
             render_depth: 999,
             complete: hideLoading,
             cancel: defaultCancelOptions(current_request)
           });
-          viewer.loadModelFromURL("models/left-color-mesh.obj", {
+          viewer.loadModelFromURL("models/left-color-mesh.obj.gz", {
             format: "mniobj",
             cancel: defaultCancelOptions(current_request)
           });
-          viewer.loadModelFromURL("models/right-color-mesh.obj", {
+          viewer.loadModelFromURL("models/right-color-mesh.obj.gz", {
             format: "mniobj",
             cancel: defaultCancelOptions(current_request)
           });
         },
         cortical_thickness: function() {
           viewer.annotations.setMarkerRadius(1);
-          viewer.loadModelFromURL("models/brain-surface.obj", {
+          viewer.loadModelFromURL("models/brain-surface.obj.gz", {
             format: "mniobj",
             parse: { split: true },
             complete: function() {
               $("#vertex-data-wrapper").show();
               $("#pick-value-wrapper").show();
-              viewer.loadIntensityDataFromURL("models/cortical-thickness.txt", {
+              viewer.loadIntensityDataFromURL("models/cortical-thickness.txt.gz", {
                 name: "Cortical Thickness",
                 complete: hideLoading,
                 cancel: defaultCancelOptions(current_request)
@@ -713,7 +713,7 @@ $(function() {
         },
         car: function() {
           viewer.annotations.setMarkerRadius(0.3);
-          viewer.loadModelFromURL("models/car.obj", {
+          viewer.loadModelFromURL("models/car.obj.gz", {
             format: "wavefrontobj",
             complete: function() {
               $("#vertex-data-wrapper").show();
@@ -735,12 +735,12 @@ $(function() {
         },
         freesurfer: function() {
           viewer.annotations.setMarkerRadius(1);
-          viewer.loadModelFromURL("models/freesurfer-surface.asc", {
+          viewer.loadModelFromURL("models/freesurfer-surface.asc.gz", {
             format: "freesurferasc",
             complete: function() {
               $("#vertex-data-wrapper").show();
               $("#pick-value-wrapper").show();
-              viewer.loadIntensityDataFromURL("models/freesurfer-thickness.asc", {
+              viewer.loadIntensityDataFromURL("models/freesurfer-thickness.asc.gz", {
                   format: "freesurferasc",
                   name: "Cortical Thickness",
                   complete: hideLoading,
@@ -754,7 +754,7 @@ $(function() {
         dbs: function() {
           viewer.annotations.setMarkerRadius(0.3);
 
-          viewer.loadModelFromURL("models/dbs.json", {
+          viewer.loadModelFromURL("models/dbs.json.gz", {
             format: "json",
             complete: function() {
               var i;
@@ -784,12 +784,12 @@ $(function() {
             cancel: defaultCancelOptions(current_request)
           });
 
-          viewer.loadModelFromURL("models/dbs-fibers.json", {
+          viewer.loadModelFromURL("models/dbs-fibers.json.gz", {
             format: "json",
             cancel: defaultCancelOptions(current_request)
           });
 
-          viewer.loadModelFromURL("models/dbs-vat.json", {
+          viewer.loadModelFromURL("models/dbs-vat.json.gz", {
             format: "json",
             cancel: defaultCancelOptions(current_request)
           });

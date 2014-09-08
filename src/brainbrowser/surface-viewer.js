@@ -233,6 +233,8 @@
       * @property {boolean} updated Whether the canvas should redrawn on the next
       * render loop.
       * @property {float} zoom The zoom level (default: 1.0).
+      * @property {object} autorotate Automatic rotations around the **x**, **y**
+      * and **z** axes can be set.
       * @property {object} annotations Current annotations.
       * 
       * @description
@@ -258,7 +260,6 @@
       *    viewer.addEventListener("displaymodel", function() {
       *      console.log("Model displayed!");
       *    });
-      *
       * ```
       */
 

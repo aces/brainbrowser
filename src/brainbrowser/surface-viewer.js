@@ -224,7 +224,16 @@
       * @property {DOMElement} dom_element The DOM element where the viewer
       * will be inserted.
       * @property {THREE.Object3D} model The currently loaded surface model.
+      * @property {object} model_data Parameters about the current model that
+      * were actually parsed from the source file.
+      * @property {object} mouse Object tracking the mouse **x** and **y** coordinates
+      * of the mouse on the viewer canvas.
+      * @property {object} touches Object tracking the **x** and **y** coordinates
+      * of all touches currently active on the canvas.
+      * @property {boolean} updated Whether the canvas should redrawn on the next
+      * render loop.
       * @property {float} zoom The zoom level (default: 1.0).
+      * @property {object} annotations Current annotations.
       * 
       * @description
       * The viewer object encapsulates all functionality of the Surface Viewer.

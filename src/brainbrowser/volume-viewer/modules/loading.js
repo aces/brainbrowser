@@ -28,6 +28,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   "use strict";
 
   var VolumeViewer = BrainBrowser.VolumeViewer;
+  var default_color_map = null;
   var default_panel_width = 256;
   var default_panel_height = 256;
 
@@ -378,7 +379,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       });
 
       viewer.volumes[vol_id] = volume;
-      volume.color_map = viewer.default_color_map;
+      volume.color_map = default_color_map;
       volume.display = createVolumeDisplay(viewer.dom_element, vol_id, volume_description);
       volume.propagateEventTo("*", viewer);
 
@@ -402,7 +403,11 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
   function setDefaultColorMap(color_map, cursor_color, callback) {
     color_map.cursor_color = cursor_color;
-    viewer.default_color_map = color_map;
+    default_color_map = color_map;
+
+    viewer.volumes.forEach(function(volume) {
+      volume.color_map = volume.color_map || default_color_map;
+    });
 
     if (BrainBrowser.utils.isFunction(callback)) {
       callback(color_map);

@@ -277,8 +277,11 @@
     * @doc object
     * @name viewer
     * @property {array} volumes Volumes to be displayed.
-    * @property {array} displays Display areas (one per volume).
     * @property {boolean} synced Are the cursors being synced across volumes?
+    * @property {DOMElement} dom_element The DOM element where the viewer
+    * will be inserted.
+    * @property {active_panel} active_panel The slice panel that's currently
+    * being manipulated.
     *
     * @description
     * The viewer object encapsulates all functionality of the Surface Viewer.

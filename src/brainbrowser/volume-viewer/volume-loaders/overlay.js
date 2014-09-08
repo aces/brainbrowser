@@ -72,6 +72,14 @@
 
             slices.forEach(function(slice) {
               var color_map = slice.color_map;
+              var error_message;
+
+              if (!color_map) {
+                error_message = "No color map set for this volume. Cannot render slice."
+                volume.triggerEvent("error", error_message);
+                throw new Error(error_message);
+              }
+
               var xstep = slice.width_space.step;
               var ystep = slice.height_space.step;
               var target_width = Math.abs(Math.floor(slice.width * xstep * zoom));

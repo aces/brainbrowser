@@ -75,8 +75,8 @@
               var error_message;
 
               if (!color_map) {
-                error_message = "No color map set for this volume. Cannot render slice."
-                volume.triggerEvent("error", error_message);
+                error_message = "No color map set for this volume. Cannot render slice.";
+                overlay_volume.triggerEvent("error", error_message);
                 throw new Error(error_message);
               }
 

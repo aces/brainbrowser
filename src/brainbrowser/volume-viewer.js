@@ -438,7 +438,6 @@
       document.addEventListener("keydown", function(event) {
         if (!viewer.active_panel) return;
         var panel = viewer.active_panel;
-        var canvas = panel.canvas;
         var volume = panel.volume;
         var axis_name = panel.axis;
 
@@ -539,13 +538,9 @@
             volume.current_time = time;
 
             if (viewer.synced){
-              viewer.volumes.forEach(function(volume, synced_vol_id) {
-                if (synced_vol_id !== vol_id) {
-                  if (event.shiftKey) {
-                    volume.current_time = Math.max(0, Math.min(time, volume.data.time.space_length - 1));
-                  } else {
-                    volume.current_time = Math.max(0, Math.min(time, volume.data.time.space_length - 1));
-                  }
+              viewer.volumes.forEach(function(synced_volume) {
+                if (synced_volume !== volume) {
+                  synced_volume.current_time = Math.max(0, Math.min(time, synced_volume.data.time.space_length - 1));
                 }
               });
             }

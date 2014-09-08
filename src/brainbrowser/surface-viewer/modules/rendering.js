@@ -169,6 +169,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     model.applyMatrix(inv);
     camera.position.set(0, 0, default_camera_distance);
     light.position.set(0, 0, default_camera_distance);
+    viewer.zoom = 1;
     
     for (i = 0, count = viewer.model.children.length; i < count; i++) {
       child = model.children[i];

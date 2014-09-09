@@ -33,9 +33,9 @@
     * @doc object
     * @name VolumeViewer.utils.axis_to_number
     *
-    * @property {xspace} Index of x space (0)
-    * @property {yspace} Index of y space (1)
-    * @property {zspace} Index of z space (2)
+    * @property {number} xspace Index of x space (0)
+    * @property {number} yspace Index of y space (1)
+    * @property {number} zspace Index of z space (2)
     *
     * @description
     * Convenience object for converting between space names

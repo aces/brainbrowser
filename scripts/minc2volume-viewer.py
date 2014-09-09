@@ -19,8 +19,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # Author: Jon Pipitone <jon@pipitone.ca>
-# Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
-# Author: Nicolas Kassis
 
 import sys
 import shutil

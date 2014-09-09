@@ -27,6 +27,9 @@
 BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   "use strict";
 
+  var MAX_WIREFRAME_WORKERS = 20;
+  var active_wireframe_jobs = 0;
+
   // View change functions
   var views = {
     medialView: function(model_data) {
@@ -220,6 +223,16 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   ////////////////////////////////////
 
   function createWireframe(shape, callback) {
+    if (active_wireframe_jobs < MAX_WIREFRAME_WORKERS) {
+      launchWireframeWorker(shape, callback);
+    } else {
+      setTimeout(function() {
+        createWireframe(shape, callback)
+      }, 0);
+    }
+  }
+
+  function launchWireframeWorker(shape, callback) {
     var worker = new Worker(BrainBrowser.SurfaceViewer.worker_urls.wireframe);
     var geometry = shape.geometry.attributes;
 
@@ -250,13 +263,17 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
       wireframe.visible = false;
       shape.wireframe_active = false;
       shape.add(wireframe);
+      active_wireframe_jobs--;
       callback(wireframe);
+
+      worker.terminate();
     });
 
     worker.postMessage({
       positions: geometry.position.array,
       colors: geometry.color.array,
     });
+    active_wireframe_jobs++;
   }
 
   function toggleWireframe(shape, wireframe, is_wireframe) {

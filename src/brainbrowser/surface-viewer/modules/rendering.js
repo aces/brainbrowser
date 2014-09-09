@@ -205,7 +205,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
   /**
   * @doc function
-  * @name SurfaceViewer.viewer:drawDot
+  * @name viewer.rendering:drawDot
   * @param {number} x The x coordinate.
   * @param {number} y The y coordinate.
   * @param {number} z The z coordinate.
@@ -214,7 +214,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   *
   * @description Draw a sphere in the current scene. Handy for debugging.
   * ```js
-  * viewer..drawDot(10, 5, 15, 3, 0x00FF00);
+  * viewer.drawDot(10, 5, 15, 3, 0x00FF00);
   * ```
   */
   viewer.drawDot = function(x, y, z, radius, color) {

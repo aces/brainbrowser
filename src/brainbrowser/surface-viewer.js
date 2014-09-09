@@ -359,7 +359,7 @@
 
       /**
       * @doc object
-      * @name SurfaceViewer.Viewer Events:displaymodel
+      * @name viewer.events:displaymodel
       *
       * @description
       * Triggered when a model new model is displayed on the viewer. The displayed model, as a THREE.Object3D
@@ -373,7 +373,7 @@
       */
       /**
       * @doc object
-      * @name SurfaceViewer.Viewer Events:loadintensitydata
+      * @name viewer.events:loadintensitydata
       *
       * @description
       * Triggered when a new intensity is loaded. The new intensity data
@@ -387,7 +387,7 @@
       */
       /**
       * @doc object
-      * @name SurfaceViewer.Viewer Events:loadcolormap
+      * @name viewer.events:loadcolormap
       *
       * @description
       * Triggered when a new color map has finished loading. The loaded color map
@@ -401,7 +401,7 @@
       */
       /**
       * @doc object
-      * @name SurfaceViewer.Viewer Events:clearscreen
+      * @name viewer.events:clearscreen
       *
       * @description
       * Triggered when the screen is cleared. The event handler receives
@@ -415,7 +415,7 @@
       */
       /**
       * @doc object
-      * @name SurfaceViewer.Viewer Events:updateintensitydata
+      * @name viewer.events:updateintensitydata
       *
       * @description
       * Triggered when the intensity is updated. The modified intensity data
@@ -429,7 +429,7 @@
       */
       /**
       * @doc object
-      * @name SurfaceViewer.Viewer Events:changeintensityrange
+      * @name viewer.events:changeintensityrange
       *
       * @description
       * Triggered when the intensity range changes. The modified intensity data
@@ -443,7 +443,7 @@
       */
       /**
       * @doc object
-      * @name SurfaceViewer.Viewer Events:updatecolors
+      * @name viewer.events:updatecolors
       *
       * @description
       * Triggered when model's colors are udpated. The array of colors to be applied are
@@ -457,7 +457,7 @@
       */
       /**
       * @doc object
-      * @name SurfaceViewer.Viewer Events:blenddata
+      * @name viewer.events:blenddata
       *
       * @description
       * Triggered when two sets of intensity data have been loaded and blended. 
@@ -472,7 +472,7 @@
       */
       /**
       * @doc object
-      * @name SurfaceViewer.Viewer Events:draw
+      * @name viewer.events:draw
       *
       * @description
       * Triggered when the scene is redrawn. The event handler receives the three.js
@@ -485,7 +485,7 @@
       * ```
       */
       /**
-      * @name SurfaceViewer.Viewer Events:zoom
+      * @name viewer.events:zoom
       *
       * @description
       * Triggered when the user changes the zoom level of the viewer (scroll or touch events).
@@ -493,21 +493,6 @@
       *
       * ```js
       *    viewer.addEventListener("zoom", function(zoom) {
-      *      //...
-      *    });
-      * ```
-      *
-      */
-      /**
-      * @doc object
-      * @name SurfaceViewer.Global Events:error
-      *
-      * @description
-      * Triggered when an error of some sort has occured. The error message, if any,
-      * is passed as the callbacks sole argument.
-      *
-      * ```js
-      *    viewer.addEventListener("error", function(error_message) {
       *      //...
       *    });
       * ```

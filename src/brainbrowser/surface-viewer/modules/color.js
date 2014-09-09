@@ -354,7 +354,6 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
 
   // Blend two sets of colors.
   function blendColors(intensity_set, model_name) {
-    var color_map = viewer.color_map;
     var color_arrays = [];
     var blended_color;
     var i, j, ci, num_arrays, num_colors;

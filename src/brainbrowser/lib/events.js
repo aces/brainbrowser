@@ -46,6 +46,21 @@
     * BrainBrowser.events.addEventModel(object);
     * ```
     */
+    /**
+    * @doc object
+    * @name BrainBrowser.events:error
+    *
+    * @description
+    * Triggered when an error of some sort has occured. The error message, if any,
+    * is passed as the callbacks sole argument.
+    *
+    * ```js
+    *    BrainBrowser.events.addEventListener("error", function(error_message) {
+    *      //...
+    *    });
+    * ```
+    *
+    */
     addEventModel: function(object) {
       var event_listeners = [];
       var propagated_events = {};

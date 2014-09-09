@@ -227,7 +227,7 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
       launchWireframeWorker(shape, callback);
     } else {
       setTimeout(function() {
-        createWireframe(shape, callback)
+        createWireframe(shape, callback);
       }, 0);
     }
   }

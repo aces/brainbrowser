@@ -312,7 +312,7 @@
 
     /**
     * @doc object
-    * @name VolumeViewer.Viewer Events:volumeloaded
+    * @name viewer.events:volumeloaded
     *
     * @description
     * Triggered when a volume loaded through **viewer.loadVolume()** or one of the
@@ -327,7 +327,7 @@
     */
     /**
     * @doc object
-    * @name VolumeViewer.Viewer Events:volumesloaded
+    * @name viewer.events:volumesloaded
     *
     * @description
     * Triggered when volumes loaded through **viewer.loadVolumes()** have completely
@@ -341,7 +341,7 @@
     */
     /**
     * @doc object
-    * @name VolumeViewer.Viewer Events:rendering
+    * @name viewer.events:rendering
     *
     * @description
     * Triggered when the viewer begins rendering after a call to **viewer.render()**.
@@ -355,7 +355,7 @@
     */
     /**
     * @doc object
-    * @name VolumeViewer.Viewer Events:volumeuiloaded
+    * @name viewer.events:volumeuiloaded
     *
     * @description
     * Triggered after a UI is created for a newly loaded volume. The DOM element
@@ -369,7 +369,7 @@
     */
     /**
     * @doc object
-    * @name VolumeViewer.Viewer Events:sliceupdate
+    * @name viewer.events:sliceupdate
     *
     * @description
     * Triggered when the slice currently being displayed is updated.
@@ -383,7 +383,7 @@
     */
     /**
     * @doc object
-    * @name VolumeViewer.Viewer Events:draw
+    * @name viewer.events:draw
     *
     * @description
     * Triggered when a panel currently being displayed is re-drawn.
@@ -395,23 +395,7 @@
     *    });
     * ```
     */
-   
-    /**
-    * @doc object
-    * @name VolumeViewer.Global Events:error
-    *
-    * @description
-    * Triggered when an error of some sort has occured. The error message, if any,
-    * is passed as the callbacks sole argument.
-    *
-    * ```js
-    *    BrainBrowser.events.addEventListener("error", function(error_message) {
-    *      //...
-    *    });
-    * ```
-    *
-    */
-    
+      
     Object.keys(VolumeViewer.modules).forEach(function(m) {
       VolumeViewer.modules[m](viewer);
     });

@@ -147,7 +147,7 @@
         var brightness = options.brightness === undefined ? 0 : options.brightness;
         var contrast = options.contrast === undefined ? 1 : options.contrast;
         var alpha = options.alpha === undefined ? 1 : options.alpha;
-        var destination = options.destination || [];
+        var destination = options.destination || new Float32Array(values.length * 4);
 
         var range = max - min;
         var increment = (range + range / color_map.colors.length) / color_map.colors.length;

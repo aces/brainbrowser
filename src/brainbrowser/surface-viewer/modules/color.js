@@ -82,9 +82,9 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
 
     timeout = setTimeout(function() {
       if (blend) {
-        applyColorArray(blendColors(data));
+        applyColorArray(blendColors(data, options.model_name));
       } else {
-        createColorArray(data, options.model_name, applyColorArray);
+        applyColorArray(createColorArray(data, options.model_name));
       }
     }, 0);
   };
@@ -192,7 +192,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   ///////////////////////////
   
   // Create a color array from an intensity data map
-  function createColorArray(intensity_data, model_name, callback) {
+  function createColorArray(intensity_data, model_name) {
     var intensity_values = intensity_data.values;
     var model_colors = viewer.model_data.get(model_name).colors;
     var min = intensity_data.range_min;
@@ -261,7 +261,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
       }
     }
 
-    if (callback) callback(colors);
+    return colors;
   }
 
   // Apply a color array to a model.
@@ -353,21 +353,15 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   }
 
   // Blend two sets of colors.
-  function blendColors(value_arrays) {
+  function blendColors(intensity_set, model_name) {
     var color_map = viewer.color_map;
     var color_arrays = [];
     var blended_color;
     var i, j, ci, num_arrays, num_colors;
     var alpha;
     
-    value_arrays.forEach(function(value_array) {
-      color_arrays.push(
-        color_map.mapColors(value_array.values, {
-          min: value_array.range_min,
-          max: value_array.range_max,
-          alpha: value_array.alpha
-        })
-      );
+    intensity_set.forEach(function(intensity_data) {
+      color_arrays.push(createColorArray(intensity_data, model_name));
     });
 
     blended_color = new Float32Array(color_arrays[0].length);
@@ -375,8 +369,8 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     for (i = 0, num_colors = color_arrays[0].length / 4; i < num_colors; i++){
       for (j = 0, num_arrays = color_arrays.length; j < num_arrays; j++) {
         ci = i * 4;
-        alpha = color_arrays[j][ci + 3];
-        blended_color[ci]   += color_arrays[j][ci] * alpha;
+        alpha = intensity_set[j].alpha;
+        blended_color[ci]     += color_arrays[j][ci] * alpha;
         blended_color[ci + 1] += color_arrays[j][ci + 1] * alpha;
         blended_color[ci + 2] += color_arrays[j][ci + 2] * alpha;
         blended_color[ci + 3] += alpha;

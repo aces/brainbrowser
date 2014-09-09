@@ -66,6 +66,7 @@ module.exports = function(grunt) {
                 "*\n" +
                 "* Author: Tarek Sherif  <tsherif@gmail.com> (http://tareksherif.ca/)\n" +
                 "* Author: Nicolas Kassis\n" +
+                "* Author: Paul Mougel\n" +
                 "*/\n"
       },
       surface: {
@@ -86,7 +87,8 @@ module.exports = function(grunt) {
           "<%= build_dir %>/workers/freesurferasc.worker.js": "src/brainbrowser/workers/freesurferasc.worker.js",
           "<%= build_dir %>/workers/mniobj.intensity.worker.js": "src/brainbrowser/workers/mniobj.intensity.worker.js",
           "<%= build_dir %>/workers/freesurferasc.intensity.worker.js": "src/brainbrowser/workers/freesurferasc.intensity.worker.js",
-          "<%= build_dir %>/workers/deindex.worker.js": "src/brainbrowser/workers/deindex.worker.js"
+          "<%= build_dir %>/workers/deindex.worker.js": "src/brainbrowser/workers/deindex.worker.js",
+          "<%= build_dir %>/workers/wireframe.worker.js": "src/brainbrowser/workers/wireframe.worker.js"
         }
       }
     },

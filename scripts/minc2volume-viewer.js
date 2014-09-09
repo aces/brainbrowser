@@ -22,6 +22,7 @@
 /*
 * Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
 * Author: Nicolas Kassis
+* Author: Paul Mougel
 */
 
 

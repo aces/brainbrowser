@@ -22,6 +22,7 @@
 
 /*
 * Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
+* Author: Paul Mougel
 */
  
 BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {

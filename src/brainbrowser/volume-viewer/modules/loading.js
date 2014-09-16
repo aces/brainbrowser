@@ -88,7 +88,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
     options = options || {};
     var overlay_options = options.overlay && typeof options.overlay === "object" ? options.overlay : {};
-          
+     
     var volume_descriptions = options.volumes;
     var num_descriptions = options.volumes.length;
     var complete = options.complete;
@@ -383,13 +383,16 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       volume.display = createVolumeDisplay(viewer.dom_element, vol_id, volume_description);
       volume.propagateEventTo("*", viewer);
 
-      ["xspace", "yspace", "zspace"].forEach(function(axis) {
+      var views = volume_description.views || ["xspace","yspace","zspace"]
+      views.forEach(function(axis) {
+      //["xspace", "yspace", "zspace"].forEach(function(axis) {
         volume.position[axis] = Math.floor(volume.header[axis].space_length / 2);
       });
 
       volume.display.forEach(function(panel) {
         panel.updateSlice(function() {
-          if (++slices_loaded === 3) {
+          //*** if (++slices_loaded === 3) { ***// 
+          if (++slices_loaded === views.length) {
             viewer.triggerEvent("volumeloaded", volume);
             if (BrainBrowser.utils.isFunction(callback)) {
               callback(volume);
@@ -455,9 +458,12 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
     var template_options = volume_description.template || {};
     var template;
 
+    var views = volume_description.views || ["xspace","yspace","zspace"];
+
     container.classList.add("volume-container");
     
-    ["xspace", "yspace", "zspace"].forEach(function(axis_name) {
+    views.forEach(function(axis_name) {
+    //["xspace", "yspace", "zspace"].forEach(function(axis_name) {
       var canvas = document.createElement("canvas");
       canvas.width = default_panel_width;
       canvas.height = default_panel_height;
@@ -502,8 +508,8 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
     
     (function() {
       var current_target = null;
-      
-      ["xspace", "yspace", "zspace"].forEach(function(axis_name, axis_num) {
+ 
+      views.forEach(function(axis_name, axis_num) {
         var panel = display[axis_num];
         var canvas = panel.canvas;
         var last_touch_distance = null;
@@ -726,11 +732,14 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
         canvas.addEventListener("mousewheel", wheelHandler, false);
         canvas.addEventListener("DOMMouseScroll", wheelHandler, false); // Dammit Firefox
       });
-    })();
+    }
+
+)();
 
     dom_element.appendChild(container);
     viewer.triggerEvent("volumeuiloaded", container, volume, vol_id);
 
     return display;
   }
+
 };

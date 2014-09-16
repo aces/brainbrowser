@@ -73,7 +73,8 @@ $(function() {
               template: {
                 element_id: "volume-ui-template",
                 viewer_insert_class: "volume-viewer-display"
-              }
+              },
+              views: ["xspace","yspace","zspace"] 
             },
             {
               type: 'minc',
@@ -82,14 +83,16 @@ $(function() {
               template: {
                 element_id: "volume-ui-template",
                 viewer_insert_class: "volume-viewer-display"
-              }
+              },
+              views: ["xspace","yspace","zspace"]              
             }
           ],
           overlay: {
             template: {
               element_id: "overlay-ui-template",
               viewer_insert_class: "overlay-viewer-display"
-            }
+            },
+            views: ["xspace","yspace","zspace"]
           }
         });
       } else {

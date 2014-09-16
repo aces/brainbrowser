@@ -468,7 +468,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       canvas.style.backgroundColor = "#000000";
       container.appendChild(canvas);
 
-		var axis_num =  BrainBrowser.VolumeViewer.utils.getAxisNumber(axis_name);      
+		var axis_num =  BrainBrowser.VolumeViewer.utils.axis_to_number[axis_name];      
       display[axis_num] = (
         VolumeViewer.createPanel({
           volume: volume,
@@ -510,7 +510,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
  
       views.forEach(function(axis_name) {
 
-        var axis_num =  BrainBrowser.VolumeViewer.utils.getAxisNumber(axis_name);
+		var axis_num =  BrainBrowser.VolumeViewer.utils.axis_to_number[axis_name];
 
         var panel = display[axis_num];
         var canvas = panel.canvas;

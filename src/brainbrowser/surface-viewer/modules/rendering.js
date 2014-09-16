@@ -503,13 +503,11 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     function mouseDrag(event) {
       event.preventDefault();
-      event.stopPropagation();
       drag(viewer.mouse, 1.1);
     }
 
     function touchDrag(event) {
       event.preventDefault();
-      event.stopPropagation();
       if (movement === "zoom") {
         touchZoom();
       } else {
@@ -536,7 +534,6 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
 
       event.preventDefault();
-      event.stopPropagation();
 
       viewer.zoom *= 1.0 + 0.05 * delta;
     }
@@ -562,7 +559,6 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     
     canvas.addEventListener( 'contextmenu', function(event) {
       event.preventDefault();
-      event.stopPropagation();
     }, false );
 
   })();

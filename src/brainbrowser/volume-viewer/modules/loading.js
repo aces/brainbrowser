@@ -467,7 +467,9 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       canvas.classList.add("slice-display");
       canvas.style.backgroundColor = "#000000";
       container.appendChild(canvas);
-      display.push(
+
+		var axis_num =  BrainBrowser.VolumeViewer.utils.getAxisNumber(axis_name);      
+      display[axis_num] = (
         VolumeViewer.createPanel({
           volume: volume,
           volume_id: vol_id,
@@ -506,7 +508,10 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
     (function() {
       var current_target = null;
  
-      views.forEach(function(axis_name, axis_num) {
+      views.forEach(function(axis_name) {
+
+        var axis_num =  BrainBrowser.VolumeViewer.utils.getAxisNumber(axis_name);
+
         var panel = display[axis_num];
         var canvas = panel.canvas;
         var last_touch_distance = null;

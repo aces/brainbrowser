@@ -50,6 +50,25 @@
       zspace: 2
     },
 
+    	 /**
+    * @doc function
+    * @name VolumeViewer.utils.getAxisNumber
+    *
+    * @param {array} source Source image data.
+	 * @returns {int} The number of the axis.
+    */
+    getAxisNumber : function(axis_name){
+
+			if(axis_name === "xspace")
+           return 0;
+
+			if(axis_name === "yspace")
+           return 1;
+
+			if(axis_name === "zspace")
+           return 2;
+    },
+
     /**
     * @doc function
     * @name VolumeViewer.utils.nearestNeighbor

@@ -596,7 +596,6 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
         function mouseDrag(event) {
           if(event.target === current_target) {
             event.preventDefault();
-            event.stopPropagation();
             drag(panel.mouse, event.shiftKey);
           }
         }
@@ -604,7 +603,6 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
         function touchDrag(event) {
           if(event.target === current_target) {
             event.preventDefault();
-            event.stopPropagation();
             drag(panel.touches[0], panel.touches.length === 3);
           }
         }
@@ -656,7 +654,6 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
         
         canvas.addEventListener("mousedown", function(event) {
           event.preventDefault();
-          event.stopPropagation();
 
           current_target = event.target;
           
@@ -673,7 +670,6 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
         canvas.addEventListener("touchstart", function(event) {
           event.preventDefault();
-          event.stopPropagation();
 
           current_target = event.target;
 
@@ -704,7 +700,6 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
         function zoom(delta) {
           event.preventDefault();
-          event.stopPropagation();
 
           panel.zoom = Math.max(panel.zoom + delta * 0.05, 0.05);
           panel.updateVolumePosition();

@@ -150,7 +150,7 @@ $(function() {
       }
 
       viewer.volumes.forEach(function(volume, x) {
-        volume.display.forEach(function(panel, y) {
+        volume.display.forEach(function(panel, axis_name, y) {
           context.drawImage(panel.canvas, x * width, y * height);
         });
       });

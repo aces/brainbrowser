@@ -336,6 +336,18 @@
         }, 0);
       },
 
+      /**
+      * @doc function
+      * @name panel.panel:draw
+      * @param {string} cursor_color The color of the cursor.
+      * @param {boolean} active Whether this panel is active or not (i.e.
+      * highlighted in red).
+      * @description
+      * Draw the current slice to the canvas.
+      * ```js
+      * panel.draw();
+      * ```
+      */
       draw: function(cursor_color, active) {
         var cursor = panel.getCursorPosition();
 
@@ -409,7 +421,6 @@
     }
 
     if (panel.volume) {
-      panel.propagateEventTo("*", panel.volume);
       setSlice(panel, panel.volume.slice(panel.axis));
     }
 

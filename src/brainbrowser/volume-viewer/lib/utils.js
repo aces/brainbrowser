@@ -30,27 +30,6 @@
 
   BrainBrowser.VolumeViewer.utils = {
     /**
-    * @doc object
-    * @name VolumeViewer.utils.axis_to_number
-    *
-    * @property {number} xspace Index of x space (0)
-    * @property {number} yspace Index of y space (1)
-    * @property {number} zspace Index of z space (2)
-    *
-    * @description
-    * Convenience object for converting between space names
-    * and indices.
-    * ```js
-    * BrainBrowser.VolumeViewer.utils.axis_to_number["xspace"];
-    * ```
-    */
-    axis_to_number: {
-      xspace: 0,
-      yspace: 1,
-      zspace: 2
-    },
-
-    /**
     * @doc function
     * @name VolumeViewer.utils.nearestNeighbor
     *

@@ -426,8 +426,6 @@
         var axis_name = panel.axis;
 
         var key = event.which;
-        var axis_num = VolumeViewer.utils.axis_to_number[axis_name];
-        
         var space_name, time;
         var cursor;
         
@@ -493,7 +491,7 @@
               var synced_panel;
               
               if (synced_volume !== volume) {
-                synced_panel = synced_volume.display[axis_num];
+                synced_panel = synced_volume.display.getPanel(axis_name);
                 synced_panel.updateVolumePosition(cursor.x, cursor.y);
                 synced_volume.display.forEach(function(panel) {
                   if (panel !== synced_panel) {

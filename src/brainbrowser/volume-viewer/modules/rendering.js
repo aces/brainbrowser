@@ -41,8 +41,8 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
 
     viewer.volumes.forEach(function(volume) {
       volume.display.forEach(function(panel) {
-      	if(panel === null)
-        	return;
+        if(panel === null)
+          return;
 
         panel.draw(
           volume.color_map.cursor_color,

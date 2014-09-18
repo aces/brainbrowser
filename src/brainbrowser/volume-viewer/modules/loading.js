@@ -88,7 +88,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
     options = options || {};
     var overlay_options = options.overlay && typeof options.overlay === "object" ? options.overlay : {};
-     
+          
     var volume_descriptions = options.volumes;
     var num_descriptions = options.volumes.length;
     var complete = options.complete;
@@ -373,9 +373,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       BrainBrowser.events.addEventModel(volume);
 
       volume.addEventListener("eventmodelcleanup", function() {
-        volume.display.forEach(function(panel) {
-          panel.triggerEvent("eventmodelcleanup");
-        });
+        volume.display.triggerEvent("eventmodelcleanup");
       });
 
       viewer.volumes[vol_id] = volume;
@@ -383,14 +381,13 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       volume.display = createVolumeDisplay(viewer.dom_element, vol_id, volume_description);
       volume.propagateEventTo("*", viewer);
 
-      var views = volume_description.views || ["xspace","yspace","zspace"]
-      views.forEach(function(axis) {
+      ["xspace", "yspace", "zspace"].forEach(function(axis) {
         volume.position[axis] = Math.floor(volume.header[axis].space_length / 2);
       });
 
       volume.display.forEach(function(panel) {
         panel.updateSlice(function() {
-          if (++slices_loaded === views.length) {
+          if (++slices_loaded === 3) {
             viewer.triggerEvent("volumeloaded", volume);
             if (BrainBrowser.utils.isFunction(callback)) {
               callback(volume);
@@ -452,24 +449,23 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
     var container = document.createElement("div");
     var volume = viewer.volumes[vol_id];
           
-    var display = [];
+    var display = VolumeViewer.createDisplay();
     var template_options = volume_description.template || {};
     var template;
 
-    var views = volume_description.views || ["xspace","yspace","zspace"];
+    display.propagateEventTo("*", volume);
 
     container.classList.add("volume-container");
     
-    views.forEach(function(axis_name) {
+    ["xspace", "yspace", "zspace"].forEach(function(axis_name) {
       var canvas = document.createElement("canvas");
       canvas.width = default_panel_width;
       canvas.height = default_panel_height;
       canvas.classList.add("slice-display");
       canvas.style.backgroundColor = "#000000";
       container.appendChild(canvas);
-
-		var axis_num =  BrainBrowser.VolumeViewer.utils.axis_to_number[axis_name];      
-      display[axis_num] = (
+      display.setPanel(
+        axis_name,
         VolumeViewer.createPanel({
           volume: volume,
           volume_id: vol_id,
@@ -507,12 +503,9 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
     
     (function() {
       var current_target = null;
- 
-      views.forEach(function(axis_name) {
-
-		var axis_num =  BrainBrowser.VolumeViewer.utils.axis_to_number[axis_name];
-
-        var panel = display[axis_num];
+      
+      ["xspace", "yspace", "zspace"].forEach(function(axis_name) {
+        var panel = display.getPanel(axis_name);
         var canvas = panel.canvas;
         var last_touch_distance = null;
 
@@ -544,7 +537,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
                 var synced_panel;
                 
                 if (synced_vol_id !== vol_id) {
-                  synced_panel = synced_volume.display[axis_num];
+                  synced_panel = synced_volume.display.getPanel(axis_name);
                   synced_panel.updateVolumePosition(pointer.x, pointer.y);
                   synced_volume.display.forEach(function(panel) {
                     if (panel !== synced_panel) {
@@ -568,7 +561,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
                 var synced_panel;
 
                 if (synced_vol_id !== vol_id) {
-                  synced_panel = synced_volume.display[axis_num];
+                  synced_panel = synced_volume.display.getPanel(axis_name);
                   synced_panel.followPointer(pointer);
                 }
               });
@@ -586,7 +579,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
                 var synced_panel;
                 
                 if (synced_vol_id !== vol_id) {
-                  synced_panel = synced_volume.display[axis_num];
+                  synced_panel = synced_volume.display.getPanel(axis_name);
                   synced_panel.updateVolumePosition(pointer.x, pointer.y);
                   synced_volume.display.forEach(function(panel) {
                     if (panel !== synced_panel) {
@@ -604,7 +597,6 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
         function mouseDrag(event) {
           if(event.target === current_target) {
             event.preventDefault();
-            event.stopPropagation();
             drag(panel.mouse, event.shiftKey);
           }
         }
@@ -612,7 +604,6 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
         function touchDrag(event) {
           if(event.target === current_target) {
             event.preventDefault();
-            event.stopPropagation();
             drag(panel.touches[0], panel.touches.length === 3);
           }
         }
@@ -664,7 +655,6 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
         
         canvas.addEventListener("mousedown", function(event) {
           event.preventDefault();
-          event.stopPropagation();
 
           current_target = event.target;
           
@@ -681,7 +671,6 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
         canvas.addEventListener("touchstart", function(event) {
           event.preventDefault();
-          event.stopPropagation();
 
           current_target = event.target;
 
@@ -712,7 +701,6 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
         function zoom(delta) {
           event.preventDefault();
-          event.stopPropagation();
 
           panel.zoom = Math.max(panel.zoom + delta * 0.05, 0.05);
           panel.updateVolumePosition();
@@ -720,7 +708,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
           if (viewer.synced){
             viewer.volumes.forEach(function(synced_volume, synced_vol_id) {
-              var synced_panel = synced_volume.display[axis_num];
+              var synced_panel = synced_volume.display.getPanel(axis_name);
 
               if (synced_vol_id !== vol_id) {
                 synced_panel.zoom = panel.zoom;
@@ -734,14 +722,11 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
         canvas.addEventListener("mousewheel", wheelHandler, false);
         canvas.addEventListener("DOMMouseScroll", wheelHandler, false); // Dammit Firefox
       });
-    }
-
-)();
+    })();
 
     dom_element.appendChild(container);
     viewer.triggerEvent("volumeuiloaded", container, volume, vol_id);
 
     return display;
   }
-
 };

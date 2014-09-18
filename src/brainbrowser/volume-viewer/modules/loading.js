@@ -386,6 +386,16 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       });
 
       volume.display.forEach(function(panel) {
+        if(panel === null){
+          if (++slices_loaded === 3) {
+            viewer.triggerEvent("volumeloaded", volume);
+            if (BrainBrowser.utils.isFunction(callback)) {
+              callback(volume);
+            }
+          }
+          return;
+        }
+
         panel.updateSlice(function() {
           if (++slices_loaded === 3) {
             viewer.triggerEvent("volumeloaded", volume);
@@ -452,12 +462,18 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
     var display = VolumeViewer.createDisplay();
     var template_options = volume_description.template || {};
     var template;
+    
+    var views = volume_description.views || {xspace:true, yspace:true, zspace:true};
 
     display.propagateEventTo("*", volume);
 
     container.classList.add("volume-container");
     
     ["xspace", "yspace", "zspace"].forEach(function(axis_name) {
+      if(!views[axis_name]){
+        display.setPanel(axis_name, null);
+        return;
+      }
       var canvas = document.createElement("canvas");
       canvas.width = default_panel_width;
       canvas.height = default_panel_height;
@@ -506,6 +522,10 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       
       ["xspace", "yspace", "zspace"].forEach(function(axis_name) {
         var panel = display.getPanel(axis_name);
+
+        if(panel === null)
+          return;
+
         var canvas = panel.canvas;
         var last_touch_distance = null;
 

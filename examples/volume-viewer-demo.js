@@ -586,7 +586,11 @@ $(function() {
             element_id: "volume-ui-template",
             viewer_insert_class: "volume-viewer-display"
           },
-          views: ["xspace","zspace"]
+          views: {
+            	xspace: true,
+            	yspace: true,
+            	zspace: true
+        	}
         },
         {
           type: 'minc',
@@ -596,15 +600,18 @@ $(function() {
             element_id: "volume-ui-template",
             viewer_insert_class: "volume-viewer-display"
           },
-          views: ["yspace","zspace"]
+          views: {
+            	xspace: true,
+            	yspace: true,
+            	zspace: true
+        	},
         }
       ],
       overlay: {
         template: {
           element_id: "overlay-ui-template",
           viewer_insert_class: "overlay-viewer-display"
-        },
-        views: ["yspace","zspace"]
+        }
       },
       complete: function() {
         loading_div.hide();

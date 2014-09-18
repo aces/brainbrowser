@@ -54,7 +54,8 @@
           panels[axis_name].triggerEvent("eventmodelcleanup");
         }
 
-        panel.propagateEventTo("*", display);
+        if(panel !== null)
+	        panel.propagateEventTo("*", display);
         panels[axis_name] = panel;
       },
 

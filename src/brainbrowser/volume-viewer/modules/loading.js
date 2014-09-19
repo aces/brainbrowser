@@ -369,6 +369,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   function setVolume(vol_id, volume_description, callback) {
     openVolume(volume_description, function(volume) {
       var slices_loaded = 0;
+      var views = volume_description.views || ["xspace","yspace","zspace"];
 
       BrainBrowser.events.addEventModel(volume);
 
@@ -387,7 +388,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
       volume.display.forEach(function(panel) {
         panel.updateSlice(function() {
-          if (++slices_loaded === 3) {
+          if (++slices_loaded === views.length) {
             viewer.triggerEvent("volumeloaded", volume);
             if (BrainBrowser.utils.isFunction(callback)) {
               callback(volume);
@@ -457,7 +458,8 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
     container.classList.add("volume-container");
     
-    ["xspace", "yspace", "zspace"].forEach(function(axis_name) {
+    var views = volume_description.views || ["xspace", "yspace", "zspace"];
+    views.forEach(function(axis_name) {
       var canvas = document.createElement("canvas");
       canvas.width = default_panel_width;
       canvas.height = default_panel_height;
@@ -504,7 +506,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
     (function() {
       var current_target = null;
       
-      ["xspace", "yspace", "zspace"].forEach(function(axis_name) {
+      views.forEach(function(axis_name) {
         var panel = display.getPanel(axis_name);
         var canvas = panel.canvas;
         var last_touch_distance = null;
@@ -604,7 +606,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
         function touchDrag(event) {
           if(event.target === current_target) {
             event.preventDefault();
-            drag(panel.touches[0], panel.touches.length === 3);
+            drag(panel.touches[0], panel.touches.length === views.length);
           }
         }
         

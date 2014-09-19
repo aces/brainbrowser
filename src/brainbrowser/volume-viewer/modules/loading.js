@@ -452,13 +452,13 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
           
     var display = VolumeViewer.createDisplay();
     var template_options = volume_description.template || {};
+    var views = volume_description.views || ["xspace", "yspace", "zspace"];
     var template;
 
     display.propagateEventTo("*", volume);
 
     container.classList.add("volume-container");
     
-    var views = volume_description.views || ["xspace", "yspace", "zspace"];
     views.forEach(function(axis_name) {
       var canvas = document.createElement("canvas");
       canvas.width = default_panel_width;

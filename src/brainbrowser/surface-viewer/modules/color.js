@@ -207,6 +207,12 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     
     // Calculate a slice of the data per color
     var increment = ( range + range / color_map_length ) / color_map_length;
+
+    // This is used so that when the model color is used in a model
+    // that was just given a single color to apply to the whole model,
+    // the indexes will be set properly (i.e. from 0-4, not 0-no. of
+    // vertices.)
+    var model_color_offset = model_colors.length === 4 ? 0 : 1;
     var use_model_color = false;
     var i, ic, count;
     var color_map_index;
@@ -217,42 +223,23 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
       value = intensity_values[i];
       use_model_color = false;
 
-      if (value < min ) {
-        if (clamped){
-          color_map_index = 0;
-        } else {
-          use_model_color = true;
-        }
-      } else if (value > max){
-        if (clamped){
-          color_map_index = color_map_length - 1;
-        } else {
-          use_model_color = true;
-        }
-      } else {
-        color_map_index = Math.floor((value - min) / increment);
-      }
-
       ic = i * 4;
+
+      if ((value < min || value > max) && !clamped) {
+        use_model_color = true;
+      } else {
+        color_map_index = Math.floor(Math.max(0, Math.min((value - min) / increment, color_map_length - 1)));
+        if (flip) {
+          color_map_index = color_map_length - 1 - color_map_index;
+        }
+      }
 
       //This inserts the RGBA values (R,G,B,A) independently
       if(use_model_color) {
-        if(model_colors.length === 4){
-          colors[ic]     = model_colors[0];
-          colors[ic + 1] = model_colors[1];
-          colors[ic + 2] = model_colors[2];
-          colors[ic + 3] = model_colors[3];
-        } else {
-          colors[ic]     = model_colors[i * 4];
-          colors[ic + 1] = model_colors[i * 4 + 1];
-          colors[ic + 2] = model_colors[i * 4 + 2];
-          colors[ic + 3] = model_colors[i * 4 + 3];
-        }
-      } else if (flip) {
-        colors[ic]     = color_map[color_map_length - 1 - color_map_index][0];
-        colors[ic + 1] = color_map[color_map_length - 1 - color_map_index][1];
-        colors[ic + 2] = color_map[color_map_length - 1 - color_map_index][2];
-        colors[ic + 3] = color_map[color_map_length - 1 - color_map_index][3];
+        colors[ic]     = model_colors[ic * model_color_offset];
+        colors[ic + 1] = model_colors[ic * model_color_offset + 1];
+        colors[ic + 2] = model_colors[ic * model_color_offset + 2];
+        colors[ic + 3] = model_colors[ic * model_color_offset + 3];
       } else {
         colors[ic]     = color_map[color_map_index][0];
         colors[ic + 1] = color_map[color_map_index][1];

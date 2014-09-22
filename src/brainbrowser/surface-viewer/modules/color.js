@@ -206,7 +206,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     var range = max - min;
     
     // Calculate a slice of the data per color
-    var increment = ( range + range / color_map_length ) / color_map_length;
+    var increment = color_map_length / range;
 
     // This is used so that when the model color is used in a model
     // that was just given a single color to apply to the whole model,
@@ -228,7 +228,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
       if ((value < min || value > max) && !clamped) {
         use_model_color = true;
       } else {
-        color_map_index = Math.floor(Math.max(0, Math.min((value - min) / increment, color_map_length - 1)));
+        color_map_index = Math.floor(Math.max(0, Math.min((value - min) * increment, color_map_length - 1)));
         if (flip) {
           color_map_index = color_map_length - 1 - color_map_index;
         }

@@ -150,7 +150,7 @@
         var destination = options.destination || new Float32Array(values.length * 4);
 
         var range = max - min;
-        var increment = (range + range / color_map.colors.length) / color_map.colors.length;
+        var increment = color_map.colors.length / range;
         var scale = scale255 ? 255 : 1;
 
         var i, count;
@@ -201,7 +201,7 @@
         var min = options.min === undefined ? 0 : options.min;
         var max = options.max === undefined ? 255 : options.max;
         var range = max - min;
-        var increment = (range + range / color_map.colors.length) / color_map.colors.length;
+        var increment = color_map.colors.length / range;
         var color = Array.prototype.slice.call(mapColor(value, min, max, range, increment));
 
         if (format !== "float") {
@@ -224,12 +224,6 @@
 
     // Map a single value to a color.
     function mapColor(value, min, max, range, increment) {
-      var cached_value = checkCache(value, min, max);
-
-      if (cached_value !== undefined) {
-        return cached_value;
-      }
-
       var color_map_colors = color_map.colors;
       
       // Calculate a slice of the data per color
@@ -240,7 +234,7 @@
       } else if (value > max){
         color_index = color_map_colors.length - 1;
       } else {
-        color_index = Math.floor((value - min) / increment);
+        color_index = Math.floor((value - min) * increment);
       }
 
       if (color_map_colors[color_index]) {
@@ -248,8 +242,6 @@
       } else {
         color = [0, 0, 0, 1];
       }
-
-      setCache(value, min, max, color);
 
       return color;
     }
@@ -290,19 +282,6 @@
       return canvas;
 
     }
-
-    // Check if a color is cached.
-    function checkCache(value, min, max) {
-      return color_cache[value] && color_cache[value][min] && color_cache[value][min][max];
-    }
-
-    // Cache a color.
-    function setCache(value, min, max, color) {
-      color_cache[value] = color_cache[value] || {};
-      color_cache[value][min] = color_cache[value][min] || {};
-      color_cache[value][min][max] = color;
-    }
-
     
     // Parse the color_map data from a string
     (function() {

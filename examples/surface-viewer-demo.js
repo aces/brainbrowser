@@ -282,7 +282,9 @@ $(function() {
       $("#paint-color").css("background-color", "#" + viewer.color_map.colorFromValue(model_data.intensity_data.values[0], {
         format: "hex",
         min: model_data.intensity_data.range_min,
-        max: model_data.intensity_data.range_max
+        max: model_data.intensity_data.range_max,
+        flip: viewer.getAttribute("flip_colors"),
+        clamp: viewer.getAttribute("clamp_colors")
       }));
 
     }); // end loadintensitydata listener
@@ -316,7 +318,9 @@ $(function() {
         $("#pick-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
           format: "hex",
           min: model_data.intensity_data.range_min,
-          max: model_data.intensity_data.range_max
+          max: model_data.intensity_data.range_max,
+          flip: viewer.getAttribute("flip_colors"),
+          clamp: viewer.getAttribute("clamp_colors")
         }));
       }
 
@@ -326,7 +330,9 @@ $(function() {
         $("#paint-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
           format: "hex",
           min: model_data.intensity_data.range_min,
-          max: model_data.intensity_data.range_max
+          max: model_data.intensity_data.range_max,
+          flip: viewer.getAttribute("flip_colors"),
+          clamp: viewer.getAttribute("clamp_colors")
         }));
       }
 
@@ -511,7 +517,9 @@ $(function() {
           $("#pick-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
             format: "hex",
             min: model_data.intensity_data.range_min,
-            max: model_data.intensity_data.range_max
+            max: model_data.intensity_data.range_max,
+            flip: viewer.getAttribute("flip_colors"),
+            clamp: viewer.getAttribute("clamp_colors")
           }));
           label = atlas_labels[value];
           if (label) {
@@ -588,7 +596,9 @@ $(function() {
         $("#paint-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
           format: "hex",
           min: model_data.intensity_data.range_min,
-          max: model_data.intensity_data.range_max
+          max: model_data.intensity_data.range_max,
+          flip: viewer.getAttribute("flip_colors"),
+          clamp: viewer.getAttribute("clamp_colors")
         }));
       }
     });

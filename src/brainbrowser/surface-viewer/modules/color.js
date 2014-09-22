@@ -51,14 +51,14 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   */
   var timeout = null;
   
-  viewer.updateColors = function(data, options) {
+  viewer.updateColors = function(intensity_data, options) {
     options = options || {};
     var blend = options.blend;
     var complete = options.complete;
 
     function applyColorArray(color_array) {
       var shapes;
-      var shape = viewer.model.getObjectByName(data.apply_to_shape, true);
+      var shape = viewer.model.getObjectByName(intensity_data.apply_to_shape, true);
 
       if (shape) {
         shapes = [shape];
@@ -82,9 +82,15 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
 
     timeout = setTimeout(function() {
       if (blend) {
-        applyColorArray(blendColors(data, options.model_name));
+        applyColorArray(blendColors(intensity_data, options.model_name));
       } else {
-        applyColorArray(createColorArray(data, options.model_name));
+        applyColorArray(viewer.color_map.mapColors(intensity_data.values, {
+          min: intensity_data.range_min,
+          max: intensity_data.range_max,
+          default_colors: viewer.model_data.get(options.model_name).colors,
+          clamp: viewer.getAttribute("clamp_colors"),
+          flip: viewer.getAttribute("flip_colors")
+        }));
       }
     }, 0);
   };
@@ -190,66 +196,6 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   ///////////////////////////
   // PRIVATE FUNCTIONS
   ///////////////////////////
-  
-  // Create a color array from an intensity data map
-  function createColorArray(intensity_data, model_name) {
-    var intensity_values = intensity_data.values;
-    var model_colors = viewer.model_data.get(model_name).colors;
-    var min = intensity_data.range_min;
-    var max = intensity_data.range_max;
-    var flip = viewer.getAttribute("flip_colors");
-    var clamped = viewer.getAttribute("clamp_colors");
-    var color_map = viewer.color_map.colors;
-    
-    var colors = new Float32Array(intensity_values.length * 4);
-    var color_map_length = color_map.length;
-    var range = max - min;
-    
-    // Calculate a slice of the data per color
-    var increment = color_map_length / range;
-
-    // This is used so that when the model color is used in a model
-    // that was just given a single color to apply to the whole model,
-    // the indexes will be set properly (i.e. from 0-4, not 0-no. of
-    // vertices.)
-    var model_color_offset = model_colors.length === 4 ? 0 : 1;
-    var use_model_color = false;
-    var i, ic, count;
-    var color_map_index;
-    var value;
-
-    // For each value, assign a color
-    for (i = 0, count = intensity_values.length; i < count; i++) {
-      value = intensity_values[i];
-      use_model_color = false;
-
-      ic = i * 4;
-
-      if ((value < min || value > max) && !clamped) {
-        use_model_color = true;
-      } else {
-        color_map_index = Math.floor(Math.max(0, Math.min((value - min) * increment, color_map_length - 1)));
-        if (flip) {
-          color_map_index = color_map_length - 1 - color_map_index;
-        }
-      }
-
-      //This inserts the RGBA values (R,G,B,A) independently
-      if(use_model_color) {
-        colors[ic]     = model_colors[ic * model_color_offset];
-        colors[ic + 1] = model_colors[ic * model_color_offset + 1];
-        colors[ic + 2] = model_colors[ic * model_color_offset + 2];
-        colors[ic + 3] = model_colors[ic * model_color_offset + 3];
-      } else {
-        colors[ic]     = color_map[color_map_index][0];
-        colors[ic + 1] = color_map[color_map_index][1];
-        colors[ic + 2] = color_map[color_map_index][2];
-        colors[ic + 3] = color_map[color_map_index][3];
-      }
-    }
-
-    return colors;
-  }
 
   // Apply a color array to a model.
   function colorModel(color_array, shapes) {
@@ -347,7 +293,13 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     var alpha;
     
     intensity_set.forEach(function(intensity_data) {
-      color_arrays.push(createColorArray(intensity_data, model_name));
+      color_arrays.push(viewer.color_map.mapColors(intensity_data.values, {
+        min: intensity_data.range_min,
+        max: intensity_data.range_max,
+        default_colors: viewer.model_data.get(model_name).colors,
+        clamp: viewer.getAttribute("clamp_colors"),
+        flip: viewer.getAttribute("flip_colors")
+      }));
     });
 
     blended_color = new Float32Array(color_arrays[0].length);

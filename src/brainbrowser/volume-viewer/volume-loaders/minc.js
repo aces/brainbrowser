@@ -124,9 +124,6 @@
             min: slice.min,
             max: slice.max,
             scale255: true,
-            brightness: 0,
-            contrast: 1,
-            alpha: slice.alpha,
             destination: source_image.data
           });
 

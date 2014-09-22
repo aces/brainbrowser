@@ -43,8 +43,32 @@
   */
   BrainBrowser.createColorMap = function(data) {
 
-    // Cache colors produced by mapColor.
-    var color_cache = {};
+    var color_map_colors;
+    var lines, line_count, line_length;
+    var i, j, ic;
+    var color;
+
+    if (data) {
+      lines = data.trim().split(/\n/);
+      color_map_colors = new Float32Array(lines.length * 4);
+      
+      for (i = 0, line_count = lines.length; i < line_count; i++) {
+        color = lines[i].trim().split(/\s+/).slice(0, 4);
+        line_length = color.length;
+        ic = i * 4;
+
+        if (line_length < 3) continue;
+
+        for (j = 0; j < line_length; j++) {
+          color_map_colors[ic + j] = parseFloat(color[j]);
+        }
+
+        if (line_length < 4) {
+          color_map_colors[ic + 3] = 1;
+        }
+
+      }
+    }
 
     /**
     * @doc object
@@ -54,6 +78,7 @@
     * Object representing the currently loaded color map.
     */
     var color_map = {
+      colors: color_map_colors,
 
       /**
       * @doc function
@@ -118,9 +143,8 @@
       * * **min** {number} Minimum intensity value.
       * * **max** {number} Maximum intensity value.
       * * **scale255** {boolean} Should the color values be scaled to a 0-255 range?
-      * * **contrast** {number} Color contrast.
-      * * **brightness** {number} Color brightness.
-      * * **alpha** {number} Opacity of the color map. 
+      * * **clamp** {boolean} Clamp colors to range?
+      * * **flip** {boolean} Flip color mapping?
       * * **destination** {array} Array to write the colors to (instead of creating
       *   a new array). 
       * 
@@ -139,33 +163,51 @@
       * });
       * ```
       */
-      mapColors: function(values, options) {
+      mapColors: function(intensity_values, options) {
         options = options || {};
         var min = options.min === undefined ? 0 : options.min;
         var max = options.max === undefined ? 255 : options.max;
         var scale255 = options.scale255 === undefined ? false : options.scale255;
-        var brightness = options.brightness === undefined ? 0 : options.brightness;
-        var contrast = options.contrast === undefined ? 1 : options.contrast;
-        var alpha = options.alpha === undefined ? 1 : options.alpha;
-        var destination = options.destination || new Float32Array(values.length * 4);
+        var default_colors = options.default_colors || [0, 0, 0, 1];
+        var clamp = options.clamp === undefined ? true : options.clamp;
+        var flip = options.flip || false;
+        var destination = options.destination || new Float32Array(intensity_values.length * 4);
 
+        var color_map_colors = color_map.colors;
+        var color_map_length = color_map.colors.length / 4;
+        // This is used so that when the model color is used in a model
+        // that was just given a single color to apply to the whole model,
+        // the indexes will be set properly (i.e. from 0-4, not 0-no. of
+        // vertices.)
+        var default_color_offset = default_colors.length === 4 ? 0 : 1;
         var range = max - min;
-        var increment = color_map.colors.length / range;
+        var increment = color_map_length / range;
         var scale = scale255 ? 255 : 1;
-
-        var i, count;
-        var color;
-
-        alpha *= scale;
+        
+        var value;
+        var i, ic, idc, count;
+        var color_map_index;
           
         //for each value, assign a color
-        for (i = 0, count = values.length; i < count; i++) {
-          color = mapColor(values[i], min, max, range, increment);
+        for (i = 0, count = intensity_values.length; i < count; i++) {
+          value = intensity_values[i];
+          ic = i * 4;
 
-          destination[i*4+0] = scale * (color[0] * contrast + brightness);
-          destination[i*4+1] = scale * (color[1] * contrast + brightness);
-          destination[i*4+2] = scale * (color[2] * contrast + brightness);
-          destination[i*4+3] = alpha;
+          color_map_index = getColorMapIndex(value, min, max, increment, clamp, flip, color_map_length);
+
+          //This inserts the RGBA values (R,G,B,A) independently
+          if(color_map_index < 0) {
+            idc = ic * default_color_offset;
+            destination[ic]     = scale * default_colors[idc];
+            destination[ic + 1] = scale * default_colors[idc + 1];
+            destination[ic + 2] = scale * default_colors[idc + 2];
+            destination[ic + 3] = scale * default_colors[idc + 3];
+          } else {
+            destination[ic]     = scale * color_map_colors[color_map_index];
+            destination[ic + 1] = scale * color_map_colors[color_map_index + 1];
+            destination[ic + 2] = scale * color_map_colors[color_map_index + 2];
+            destination[ic + 3] = scale * color_map_colors[color_map_index + 3];
+          }
         }
 
         return destination;
@@ -182,6 +224,8 @@
       *   **255** for 0-255 range rgb array, or "hex" for a hex string.
       * * **min** {number} Minimum intensity value.
       * * **max** {number} Maximum intensity value.
+      * * **clamp** {boolean} Clamp colors to range?
+      * * **flip** {boolean} Flip color mapping?
       * 
       * @returns {array|string} Color parsed from the value given.
       *
@@ -200,9 +244,19 @@
         var format = options.format || "float";
         var min = options.min === undefined ? 0 : options.min;
         var max = options.max === undefined ? 255 : options.max;
+        var clamp = options.clamp === undefined ? true : options.clamp;
+        var flip = options.flip || false;
         var range = max - min;
-        var increment = color_map.colors.length / range;
-        var color = Array.prototype.slice.call(mapColor(value, min, max, range, increment));
+        var color_map_length = color_map.colors.length / 4;
+        var increment = color_map_length / range;
+        var color_map_index = getColorMapIndex(value, min, max, increment, clamp, flip, color_map_length);
+        var color;
+
+        if (color_map_index >= 0) {
+          color = Array.prototype.slice.call(color_map.colors, color_map_index, color_map_index + 4);
+        } else {
+          color = [0, 0, 0, 1];
+        }
 
         if (format !== "float") {
           color[0] = Math.floor(color[0] * 255);
@@ -223,27 +277,21 @@
     };
 
     // Map a single value to a color.
-    function mapColor(value, min, max, range, increment) {
-      var color_map_colors = color_map.colors;
-      
-      // Calculate a slice of the data per color
-      var color, color_index;
+    function getColorMapIndex(value, min, max, increment, clamp, flip, color_map_length) {
+      var color_map_index;
 
-      if (value <= min) {
-        color_index = 0;
-      } else if (value > max){
-        color_index = color_map_colors.length - 1;
+      if ((value < min || value > max) && !clamp) {
+        return -1;
       } else {
-        color_index = Math.floor((value - min) * increment);
-      }
+        color_map_index = Math.floor(Math.max(0, Math.min((value - min) * increment, color_map_length - 1)));
+        if (flip) {
+          color_map_index = color_map_length - 1 - color_map_index;
+        }
 
-      if (color_map_colors[color_index]) {
-        color = color_map_colors[color_index];
-      } else {
-        color = [0, 0, 0, 1];
-      }
+        color_map_index *= 4;
 
-      return color;
+        return color_map_index;
+      }
     }
 
     // Creates an canvas with the color_map of colors
@@ -283,34 +331,7 @@
 
     }
     
-    // Parse the color_map data from a string
-    (function() {
-      if (!data) return;
-
-      data = data.replace(/^\s+/, '').replace(/\s+$/, '');
-      var lines = data.split(/\n/);
-      var colors = [];
-      var i, k, line_count, line_length;
-      var color;
-      
-      for (i = 0, line_count = lines.length; i < line_count; i++) {
-        color = lines[i].replace(/^\s+/, '').replace(/\s+$/, '').split(/\s+/).slice(0, 4);
-        line_length = color.length;
-
-        if (line_length < 3) continue;
-
-        for (k=0; k < line_length; k++) {
-          color[k] = parseFloat(color[k]);
-        }
-
-        if (line_length < 4) {
-          color.push(1.0000);
-        }
-
-        colors.push(color);
-      }
-      color_map.colors = colors;
-    })();
+    
 
     return color_map;
 

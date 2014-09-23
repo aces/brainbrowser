@@ -170,8 +170,8 @@
     * ```
     */
     loadColorMapFromURL: function(url, callback, options) {
-      BrainBrowser.loader.loadFromURL(url, function(data, filename, options) {
-        callback(BrainBrowser.createColorMap(data), filename, options);
+      loader.loadFromURL(url, function(data, filename, options) {
+        callback(BrainBrowser.createColorMap(data, options), filename, options);
       }, options);
     },
 
@@ -198,8 +198,8 @@
     * ```
     */
     loadColorMapFromFile: function(file_input, callback, options) {
-      BrainBrowser.loader.loadFromFile(file_input, function(data, filename, options) {
-        callback(BrainBrowser.createColorMap(data), filename, options);
+      loader.loadFromFile(file_input, function(data, filename, options) {
+        callback(BrainBrowser.createColorMap(data, options), filename, options);
       }, options);
     },
  

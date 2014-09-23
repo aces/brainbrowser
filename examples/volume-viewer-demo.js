@@ -542,7 +542,7 @@ $(function() {
       value = volume.getIntensityValue();
       $("#intensity-value-" + vol_id)
       .css("background-color", "#" + volume.color_map.colorFromValue(value, {
-        format: "hex",
+        hex: true,
         min: volume.min,
         max: volume.max
       }))

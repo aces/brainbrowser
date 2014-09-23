@@ -72,10 +72,6 @@ $(function() {
     // Add the three.js 3D anaglyph effect to the viewer.
     viewer.addEffect("AnaglyphEffect");
 
-    // Set up some defaults
-    viewer.setAttribute("clamp_colors", true); // By default clamp range.
-    viewer.setAttribute("flip_colors", false); // Don't flip intensity-color relationship.
-
     ///////////////////////////////////
     // Event Listeners
     ///////////////////////////////////
@@ -87,9 +83,21 @@ $(function() {
     // When a new color map is loaded display a spectrum representing
     // the color mapping.
     viewer.addEventListener("loadcolormap", function(color_map) {
-      var canvas = color_map.createCanvasWithScale(0, 100);
       var spectrum_div = document.getElementById("color-bar");
-      
+      var model_data = viewer.model_data.get();
+
+      var min, max;
+      var canvas;
+
+      if (model_data && model_data.intensity_data) {
+        min = model_data.intensity_data.range_min;
+        max = model_data.intensity_data.range_max;
+      } else {
+        min = 0;
+        max = 100;
+      }
+
+      canvas = color_map.createElement(min, max);
       canvas.id = "spectrum-canvas";
       if (!spectrum_div) {
         $("<div id=\"color-bar\"></div>").html(canvas).appendTo("#data-range-box");
@@ -160,7 +168,7 @@ $(function() {
 
     // When the intensity range changes, adjust the displayed spectrum.
     viewer.addEventListener("changeintensityrange", function(intensity_data) {
-      var canvas = viewer.color_map.createCanvasWithScale(intensity_data.range_min, intensity_data.range_max);
+      var canvas = viewer.color_map.createElement(intensity_data.range_min, intensity_data.range_max);
       canvas.id = "spectrum-canvas";
       $("#color-bar").html(canvas);
     });
@@ -187,10 +195,10 @@ $(function() {
                     (viewer.getAttribute("fix_color_range") ? ' checked="true"' : '') +
                     '><label for="fix_range">Fix Range</label>';
         controls += '<input type="checkbox" class="button" id="clamp_range"' +
-                    (viewer.getAttribute("clamp_colors") ? ' checked="true"' : '') +
+                    (viewer.color_map && viewer.color_map.clamp ? ' checked="true"' : '') +
                     '><label for="clamp_range">Clamp range</label>';
         controls += '<input type="checkbox" class="button" id="flip_range"' +
-                    (viewer.getAttribute("flip_colors") ? ' checked="true"' : '') +
+                    (viewer.color_map && viewer.color_map.flip ? ' checked="true"' : '') +
                     '><label for="flip_range">Flip Colors</label>';
         controls += '</div>';
       }
@@ -260,7 +268,9 @@ $(function() {
           var min = parseFloat(min_input.val());
           var max = parseFloat(max_input.val());
 
-          viewer.setAttribute("clamp_colors", $(this).is(":checked"));
+          if (viewer.color_map) {
+            viewer.color_map.clamp = $(this).is(":checked");
+          }
 
           viewer.setIntensityRange(min, max);
         });
@@ -270,7 +280,9 @@ $(function() {
           var min = parseFloat(min_input.val());
           var max = parseFloat(max_input.val());
 
-          viewer.setAttribute("flip_colors", $(this).is(":checked"));
+          if (viewer.color_map) {
+            viewer.color_map.flip = $(this).is(":checked");
+          }
 
           viewer.setIntensityRange(min, max);
         });
@@ -280,7 +292,7 @@ $(function() {
 
       $("#paint-value").val(model_data.intensity_data.values[0]);
       $("#paint-color").css("background-color", "#" + viewer.color_map.colorFromValue(model_data.intensity_data.values[0], {
-        format: "hex",
+        hex: true,
         min: model_data.intensity_data.range_min,
         max: model_data.intensity_data.range_max,
         flip: viewer.getAttribute("flip_colors"),
@@ -316,7 +328,7 @@ $(function() {
 
       if (BrainBrowser.utils.isNumeric(value)) {
         $("#pick-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
-          format: "hex",
+          hex: true,
           min: model_data.intensity_data.range_min,
           max: model_data.intensity_data.range_max,
           flip: viewer.getAttribute("flip_colors"),
@@ -328,7 +340,7 @@ $(function() {
 
       if (BrainBrowser.utils.isNumeric(value)) {
         $("#paint-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
-          format: "hex",
+          hex: true,
           min: model_data.intensity_data.range_min,
           max: model_data.intensity_data.range_max,
           flip: viewer.getAttribute("flip_colors"),
@@ -515,7 +527,7 @@ $(function() {
           value = model_data.intensity_data.values[pick_info.index];
           $("#pick-value").val(value.toString().slice(0, 7));
           $("#pick-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
-            format: "hex",
+            hex: true,
             min: model_data.intensity_data.range_min,
             max: model_data.intensity_data.range_max,
             flip: viewer.getAttribute("flip_colors"),
@@ -594,7 +606,7 @@ $(function() {
 
       if (BrainBrowser.utils.isNumeric(value)) {
         $("#paint-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
-          format: "hex",
+          hex: true,
           min: model_data.intensity_data.range_min,
           max: model_data.intensity_data.range_max,
           flip: viewer.getAttribute("flip_colors"),

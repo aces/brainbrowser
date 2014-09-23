@@ -25,6 +25,18 @@
 * Author: Paul Mougel
 */
 
+/*
+* Usage:
+*   $ node minc2volume-viewer.js <filename>
+* OR as a node module:
+*   var minc2volumeViewer = require('./minc2volume-viewer')
+*   minc2volumeViewer.getHeader('<filename>', function (header) {
+*     ...
+*   })
+*   var rawStream = minc2volumeViewer.getRawDataStream('<filename>')
+*   rawStream.pipe(...)
+*/
+
 
 "use strict";
 
@@ -33,45 +45,48 @@ var exec =  require("child_process").exec;
 var spawn = require("child_process").spawn;
 var version = "0.2";
 
-var filename = process.argv[2];
+if (require.main === module) {
+  var filename = process.argv[2];
 
-if (filename === undefined) {
-  printUsage();
-  process.exit(0);
-}
-
-fs.exists(filename, function(exists) {
-
-  if (!exists) {
-    console.error("File " + filename + " does not exist.");
-    process.exit(1);
+  if (filename === undefined) {
+    printUsage();
+    process.exit(0);
   }
 
-  fs.stat(filename, function(err, stat) {
-    if (!stat.isFile()) {
-      console.error(filename + " is not a valid file.");
+  fs.exists(filename, function(exists) {
+
+    if (!exists) {
+      console.error("File " + filename + " does not exist.");
       process.exit(1);
     }
 
-    var basename = filename.match(/[^\/]+$/)[0];
-    var rawDataStream, rawFileStream;
+    fs.stat(filename, function(err, stat) {
+      if (!stat.isFile()) {
+        console.error(filename + " is not a valid file.");
+        process.exit(1);
+      }
 
-    console.log("Processing file:", filename);
+      var basename = filename.match(/[^\/]+$/)[0];
+      var rawDataStream, rawFileStream;
 
-    console.log("Creating header file: ", basename + ".header");
-    getHeader(filename, function(header) {
-      fs.writeFile(basename + ".header", JSON.stringify(header));
+      console.log("Processing file:", filename);
+
+      console.log("Creating header file: ", basename + ".header");
+      getHeader(filename, function(header) {
+        fs.writeFile(basename + ".header", JSON.stringify(header));
+      });
+
+      console.log("Creating raw data file: ", basename + ".raw");
+      rawDataStream = getRawDataStream(filename);
+      rawFileStream = fs.createWriteStream(basename + ".raw", { encoding: "binary" });
+      rawDataStream.pipe(rawFileStream);
     });
 
-    console.log("Creating raw data file: ", basename + ".raw");
-    rawDataStream = getRawDataStream(filename);
-    rawFileStream = fs.createWriteStream(basename + ".raw", { encoding: "binary" });
-    rawDataStream.pipe(rawFileStream);
   });
-
-});
-
-  
+} else {
+  module.exports.getHeader = getHeader;
+  module.exports.getRawDataStream = getRawDataStream;
+}
 
 ///////////////////////////
 // Helper functions

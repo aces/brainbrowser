@@ -30,11 +30,12 @@
 *   $ node minc2volume-viewer.js <filename>
 * OR as a node module:
 *   var minc2volumeViewer = require('./minc2volume-viewer')
-*   minc2volumeViewer.getHeader('<filename>', function (header) {
+*   minc2volumeViewer.getHeader('<filename>', function (err, header) {
 *     ...
 *   })
 *   var rawStream = minc2volumeViewer.getRawDataStream('<filename>')
 *   rawStream.pipe(...)
+*   rawStream.on('error', function (err) { ... })
 */
 
 
@@ -72,12 +73,16 @@ if (require.main === module) {
       console.log("Processing file:", filename);
 
       console.log("Creating header file: ", basename + ".header");
-      getHeader(filename, function(header) {
+      getHeader(filename, function(err, header) {
+        if (err) {
+          return logExecutionError(err);
+        }
         fs.writeFile(basename + ".header", JSON.stringify(header));
       });
 
       console.log("Creating raw data file: ", basename + ".raw");
       rawDataStream = getRawDataStream(filename);
+      rawDataStream.on('error', logExecutionError);
       rawFileStream = fs.createWriteStream(basename + ".raw", { encoding: "binary" });
       rawDataStream.pipe(rawFileStream);
     });
@@ -101,10 +106,13 @@ function getRawDataStream(filename) {
   var minctoraw = spawn("minctoraw", ["-byte", "-unsigned", "-normalize", filename]);
   minctoraw.on("exit", function (code) {
     if (code === null || code !== 0) {
-      checkExecutionError(new Error('Process minctoraw failed with error code ' + code));
+      var err = new Error("Process minctoraw failed with error code " + code);
+      minctoraw.stdout.emit("error", err);
     }
   });
-  minctoraw.on("error", checkExecutionError);
+  minctoraw.on("error", function (err) {
+    minctoraw.stdout.emit("error", err);
+  });
   minctoraw.stdout.setEncoding("binary");
   return minctoraw.stdout;
 }
@@ -114,21 +122,29 @@ function getHeader(filename, callback) {
   function getSpace(filename, header, space, callback) {
     header[space] = {};
     exec("mincinfo -attval " + space + ":start " + filename, function(error, stdout) {
-      checkExecutionError(error);
+      if (error) {
+        return callback(error);
+      }
 
       header[space].start = parseFloat(stdout);
       exec("mincinfo -dimlength " + space + " " + filename, function(error, stdout) {
-        checkExecutionError(error);
+        if (error) {
+          return callback(error);
+        }
 
         header[space].space_length = parseFloat(stdout);
         
         exec("mincinfo -attval " + space + ":step " + filename, function(error, stdout) {
-          checkExecutionError(error);
+          if (error) {
+            return callback(error);
+          }
 
           header[space].step = parseFloat(stdout);
 
           exec("mincinfo -attval " + space + ":direction_cosines " + filename, function(error, stdout) {
-            checkExecutionError(error);
+            if (error) {
+              return callback(error);
+            }
 
             var direction_cosines = stdout.replace(/^\s+/, "").replace(/\s+$/, "").split(/\s+/);
 
@@ -136,7 +152,7 @@ function getHeader(filename, callback) {
               header[space].direction_cosines = direction_cosines.map(parseFloat);
             }
 
-            callback(header);
+            callback(null, header);
           });
         });
 
@@ -152,21 +168,25 @@ function getHeader(filename, callback) {
       
       if (order.length === 4) {
         exec("mincinfo -attval time:start " + filename, function(error, time_start) {
-          checkExecutionError(error);
+          if (error) {
+            return callback(error);
+          }
 
           exec("mincinfo -dimlength time " + filename, function(error, time_length) {
-            checkExecutionError(error);
+            if (error) {
+              return callback(error);
+            }
 
             header.time = {
               start: parseFloat(time_start),
               space_length: parseFloat(time_length)
             };
-            callback(header);
+            callback(null, header);
           });
         });
       
       } else {
-        callback(header);
+        callback(null, header);
       }
     
     }
@@ -177,7 +197,9 @@ function getHeader(filename, callback) {
       
       if (order.length < 3 || order.length > 4) {
         exec("mincinfo -dimnames " + filename,function(error, stdout) {
-          checkExecutionError(error);
+          if (error) {
+            return callback(error);
+          }
 
           order = stdout.trim().split(" ");
           handleOrder(order, callback);
@@ -192,16 +214,26 @@ function getHeader(filename, callback) {
   function buildHeader(filename, callback) {
     var header = {};
    
-    getOrder(header, filename, function(header) {
-      getSpace(filename, header, "xspace", function(header) {
-        getSpace(filename, header, "yspace", function(header) {
-          getSpace(filename, header, "zspace",function(header) {
+    getOrder(header, filename, function(err, header) {
+      if (err) {
+        return callback(err);
+      }
+      getSpace(filename, header, "xspace", function(err, header) {
+        if (err) {
+          return callback(err);
+        }
+        getSpace(filename, header, "yspace", function(err, header) {
+          if (err) {
+            return callback(err);
+          }
+          getSpace(filename, header, "zspace",function(err, header) {
+            if (err) {
+              return callback(err);
+            }
             if(header.order > 3) {
-              getSpace(filename, header, "time", function(header) {
-                callback(header);
-              });
+              getSpace(filename, header, "time", callback);
             } else {
-              callback(header);
+              callback(null, header);
             }
           });
         });
@@ -209,26 +241,16 @@ function getHeader(filename, callback) {
     });
   }
 
-  buildHeader(filename, function(header) {
-    if(header) {
-      callback(header);
-    } else {
-      console.error("Bad header.");
-    }
-  });
+  buildHeader(filename, callback);
 }
 
-function checkExecutionError(error) {
-  if (error) {
-    error = error.toString();
-    if (error.match("not installed") || error.match("command not found")) {
-      console.error("\nminc2volume-viewer.js requires that the MINC tools be installed.");
-      console.error("Visit http://www.bic.mni.mcgill.ca/ServicesSoftware/MINC for more info.\n");
-    } else {
-      console.trace(error);
-      console.error("Error: " + error);
-    }
-    process.exit(1);
+function logExecutionError(error) {
+  error = error.toString();
+  if (error.match("not installed") || error.match("command not found")) {
+    console.error("\nminc2volume-viewer.js requires that the MINC tools be installed.");
+    console.error("Visit http://www.bic.mni.mcgill.ca/ServicesSoftware/MINC for more info.\n");
+  } else {
+    console.trace(error);
   }
 }
     

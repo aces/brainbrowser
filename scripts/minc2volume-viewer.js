@@ -44,7 +44,7 @@
 var fs = require("fs");
 var exec =  require("child_process").exec;
 var spawn = require("child_process").spawn;
-var version = "0.2";
+var version = "0.3";
 
 if (require.main === module) {
   var filename = process.argv[2];

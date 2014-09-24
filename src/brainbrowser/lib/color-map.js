@@ -32,6 +32,15 @@
   * @doc function
   * @name BrainBrowser.static methods:createColorMap
   * @param {string}  data The color map data as a string.
+  * @param {object} options Options for the color map.
+  * Options include the following:
+  *
+  * * **clamp** {boolean} Should values be clamped to range?
+  * * **flip** {boolean} Invert mapping?
+  * * **scale** {number} Scale to use (usually 1 or 255).
+  * * **contrast** {number} Color contrast. 
+  * * **brightness** {number} Extra intensity for colors. 
+  * 
   * @returns {object} Color map object.
   * 
   * @description
@@ -41,10 +50,42 @@
   * BrainBrowser.createColorMap(data);
   * ```
   */
-  BrainBrowser.createColorMap = function(data) {
+  BrainBrowser.createColorMap = function(data, options) {
+    options = options || {};
 
-    // Cache colors produced by mapColor.
-    var color_cache = {};
+    var clamp = options.clamp === undefined ? true : options.clamp;
+    var flip = options.flip || false;
+    var scale = options.scale || 1;
+    var contrast = options.contrast || 1;
+    var brightness = options.brightness || 0;
+
+    var color_map_colors;
+    var lines, line_count, line_length;
+    var i, j, ic;
+    var color;
+
+    if (data) {
+      lines = data.trim().split(/\n/);
+      color_map_colors = new Float32Array(lines.length * 4);
+      ic = 0;
+
+      for (i = 0, line_count = lines.length; i < line_count; i++) {
+        color = lines[i].trim().split(/\s+/).slice(0, 4);
+        line_length = color.length;
+
+        if (line_length < 3) continue;
+
+        for (j = 0; j < line_length; j++) {
+          color_map_colors[ic + j] = parseFloat(color[j]);
+        }
+
+        if (line_length < 4) {
+          color_map_colors[ic + 3] = 1;
+        }
+
+        ic += 4;
+      }
+    }
 
     /**
     * @doc object
@@ -54,29 +95,197 @@
     * Object representing the currently loaded color map.
     */
     var color_map = {
+      colors: color_map_colors,
+      clamp: clamp,
+      flip: flip,
+      scale: scale,
+      contrast: contrast,
+      brightness: brightness,
 
       /**
       * @doc function
-      * @name color_map.color_map:createCanvasWithScale
-      * @param {number} min Min value of the color data.
-      * @param {number} max Max value of the color data.
-      * @param {object} options The only option currently supported is **flip_correlation**
-      *   which will flip the correlation between colors and intensities if set to **true**.
+      * @name color_map.color_map:mapColors
+      * @param {array} values Original intensity values.
+      * @param {object} options Options for the color mapping.
+      * Options include the following:
+      *
+      * * **min** {number} Minimum intensity value.
+      * * **max** {number} Maximum intensity value.
+      * * **clamp** {boolean} Should values be clamped to range (overrides color map default)?
+      * * **flip** {boolean} Invert mapping (overrides color map default)?
+      * * **scale** {number} Scale to use (usually 1 or 255, overrides color map default).
+      * * **contrast** {number} Color contrast (overrides color map default). 
+      * * **brightness** {number} Extra intensity for colors (overrides color map default). 
+      * * **default_colors** {array} Colors to use if value is out of range.
+      * * **destination** {array} Array to write the colors to (instead of creating
+      *   a new array). 
       * 
+      * @returns {array} Colors modified based on options.
+      *
       * @description
-      * Create a canvas color_map from the given colors and provide the scale for it.
+      * Create a color map of the input values modified based on the options given.
       * ```js
-      * color_map.createCanvasWithScale(0.0, 7.0, {
-      *   flip_correlation: true
+      * color_map.mapColors(data, {
+      *   min: 0,
+      *   max: 7.0
       * });
       * ```
       */
-      createCanvasWithScale: function(min, max, options) {
+      mapColors: function(intensity_values, options) {
         options = options || {};
+        var min = options.min === undefined ? 0 : options.min;
+        var max = options.max === undefined ? 255 : options.max;
+        var default_colors = options.default_colors || [0, 0, 0, 1];
+        var destination = options.destination || new Float32Array(intensity_values.length * 4);
+
+        var color_map_colors = color_map.colors;
+        var color_map_length = color_map.colors.length / 4;
+        
+        var scale = options.scale === undefined ? color_map.scale : options.scale;
+        var clamp = options.clamp === undefined ? color_map.clamp : options.clamp;
+        var flip = options.flip === undefined ? color_map.flip : options.flip;
+        var brightness = options.brightness === undefined ? color_map.brightness : options.brightness;
+        var contrast = options.contrast === undefined ? color_map.contrast : options.contrast;
+
+        // This is used so that when the model color is used in a model
+        // that was just given a single color to apply to the whole model,
+        // the indexes will be set properly (i.e. from 0-4, not 0-no. of
+        // vertices.)
+        var default_color_offset = default_colors.length === 4 ? 0 : 1;
+        var range = max - min;
+        var increment = color_map_length / range;
+        
+        var value;
+        var i, ic, idc, count;
+        var color_map_index;
+
+        brightness *= scale;
+        contrast *= scale;
+
+        //for each value, assign a color
+        for (i = 0, count = intensity_values.length; i < count; i++) {
+          value = intensity_values[i];
+          ic = i * 4;
+
+          color_map_index = getColorMapIndex(value, min, max, increment, clamp, flip, color_map_length);
+
+          //This inserts the RGBA values (R,G,B,A) independently
+          if(color_map_index < 0) {
+            idc = ic * default_color_offset;
+
+            // contrast includes scaling factor
+            destination[ic]     = contrast * default_colors[idc]     + brightness;
+            destination[ic + 1] = contrast * default_colors[idc + 1] + brightness;
+            destination[ic + 2] = contrast * default_colors[idc + 2] + brightness;
+            destination[ic + 3] = scale    * default_colors[idc + 3];
+          } else {
+            // contrast includes scaling factor
+            destination[ic]     = contrast * color_map_colors[color_map_index]     + brightness;
+            destination[ic + 1] = contrast * color_map_colors[color_map_index + 1] + brightness;
+            destination[ic + 2] = contrast * color_map_colors[color_map_index + 2] + brightness;
+            destination[ic + 3] = scale    * color_map_colors[color_map_index + 3];
+          }
+        }
+
+        return destination;
+      },
+
+      /**
+      * @doc function
+      * @name color_map.color_map:colorFromValue
+      * @param {number} value Value to convert.
+      * @param {object} options Options for the color mapping.
+      * Options include the following:
+      *
+      * * **format** {string} Can be **float** for 0-1 range rgb array, 
+      *   **255** for 0-255 range rgb array, or "hex" for a hex string.
+      * * **min** {number} Minimum intensity value.
+      * * **max** {number} Maximum intensity value.
+      * * **clamp** {boolean} Should values be clamped to range (overrides color map default)?
+      * * **flip** {boolean} Invert mapping (overrides color map default)?
+      * * **scale** {number} Scale to use (usually 1 or 255, overrides color map default).
+      * * **contrast** {number} Color contrast (overrides color map default). 
+      * * **brightness** {number} Extra intensity for colors (overrides color map default). 
+      * 
+      * @returns {array|string} Color parsed from the value given.
+      *
+      * @description
+      * Convert an intensity value to a color.
+      * ```js
+      * color_map.colorFromValue(value, {
+      *   format: "float",
+      *   min: 0,
+      *   max: 7.0
+      * });
+      * ```
+      */
+      colorFromValue: function(value, options) {
+        options = options || {};
+        var hex = options.hex || false;
+        var min = options.min === undefined ? 0 : options.min;
+        var max = options.max === undefined ? 255 : options.max;
+        var scale = options.scale === undefined ? color_map.scale : options.scale;
+        var clamp = options.clamp === undefined ? color_map.clamp : options.clamp;
+        var flip = options.flip === undefined ? color_map.flip : options.flip;
+        var brightness = options.brightness === undefined ? color_map.brightness : options.brightness;
+        var contrast = options.contrast === undefined ? color_map.contrast : options.contrast;
+        var range = max - min;
+        var color_map_length = color_map.colors.length / 4;
+        var increment = color_map_length / range;
+        var color_map_index = getColorMapIndex(
+          value, min, max, increment,
+          color_map.clamp,
+          color_map.flip,
+          color_map_length
+        );
+        
+        var color;
+
+        if (color_map_index >= 0) {
+          color = Array.prototype.slice.call(color_map.colors, color_map_index, color_map_index + 4);
+        } else {
+          color = [0, 0, 0, 1];
+        }
+
+        color[0] = Math.max(0, Math.min(contrast * color[0] + brightness, 1));
+        color[1] = Math.max(0, Math.min(contrast * color[1] + brightness, 1));
+        color[2] = Math.max(0, Math.min(contrast * color[2] + brightness, 1));
+
+        if (hex) {
+          color[0] = Math.floor(color[0] * 255);
+          color[1] = Math.floor(color[1] * 255);
+          color[2] = Math.floor(color[2] * 255);
+          color[3] = Math.floor(color[3] * 255);
+          color[0] = ("0" + color[0].toString(16)).slice(-2);
+          color[1] = ("0" + color[1].toString(16)).slice(-2);
+          color[2] = ("0" + color[2].toString(16)).slice(-2);
+          color = color.slice(0, 3).join("");
+        } else {
+          color[0] = color[0] * scale;
+          color[1] = color[1] * scale;
+          color[2] = color[2] * scale;
+          color[3] = color[3] * scale;
+        }
+
+        return color;
+      },
+
+      /**
+      * @doc function
+      * @name color_map.color_map:createElement
+      * @param {number} min Min value of the color data.
+      * @param {number} max Max value of the color data.
+      * 
+      * @description
+      * Create an element representing the color map.
+      * ```js
+      * color_map.createElement(0.0, 7.0);
+      * ```
+      */
+      createElement: function(min, max) {
         var canvas;
         var context;
         var colors = color_map.colors;
-        var flip = options.flip;
         var range = max - min;
         
         canvas = createCanvas(colors, 20, 40, flip);
@@ -106,152 +315,25 @@
         context.fillText(max.toPrecision(3), canvas.width - 20, 40);
 
         return canvas;
-      },
-
-      /**
-      * @doc function
-      * @name color_map.color_map:mapColors
-      * @param {array} values Original intensity values.
-      * @param {object} options Options for the color mapping.
-      * Options include the following:
-      *
-      * * **min** {number} Minimum intensity value.
-      * * **max** {number} Maximum intensity value.
-      * * **scale255** {boolean} Should the color values be scaled to a 0-255 range?
-      * * **contrast** {number} Color contrast.
-      * * **brightness** {number} Color brightness.
-      * * **alpha** {number} Opacity of the color map. 
-      * * **destination** {array} Array to write the colors to (instead of creating
-      *   a new array). 
-      * 
-      * @returns {array} Colors modified based on options.
-      *
-      * @description
-      * Create a color map of the input values modified based on the options given.
-      * ```js
-      * color_map.mapColors(data, {
-      *   min: 0,
-      *   max: 7.0,
-      *   scale255: true,
-      *   brightness: 0,
-      *   contrast: 1,
-      *   alpha: 0.8
-      * });
-      * ```
-      */
-      mapColors: function(values, options) {
-        options = options || {};
-        var min = options.min === undefined ? 0 : options.min;
-        var max = options.max === undefined ? 255 : options.max;
-        var scale255 = options.scale255 === undefined ? false : options.scale255;
-        var brightness = options.brightness === undefined ? 0 : options.brightness;
-        var contrast = options.contrast === undefined ? 1 : options.contrast;
-        var alpha = options.alpha === undefined ? 1 : options.alpha;
-        var destination = options.destination || new Float32Array(values.length * 4);
-
-        var range = max - min;
-        var increment = (range + range / color_map.colors.length) / color_map.colors.length;
-        var scale = scale255 ? 255 : 1;
-
-        var i, count;
-        var color;
-
-        alpha *= scale;
-          
-        //for each value, assign a color
-        for (i = 0, count = values.length; i < count; i++) {
-          color = mapColor(values[i], min, max, range, increment);
-
-          destination[i*4+0] = scale * (color[0] * contrast + brightness);
-          destination[i*4+1] = scale * (color[1] * contrast + brightness);
-          destination[i*4+2] = scale * (color[2] * contrast + brightness);
-          destination[i*4+3] = alpha;
-        }
-
-        return destination;
-      },
-
-      /**
-      * @doc function
-      * @name color_map.color_map:colorFromValue
-      * @param {number} value Value to convert.
-      * @param {object} options Options for the color mapping.
-      * Options include the following:
-      *
-      * * **format** {string} Can be **float** for 0-1 range rgb array, 
-      *   **255** for 0-255 range rgb array, or "hex" for a hex string.
-      * * **min** {number} Minimum intensity value.
-      * * **max** {number} Maximum intensity value.
-      * 
-      * @returns {array|string} Color parsed from the value given.
-      *
-      * @description
-      * Convert an intensity value to a color.
-      * ```js
-      * color_map.colorFromValue(value, {
-      *   format: "float",
-      *   min: 0,
-      *   max: 7.0
-      * });
-      * ```
-      */
-      colorFromValue: function(value, options) {
-        options = options || {};
-        var format = options.format || "float";
-        var min = options.min === undefined ? 0 : options.min;
-        var max = options.max === undefined ? 255 : options.max;
-        var range = max - min;
-        var increment = (range + range / color_map.colors.length) / color_map.colors.length;
-        var color = Array.prototype.slice.call(mapColor(value, min, max, range, increment));
-
-        if (format !== "float") {
-          color[0] = Math.floor(color[0] * 255);
-          color[1] = Math.floor(color[1] * 255);
-          color[2] = Math.floor(color[2] * 255);
-          color[3] = Math.floor(color[3] * 255);
-
-          if (format === "hex") {
-            color[0] = ("0" + color[0].toString(16)).slice(-2);
-            color[1] = ("0" + color[1].toString(16)).slice(-2);
-            color[2] = ("0" + color[2].toString(16)).slice(-2);
-            color = color.slice(0, 3).join("");
-          }
-        }
-
-        return color;
       }
     };
 
     // Map a single value to a color.
-    function mapColor(value, min, max, range, increment) {
-      var cached_value = checkCache(value, min, max);
+    function getColorMapIndex(value, min, max, increment, clamp, flip, color_map_length) {
+      var color_map_index;
 
-      if (cached_value !== undefined) {
-        return cached_value;
-      }
-
-      var color_map_colors = color_map.colors;
-      
-      // Calculate a slice of the data per color
-      var color, color_index;
-
-      if (value <= min) {
-        color_index = 0;
-      } else if (value > max){
-        color_index = color_map_colors.length - 1;
+      if ((value < min || value > max) && !clamp) {
+        return -1;
       } else {
-        color_index = Math.floor((value - min) / increment);
+        color_map_index = Math.floor(Math.max(0, Math.min((value - min) * increment, color_map_length - 1)));
+        if (flip) {
+          color_map_index = color_map_length - 1 - color_map_index;
+        }
+
+        color_map_index *= 4;
+
+        return color_map_index;
       }
-
-      if (color_map_colors[color_index]) {
-        color = color_map_colors[color_index];
-      } else {
-        color = [0, 0, 0, 1];
-      }
-
-      setCache(value, min, max, color);
-
-      return color;
     }
 
     // Creates an canvas with the color_map of colors
@@ -259,79 +341,38 @@
     //   colors: array of colors
     //   color_height: height of the color bar
     //   full_height: height of the canvas
-    //   flip: boolean should the colors be reversed
-    function createCanvas(colors, color_height, full_height, flip) {
+    function createCanvas(colors, color_height, full_height) {
       var canvas = document.createElement("canvas");
       var value_array  = new Array(256);
-      var i, k;
+      var i;
       var context;
+      var old_scale;
 
       canvas.width = 256;
       canvas.height = full_height;
-      
+
       for (i = 0; i < 256; i++) {
-        if (flip) {
-          value_array[255-i] = i;
-        } else {
-          value_array[i] = i;
-        }
+        value_array[i] = i;
       }
       
-      colors = color_map.mapColors(value_array, { scale255: true });
+      old_scale = color_map.scale;
+      color_map.scale = 255;
+      colors = color_map.mapColors(value_array);
+      color_map.scale = old_scale;
 
       context = canvas.getContext("2d");
-      for (k = 0; k < 256; k++) {
-        context.fillStyle = "rgb(" + Math.floor(colors[k*4]) + ", " +
-                                     Math.floor(colors[k*4+1]) + ", " +
-                                     Math.floor(colors[k*4+2]) + ")";
-        context.fillRect(k, 0, 1, color_height);
+      for (i = 0; i < 256; i++) {
+        context.fillStyle = "rgb(" + Math.floor(colors[i*4]) + ", " +
+                                     Math.floor(colors[i*4+1]) + ", " +
+                                     Math.floor(colors[i*4+2]) + ")";
+        context.fillRect(i, 0, 1, color_height);
       }
 
       return canvas;
 
     }
-
-    // Check if a color is cached.
-    function checkCache(value, min, max) {
-      return color_cache[value] && color_cache[value][min] && color_cache[value][min][max];
-    }
-
-    // Cache a color.
-    function setCache(value, min, max, color) {
-      color_cache[value] = color_cache[value] || {};
-      color_cache[value][min] = color_cache[value][min] || {};
-      color_cache[value][min][max] = color;
-    }
-
     
-    // Parse the color_map data from a string
-    (function() {
-      if (!data) return;
-
-      data = data.replace(/^\s+/, '').replace(/\s+$/, '');
-      var lines = data.split(/\n/);
-      var colors = [];
-      var i, k, line_count, line_length;
-      var color;
-      
-      for (i = 0, line_count = lines.length; i < line_count; i++) {
-        color = lines[i].replace(/^\s+/, '').replace(/\s+$/, '').split(/\s+/).slice(0, 4);
-        line_length = color.length;
-
-        if (line_length < 3) continue;
-
-        for (k=0; k < line_length; k++) {
-          color[k] = parseFloat(color[k]);
-        }
-
-        if (line_length < 4) {
-          color.push(1.0000);
-        }
-
-        colors.push(color);
-      }
-      color_map.colors = colors;
-    })();
+    
 
     return color_map;
 

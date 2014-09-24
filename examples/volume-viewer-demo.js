@@ -516,6 +516,92 @@ $(function() {
           viewer.redrawVolumes();
         });
       });
+
+      // Contrast controls
+      container.find(".contrast-div").each(function() {
+        var div = $(this);
+        var slider = div.find(".slider");
+        var contrast_input = div.find("#contrast-val");
+
+        // Slider to select contrast value.
+        slider.slider({
+          min: 0,
+          max: 2,
+          step: 0.05,
+          value: 1,
+          slide: function(event, ui) {
+            var value = parseFloat(ui.value);
+            volume.display.setContrast(value);
+            volume.display.refreshPanels();
+            
+            contrast_input.val(value);
+          },
+          stop: function() {
+            $(this).find("a").blur();
+          }
+        });
+        
+        // Input field to select contrast values explicitly.
+        contrast_input.change(function() {
+          var value = parseFloat(this.value);
+          
+          // Check that input is numeric and in range.
+          if (!BrainBrowser.utils.isNumeric(value)) {
+            value = 0;
+          }
+          value = Math.max(0, Math.min(value, 2));
+          this.value = value;
+
+          // Update slider and redraw volumes.
+          slider.slider("value", value);
+          volume.display.setContrast(value);
+          volume.display.refreshPanels();
+          viewer.redrawVolumes();
+        });
+      });
+
+      // Contrast controls
+      container.find(".brightness-div").each(function() {
+        var div = $(this);
+        var slider = div.find(".slider");
+        var brightness_input = div.find("#brightness-val");
+
+        // Slider to select brightness value.
+        slider.slider({
+          min: -1,
+          max: 1,
+          step: 0.05,
+          value: 0,
+          slide: function(event, ui) {
+            var value = parseFloat(ui.value);
+            volume.display.setBrightness(value);
+            volume.display.refreshPanels();
+            
+            brightness_input.val(value);
+          },
+          stop: function() {
+            $(this).find("a").blur();
+          }
+        });
+        
+        // Input field to select brightness values explicitly.
+        brightness_input.change(function() {
+          var value = parseFloat(this.value);
+          
+          // Check that input is numeric and in range.
+          if (!BrainBrowser.utils.isNumeric(value)) {
+            value = 0;
+          }
+          value = Math.max(-1, Math.min(value, 1));
+          this.value = value;
+
+          // Update slider and redraw volumes.
+          slider.slider("value", value);
+          volume.display.setBrightness(value);
+          volume.display.refreshPanels();
+          viewer.redrawVolumes();
+        });
+      });
     });
 
     /////////////////////////////////////////////////////
@@ -542,9 +628,11 @@ $(function() {
       value = volume.getIntensityValue();
       $("#intensity-value-" + vol_id)
       .css("background-color", "#" + volume.color_map.colorFromValue(value, {
-        format: "hex",
+        hex: true,
         min: volume.min,
-        max: volume.max
+        max: volume.max,
+        contrast: panel.contrast,
+        brightness: panel.brightness
       }))
       .html(Math.floor(value));
       

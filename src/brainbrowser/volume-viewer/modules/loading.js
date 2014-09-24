@@ -145,7 +145,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   viewer.loadVolumeColorMapFromURL = function(vol_id, url, cursor_color, callback) {
     BrainBrowser.loader.loadColorMapFromURL(url, function(color_map) {
       setVolumeColorMap(vol_id, color_map, cursor_color, callback);
-    });
+    }, { scale: 255 });
   };
 
   /**
@@ -168,7 +168,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   viewer.loadDefaultColorMapFromURL = function(url, cursor_color, callback) {
     BrainBrowser.loader.loadColorMapFromURL(url, function(color_map) {
       setDefaultColorMap(color_map, cursor_color, callback);
-    });
+    }, { scale: 255 });
   };
 
   /**
@@ -191,7 +191,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   viewer.loadVolumeColorMapFromFile = function(vol_id, file_input, cursor_color, callback) {
     BrainBrowser.loader.loadColorMapFromFile(file_input, function(color_map) {
       setVolumeColorMap(vol_id, color_map, cursor_color, callback);
-    });
+    }, { scale: 255 });
   };
 
   /**
@@ -214,7 +214,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   viewer.loadDefaultColorMapFromFile = function(file_input, cursor_color, callback) {
     BrainBrowser.loader.loadColorMapFromFile(file_input, function(color_map) {
       setDefaultColorMap(color_map, cursor_color, callback);
-    });
+    }, { scale: 255 });
   };
 
   /**

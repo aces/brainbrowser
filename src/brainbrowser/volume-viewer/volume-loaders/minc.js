@@ -101,7 +101,7 @@
         slice.max  = volume.max;
         slice.axis = axis;
 
-        slice.getImage = function(zoom) {
+        slice.getImage = function(zoom, contrast, brightness) {
           zoom = zoom || 1;
 
           var color_map = slice.color_map;
@@ -123,10 +123,8 @@
           color_map.mapColors(slice.data, {
             min: slice.min,
             max: slice.max,
-            scale255: true,
-            brightness: 0,
-            contrast: 1,
-            alpha: slice.alpha,
+            contrast: contrast,
+            brightness: brightness,
             destination: source_image.data
           });
 

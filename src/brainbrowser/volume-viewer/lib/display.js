@@ -74,6 +74,53 @@
 
       /**
       * @doc function
+      * @name display.display:refreshPanels
+      * @description
+      * Refresh slices on all panels.
+      * ```js
+      * display.refreshPanels();
+      * ```
+      */
+      refreshPanels: function() {
+        display.forEach(function(panel) {
+          panel.updateSlice();
+        });
+      },
+
+      /**
+      * @doc function
+      * @name display.display:setContrast
+      * @param {number} contrast The contrast value.
+      * @description
+      * Set contrast for all panels in the display.
+      * ```js
+      * display.setContrast(1.5);
+      * ```
+      */
+      setContrast: function(contrast) {
+        display.forEach(function(panel) {
+          panel.contrast = contrast;
+        });
+      },
+
+      /**
+      * @doc function
+      * @name display.display:setBrightness
+      * @param {number} brightness The brightness value.
+      * @description
+      * Set brightness for all panels in the display.
+      * ```js
+      * display.setBrightness(0.5);
+      * ```
+      */
+      setBrightness: function(brightness) {
+        display.forEach(function(panel) {
+          panel.brightness = brightness;
+        });
+      },
+
+      /**
+      * @doc function
       * @name display.display:forEach
       * @param {function} callback Function called for each panel.
       * The panel itself, the axis name and index are passed as 

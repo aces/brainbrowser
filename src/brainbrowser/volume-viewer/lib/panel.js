@@ -158,6 +158,8 @@
         y: 0
       },
       zoom: 1,
+      contrast: 1,
+      brightness: 0,
       updated: true,
       /**
       * @doc function
@@ -434,7 +436,7 @@
   // Set the volume slice to be rendered on the panel.
   function setSlice(panel, slice) {
     panel.slice = slice;
-    panel.slice_image = panel.slice.getImage(panel.zoom);
+    panel.slice_image = panel.slice.getImage(panel.zoom, panel.contrast, panel.brightness);
   }
 
   // Draw the cursor at its current position on the canvas.

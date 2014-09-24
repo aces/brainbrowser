@@ -111,6 +111,11 @@
       *
       * * **min** {number} Minimum intensity value.
       * * **max** {number} Maximum intensity value.
+      * * **clamp** {boolean} Should values be clamped to range (overrides color map default)?
+      * * **flip** {boolean} Invert mapping (overrides color map default)?
+      * * **scale** {number} Scale to use (usually 1 or 255, overrides color map default).
+      * * **contrast** {number} Color contrast (overrides color map default). 
+      * * **brightness** {number} Extra intensity for colors (overrides color map default). 
       * * **default_colors** {array} Colors to use if value is out of range.
       * * **destination** {array} Array to write the colors to (instead of creating
       *   a new array). 
@@ -135,11 +140,12 @@
 
         var color_map_colors = color_map.colors;
         var color_map_length = color_map.colors.length / 4;
-        var scale = color_map.scale;
-        var contrast = color_map.contrast;
-        var clamp = color_map.clamp;
-        var flip = color_map.flip;
-        var brightness = color_map.brightness;
+        
+        var scale = options.scale === undefined ? color_map.scale : options.scale;
+        var clamp = options.clamp === undefined ? color_map.clamp : options.clamp;
+        var flip = options.flip === undefined ? color_map.flip : options.flip;
+        var brightness = options.brightness === undefined ? color_map.brightness : options.brightness;
+        var contrast = options.contrast === undefined ? color_map.contrast : options.contrast;
 
         // This is used so that when the model color is used in a model
         // that was just given a single color to apply to the whole model,
@@ -153,6 +159,9 @@
         var i, ic, idc, count;
         var color_map_index;
 
+        brightness *= scale;
+        contrast *= scale;
+
         //for each value, assign a color
         for (i = 0, count = intensity_values.length; i < count; i++) {
           value = intensity_values[i];
@@ -163,15 +172,18 @@
           //This inserts the RGBA values (R,G,B,A) independently
           if(color_map_index < 0) {
             idc = ic * default_color_offset;
-            destination[ic]     = scale * (default_colors[idc]     * contrast + brightness);
-            destination[ic + 1] = scale * (default_colors[idc + 1] * contrast + brightness);
-            destination[ic + 2] = scale * (default_colors[idc + 2] * contrast + brightness);
-            destination[ic + 3] = scale *  default_colors[idc + 3];
+
+            // contrast includes scaling factor
+            destination[ic]     = contrast * default_colors[idc]     + brightness;
+            destination[ic + 1] = contrast * default_colors[idc + 1] + brightness;
+            destination[ic + 2] = contrast * default_colors[idc + 2] + brightness;
+            destination[ic + 3] = scale    * default_colors[idc + 3];
           } else {
-            destination[ic]     = scale * (color_map_colors[color_map_index]     * contrast + brightness);
-            destination[ic + 1] = scale * (color_map_colors[color_map_index + 1] * contrast + brightness);
-            destination[ic + 2] = scale * (color_map_colors[color_map_index + 2] * contrast + brightness);
-            destination[ic + 3] = scale *  color_map_colors[color_map_index + 3];
+            // contrast includes scaling factor
+            destination[ic]     = contrast * color_map_colors[color_map_index]     + brightness;
+            destination[ic + 1] = contrast * color_map_colors[color_map_index + 1] + brightness;
+            destination[ic + 2] = contrast * color_map_colors[color_map_index + 2] + brightness;
+            destination[ic + 3] = scale    * color_map_colors[color_map_index + 3];
           }
         }
 
@@ -189,6 +201,11 @@
       *   **255** for 0-255 range rgb array, or "hex" for a hex string.
       * * **min** {number} Minimum intensity value.
       * * **max** {number} Maximum intensity value.
+      * * **clamp** {boolean} Should values be clamped to range (overrides color map default)?
+      * * **flip** {boolean} Invert mapping (overrides color map default)?
+      * * **scale** {number} Scale to use (usually 1 or 255, overrides color map default).
+      * * **contrast** {number} Color contrast (overrides color map default). 
+      * * **brightness** {number} Extra intensity for colors (overrides color map default). 
       * 
       * @returns {array|string} Color parsed from the value given.
       *
@@ -207,6 +224,11 @@
         var hex = options.hex || false;
         var min = options.min === undefined ? 0 : options.min;
         var max = options.max === undefined ? 255 : options.max;
+        var scale = options.scale === undefined ? color_map.scale : options.scale;
+        var clamp = options.clamp === undefined ? color_map.clamp : options.clamp;
+        var flip = options.flip === undefined ? color_map.flip : options.flip;
+        var brightness = options.brightness === undefined ? color_map.brightness : options.brightness;
+        var contrast = options.contrast === undefined ? color_map.contrast : options.contrast;
         var range = max - min;
         var color_map_length = color_map.colors.length / 4;
         var increment = color_map_length / range;
@@ -225,6 +247,10 @@
           color = [0, 0, 0, 1];
         }
 
+        color[0] = Math.max(0, Math.min(contrast * color[0] + brightness, 1));
+        color[1] = Math.max(0, Math.min(contrast * color[1] + brightness, 1));
+        color[2] = Math.max(0, Math.min(contrast * color[2] + brightness, 1));
+
         if (hex) {
           color[0] = Math.floor(color[0] * 255);
           color[1] = Math.floor(color[1] * 255);
@@ -235,10 +261,10 @@
           color[2] = ("0" + color[2].toString(16)).slice(-2);
           color = color.slice(0, 3).join("");
         } else {
-          color[0] = Math.floor(color[0] * color_map.scale);
-          color[1] = Math.floor(color[1] * color_map.scale);
-          color[2] = Math.floor(color[2] * color_map.scale);
-          color[3] = Math.floor(color[3] * color_map.scale);
+          color[0] = color[0] * scale;
+          color[1] = color[1] * scale;
+          color[2] = color[2] * scale;
+          color[3] = color[3] * scale;
         }
 
         return color;

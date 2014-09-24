@@ -63,7 +63,7 @@
         return {
           height_space: slices[0].height_space,
           width_space: slices[0].width_space,
-          getImage: function(zoom) {
+          getImage: function(zoom, contrast, brightness) {
             zoom = zoom || 1;
             
             var images = [];
@@ -91,7 +91,8 @@
               color_map.mapColors(slice.data, {
                 min: slice.min,
                 max: slice.max,
-                scale255: true,
+                contrast: contrast,
+                brightness: brightness,
                 destination: source_image.data
               });
 

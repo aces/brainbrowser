@@ -92,6 +92,18 @@
         <input type="checkbox" class="button" id="play-{{VOLID}}"><label for="play-{{VOLID}}">Play</label>
       </div>
 
+      <div class="contrast-div" data-volume-id="{{VOLID}}">
+        <span class="control-heading" id="contrast-heading{{VOLID}}">Contrast (0.0 to 2.0):</span>
+        <input class="control-inputs" value="1.0" id="contrast-val"/>
+        <div id="contrast-slider" class="slider volume-viewer-contrast"></div>
+      </div>
+
+      <div class="brightness-div" data-volume-id="{{VOLID}}">
+        <span class="control-heading" id="brightness-heading{{VOLID}}">Brightness (-1 to 1):</span>
+        <input class="control-inputs" value="0" id="brightness-val"/>
+        <div id="brightness-slider" class="slider volume-viewer-brightness"></div>
+      </div>
+
       <div id="slice-series-{{VOLID}}" class="slice-series-div" data-volume-id="{{VOLID}}">
         <div class="control-heading" id="slice-series-heading-{{VOLID}}">All slices: </div>
         <span class="slice-series-button button" data-axis="xspace">Sagittal</span>
@@ -136,6 +148,18 @@
         <span class="control-heading" id="blend-heading{{VOLID}}">Blend (0.0 to 1.0):</span>
         <input class="control-inputs" value="0.5" id="blend-val"/>
         <div id="blend-slider" class="slider volume-viewer-blend"></div>
+      </div>
+
+      <div class="contrast-div" data-volume-id="{{VOLID}}">
+        <span class="control-heading" id="contrast-heading{{VOLID}}">Contrast (0.0 to 2.0):</span>
+        <input class="control-inputs" value="1.0" id="contrast-val"/>
+        <div id="contrast-slider" class="slider volume-viewer-contrast"></div>
+      </div>
+
+      <div class="brightness-div" data-volume-id="{{VOLID}}">
+        <span class="control-heading" id="brightness-heading{{VOLID}}">Brightness (-1 to 1):</span>
+        <input class="control-inputs" value="0" id="brightness-val"/>
+        <div id="brightness-slider" class="slider volume-viewer-brightness"></div>
       </div>
     </div>
   </script>

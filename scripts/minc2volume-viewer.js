@@ -83,7 +83,7 @@ if (require.main === module) {
       console.log("Creating raw data file: ", basename + ".raw");
       rawDataStream = getRawDataStream(filename);
       rawDataStream.on('error', logExecutionError);
-      rawFileStream = fs.createWriteStream(basename + ".raw", { encoding: "binary" });
+      rawFileStream = fs.createWriteStream(basename + ".raw");
       rawDataStream.pipe(rawFileStream);
     });
 
@@ -113,7 +113,6 @@ function getRawDataStream(filename) {
   minctoraw.on("error", function (err) {
     minctoraw.stdout.emit("error", err);
   });
-  minctoraw.stdout.setEncoding("binary");
   return minctoraw.stdout;
 }
 

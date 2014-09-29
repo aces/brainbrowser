@@ -383,7 +383,6 @@
       
       if(cached_slices[axis][time][number] !== undefined) {
         slice = cached_slices[axis][time][number];
-        slice.alpha = 1;
         slice.number = number;
         return slice;
       }
@@ -398,32 +397,32 @@
         time_offset = time * order0.height * order0.width * parseFloat(order0.space_length);
       }
       
-      
+      slice = {};
+
       var length_step = minc_data[axis].width_space.step;
       var height_step = minc_data[axis].height_space.step;
-      slice = {};
       var slice_data;
-      var slice_length, height, row_length, element_offset, row_offset, slice_offset;
+      var slice_length, height, row_length, row_offset, slice_offset;
       var i, j, k;
+
+      height = minc_data[axis].height;
+      row_length = minc_data[axis].width;
+      slice_length = height * row_length;
+      slice_data = new Uint8Array(slice_length);
       
       if(minc_data.order[0] === axis) {
-        slice_length = minc_data[axis].height*minc_data[axis].width;
-        height = minc_data[axis].height;
-        row_length = minc_data[axis].width;
-        element_offset = 1;
         row_offset = row_length;
         slice_offset = slice_length;
-        slice_data = new Uint16Array(slice_length);
         
         if(length_step > 0) {
           if(height_step > 0) {
             for (i = 0; i < slice_length; i++) {
-              slice_data[i]=minc_data.data[time_offset + slice_offset*number+i];
+              slice_data[i] = minc_data.data[time_offset + slice_offset * number + i];
             }
           } else {
             for(i = height; i > 0; i--) {
               for(j = 0; j < row_length; j++) {
-                slice_data[(height-i)*row_length+j] = minc_data.data[time_offset+slice_offset*number+i*row_length + j];
+                slice_data[(height-i) * row_length + j] = minc_data.data[time_offset + slice_offset * number + i * row_length + j];
               }
             }
           }
@@ -431,61 +430,47 @@
           if(height_step < 0) {
             for(i = 0; i < height; i++) {
               for(j = 0; j < row_length; j++) {
-                slice_data[i*row_length+j] = minc_data.data[time_offset+slice_offset*number+i*row_length + row_length - j];
+                slice_data[i * row_length + j] = minc_data.data[time_offset + slice_offset * number + (i + 1) * row_length - j];
               }
             }
           } else {
             for(i = height; i > 0; i--) {
               for(j = 0; j < row_length; j++) {
-                slice_data[(height-i)*row_length+j] = minc_data.data[time_offset+slice_offset*number+i*row_length + row_length - j];
+                slice_data[(height - i) * row_length + j] = minc_data.data[time_offset + slice_offset * number + (i + 1) * row_length - j];
               }
             }
           }
         }
         
       } else if (minc_data.order[1] === axis ) {
-        
-        height = minc_data[axis].height;
-        slice_length = minc_data[axis].height*minc_data[axis].width;
-        row_length = minc_data[axis].width;
-        element_offset = 1;
         row_offset = order0.slice_length;
-        slice_offset = order0.width;
-        slice_data = new Uint8Array(slice_length);
-        
+        slice_offset = order0.width;        
         
         if(height_step < 0) {
-          for(j = 0; j<height; j++) {
-            for(k = 0; k< row_length; k++){
-              slice_data[j*(row_length)+k] = minc_data.data[time_offset+number*slice_offset+row_offset*k+j];
+          for(j = 0; j < height; j++) {
+            for(k = 0; k < row_length; k++){
+              slice_data[j * row_length + k] = minc_data.data[time_offset + number * slice_offset + row_offset * k + j];
             }
           }
         } else {
           for (j = height; j >= 0; j--) {
             for(k = 0; k < row_length; k++) {
-              slice_data[(height-j)*(row_length)+k] = minc_data.data[time_offset+number*slice_offset+row_offset*k+j];
+              slice_data[(height - j) * row_length + k] = minc_data.data[time_offset + number * slice_offset + row_offset * k + j];
             }
           }
         }
         
-        
       } else {
-        height = minc_data[axis].height;
-        slice_length = minc_data[axis].height*minc_data[axis].width;
-        row_length = minc_data[axis].width;
-        element_offset = order0.slice_length;
-        row_offset= order0.width;
-        slice_offset = 1;
-        slice_data = new Uint16Array(slice_length);
-        
+
         for ( j = 0; j < height; j++) {
           for( k = 0; k < row_length; k++){
-            slice_data[j*row_length+k] = minc_data.data[time_offset+number+order0.width*j+k*order0.slice_length];
+            slice_data[j * row_length + k] = minc_data.data[time_offset + number + order0.width * j + k * order0.slice_length];
           }
         }
+
       }
       
-      //set the spaces on each axis
+      //Set the default spaces on each axis
       slice.width_space = minc_data[axis].width_space;
       slice.height_space = minc_data[axis].height_space;
       slice.width = row_length;
@@ -495,46 +480,44 @@
       //Checks if the slices need to be rotated
       //xspace should have yspace on the x axis and zspace on the y axis
       if(axis === "xspace" && minc_data.xspace.height_space.name === "yspace"){
+        
         if (minc_data.zspace.step < 0){
-          slice_data = VolumeViewer.utils.rotateUint16Array90Right(slice_data,slice.width,slice.height);
+          slice_data = VolumeViewer.utils.rotateUint16Array90Right(slice_data, slice.width, slice.height);
         } else {
-          slice_data = VolumeViewer.utils.rotateUint16Array90Left(slice_data,slice.width,slice.height);
+          slice_data = VolumeViewer.utils.rotateUint16Array90Left(slice_data, slice.width, slice.height);
         }
+
         slice.width_space = minc_data[axis].height_space;
         slice.height_space = minc_data[axis].width_space;
         slice.width = height;
         slice.height = row_length;
-        
       }
+
       //yspace should be XxZ
       if(axis === "yspace" && minc_data.yspace.height_space.name === "xspace"){
+        
         if(minc_data.zspace.step < 0){
-          slice_data = VolumeViewer.utils.rotateUint16Array90Right(slice_data,slice.width,slice.height);
+          slice_data = VolumeViewer.utils.rotateUint16Array90Right(slice_data, slice.width, slice.height);
         } else {
-          slice_data = VolumeViewer.utils.rotateUint16Array90Left(slice_data,slice.width,slice.height);
+          slice_data = VolumeViewer.utils.rotateUint16Array90Left(slice_data, slice.width, slice.height);
         }
+
         slice.width_space = minc_data[axis].height_space;
         slice.height_space = minc_data[axis].width_space;
         slice.width = height;
-        slice.height = row_length;
-        
+        slice.height = row_length; 
       }
+   
       //zspace should be XxY
       if(axis === "zspace" && minc_data.zspace.height_space.name === "xspace"){
-        slice_data = VolumeViewer.utils.rotateUint16Array90Left(slice_data,slice.width,slice.height);
+        slice_data = VolumeViewer.utils.rotateUint16Array90Left(slice_data, slice.width, slice.height);
         slice.width_space = minc_data[axis].width_space;
         slice.height_space = minc_data[axis].height_space;
         slice.width = height;
-        slice.height = row_length;
-        
+        slice.height = row_length;     
       }
       
       slice.data = slice_data;
-      //set the spaces on each axis
-      slice.width_space = slice.width_space || minc_data[axis].width_space;
-      slice.height_space = slice.height_space || minc_data[axis].height_space;
-      slice.width = slice.width || row_length;
-      slice.height = slice.height || height;
       cached_slices[axis][time][number] = slice;
 
       return slice;

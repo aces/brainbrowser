@@ -56,7 +56,6 @@
 
         overlay_volume.volumes.forEach(function(volume, i) {
           var slice = volume.slice(axis, slice_num, time);
-          slice.alpha = overlay_volume.blend_ratios[i];
           slices.push(slice);
         });
         

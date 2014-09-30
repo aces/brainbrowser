@@ -93,7 +93,7 @@
       slice: function(axis, slice_num, time) {
         slice_num = slice_num === undefined ? volume.position[axis] : slice_num;
         time = time === undefined ? volume.current_time : time;
-        
+
         var slice = volume.data.slice(axis, slice_num, time);
 
         slice.color_map = volume.color_map;
@@ -127,16 +127,6 @@
             brightness: brightness,
             destination: source_image.data
           });
-
-          if (xstep < 0 && ystep > 0) {
-            source_image.data.set(
-              VolumeViewer.utils.flipImage(source_image.data, source_image.width, source_image.height, {
-                flipx: true,
-                flipy: false,
-                block_size: 4
-              })
-            );
-          }
 
           target_image.data.set(
             VolumeViewer.utils.nearestNeighbor(
@@ -183,29 +173,38 @@
       },
       
       getVoxelCoords: function() {
-        return {
-          x: volume.position.xspace,
-          y: volume.position.yspace,
-          z: volume.position.zspace
-        };
+        var world = volume.getWorldCoords();
+
+        return volume.worldToVoxel(world.x, world.y, world.z);
       },
       
       setVoxelCoords: function(x, y, z) {
-        volume.position.xspace = x;
-        volume.position.yspace = y;
-        volume.position.zspace = z;
+        var world = volume.voxelToWorld(x, y, z);
+
+        volume.setWorldCoords(world.x, world.y, world.z);
       },
       
       getWorldCoords: function() {
-        return volume.voxelToWorld(volume.position.xspace, volume.position.yspace, volume.position.zspace);
+        var data = volume.data;
+        var position = {
+          x: data.xspace.step > 0 ? volume.position.xspace : data.xspace.space_length - volume.position.xspace,
+          y: data.yspace.step > 0 ? volume.position.yspace : data.yspace.space_length - volume.position.yspace,
+          z: data.zspace.step > 0 ? volume.position.zspace : data.zspace.space_length - volume.position.zspace
+        };
+
+        return {
+          x: position.x * data.xspace.step + data.xspace.start,
+          y: position.y * data.yspace.step + data.yspace.start,
+          z: position.z * data.zspace.step + data.zspace.start
+        };
       },
       
       setWorldCoords: function(x, y, z) {
-        var voxel = volume.worldToVoxel(x, y, z);
+        var data = volume.data;
 
-        volume.position.xspace = voxel.x;
-        volume.position.yspace = voxel.y;
-        volume.position.zspace = voxel.z;
+        volume.position.xspace = data.xspace.step > 0 ? x : data.xspace.space_length - x;
+        volume.position.yspace = data.yspace.step > 0 ? y : data.yspace.space_length - y;
+        volume.position.zspace = data.zspace.step > 0 ? z : data.zspace.space_length - z;
       },
 
       // Voxel to world matrix applied here is:
@@ -368,179 +367,181 @@
     // Warning: This function can get a little crazy
     // We are trying to get a slice out of the array. To do this we need to be careful this
     // we check for the orientation of the slice (steps positive or negative affect the orientation)
-    minc_data.slice = function(axis, number, time) {
+    minc_data.slice = function(axis, slice_num, time) {
+      if(minc_data.order === undefined ) {
+        return null;
+      }
+
+      var axis_space = minc_data[axis];
+
+      if(axis_space.step < 0) {
+        slice_num = axis_space.space_length - slice_num - 1;
+      }
+
       var slice;
       var cached_slices = minc_data.cached_slices;
       var order0 = minc_data[minc_data.order[0]];
+      var width_space = axis_space.width_space;
+      var height_space = axis_space.height_space;
       time = time || 0;
       
       cached_slices[axis] = cached_slices[axis] || [];
       cached_slices[axis][time] =  cached_slices[axis][time] || [];
       
-      if(minc_data[axis].step < 0) {
-        number = minc_data[axis].space_length - number;
-      }
-      
-      if(cached_slices[axis][time][number] !== undefined) {
-        slice = cached_slices[axis][time][number];
-        slice.alpha = 1;
-        slice.number = number;
+      if(cached_slices[axis][time][slice_num] !== undefined) {
+        slice = cached_slices[axis][time][slice_num];
+        slice.number = slice_num;
         return slice;
       }
-      
-      if(minc_data.order === undefined ) {
-        return false;
-      }
-      
-      var time_offset = 0;
-      
-      if(minc_data.time) {
-        time_offset = time * order0.height * order0.width * parseFloat(order0.space_length);
-      }
-      
-      
-      var length_step = minc_data[axis].width_space.step;
-      var height_step = minc_data[axis].height_space.step;
+            
       slice = {};
+
+      var time_offset = minc_data.time ? time * order0.height * order0.width * parseFloat(order0.space_length) : 0;
+      var length_step = width_space.step;
+      var height_step = height_space.step;
       var slice_data;
-      var slice_length, height, row_length, element_offset, row_offset, slice_offset;
+      var width, height;
+      var slice_length, row_offset, slice_offset;
       var i, j, k;
+
+      width = axis_space.width;
+      height = axis_space.height;
+      slice_length = width * height;
+      slice_data = new Uint8Array(slice_length);
       
       if(minc_data.order[0] === axis) {
-        slice_length = minc_data[axis].height*minc_data[axis].width;
-        height = minc_data[axis].height;
-        row_length = minc_data[axis].width;
-        element_offset = 1;
-        row_offset = row_length;
+        row_offset = width;
         slice_offset = slice_length;
-        slice_data = new Uint16Array(slice_length);
         
         if(length_step > 0) {
           if(height_step > 0) {
             for (i = 0; i < slice_length; i++) {
-              slice_data[i]=minc_data.data[time_offset + slice_offset*number+i];
+              slice_data[i] = minc_data.data[time_offset + slice_offset * slice_num + i];
             }
           } else {
             for(i = height; i > 0; i--) {
-              for(j = 0; j < row_length; j++) {
-                slice_data[(height-i)*row_length+j] = minc_data.data[time_offset+slice_offset*number+i*row_length + j];
+              for(j = 0; j < width; j++) {
+                slice_data[(height-i) * width + j] = minc_data.data[time_offset + slice_offset * slice_num + i * width + j];
               }
             }
           }
         } else {
           if(height_step < 0) {
             for(i = 0; i < height; i++) {
-              for(j = 0; j < row_length; j++) {
-                slice_data[i*row_length+j] = minc_data.data[time_offset+slice_offset*number+i*row_length + row_length - j];
+              for(j = 0; j < width; j++) {
+                slice_data[i * width + j] = minc_data.data[time_offset + slice_offset * slice_num + (i + 1) * width - j];
               }
             }
           } else {
             for(i = height; i > 0; i--) {
-              for(j = 0; j < row_length; j++) {
-                slice_data[(height-i)*row_length+j] = minc_data.data[time_offset+slice_offset*number+i*row_length + row_length - j];
+              for(j = 0; j < width; j++) {
+                slice_data[(height - i) * width + j] = minc_data.data[time_offset + slice_offset * slice_num + (i + 1) * width - j];
               }
             }
           }
         }
         
       } else if (minc_data.order[1] === axis ) {
-        
-        height = minc_data[axis].height;
-        slice_length = minc_data[axis].height*minc_data[axis].width;
-        row_length = minc_data[axis].width;
-        element_offset = 1;
         row_offset = order0.slice_length;
-        slice_offset = order0.width;
-        slice_data = new Uint8Array(slice_length);
-        
+        slice_offset = order0.width;        
         
         if(height_step < 0) {
-          for(j = 0; j<height; j++) {
-            for(k = 0; k< row_length; k++){
-              slice_data[j*(row_length)+k] = minc_data.data[time_offset+number*slice_offset+row_offset*k+j];
+          for(j = 0; j < height; j++) {
+            for(k = 0; k < width; k++){
+              slice_data[j * width + k] = minc_data.data[time_offset + slice_num * slice_offset + row_offset * k + j];
             }
           }
         } else {
           for (j = height; j >= 0; j--) {
-            for(k = 0; k < row_length; k++) {
-              slice_data[(height-j)*(row_length)+k] = minc_data.data[time_offset+number*slice_offset+row_offset*k+j];
+            for(k = 0; k < width; k++) {
+              slice_data[(height - j) * width + k] = minc_data.data[time_offset + slice_num * slice_offset + row_offset * k + j];
             }
           }
         }
         
-        
       } else {
-        height = minc_data[axis].height;
-        slice_length = minc_data[axis].height*minc_data[axis].width;
-        row_length = minc_data[axis].width;
-        element_offset = order0.slice_length;
-        row_offset= order0.width;
-        slice_offset = 1;
-        slice_data = new Uint16Array(slice_length);
-        
+
         for ( j = 0; j < height; j++) {
-          for( k = 0; k < row_length; k++){
-            slice_data[j*row_length+k] = minc_data.data[time_offset+number+order0.width*j+k*order0.slice_length];
+          for( k = 0; k < width; k++){
+            slice_data[j * width + k] = minc_data.data[time_offset + slice_num + order0.width * j + k * order0.slice_length];
           }
         }
+
       }
       
-      //set the spaces on each axis
-      slice.width_space = minc_data[axis].width_space;
-      slice.height_space = minc_data[axis].height_space;
-      slice.width = row_length;
+      //Set the default spaces on each axis
+      slice.width_space = width_space;
+      slice.height_space = height_space;
+      slice.width = width;
       slice.height = height;
-      
-      
-      //Checks if the slices need to be rotated
-      //xspace should have yspace on the x axis and zspace on the y axis
-      if(axis === "xspace" && minc_data.xspace.height_space.name === "yspace"){
-        if (minc_data.zspace.step < 0){
-          slice_data = VolumeViewer.utils.rotateUint16Array90Right(slice_data,slice.width,slice.height);
-        } else {
-          slice_data = VolumeViewer.utils.rotateUint16Array90Left(slice_data,slice.width,slice.height);
-        }
-        slice.width_space = minc_data[axis].height_space;
-        slice.height_space = minc_data[axis].width_space;
-        slice.width = height;
-        slice.height = row_length;
-        
+
+      // Not sure why, but zspace never seems to need flipping?
+      if (axis === "xspace" || axis === "yspace") {
+        checkImageFlip(slice_data, axis_space, width_space, height_space);
       }
-      //yspace should be XxZ
-      if(axis === "yspace" && minc_data.yspace.height_space.name === "xspace"){
-        if(minc_data.zspace.step < 0){
-          slice_data = VolumeViewer.utils.rotateUint16Array90Right(slice_data,slice.width,slice.height);
-        } else {
-          slice_data = VolumeViewer.utils.rotateUint16Array90Left(slice_data,slice.width,slice.height);
-        }
-        slice.width_space = minc_data[axis].height_space;
-        slice.height_space = minc_data[axis].width_space;
-        slice.width = height;
-        slice.height = row_length;
-        
-      }
-      //zspace should be XxY
-      if(axis === "zspace" && minc_data.zspace.height_space.name === "xspace"){
-        slice_data = VolumeViewer.utils.rotateUint16Array90Left(slice_data,slice.width,slice.height);
-        slice.width_space = minc_data[axis].width_space;
-        slice.height_space = minc_data[axis].height_space;
-        slice.width = height;
-        slice.height = row_length;
-        
-      }
+
+      checkImageRotation(slice, slice_data, axis, width_space, height_space);
       
       slice.data = slice_data;
-      //set the spaces on each axis
-      slice.width_space = slice.width_space || minc_data[axis].width_space;
-      slice.height_space = slice.height_space || minc_data[axis].height_space;
-      slice.width = slice.width || row_length;
-      slice.height = slice.height || height;
-      cached_slices[axis][time][number] = slice;
+      cached_slices[axis][time][slice_num] = slice;
 
       return slice;
     };
 
     return minc_data;
+  }
+
+  function checkImageFlip(slice_data, axis_space, width_space, height_space) {
+    // If we're looking down the negative axis, width and height sign
+    // should match. If not flip the height axis.
+    if (axis_space.step < 0) {
+      slice_data.set(VolumeViewer.utils.flipArray(
+          slice_data,
+          Uint8Array,
+          width_space.space_length, 
+          height_space.space_length, 
+          {
+            flipy: (width_space.step > 0 && height_space.step < 0) || (width_space.step < 0 && height_space.step > 0)
+          }
+        )
+      );
+    } else {
+      // If we're looking down the positive axis, width and height sign
+      // should not match. If not flip the height axis.
+      slice_data.set(VolumeViewer.utils.flipArray(
+          slice_data,
+          Uint8Array,
+          width_space.space_length,
+          height_space.space_length,
+          {
+            flipy: (width_space.step > 0 && height_space.step > 0) || (width_space.step < 0 && height_space.step < 0)
+          }
+        )
+      );
+    }
+  }
+
+  function checkImageRotation(slice, slice_data, axis, width_space, height_space) {
+    var width = slice.width;
+    var height = slice.height;
+    var correct_height_space = {
+      xspace: "zspace",
+      yspace: "zspace",
+      zspace: "yspace"
+    }[axis];
+
+    // If the height space is not correct, rotate the image.
+    if (height_space.name !== correct_height_space) {
+      if (width_space.step > 0) {
+        slice_data.set(VolumeViewer.utils.rotateArray90Left(slice_data, Uint8Array, width, height));
+      } else {
+        slice_data.set(VolumeViewer.utils.rotateArray90Right(slice_data, Uint8Array, width, height));
+      }
+      slice.width_space  = height_space;
+      slice.height_space = width_space;
+      slice.width  = height;
+      slice.height = width;
+    }
   }
    
 }());

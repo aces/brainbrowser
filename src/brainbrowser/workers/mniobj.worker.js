@@ -232,11 +232,11 @@
     var num_indices = result.indices.length;
 
     result.left = {
-      indices: result.indices.slice(0, num_indices/2)
+      indices: result.indices.slice(0, num_indices / 2)
     };
 
     result.right = {
-      indices: result.indices.slice(num_indices/2)
+      indices: result.indices.slice(num_indices / 2)
     };
   }
 

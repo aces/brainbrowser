@@ -128,16 +128,6 @@
             destination: source_image.data
           });
 
-          // if (xstep < 0 && ystep > 0) {
-          //   source_image.data.set(
-          //     VolumeViewer.utils.flipImage(source_image.data, source_image.width, source_image.height, {
-          //       flipx: true,
-          //       flipy: false,
-          //       block_size: 4
-          //     })
-          //   );
-          // }
-
           target_image.data.set(
             VolumeViewer.utils.nearestNeighbor(
               source_image.data,
@@ -183,29 +173,38 @@
       },
       
       getVoxelCoords: function() {
-        return {
-          x: volume.position.xspace,
-          y: volume.position.yspace,
-          z: volume.position.zspace
-        };
+        var world = volume.getWorldCoords();
+
+        return volume.worldToVoxel(world.x, world.y, world.z);
       },
       
       setVoxelCoords: function(x, y, z) {
-        volume.position.xspace = x;
-        volume.position.yspace = y;
-        volume.position.zspace = z;
+        var world = volume.voxelToWorld(x, y, z);
+
+        volume.setWorldCoords(world.x, world.y, world.z);
       },
       
       getWorldCoords: function() {
-        return volume.voxelToWorld(volume.position.xspace, volume.position.yspace, volume.position.zspace);
+        var data = volume.data;
+        var position = {
+          x: data.xspace.step > 0 ? volume.position.xspace : data.xspace.space_length - volume.position.xspace,
+          y: data.yspace.step > 0 ? volume.position.yspace : data.yspace.space_length - volume.position.yspace,
+          z: data.zspace.step > 0 ? volume.position.zspace : data.zspace.space_length - volume.position.zspace
+        };
+
+        return {
+          x: position.x * data.xspace.step + data.xspace.start,
+          y: position.y * data.yspace.step + data.yspace.start,
+          z: position.z * data.zspace.step + data.zspace.start
+        };
       },
       
       setWorldCoords: function(x, y, z) {
-        var voxel = volume.worldToVoxel(x, y, z);
+        var data = volume.data;
 
-        volume.position.xspace = voxel.x;
-        volume.position.yspace = voxel.y;
-        volume.position.zspace = voxel.z;
+        volume.position.xspace = data.xspace.step > 0 ? x : data.xspace.space_length - x;
+        volume.position.yspace = data.yspace.step > 0 ? y : data.yspace.space_length - y;
+        volume.position.zspace = data.zspace.step > 0 ? z : data.zspace.space_length - z;
       },
 
       // Voxel to world matrix applied here is:

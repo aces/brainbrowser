@@ -90,37 +90,41 @@
 
     /**
     * @doc function
-    * @name VolumeViewer.utils.flipImage
+    * @name VolumeViewer.utils.flipArray
     *
     * @param {array} source Source image data.
+    * @param {function} type Constructor for the array type to create.
     * @param {number} width Width of source image.
     * @param {number} height Height of source image.
     * @param {object} options Extra options:
     * * **flipx** Whether or not to flip along the x axis (default: false). 
     * * **flipy** Whether or not to flip along the y axis (default: false). 
     * * **block_size** The size of each unit for scaling (default: 1). 
-    * * **ArrayType** Constructor for the result array type (default: Uint8ClampedArray). 
     * 
     * @returns {array} The flipped image array.
     *
     * @description
     * Flip an image array along either the x or y axis.
     * ```js
-    * BrainBrowser.VolumeViewer.utils.flipImage(image_data, 256, 256, { flipx: true });
+    * BrainBrowser.VolumeViewer.utils.flipArray(image_data, 256, 256, { flipx: true });
     * ```
     */
-    flipImage: function(source, width, height, options) {
+    flipArray: function(source, type, width, height, options) {
       options = options || {};
 
       var flipx = options.flipx || false;
       var flipy = options.flipy || false;
       var block_size = options.block_size || 1;
-      var ArrayType = options.array_type || Uint8ClampedArray;
-      var target = new ArrayType(width * height * block_size);
+      var target = new type(source.length);
       var i, j, k;
       var x, y;
       var target_row_offset, target_offset;
       var source_row_offset, source_offset;
+
+      if (!flipx && !flipy) {
+        target.set(source);
+        return target;
+      }
 
       for (j = 0; j < height; j++) {
         target_row_offset = j * width;
@@ -143,22 +147,23 @@
 
     /**
     * @doc function
-    * @name VolumeViewer.utils.rotateUint16Array90Left
+    * @name VolumeViewer.utils.rotateArray90Left
     *
-    * @param {Uint16Array} array The array to rotate
+    * @param {array} array The array to rotate
+    * @param {function} type Constructor for the array type to create.
     * @param {number} width Width of the 2D interpretation of the array
     * @param {number} height Height of the 2D interpretation of the array
-    * @returns {Uint16Array} The rotated array.
+    * @returns {array} The rotated array.
     *
     * @description
     * Rotate an array to the left based on a width X height 2D interpretation 
     * of the array data.
     * ```js
-    * BrainBrowser.VolumeViewer.utils.rotateUint16Array90Left(array, 512, 512);
+    * BrainBrowser.VolumeViewer.utils.rotateArray90Left(array, 512, 512);
     * ```
     */
-    rotateUint16Array90Left: function(array, width, height){
-      var new_array = new Uint16Array(width * height);
+    rotateArray90Left: function(array, type, width, height){
+      var new_array = new type(array.length);
       var i, j;
       
       for (i = 0; i < width; i++) {
@@ -172,22 +177,23 @@
     
     /**
     * @doc function
-    * @name VolumeViewer.utils.rotateUint16Array90Right
+    * @name VolumeViewer.utils.rotateArray90Right
     *
-    * @param {Uint16Array} array The array to rotate
+    * @param {array} array The array to rotate
+    * @param {function} type Constructor for the array type to create.
     * @param {number} width Width of the 2D interpretation of the array
     * @param {number} height Height of the 2D interpretation of the array
-    * @returns {Uint16Array} The rotated array.
+    * @returns {array} The rotated array.
     *
     * @description
     * Rotate an array to the right based on a width X height 2D interpretation 
     * of the array data.
     * ```js
-    * BrainBrowser.VolumeViewer.utils.rotateUint16Array90Right(array, 512, 512);
+    * BrainBrowser.VolumeViewer.utils.rotateArray90Right(array, 512, 512);
     * ```
     */
-    rotateUint16Array90Right: function(array, width, height){
-      var new_array = new Uint16Array(width * height);
+    rotateArray90Right: function(array, type, width, height){
+      var new_array = new type(array.length);
       var i, j;
 
       for (i = 0; i < width; i++) {

@@ -93,7 +93,6 @@
     * @name VolumeViewer.utils.flipArray
     *
     * @param {array} source Source image data.
-    * @param {function} type Constructor for the array type to create.
     * @param {number} width Width of source image.
     * @param {number} height Height of source image.
     * @param {object} options Extra options:
@@ -109,20 +108,22 @@
     * BrainBrowser.VolumeViewer.utils.flipArray(image_data, 256, 256, { flipx: true });
     * ```
     */
-    flipArray: function(source, type, width, height, options) {
+    flipArray: function(source, width, height, options) {
       options = options || {};
 
       var flipx = options.flipx || false;
       var flipy = options.flipy || false;
       var block_size = options.block_size || 1;
-      var target = new type(source.length);
+      var target = new source.constructor(source.length);
       var i, j, k;
       var x, y;
       var target_row_offset, target_offset;
       var source_row_offset, source_offset;
 
       if (!flipx && !flipy) {
-        target.set(source);
+        for (i = 0, j = source.length; i < j; i++) {
+          target[i] = source[i];
+        }
         return target;
       }
 
@@ -150,7 +151,6 @@
     * @name VolumeViewer.utils.rotateArray90Left
     *
     * @param {array} array The array to rotate
-    * @param {function} type Constructor for the array type to create.
     * @param {number} width Width of the 2D interpretation of the array
     * @param {number} height Height of the 2D interpretation of the array
     * @returns {array} The rotated array.
@@ -162,8 +162,8 @@
     * BrainBrowser.VolumeViewer.utils.rotateArray90Left(array, 512, 512);
     * ```
     */
-    rotateArray90Left: function(array, type, width, height){
-      var new_array = new type(array.length);
+    rotateArray90Left: function(array, width, height){
+      var new_array = new array.constructor(array.length);
       var i, j;
       
       for (i = 0; i < width; i++) {
@@ -180,7 +180,6 @@
     * @name VolumeViewer.utils.rotateArray90Right
     *
     * @param {array} array The array to rotate
-    * @param {function} type Constructor for the array type to create.
     * @param {number} width Width of the 2D interpretation of the array
     * @param {number} height Height of the 2D interpretation of the array
     * @returns {array} The rotated array.
@@ -192,8 +191,8 @@
     * BrainBrowser.VolumeViewer.utils.rotateArray90Right(array, 512, 512);
     * ```
     */
-    rotateArray90Right: function(array, type, width, height){
-      var new_array = new type(array.length);
+    rotateArray90Right: function(array, width, height){
+      var new_array = new array.constructor(array.length);
       var i, j;
 
       for (i = 0; i < width; i++) {

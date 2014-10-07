@@ -152,59 +152,52 @@
         time = time === undefined ? volume.current_time : time;
 
         if (x < 0 || x > volume.data.xspace.space_length ||
-          y < 0 || y > volume.data.yspace.space_length ||
-          z < 0 || z > volume.data.zspace.space_length) {
+            y < 0 || y > volume.data.yspace.space_length ||
+            z < 0 || z > volume.data.zspace.space_length) {
           return 0;
         }
 
         var slice = volume.data.slice("zspace", z, time);
-        var data = slice.data;
-        var slice_x, slice_y;
 
-        if (slice.width_space.name === "xspace") {
-          slice_x = x;
-          slice_y = y;
-        } else {
-          slice_x = y;
-          slice_y = z;
-        }
-
-        return data[(slice.height_space.space_length - slice_y - 1) * slice.width + slice_x];
+        return slice.data[(slice.height_space.space_length - y - 1) * slice.width + x];
       },
       
       getVoxelCoords: function() {
-        var world = volume.getWorldCoords();
-
-        return volume.worldToVoxel(world.x, world.y, world.z);
-      },
-      
-      setVoxelCoords: function(x, y, z) {
-        var world = volume.voxelToWorld(x, y, z);
-
-        volume.setWorldCoords(world.x, world.y, world.z);
-      },
-      
-      getWorldCoords: function() {
         var data = volume.data;
         var position = {
-          x: data.xspace.step > 0 ? volume.position.xspace : data.xspace.space_length - volume.position.xspace,
-          y: data.yspace.step > 0 ? volume.position.yspace : data.yspace.space_length - volume.position.yspace,
-          z: data.zspace.step > 0 ? volume.position.zspace : data.zspace.space_length - volume.position.zspace
+          xspace: data.xspace.step > 0 ? volume.position.xspace : data.xspace.space_length - volume.position.xspace,
+          yspace: data.yspace.step > 0 ? volume.position.yspace : data.yspace.space_length - volume.position.yspace,
+          zspace: data.zspace.step > 0 ? volume.position.zspace : data.zspace.space_length - volume.position.zspace
         };
 
         return {
-          x: position.x * data.xspace.step + data.xspace.start,
-          y: position.y * data.yspace.step + data.yspace.start,
-          z: position.z * data.zspace.step + data.zspace.start
+          i: position[data.order[0]],
+          j: position[data.order[1]],
+          k: position[data.order[2]],
         };
       },
       
-      setWorldCoords: function(x, y, z) {
+      setVoxelCoords: function(i, j, k) {
         var data = volume.data;
+        var ispace = data.order[0];
+        var jspace = data.order[1];
+        var kspace = data.order[2];
+        
+        volume.position[ispace] = data[ispace].step > 0 ? i : data[ispace].space_length - i;
+        volume.position[jspace] = data[jspace].step > 0 ? j : data[jspace].space_length - j;
+        volume.position[kspace] = data[kspace].step > 0 ? k : data[kspace].space_length - k;
+      },
+      
+      getWorldCoords: function() {
+        var voxel = volume.getVoxelCoords();
 
-        volume.position.xspace = data.xspace.step > 0 ? x : data.xspace.space_length - x;
-        volume.position.yspace = data.yspace.step > 0 ? y : data.yspace.space_length - y;
-        volume.position.zspace = data.zspace.step > 0 ? z : data.zspace.space_length - z;
+        return volume.voxelToWorld(voxel.i, voxel.j, voxel.k);
+      },
+      
+      setWorldCoords: function(x, y, z) {
+        var voxel = volume.worldToVoxel(x, y, z);
+
+        volume.setVoxelCoords(voxel.i, voxel.j, voxel.k);
       },
 
       // Voxel to world matrix applied here is:
@@ -214,11 +207,13 @@
       // 0           | 0           | 0           | 1
       //
       // Taken from (http://www.bic.mni.mcgill.ca/software/minc/minc2_format/node4.html)
-      voxelToWorld: function(x, y, z) {
+      voxelToWorld: function(i, j, k) {
         var ordered = {};
-        ordered[volume.data.order[0]] = x;
-        ordered[volume.data.order[1]] = y;
-        ordered[volume.data.order[2]] = z;
+        var x, y, z;
+
+        ordered[volume.data.order[0]] = i;
+        ordered[volume.data.order[1]] = j;
+        ordered[volume.data.order[2]] = k;
 
         x = ordered.xspace;
         y = ordered.yspace;
@@ -270,9 +265,9 @@
         ordered[volume.data.order[2]] = result.z;
 
         return {
-          x: ordered.xspace,
-          y: ordered.yspace,
-          z: ordered.zspace
+          i: ordered.xspace,
+          j: ordered.yspace,
+          k: ordered.zspace
         };
       }
     };
@@ -375,7 +370,7 @@
         return cached_slices[axis][time][slice_num];
       }
 
-      var time_offset = minc_data.time ? time * minc_data.time.offset : 0;         
+      var time_offset = minc_data.time ? time * minc_data.time.offset : 0;
 
       var axis_space = minc_data[axis];
       var width_space = axis_space.width_space;
@@ -393,14 +388,16 @@
       var slice;
 
       // Rows and colums of the result slice.
-      var row, col; 
+      var row, col;
 
       // Indexes into the volume, relative to the slice.
       // NOT xspace, yspace, zspace coordinates!!!
       var x, y, z;
 
-      // Linear offsets into volume for each dimension.
-      var x_offset, y_offset, z_offset;
+      // Linear offsets into volume considering an
+      // increasing number of axes: (t) time, 
+      // (z) z-axis, (y) y-axis, (x) x-axis.
+      var tz_offset, tzy_offset, tzyx_offset;
 
       // Whether the dimension steps positively or negatively.
       var x_positive = width_space.step  > 0;
@@ -411,17 +408,17 @@
       var i = 0;
 
       z = z_positive ? slice_num : axis_space.space_length - slice_num - 1;
-      z_offset = z * axis_space_offset;
+      tz_offset = time_offset + z * axis_space_offset;
 
       for (row = height - 1; row >= 0; row--) {
         y = y_positive ? row : height - row - 1;
-        y_offset = y * height_space_offset;
+        tzy_offset = tz_offset + y * height_space_offset;
 
         for (col = 0; col < width; col++) {
           x = x_positive ? col : width - col - 1;
-          x_offset = x * width_space_offset;
+          tzyx_offset = tzy_offset + x * width_space_offset;
 
-          slice_data[i++] = minc_data.data[time_offset + x_offset + y_offset + z_offset];
+          slice_data[i++] = minc_data.data[tzyx_offset];
         }
       }
 
@@ -431,7 +428,7 @@
         height_space: height_space,
         width: width,
         height: height
-      }
+      };
 
       cached_slices[axis][time][slice_num] = slice;
 

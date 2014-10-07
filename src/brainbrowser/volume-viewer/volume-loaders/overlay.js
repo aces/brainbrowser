@@ -54,7 +54,7 @@
         var overlay_volume = this;
         var slices = [];
 
-        overlay_volume.volumes.forEach(function(volume, i) {
+        overlay_volume.volumes.forEach(function(volume) {
           var slice = volume.slice(axis, slice_num, time);
           slices.push(slice);
         });
@@ -163,32 +163,6 @@
         return values.reduce(function(intensity, current_value, i) {
           return intensity + current_value * overlay_volume.blend_ratios[i];
         }, 0);
-      },
-      
-      getVoxelCoords: function() {
-        return {
-          x: this.position.xspace,
-          y: this.position.yspace,
-          z: this.position.zspace
-        };
-      },
-      
-      setVoxelCoords: function(x, y, z) {
-        this.position.xspace = x;
-        this.position.yspace = y;
-        this.position.zspace = z;
-      },
-
-      getWorldCoords: function() {
-        return this.volumes[0].voxelToWorld(this.position.xspace, this.position.yspace, this.position.zspace);
-      },
-      
-      setWorldCoords: function(x, y, z) {
-        var voxel = this.volumes[0].worldToVoxel(x, y, z);
-
-        this.position.xspace = voxel.x;
-        this.position.yspace = voxel.y;
-        this.position.zspace = voxel.z;
       }
     };
 

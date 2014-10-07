@@ -228,23 +228,23 @@ $(function() {
       container.find(".voxel-coords").change(function() {
         var div = $(this);
 
-        var x = parseInt(div.find("#voxel-x-" + vol_id).val(), 10);
-        var y = parseInt(div.find("#voxel-y-" + vol_id).val(), 10);
-        var z = parseInt(div.find("#voxel-z-" + vol_id).val(), 10);
+        var i = parseInt(div.find("#voxel-i-" + vol_id).val(), 10);
+        var j = parseInt(div.find("#voxel-j-" + vol_id).val(), 10);
+        var k = parseInt(div.find("#voxel-k-" + vol_id).val(), 10);
         
         // Make sure the values are numeric.
-        if (!BrainBrowser.utils.isNumeric(x)) {
-          x = 0;
+        if (!BrainBrowser.utils.isNumeric(i)) {
+          i = 0;
         }
-        if (!BrainBrowser.utils.isNumeric(y)) {
-          y = 0;
+        if (!BrainBrowser.utils.isNumeric(j)) {
+          j = 0;
         }
-        if (!BrainBrowser.utils.isNumeric(z)) {
-          z = 0;
+        if (!BrainBrowser.utils.isNumeric(k)) {
+          k = 0;
         }
 
         // Set coordinates and redraw.
-        viewer.volumes[vol_id].setVoxelCoords(x, y, z);
+        viewer.volumes[vol_id].setVoxelCoords(i, j, k);
 
         viewer.redrawVolumes();
       });
@@ -613,17 +613,22 @@ $(function() {
       var panel = this;
       var volume = panel.volume;
       var vol_id = panel.volume_id;
-      var world_coords = volume.getWorldCoords();
-      var voxel_coords = volume.getVoxelCoords();
+      var world_coords, voxel_coords;
       var value;
       
-      $("#world-x-" + vol_id).val(world_coords.x.toPrecision(6));
-      $("#world-y-" + vol_id).val(world_coords.y.toPrecision(6));
-      $("#world-z-" + vol_id).val(world_coords.z.toPrecision(6));
+      if (BrainBrowser.utils.isFunction(volume.getWorldCoords)) {
+        world_coords = volume.getWorldCoords();
+        $("#world-x-" + vol_id).val(world_coords.x.toPrecision(6));
+        $("#world-y-" + vol_id).val(world_coords.y.toPrecision(6));
+        $("#world-z-" + vol_id).val(world_coords.z.toPrecision(6));
+      }
 
-      $("#voxel-x-" + vol_id).val(parseInt(voxel_coords.x, 10));
-      $("#voxel-y-" + vol_id).val(parseInt(voxel_coords.y, 10));
-      $("#voxel-z-" + vol_id).val(parseInt(voxel_coords.z, 10));
+      if (BrainBrowser.utils.isFunction(volume.getVoxelCoords)) {
+        voxel_coords = volume.getVoxelCoords();
+        $("#voxel-i-" + vol_id).val(parseInt(voxel_coords.i, 10));
+        $("#voxel-j-" + vol_id).val(parseInt(voxel_coords.j, 10));
+        $("#voxel-k-" + vol_id).val(parseInt(voxel_coords.k, 10));
+      }
 
       value = volume.getIntensityValue();
       $("#intensity-value-" + vol_id)

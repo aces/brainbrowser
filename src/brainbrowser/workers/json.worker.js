@@ -35,6 +35,8 @@
     var result = { name: data.name, type: data.type, shapes: [] };
     result.vertices = flatten(data.vertices);
 
+    data.colors = data.colors || data.color;
+
     if (data.colors) {
       result.colors = flatten(data.colors);
 
@@ -43,6 +45,7 @@
       }
 
     }
+
     if (data.normals) {
       result.normals = flatten(data.normals);
     }
@@ -57,10 +60,18 @@
 
     data.shapes.forEach(function(shape) {
       var indices = flatten(shape.indices);
+      
       if (shape.one_indexed) {
         adjustIndices(indices);
       }
-      result.shapes.push({ name: shape.name, indices: indices });
+      
+      shape.color = shape.color || shape.colors;
+
+      if (Array.isArray(shape.color) && shape.color.length === 3) {
+        shape.color.push(1);
+      }
+      
+      result.shapes.push({ name: shape.name, indices: indices, color: shape.color });
     });
 
     return result;

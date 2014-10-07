@@ -38,7 +38,7 @@
 
     for (i = 0, count = shapes.length; i < count; i++) {
       shape = shapes[i];
-      unindexed = deindex(shapes[i].indices, verts, norms, colors);
+      unindexed = deindex(shapes[i].indices, verts, norms, shape.color || colors);
       shape.centroid = unindexed.centroid;
       shape.unindexed = unindexed.unindexed;
     }

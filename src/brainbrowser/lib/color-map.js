@@ -225,8 +225,6 @@
         var min = options.min === undefined ? 0 : options.min;
         var max = options.max === undefined ? 255 : options.max;
         var scale = options.scale === undefined ? color_map.scale : options.scale;
-        var clamp = options.clamp === undefined ? color_map.clamp : options.clamp;
-        var flip = options.flip === undefined ? color_map.flip : options.flip;
         var brightness = options.brightness === undefined ? color_map.brightness : options.brightness;
         var contrast = options.contrast === undefined ? color_map.contrast : options.contrast;
         var range = max - min;

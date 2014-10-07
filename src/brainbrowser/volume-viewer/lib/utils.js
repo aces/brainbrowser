@@ -144,64 +144,8 @@
       }
       
       return target;
-    },
-
-    /**
-    * @doc function
-    * @name VolumeViewer.utils.rotateArray90Left
-    *
-    * @param {array} array The array to rotate
-    * @param {number} width Width of the 2D interpretation of the array
-    * @param {number} height Height of the 2D interpretation of the array
-    * @returns {array} The rotated array.
-    *
-    * @description
-    * Rotate an array to the left based on a width X height 2D interpretation 
-    * of the array data.
-    * ```js
-    * BrainBrowser.VolumeViewer.utils.rotateArray90Left(array, 512, 512);
-    * ```
-    */
-    rotateArray90Left: function(array, width, height){
-      var new_array = new array.constructor(array.length);
-      var i, j;
-      
-      for (i = 0; i < width; i++) {
-        for (j = 0; j < height; j++) {
-          new_array[i * height + j] = array[j * width + (width - i)];
-        }
-      }
-
-      return new_array;
-    },
-    
-    /**
-    * @doc function
-    * @name VolumeViewer.utils.rotateArray90Right
-    *
-    * @param {array} array The array to rotate
-    * @param {number} width Width of the 2D interpretation of the array
-    * @param {number} height Height of the 2D interpretation of the array
-    * @returns {array} The rotated array.
-    *
-    * @description
-    * Rotate an array to the right based on a width X height 2D interpretation 
-    * of the array data.
-    * ```js
-    * BrainBrowser.VolumeViewer.utils.rotateArray90Right(array, 512, 512);
-    * ```
-    */
-    rotateArray90Right: function(array, width, height){
-      var new_array = new array.constructor(array.length);
-      var i, j;
-
-      for (i = 0; i < width; i++) {
-        for (j = 0; j < height; j++) {
-          new_array[i * height + j] = array[(height - j) * width + i];
-        }
-      }
-      return new_array;
     }
+    
   };
     
 })();

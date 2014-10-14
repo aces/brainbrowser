@@ -27,6 +27,9 @@
 
 (function() {
   "use strict";
+
+  var stack;
+  var stack_index;
   
   self.addEventListener("message", function(e) {
     var input = e.data;
@@ -62,14 +65,15 @@
   });
   
   function parse(data, options) {
-    var string = data.replace(/\s+$/, '').replace(/^\s+/, '');
+    stack = data.trim().split(/\s+/).reverse();
+    stack_index = stack.length - 1;
+    
     var i, j, start, end, nitems;
     var indices, end_indices;
     var line_indices = [];
     var split_hemispheres = options.split;
     var result = {};
-    var stack = string.split(/\s+/).reverse();
-    var object_class = stack.pop();
+    var object_class = popStack();
 
     // By default models are not split
     // (this option allows us to split hemispheres
@@ -81,29 +85,30 @@
                   object_class;
 
     if(result.type === "polygon") {
-      parseSurfProp(result, stack);
-      result.num_vertices = parseInt(stack.pop(), 10);
-      parseVertices(result, stack);
-      parseNormals(result, stack);
-      result.nitems = parseInt(stack.pop(), 10);
+      parseSurfProp(result);
+      result.num_vertices = parseInt(popStack(), 10);
+      parseVertices(result);
+      parseNormals(result);
+      result.nitems = parseInt(popStack(), 10);
     } else if (result.type === "line") {
-      parseSurfProp(result, stack);
-      result.num_vertices = parseInt(stack.pop(), 10);
-      parseVertices(result, stack);
-      result.nitems = parseInt(stack.pop(), 10);
+      parseSurfProp(result);
+      result.num_vertices = parseInt(popStack(), 10);
+      parseVertices(result);
+      result.nitems = parseInt(popStack(), 10);
     } else {
       result.error = true;
       result.error_message = 'Invalid MNI Object class: must be "polygon" or "line"';
       return;
     }
-    parseColors(result, stack);
-    parseEndIndices(result, stack);
-    parseIndices(result, stack);
+
+    parseColors(result);
+    parseEndIndices(result);
+    parseIndices(result);
   
     if (result.type === "polygon" ) {
       if (split_hemispheres){
         result.split = true;
-        splitHemispheres(result, stack);
+        splitHemispheres(result);
       }
     } else if (result.type === "line") {
       indices = result.indices;
@@ -130,101 +135,100 @@
     return result;
   }
   
-  function parseSurfProp(result, stack) {
+  function parseSurfProp(result) {
     if (result.type === "polygon") {
       result.surface_properties = {
-        ambient: parseFloat(stack.pop()),
-        diffuse: parseFloat(stack.pop()),
-        specular_reflectance: parseFloat(stack.pop()),
-        specular_scattering: parseFloat(stack.pop()),
-        transparency: parseFloat(stack.pop())
+        ambient: parseFloat(popStack()),
+        diffuse: parseFloat(popStack()),
+        specular_reflectance: parseFloat(popStack()),
+        specular_scattering: parseFloat(popStack()),
+        transparency: parseFloat(popStack())
       };
     }else if (result.type === "line") {
       result.surfaceProperties = {
-        width: stack.pop()
+        width: popStack()
       };
     }
   }
   
-  function parseVertices(result, stack) {
-    var vertices = [];
-    var num_vertices = result.num_vertices;
-    var v, i;
+  function parseVertices(result) {
+    var count = result.num_vertices * 3;
+    var vertices = new Float32Array(count);
+    var i;
     
-    for (v = 0; v < num_vertices; v++) {
-      for (i = 0; i < 3; i++) {
-        vertices.push(parseFloat(stack.pop()));
-      }
+    for (i = 0; i < count; i++) {
+      vertices[i] = parseFloat(popStack());
     }
     
     result.vertices = vertices;
   }
   
   
-  function parseNormals(result, stack) {
-    var normals = [];
-    var num_vertices = result.num_vertices;
-    var n, i;
+  function parseNormals(result) {
+    var count = result.num_vertices * 3;
+    var normals = new Float32Array(count);
+    var i;
     
-    for (n = 0; n < num_vertices; n++){
-      for (i = 0; i < 3; i++) {
-        normals.push(parseFloat(stack.pop()));
-      }
+    for (i = 0; i < count; i++) {
+      normals[i] = parseFloat(popStack());
     }
     
     result.normals = normals;
   }
   
-  function parseColors(result, stack) {
-    var colors = [];
-    var color_flag = parseInt(stack.pop(), 10);
-    var i, c, count;
+  function parseColors(result) {
+    var color_flag = parseInt(popStack(), 10);
+    var colors;
+
+    var i, count;
     
     if (color_flag === 0) {
+      colors = new Float32Array(4);
       for (i = 0; i < 4; i++){
-        colors.push(parseFloat(stack.pop()));
+        colors[i] = parseFloat(popStack());
       }
     } else if (color_flag === 1) {
-      for (c = 0, count = result.num_polygons; c < count; c++){
-        for (i = 0; i < 4; i++){
-          colors.push(parseFloat(stack.pop()));
-        }
+      count = result.num_polygons * 4;
+      colors = new Float32Array(count);
+      for (i = 0; i < count; i++){
+        colors[i] = parseFloat(popStack());
       }
     } else if (color_flag === 2) {
-      for (c = 0, count = result.num_vertices; c < count; c++){
-        for (i = 0; i < 4; i++){
-          colors.push(parseFloat(stack.pop()));
-        }
+      count = result.num_vertices * 4;
+      colors = new Float32Array(count);
+      for (i = 0; i < count; i++){
+        colors[i] = parseFloat(popStack());
       }
     } else {
-      throw new Error("color_flag not valid in that file");
+      result.error = true;
+      result.error_message = "Invalid color flag: " + color_flag;
     }
     
     result.color_flag = color_flag;
     result.colors = colors;
   }
   
-  function parseEndIndices(result, stack) {
-    var end_indices = [];
-    var p, count;
+  function parseEndIndices(result) {
+    var count = result.nitems;
+    var end_indices = new Uint32Array(count);
+    var i;
     
-    for(p = 0, count = result.nitems; p < count; p++){
-      end_indices.push(parseInt(stack.pop(), 10));
+    for(i = 0; i < count; i++){
+      end_indices[i] = parseInt(popStack(), 10);
     }
     
     result.end_indices = end_indices;
   }
   
-  function parseIndices(result, stack) {
-    var numberIndex = stack.length;
-    var indices = [];
-    var index;
-    var i, count;
+  function parseIndices(result) {
+    var count = stack_index + 1;
+    var indices = new Float32Array(count);
+    var i;
     
-    for (i = 0, count = stack.length; i < numberIndex; i++) {
-      index = parseInt(stack.pop(), 10);
-      indices.push(index);
+    for (i = 0; i < count; i++) {
+      indices[i] = parseInt(popStack(), 10);
     }
+
     result.indices = indices;
   }
   
@@ -232,12 +236,16 @@
     var num_indices = result.indices.length;
 
     result.left = {
-      indices: result.indices.slice(0, num_indices/2)
+      indices: Array.prototype.slice.call(result.indices, 0, num_indices / 2)
     };
 
     result.right = {
-      indices: result.indices.slice(num_indices/2)
+      indices: Array.prototype.slice.call(result.indices, num_indices / 2)
     };
+  }
+
+  function popStack() {
+    return stack[stack_index--];
   }
 
 })();

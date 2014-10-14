@@ -129,7 +129,8 @@ module.exports = function(grunt) {
         options: {
           worker: true,
           globals: {
-            Float32Array: true
+            Float32Array: true,
+            Uint32Array: true
           }
         },
         src: ["src/brainbrowser/workers/*.js"]

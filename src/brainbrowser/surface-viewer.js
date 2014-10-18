@@ -176,7 +176,7 @@
     /**
     *  @doc function
     *  @name SurfaceViewer.static methods:start
-    *  @param {string} element_id ID of the DOM element 
+    *  @param {string} element ID of the DOM element, or DOM element itself 
     *  in which the viewer will be inserted.
     *  @param {function} callback Callback function to which the viewer object
     *  will be passed after creation.
@@ -207,7 +207,7 @@
     *    });
     *  ```
     */
-    start: function(element_id, callback) {
+    start: function(element, callback) {
 
       console.log("BrainBrowser Surface Viewer v" + BrainBrowser.version);
 
@@ -271,7 +271,12 @@
       */
 
       var attributes = {};
-      var dom_element = document.getElementById(element_id); // Element where the viewer canvas will be loaded.
+      var dom_element;
+      if (typeof element === "string") {
+        dom_element = document.getElementById(element); // Element where the viewer canvas will be loaded.
+      } else {
+        dom_element = element;
+      }
 
       var viewer = {
         dom_element: dom_element,

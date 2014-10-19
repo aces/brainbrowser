@@ -36,12 +36,18 @@ The same principle holds for object property names:
 Variable Declarations
 ---------------------
 
-Variable declarations should appear at the beginning of the function scope they appear in. Each line declaring variables should start with **var** and end with a semicolon. Variables that are defined when declared should be written one per line. Variable declarations that don't include a definition can be grouped together on a line and separated by commas. 
+Variable declarations should appear at the beginning of the function scope they appear in, immediately after any validity checks or setting of defaults on the arguments. Each line declaring variables should start with **var** and end with a semicolon. Variables that are defined when declared should be written one per line and should appear before declarations without a definition. Declarations without a definition can be grouped together on a line and separated by commas. 
 
 ```JavaScript
-  var a_string = "This is a string";
-  var a_number = 5;
-  var object1, object2, object3;
+  
+  function myFunc(arg) {
+    arg = arg || "Hello";
+    
+    var a_string = "This is a string";
+    var a_number = 5;
+    var object1, object2, object3;
+  }
+  
 ```
 
 Strict Mode
@@ -54,6 +60,7 @@ All code should be running in local strict mode. Generally, this means that any 
     "use strict";
 
     // Rest of the code...
+    
   })();
 ``` 
 
@@ -70,7 +77,7 @@ Always.
 Quotes
 ------
 
-In general, the code tends toward double quoting strings. It's acceptable to use single quotes if it keeps you from having to escape things in the string.
+In general, the code tends toward double quoting strings. It's acceptable to use single quotes if it keeps you from having to escape double quotes in the string itself.
 
 ```JavaScript
   var a_string = "Hello";
@@ -89,16 +96,38 @@ Use strict equality always.
 ```
 
 Constructors
-----------------------
+------------
 
 Don't write any. If you want a function to create objects, write a factory function instead.
 
 ```JavaScript
   function createObject() {
-    var obj = Object.create(proto);
+    var obj = {
+      // Add properties to obj...
+    };
 
-    // Add properties to obj...
+    return obj;
+  }
+```
 
+Prototypes and `this`
+---------------------
+Generally avoid them unless necessary. The preference in BrainBrowser is to use flat objects with [functional inheritance](http://julien.richard-foy.fr/blog/2011/10/30/functional-inheritance-vs-prototypal-inheritance/) for code reuse and modularization.
+
+```JavaScript
+  function addMethod(obj) {
+    
+    obj.newMethod = function() {
+      //...
+    };
+  
+  }
+  
+  function createObject() {
+    var obj = {};
+    
+    addMethod(obj);
+    
     return obj;
   }
 ```

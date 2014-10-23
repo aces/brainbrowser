@@ -29,6 +29,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   "use strict";
   
   var SurfaceViewer = BrainBrowser.SurfaceViewer;
+  var THREE = SurfaceViewer.THREE;
   var loader = BrainBrowser.loader;
 
   var model_data = {};

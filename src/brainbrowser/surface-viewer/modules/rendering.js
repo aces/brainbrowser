@@ -28,6 +28,8 @@
 BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   "use strict";
   
+  var THREE = BrainBrowser.SurfaceViewer.THREE;
+  
   var renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
   var scene = new THREE.Scene();
   var camera = new THREE.PerspectiveCamera(30, viewer.dom_element.offsetWidth / viewer.dom_element.offsetHeight, 1, 3000);

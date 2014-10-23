@@ -174,38 +174,38 @@
   var SurfaceViewer = BrainBrowser.SurfaceViewer = {
 
     /**
-    *  @doc function
-    *  @name SurfaceViewer.static methods:start
-    *  @param {string} element ID of the DOM element, or DOM element itself 
-    *  in which the viewer will be inserted.
-    *  @param {function} callback Callback function to which the viewer object
-    *  will be passed after creation.
-    *  @description
-    *  The start() function is the main point of entry to the Surface Viewer.
-    *  It creates a viewer object that is then passed to the callback function 
-    *  supplied by the user.
+    * @doc function
+    * @name SurfaceViewer.static methods:start
+    * @param {string} element ID of a DOM element, or the DOM element itself, 
+    * into which the viewer will be inserted.
+    * @param {function} callback Callback function to which the viewer object
+    * will be passed after creation.
+    * @description
+    * The start() function is the main point of entry to the Surface Viewer.
+    * It creates a viewer object that is then passed to the callback function 
+    * supplied by the user.
     *
-    *  ```js
-    *    BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
+    * ```js
+    *   BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
+    *     
+    *     //Add an event listener.
+    *     viewer.addEventListener("displaymodel", function(model) {
+    *       console.log("We have a model!");
+    *     });
+    *
+    *     // Start rendering the scene.
+    *     viewer.render();
+    *
+    *     // Load a model into the scene.
+    *     viewer.loadModelFromURL("/models/brain_surface.obj");
     *      
-    *      //Add an event listener.
-    *      viewer.addEventListener("displaymodel", function(model) {
-    *        console.log("We have a model!");
-    *      });
+    *     // Hook viewer behaviour into UI.
+    *     $("#wireframe").change(function(e) {
+    *       viewer.setWireframe($(this).is(":checked"));
+    *     });
     *
-    *      // Start rendering the scene.
-    *      viewer.render();
-    *
-    *      // Load a model into the scene.
-    *      viewer.loadModelFromURL("/models/brain_surface.obj");
-    *       
-    *      // Hook viewer behaviour into UI.
-    *      $("#wireframe").change(function(e) {
-    *        viewer.setWireframe($(this).is(":checked"));
-    *      });
-    *
-    *    });
-    *  ```
+    *   });
+    * ```
     */
     start: function(element, callback) {
 
@@ -271,9 +271,12 @@
       */
 
       var attributes = {};
+
+      // Element where the viewer canvas will be loaded.
       var dom_element;
+
       if (typeof element === "string") {
-        dom_element = document.getElementById(element); // Element where the viewer canvas will be loaded.
+        dom_element = document.getElementById(element);
       } else {
         dom_element = element;
       }

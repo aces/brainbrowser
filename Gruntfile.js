@@ -68,7 +68,7 @@ module.exports = function(grunt) {
                 "* Author: Nicolas Kassis\n" +
                 "* Author: Paul Mougel\n" +
                 "*\n" +
-                "* three.js (c) 2010-2014 three.js authors, used under the MIT license"
+                "* three.js (c) 2010-2014 three.js authors, used under the MIT license" +
                 "*/\n"
       },
       surface: {
@@ -124,7 +124,8 @@ module.exports = function(grunt) {
         },
         src: [
           "<%= concat.surface.src %>",
-          "<%= concat.volume.src %>"
+          "<%= concat.volume.src %>",
+          "!src/brainbrowser/surface-viewer/lib/three.js"
         ]
       },
       workers: {

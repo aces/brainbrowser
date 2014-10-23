@@ -26,7 +26,10 @@
 * This version of three.js r66 was modified to be used
 * in BrainBrowser (https://brainbrowser.cbrain.mcgill.ca/)
 */
+
 (function() {
+  "use strict";
+
   /*
   * @author mrdoob / http://mrdoob.com/
   * @author Larry Battle / http://bateru.com/news

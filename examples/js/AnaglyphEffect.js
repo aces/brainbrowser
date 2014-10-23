@@ -4,7 +4,9 @@
  * @author alteredq / http://alteredqualia.com/
  */
 
-THREE.AnaglyphEffect = function ( renderer, width, height ) {
+BrainBrowser.SurfaceViewer.THREE.AnaglyphEffect = function ( renderer, width, height ) {
+
+	var THREE = BrainBrowser.SurfaceViewer.THREE;
 
 	var eyeRight = new THREE.Matrix4();
 	var eyeLeft = new THREE.Matrix4();

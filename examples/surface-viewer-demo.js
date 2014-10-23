@@ -31,6 +31,7 @@
 $(function() {
   "use strict";
   
+  var THREE = BrainBrowser.SurfaceViewer.THREE;
   var atlas_labels = {};
 
   // Request variables used to cancel the current request

@@ -67,6 +67,8 @@ module.exports = function(grunt) {
                 "* Author: Tarek Sherif  <tsherif@gmail.com> (http://tareksherif.ca/)\n" +
                 "* Author: Nicolas Kassis\n" +
                 "* Author: Paul Mougel\n" +
+                "*\n" +
+                "* three.js (c) 2010-2014 three.js authors, used under the MIT license"
                 "*/\n"
       },
       surface: {

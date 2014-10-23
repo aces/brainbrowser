@@ -27,6 +27,8 @@
 BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   "use strict";
 
+  var THREE = BrainBrowser.SurfaceViewer.THREE;
+
   var MAX_WIREFRAME_WORKERS = 20;
   var active_wireframe_jobs = 0;
 

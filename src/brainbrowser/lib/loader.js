@@ -40,12 +40,19 @@
     * * The name of the file requested.
     * * Any options that were passed to loadFromURL
     *
-    * @param {object} options The only option used by this method is **result_type**, 
-    *   which can be set to **text** or **arraybuffer** (default is **text**). Other
-    *   options are passed on to the **callback** function.
+    * @param {object} options The following options are used by this method: 
+    *
+    * *  **result_type** can be set to **text** or **arraybuffer** (default is **text**). 
+    * *  **compression**` controls whether the response is interpreted as
+    *                     compressed and therefore decompressed appropriately.
+    *                     Can be set to **none**`for no compression, **auto** to
+    *                     select compression based on URL, **gzip** data is gzip
+    *                     decompressed. Default is **auto**.
+    *
+    * Other options are passed on to the **callback** function.
     * 
-    * @description
-    * Fetch data from a URL and pass the results to a callback.
+    * @description Fetch data from a URL and pass the results to a callback.
+    *
     * ```js
     * BrainBrowser.loader.loadFromURL(url, function(data) {
     *   // Parse the data.
@@ -55,14 +62,22 @@
     loadFromURL: function(url, callback, options) {
       options = options || {};
       var request = new XMLHttpRequest();
-      var result_type = options.result_type;
+      var result_type = options.result_type || "text";
+      var compression = options.compression || "auto"; 
       var status;
       var parts = url.split("/");
       var filename = parts[parts.length-1];
 
       request.open("GET", url);
 
-      if (result_type === "arraybuffer") {
+      // autodetect compression
+      if (compression == "auto" && url.endsWith(".gz")) {
+         compression = "gzip";
+      } else {
+          compression = "none";
+      }
+
+      if (result_type === "arraybuffer" || compression != "none" ) {
         request.responseType = "arraybuffer";
       }
       
@@ -73,7 +88,15 @@
           // Based on jQuery's "success" codes.
           if(status >= 200 && status < 300 || status === 304) {
             if (!loader.checkCancel(options)) {
-              callback(request.response, filename, options);
+              var data = request.response
+
+              if (compression === "gzip") {
+                data = new Zlib.Gunzip(new Uint8Array(data)).decompress()
+                if (result_type === "text") { 
+                    data = new TextDecoder("utf-8").decode(data)
+                }
+              }
+              callback(data, filename, options);
             }
           } else {
             var error_message = "error loading URL: " + url + "\n" +

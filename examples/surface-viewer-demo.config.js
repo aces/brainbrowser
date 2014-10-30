@@ -35,23 +35,23 @@
   BrainBrowser.config.set("color_maps", [
     {
       name: "Spectral",
-      url: "color-maps/spectral.txt",
+      url: "color-maps/spectral.txt.gz",
     },
     {
       name: "Thermal",
-      url: "color-maps/thermal.txt",
+      url: "color-maps/thermal.txt.gz",
     },
     {
       name: "Gray",
-      url: "color-maps/gray-scale.txt",
+      url: "color-maps/gray-scale.txt.gz",
     },
     {
       name: "Blue",
-      url: "color-maps/blue.txt",
+      url: "color-maps/blue.txt.gz",
     },
     {
       name: "Green",
-      url: "color-maps/green.txt",
+      url: "color-maps/green.txt.gz",
     }
   ]);
 

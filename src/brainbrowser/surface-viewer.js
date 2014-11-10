@@ -550,6 +550,8 @@
   BrainBrowser.config.set("model_types.json.worker", "json.worker.js");
   BrainBrowser.config.set("model_types.mniobj.worker", "mniobj.worker.js");
   BrainBrowser.config.set("model_types.wavefrontobj.worker", "wavefrontobj.worker.js");
+  BrainBrowser.config.set("model_types.freesurferbin.worker", "freesurferbin.worker.js");
+  BrainBrowser.config.set("model_types.freesurferbin.binary", true);
   BrainBrowser.config.set("model_types.freesurferasc.worker", "freesurferasc.worker.js");
   BrainBrowser.config.set("intensity_data_types.mniobj.worker", "mniobj.intensity.worker.js");
   BrainBrowser.config.set("intensity_data_types.freesurferasc.worker", "freesurferasc.intensity.worker.js");

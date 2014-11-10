@@ -96,7 +96,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * @param {string} url URL of the model file to load.
   * @param {object} options Options for the color update, which include the following:
   *
-  * * **format** The format of input file. Should be one of the filetypes described in
+  * * **format** The format of input file. Should be configured using
   *   BrainBrowser.config.
   * * **render_depth** Force rendering at the given depth (can help with transparency).
   * * **parse** Parsing options to pass to the worker that will be used to parse the
@@ -111,6 +111,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * ```
   */
   viewer.loadModelFromURL = function(url, options) {
+    checkBinary(options);
+
     loader.loadFromURL(url, loadModel, options);
   };
 
@@ -120,7 +122,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * @param {DOMElement} file_input File input element representing the local file to load.
   * @param {object} options Options for the color update, which include the following:
   *
-  * * **format** The format of input file. Should be one of the filetypes described in
+  * * **format** The format of input file. Should be configured using
   *   BrainBrowser.config.
   * * **render_depth** Force rendering at the given depth (can help with transparency).
   * * **parse** Parsing options to pass to the worker that will be used to parse the
@@ -135,6 +137,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * ```
   */
   viewer.loadModelFromFile = function(file_input, options) {
+    checkBinary(options);
+
     loader.loadFromFile(file_input, loadModel, options);
   };
   
@@ -144,6 +148,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * @param {string} url URL of the intensity data file to load.
   * @param {object} options Options for the color update, which include the following:
   *
+  * * **format** The format of input file. Should be configured using
+  *   BrainBrowser.config.
   * * **min** Minimum value of the intensity.
   * * **max** Maximum value of the intensity.
   * * **shape** The name of a specific shape to which this map will be applied.
@@ -161,6 +167,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * ```
   */
   viewer.loadIntensityDataFromURL = function(url, options) {
+    checkBinary(options);
+
     loader.loadFromURL(url, loadIntensityData, options);
   };
   
@@ -171,6 +179,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * @param {DOMElement} file_input File input element representing the local file to load.
   * @param {object} options Options for the color update, which include the following:
   *
+  * * **format** The format of input file. Should be configured using
+  *   BrainBrowser.config.
   * * **min** Minimum value of the intensity.
   * * **max** Maximum value of the intensity.
   * * **shape** The name of a specific shape to which this map will be applied.
@@ -188,6 +198,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * ```
   */
   viewer.loadIntensityDataFromFile = function(file_input, options) {
+    checkBinary(options);
+
     loader.loadFromFile(file_input, loadIntensityData, options);
   };
 
@@ -500,6 +512,15 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     shape.position.set(centroid.x, centroid.y, centroid.z);
   
     return shape;
+  }
+
+  function checkBinary(options) {
+    var format = options.format || "mniobj";
+    var format_config = BrainBrowser.config.get("model_types." + format);
+
+    if (format_config && format_config.binary) {
+      options.result_type = options.result_type || "arraybuffer";
+    }
   }
 
   function addModelData(name, data) {

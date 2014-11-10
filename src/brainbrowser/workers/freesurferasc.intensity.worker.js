@@ -35,31 +35,32 @@
   });
   
   function parse(string) {
-    var result = {
-      values: []
-    };
+    var values;
     var lines, value;
-    var i, count, min, max;
+    var i, num_vals, min, max;
   
-    string = string.replace(/^\s+/, "").replace(/\s+$/, "");
+    string = string.trim();
 
     lines = string.split("\n");
-    value = parseFloat(lines[0].replace(/^\s+/, "").replace(/\s+$/, "").split(/\s+/)[4]);
-    result.values[0] = value;
+    num_vals = lines.length;
+    values = new Float32Array(num_vals);
+    value = parseFloat(lines[0].trim().split(/\s+/)[4]);
+    values[0] = value;
     min = value;
     max = value;
 
-    for(i = 1, count = lines.length; i < count; i++) {
-      value = parseFloat(lines[i].replace(/^\s+/, "").replace(/\s+$/, "").split(/\s+/)[4]);
-      result.values[i] = value;
+    for(i = 1; i < num_vals; i++) {
+      value = parseFloat(lines[i].trim().split(/\s+/)[4]);
+      values[i] = value;
       min = Math.min(min, value);
       max = Math.max(max, value);
     }
-    
-    result.min = min;
-    result.max = max;
 
-    return result;
+    return {
+      values: values,
+      min: min,
+      max: max
+    };
   }
  
 })();

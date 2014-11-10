@@ -38,7 +38,7 @@
     var result = {};
     var i, count, min, max;
   
-    result.values = string.replace(/^\s+/, "").replace(/\s+$/, "").split(/\s+/).map(parseFloat);
+    result.values = string.trim().split(/\s+/).map(parseFloat);
     min = result.values[0];
     max = result.values[0];
 

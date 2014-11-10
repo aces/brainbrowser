@@ -32,47 +32,51 @@
   });
   
   function parse(data) {
-    var current_shape;
-    var vertices = [];
+    var vertices, indices;
     var counts;
     var vertex_count;
     var face_count;
     var line;
-    var face;
-    var i;
+    var i, ci;
     
     var result = {};
 
     data = data.split("\n");
-    result.shapes = [];
-    current_shape = {name: data.name | "undefined", faces: [], indices: [] };
-    result.shapes.push(current_shape);
     
-    counts = data[1].replace(/^\s+/, "").replace(/\s+$/, "").split(/\s+/);
+    counts = data[1].trim().split(/\s+/);
     vertex_count = parseInt(counts[0], 10);
     face_count = parseInt(counts[1], 10);
-    
-    for (i = 2; i < vertex_count + 2; i++) {
-      line = data[i].replace(/^\s+/, "").replace(/\s+$/, "").split(/\s+/);
-      vertices.push(parseFloat(line[0]));
-      vertices.push(parseFloat(line[1]));
-      vertices.push(parseFloat(line[2]));
+
+    vertices = new Float32Array(vertex_count * 3);
+    indices = new Uint32Array(face_count * 3);
+
+    for (i = 0; i < vertex_count; i++) {
+      line = data[i+2].trim().split(/\s+/);
+
+      ci = i * 3;
+      vertices[ci]     = parseFloat(line[0]);
+      vertices[ci + 1] = parseFloat(line[1]);
+      vertices[ci + 2] = parseFloat(line[2]);
     }
     
-    for (i = vertex_count + 2; i < vertex_count + face_count + 2; i++) {
-      line = data[i].replace(/^\s+/, "").replace(/\s+$/, "").split(/\s+/);
-      face = [];
-      face.push(parseInt(line[0], 10));
-      face.push(parseInt(line[1], 10));
-      face.push(parseInt(line[2], 10));
-
-      Array.prototype.push.apply(current_shape.indices, face);
-      current_shape.faces.push(face);
+    for (i = 0; i < face_count; i++) {
+      line = data[i + vertex_count + 2].trim().split(/\s+/);
+      
+      ci = i * 3;
+      indices[ci]     = parseInt(line[0], 10);
+      indices[ci + 1] = parseInt(line[1], 10);
+      indices[ci + 2] = parseInt(line[2], 10);
     }
     
     result.type = "polygon";
     result.vertices = vertices;
     result.colors = [0.8, 0.8, 0.8, 1.0];
+    result.shapes = [
+      {
+        name: data.name | "undefined",
+        indices: indices
+      }
+    ];
 
     return result;
   }

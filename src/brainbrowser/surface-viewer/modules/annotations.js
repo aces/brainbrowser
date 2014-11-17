@@ -66,19 +66,20 @@ BrainBrowser.SurfaceViewer.modules.annotations = function(viewer) {
           model_name: options.model_name
         });
         
-        annotation = viewer.drawDot(position.x, position.y, position.z, marker_radius, marker_off_color);
-
-        annotation.annotation_info = {
+        annotation = {
           data: data,
           model_name: model_name,
           vertex: vertex,
-          position: position
+          position: position,
+          marker: viewer.drawDot(position.x, position.y, position.z, marker_radius, marker_off_color)
         };
+
+        annotation.marker.userData.annotation_info = annotation;
 
         annotations.set(model_name, vertex, annotation);
 
         if (options.activate !== false) {
-          this.activate(vertex, options);
+          viewer.annotations.activate(vertex, options);
         }
       }
     },
@@ -115,7 +116,7 @@ BrainBrowser.SurfaceViewer.modules.annotations = function(viewer) {
         annotation = annotations.get(model_name, vertex);
         
         if (options.activate !== false) {
-          this.activate(vertex, options);
+          viewer.annotations.activate(vertex, options);
         }
         
         return annotation;
@@ -154,7 +155,10 @@ BrainBrowser.SurfaceViewer.modules.annotations = function(viewer) {
 
       if (model_name) {
         annotation = annotations.remove(model_name, vertex);
-        viewer.model.remove(annotation);
+        viewer.model.remove(annotation.marker);
+        annotation.marker = null;
+        viewer.updated = true;
+
         return annotation;
       } else {
         return null;
@@ -172,10 +176,9 @@ BrainBrowser.SurfaceViewer.modules.annotations = function(viewer) {
     * ```
     */
     reset: function() {
-      this.forEach(function(annotation) {
-        viewer.model.remove(annotation);
+      viewer.annotations.forEach(function(annotation) {
+        viewer.annotations.remove(annotation.vertex);
       });
-      annotations.reset();
     },
 
     /**
@@ -202,7 +205,7 @@ BrainBrowser.SurfaceViewer.modules.annotations = function(viewer) {
     activate: function(vertex, options) {
       options = options || {};
 
-      var active_annotation = this.get(vertex, {
+      var active_annotation = viewer.annotations.get(vertex, {
         model_name: options.model_name,
         activate: false
       });
@@ -211,13 +214,15 @@ BrainBrowser.SurfaceViewer.modules.annotations = function(viewer) {
         return;
       }
 
-      this.forEach(function(annotation) {
+      viewer.annotations.forEach(function(annotation) {
         if (annotation === active_annotation) {
-          annotation.material.color.setHex(marker_on_color);
+          annotation.marker.material.color.setHex(marker_on_color);
         } else {
-          annotation.material.color.setHex(marker_off_color);
+          annotation.marker.material.color.setHex(marker_off_color);
         }
       });
+
+      viewer.updated = true;
     },
 
     /**
@@ -230,7 +235,7 @@ BrainBrowser.SurfaceViewer.modules.annotations = function(viewer) {
     * Iterate over annotations and pass them to a callback function.
     * ```js
     * viewer.annotations.forEach(function(annotation) {
-    *   console.log(annotation.annotation_info.data);
+    *   console.log(annotation.data);
     * });
     * ```
     */

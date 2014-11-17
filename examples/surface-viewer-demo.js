@@ -548,7 +548,7 @@ $(function() {
           $("#pick-label").html(text);
         }
 
-        annotation_info = pick_info.object.annotation_info;
+        annotation_info = pick_info.object.userData.annotation_info;
 
         if (annotation_info) {
           viewer.annotations.activate(annotation_info.vertex, {

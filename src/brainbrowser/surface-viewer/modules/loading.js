@@ -99,6 +99,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * * **format** The format of input file. Should be configured using
   *   BrainBrowser.config.
   * * **render_depth** Force rendering at the given depth (can help with transparency).
+  * * **pick_ignore** Ignore this object when picking.
   * * **parse** Parsing options to pass to the worker that will be used to parse the
   *   input file.
   *
@@ -125,6 +126,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * * **format** The format of input file. Should be configured using
   *   BrainBrowser.config.
   * * **render_depth** Force rendering at the given depth (can help with transparency).
+  * * **pick_ignore** Ignore this object when picking.
   * * **parse** Parsing options to pass to the worker that will be used to parse the
   *   input file.
   *
@@ -414,7 +416,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var render_depth = options.render_depth;
     var complete = options.complete;
 
-    addObject(model_data, filename, render_depth);
+    addObject(model_data, filename, options);
 
     viewer.triggerEvent("displaymodel", viewer.model);
 
@@ -422,42 +424,45 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   }
 
   // Add a polygon object to the scene.
-  function addObject(model_data, filename, render_depth){
+  function addObject(model_data, filename, options){
     var model = viewer.model;
     var shapes = model_data.shapes;
     var model_name = model_data.name || filename;
     var is_line = model_data.type === "line";
+    var render_depth = options.render_depth;
+    var pick_ignore = options.pick_ignore;
     var shape, shape_data;
     var i, count;
 
 
     addModelData(model_name, model_data);
 
-    if (shapes){
+    if (shapes) {
       for (i = 0, count = shapes.length; i < count; i++){
         shape_data = model_data.shapes[i];
         shape = createObject(shape_data, is_line);
         shape.model_name = model_name;
         shape.name = shape_data.name || filename + "_" + (i + 1);
         
-        shape.geometry.original_data = {
+        shape.userData.original_data = {
           vertices: model_data.vertices,
           indices: shape_data.indices,
           normals: model_data.normals,
           colors: model_data.colors
         };
 
+        shape.userData.pick_ignore = pick_ignore;
+
         if (render_depth) {
           shape.renderDepth = render_depth;
         }
+        
         model.add(shape);
       }
 
       if (model_data.split) {
         model.children[0].name = "left";
-        model.children[0].model_num = 0;
         model.children[1].name = "right";
-        model.children[1].model_num = 1;
       }
     }
   }

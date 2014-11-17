@@ -219,7 +219,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
       }
 
       geometry = shape.geometry;
-      indices = shape.geometry.original_data.indices;
+      indices = shape.userData.original_data.indices;
       color_attribute = geometry.attributes.color;
       colors = color_attribute.array;
       

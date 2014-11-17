@@ -297,7 +297,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     intersects = raycaster.intersectObject(model, true);
 
     for (i = 0; i < intersects.length; i++) {
-      if (!intersects[i].object.__PICK_IGNORE__) {
+      if (!intersects[i].object.userData.pick_ignore) {
         intersection = intersects[i];
         break;
       }
@@ -308,10 +308,10 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       intersect_object = intersection.object;
       intersect_indices = intersection.indices;
 
-      if (intersect_object.annotation_info) {
+      if (intersect_object.userData.annotation_info) {
         vertex_data = {
-          index: intersect_object.annotation_info.vertex,
-          point: intersect_object.annotation_info.position,
+          index: intersect_object.userData.annotation_info.vertex,
+          point: intersect_object.userData.annotation_info.position,
           object: intersect_object
         };
       } else {
@@ -329,8 +329,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
         inv_matrix.getInverse(intersect_object.matrixWorld);
         intersect_point = intersection.point.applyMatrix4(inv_matrix);
 
-        original_vertices = intersect_object.geometry.original_data.vertices;
-        original_indices = intersect_object.geometry.original_data.indices;
+        original_vertices = intersect_object.userData.original_data.vertices;
+        original_indices = intersect_object.userData.original_data.indices;
 
         // Have to get the vertex pointed to by the original index because of
         // the de-indexing (see workers/deindex.worker.js)

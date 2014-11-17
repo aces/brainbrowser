@@ -86,13 +86,14 @@ $(function() {
     viewer.addEventListener("loadcolormap", function(color_map) {
       var spectrum_div = document.getElementById("color-bar");
       var model_data = viewer.model_data.get();
+      var intensity_data = viewer.intensity_data.get();
 
       var min, max;
       var canvas;
 
-      if (model_data && model_data.intensity_data) {
-        min = model_data.intensity_data.range_min;
-        max = model_data.intensity_data.range_max;
+      if (model_data && intensity_data) {
+        min = intensity_data.range_min;
+        max = intensity_data.range_max;
       } else {
         min = 0;
         max = 100;
@@ -237,9 +238,7 @@ $(function() {
             max_input.val(max);
             intensity_data.range_min = min;
             intensity_data.range_max = max;
-            viewer.model_data.forEach(function(model_data) {
-              model_data.intensity_data = intensity_data;
-            });
+
             viewer.setIntensityRange(min, max);
           }
         });
@@ -291,11 +290,11 @@ $(function() {
         viewer.triggerEvent("changeintensityrange", intensity_data);
       });
 
-      $("#paint-value").val(model_data.intensity_data.values[0]);
-      $("#paint-color").css("background-color", "#" + viewer.color_map.colorFromValue(model_data.intensity_data.values[0], {
+      $("#paint-value").val(intensity_data.values[0]);
+      $("#paint-color").css("background-color", "#" + viewer.color_map.colorFromValue(intensity_data.values[0], {
         hex: true,
-        min: model_data.intensity_data.range_min,
-        max: model_data.intensity_data.range_max,
+        min: intensity_data.range_min,
+        max: intensity_data.range_max,
         flip: viewer.getAttribute("flip_colors"),
         clamp: viewer.getAttribute("clamp_colors")
       }));
@@ -326,12 +325,13 @@ $(function() {
     viewer.addEventListener("updatecolors", function() {
       var value = parseFloat($("#pick-value").val());
       var model_data = viewer.model_data.get();
+      var intensity_data = viewer.intensity_data.get();
 
       if (BrainBrowser.utils.isNumeric(value)) {
         $("#pick-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
           hex: true,
-          min: model_data.intensity_data.range_min,
-          max: model_data.intensity_data.range_max,
+          min: intensity_data.range_min,
+          max: intensity_data.range_max,
           flip: viewer.getAttribute("flip_colors"),
           clamp: viewer.getAttribute("clamp_colors")
         }));
@@ -342,8 +342,8 @@ $(function() {
       if (BrainBrowser.utils.isNumeric(value)) {
         $("#paint-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
           hex: true,
-          min: model_data.intensity_data.range_min,
-          max: model_data.intensity_data.range_max,
+          min: intensity_data.range_min,
+          max: intensity_data.range_max,
           flip: viewer.getAttribute("flip_colors"),
           clamp: viewer.getAttribute("clamp_colors")
         }));
@@ -502,7 +502,7 @@ $(function() {
       var annotation_display = $("#annotation-display");
       var media = $("#annotation-media");
       var pick_info = viewer.pick();
-      var model_data;
+      var model_data, intensity_data;
       var annotation_info;
       var value, label, text;
 
@@ -515,8 +515,9 @@ $(function() {
         
         picked_object = pick_info.object;
         model_data = viewer.model_data.get(picked_object.model_name);
+        intensity_data = viewer.intensity_data.get(picked_object.model_name);
 
-        if (model_data.intensity_data) {
+        if (intensity_data) {
           if (event.ctrlKey) {
             value = parseFloat($("#paint-value").val());
 
@@ -525,12 +526,12 @@ $(function() {
             }
           }
 
-          value = model_data.intensity_data.values[pick_info.index];
+          value = intensity_data.values[pick_info.index];
           $("#pick-value").val(value.toString().slice(0, 7));
           $("#pick-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
             hex: true,
-            min: model_data.intensity_data.range_min,
-            max: model_data.intensity_data.range_max,
+            min: intensity_data.range_min,
+            max: intensity_data.range_max,
             flip: viewer.getAttribute("flip_colors"),
             clamp: viewer.getAttribute("clamp_colors")
           }));
@@ -604,12 +605,13 @@ $(function() {
     $("#paint-value").change(function() {
       var value = parseFloat(this.value);
       var model_data = viewer.model_data.get();
+      var intensity_data = viewer.intensity_data.get();
 
       if (BrainBrowser.utils.isNumeric(value)) {
         $("#paint-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
           hex: true,
-          min: model_data.intensity_data.range_min,
-          max: model_data.intensity_data.range_max,
+          min: intensity_data.range_min,
+          max: intensity_data.range_max,
           flip: viewer.getAttribute("flip_colors"),
           clamp: viewer.getAttribute("clamp_colors")
         }));

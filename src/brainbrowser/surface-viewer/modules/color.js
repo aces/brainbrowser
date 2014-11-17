@@ -117,7 +117,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   */
   viewer.setIntensity = function(index, value, options) {
     options = options || {};
-    var data = viewer.model_data.get(options.model_name).intensity_data;
+    var data = viewer.intensity_data.get(options.model_name);
     
     if (data && index >= 0 && index < data.values.length) {
       data.values[index] = value;
@@ -151,7 +151,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   */
   viewer.setIntensityRange = function(min, max, options) {
     options = options || {};
-    var data = viewer.model_data.get(options.model_name).intensity_data;
+    var data = viewer.intensity_data.get(options.model_name);
     
     data.range_min = min;
     data.range_max = max;

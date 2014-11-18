@@ -81,32 +81,6 @@ $(function() {
     // want the loading icon to stay on the screen.
     BrainBrowser.events.addEventListener("error", hideLoading);
 
-    // When a new color map is loaded display a spectrum representing
-    // the color mapping.
-    viewer.addEventListener("loadcolormap", function(color_map) {
-      var spectrum_div = document.getElementById("color-bar");
-      var model_data = viewer.model_data.get();
-
-      var min, max;
-      var canvas;
-
-      if (model_data && model_data.intensity_data) {
-        min = model_data.intensity_data.range_min;
-        max = model_data.intensity_data.range_max;
-      } else {
-        min = 0;
-        max = 100;
-      }
-
-      canvas = color_map.createElement(min, max);
-      canvas.id = "spectrum-canvas";
-      if (!spectrum_div) {
-        $("<div id=\"color-bar\"></div>").html(canvas).appendTo("#data-range-box");
-      } else {
-        $(spectrum_div).html(canvas);
-      }
-    });
-
     // When a new model is added to the viewer, create a transparancy slider
     // for each shape that makes up the model.
     viewer.addEventListener("displaymodel", function(object) {
@@ -177,17 +151,16 @@ $(function() {
     // When new intensity data is loaded, create all UI related to
     // controlling the relationship between the instensity data and
     // the color mapping (range, flip colors, clamp colors, fix range).
-    viewer.addEventListener("loadintensitydata", function(intensity_data) {
+    viewer.addEventListener("loadintensitydata", function(intensity_data, model_data) {
       var container = $("#data-range");
       var headers = '<div id="data-range-multiple"><ul>';
       var controls = "";
       var i, count;
-      var data_set = Array.isArray(intensity_data) ? intensity_data : [intensity_data];
-      var model_data = viewer.model_data.get();
+      var data_set = model_data.intensity_data;
 
       container.html("");
       for(i = 0, count = data_set.length; i < count; i++) {
-        headers += '<li><a href="#data-file' + i + '">' + data_set[i].filename + '</a></li>';
+        headers += '<li><a href="#data-file' + i + '">' + data_set[i].name + '</a></li>';
         controls += '<div id="data-file' + i + '" class="box range-controls">';
         controls += 'Min: <input class="range-box" id="data-range-min" type="text" name="range_min" size="5" >';
         controls += '<div id="range-slider' + i + '" data-blend-index="' + i + '" class="slider"></div>';
@@ -215,11 +188,10 @@ $(function() {
         var controls = $(this);
         var intensity_data = data_set[index];
 
-        var data_min = BrainBrowser.utils.min(intensity_data.values);
-        var data_max = BrainBrowser.utils.max(intensity_data.values);
+        var data_min = intensity_data.min;
+        var data_max = intensity_data.max;
         var range_min = intensity_data.range_min;
         var range_max = intensity_data.range_max;
-
         var min_input = controls.find("#data-range-min");
         var max_input = controls.find("#data-range-max");
         var slider = controls.find(".slider");
@@ -237,10 +209,8 @@ $(function() {
             max_input.val(max);
             intensity_data.range_min = min;
             intensity_data.range_max = max;
-            viewer.model_data.forEach(function(model_data) {
-              model_data.intensity_data = intensity_data;
-            });
-            viewer.setIntensityRange(min, max);
+
+            viewer.setIntensityRange(intensity_data, min, max);
           }
         });
 
@@ -255,7 +225,7 @@ $(function() {
           
           slider.slider("values", 0, min);
           slider.slider("values", 1, max);
-          viewer.setIntensityRange(min, max, controls.find("#clamp_range").is(":checked"));
+          viewer.setIntensityRange(intensity_data, min, max);
         }
 
         $("#data-range-min").change(inputRangeChange);
@@ -273,7 +243,7 @@ $(function() {
             viewer.color_map.clamp = $(this).is(":checked");
           }
 
-          viewer.setIntensityRange(min, max);
+          viewer.setIntensityRange(intensity_data, min, max);
         });
 
 
@@ -285,53 +255,35 @@ $(function() {
             viewer.color_map.flip = $(this).is(":checked");
           }
 
-          viewer.setIntensityRange(min, max);
+          viewer.setIntensityRange(intensity_data, min, max);
         });
-
-        viewer.triggerEvent("changeintensityrange", intensity_data);
       });
 
-      $("#paint-value").val(model_data.intensity_data.values[0]);
-      $("#paint-color").css("background-color", "#" + viewer.color_map.colorFromValue(model_data.intensity_data.values[0], {
+      $("#paint-value").val(intensity_data.values[0]);
+      $("#paint-color").css("background-color", "#" + viewer.color_map.colorFromValue(intensity_data.values[0], {
         hex: true,
-        min: model_data.intensity_data.range_min,
-        max: model_data.intensity_data.range_max,
+        min: intensity_data.range_min,
+        max: intensity_data.range_max,
         flip: viewer.getAttribute("flip_colors"),
         clamp: viewer.getAttribute("clamp_colors")
       }));
 
+      blendUI(data_set.length > 1);
+
     }); // end loadintensitydata listener
-    
-    // If two color maps are loaded to be blended, create
-    // slider to control the blending ratios.
-    viewer.addEventListener("blendcolormaps", function(){
-      var div = $("#blend-box");
-      var blend_text = $("<span id=\"blend_value\">0.5</span>");
 
-      div.html("Blend Ratio: ");
-      blend_text.appendTo(div);
-      $("<div class=\"blend_slider\" id=\"blend_slider\" width=\"100px\" + height=\"10\"></div>").slider({
-        min: 0.1,
-        max: 0.99,
-        value: 0.5,
-        step: 0.01,
-        slide: function() {
-          var value = $(this).slider("value");
-          viewer.blend(value);
-          blend_text.html(value);
-        }
-      }).appendTo(div);
-    });
-
-    viewer.addEventListener("updatecolors", function() {
+    viewer.addEventListener("updatecolors", function(colors, model_data) {
       var value = parseFloat($("#pick-value").val());
-      var model_data = viewer.model_data.get();
+      var intensity_data = model_data.intensity_data[0];
+      var spectrum_div = document.getElementById("color-bar");
+      var min, max;
+      var canvas;
 
       if (BrainBrowser.utils.isNumeric(value)) {
         $("#pick-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
           hex: true,
-          min: model_data.intensity_data.range_min,
-          max: model_data.intensity_data.range_max,
+          min: intensity_data.range_min,
+          max: intensity_data.range_max,
           flip: viewer.getAttribute("flip_colors"),
           clamp: viewer.getAttribute("clamp_colors")
         }));
@@ -342,11 +294,27 @@ $(function() {
       if (BrainBrowser.utils.isNumeric(value)) {
         $("#paint-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
           hex: true,
-          min: model_data.intensity_data.range_min,
-          max: model_data.intensity_data.range_max,
+          min: intensity_data.range_min,
+          max: intensity_data.range_max,
           flip: viewer.getAttribute("flip_colors"),
           clamp: viewer.getAttribute("clamp_colors")
         }));
+      }
+
+      if (model_data && intensity_data) {
+        min = intensity_data.range_min;
+        max = intensity_data.range_max;
+      } else {
+        min = 0;
+        max = 100;
+      }
+
+      canvas = viewer.color_map.createElement(min, max);
+      canvas.id = "spectrum-canvas";
+      if (!spectrum_div) {
+        $("<div id=\"color-bar\"></div>").html(canvas).appendTo("#data-range-box");
+      } else {
+        $(spectrum_div).html(canvas);
       }
 
     });
@@ -502,7 +470,7 @@ $(function() {
       var annotation_display = $("#annotation-display");
       var media = $("#annotation-media");
       var pick_info = viewer.pick();
-      var model_data;
+      var model_data, intensity_data;
       var annotation_info;
       var value, label, text;
 
@@ -515,22 +483,23 @@ $(function() {
         
         picked_object = pick_info.object;
         model_data = viewer.model_data.get(picked_object.model_name);
+        intensity_data = model_data.intensity_data[0];
 
-        if (model_data.intensity_data) {
+        if (intensity_data) {
           if (event.ctrlKey) {
             value = parseFloat($("#paint-value").val());
 
             if (BrainBrowser.utils.isNumeric(value)) {
-              viewer.setIntensity(pick_info.index, value);
+              viewer.setIntensity(intensity_data, pick_info.index, value);
             }
           }
 
-          value = model_data.intensity_data.values[pick_info.index];
+          value = intensity_data.values[pick_info.index];
           $("#pick-value").val(value.toString().slice(0, 7));
           $("#pick-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
             hex: true,
-            min: model_data.intensity_data.range_min,
-            max: model_data.intensity_data.range_max,
+            min: intensity_data.range_min,
+            max: intensity_data.range_max,
             flip: viewer.getAttribute("flip_colors"),
             clamp: viewer.getAttribute("clamp_colors")
           }));
@@ -595,21 +564,23 @@ $(function() {
     $("#pick-value").change(function() {
       var index = parseInt($("#pick-index").html(), 10);
       var value = parseFloat(this.value);
+      var intensity_data = viewer.model_data.get().intensity_data[0];
 
       if (BrainBrowser.utils.isNumeric(index) && BrainBrowser.utils.isNumeric(value)) {
-        viewer.setIntensity(index, value);
+        viewer.setIntensity(intensity_data, index, value);
       }
     });
 
     $("#paint-value").change(function() {
       var value = parseFloat(this.value);
       var model_data = viewer.model_data.get();
+      var intensity_data = model_data.intensity_data[0];
 
       if (BrainBrowser.utils.isNumeric(value)) {
         $("#paint-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
           hex: true,
-          min: model_data.intensity_data.range_min,
-          max: model_data.intensity_data.range_max,
+          min: intensity_data.range_min,
+          max: intensity_data.range_max,
           flip: viewer.getAttribute("flip_colors"),
           clamp: viewer.getAttribute("clamp_colors")
         }));
@@ -729,6 +700,29 @@ $(function() {
                 name: "Cortical Thickness",
                 complete: hideLoading,
                 cancel: defaultCancelOptions(current_request)
+              });
+            },
+            cancel: defaultCancelOptions(current_request)
+          });
+        },
+        blend: function() {
+          viewer.annotations.setMarkerRadius(1);
+          viewer.loadModelFromURL("models/brain-surface.obj", {
+            format: "mniobj",
+            parse: { split: true },
+            complete: function() {
+              $("#vertex-data-wrapper").show();
+              $("#pick-value-wrapper").show();
+              viewer.loadIntensityDataFromURL("models/cortical-thickness.txt", {
+                name: "Cortical Thickness",
+                complete: hideLoading,
+                cancel: defaultCancelOptions(current_request),
+                blend: true
+              });
+              viewer.loadIntensityDataFromURL("models/atlas-values.txt", {
+                complete: hideLoading,
+                cancel: defaultCancelOptions(current_request),
+                blend: true
               });
             },
             cancel: defaultCancelOptions(current_request)
@@ -864,7 +858,7 @@ $(function() {
       var file = document.getElementById("datafile1");
       viewer.loadIntensityDataFromFile(file, {
         format: format,
-        blend_index : 0
+        blend: true
       });
     });
 
@@ -873,7 +867,7 @@ $(function() {
       var file = document.getElementById("datafile2");
       viewer.loadIntensityDataFromFile(file, {
         format: format,
-        blend_index : 1
+        blend: true
       });
     });
 
@@ -884,6 +878,35 @@ $(function() {
 
     // Load first model.
     $("a.example[data-example-name=atlas]").click();
+
+    // If two color maps are loaded to be blended, create
+    // slider to control the blending ratios.
+    function blendUI(show){
+      var div = $("#blend-box");
+
+      div.html("");
+
+      if (!show) {
+        return;
+      }
+
+      var blend_text = $("<span id=\"blend_value\">0.5</span>");
+
+      div.html("Blend Ratio: ");
+      blend_text.appendTo(div);
+      $("<div class=\"blend_slider\" id=\"blend_slider\" width=\"100px\" + height=\"10\"></div>").slider({
+        min: 0.1,
+        max: 0.99,
+        value: 0.5,
+        step: 0.01,
+        slide: function() {
+          var value = $(this).slider("value");
+          viewer.blend(value);
+          blend_text.html(value);
+        }
+      }).appendTo(div);
+    }
+
   });
 });
 

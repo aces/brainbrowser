@@ -133,7 +133,8 @@ module.exports = function(grunt) {
           worker: true,
           globals: {
             Float32Array: true,
-            Uint32Array: true
+            Uint32Array: true,
+            DataView: true
           }
         },
         src: ["src/brainbrowser/workers/*.js"]

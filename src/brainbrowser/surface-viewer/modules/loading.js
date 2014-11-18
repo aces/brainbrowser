@@ -32,7 +32,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   var THREE = SurfaceViewer.THREE;
   var loader = BrainBrowser.loader;
 
-  var model_data = {};
+  var model_data;
 
   ////////////////////////////////////
   // Interface
@@ -41,20 +41,39 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   viewer.model_data = {
     /**
     * @doc function
-    * @name viewer.model_data:get
+    * @name viewer.model\_data:add
+    * @param {string} name Identifier for the model description to
+    * retrieve.
+    * 
+    * @param {object} data The model data.
+    *
+    * @description
+    * Add a new model or intensity data description.
+    *
+    * ```js
+    * viewer.model_data.add("brain.obj", data);
+    * ```
+    */
+    add: function(name, data) {
+      model_data[name] = data;
+      data.intensity_data = [];
+    },
+
+    /**
+    * @doc function
+    * @name viewer.model\_data:get
     * @param {string} name (Optional) Identifier for the model description to
     * retrieve.
     *
-    * @returns {object} Object containing a model description.
+    * @returns {object} Object containing a model data.
     *
     * @description
-    * Retrieve the description of a loaded model. The model description will be
-    * an object containing the vertices, normals and other data extracted from 
-    * a given model file.
+    * Retrieve the data describing a loaded model.
+    *
     * ```js
     * viewer.model_data.get("brain.obj");
     * ```
-    * Note that **viewer.model\_data.get()** will return the first loaded model
+    * Note that model\_data **get()** methods will return the first loaded model
     * if no argument is given, and this can act as a convenient shorthand if only
     * one model is loaded.
     * ```js
@@ -67,14 +86,33 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       return model_data[name] || null;
     },
 
+    count: function() {
+      return Object.keys(model_data).length;
+    },
+
     /**
     * @doc function
-    * @name viewer.model_data:forEach
+    * @name viewer.model\_data:clear
+    *
+    * @description
+    * Clear stored model data.
+    *
+    * ```js
+    * viewer.model_data.clear();
+    * ```
+    */
+    clear: function() {
+      model_data = {};
+    },
+
+    /**
+    * @doc function
+    * @name viewer.model\_data:forEach
     * @param {function} callback Callback function to which the
     * model descriptions will be passed.
     *
     * @description
-    * Iterate over all model descriptions and pass them to the provided callback
+    * Iterate over a set of model data and pass them to the provided callback
     * function. The function will receive the model description and the model name
     * as arguments.
     * ```js
@@ -154,8 +192,9 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   *   BrainBrowser.config.
   * * **min** Minimum value of the intensity.
   * * **max** Maximum value of the intensity.
-  * * **shape** The name of a specific shape to which this map will be applied.
-  * * **blend_index** Index of this map in the array of blended color data (0 or 1).
+  * * **model\_name** The name of a specific model to which this map will be applied.
+  * * **shape\_name** The name of a specific shape to which this map will be applied.
+  * * **blend** Blend this data map with previously loaded data.
   * * **complete** Callback function to call when the color update is done.
   *
   * @description
@@ -164,7 +203,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * viewer.loadIntensityDataFromURL(url, {
   *   min: 1.0,
   *   max: 7.0,
-  *   shape: "shape1"
+  *   model_name: "brain.obj"
   * });
   * ```
   */
@@ -185,8 +224,9 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   *   BrainBrowser.config.
   * * **min** Minimum value of the intensity.
   * * **max** Maximum value of the intensity.
-  * * **shape** The name of a specific shape to which this map will be applied.
-  * * **blend_index** Index of this map in the array of blended color data (0 or 1).
+  * * **model\_name** The name of a specific model to which this map will be applied.
+  * * **shape\_name** The name of a specific shape to which this map will be applied.
+  * * **blend** Blend this data map with previously loaded data.
   * * **complete** Callback function to call when the color update is done.
   *
   * @description
@@ -195,7 +235,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * viewer.loadIntensityDataFromFile(file_input, {
   *   min: 1.0,
   *   max: 7.0,
-  *   shape: "shape1"
+  *   model_name: "brain.obj"
   * });
   * ```
   */
@@ -257,7 +297,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       viewer.model.remove(children[0]);
     }
 
-    clearModelData();
+    viewer.model_data.clear();
         
     viewer.resetView();
     viewer.triggerEvent("clearscreen");
@@ -285,21 +325,21 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     options = options || {};
     var name = options.name || filename;
     var type = options.format || "mniobj";
-    var model_data = viewer.model_data.get(options.model_name);
-    var blend_index = options.blend_index === 1 ? options.blend_index : 0;
-    var other_index = 1 - blend_index; // 1 or 0
-    
+    var blend = options.blend;
+    var model_name = options.model_name;
+    var model_data = viewer.model_data.get(model_name);
+    var intensity_data = model_data.intensity_data[0];
+
     var old_range = {};
 
-    if (viewer.getAttribute("fix_color_range") && model_data.intensity_data) {
+    model_name = model_name || model_data.name;
+
+    if (viewer.getAttribute("fix_color_range") && intensity_data) {
       old_range = {
-        min: model_data.intensity_data.range_min,
-        max: model_data.intensity_data.range_max
+        min: intensity_data.range_min,
+        max: intensity_data.range_max
       };
     }
-
-
-    viewer.blend_data = viewer.blend_data || [];
 
     SurfaceViewer.parseIntensityData(text, type, function(data) {
       var min;
@@ -314,43 +354,43 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         max = options.max === undefined ? data.max : options.max;
       }
       
-      data.filename = name;
-      data.apply_to_shape = options.apply_to_shape;
-      data.applied = false;
-      model_data.intensity_data = data;
-      viewer.blend_data[blend_index] = data;
+      data.name = name;
+
+      if (!blend) {
+        model_data.intensity_data.length = 0;
+      }
+
+      model_data.intensity_data.push(data);
+      data.model_data = model_data;
+
       data.range_min = min;
       data.range_max = max;
       
-      if (viewer.blend_data[other_index] && viewer.blend_data[other_index].applied) {
-        viewer.blend_data[other_index].range_min = BrainBrowser.utils.min(viewer.blend_data[other_index].values);
-        viewer.blend_data[other_index].range_max = BrainBrowser.utils.max(viewer.blend_data[other_index].values);
-
-        viewer.blend(0.5);
-
-        viewer.triggerEvent("loadintensitydata", viewer.blend_data);
-        viewer.triggerEvent("blendcolormaps", data.range_min, data.range_max, data);
+      if (model_data.intensity_data.length > 1) {
+        viewer.blend(options.complete);
       } else {
-        viewer.triggerEvent("loadintensitydata", data);
-        viewer.updateColors(data, {
+        viewer.updateColors({
+          model_name: model_name,
           complete: options.complete
         });
       }
-      
-      data.applied = true;
+
+      viewer.triggerEvent("loadintensitydata", data, model_data);
     });
   }
   
-  function loadColorMap(color_map, filename, options) {
-    options = options || {};
-    var model_data = viewer.model_data.get(options.model_name);
+  function loadColorMap(color_map) {
     viewer.color_map = color_map;
     
     viewer.triggerEvent("loadcolormap", color_map);
 
-    if (model_data && model_data.intensity_data) {
-      viewer.updateColors(model_data.intensity_data, { filename: filename });
-    }
+    viewer.model_data.forEach(function(model_data) {
+      if (model_data.intensity_data[0]) {
+        viewer.updateColors({
+          model_name: model_data.name
+        });
+      }
+    });
   }
 
   ///////////////////////////////////////////
@@ -413,7 +453,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   // displays in on the viewer.
   function displayModel(model_data, filename, options) {
     options = options || {};
-    var render_depth = options.render_depth;
     var complete = options.complete;
 
     addObject(model_data, filename, options);
@@ -427,21 +466,21 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   function addObject(model_data, filename, options){
     var model = viewer.model;
     var shapes = model_data.shapes;
-    var model_name = model_data.name || filename;
     var is_line = model_data.type === "line";
     var render_depth = options.render_depth;
     var pick_ignore = options.pick_ignore;
     var shape, shape_data;
     var i, count;
 
+    model_data.name = model_data.name || filename;
 
-    addModelData(model_name, model_data);
+    viewer.model_data.add(model_data.name, model_data);
 
     if (shapes) {
       for (i = 0, count = shapes.length; i < count; i++){
         shape_data = model_data.shapes[i];
         shape = createObject(shape_data, is_line);
-        shape.model_name = model_name;
+        shape.model_name = model_data.name;
         shape.name = shape_data.name || filename + "_" + (i + 1);
         
         shape.userData.original_data = {
@@ -526,14 +565,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     if (format_config && format_config.binary) {
       options.result_type = options.result_type || "arraybuffer";
     }
-  }
-
-  function addModelData(name, data) {
-    model_data[name] = data;
-  }
-
-  function clearModelData() {
-    model_data = {};
   }
   
 };

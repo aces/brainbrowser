@@ -203,7 +203,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     }
 
     var intensity_data = viewer.model_data.get(model_name).intensity_data;
-    var remainder = (1 - alphas.reduce(function(total, n) { return total + n; }, 0)) / 
+    var remainder = (1 - alphas.reduce(function(total, n) { return total + n; }, 0)) /
                     (intensity_data.length - alphas.length);
     
     intensity_data.forEach(function(intensity_data, i) {

@@ -700,7 +700,7 @@ $(function() {
                 name: "Cortical Thickness",
                 complete: hideLoading,
                 cancel: defaultCancelOptions(current_request)
-              });          
+              });
             },
             cancel: defaultCancelOptions(current_request)
           });
@@ -723,7 +723,7 @@ $(function() {
                 complete: hideLoading,
                 cancel: defaultCancelOptions(current_request),
                 blend: true
-              });              
+              });
             },
             cancel: defaultCancelOptions(current_request)
           });

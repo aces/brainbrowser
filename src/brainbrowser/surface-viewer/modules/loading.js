@@ -379,7 +379,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     });
   }
   
-  function loadColorMap(color_map, filename) {
+  function loadColorMap(color_map) {
     viewer.color_map = color_map;
     
     viewer.triggerEvent("loadcolormap", color_map);
@@ -390,7 +390,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
           model_name: model_data.name
         });
       }
-    })
+    });
   }
 
   ///////////////////////////////////////////
@@ -453,7 +453,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   // displays in on the viewer.
   function displayModel(model_data, filename, options) {
     options = options || {};
-    var render_depth = options.render_depth;
     var complete = options.complete;
 
     addObject(model_data, filename, options);

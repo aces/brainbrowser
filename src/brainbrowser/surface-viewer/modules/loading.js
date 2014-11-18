@@ -32,12 +32,101 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   var THREE = SurfaceViewer.THREE;
   var loader = BrainBrowser.loader;
 
+  var model_data;
+
   ////////////////////////////////////
   // Interface
   ////////////////////////////////////
   
-  viewer.model_data = createModelDataStore();
-  viewer.intensity_data = createModelDataStore();
+  viewer.model_data = {
+    /**
+    * @doc function
+    * @name viewer.model\_data:add
+    * @param {string} name Identifier for the model description to
+    * retrieve.
+    * 
+    * @param {object} data The model data.
+    *
+    * @description
+    * Add a new model or intensity data description.
+    *
+    * ```js
+    * viewer.model_data.add("brain.obj", data);
+    * ```
+    */
+    add: function(name, data) {
+      model_data[name] = data;
+      data.intensity_data = [];
+    },
+
+    /**
+    * @doc function
+    * @name viewer.model\_data:get
+    * @param {string} name (Optional) Identifier for the model description to
+    * retrieve.
+    *
+    * @returns {object} Object containing a model data.
+    *
+    * @description
+    * Retrieve the data describing a loaded model.
+    *
+    * ```js
+    * viewer.model_data.get("brain.obj");
+    * ```
+    * Note that model\_data **get()** methods will return the first loaded model
+    * if no argument is given, and this can act as a convenient shorthand if only
+    * one model is loaded.
+    * ```js
+    * viewer.model_data.get();
+    * ```
+    */
+    get: function(name) {
+      name = name || Object.keys(model_data)[0];
+
+      return model_data[name] || null;
+    },
+
+    count: function() {
+      return Object.keys(model_data).length;
+    },
+
+    /**
+    * @doc function
+    * @name viewer.model\_data:clear
+    *
+    * @description
+    * Clear stored model data.
+    *
+    * ```js
+    * viewer.model_data.clear();
+    * ```
+    */
+    clear: function() {
+      model_data = {};
+    },
+
+    /**
+    * @doc function
+    * @name viewer.model\_data:forEach
+    * @param {function} callback Callback function to which the
+    * model descriptions will be passed.
+    *
+    * @description
+    * Iterate over a set of model data and pass them to the provided callback
+    * function. The function will receive the model description and the model name
+    * as arguments.
+    * ```js
+    * viewer.model_data.forEach(function(mode_data, model_name) {
+    *   console.log(model_name, model_data.vertices.length);
+    * });
+    * ```
+    */
+    forEach: function(callback) {
+      Object.keys(model_data).forEach(function(name) {
+        callback(model_data[name], name);
+      });
+    }
+  };
 
   /**
   * @doc function
@@ -103,8 +192,9 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   *   BrainBrowser.config.
   * * **min** Minimum value of the intensity.
   * * **max** Maximum value of the intensity.
-  * * **shape** The name of a specific shape to which this map will be applied.
-  * * **blend_index** Index of this map in the array of blended color data (0 or 1).
+  * * **model\_name** The name of a specific model to which this map will be applied.
+  * * **shape\_name** The name of a specific shape to which this map will be applied.
+  * * **blend** Blend this data map with previously loaded data.
   * * **complete** Callback function to call when the color update is done.
   *
   * @description
@@ -113,7 +203,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * viewer.loadIntensityDataFromURL(url, {
   *   min: 1.0,
   *   max: 7.0,
-  *   shape: "shape1"
+  *   model_name: "brain.obj"
   * });
   * ```
   */
@@ -134,8 +224,9 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   *   BrainBrowser.config.
   * * **min** Minimum value of the intensity.
   * * **max** Maximum value of the intensity.
-  * * **shape** The name of a specific shape to which this map will be applied.
-  * * **blend_index** Index of this map in the array of blended color data (0 or 1).
+  * * **model\_name** The name of a specific model to which this map will be applied.
+  * * **shape\_name** The name of a specific shape to which this map will be applied.
+  * * **blend** Blend this data map with previously loaded data.
   * * **complete** Callback function to call when the color update is done.
   *
   * @description
@@ -144,7 +235,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * viewer.loadIntensityDataFromFile(file_input, {
   *   min: 1.0,
   *   max: 7.0,
-  *   shape: "shape1"
+  *   model_name: "brain.obj"
   * });
   * ```
   */
@@ -234,12 +325,11 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     options = options || {};
     var name = options.name || filename;
     var type = options.format || "mniobj";
+    var blend = options.blend;
     var model_name = options.model_name;
     var model_data = viewer.model_data.get(model_name);
-    var intensity_data = viewer.intensity_data.get(model_name);
-    var blend_index = options.blend_index === 1 ? options.blend_index : 0;
-    var other_index = 1 - blend_index; // 1 or 0
-    
+    var intensity_data = model_data.intensity_data[0];
+
     var old_range = {};
 
     model_name = model_name || model_data.name;
@@ -250,9 +340,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         max: intensity_data.range_max
       };
     }
-
-
-    viewer.blend_data = viewer.blend_data || [];
 
     SurfaceViewer.parseIntensityData(text, type, function(data) {
       var min;
@@ -267,46 +354,43 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         max = options.max === undefined ? data.max : options.max;
       }
       
-      data.filename = name;
-      data.apply_to_shape = options.apply_to_shape;
-      data.applied = false;
+      data.name = name;
 
-      viewer.intensity_data.add(model_name, data);
-      
-      viewer.blend_data[blend_index] = data;
+      if (!blend) {
+        model_data.intensity_data.length = 0;
+      }
+
+      model_data.intensity_data.push(data);
+      data.model_data = model_data;
+
       data.range_min = min;
       data.range_max = max;
       
-      if (viewer.blend_data[other_index] && viewer.blend_data[other_index].applied) {
-        viewer.blend_data[other_index].range_min = BrainBrowser.utils.min(viewer.blend_data[other_index].values);
-        viewer.blend_data[other_index].range_max = BrainBrowser.utils.max(viewer.blend_data[other_index].values);
-
-        viewer.blend(0.5);
-
-        viewer.triggerEvent("loadintensitydata", viewer.blend_data);
-        viewer.triggerEvent("blendcolormaps", data.range_min, data.range_max, data);
+      if (model_data.intensity_data.length > 1) {
+        viewer.blend(options.complete);
       } else {
-        viewer.triggerEvent("loadintensitydata", data);
-        viewer.updateColors(data, {
+        viewer.updateColors({
+          model_name: model_name,
           complete: options.complete
         });
       }
-      
-      data.applied = true;
+
+      viewer.triggerEvent("loadintensitydata", data, model_data);
     });
   }
   
-  function loadColorMap(color_map, filename, options) {
-    options = options || {};
-    var model_data = viewer.model_data.get(options.model_name);
-    var intensity_data = viewer.intensity_data.get(options.model_name);
+  function loadColorMap(color_map, filename) {
     viewer.color_map = color_map;
     
     viewer.triggerEvent("loadcolormap", color_map);
 
-    if (model_data && intensity_data) {
-      viewer.updateColors(intensity_data, { filename: filename });
-    }
+    viewer.model_data.forEach(function(model_data) {
+      if (model_data.intensity_data[0]) {
+        viewer.updateColors({
+          model_name: model_data.name
+        });
+      }
+    })
   }
 
   ///////////////////////////////////////////
@@ -482,99 +566,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     if (format_config && format_config.binary) {
       options.result_type = options.result_type || "arraybuffer";
     }
-  }
-
-  function createModelDataStore() {
-    var model_data = {};
-    
-    return {
-
-      /**
-      * @doc function
-      * @name viewer.model data store:add
-      * @param {string} name Identifier for the model description to
-      * retrieve.
-      * 
-      * @param {object} data The model data.
-      *
-      * @description
-      * Add a new model or intensity data description.
-      *
-      * ```js
-      * viewer.model_data.add("brain.obj", data);
-      * viewer.intensity_data.add("brain.obj", data);
-      * ```
-      */
-      add: function(name, data) {
-        model_data[name] = data;
-      },
-      /**
-      * @doc function
-      * @name viewer.model data store:get
-      * @param {string} name (Optional) Identifier for the model description to
-      * retrieve.
-      *
-      * @returns {object} Object containing a model data.
-      *
-      * @description
-      * Retrieve the data describing a loaded model.
-      *
-      * ```js
-      * viewer.model_data.get("brain.obj");
-      * viewer.intensity_data.get("brain.obj");
-      * ```
-      * Note that model data store **get()** methods will return the first loaded model
-      * if no argument is given, and this can act as a convenient shorthand if only
-      * one model is loaded.
-      * ```js
-      * viewer.model_data.get();
-      * viewer.intensity_data.get();
-      * ```
-      */
-      get: function(name) {
-        name = name || Object.keys(model_data)[0];
-
-        return model_data[name] || null;
-      },
-
-      /**
-      * @doc function
-      * @name viewer.model data store:clear
-      *
-      * @description
-      * Clear stored model data.
-      *
-      * ```js
-      * viewer.model_data.clear();
-      * viewer.intensity_data.clear();
-      * ```
-      */
-      clear: function() {
-        model_data = {};
-      },
-
-      /**
-      * @doc function
-      * @name viewer.model data store:forEach
-      * @param {function} callback Callback function to which the
-      * model descriptions will be passed.
-      *
-      * @description
-      * Iterate over a set of model data and pass them to the provided callback
-      * function. The function will receive the model description and the model name
-      * as arguments.
-      * ```js
-      * viewer.model_data.forEach(function(mode_data, model_name) {
-      *   console.log(model_name, model_data.vertices.length);
-      * });
-      * ```
-      */
-      forEach: function(callback) {
-        Object.keys(model_data).forEach(function(name) {
-          callback(model_data[name], name);
-        });
-      }
-    };
   }
   
 };

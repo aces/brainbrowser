@@ -171,7 +171,7 @@
     */
     min: function() {
       var array = Array.prototype.slice.call(arguments);
-      array = array.length === 1 && Array.isArray(array[0]) ? array[0] : array;
+      array = array.length === 1 && BrainBrowser.utils.isNumeric(array[0].length) ? array[0] : array;
 
       var min = array[0];
       var i, count;
@@ -197,7 +197,7 @@
     */
     max: function() {
       var array = Array.prototype.slice.call(arguments);
-      array = array.length === 1 && Array.isArray(array[0]) ? array[0] : array;
+      array = array.length === 1 && BrainBrowser.utils.isNumeric(array[0].length) ? array[0] : array;
       
       var max = array[0];
       var i, count;

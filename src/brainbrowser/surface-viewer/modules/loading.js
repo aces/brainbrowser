@@ -110,7 +110,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         model_data = this.get(name);
         intensity_data = model_data ? model_data.intensity_data[0] : null;
       } else {
-        model_data = Object.keys(model_data_store).map(function(name) { return model_data_store[name]});
+        model_data = Object.keys(model_data_store).map(function(name) { return model_data_store[name]; });
         
         for (i = 0, count = model_data.length; i < count; i++) {
           intensity_data = model_data[i].intensity_data[0];
@@ -401,7 +401,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         min = options.min === undefined ? data.min : options.min;
         max = options.max === undefined ? data.max : options.max;
       }
-      
+    
       data.name = name;
 
       if (!blend) {

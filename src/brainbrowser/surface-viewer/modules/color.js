@@ -58,6 +58,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     var shape_name = options.shape_name || model_name + "_1";
     var model_data = viewer.model_data.get(model_name);
     var intensity_data = model_data.intensity_data;
+    var blend = intensity_data.length > 1;
 
     function applyColorArray(color_array) {
       var shapes;
@@ -72,12 +73,14 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
 
       colorModel(color_array, shapes);
 
-      viewer.triggerEvent("updatecolors", color_array, model_data);
-
       if (complete) {
         complete();
       }
 
+      viewer.triggerEvent("updatecolors", color_array, model_data);
+      if (blend) {
+        viewer.triggerEvent("blendcolormaps", color_array, model_data);
+      }
     }
 
     // Color updates will be asynchronous because they take a while.
@@ -85,7 +88,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     clearTimeout(timeout);
 
     timeout = setTimeout(function() {
-      if (intensity_data.length > 1) {
+      if (blend) {
         applyColorArray(blendColors(intensity_data, options.model_name));
       } else {
         intensity_data = intensity_data[0];
@@ -138,11 +141,11 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     if (intensity_data && index >= 0 && index < intensity_data.values.length) {
       intensity_data.values[index] = value;
 
-      viewer.triggerEvent("updateintensitydata", intensity_data, model_data);
       viewer.updateColors({
         model_name: model_data.name,
         complete: options.complete
       });
+      viewer.triggerEvent("updateintensitydata", intensity_data, model_data);
     }
   };
 
@@ -377,8 +380,6 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
         blended_color[ci + 3] += alpha;
       }
     }
-
-    viewer.triggerEvent("blendcolormaps", blended_color, model_data);
 
     return blended_color;
   }

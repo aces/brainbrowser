@@ -57,41 +57,12 @@ BrainBrowser.SurfaceViewer.parseIntensityData = function(data, type, callback) {
     throw new Error(error_message);
   }
 
-  var intensity_data = {};
+  var worker = new Worker(BrainBrowser.SurfaceViewer.worker_urls[worker_url_type]);
   
-  function parse() {
+  worker.addEventListener("message", function(e) {
+    callback(e.data);
+    worker.terminate();
+  });
 
-
-    var worker = new Worker(BrainBrowser.SurfaceViewer.worker_urls[worker_url_type]);
-  
-    worker.addEventListener("message", function(e) {
-      var result = e.data;
-      var prop;
-
-      for (prop in result) {
-        if (result.hasOwnProperty(prop)){
-          intensity_data[prop] = result[prop];
-        }
-      }
-      if (callback) callback(intensity_data);
-      worker.terminate();
-    });
-  
-    worker.postMessage({ cmd: "parse", data: data });
-  }
-  
-  if (data) {
-    if (typeof data === "string") {
-      parse(data);
-    } else if(data.values){
-      intensity_data.values = data.values.concat();
-      intensity_data.min = BrainBrowser.utils.min(intensity_data.values);
-      intensity_data.max = BrainBrowser.utils.max(intensity_data.values);
-    } else {
-      intensity_data.values = data;
-      intensity_data.min = BrainBrowser.utils.min(data);
-      intensity_data.max = BrainBrowser.utils.max(data);
-    }
-  }
-  
+  worker.postMessage({ cmd: "parse", data: data });
 };

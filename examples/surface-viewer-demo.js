@@ -564,7 +564,7 @@ $(function() {
     $("#pick-value").change(function() {
       var index = parseInt($("#pick-index").html(), 10);
       var value = parseFloat(this.value);
-      var intensity_data = viewer.model_data.get().intensity_data[0];
+      var intensity_data = viewer.model_data.getDefaultIntensityData();
 
       if (BrainBrowser.utils.isNumeric(index) && BrainBrowser.utils.isNumeric(value)) {
         viewer.setIntensity(intensity_data, index, value);
@@ -573,8 +573,7 @@ $(function() {
 
     $("#paint-value").change(function() {
       var value = parseFloat(this.value);
-      var model_data = viewer.model_data.get();
-      var intensity_data = model_data.intensity_data[0];
+      var intensity_data = viewer.model_data.getDefaultIntensityData();
 
       if (BrainBrowser.utils.isNumeric(value)) {
         $("#paint-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {

@@ -103,7 +103,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   /** 
   * @doc function
   * @name viewer.color:setIntensity
-  * @param {object} intensity_data The data to update.
+  * @param {object} intensity\_data (Optional) The data to update.
   * @param {number} index Index at which to change the intensity value.
   * @param {number} value New intensity value.
   * @param {object} options Options for the range change, which include the following: 
@@ -114,11 +114,27 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   * ```js
   * viewer.setIntensity(intensity_data, 12124, 3.0);
   * ```
+  * Note that if this method is called without an explicit **intensity\_data**
+  * argument, it will update the first available intensity dataset.
+  * ```js
+  * viewer.setIntensity(12124, 3.0);
+  * ```
   */
-  viewer.setIntensity = function(intensity_data, index, value, options) {
-    options = options || {};
-    var model_data = intensity_data.model_data;
-    
+  viewer.setIntensity = function() {
+    var args = Array.prototype.slice.call(arguments);
+    var intensity_data, index, value, options, model_data;
+
+    if (!BrainBrowser.utils.isNumeric(args[0])) {
+      intensity_data = args.shift();
+    } else {
+      intensity_data = viewer.model_data.getDefaultIntensityData();
+    }
+    model_data = intensity_data.model_data;
+
+    index = args[0];
+    value = args[1];
+    options = args[2] || {};
+        
     if (intensity_data && index >= 0 && index < intensity_data.values.length) {
       intensity_data.values[index] = value;
 
@@ -144,10 +160,26 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   * ```js
   * viewer.setIntensityRange(intensity_data, 2.0, 3.0);
   * ```
+  * Note that if this method is called without an explicit **intensity\_data**
+  * argument, it will update the first available intensity dataset.
+  * ```js
+  * viewer.ssetIntensityRange(2.0, 3.0);
+  * ```
   */
-  viewer.setIntensityRange = function(intensity_data, min, max, options) {
-    options = options || {};
-    var model_data = intensity_data.model_data;
+  viewer.setIntensityRange = function() {
+    var args = Array.prototype.slice.call(arguments);
+    var intensity_data, min, max, options, model_data;
+
+    if (!BrainBrowser.utils.isNumeric(args[0])) {
+      intensity_data = args.shift();
+    } else {
+      intensity_data = viewer.model_data.getDefaultIntensityData();
+    }
+    model_data = intensity_data.model_data;
+
+    min = args[0];
+    max = args[1];
+    options = args[2] || {};
     
     intensity_data.range_min = min;
     intensity_data.range_max = max;

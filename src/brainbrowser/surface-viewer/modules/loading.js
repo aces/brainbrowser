@@ -32,7 +32,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   var THREE = SurfaceViewer.THREE;
   var loader = BrainBrowser.loader;
 
-  var model_data;
+  var model_data_store = {};
 
   ////////////////////////////////////
   // Interface
@@ -55,7 +55,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     * ```
     */
     add: function(name, data) {
-      model_data[name] = data;
+      model_data_store[name] = data;
       data.intensity_data = [];
     },
 
@@ -81,13 +81,61 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     * ```
     */
     get: function(name) {
-      name = name || Object.keys(model_data)[0];
+      name = name || Object.keys(model_data_store)[0];
 
-      return model_data[name] || null;
+      return model_data_store[name] || null;
     },
 
+    /**
+    * @doc function
+    * @name viewer.model\_data:getDefaultIntensityData
+    * @param {string} name (Optional) Identifier for the model description to
+    * retrieve.
+    *
+    * @description
+    * Return the first loaded intensity data for the named model. If 
+    * no model name is given, will return the first available intensity
+    * data set on any loaded model. 
+    *
+    * ```js
+    * viewer.model_data.getDefaultIntensityData(model_name);
+    * ```
+    */
+    getDefaultIntensityData: function(name) {
+      var model_data;
+      var intensity_data;
+      var i, count;
+
+      if (name) {
+        model_data = this.get(name);
+        intensity_data = model_data ? model_data.intensity_data[0] : null;
+      } else {
+        model_data = Object.keys(model_data_store).map(function(name) { return model_data_store[name]});
+        
+        for (i = 0, count = model_data.length; i < count; i++) {
+          intensity_data = model_data[i].intensity_data[0];
+          if (intensity_data) {
+            break;
+          }
+        }
+      }
+
+      return intensity_data || null;
+    },
+
+    /**
+    * @doc function
+    * @name viewer.model\_data:count
+    *
+    * @description
+    * Return the number of models loaded.
+    *
+    * ```js
+    * viewer.model_data.count();
+    * ```
+    */
     count: function() {
-      return Object.keys(model_data).length;
+      return Object.keys(model_data_store).length;
     },
 
     /**
@@ -102,7 +150,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     * ```
     */
     clear: function() {
-      model_data = {};
+      model_data_store = {};
     },
 
     /**
@@ -122,8 +170,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     * ```
     */
     forEach: function(callback) {
-      Object.keys(model_data).forEach(function(name) {
-        callback(model_data[name], name);
+      Object.keys(model_data_store).forEach(function(name) {
+        callback(model_data_store[name], name);
       });
     }
   };

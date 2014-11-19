@@ -321,8 +321,9 @@ $(function() {
 
     viewer.addEventListener("updateintensitydata", function(data) {
       var link = $("#intensity-data-export-link");
+      var values = Array.prototype.slice.call(data.values);
 
-      link.attr("href", BrainBrowser.utils.createDataURL(data.values.join("\n")));
+      link.attr("href", BrainBrowser.utils.createDataURL(values.join("\n")));
       $("#intensity-data-export-link").attr("download", "intensity-values.txt");
       $("#intensity-data-export").show();
     });
@@ -749,7 +750,25 @@ $(function() {
 
           viewer.model.applyMatrix(matrixRotY.multiply(matrixRotX));
         },
-        freesurfer: function() {
+        freesurferbin: function() {
+          viewer.annotations.setMarkerRadius(1);
+          viewer.loadModelFromURL("models/freesurfer-binary-surface", {
+            format: "freesurferbin",
+            complete: function() {
+              $("#vertex-data-wrapper").show();
+              $("#pick-value-wrapper").show();
+              viewer.loadIntensityDataFromURL("models/freesurfer-binary-thickness", {
+                  format: "freesurferbin",
+                  name: "Cortical Thickness",
+                  complete: hideLoading,
+                  cancel: defaultCancelOptions(current_request)
+                }
+              );
+            },
+            cancel: defaultCancelOptions(current_request)
+          });
+        },
+        freesurferasc: function() {
           viewer.annotations.setMarkerRadius(1);
           viewer.loadModelFromURL("models/freesurfer-surface.asc", {
             format: "freesurferasc",
@@ -852,18 +871,9 @@ $(function() {
       return false;
     });
 
-    $("#data1-submit").click(function() {
+    $("#data-submit").click(function() {
       var format = $(this).closest(".file-select").find("option:selected").val();
-      var file = document.getElementById("datafile1");
-      viewer.loadIntensityDataFromFile(file, {
-        format: format,
-        blend: true
-      });
-    });
-
-    $("#data2-submit").click(function() {
-      var format = $(this).closest(".file-select").find("option:selected").val();
-      var file = document.getElementById("datafile2");
+      var file = document.getElementById("datafile");
       viewer.loadIntensityDataFromFile(file, {
         format: format,
         blend: true

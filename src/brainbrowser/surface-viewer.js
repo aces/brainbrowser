@@ -554,6 +554,8 @@
   BrainBrowser.config.set("model_types.freesurferbin.binary", true);
   BrainBrowser.config.set("model_types.freesurferasc.worker", "freesurferasc.worker.js");
   BrainBrowser.config.set("intensity_data_types.mniobj.worker", "mniobj.intensity.worker.js");
+  BrainBrowser.config.set("intensity_data_types.freesurferbin.worker", "freesurferbin.intensity.worker.js");
+  BrainBrowser.config.set("intensity_data_types.freesurferbin.binary", true);
   BrainBrowser.config.set("intensity_data_types.freesurferasc.worker", "freesurferasc.intensity.worker.js");
 
   // Build worker URLs and attempt to inline 

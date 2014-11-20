@@ -116,13 +116,13 @@
 
         if (event_listeners[event_name]) {
           event_listeners[event_name].forEach(function(callback) {
-            callback.apply(trigger, args);
+            callHandler(event_name, callback, trigger, args);
           });
         }
 
         if (event_listeners["*"]) {
           event_listeners["*"].forEach(function(callback) {
-            callback.apply(trigger, full_args);
+            callHandler("*", callback, trigger, full_args);
           });
         }
 
@@ -299,4 +299,13 @@
   };
 
   BrainBrowser.events.addEventModel(BrainBrowser.events);
+
+  function callHandler(event_name, callback, trigger, args) {
+    try {
+      callback.apply(trigger, args);
+    } catch (exception) {
+      console.error("Error in event handler for: ", event_name);
+      console.error("Error: ", exception.message ? exception.message : exception);         
+    }
+  }
 })();

@@ -24,6 +24,29 @@
 * Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
 */
 
+function testException(assert, test, prevent_logging) {
+  var console_log, console_error;
+  
+  if (prevent_logging) {
+    console_log = console.log;
+    console_error = console.error;
+    console.log = function() {};
+    console.error = function() {};
+  }
+
+  try {
+    test();
+    assert.ok(true);
+  } catch (exception) {
+    assert.ok(false);
+  }
+
+  if (prevent_logging) {
+    console.log = console_log;
+    console.error = console_error;
+  }
+}
+
 QUnit.test("Listen for and trigger an event.", function(assert) {
   var o = {};
   var triggered = false;
@@ -62,6 +85,20 @@ QUnit.test("Set 'this' to triggering object", function(assert) {
   o.triggerEvent("event");
 });
 
+QUnit.test("Event handlers should not throw exceptions", function(assert) {
+  var o = {};
+
+  BrainBrowser.events.addEventModel(o);
+
+  o.addEventListener("event", function() { 
+    throw "Error";
+  });
+
+  testException(assert, function() {
+    o.triggerEvent("event");
+  }, true);
+});
+
 QUnit.test("Use '*' listen for any event", function(assert) {
   var o = {};
   var triggered = false;
@@ -98,6 +135,20 @@ QUnit.test("Set 'this' to triggering object when listening for '*'", function(as
   });
 
   o.triggerEvent("event");
+});
+
+QUnit.test("'*'' handlers should not throw exceptions", function(assert) {
+  var o = {};
+
+  BrainBrowser.events.addEventModel(o);
+
+  o.addEventListener("*", function() { 
+    throw "Error";
+  });
+
+  testException(assert, function() {
+    o.triggerEvent("event");
+  }, true);
 });
 
 QUnit.test("Propagate events", function(assert) {

@@ -48,7 +48,7 @@
 
     data = data.split("\n");
     result.shapes = [];
-    current_shape = {name: data.name | "undefined", faces: [], indices: [], texture_indices:[], normal_indices: []};
+    current_shape = {faces: [], indices: [], texture_indices:[], normal_indices: []};
     result.shapes.push(current_shape);
     for(i = 0, count = data.length; i < count; i++) {
       line = data[i].replace(/^\s+/, "").replace(/\s+$/, "").split(/\s+/);
@@ -117,7 +117,6 @@
     result.type = "polygon";
     result.vertices = vertices;
     result.normals = normals;
-    result.colors = [0.8, 0.8, 0.8, 1.0];
     result.texture_coords = texture_coords;
 
     return result;

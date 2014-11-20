@@ -55,7 +55,7 @@
         "Description must contain property pair 'header_url' and 'raw_data_url', or\n" +
         "'header_file' and 'raw_data_file'.";
 
-      BrainBrowser.events.triggerEvent("error", error_message);
+      BrainBrowser.events.triggerEvent("error", { message: error_message });
       throw new Error(error_message);
     }
     
@@ -71,7 +71,7 @@
       error_message = "server did not respond with valid JSON" + "\n" +
         "Response was: \n" + header_text;
 
-      BrainBrowser.events.triggerEvent("error", error_message);
+      BrainBrowser.events.triggerEvent("error", { message: error_message });
       throw new Error(error_message);
     }
 

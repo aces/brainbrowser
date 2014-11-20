@@ -70,10 +70,8 @@
     
     result.type = "polygon";
     result.vertices = vertices;
-    result.colors = [0.8, 0.8, 0.8, 1.0];
     result.shapes = [
       {
-        name: data.name | "undefined",
         indices: indices
       }
     ];

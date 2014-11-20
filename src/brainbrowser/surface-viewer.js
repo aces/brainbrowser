@@ -38,7 +38,7 @@
 *    BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
 *      
 *      //Add an event listener.
-*      viewer.addEventListener("displaymodel", function(model) {
+*      viewer.addEventListener("displaymodel", function() {
 *        console.log("We have a model!");
 *      });
 *
@@ -189,7 +189,7 @@
     *   BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
     *     
     *     //Add an event listener.
-    *     viewer.addEventListener("displaymodel", function(model) {
+    *     viewer.addEventListener("displaymodel", function() {
     *       console.log("We have a model!");
     *     });
     *
@@ -377,11 +377,15 @@
       * @name viewer.events:displaymodel
       *
       * @description
-      * Triggered when a model new model is displayed on the viewer. The displayed model, as a THREE.Object3D
-      * object, will be passed to the event handler:
+      * Triggered when a new model is displayed on the viewer. The following information 
+      * will be passed in the event object:
+      *
+      * * **event.model**: the visualized model as a THREE.Object3D object.
+      * * **event.model\_data**: the data that the model represents.
+      * * **event.new\_shapes**: an array of newly added shapes as THREE.Object3D objects.
       *
       * ```js
-      *    viewer.addEventListener("displaymodel", function(model) {
+      *    viewer.addEventListener("displaymodel", function(event) {
       *      //...
       *    });
       * ```
@@ -391,11 +395,14 @@
       * @name viewer.events:loadintensitydata
       *
       * @description
-      * Triggered when a new intensity is loaded. The new intensity data
-      * object will be passed to the event handler:
+      * Triggered when a new intensity is loaded. The following information 
+      * will be passed in the event object:
+      *
+      * * **event.model\_data**: the model data with which the intensity data is associated.
+      * * **event.intensity\_data**: the loaded intensity data.
       *
       * ```js
-      *    viewer.addEventListener("loadintensitydata", function(intensity_data) {
+      *    viewer.addEventListener("loadintensitydata", function(event) {
       *      //...
       *    });
       * ```
@@ -405,11 +412,13 @@
       * @name viewer.events:loadcolormap
       *
       * @description
-      * Triggered when a new color map has finished loading. The loaded color map
-      * object will be passed to the event handler:
+      * Triggered when a new color map has finished loading. The following information 
+      * will be passed in the event object:
+      *
+      * * **event.color\_map**: the loaded color map.
       *
       * ```js
-      *    viewer.addEventListener("loadcolormap", function(color_map) {
+      *    viewer.addEventListener("loadcolormap", function(event) {
       *      //...
       *    });
       * ```
@@ -419,11 +428,11 @@
       * @name viewer.events:clearscreen
       *
       * @description
-      * Triggered when the screen is cleared. The event handler receives
-      * no arguments.
+      * Triggered when the screen is cleared. No special information is
+      * passed in the event object.
       *
       * ```js
-      *    viewer.addEventListener("clearscreen", function() {
+      *    viewer.addEventListener("clearscreen", function(event) {
       *      //...
       *    });
       * ```
@@ -433,11 +442,16 @@
       * @name viewer.events:updateintensitydata
       *
       * @description
-      * Triggered when the intensity is updated. The modified intensity data
-      * object will be passed to the event handler:
+      * Triggered when the intensity is updated. The following information 
+      * will be passed in the event object:
+      *
+      * * **event.model\_data**: the model data on which the intensity data was updated.
+      * * **event.intensity\_data**: the intensity data that was updated.
+      * * **event.index**: the index at which the intensity value was updated.
+      * * **event.value**: the new intensity value.
       *
       * ```js
-      *    viewer.addEventListener("updateintensitydata", function(intensity_data) {
+      *    viewer.addEventListener("updateintensitydata", function(event) {
       *      //...
       *    });
       * ```
@@ -447,11 +461,16 @@
       * @name viewer.events:changeintensityrange
       *
       * @description
-      * Triggered when the intensity range changes. The modified intensity data
-      * object will be passed to the event handler:
+      * Triggered when the intensity range changes. The following information 
+      * will be passed in the event object:
+      *
+      * * **event.model\_data**: the model data on which the intensity data was updated.
+      * * **event.intensity\_data**: the intensity data that was updated.
+      * * **event.min**: the new minimum intensity value.
+      * * **event.max**: the new maximum intensity value.
       *
       * ```js
-      *    viewer.addEventListener("changeintensityrange", function(intensity_data) {
+      *    viewer.addEventListener("changeintensityrange", function(event) {
       *      //...
       *    });
       * ```
@@ -461,25 +480,34 @@
       * @name viewer.events:updatecolors
       *
       * @description
-      * Triggered when model's colors are udpated. The array of colors to be applied are
-      * are passed to the event handler:
+      * Triggered when model's colors are udpated. The following information 
+      * will be passed in the event object:
+      *
+      * * **event.model\_data**: the model data on representing the model that was updated.
+      * * **event.intensity\_data**: the intensity data used to update the colors.
+      * * **event.colors**: newly created array of colors.
+      * * **event.blend**: was the the color array created by blending multiple intensity sets?
       *
       * ```js
-      *    viewer.addEventListener("updatecolors", function(intensity_data) {
+      *    viewer.addEventListener("updatecolors", function(event) {
       *      //...
       *    });
       * ```
       */
       /**
       * @doc object
-      * @name viewer.events:blenddata
+      * @name viewer.events:blendcolors
       *
       * @description
-      * Triggered when two sets of intensity data have been loaded and blended. 
-      * The event handler receives no arguments.
+      * Triggered when multiple sets of intensity data have been loaded and blended. 
+      * The following information will be passed in the event object:
+      *
+      * * **event.model\_data**: the model data on representing the model that was updated.
+      * * **event.intensity\_data**: the intensity data used to update the colors.
+      * * **event.colors**: newly created array of colors.
       *
       * ```js
-      *    viewer.addEventListener("blenddata", function() {
+      *    viewer.addEventListener("blendcolors", function(event) {
       *      //...
       *    });
       * ```
@@ -490,11 +518,15 @@
       * @name viewer.events:draw
       *
       * @description
-      * Triggered when the scene is redrawn. The event handler receives the three.js
-      * **renderer**, **scene** and **camera** as arguments.
+      * Triggered when the scene is redrawn. The following information 
+      * will be passed in the event object:
+      *
+      * * **event.renderer**: the three.js renderer being used to draw the scene.
+      * * **event.scene**: the THREE.Scene object representing the scene.
+      * * **event.camera**: the THREE.PerspectiveCamera object being used to draw the scene.
       *
       * ```js
-      *    viewer.addEventListener("draw", function(renderer, scene, camera) {
+      *    viewer.addEventListener("draw", function(event) {
       *      //...
       *    });
       * ```
@@ -504,10 +536,12 @@
       *
       * @description
       * Triggered when the user changes the zoom level of the viewer (scroll or touch events).
-      * The event handler receives one argument: the new zoom level.
+      * The following information will be passed in the event object:
+      *
+      * * **event.zoom**: the new zoom level.
       *
       * ```js
-      *    viewer.addEventListener("zoom", function(zoom) {
+      *    viewer.addEventListener("zoom", function(event) {
       *      //...
       *    });
       * ```
@@ -570,7 +604,7 @@
         "BrainBrowser configuration parameter 'worker_dir' not defined.\n" +
         "Use 'BrainBrowser.config.set(\"worker_dir\", ...)' to set it.";
       
-      BrainBrowser.events.triggerEvent("error", error_message);
+      BrainBrowser.events.triggerEvent("error", { message: error_message });
       throw new Error(error_message);
     }
 

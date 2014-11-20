@@ -76,7 +76,7 @@
               "]' has already been set to a non-object value.\n" +
               "Cannot set '[" + keys.join("][") + "]'";
 
-            BrainBrowser.events.triggerEvent("error", error_message);
+            BrainBrowser.events.triggerEvent("error", { message: error_message });
             throw new Error(error_message);
           }
           if (!subtree[current_key]) {

@@ -194,7 +194,11 @@ $(function() {
     //////////////////////////////////
     // Per volume UI hooks go in here.
     //////////////////////////////////
-    viewer.addEventListener("volumeuiloaded", function(container, volume, vol_id) {
+    viewer.addEventListener("volumeuiloaded", function(event) {
+      var container = event.container;
+      var volume = event.volume;
+      var vol_id = event.volume_id;
+
       container = $(container);
 
       container.find(".button").button();
@@ -607,11 +611,9 @@ $(function() {
     /////////////////////////////////////////////////////
     // UI updates to be performed after each slice update.
     //////////////////////////////////////////////////////
-    viewer.addEventListener("sliceupdate", function() {
-      // 'this' gets bound to the panel that triggered the
-      // sliceupdate event
-      var panel = this;
-      var volume = panel.volume;
+    viewer.addEventListener("sliceupdate", function(event) {
+      var panel = event.target;
+      var volume = event.volume;
       var vol_id = panel.volume_id;
       var world_coords, voxel_coords;
       var value;

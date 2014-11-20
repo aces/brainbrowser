@@ -53,7 +53,7 @@ BrainBrowser.SurfaceViewer.parseIntensityData = function(data, type, callback) {
       "Intensity data worker URL for " + type + " not defined.\n" +
       "Use 'BrainBrowser.config.set(\"intensity_data_types." + type + ".worker\", ...)' to set it.";
     
-    BrainBrowser.events.triggerEvent("error", error_message);
+    BrainBrowser.events.triggerEvent("error", { message: error_message });
     throw new Error(error_message);
   }
 

@@ -27,7 +27,7 @@
 
 BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   "use strict";
-  
+
   var SurfaceViewer = BrainBrowser.SurfaceViewer;
   var THREE = SurfaceViewer.THREE;
   var loader = BrainBrowser.loader;
@@ -37,14 +37,14 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   ////////////////////////////////////
   // Interface
   ////////////////////////////////////
-  
+
   viewer.model_data = {
     /**
     * @doc function
     * @name viewer.model\_data:add
     * @param {string} name Identifier for the model description to
     * retrieve.
-    * 
+    *
     * @param {object} data The model data.
     *
     * @description
@@ -93,9 +93,9 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     * retrieve.
     *
     * @description
-    * Return the first loaded intensity data for the named model. If 
+    * Return the first loaded intensity data for the named model. If
     * no model name is given, will return the first available intensity
-    * data set on any loaded model. 
+    * data set on any loaded model.
     *
     * ```js
     * viewer.model_data.getDefaultIntensityData(model_name);
@@ -111,7 +111,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         intensity_data = model_data ? model_data.intensity_data[0] : null;
       } else {
         model_data = Object.keys(model_data_store).map(function(name) { return model_data_store[name]; });
-        
+
         for (i = 0, count = model_data.length; i < count; i++) {
           intensity_data = model_data[i].intensity_data[0];
           if (intensity_data) {
@@ -229,7 +229,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
     loader.loadFromFile(file_input, loadModel, options);
   };
-  
+
   /**
   * @doc function
   * @name viewer.loading:loadIntensityDataFromURL
@@ -260,8 +260,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
     loader.loadFromURL(url, loadIntensityData, options);
   };
-  
-  
+
+
   /**
   * @doc function
   * @name viewer.loading:loadIntensityDataFromFile
@@ -297,7 +297,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * @doc function
   * @name viewer.loading:loadColorMapFromURL
   * @param {string} url URL of the color map file to load.
-  * @param {object} options Options are passed on to 
+  * @param {object} options Options are passed on to
   * **BrainBrowser.loader.loadColorMapFromURL()**
   *
   * @description
@@ -310,13 +310,13 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     loader.loadColorMapFromURL(url, loadColorMap, options);
   };
 
-  
+
 
   /**
   * @doc function
   * @name viewer.loading:loadColorMapFromFile
   * @param {DOMElement} file_input File input element representing the local file to load.
-  * @param {object} options Options are passed on to 
+  * @param {object} options Options are passed on to
   * **BrainBrowser.loader.loadColorMapFromFile()**
   *
   * @description
@@ -340,18 +340,18 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   */
   viewer.clearScreen = function() {
     var children = viewer.model.children;
-    
+
     while (children.length > 0) {
       viewer.model.remove(children[0]);
     }
 
     viewer.model_data.clear();
-        
+
     viewer.resetView();
     viewer.triggerEvent("clearscreen");
   };
-  
-  
+
+
   ////////////////////////////////////
   // PRIVATE FUNCTIONS
   ////////////////////////////////////
@@ -360,7 +360,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     options = options || {};
     var type = options.format || "mniobj";
     var parse_options = options.parse || {};
-    
+
     // Parse model info based on the given file type.
     parseModel(data, type, parse_options, function(obj) {
       if (!BrainBrowser.loader.checkCancel(options.cancel)) {
@@ -389,7 +389,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       };
     }
 
-    SurfaceViewer.parseIntensityData(text, type, function(data) {
+    SurfaceViewer.parseIntensityData(text, type, function(intensity_data) {
       var min;
       var max;
 
@@ -398,22 +398,22 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         min = old_range.min;
         max = old_range.max;
       } else {
-        min = options.min === undefined ? data.min : options.min;
-        max = options.max === undefined ? data.max : options.max;
+        min = options.min === undefined ? intensity_data.min : options.min;
+        max = options.max === undefined ? intensity_data.max : options.max;
       }
-    
-      data.name = name;
+
+      intensity_data.name = name;
 
       if (!blend) {
         model_data.intensity_data.length = 0;
       }
 
-      model_data.intensity_data.push(data);
-      data.model_data = model_data;
+      model_data.intensity_data.push(intensity_data);
+      intensity_data.model_data = model_data;
 
-      data.range_min = min;
-      data.range_max = max;
-      
+      intensity_data.range_min = min;
+      intensity_data.range_max = max;
+
       if (model_data.intensity_data.length > 1) {
         viewer.blend(options.complete);
       } else {
@@ -423,14 +423,19 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         });
       }
 
-      viewer.triggerEvent("loadintensitydata", data, model_data);
+      viewer.triggerEvent("loadintensitydata", {
+        model_data: model_data,
+        intensity_data: intensity_data
+      });
     });
   }
-  
+
   function loadColorMap(color_map) {
     viewer.color_map = color_map;
-    
-    viewer.triggerEvent("loadcolormap", color_map);
+
+    viewer.triggerEvent("loadcolormap", {
+      color_map: color_map
+    });
 
     viewer.model_data.forEach(function(model_data) {
       if (model_data.intensity_data[0]) {
@@ -455,42 +460,44 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         "Model worker URL for " + type + " not defined.\n" +
         "Use 'BrainBrowser.config.set(\"model_types." + type + ".worker\", ...)' to set it.";
 
-      BrainBrowser.events.triggerEvent("error", error_message);
+      BrainBrowser.events.triggerEvent("error", { message: error_message });
       throw new Error(error_message);
     }
-    
+
     var parse_worker = new Worker(SurfaceViewer.worker_urls[worker_url_type]);
     var deindex_worker;
-    
-    parse_worker.addEventListener("message", function(event) {
-      var result = event.data;
 
-      if (result.error){
+    parse_worker.addEventListener("message", function(event) {
+      var model_data = event.data;
+
+      if (model_data.error){
         error_message = "error parsing model.\n" +
-          result.error_message + "\n" +
+          model_data.error_message + "\n" +
           "File type: " + type + "\n" +
           "Options: " + JSON.stringify(options);
 
-        BrainBrowser.events.triggerEvent("error", error_message);
+        BrainBrowser.events.triggerEvent("error", { message: error_message });
         throw new Error(error_message);
-      } else if (callback) {
-        deindex_worker = new Worker(SurfaceViewer.worker_urls.deindex);
-
-        deindex_worker.addEventListener("message", function(event) {
-          callback(event.data);
-        });
-
-        deindex_worker.postMessage(result);
       }
-      
+
+      model_data.colors = model_data.colors || [0.7, 0.7, 0.7, 1.0];
+
+      deindex_worker = new Worker(SurfaceViewer.worker_urls.deindex);
+
+      deindex_worker.addEventListener("message", function(event) {
+        callback(event.data);
+      });
+
+      deindex_worker.postMessage(model_data);
+
       parse_worker.terminate();
     });
-    
+
     parse_worker.postMessage({
       data: data,
       options: options
     });
-        
+
   }
 
   ///////////////////////////////////////////
@@ -503,9 +510,13 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     options = options || {};
     var complete = options.complete;
 
-    addObject(model_data, filename, options);
+    var new_shapes = addObject(model_data, filename, options);
 
-    viewer.triggerEvent("displaymodel", viewer.model);
+    viewer.triggerEvent("displaymodel", {
+      model: viewer.model,
+      model_data: model_data,
+      new_shapes: new_shapes
+    });
 
     if (complete) complete();
   }
@@ -517,6 +528,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var is_line = model_data.type === "line";
     var render_depth = options.render_depth;
     var pick_ignore = options.pick_ignore;
+    var new_shapes = [];
     var shape, shape_data;
     var i, count;
 
@@ -530,7 +542,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         shape = createObject(shape_data, is_line);
         shape.model_name = model_data.name;
         shape.name = shape_data.name || filename + "_" + (i + 1);
-        
+
         shape.userData.original_data = {
           vertices: model_data.vertices,
           indices: shape_data.indices,
@@ -543,7 +555,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         if (render_depth) {
           shape.renderDepth = render_depth;
         }
-        
+
+        new_shapes.push(shape);
         model.add(shape);
       }
 
@@ -552,6 +565,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         model.children[1].name = "right";
       }
     }
+
+    return new_shapes;
   }
 
   function createObject(shape_data, is_line) {
@@ -602,7 +617,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
     shape.centroid = centroid;
     shape.position.set(centroid.x, centroid.y, centroid.z);
-  
+
     return shape;
   }
 
@@ -614,6 +629,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       options.result_type = options.result_type || "arraybuffer";
     }
   }
-  
+
 };
-  
+

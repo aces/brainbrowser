@@ -28,19 +28,19 @@
 // Module for updating colours on models currently being displayed.
 BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   "use strict";
-  
+
   ///////////////////////////
   // INTERFACE
   ///////////////////////////
   /**
   * @doc function
   * @name viewer.color:updateColors
-  * @param {object} options Options for the color update, which include the following: 
-  * 
+  * @param {object} options Options for the color update, which include the following:
+  *
   * * **model\_name** Model that will be updated.
   * * **shape\_name** Specific shape that will be updated.
   * * **complete** Callback function to call when the color update is done.
-  * 
+  *
   * @description
   * Update the vertex colors of the model based on currently loaded intensity data.
   * ```js
@@ -50,15 +50,22 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   * ```
   */
   var timeout = null;
-  
+
   viewer.updateColors = function(options) {
     options = options || {};
     var complete = options.complete;
     var model_name = options.model_name;
     var shape_name = options.shape_name || model_name + "_1";
     var model_data = viewer.model_data.get(model_name);
-    var intensity_data = model_data.intensity_data;
-    var blend = intensity_data.length > 1;
+    var intensity_data, blend;
+
+    if (model_data.intensity_data.length > 1) {
+      intensity_data = model_data.intensity_data;
+      blend = true;
+    } else {
+      intensity_data = model_data.intensity_data[0];
+      blend = false;
+    }
 
     function applyColorArray(color_array) {
       var shapes;
@@ -77,9 +84,18 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
         complete();
       }
 
-      viewer.triggerEvent("updatecolors", color_array, model_data);
+      viewer.triggerEvent("updatecolors", {
+        model_data: model_data,
+        intensity_data: intensity_data,
+        colors: color_array,
+        blend: blend
+      });
       if (blend) {
-        viewer.triggerEvent("blendcolormaps", color_array, model_data);
+        viewer.triggerEvent("blendcolors", {
+          model_data: model_data,
+          intensity_data: intensity_data,
+          colors: color_array
+        });
       }
     }
 
@@ -91,7 +107,6 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
       if (blend) {
         applyColorArray(blendColors(intensity_data, options.model_name));
       } else {
-        intensity_data = intensity_data[0];
         applyColorArray(viewer.color_map.mapColors(intensity_data.values, {
           min: intensity_data.range_min,
           max: intensity_data.range_max,
@@ -103,14 +118,14 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     }, 0);
   };
 
-  /** 
+  /**
   * @doc function
   * @name viewer.color:setIntensity
   * @param {object} intensity\_data (Optional) The data to update.
   * @param {number} index Index at which to change the intensity value.
   * @param {number} value New intensity value.
-  * @param {object} options Options for the range change, which include the following: 
-  * 
+  * @param {object} options Options for the range change, which include the following:
+  *
   * * **complete** Callback function to call when the color update is done.
   * @description
   * Update the intensity value at the given index..
@@ -137,7 +152,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     index = args[0];
     value = args[1];
     options = args[2] || {};
-        
+
     if (intensity_data && index >= 0 && index < intensity_data.values.length) {
       intensity_data.values[index] = value;
 
@@ -145,18 +160,23 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
         model_name: model_data.name,
         complete: options.complete
       });
-      viewer.triggerEvent("updateintensitydata", intensity_data, model_data);
+      viewer.triggerEvent("updateintensitydata", {
+        model_data: model_data,
+        intensity_data: intensity_data,
+        index: index,
+        value: value
+      });
     }
   };
 
-  /** 
+  /**
   * @doc function
   * @name viewer.color:setIntensityRange
   * @param {object} intensity_data The data to update.
   * @param {number} min Minimum value of the range.
   * @param {number} max Maximum value of the range.
-  * @param {object} options Options for the range change, which include the following: 
-  * 
+  * @param {object} options Options for the range change, which include the following:
+  *
   * * **complete** Callback function to call when the color update is done.
   * @description
   * Update the range of colors being applied to the current model.
@@ -183,7 +203,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     min = args[0];
     max = args[1];
     options = args[2] || {};
-    
+
     intensity_data.range_min = min;
     intensity_data.range_max = max;
 
@@ -192,7 +212,12 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
       complete: options.complete
     });
 
-    viewer.triggerEvent("changeintensityrange", intensity_data, model_data);
+    viewer.triggerEvent("changeintensityrange", {
+      model_data: model_data,
+      intensity_data: intensity_data,
+      min: min,
+      max: max
+    });
   };
 
   /**
@@ -200,29 +225,29 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   * @name viewer.color:blend
   * @param {multiple} parameters Blend alpha values, model name and/or callback.
   *
-  * @description 
+  * @description
   * Blend loaded color maps using the supplied alphas.
   * ```js
   * viewer.blend(0.3);
   * ```
-  * 
-  * If several data sets are loaded, this method can take multiple values to 
+  *
+  * If several data sets are loaded, this method can take multiple values to
   * applied in order to loaded data. Generally, it's best to leave at least
   * one data set's alpha unset. Any unset values will be set so that
   * the alphas all add up to 1. The following, for example, will set
   * the first data sets alpha to 0.3, the second's to 0.2, and the remaining
   * 0.5 will be split evenly among remaining data sets.
   * ```js
-  * viewer.blend(0.3, 0.2);  
+  * viewer.blend(0.3, 0.2);
   * ```
   *
-  * Optionally, this method can take as first argument the **model\_name** 
+  * Optionally, this method can take as first argument the **model\_name**
   * of the model on which the blending should be performed, and as final argument,
   * a callback function.
   * ```js
-  * viewer.blend("brain.obj", 0.3, 0.2, function() { 
+  * viewer.blend("brain.obj", 0.3, 0.2, function() {
   *   console.log("Blended!");
-  * });  
+  * });
   * ```
   */
   viewer.blend = function() {
@@ -240,7 +265,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     var intensity_data = viewer.model_data.get(model_name).intensity_data;
     var remainder = (1 - alphas.reduce(function(total, n) { return total + n; }, 0)) /
                     (intensity_data.length - alphas.length);
-    
+
     intensity_data.forEach(function(intensity_data, i) {
       if (i < alphas.length) {
         intensity_data.alpha = alphas[i];
@@ -284,7 +309,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
       indices = shape.userData.original_data.indices;
       color_attribute = geometry.attributes.color;
       colors = color_attribute.array;
-      
+
       // This looks a little messy but it's just going from an indexed color map
       // to an unindexed geometry.
       // And it's skipping the alphas (every 4th element).
@@ -325,7 +350,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
           wireframe_color[iwc + 13] = colors[ic + 9];
           wireframe_color[iwc + 14] = colors[ic + 10];
           wireframe_color[iwc + 15] = colors[ic + 11];
-          
+
           // v3 - v1
           wireframe_color[iwc + 16] = colors[ic + 8];
           wireframe_color[iwc + 17] = colors[ic + 9];
@@ -355,7 +380,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     var blended_color;
     var i, j, ci, num_arrays, num_colors;
     var alpha;
-    
+
     intensity_data.forEach(function(intensity_data) {
       color_arrays.push(viewer.color_map.mapColors(intensity_data.values, {
         min: intensity_data.range_min,
@@ -369,7 +394,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     });
 
     blended_color = new Float32Array(color_arrays[0].length);
-    
+
     for (i = 0, num_colors = color_arrays[0].length / 4; i < num_colors; i++){
       for (j = 0, num_arrays = color_arrays.length; j < num_arrays; j++) {
         ci = i * 4;

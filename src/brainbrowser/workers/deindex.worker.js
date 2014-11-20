@@ -32,7 +32,7 @@
     var shapes = data.shapes;
     var verts = data.vertices;
     var norms = data.normals;
-    var colors = data.colors || [0.7, 0.7, 0.7, 1.0];
+    var colors = data.colors;
     var i, count;
     var shape, unindexed;
 
@@ -50,7 +50,7 @@
     indices = indices || [];
     verts = verts || [];
     norms = norms || [];
-    colors = colors || [0.7, 0.7, 0.7, 1.0];
+    colors = colors;
 
     var num_vertices = indices.length; // number of unindexed vertices.
     var num_coords = num_vertices * 3;

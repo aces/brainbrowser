@@ -292,7 +292,6 @@
     * * **volumesloaded** Volumes loaded by **viewer.loadVolumes()** have finished loading.
     * * **rendering** Viewer has started rendering.
     * * **volumeuiloaded** A new volume UI has been created by the viewer.
-    * * **sliceupdate** A new slice has been rendered to the viewer.
     *
     * To listen for an event, simply use the viewer's **addEventListener()** method with
     * with the event name and a callback funtion:
@@ -327,10 +326,12 @@
     * @description
     * Triggered when a volume loaded through **viewer.loadVolume()** or one of the
     * volumes loaded from **viewer.loadVolume()** has completely finished loading.
-    * The event handler receives the volume as sole argument.
+    * The following information will be passed in the event object:
+    *
+    * * **event.volume**: the loaded volume.
     *
     * ```js
-    *    viewer.addEventListener("volumeloaded", function(volume) {
+    *    viewer.addEventListener("volumeloaded", function(event) {
     *      //...
     *    });
     * ```
@@ -341,10 +342,10 @@
     *
     * @description
     * Triggered when volumes loaded through **viewer.loadVolumes()** have completely
-    * finished loading. The event handler receives no arguments.
+    * finished loading. No special information is passed in the event object.
     *
     * ```js
-    *    viewer.addEventListener("volumesloaded", function() {
+    *    viewer.addEventListener("volumesloaded", function(event) {
     *      //...
     *    });
     * ```
@@ -355,10 +356,10 @@
     *
     * @description
     * Triggered when the viewer begins rendering after a call to **viewer.render()**.
-    * The event handler receives no arguments.
+    * No special information is passed in the event object.
     *
     * ```js
-    *    viewer.addEventListener("rendering", function() {
+    *    viewer.addEventListener("rendering", function(event) {
     *      //...
     *    });
     * ```
@@ -368,39 +369,15 @@
     * @name viewer.events:volumeuiloaded
     *
     * @description
-    * Triggered after a UI is created for a newly loaded volume. The DOM element
-    * created and the volume ID are passed as arguments.
+    * Triggered after a UI is created for a newly loaded volume. The following information 
+    * will be passed in the event object:
+    *
+    * * **event.container**: the DOM element containing the UI.
+    * * **event.volume**: the volume associated with the UI.
+    * * **event.volume_id**: the ID of the loaded volume.
     *
     * ```js
-    *    viewer.addEventListener("volumeuiloaded", function(container, vol_id) {
-    *      //...
-    *    });
-    * ```
-    */
-    /**
-    * @doc object
-    * @name viewer.events:sliceupdate
-    *
-    * @description
-    * Triggered when the slice currently being displayed is updated.
-    * The event handler receives no arguments.
-    *
-    * ```js
-    *    viewer.addEventListener("sliceupdate", function() {
-    *      //...
-    *    });
-    * ```
-    */
-    /**
-    * @doc object
-    * @name viewer.events:draw
-    *
-    * @description
-    * Triggered when a panel currently being displayed is re-drawn.
-    * The event handler receives two arguments: the volume and the panel.
-    *
-    * ```js
-    *    viewer.addEventListener("draw", function(volume, panel) {
+    *    viewer.addEventListener("volumeuiloaded", function(event) {
     *      //...
     *    });
     * ```

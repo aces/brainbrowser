@@ -83,9 +83,9 @@ $(function() {
 
     // When a new model is added to the viewer, create a transparancy slider
     // for each shape that makes up the model.
-    viewer.addEventListener("displaymodel", function(object) {
+    viewer.addEventListener("displaymodel", function(event) {
       var slider, slider_div;
-      var children = object.children;
+      var children = event.model.children;
       var current_count = $("#shapes").children().length;
 
       if(children.length - current_count > 0 ) {
@@ -142,7 +142,8 @@ $(function() {
     });
 
     // When the intensity range changes, adjust the displayed spectrum.
-    viewer.addEventListener("changeintensityrange", function(intensity_data) {
+    viewer.addEventListener("changeintensityrange", function(event) {
+      var intensity_data = event.intensity_data;
       var canvas = viewer.color_map.createElement(intensity_data.range_min, intensity_data.range_max);
       canvas.id = "spectrum-canvas";
       $("#color-bar").html(canvas);
@@ -151,7 +152,9 @@ $(function() {
     // When new intensity data is loaded, create all UI related to
     // controlling the relationship between the instensity data and
     // the color mapping (range, flip colors, clamp colors, fix range).
-    viewer.addEventListener("loadintensitydata", function(intensity_data, model_data) {
+    viewer.addEventListener("loadintensitydata", function(event) {
+      var model_data = event.model_data;
+      var intensity_data = event.intensity_data;
       var container = $("#data-range");
       var headers = '<div id="data-range-multiple"><ul>';
       var controls = "";
@@ -272,9 +275,10 @@ $(function() {
 
     }); // end loadintensitydata listener
 
-    viewer.addEventListener("updatecolors", function(colors, model_data) {
-      var value = parseFloat($("#pick-value").val());
+    viewer.addEventListener("updatecolors", function(event) {
+      var model_data = event.model_data;
       var intensity_data = model_data.intensity_data[0];
+      var value = parseFloat($("#pick-value").val());
       var spectrum_div = document.getElementById("color-bar");
       var min, max;
       var canvas;
@@ -319,9 +323,10 @@ $(function() {
 
     });
 
-    viewer.addEventListener("updateintensitydata", function(data) {
+    viewer.addEventListener("updateintensitydata", function(event) {
+      var intensity_data = event.intensity_data;
       var link = $("#intensity-data-export-link");
-      var values = Array.prototype.slice.call(data.values);
+      var values = Array.prototype.slice.call(intensity_data.values);
 
       link.attr("href", BrainBrowser.utils.createDataURL(values.join("\n")));
       $("#intensity-data-export-link").attr("download", "intensity-values.txt");

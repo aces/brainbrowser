@@ -52,11 +52,11 @@
     *
     * @description
     * Triggered when an error of some sort has occured. The error message, if any,
-    * is passed as the callbacks sole argument.
+    * is passed in **event.message**.
     *
     * ```js
-    *    BrainBrowser.events.addEventListener("error", function(error_message) {
-    *      //...
+    *    BrainBrowser.events.addEventListener("error", function(event) {
+    *      console.log(event.message);
     *    });
     * ```
     *
@@ -74,18 +74,20 @@
       * @description
       * Add an event handler to handle event **event\_name**.
       * ```js
-      * listening_object.addEventListener("my-event", function(message) {
+      * listening_object.addEventListener("my-event", function(event) {
       *   // Handle event.
       * });
       * ```
       *
-      * The arguments passed to the handler are those passed to **triggerEvent()**. 
-      * Consult documentation for the **Surface Viewer** or **Volume Viewer** for 
-      * details about normal lifecycle events for each app.
+      * The event object passed to the hanlder is the object passed to **triggerEvent()**,
+      * with two default properties that will always be set by the system:
+      * * **event.name**: the type of event that was triggered.
+      * * **event.target**: the object that triggered the event.
+      * 
       *
       * Note that "*" can be given as the **event\_name** to add a handler to any
       * event that is trigger on the object. The actual name of the triggered event
-      * will be passed as first argument to these types of handlers.
+      * will be passed in **event.name**.
       */
       object.addEventListener = function(event_name, callback) {
         if (!event_listeners[event_name]) {
@@ -102,37 +104,40 @@
       *
       * @description
       * Trigger all handlers associated with event **event\_name**.
-      * Any arguments after the first will be passed to the 
-      * event handler.
+      * Any properties on the object passed as second argument will be added
+      * to the event object passed to the event handler.
       * ```js
-      * trigger_object.triggerEvent("my-event", "Some info");
+      * trigger_object.triggerEvent("my-event", { event_property: "Some info."});
       * ```
       */
-      object.triggerEvent = function(event_name) {
-        var trigger = this;
-        var full_args = Array.prototype.slice.call(arguments);
-        var args = full_args.slice(1);
+      object.triggerEvent = function(event_name, event) {
+        var target = this;
         var propagate_to = object.directPropagationTargets(event_name);
+
+        event = event || {};
+        event.name = event_name;
+        event.target = target;
 
         if (event_listeners[event_name]) {
           event_listeners[event_name].forEach(function(callback) {
-            callback.apply(trigger, args);
+            callHandler(callback, event);
           });
         }
 
         if (event_listeners["*"]) {
           event_listeners["*"].forEach(function(callback) {
-            callback.apply(trigger, full_args);
+            callHandler(callback, event);
           });
         }
 
         if (unpropagated_events.indexOf(event_name) === -1) {
+
           propagate_to.forEach(function(other) {
-            other.triggerEvent.apply(trigger, full_args);
+            other.triggerEvent.call(target, event_name, event);
           });
 
           if (propagate_to.length === 0 && object !== BrainBrowser.events) {
-            BrainBrowser.events.triggerEvent.apply(trigger, full_args);
+            BrainBrowser.events.triggerEvent.call(target, event_name, event);
           }
         }
       };
@@ -274,7 +279,7 @@
       *
       * @description
       * Return an array of all objects this object propagates **event\_name**
-      * to including those triggered recrusively.
+      * to including those triggered recursively.
       *
       * ```js
       * object.allPropagationTargets("my-event");
@@ -299,4 +304,14 @@
   };
 
   BrainBrowser.events.addEventModel(BrainBrowser.events);
+
+  // Call an event handler with protections against exceptions.
+  function callHandler(callback, event) {
+    try {
+      callback.call(event.target, event);
+    } catch (exception) {
+      console.error("Error in event handler for: ", event.name);
+      console.error("Error: ", exception.message ? exception.message : exception);
+    }
+  }
 })();

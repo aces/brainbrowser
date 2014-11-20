@@ -24,6 +24,29 @@
 * Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
 */
 
+function testException(assert, test, prevent_logging) {
+  var console_log, console_error;
+  
+  if (prevent_logging) {
+    console_log = console.log;
+    console_error = console.error;
+    console.log = function() {};
+    console.error = function() {};
+  }
+
+  try {
+    test();
+    assert.ok(true);
+  } catch (exception) {
+    assert.ok(false);
+  }
+
+  if (prevent_logging) {
+    console.log = console_log;
+    console.error = console_error;
+  }
+}
+
 QUnit.test("Listen for and trigger an event.", function(assert) {
   var o = {};
   var triggered = false;
@@ -37,19 +60,6 @@ QUnit.test("Listen for and trigger an event.", function(assert) {
   assert.ok(triggered);
 });
 
-QUnit.test("Pass arguments to an event", function(assert) {
-  var o = {};
-  var args = ["arg1", "arg2"];
-
-  BrainBrowser.events.addEventModel(o);
-
-  o.addEventListener("event", function(arg1, arg2) { 
-    assert.deepEqual(args, [arg1, arg2]);
-  });
-
-  o.triggerEvent("event", args[0], args[1]);
-});
-
 QUnit.test("Set 'this' to triggering object", function(assert) {
   var o = {};
 
@@ -60,6 +70,84 @@ QUnit.test("Set 'this' to triggering object", function(assert) {
   });
 
   o.triggerEvent("event");
+});
+
+QUnit.test("Pass event object to an handler", function(assert) {
+  var o = {};
+
+  BrainBrowser.events.addEventModel(o);
+
+  o.addEventListener("event", function(event) { 
+    assert.notStrictEqual(event, undefined);
+  });
+
+  o.triggerEvent("event");
+});
+
+QUnit.test("Default event object should have 'target' and 'name' set", function(assert) {
+  var o = {};
+
+  BrainBrowser.events.addEventModel(o);
+
+  o.addEventListener("event", function(event) { 
+    assert.strictEqual(event.name, "event");
+    assert.strictEqual(event.target, o);
+  });
+
+  o.triggerEvent("event");
+});
+
+QUnit.test("Pass event object", function(assert) {
+  var o = {};
+
+  BrainBrowser.events.addEventModel(o);
+
+  o.addEventListener("event", function(event) { 
+    assert.strictEqual(event.test, "test");
+  });
+
+  o.triggerEvent("event", {test: "test"});
+});
+
+QUnit.test("Passed event object should have 'target' and 'name' set", function(assert) {
+  var o = {};
+
+  BrainBrowser.events.addEventModel(o);
+
+  o.addEventListener("event", function(event) { 
+    assert.strictEqual(event.name, "event");
+    assert.strictEqual(event.target, o);
+    assert.strictEqual(event.test, "test");
+  });
+
+  o.triggerEvent("event", {test: "test"});
+});
+
+QUnit.test("Don't allow override of event object 'target' and 'name'", function(assert) {
+  var o = {};
+
+  BrainBrowser.events.addEventModel(o);
+
+  o.addEventListener("event", function(event) { 
+    assert.strictEqual(event.name, "event");
+    assert.strictEqual(event.target, o);
+  });
+
+  o.triggerEvent("event", {name: "wrong", target: "wrong"});
+});
+
+QUnit.test("Event handlers should not throw exceptions", function(assert) {
+  var o = {};
+
+  BrainBrowser.events.addEventModel(o);
+
+  o.addEventListener("event", function() { 
+    throw "Error";
+  });
+
+  testException(assert, function() {
+    o.triggerEvent("event");
+  }, true);
 });
 
 QUnit.test("Use '*' listen for any event", function(assert) {
@@ -75,17 +163,56 @@ QUnit.test("Use '*' listen for any event", function(assert) {
   assert.ok(triggered);
 });
 
-QUnit.test("Pass event name to '*' listener", function(assert) {
+QUnit.test("Pass default event object to '*' listener", function(assert) {
   var o = {};
-  var event_name = "event";
 
   BrainBrowser.events.addEventModel(o);
 
-  o.addEventListener("*", function(arg1) { 
-    assert.strictEqual(arg1, event_name); 
+  o.addEventListener("*", function(event) { 
+    assert.strictEqual(event.name, "event");
+    assert.strictEqual(event.target, o);
   });
 
-  o.triggerEvent(event_name);
+  o.triggerEvent("event");
+});
+
+QUnit.test("Pass event object to '*' listener", function(assert) {
+  var o = {};
+
+  BrainBrowser.events.addEventModel(o);
+
+  o.addEventListener("*", function(event) { 
+    assert.strictEqual(event.test, "test");
+  });
+
+  o.triggerEvent("event", {test: "test"});
+});
+
+QUnit.test("Passed event object should have 'target' and 'name' set in '*' listener", function(assert) {
+  var o = {};
+
+  BrainBrowser.events.addEventModel(o);
+
+  o.addEventListener("*", function(event) { 
+    assert.strictEqual(event.name, "event");
+    assert.strictEqual(event.target, o);
+    assert.strictEqual(event.test, "test");
+  });
+
+  o.triggerEvent("event", {test: "test"});
+});
+
+QUnit.test("Don't allow override of event object 'target' and 'name' in '*' listener", function(assert) {
+  var o = {};
+
+  BrainBrowser.events.addEventModel(o);
+
+  o.addEventListener("*", function(event) { 
+    assert.strictEqual(event.name, "event");
+    assert.strictEqual(event.target, o);
+  });
+
+  o.triggerEvent("event", {name: "wrong", target: "wrong"});
 });
 
 QUnit.test("Set 'this' to triggering object when listening for '*'", function(assert) {
@@ -98,6 +225,20 @@ QUnit.test("Set 'this' to triggering object when listening for '*'", function(as
   });
 
   o.triggerEvent("event");
+});
+
+QUnit.test("'*'' handlers should not throw exceptions", function(assert) {
+  var o = {};
+
+  BrainBrowser.events.addEventModel(o);
+
+  o.addEventListener("*", function() { 
+    throw "Error";
+  });
+
+  testException(assert, function() {
+    o.triggerEvent("event");
+  }, true);
 });
 
 QUnit.test("Propagate events", function(assert) {
@@ -133,20 +274,36 @@ QUnit.test("Propagate events uniquely", function(assert) {
   assert.strictEqual(count, 1);
 });
 
-QUnit.test("Propagate event arguments", function(assert) {
+QUnit.test("Propagate event object", function(assert) {
   var source = {};
   var target = {};
-  var args = ["arg1", "arg2"];
+  var event_object = {prop: "prop"};
 
   BrainBrowser.events.addEventModel(source);
   BrainBrowser.events.addEventModel(target);
 
   source.propagateEventTo("event", target);
-  target.addEventListener("event", function(arg1, arg2) { 
-    assert.deepEqual(args, [arg1, arg2]);
+  target.addEventListener("event", function(event) { 
+    assert.deepEqual(event, event_object);
   });
 
-  source.triggerEvent("event", args[0], args[1]);
+  source.triggerEvent("event", event_object);
+});
+
+QUnit.test("Propagated event object should have source as target", function(assert) {
+  var source = {};
+  var target = {};
+  var event_object = {prop: "prop"};
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target);
+
+  source.propagateEventTo("event", target);
+  target.addEventListener("event", function(event) { 
+    assert.strictEqual(event.target, source);
+  });
+
+  source.triggerEvent("event", event_object);
 });
 
 QUnit.test("Propagate events to '*' listener", function(assert) {
@@ -211,20 +368,36 @@ QUnit.test("Propagate event from an object", function(assert) {
   assert.ok(triggered);
 });
 
-QUnit.test("Receive arguments when propagating event from an object", function(assert) {
+QUnit.test("Receive event object when propagating event from an object", function(assert) {
   var source = {};
   var target = {};
-  var args = ["arg1", "arg2"];
+  var event_object = {prop: "prop"};
 
   BrainBrowser.events.addEventModel(source);
   BrainBrowser.events.addEventModel(target);
 
   target.propagateEventFrom("event", source);
-  target.addEventListener("event", function(arg1, arg2) { 
-    assert.deepEqual(args, [arg1, arg2]);
+  target.addEventListener("event", function(event) { 
+    assert.deepEqual(event, event_object);
   });
 
-  source.triggerEvent("event", args[0], args[1]);
+  source.triggerEvent("event", event_object);
+});
+
+QUnit.test("Set event object target to source when propagating event from an object", function(assert) {
+  var source = {};
+  var target = {};
+  var event_object = {prop: "prop"};
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target);
+
+  target.propagateEventFrom("event", source);
+  target.addEventListener("event", function(event) { 
+    assert.strictEqual(event.target, source);
+  });
+
+  source.triggerEvent("event", event_object);
 });
 
 QUnit.test("Set 'this' to source object when propagating event from an object", function(assert) {
@@ -322,20 +495,37 @@ QUnit.test("Set 'this' to source object when propagating all events using '*'", 
   source.triggerEvent("event");
 });
 
-QUnit.test("Send arguments when propagating all events using '*'", function(assert) {
+QUnit.test("Send event object when propagating all events using '*'", function(assert) {
   var source = {};
   var target = {};
-  var args = ["arg1", "arg2"];
+  var event_object = {prop: "prop"};
 
   BrainBrowser.events.addEventModel(source);
   BrainBrowser.events.addEventModel(target);
 
   source.propagateEventTo("*", target);
-  target.addEventListener("event", function(arg1, arg2) { 
-    assert.deepEqual(args, [arg1, arg2]);
+  target.addEventListener("event", function(event) { 
+    assert.deepEqual(event, event_object);
   });
 
-  source.triggerEvent("event", args[0], args[1]);
+  source.triggerEvent("event", event_object);
+});
+
+QUnit.test("Set source event object target and name when propagating all events using '*'", function(assert) {
+  var source = {};
+  var target = {};
+  var event_object = {prop: "prop"};
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target);
+
+  source.propagateEventTo("*", target);
+  target.addEventListener("event", function(event) { 
+    assert.strictEqual(event.name, "event");
+    assert.strictEqual(event.target, source);
+  });
+
+  source.triggerEvent("event", event_object);
 });
 
 QUnit.test("Propagate all events from an object using '*'", function(assert) {
@@ -370,20 +560,37 @@ QUnit.test("Set 'this' to source object when propagating all events from an obje
   source.triggerEvent("event");
 });
 
-QUnit.test("Send arguments when propagating all events from an object using '*'", function(assert) {
+QUnit.test("Send event object when propagating all events from an object using '*'", function(assert) {
   var source = {};
   var target = {};
-  var args = ["arg1", "arg2"];
+  var event_object = {prop: "prop"};
 
   BrainBrowser.events.addEventModel(source);
   BrainBrowser.events.addEventModel(target);
 
   target.propagateEventFrom("*", source);
-  target.addEventListener("event", function(arg1, arg2) { 
-    assert.deepEqual(args, [arg1, arg2]);
+  target.addEventListener("event", function(event) { 
+    assert.deepEqual(event, event_object);
   });
 
-  source.triggerEvent("event", args[0], args[1]);
+  source.triggerEvent("event", event_object);
+});
+
+QUnit.test("Set source event object target and name when propagating all events from an object using '*'", function(assert) {
+  var source = {};
+  var target = {};
+  var event_object = {prop: "prop"};
+
+  BrainBrowser.events.addEventModel(source);
+  BrainBrowser.events.addEventModel(target);
+
+  target.propagateEventFrom("*", source);
+  target.addEventListener("event", function(event) { 
+    assert.strictEqual(event.name, "event");
+    assert.strictEqual(event.target, source);
+  });
+
+  source.triggerEvent("event", event_object);
 });
 
 QUnit.test("Propagate events to BrainBrowser.events", function(assert) {

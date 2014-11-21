@@ -311,7 +311,7 @@
       callback.call(event.target, event);
     } catch (exception) {
       console.error("Error in event handler for: ", event.name);
-      console.error("Error: ", exception.message ? exception.message : exception);
+      console.error(exception.stack || exception.message || exception);
     }
   }
 })();

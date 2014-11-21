@@ -488,7 +488,7 @@ $(function() {
         $("#annotation-wrapper").show();
         
         picked_object = pick_info.object;
-        model_data = viewer.model_data.get(picked_object.model_name);
+        model_data = viewer.model_data.get(picked_object.userData.model_name);
         intensity_data = model_data.intensity_data[0];
 
         if (intensity_data) {

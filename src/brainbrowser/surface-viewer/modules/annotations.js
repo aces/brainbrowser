@@ -300,7 +300,7 @@ BrainBrowser.SurfaceViewer.modules.annotations = function(viewer) {
     var model_name = options.model_name || null;
 
     if (!model_name && viewer.model.children[0]) {
-      model_name = viewer.model.children[0].model_name;
+      model_name = viewer.model.children[0].userData.model_name;
     }
 
     return model_name;

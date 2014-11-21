@@ -110,9 +110,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
         applyColorArray(viewer.color_map.mapColors(intensity_data.values, {
           min: intensity_data.range_min,
           max: intensity_data.range_max,
-          default_colors: viewer.model_data.get(options.model_name).colors,
-          clamp: viewer.getAttribute("clamp_colors"),
-          flip: viewer.getAttribute("flip_colors")
+          default_colors: viewer.model_data.get(options.model_name).colors
         }));
       }
     }, 0);
@@ -385,9 +383,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
       color_arrays.push(viewer.color_map.mapColors(intensity_data.values, {
         min: intensity_data.range_min,
         max: intensity_data.range_max,
-        default_colors: model_data.colors,
-        clamp: viewer.getAttribute("clamp_colors"),
-        flip: viewer.getAttribute("flip_colors")
+        default_colors: model_data.colors
       }));
 
       alphas.push(intensity_data.alpha);

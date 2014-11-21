@@ -300,14 +300,11 @@
         * The viewer object can maintain an arbitrary set of key-value
         * to aid in the functioning of various parts of the system.
         * ```js
-        * viewer.getAttribute("clamp_colors");
+        * viewer.getAttribute("fix_color_range");
         * ```
         *
         * Currently, the following attributes are used by the Surface Viewer:
         *
-        * * **clamp\_colors** Clamp intensity values outside the current range to maximum
-        *   and minimum values of the color map.
-        * * **flip\_colors** Invert the intensity to color map relationship.
         * * **fix\_color\_range** Maintain the current intensity range, even if new data is 
         *   loaded.
         */
@@ -326,14 +323,11 @@
         * The viewer object can maintain an arbitrary set of key-value
         * pairs to aid in the functioning of various parts of the system.
         * ```js
-        * viewer.setAttribute("clamp_colors", false);
+        * viewer.setAttribute("fix_color_range", false);
         * ```
         *
         * Currently, the following attributes are used by the Surface Viewer:
         *
-        * * **clamp\_colors** Clamp intensity values outside the current range to maximum
-        *   and minimum values of the color map.
-        * * **flip\_colors** Invert the intensity to color map relationship.
         * * **fix\_color\_range** Maintain the current intensity range, even if new data is 
         *   loaded.
         */

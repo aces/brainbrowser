@@ -266,9 +266,7 @@ $(function() {
       $("#paint-color").css("background-color", "#" + viewer.color_map.colorFromValue(intensity_data.values[0], {
         hex: true,
         min: intensity_data.range_min,
-        max: intensity_data.range_max,
-        flip: viewer.getAttribute("flip_colors"),
-        clamp: viewer.getAttribute("clamp_colors")
+        max: intensity_data.range_max
       }));
 
       blendUI(data_set.length > 1);
@@ -287,9 +285,7 @@ $(function() {
         $("#pick-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
           hex: true,
           min: intensity_data.range_min,
-          max: intensity_data.range_max,
-          flip: viewer.getAttribute("flip_colors"),
-          clamp: viewer.getAttribute("clamp_colors")
+          max: intensity_data.range_max
         }));
       }
 
@@ -299,9 +295,7 @@ $(function() {
         $("#paint-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
           hex: true,
           min: intensity_data.range_min,
-          max: intensity_data.range_max,
-          flip: viewer.getAttribute("flip_colors"),
-          clamp: viewer.getAttribute("clamp_colors")
+          max: intensity_data.range_max
         }));
       }
 
@@ -505,9 +499,7 @@ $(function() {
           $("#pick-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
             hex: true,
             min: intensity_data.range_min,
-            max: intensity_data.range_max,
-            flip: viewer.getAttribute("flip_colors"),
-            clamp: viewer.getAttribute("clamp_colors")
+            max: intensity_data.range_max
           }));
           label = atlas_labels[value];
           if (label) {
@@ -585,9 +577,7 @@ $(function() {
         $("#paint-color").css("background-color", "#" + viewer.color_map.colorFromValue(value, {
           hex: true,
           min: intensity_data.range_min,
-          max: intensity_data.range_max,
-          flip: viewer.getAttribute("flip_colors"),
-          clamp: viewer.getAttribute("clamp_colors")
+          max: intensity_data.range_max
         }));
       }
     });

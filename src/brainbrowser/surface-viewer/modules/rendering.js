@@ -58,27 +58,36 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   viewer.render = function() {
     var dom_element = viewer.dom_element;
     renderer.setClearColor(0x000000);
-    renderer.setSize(dom_element.offsetWidth, dom_element.offsetHeight);
     dom_element.appendChild(renderer.domElement);
     
     camera.position.z = default_camera_distance;
     
     light.position.set(0, 0, default_camera_distance);
     scene.add(light);
-    
-    viewer.autorotate = {};
-    
-    window.onresize = function() {
-      effect.setSize(dom_element.offsetWidth, dom_element.offsetHeight);
-      camera.aspect = dom_element.offsetWidth / dom_element.offsetHeight;
-      camera.updateProjectionMatrix();
-
-      viewer.updated = true;
-    };
-    
-    window.onresize();
+        
+    viewer.updateViewport();
     
     renderFrame();
+  };
+
+  /**
+  * @doc function
+  * @name viewer.rendering:updateViewport
+  * @description
+  * Update the viewport size and aspect ratio to fit
+  * the current size of the viewer DOM element.
+  * ```js
+  * viewer.updateViewport();
+  * ```
+  */
+  viewer.updateViewport = function() {
+    var dom_element = viewer.dom_element;
+
+    effect.setSize(dom_element.offsetWidth, dom_element.offsetHeight);
+    camera.aspect = dom_element.offsetWidth / dom_element.offsetHeight;
+    camera.updateProjectionMatrix();
+
+    viewer.updated = true;
   };
 
   /**

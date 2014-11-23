@@ -880,6 +880,10 @@ $(function() {
       viewer.loadColorMapFromFile(this);
     });
 
+    $(window).resize(function() {
+      viewer.updateViewport();
+    });
+
     // Load first model.
     $("a.example[data-example-name=atlas]").click();
 

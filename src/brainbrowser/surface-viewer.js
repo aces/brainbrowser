@@ -289,6 +289,11 @@
         touches: BrainBrowser.utils.captureTouch(dom_element),
         updated: true,
         zoom: 1,
+        autorotate: {
+          x: false,
+          y: false,
+          z: false
+        },
         /**
         * @doc function
         * @name viewer.attributes:getAttribute

@@ -198,7 +198,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * ```
   */
   viewer.loadModelFromURL = function(url, options) {
-    checkBinary(options);
+    options = checkBinary(options);
 
     loader.loadFromURL(url, loadModel, options);
   };
@@ -225,7 +225,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * ```
   */
   viewer.loadModelFromFile = function(file_input, options) {
-    checkBinary(options);
+    options = checkBinary(options);
 
     loader.loadFromFile(file_input, loadModel, options);
   };
@@ -256,7 +256,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * ```
   */
   viewer.loadIntensityDataFromURL = function(url, options) {
-    checkBinary(options);
+    options = checkBinary(options);
 
     loader.loadFromURL(url, loadIntensityData, options);
   };
@@ -288,7 +288,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * ```
   */
   viewer.loadIntensityDataFromFile = function(file_input, options) {
-    checkBinary(options);
+    options = checkBinary(options);
 
     loader.loadFromFile(file_input, loadIntensityData, options);
   };
@@ -623,12 +623,15 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   }
 
   function checkBinary(options) {
+    options = options || {};
     var format = options.format || "mniobj";
     var format_config = BrainBrowser.config.get("model_types." + format);
 
     if (format_config && format_config.binary) {
       options.result_type = options.result_type || "arraybuffer";
     }
+
+    return options;
   }
 
 };

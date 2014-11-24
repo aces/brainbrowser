@@ -27,5 +27,6 @@
 * Author: Nicolas Kassis
 * Author: Paul Mougel
 *
-* three.js (c) 2010-2014 three.js authors, used under the MIT license*/
+* three.js (c) 2010-2014 three.js authors, used under the MIT license
+*/
 !function(){"use strict";function a(a){var c,d,e,f,g,h,i=new DataView(a),j=0,k=b(i);if(j+=3,16777215!==k)return{error:!0,error_message:"Unrecognized file format."};if(d=i.getUint32(j),j+=8,e=i.getUint32(j),j+=4,1!==e)return{error:!0,error_message:"Only one value per vertex supported. Number of values: "+e};for(c=new Float32Array(d),c[0]=f=g=i.getFloat32(j),j+=4,h=1;d>h;h++)c[h]=i.getFloat32(j),f=Math.min(f,c[h]),g=Math.max(g,c[h]),j+=4;return{values:c,min:f,max:g}}function b(a){var b,c=0;for(b=0;3>b;b++)c+=a.getUint8(b)<<8*(3-b-1);return c}self.addEventListener("message",function(b){self.postMessage(a(b.data.data))})}();

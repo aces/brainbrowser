@@ -27,5 +27,6 @@
 * Author: Nicolas Kassis
 * Author: Paul Mougel
 *
-* three.js (c) 2010-2014 three.js authors, used under the MIT license*/
+* three.js (c) 2010-2014 three.js authors, used under the MIT license
+*/
 !function(){"use strict";function a(a){var e={name:a.name,type:a.type,shapes:[]};return e.vertices=b(a.vertices),a.colors=a.colors||a.color,a.colors&&(e.colors=b(a.colors),(e.vertices.length===e.colors.length||3===e.colors.length)&&(e.colors=c(e.colors))),a.normals&&(e.normals=b(a.normals)),void 0===a.shapes&&(a.shapes=[]),a.indices&&a.shapes.push({indices:a.indices}),a.shapes.forEach(function(a){var c=b(a.indices);a.one_indexed&&d(c),a.color=a.color||a.colors,Array.isArray(a.color)&&3===a.color.length&&a.color.push(1),e.shapes.push({name:a.name,indices:c,color:a.color})}),e}function b(a,c){if(!Array.isArray(a))return[a];if(c=c||0,c===a.length)return[];var d,e,f=[];for(d=0,e=a.length;e>d;d++)f.push.apply(f,b(a[d]));return f}function c(a){var b,c,d,e;for(b=new Float32Array(4*a.length/3),c=d=0,e=a.length;e>c;)b[d++]=a[c++],b[d++]=a[c++],b[d++]=a[c++],b[d++]=1;return b}function d(a){var b,c;for(b=0,c=a.length;c>b;b++)a[b]=a[b]-1}self.addEventListener("message",function(b){self.postMessage(a(JSON.parse(b.data.data)))})}();

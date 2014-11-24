@@ -27,5 +27,6 @@
 * Author: Nicolas Kassis
 * Author: Paul Mougel
 *
-* three.js (c) 2010-2014 three.js authors, used under the MIT license*/
+* three.js (c) 2010-2014 three.js authors, used under the MIT license
+*/
 !function(){"use strict";function a(a,b){var c,d,e,f,g,h=new Float32Array(2*a.length),i=new Float32Array(2*b.length),j=a.length/3;for(c=0;j>c;c+=3)e=3*c,f=4*c,d=2*e,g=2*f,h[d]=a[e],h[d+1]=a[e+1],h[d+2]=a[e+2],h[d+3]=a[e+3],h[d+4]=a[e+4],h[d+5]=a[e+5],h[d+6]=a[e+3],h[d+7]=a[e+4],h[d+8]=a[e+5],h[d+9]=a[e+6],h[d+10]=a[e+7],h[d+11]=a[e+8],h[d+12]=a[e+6],h[d+13]=a[e+7],h[d+14]=a[e+8],h[d+15]=a[e],h[d+16]=a[e+1],h[d+17]=a[e+2],i[g]=b[f],i[g+1]=b[f+1],i[g+2]=b[f+2],i[g+3]=b[f+3],i[g+4]=b[f+4],i[g+5]=b[f+5],i[g+6]=b[f+6],i[g+7]=b[f+7],i[g+8]=b[f+4],i[g+9]=b[f+5],i[g+10]=b[f+6],i[g+11]=b[f+7],i[g+12]=b[f+8],i[g+13]=b[f+9],i[g+14]=b[f+10],i[g+15]=b[f+11],i[g+16]=b[f+8],i[g+17]=b[f+9],i[g+18]=b[f+10],i[g+19]=b[f+11],i[g+20]=b[f],i[g+21]=b[f+1],i[g+22]=b[f+2],i[g+23]=b[f+3];return{positions:h,colors:i}}self.addEventListener("message",function(b){var c=b.data;self.postMessage(a(c.positions,c.colors))})}();

@@ -27,5 +27,6 @@
 * Author: Nicolas Kassis
 * Author: Paul Mougel
 *
-* three.js (c) 2010-2014 three.js authors, used under the MIT license*/
+* three.js (c) 2010-2014 three.js authors, used under the MIT license
+*/
 !function(){"use strict";function a(a){var c,d,e,f,g,h,i=new DataView(a),j=0,k=b(i);if(j+=3,16777214!==k)return{error:!0,error_message:"Only triangle meshes supported."};for(;10!==i.getUint8(j)||10!==i.getUint8(j+1);)j++;for(j+=2,d=i.getUint32(j),j+=4,f=3*i.getUint32(j),j+=4,c=new Float32Array(3*d),e=new Uint32Array(f),g=0;d>g;g++)h=3*g,c[h]=i.getFloat32(j),j+=4,c[h+1]=i.getFloat32(j),j+=4,c[h+2]=i.getFloat32(j),j+=4;for(g=0;f>g;g++)e[g]=i.getUint32(j),j+=4;return{vertices:c,shapes:[{indices:e}]}}function b(a){var b,c=0;for(b=0;3>b;b++)c+=a.getUint8(b)<<8*(3-b-1);return c}self.addEventListener("message",function(b){self.postMessage(a(b.data.data))})}();

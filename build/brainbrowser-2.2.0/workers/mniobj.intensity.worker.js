@@ -27,5 +27,6 @@
 * Author: Nicolas Kassis
 * Author: Paul Mougel
 *
-* three.js (c) 2010-2014 three.js authors, used under the MIT license*/
+* three.js (c) 2010-2014 three.js authors, used under the MIT license
+*/
 !function(){"use strict";function a(a){var b,c,d,e,f={};for(f.values=a.trim().split(/\s+/).map(parseFloat),d=f.values[0],e=f.values[0],b=1,c=f.values.length;c>b;b++)d=Math.min(d,f.values[b]),e=Math.max(e,f.values[b]);return f.min=d,f.max=e,f}self.addEventListener("message",function(b){var c=b.data,d=c.data;self.postMessage(a(d))})}();

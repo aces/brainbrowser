@@ -34,8 +34,6 @@ The BrainBrowser Surface Viewer allows users to display and manipulate 3D surfac
 
 Full documentation of the Surface Viewer API can be found [here](https://brainbrowser.cbrain.mcgill.ca/documentation/brainbrowser/surface-viewer).
 
-Note that the BrainBrowser Surface Viewer requires [three.js](http://threejs.org/).
-
 Volume Viewer
 --------------
 

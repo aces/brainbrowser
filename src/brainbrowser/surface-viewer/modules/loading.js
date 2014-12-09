@@ -521,7 +521,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     if (complete) complete();
   }
 
-  // Add a polygon object to the scene.
   function addObject(model_data, filename, options){
     var model = viewer.model;
     var shapes = model_data.shapes;

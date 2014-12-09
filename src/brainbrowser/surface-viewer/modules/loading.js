@@ -616,7 +616,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     }
 
     shape.centroid = centroid;
-    shape.position.set(centroid.x, centroid.y, centroid.z)
+    shape.position.set(centroid.x, centroid.y, centroid.z);
 
     return shape;
   }

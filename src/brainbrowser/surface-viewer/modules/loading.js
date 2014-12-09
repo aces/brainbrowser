@@ -521,7 +521,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     if (complete) complete();
   }
 
-  // Add a polygon object to the scene.
   function addObject(model_data, filename, options){
     var model = viewer.model;
     var shapes = model_data.shapes;
@@ -617,7 +616,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     }
 
     shape.centroid = centroid;
-    shape.position.set(centroid.x, centroid.y, centroid.z);
+    shape.position.set(centroid.x, centroid.y, centroid.z)
 
     return shape;
   }

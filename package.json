@@ -11,5 +11,8 @@
     "grunt-docular": "~0.1.2",
     "grunt-contrib-compress": "~0.5.3",
     "grunt-contrib-qunit": "~0.5.1"
+  },
+  "scripts" : {
+      "test": "grunt"
   }
 }

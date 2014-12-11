@@ -182,6 +182,10 @@
 
     var update_timeout = null;
 
+    // Because slice updates can be interrupted, keep
+    // callbacks in an array to be executed at the end.
+    var update_callbacks = [];
+
     var panel = {
       image_center: {
         x: 0,
@@ -346,6 +350,9 @@
       updateSlice: function(callback) {
         
         clearTimeout(update_timeout);
+        if (BrainBrowser.utils.isFunction(callback)) {
+          update_callbacks.push(callback);
+        }
 
         update_timeout = setTimeout(function() {
           var volume = panel.volume;
@@ -365,9 +372,11 @@
 
           panel.updated = true;
 
-          if (BrainBrowser.utils.isFunction(callback)) {
+          update_callbacks.forEach(function(callback) {
             callback(slice);
-          }
+          });
+          update_callbacks.length = 0;
+
         }, 0);
       },
 

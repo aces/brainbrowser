@@ -51,6 +51,10 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   */
   var timeout = null;
 
+  // Because color updates can be interrupted, keep
+  // callbacks in an array to be executed at the end.
+  var complete_callbacks = [];
+
   viewer.updateColors = function(options) {
     options = options || {};
     var complete = options.complete;
@@ -58,6 +62,10 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
     var shape_name = options.shape_name || model_name + "_1";
     var model_data = viewer.model_data.get(model_name);
     var intensity_data, blend;
+
+    if (BrainBrowser.utils.isFunction(complete)) {
+      complete_callbacks.push(complete);
+    }
 
     if (model_data.intensity_data.length > 1) {
       intensity_data = model_data.intensity_data;
@@ -79,10 +87,10 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
       }
 
       colorModel(color_array, shapes);
-
-      if (complete) {
+      complete_callbacks.forEach(function(complete) {
         complete();
-      }
+      });
+      complete_callbacks.length = 0;
 
       viewer.triggerEvent("updatecolors", {
         model_data: model_data,

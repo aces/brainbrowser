@@ -69,8 +69,8 @@
       current_time: 0,
       data: new Uint8Array(raw_data),
       header: header,
-      min: 0,
-      max: 255,
+      intensity_min: 0,
+      intensity_max: 255,
       slice: function(axis, slice_num, time) {
         slice_num = slice_num === undefined ? volume.position[axis] : slice_num;
         time = time === undefined ? volume.current_time : time;
@@ -148,9 +148,7 @@
           width_space: width_space,
           height_space: height_space,
           width: width,
-          height: height,
-          min: volume.min,
-          max: volume.max
+          height: height
         };
 
         cached_slices[axis][time][slice_num] = slice;
@@ -178,8 +176,8 @@
         var target_image = image_creation_context.createImageData(target_width, target_height);
 
         color_map.mapColors(slice.data, {
-          min: slice.min,
-          max: slice.max,
+          min: volume.intensity_min,
+          max: volume.intensity_max,
           contrast: contrast,
           brightness: brightness,
           destination: source_image.data

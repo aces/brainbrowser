@@ -360,9 +360,6 @@
           
           slice = volume.slice(panel.axis);
 
-          slice.min = volume.min;
-          slice.max = volume.max;
-
           setSlice(panel, slice);
 
           panel.triggerEvent("sliceupdate", {

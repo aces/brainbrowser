@@ -304,8 +304,8 @@ $(function() {
             max_input.val(values[1]);
 
             // Update the volume and redraw.
-            volume.min = values[0];
-            volume.max = values[1];
+            volume.intensity_min = values[0];
+            volume.intensity_max = values[1];
             viewer.redrawVolumes();
           },
           stop: function() {
@@ -328,7 +328,7 @@ $(function() {
           slider.slider("values", 0, value);
 
           // Update the volume and redraw.
-          volume.min = value;
+          volume.intensity_min = value;
           viewer.redrawVolumes();
         });
 
@@ -346,7 +346,7 @@ $(function() {
           slider.slider("values", 1, value);
           
           // Update the volume and redraw.
-          volume.max = value;
+          volume.intensity_max = value;
           viewer.redrawVolumes();
         });
 

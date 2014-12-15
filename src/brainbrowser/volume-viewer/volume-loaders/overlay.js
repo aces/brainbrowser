@@ -43,8 +43,8 @@
       type: "overlay",
       position: {},
       header: volumes[0] ? volumes[0].header : {},
-      min: 0,
-      max: 255,
+      intensity_min: 0,
+      intensity_max: 255,
       volumes: [],
       blend_ratios: [],
       slice: function(axis, slice_num, time) {
@@ -75,7 +75,10 @@
         var max_height = 0;
 
         slices.forEach(function(slice, i) {
-          var color_map = overlay_volume.volumes[i].color_map;
+          var volume = overlay_volume.volumes[i];
+          var color_map = volume.color_map;
+          var intensity_min = volume.intensity_min;
+          var intensity_max = volume.intensity_max;
           var error_message;
 
           if (!color_map) {
@@ -93,8 +96,8 @@
           
 
           color_map.mapColors(slice.data, {
-            min: slice.min,
-            max: slice.max,
+            min: volume.intensity_min,
+            max: volume.intensity_max,
             contrast: contrast,
             brightness: brightness,
             destination: source_image.data

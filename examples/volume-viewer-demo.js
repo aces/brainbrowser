@@ -355,7 +355,7 @@ $(function() {
       container.find(".time-div").each(function() {
         var div = $(this);
 
-        if (volume.data.time) {
+        if (volume.header.time) {
           div.show();
         } else {
           return;
@@ -366,7 +366,7 @@ $(function() {
         var play_button = div.find("#play-" + vol_id);
 
         var min = 0;
-        var max = volume.data.time.space_length - 1;
+        var max = volume.header.time.space_length - 1;
         var play_interval;
       
         slider.slider({
@@ -431,7 +431,7 @@ $(function() {
 
         div.find(".slice-series-button").click(function() {
           var axis_name = $(this).data("axis");
-          var axis = volume.data[axis_name];
+          var axis = volume.header[axis_name];
           var space_length = axis.space_length;
           var time = volume.current_time;
           var per_column = 10;
@@ -443,7 +443,7 @@ $(function() {
           var context = canvas.getContext("2d");
 
           // Get first slice to set dimensions of the canvas.
-          var image_data = volume.slice(axis_name, 0, time).getImage(zoom);
+          var image_data = volume.getSliceImage(volume.slice(axis_name, 0, time), zoom);
           var img = new Image();
           canvas.width = per_column * image_data.width;
           canvas.height = Math.ceil(space_length / per_column) * image_data.height;
@@ -455,7 +455,7 @@ $(function() {
 
           // Draw the rest of the slices on the canvas.
           for (i = 1; i < space_length; i++) {
-            image_data = volume.slice(axis_name, i, time).getImage(zoom);
+            image_data = volume.getSliceImage(volume.slice(axis_name, i, time), zoom);
             x = i % per_column * image_data.width;
             y = Math.floor(i / per_column) * image_data.height;
             context.putImageData(image_data, x, y);
@@ -643,7 +643,7 @@ $(function() {
       }))
       .html(Math.floor(value));
       
-      if (volume.data && volume.data.time) {
+      if (volume.header && volume.header.time) {
         $("#time-slider-" + vol_id).slider("option", "value", volume.current_time);
         $("#time-val-" + vol_id).val(volume.current_time);
       }

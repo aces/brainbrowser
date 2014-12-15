@@ -96,8 +96,8 @@
           
 
           color_map.mapColors(slice.data, {
-            min: volume.intensity_min,
-            max: volume.intensity_max,
+            min: intensity_min,
+            max: intensity_max,
             contrast: contrast,
             brightness: brightness,
             destination: source_image.data

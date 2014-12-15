@@ -277,17 +277,16 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     x = x === undefined ? viewer.mouse.x : x;
     y = y === undefined ? viewer.mouse.y : y;
 
-    // Convert to normalized coordinates.
+    // Convert to normalized device coordinates.
     x = (x / viewer.dom_element.offsetWidth) * 2 - 1;
     y = (-y / viewer.dom_element.offsetHeight) * 2 + 1;
 
     var model = viewer.model;
-    var projector = new THREE.Projector();
     var raycaster = new THREE.Raycaster();
     var vector = new THREE.Vector3(x, y, camera.near);
     var intersection = null;
     var intersects, vertex_data;
-    var intersect_object, intersect_point, intersect_indices;
+    var intersect_object, intersect_point, intersect_indices, intersect_face;
     var intersect_vertex_index, intersect_vertex_coords;
     var min_distance;
     var original_vertices, original_indices;
@@ -301,7 +300,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     // original position.
     var inv_matrix = new THREE.Matrix4();
 
-    projector.unprojectVector(vector, camera);
+    vector.unproject(camera);
     raycaster.set(camera.position, vector.sub(camera.position).normalize());
     intersects = raycaster.intersectObject(model, true);
 
@@ -315,8 +314,13 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     if (intersection !== null) {
 
       intersect_object = intersection.object;
-      intersect_indices = intersection.indices;
-
+      intersect_face = intersection.face;
+      intersect_indices = [
+        intersect_face.a,
+        intersect_face.b,
+        intersect_face.c
+      ];
+      
       if (intersect_object.userData.annotation_info) {
         vertex_data = {
           index: intersect_object.userData.annotation_info.vertex,

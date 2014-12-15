@@ -93,7 +93,6 @@
           var target_height = Math.abs(Math.floor(slice.height * ystep * zoom));
           var source_image = image_creation_context.createImageData(slice.width, slice.height);
           var target_image = image_creation_context.createImageData(target_width, target_height);
-          
 
           color_map.mapColors(slice.data, {
             min: intensity_min,
@@ -102,16 +101,6 @@
             brightness: brightness,
             destination: source_image.data
           });
-
-          if (xstep < 0 && ystep > 0) {
-            source_image.data.set(
-              VolumeViewer.utils.flipImage(source_image.data, source_image.width, source_image.height, {
-                flipx: true,
-                flipy: false,
-                block_size: 4
-              })
-            );
-          }
           
           target_image.data.set(VolumeViewer.utils.nearestNeighbor(
             source_image.data,

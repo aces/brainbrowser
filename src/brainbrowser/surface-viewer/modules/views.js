@@ -245,16 +245,8 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
       var wire_geometry = new THREE.BufferGeometry();
       var material, wireframe;
 
-      wire_geometry.attributes.position = {
-        itemSize: 3,
-        array: positions,
-        numItems: positions.length
-      };
-
-      wire_geometry.attributes.color = {
-        itemSize: 4,
-        array: colors,
-      };
+      wire_geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
+      wire_geometry.addAttribute("color", new THREE.BufferAttribute(colors, 4));
 
       wire_geometry.attributes.color.needsUpdate = true;
 
@@ -262,8 +254,7 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
       wireframe = new THREE.Line(wire_geometry, material, THREE.LinePieces);
 
       wireframe.name = "__WIREFRAME__";
-      wireframe.visible = false;
-      shape.wireframe_active = false;
+      wireframe.material.visible = false;
       shape.add(wireframe);
       active_wireframe_jobs--;
       callback(wireframe);
@@ -275,13 +266,13 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
       positions: geometry.position.array,
       colors: geometry.color.array,
     });
+
     active_wireframe_jobs++;
   }
 
   function toggleWireframe(shape, wireframe, is_wireframe) {
-    shape.visible = !is_wireframe;
-    wireframe.visible = is_wireframe;
-    shape.wireframe_active = is_wireframe;
+    shape.material.visible = !is_wireframe;
+    wireframe.material.visible = is_wireframe;
     viewer.updated = true;
   }
   

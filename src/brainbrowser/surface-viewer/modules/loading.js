@@ -584,27 +584,17 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
     geometry.dynamic = true;
 
-    geometry.attributes.position = {
-      itemSize: 3,
-      array: new Float32Array(position),
-      numItems: position.length
-    };
+    geometry.addAttribute("position", new THREE.BufferAttribute(new Float32Array(position), 3));
 
 
     if (normal.length > 0) {
-      geometry.attributes.normal = {
-        itemSize: 3,
-        array: new Float32Array(normal),
-      };
+      geometry.addAttribute("normal", new THREE.BufferAttribute(new Float32Array(normal), 3));
     } else {
       geometry.computeVertexNormals();
     }
 
     if(color.length > 0) {
-      geometry.attributes.color = {
-        itemSize: 4,
-        array: new Float32Array(color),
-      };
+      geometry.addAttribute("color", new THREE.BufferAttribute(new Float32Array(color), 4));
     }
 
     if (is_line) {

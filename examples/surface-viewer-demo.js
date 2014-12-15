@@ -359,13 +359,8 @@ $(function() {
 
       if (!shape) return;
 
-      // If the shapes wireframe is currently being displayed,
-      // set the wireframe's visibility.
-      if (shape.wireframe_active) {
-        shape = shape.getObjectByName("__WIREFRAME__") || shape;
-      }
-
       shape.visible = input.is(":checked");
+      viewer.updated = true;
     });
     
     // Set the view type (medial, lateral,

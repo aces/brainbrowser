@@ -237,16 +237,22 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   function launchWireframeWorker(shape, callback) {
     var worker = new Worker(BrainBrowser.SurfaceViewer.worker_urls.wireframe);
     var geometry = shape.geometry.attributes;
+    var message;
 
     worker.addEventListener("message", function(event) {
-      var positions = event.data.positions;
-      var colors = event.data.colors;
+      var positions = event.data.positions || geometry.position.array;
+      var colors = event.data.colors || geometry.color.array;
+      var indices = event.data.indices;
 
       var wire_geometry = new THREE.BufferGeometry();
       var material, wireframe;
 
       wire_geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
       wire_geometry.addAttribute("color", new THREE.BufferAttribute(colors, 4));
+
+      if (indices) {
+        wire_geometry.addAttribute("index", new THREE.BufferAttribute(indices, 1));
+      }
 
       wire_geometry.attributes.color.needsUpdate = true;
 
@@ -262,10 +268,18 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
       worker.terminate();
     });
 
-    worker.postMessage({
-      positions: geometry.position.array,
-      colors: geometry.color.array,
-    });
+    if (viewer.uint_indices_available) {
+      message = {
+        indices: geometry.index.array
+      };
+    } else {
+      message = {
+        positions: geometry.position.array,
+        colors: geometry.color.array
+      };
+    }
+
+    worker.postMessage(message);
 
     active_wireframe_jobs++;
   }

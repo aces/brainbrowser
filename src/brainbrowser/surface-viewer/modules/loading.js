@@ -362,9 +362,9 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var parse_options = options.parse || {};
 
     // Parse model info based on the given file type.
-    parseModel(data, type, parse_options, function(obj) {
+    parseModel(data, type, parse_options, function(model_data) {
       if (!BrainBrowser.loader.checkCancel(options.cancel)) {
-        displayModel(obj, filename, options);
+        displayModel(model_data, filename, options);
       }
     });
   }
@@ -482,13 +482,17 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
       model_data.colors = model_data.colors || [0.7, 0.7, 0.7, 1.0];
 
-      deindex_worker = new Worker(SurfaceViewer.worker_urls.deindex);
+      if (viewer.uint_indices_available) {
+        loadIndexedModel(model_data, callback);
+      } else {
+        deindex_worker = new Worker(SurfaceViewer.worker_urls.deindex);
 
-      deindex_worker.addEventListener("message", function(event) {
-        callback(event.data);
-      });
+        deindex_worker.addEventListener("message", function(event) {
+          callback(event.data);
+        });
 
-      deindex_worker.postMessage(model_data);
+        deindex_worker.postMessage(model_data);
+      }
 
       parse_worker.terminate();
     });
@@ -498,6 +502,80 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       options: options
     });
 
+  }
+
+  function loadIndexedModel(model_data, callback) {
+    var verts = model_data.vertices;
+
+    if(model_data.colors.length === 4) {
+      model_data.colors = unrollColors(model_data.colors, verts.length / 3);
+    }
+
+    centerShapes(model_data);
+
+    callback(model_data);
+  }
+
+  function unrollColors(color, num_verts) {
+    var data_color_0, data_color_1, data_color_2, data_color_3;
+    var unrolled_colors;
+    var i, count;
+
+    unrolled_colors = new Float32Array(num_verts * 4);
+
+    data_color_0 = color[0];
+    data_color_1 = color[1];
+    data_color_2 = color[2];
+    data_color_3 = color[3];
+
+    for (i = 0, count = unrolled_colors.length; i < count; i += 4) {
+      unrolled_colors[i]     = data_color_0;
+      unrolled_colors[i + 1] = data_color_1;
+      unrolled_colors[i + 2] = data_color_2;
+      unrolled_colors[i + 3] = data_color_3;
+    }
+
+    return unrolled_colors;
+  }
+
+  function centerShapes(model_data) {
+    var verts = model_data.vertices;
+    var min_x, max_x, min_y, max_y, min_z, max_z;
+
+    min_x = min_y = min_z = Number.POSITIVE_INFINITY;
+    max_x = max_y = max_z = Number.NEGATIVE_INFINITY;
+
+    model_data.shapes.forEach(function(shape) {
+      var indices = shape.indices;
+      var index;
+      var i, count;
+
+      for (i = 0, count = indices.length; i < count; i++) {
+        index = indices[i];
+
+        min_x = Math.min(min_x, verts[index]);
+        min_y = Math.min(min_y, verts[index] + 1);
+        min_z = Math.min(min_z, verts[index] + 2);
+        max_x = Math.max(max_x, verts[index]);
+        max_y = Math.max(max_y, verts[index] + 1);
+        max_z = Math.max(max_z, verts[index] + 2);
+      }
+
+      shape.bounding_box = {
+        min_x: min_x,
+        min_y: min_y,
+        min_z: min_z,
+        max_x: max_x,
+        max_y: max_y,
+        max_z: max_z
+      };
+
+      shape.centroid = {
+        x: min_x + (max_x - min_x) / 2,
+        y: min_y + (max_y - min_y) / 2,
+        z: min_z + (max_z - min_z) / 2
+      };
+    });
   }
 
   ///////////////////////////////////////////
@@ -531,15 +609,35 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var new_shapes = [];
     var shape, shape_data;
     var i, count;
+    var object_description = {is_line: is_line};
 
     model_data.name = model_data.name || filename;
 
     viewer.model_data.add(model_data.name, model_data);
 
     if (shapes) {
-      for (i = 0, count = shapes.length; i < count; i++){
+      for (i = 0, count = shapes.length; i < count; i++) {
         shape_data = model_data.shapes[i];
-        shape = createObject(shape_data, is_line);
+
+        if (viewer.uint_indices_available) {
+          object_description = {
+            position: shape_data.vertices || model_data.vertices,
+            normal: shape_data.normals || model_data.normals,
+            color: shape_data.colors || model_data.colors,
+            index: shape_data.indices,
+          };
+        } else {
+          object_description = {
+            position: shape_data.unindexed.position,
+            normal: shape_data.unindexed.normal,
+            color: shape_data.unindexed.color,
+          };
+        }
+
+        object_description.is_line = is_line;
+        object_description.centroid = shape_data.centroid;
+
+        shape = createObject(object_description);
         shape.name = shape_data.name || filename + "_" + (i + 1);
 
         shape.userData.model_name = model_data.name;
@@ -570,30 +668,41 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     return new_shapes;
   }
 
-  function createObject(shape_data, is_line) {
-    var unindexed = shape_data.unindexed;
-    var centroid = shape_data.centroid;
-
-    var position = unindexed.position;
-    var normal = unindexed.normal || [];
-    var color = unindexed.color || [];
-
+  function createObject(object_description) {
+    var position = object_description.position;
+    var normal = object_description.normal;
+    var color = object_description.color;
+    var index = object_description.index;
+    var centroid = object_description.centroid;
+    var is_line = object_description.is_line;
 
     var geometry = new THREE.BufferGeometry();
     var material, shape;
+    var i, count;
 
     geometry.dynamic = true;
 
-    geometry.addAttribute("position", new THREE.BufferAttribute(new Float32Array(position), 3));
+    position = new Float32Array(position);
 
+    for (i = 0, count = position.length; i < count; i += 3) {
+      position[i]     -= centroid.x;
+      position[i + 1] -= centroid.y;
+      position[i + 2] -= centroid.z;
+    }
 
-    if (normal.length > 0) {
+    geometry.addAttribute("position", new THREE.BufferAttribute(position, 3));
+
+    if (index) {
+      geometry.addAttribute("index", new THREE.BufferAttribute(new Uint32Array(index), 1 ));
+    }
+
+    if (normal) {
       geometry.addAttribute("normal", new THREE.BufferAttribute(new Float32Array(normal), 3));
     } else {
       geometry.computeVertexNormals();
     }
 
-    if(color.length > 0) {
+    if(color) {
       geometry.addAttribute("color", new THREE.BufferAttribute(new Float32Array(color), 4));
     }
 
@@ -606,7 +715,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       shape.has_wireframe = true;
     }
 
-    shape.centroid = centroid;
+    shape.userData.centroid = centroid;
     shape.position.set(centroid.x, centroid.y, centroid.z);
 
     return shape;

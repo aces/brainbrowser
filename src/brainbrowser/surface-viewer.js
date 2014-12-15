@@ -294,6 +294,7 @@
           y: false,
           z: false
         },
+        uint_indices_available: BrainBrowser.utils.webglExtensionAvailable("OES_element_index_uint"),
         /**
         * @doc function
         * @name viewer.attributes:getAttribute

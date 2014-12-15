@@ -65,6 +65,29 @@
         return false;
       }
     },
+
+    /**
+    * @doc function
+    * @name BrainBrowser.utils:webglExtensionAvailable
+    * @param {string} name Check if a given WebGL extension is available.
+    * @returns {boolean} Whether or the queried WebGL extension is supported in the current browser.
+    *
+    * @description
+    * Test for WebGL support.
+    * ```js
+    * BrainBrowser.utils.webglEnabled();
+    * ```
+    */
+    webglExtensionAvailable: function(name) {
+      if (!BrainBrowser.utils.webglEnabled()) {
+        return false;
+      }
+
+      var canvas = document.createElement("canvas");
+      var gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+
+      return !!gl.getExtension(name);
+    },
     
     /**
     * @doc function

@@ -334,7 +334,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
         // to help with transparency, so to check
         // check against original vertices we have
         // move them back.
-        centroid = intersect_object.centroid;
+        centroid = intersect_object.userData.centroid;
         cx = centroid.x;
         cy = centroid.y;
         cz = centroid.z;
@@ -345,9 +345,15 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
         original_vertices = intersect_object.userData.original_data.vertices;
         original_indices = intersect_object.userData.original_data.indices;
 
-        // Have to get the vertex pointed to by the original index because of
-        // the de-indexing (see workers/deindex.worker.js)
-        intersect_vertex_index = index = original_indices[intersect_indices[0]];
+
+        index = intersect_indices[0];
+        if (!viewer.uint_indices_available) {
+          // Have to get the vertex pointed to by the original index because of
+          // the de-indexing (see workers/deindex.worker.js)
+          index = original_indices[index];
+        }
+        intersect_vertex_index = index;
+
         intersect_vertex_coords = new THREE.Vector3(
           original_vertices[index*3],
           original_vertices[index*3+1],
@@ -364,7 +370,12 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
         );
 
         for (i = 1, count = intersect_indices.length; i < count; i++) {
-          index = original_indices[intersect_indices[i]];
+          index = intersect_indices[i];
+          if (!viewer.uint_indices_available) {
+            // Have to get the vertex pointed to by the original index because of
+            // the de-indexing (see workers/deindex.worker.js)
+            index = original_indices[index];
+          }
           coords = new THREE.Vector3(
             original_vertices[index*3],
             original_vertices[index*3+1],

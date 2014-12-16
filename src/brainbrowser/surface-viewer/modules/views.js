@@ -268,7 +268,7 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
       worker.terminate();
     });
 
-    if (viewer.uint_indices_available) {
+    if (BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
       message = {
         indices: geometry.index.array
       };

@@ -211,20 +211,6 @@
 
       console.log("BrainBrowser Surface Viewer v" + BrainBrowser.version);
 
-      /////////////////////////////////
-      // Browser compatibility checks.
-      /////////////////////////////////
-      
-      if (!BrainBrowser.utils.webWorkersEnabled() ) {
-        alert("Can't find web workers. Exiting.");
-        return;
-      }
-      
-      if (!BrainBrowser.utils.webglEnabled()) {
-        alert("Can't get WebGL context. Exiting.");
-        return;
-      }
-
       /**
       * @doc object
       * @name viewer
@@ -294,7 +280,6 @@
           y: false,
           z: false
         },
-        uint_indices_available: BrainBrowser.utils.webglExtensionAvailable("OES_element_index_uint"),
         /**
         * @doc function
         * @name viewer.attributes:getAttribute

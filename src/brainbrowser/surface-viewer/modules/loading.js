@@ -482,7 +482,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
       model_data.colors = model_data.colors || [0.7, 0.7, 0.7, 1.0];
 
-      if (viewer.uint_indices_available) {
+      if (BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
         loadIndexedModel(model_data, callback);
       } else {
         deindex_worker = new Worker(SurfaceViewer.worker_urls.deindex);
@@ -619,7 +619,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       for (i = 0, count = shapes.length; i < count; i++) {
         shape_data = model_data.shapes[i];
 
-        if (viewer.uint_indices_available) {
+        if (BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
           object_description = {
             position: shape_data.vertices || model_data.vertices,
             normal: shape_data.normals || model_data.normals,

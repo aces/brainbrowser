@@ -316,7 +316,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
       color_attribute = geometry.attributes.color;
       colors = color_attribute.array;
 
-      if (viewer.uint_indices_available) {
+      if (BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
         colors.set(color_array);
         if (has_wireframe) {
           wireframe.geometry.attributes.color.array.set(color_array);
@@ -329,7 +329,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
           ic = i * 4;
           iwc = ic * 2;
 
-          if (!viewer.uint_indices_available) {
+          if (!BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
             colors[ic]    = color_array[indices[i]*4];
             colors[ic+1]  = color_array[indices[i]*4+1];
             colors[ic+2]  = color_array[indices[i]*4+2];

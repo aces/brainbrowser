@@ -46,7 +46,7 @@ $(function() {
   
 
   // Make sure WebGL is available.
-  if (!BrainBrowser.utils.webglEnabled()) {
+  if (!BrainBrowser.WEBGL_ENABLED) {
     $("#brainbrowser").html(BrainBrowser.utils.webGLErrorMessage());
     return;
   }

@@ -347,7 +347,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
 
         index = intersect_indices[0];
-        if (!viewer.uint_indices_available) {
+        if (!BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
           // Have to get the vertex pointed to by the original index because of
           // the de-indexing (see workers/deindex.worker.js)
           index = original_indices[index];
@@ -371,7 +371,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
         for (i = 1, count = intersect_indices.length; i < count; i++) {
           index = intersect_indices[i];
-          if (!viewer.uint_indices_available) {
+          if (!BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
             // Have to get the vertex pointed to by the original index because of
             // the de-indexing (see workers/deindex.worker.js)
             index = original_indices[index];

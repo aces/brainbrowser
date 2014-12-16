@@ -610,6 +610,22 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var shape, shape_data;
     var i, count;
     var object_description = {is_line: is_line};
+    var model_position, model_normal, model_color;
+    var shape_position, shape_normal, shape_color;
+
+    if (BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
+      if (model_data.vertices) {
+        model_position = new THREE.BufferAttribute(new Float32Array(model_data.vertices), 3);
+      }
+
+      if (model_data.normals) {
+        model_normal = new THREE.BufferAttribute(new Float32Array(model_data.normals), 3);
+      }
+
+      if (model_data.colors) {
+        model_color = new THREE.BufferAttribute(new Float32Array(model_data.colors), 4);
+      }
+    }
 
     model_data.name = model_data.name || filename;
 
@@ -618,19 +634,43 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     if (shapes) {
       for (i = 0, count = shapes.length; i < count; i++) {
         shape_data = model_data.shapes[i];
+        shape_position = shape_normal = shape_color = null;
 
         if (BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
+
+          if (shape_data.vertices) {
+            shape_position = new THREE.BufferAttribute(new Float32Array(shape_data.vertices), 3);
+          }
+
+          if (shape_data.normals) {
+            shape_normal = new THREE.BufferAttribute(new Float32Array(shape_data.normals), 3);
+          }
+
+          if (shape_data.colors) {
+            shape_color = new THREE.BufferAttribute(new Float32Array(shape_data.colors), 4);
+          }
+        
           object_description = {
-            position: shape_data.vertices || model_data.vertices,
-            normal: shape_data.normals || model_data.normals,
-            color: shape_data.colors || model_data.colors,
-            index: shape_data.indices,
+            position: shape_position || model_position,
+            normal: shape_normal || model_normal,
+            color: shape_color || model_color,
+            index: new THREE.BufferAttribute(new Uint32Array(shape_data.indices), 1),
           };
         } else {
+          shape_position = new THREE.BufferAttribute(new Float32Array(shape_data.unindexed.position), 3);
+
+          if (shape_data.unindexed.normal) {
+            shape_normal = new THREE.BufferAttribute(new Float32Array(shape_data.unindexed.normal), 3);
+          }
+
+          if (shape_data.unindexed.color) {
+            shape_color = new THREE.BufferAttribute(new Float32Array(shape_data.unindexed.color), 4);
+          }
+
           object_description = {
-            position: shape_data.unindexed.position,
-            normal: shape_data.unindexed.normal,
-            color: shape_data.unindexed.color,
+            position: shape_position,
+            normal: shape_normal,
+            color: shape_color
           };
         }
 
@@ -670,6 +710,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
   function createObject(object_description) {
     var position = object_description.position;
+    var position_array = position.array;
     var normal = object_description.normal;
     var color = object_description.color;
     var index = object_description.index;
@@ -677,33 +718,41 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var is_line = object_description.is_line;
 
     var geometry = new THREE.BufferGeometry();
+    var index_array;
     var material, shape;
     var i, count;
 
     geometry.dynamic = true;
 
-    position = new Float32Array(position);
-
-    for (i = 0, count = position.length; i < count; i += 3) {
-      position[i]     -= centroid.x;
-      position[i + 1] -= centroid.y;
-      position[i + 2] -= centroid.z;
+    if (index) {
+      index_array = index.array;
+      for (i = 0, count = index_array.length; i < count; i++) {
+        position_array[index_array[i] * 3]     -= centroid.x;
+        position_array[index_array[i] * 3 + 1] -= centroid.y;
+        position_array[index_array[i] * 3 + 2] -= centroid.z;
+      }
+    } else {
+      for (i = 0, count = position_array.length; i < count; i += 3) {
+        position_array[i]     -= centroid.x;
+        position_array[i + 1] -= centroid.y;
+        position_array[i + 2] -= centroid.z;
+      }
     }
 
-    geometry.addAttribute("position", new THREE.BufferAttribute(position, 3));
+    geometry.addAttribute("position", position);
 
     if (index) {
-      geometry.addAttribute("index", new THREE.BufferAttribute(new Uint32Array(index), 1 ));
+      geometry.addAttribute("index", index);
     }
 
     if (normal) {
-      geometry.addAttribute("normal", new THREE.BufferAttribute(new Float32Array(normal), 3));
+      geometry.addAttribute("normal", normal);
     } else {
       geometry.computeVertexNormals();
     }
 
     if(color) {
-      geometry.addAttribute("color", new THREE.BufferAttribute(new Float32Array(color), 4));
+      geometry.addAttribute("color", color);
     }
 
     if (is_line) {

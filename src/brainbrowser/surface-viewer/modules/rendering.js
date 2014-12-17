@@ -173,7 +173,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   */
   viewer.resetView = function() {
     var model = viewer.model;
-    var child, wireframe;
+    var child, wireframe, centroid;
     var i, count;
     var inv = new THREE.Matrix4();
     inv.getInverse(model.matrix);
@@ -185,8 +185,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     
     for (i = 0, count = viewer.model.children.length; i < count; i++) {
       child = model.children[i];
-      if (child.centroid) {
-        child.position.set(child.centroid.x, child.centroid.y, child.centroid.z);
+      centroid = child.userData.centroid;
+      if (centroid) {
+        child.position.set(centroid.x, centroid.y, centroid.z);
       } else {
         child.position.set(0, 0, 0);
       }

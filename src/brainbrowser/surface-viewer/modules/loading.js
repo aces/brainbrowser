@@ -542,23 +542,27 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var verts = model_data.vertices;
     var min_x, max_x, min_y, max_y, min_z, max_z;
 
-    min_x = min_y = min_z = Number.POSITIVE_INFINITY;
-    max_x = max_y = max_z = Number.NEGATIVE_INFINITY;
-
     model_data.shapes.forEach(function(shape) {
       var indices = shape.indices;
       var index;
+      var x, y, z;
       var i, count;
+
+      min_x = min_y = min_z = Number.POSITIVE_INFINITY;
+      max_x = max_y = max_z = Number.NEGATIVE_INFINITY;
 
       for (i = 0, count = indices.length; i < count; i++) {
         index = indices[i];
+        x = verts[index * 3];
+        y = verts[index * 3 + 1];
+        z = verts[index * 3 + 2];
 
-        min_x = Math.min(min_x, verts[index]);
-        min_y = Math.min(min_y, verts[index] + 1);
-        min_z = Math.min(min_z, verts[index] + 2);
-        max_x = Math.max(max_x, verts[index]);
-        max_y = Math.max(max_y, verts[index] + 1);
-        max_z = Math.max(max_z, verts[index] + 2);
+        min_x = Math.min(min_x, x);
+        min_y = Math.min(min_y, y);
+        min_z = Math.min(min_z, z);
+        max_x = Math.max(max_x, x);
+        max_y = Math.max(max_y, y);
+        max_z = Math.max(max_z, z);
       }
 
       shape.bounding_box = {
@@ -611,12 +615,11 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var i, count;
     var object_description = {is_line: is_line};
     var model_position, model_normal, model_color;
-    var shape_position, shape_normal, shape_color;
+    var shape_color;
 
     if (BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
-      if (model_data.vertices) {
-        model_position = new THREE.BufferAttribute(new Float32Array(model_data.vertices), 3);
-      }
+
+      model_position = new THREE.BufferAttribute(new Float32Array(model_data.vertices), 3);
 
       if (model_data.normals) {
         model_normal = new THREE.BufferAttribute(new Float32Array(model_data.normals), 3);
@@ -634,44 +637,37 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     if (shapes) {
       for (i = 0, count = shapes.length; i < count; i++) {
         shape_data = model_data.shapes[i];
-        shape_position = shape_normal = shape_color = null;
 
         if (BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
-
-          if (shape_data.vertices) {
-            shape_position = new THREE.BufferAttribute(new Float32Array(shape_data.vertices), 3);
-          }
-
-          if (shape_data.normals) {
-            shape_normal = new THREE.BufferAttribute(new Float32Array(shape_data.normals), 3);
-          }
-
-          if (shape_data.colors) {
-            shape_color = new THREE.BufferAttribute(new Float32Array(shape_data.colors), 4);
-          }
+          setShapeColors(model_color.array, shape_data.color, shape_data.indices);
         
           object_description = {
-            position: shape_position || model_position,
-            normal: shape_normal || model_normal,
-            color: shape_color || model_color,
+            position: model_position,
+            normal: model_normal,
+            color: model_color,
             index: new THREE.BufferAttribute(new Uint32Array(shape_data.indices), 1),
           };
+
         } else {
-          shape_position = new THREE.BufferAttribute(new Float32Array(shape_data.unindexed.position), 3);
+
+          model_position = model_normal = model_color = null;
+
+          model_position = new THREE.BufferAttribute(new Float32Array(shape_data.unindexed.position), 3);
 
           if (shape_data.unindexed.normal) {
-            shape_normal = new THREE.BufferAttribute(new Float32Array(shape_data.unindexed.normal), 3);
+            model_normal = new THREE.BufferAttribute(new Float32Array(shape_data.unindexed.normal), 3);
           }
 
           if (shape_data.unindexed.color) {
-            shape_color = new THREE.BufferAttribute(new Float32Array(shape_data.unindexed.color), 4);
+            model_color = new THREE.BufferAttribute(new Float32Array(shape_data.unindexed.color), 4);
           }
 
           object_description = {
-            position: shape_position,
-            normal: shape_normal,
-            color: shape_color
+            position: model_position,
+            normal: model_normal,
+            color: model_color
           };
+
         }
 
         object_description.is_line = is_line;
@@ -718,7 +714,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var is_line = object_description.is_line;
 
     var geometry = new THREE.BufferGeometry();
-    var index_array;
+    var index_array, tmp_position_array, position_index;
     var material, shape;
     var i, count;
 
@@ -726,10 +722,13 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
     if (index) {
       index_array = index.array;
+      // tmp_position_array used because there will be repeats in the index array.
+      tmp_position_array = new Float32Array(position_array);
       for (i = 0, count = index_array.length; i < count; i++) {
-        position_array[index_array[i] * 3]     -= centroid.x;
-        position_array[index_array[i] * 3 + 1] -= centroid.y;
-        position_array[index_array[i] * 3 + 2] -= centroid.z;
+        position_index = index_array[i] * 3;
+        position_array[position_index]     = tmp_position_array[position_index]     - centroid.x;
+        position_array[position_index + 1] = tmp_position_array[position_index + 1] - centroid.y;
+        position_array[position_index + 2] = tmp_position_array[position_index + 2] - centroid.z;
       }
     } else {
       for (i = 0, count = position_array.length; i < count; i += 3) {
@@ -768,6 +767,39 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     shape.position.set(centroid.x, centroid.y, centroid.z);
 
     return shape;
+  }
+
+  function setShapeColors(model_colors, shape_colors, indices) {
+    if (!shape_colors) {
+      return;
+    }
+
+    var shape_colors;
+    var mono_color = shape_colors.length === 4;
+    var r, g, b, a;
+    var i, ic, count;
+
+    r = shape_colors[0];
+    g = shape_colors[1];
+    b = shape_colors[2];
+    a = shape_colors[3];
+
+    for (i = 0, count = indices.length; i < count; i++) {
+      if (!mono_color) {
+        ic = i * 4;
+        r = shape_colors[ic];
+        g = shape_colors[ic + 1];
+        b = shape_colors[ic + 2];
+        a = shape_colors[ic + 3];
+      }
+
+      ic = indices[i] * 4;
+
+      model_colors[ic]     = r;
+      model_colors[ic + 1] = g;
+      model_colors[ic + 2] = b;
+      model_colors[ic + 3] = a;
+    }
   }
 
   function checkBinary(options) {

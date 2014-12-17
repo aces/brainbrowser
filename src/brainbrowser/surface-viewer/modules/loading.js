@@ -615,7 +615,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var i, count;
     var object_description = {is_line: is_line};
     var model_position, model_normal, model_color;
-    var shape_color;
 
     if (BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
 
@@ -774,7 +773,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       return;
     }
 
-    var shape_colors;
     var mono_color = shape_colors.length === 4;
     var r, g, b, a;
     var i, ic, count;

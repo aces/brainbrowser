@@ -76,7 +76,7 @@
     }
 
     var unindexed_positions = new Float32Array(num_coords);
-    var unindexed_normals = normals_given ?  new Float32Array(num_coords) : new Float32Array();
+    var unindexed_normals = normals_given ?  new Float32Array(num_coords) : null;
     var unindexed_colors = new Float32Array(num_color_coords);
 
     // Calculate center so positions of objects relative to each other can

@@ -28,26 +28,12 @@
   "use strict";
 
   BrainBrowser.utils = {
-    
-    /**
-    * @doc function
-    * @name BrainBrowser.utils:canvasEnabled
-    * @returns {boolean} Whether or not the canvas element is supported in the current browser.
-    *
-    * @description
-    * Test for canvas element support.
-    * ```js
-    * BrainBrowser.utils.canvasEnabled();
-    * ```
-    */
-    canvasEnabled: function() {
-      return !!document.createElement("canvas");
-    },
 
     /**
     * @doc function
-    * @name BrainBrowser.utils:webglEnabled
-    * @returns {boolean} Whether or not WebGL is supported in the current browser.
+    * @name BrainBrowser.utils:webglExtensionAvailable
+    * @param {string} name Check if a given WebGL extension is available.
+    * @returns {boolean} Whether or the queried WebGL extension is supported in the current browser.
     *
     * @description
     * Test for WebGL support.
@@ -55,30 +41,15 @@
     * BrainBrowser.utils.webglEnabled();
     * ```
     */
-    webglEnabled: function() {
-      var canvas = document.createElement("canvas");
-
-      try {
-        return !!canvas && !!window.WebGLRenderingContext &&
-          !!(canvas.getContext("webgl") || canvas.getContext("experimental-webgl"));
-      } catch(e) {
+    webglExtensionAvailable: function(name) {
+      if (!BrainBrowser.WEBGL_ENABLED) {
         return false;
       }
-    },
-    
-    /**
-    * @doc function
-    * @name BrainBrowser.utils:webWorkersEnabled
-    * @returns {boolean} Whether or not Web Workers are supported in the current browser.
-    *
-    * @description
-    * Test for Web Worker support.
-    * ```js
-    * BrainBrowser.utils.webWorkersEnabled();
-    * ```
-    */
-    webWorkersEnabled: function() {
-      return !!window.Worker;
+
+      var canvas = document.createElement("canvas");
+      var gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+
+      return !!gl.getExtension(name);
     },
     
     /**

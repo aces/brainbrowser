@@ -90,9 +90,11 @@
   var version = "<%= BRAINBROWSER_VERSION %>";
   version = version.indexOf("BRAINBROWSER_VERSION") > 0 ? "D.E.V" : version;
 
-  window.BrainBrowser = {
+  var BrainBrowser = window.BrainBrowser = {
     version: version
   };
+
+  checkBrowser(BrainBrowser);
 
   // Shims for requestAnimationFrame (mainly for old Safari)
   window.requestAnimationFrame = window.requestAnimationFrame ||
@@ -108,6 +110,37 @@
     function(id){
       window.clearTimeout(id);
     };
+
+  // Check capabilities of the browser.
+  function checkBrowser(BrainBrowser) {
+    var CANVAS_ENABLED = false;
+    var WEB_WORKERS_ENABLED = false;
+    var WEBGL_ENABLED = false;
+    var WEBGL_UINT_INDEX_ENABLED = false;
+    var canvas = document.createElement("canvas");
+    var gl = null;
+
+    CANVAS_ENABLED = !!canvas;
+    WEB_WORKERS_ENABLED = !!window.Worker;
+
+    try {
+      if(canvas && window.WebGLRenderingContext) {
+        gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+      }
+      WEBGL_ENABLED = !!gl;
+    } catch(e) {
+      WEBGL_ENABLED = false;
+    }
+
+    if (WEBGL_ENABLED) {
+      WEBGL_UINT_INDEX_ENABLED = !!gl.getExtension("OES_element_index_uint");
+    }
+
+    BrainBrowser.CANVAS_ENABLED = CANVAS_ENABLED;
+    BrainBrowser.WEB_WORKERS_ENABLED = WEB_WORKERS_ENABLED;
+    BrainBrowser.WEBGL_ENABLED = WEBGL_ENABLED;
+    BrainBrowser.WEBGL_UINT_INDEX_ENABLED = WEBGL_UINT_INDEX_ENABLED;
+  }
 
 })();
 

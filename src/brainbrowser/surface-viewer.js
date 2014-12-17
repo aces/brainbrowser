@@ -211,20 +211,6 @@
 
       console.log("BrainBrowser Surface Viewer v" + BrainBrowser.version);
 
-      /////////////////////////////////
-      // Browser compatibility checks.
-      /////////////////////////////////
-      
-      if (!BrainBrowser.utils.webWorkersEnabled() ) {
-        alert("Can't find web workers. Exiting.");
-        return;
-      }
-      
-      if (!BrainBrowser.utils.webglEnabled()) {
-        alert("Can't get WebGL context. Exiting.");
-        return;
-      }
-
       /**
       * @doc object
       * @name viewer

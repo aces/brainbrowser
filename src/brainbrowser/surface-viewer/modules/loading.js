@@ -362,9 +362,9 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var parse_options = options.parse || {};
 
     // Parse model info based on the given file type.
-    parseModel(data, type, parse_options, function(obj) {
+    parseModel(data, type, parse_options, function(model_data) {
       if (!BrainBrowser.loader.checkCancel(options.cancel)) {
-        displayModel(obj, filename, options);
+        displayModel(model_data, filename, options);
       }
     });
   }
@@ -482,13 +482,17 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
       model_data.colors = model_data.colors || [0.7, 0.7, 0.7, 1.0];
 
-      deindex_worker = new Worker(SurfaceViewer.worker_urls.deindex);
+      if (BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
+        loadIndexedModel(model_data, callback);
+      } else {
+        deindex_worker = new Worker(SurfaceViewer.worker_urls.deindex);
 
-      deindex_worker.addEventListener("message", function(event) {
-        callback(event.data);
-      });
+        deindex_worker.addEventListener("message", function(event) {
+          callback(event.data);
+        });
 
-      deindex_worker.postMessage(model_data);
+        deindex_worker.postMessage(model_data);
+      }
 
       parse_worker.terminate();
     });
@@ -498,6 +502,84 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       options: options
     });
 
+  }
+
+  function loadIndexedModel(model_data, callback) {
+    var verts = model_data.vertices;
+
+    if(model_data.colors.length === 4) {
+      model_data.colors = unrollColors(model_data.colors, verts.length / 3);
+    }
+
+    centerShapes(model_data);
+
+    callback(model_data);
+  }
+
+  function unrollColors(color, num_verts) {
+    var data_color_0, data_color_1, data_color_2, data_color_3;
+    var unrolled_colors;
+    var i, count;
+
+    unrolled_colors = new Float32Array(num_verts * 4);
+
+    data_color_0 = color[0];
+    data_color_1 = color[1];
+    data_color_2 = color[2];
+    data_color_3 = color[3];
+
+    for (i = 0, count = unrolled_colors.length; i < count; i += 4) {
+      unrolled_colors[i]     = data_color_0;
+      unrolled_colors[i + 1] = data_color_1;
+      unrolled_colors[i + 2] = data_color_2;
+      unrolled_colors[i + 3] = data_color_3;
+    }
+
+    return unrolled_colors;
+  }
+
+  function centerShapes(model_data) {
+    var verts = model_data.vertices;
+    var min_x, max_x, min_y, max_y, min_z, max_z;
+
+    model_data.shapes.forEach(function(shape) {
+      var indices = shape.indices;
+      var index;
+      var x, y, z;
+      var i, count;
+
+      min_x = min_y = min_z = Number.POSITIVE_INFINITY;
+      max_x = max_y = max_z = Number.NEGATIVE_INFINITY;
+
+      for (i = 0, count = indices.length; i < count; i++) {
+        index = indices[i];
+        x = verts[index * 3];
+        y = verts[index * 3 + 1];
+        z = verts[index * 3 + 2];
+
+        min_x = Math.min(min_x, x);
+        min_y = Math.min(min_y, y);
+        min_z = Math.min(min_z, z);
+        max_x = Math.max(max_x, x);
+        max_y = Math.max(max_y, y);
+        max_z = Math.max(max_z, z);
+      }
+
+      shape.bounding_box = {
+        min_x: min_x,
+        min_y: min_y,
+        min_z: min_z,
+        max_x: max_x,
+        max_y: max_y,
+        max_z: max_z
+      };
+
+      shape.centroid = {
+        x: min_x + (max_x - min_x) / 2,
+        y: min_y + (max_y - min_y) / 2,
+        z: min_z + (max_z - min_z) / 2
+      };
+    });
   }
 
   ///////////////////////////////////////////
@@ -531,15 +613,66 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var new_shapes = [];
     var shape, shape_data;
     var i, count;
+    var object_description = {is_line: is_line};
+    var model_position, model_normal, model_color;
+
+    if (BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
+
+      model_position = new THREE.BufferAttribute(new Float32Array(model_data.vertices), 3);
+
+      if (model_data.normals) {
+        model_normal = new THREE.BufferAttribute(new Float32Array(model_data.normals), 3);
+      }
+
+      if (model_data.colors) {
+        model_color = new THREE.BufferAttribute(new Float32Array(model_data.colors), 4);
+      }
+    }
 
     model_data.name = model_data.name || filename;
 
     viewer.model_data.add(model_data.name, model_data);
 
     if (shapes) {
-      for (i = 0, count = shapes.length; i < count; i++){
+      for (i = 0, count = shapes.length; i < count; i++) {
         shape_data = model_data.shapes[i];
-        shape = createObject(shape_data, is_line);
+
+        if (BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
+          setShapeColors(model_color.array, shape_data.color, shape_data.indices);
+        
+          object_description = {
+            position: model_position,
+            normal: model_normal,
+            color: model_color,
+            index: new THREE.BufferAttribute(new Uint32Array(shape_data.indices), 1),
+          };
+
+        } else {
+
+          model_position = model_normal = model_color = null;
+
+          model_position = new THREE.BufferAttribute(new Float32Array(shape_data.unindexed.position), 3);
+
+          if (shape_data.unindexed.normal) {
+            model_normal = new THREE.BufferAttribute(new Float32Array(shape_data.unindexed.normal), 3);
+          }
+
+          if (shape_data.unindexed.color) {
+            model_color = new THREE.BufferAttribute(new Float32Array(shape_data.unindexed.color), 4);
+          }
+
+          object_description = {
+            position: model_position,
+            normal: model_normal,
+            color: model_color
+          };
+
+        }
+
+        object_description.is_line = is_line;
+        object_description.centroid = shape_data.centroid;
+
+        shape = createObject(object_description);
         shape.name = shape_data.name || filename + "_" + (i + 1);
 
         shape.userData.model_name = model_data.name;
@@ -570,31 +703,54 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     return new_shapes;
   }
 
-  function createObject(shape_data, is_line) {
-    var unindexed = shape_data.unindexed;
-    var centroid = shape_data.centroid;
-
-    var position = unindexed.position;
-    var normal = unindexed.normal || [];
-    var color = unindexed.color || [];
-
+  function createObject(object_description) {
+    var position = object_description.position;
+    var position_array = position.array;
+    var normal = object_description.normal;
+    var color = object_description.color;
+    var index = object_description.index;
+    var centroid = object_description.centroid;
+    var is_line = object_description.is_line;
 
     var geometry = new THREE.BufferGeometry();
+    var index_array, tmp_position_array, position_index;
     var material, shape;
+    var i, count;
 
     geometry.dynamic = true;
 
-    geometry.addAttribute("position", new THREE.BufferAttribute(new Float32Array(position), 3));
+    if (index) {
+      index_array = index.array;
+      // tmp_position_array used because there will be repeats in the index array.
+      tmp_position_array = new Float32Array(position_array);
+      for (i = 0, count = index_array.length; i < count; i++) {
+        position_index = index_array[i] * 3;
+        position_array[position_index]     = tmp_position_array[position_index]     - centroid.x;
+        position_array[position_index + 1] = tmp_position_array[position_index + 1] - centroid.y;
+        position_array[position_index + 2] = tmp_position_array[position_index + 2] - centroid.z;
+      }
+    } else {
+      for (i = 0, count = position_array.length; i < count; i += 3) {
+        position_array[i]     -= centroid.x;
+        position_array[i + 1] -= centroid.y;
+        position_array[i + 2] -= centroid.z;
+      }
+    }
 
+    geometry.addAttribute("position", position);
 
-    if (normal.length > 0) {
-      geometry.addAttribute("normal", new THREE.BufferAttribute(new Float32Array(normal), 3));
+    if (index) {
+      geometry.addAttribute("index", index);
+    }
+
+    if (normal) {
+      geometry.addAttribute("normal", normal);
     } else {
       geometry.computeVertexNormals();
     }
 
-    if(color.length > 0) {
-      geometry.addAttribute("color", new THREE.BufferAttribute(new Float32Array(color), 4));
+    if(color) {
+      geometry.addAttribute("color", color);
     }
 
     if (is_line) {
@@ -606,10 +762,42 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       shape.has_wireframe = true;
     }
 
-    shape.centroid = centroid;
+    shape.userData.centroid = centroid;
     shape.position.set(centroid.x, centroid.y, centroid.z);
 
     return shape;
+  }
+
+  function setShapeColors(model_colors, shape_colors, indices) {
+    if (!shape_colors) {
+      return;
+    }
+
+    var mono_color = shape_colors.length === 4;
+    var r, g, b, a;
+    var i, ic, count;
+
+    r = shape_colors[0];
+    g = shape_colors[1];
+    b = shape_colors[2];
+    a = shape_colors[3];
+
+    for (i = 0, count = indices.length; i < count; i++) {
+      if (!mono_color) {
+        ic = i * 4;
+        r = shape_colors[ic];
+        g = shape_colors[ic + 1];
+        b = shape_colors[ic + 2];
+        a = shape_colors[ic + 3];
+      }
+
+      ic = indices[i] * 4;
+
+      model_colors[ic]     = r;
+      model_colors[ic + 1] = g;
+      model_colors[ic + 2] = b;
+      model_colors[ic + 3] = a;
+    }
   }
 
   function checkBinary(options) {

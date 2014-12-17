@@ -630,12 +630,14 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
           current_target = null;
         }
 
-        function touchZoom() {
+        function touchZoom(event) {
           var dx = panel.touches[0].x - panel.touches[1].x;
           var dy = panel.touches[0].y - panel.touches[1].y;
 
           var distance = Math.sqrt(dx * dx + dy * dy);
           var delta;
+
+          event.preventDefault();
 
           if (last_touch_distance !== null) {
             delta = distance - last_touch_distance;
@@ -696,12 +698,12 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
         }, false);
         
         function wheelHandler(event) {
+          event.preventDefault();
+
           zoom(Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail))));
         }
 
         function zoom(delta) {
-          event.preventDefault();
-
           panel.zoom = Math.max(panel.zoom + delta * 0.05, 0.05);
           panel.updateVolumePosition();
           panel.updateSlice();

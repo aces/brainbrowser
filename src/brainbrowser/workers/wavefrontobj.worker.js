@@ -40,8 +40,8 @@
     var current_shape;
     var vertices = [];
     var texture_coords = [];
-    var normals = [];
-    var indices, texture_indices, normal_indices;
+    var wavefront_normals = [];
+    var normals, indices, texture_indices, normal_indices;
     var line;
     var line_marker;
     var line_length;
@@ -68,9 +68,11 @@
           result.shapes.push(current_shape);
           break;
         case "v":
-          vertices.push(parseFloat(line[1]));
-          vertices.push(parseFloat(line[2]));
-          vertices.push(parseFloat(line[3]));
+          vertices.push(
+            parseFloat(line[1]),
+            parseFloat(line[2]),
+            parseFloat(line[3])
+          );
           break;
         case "vt":
           for(n = 1; n < line_length; n++){
@@ -78,9 +80,11 @@
           }
           break;
         case "vn":
-          normals.push(parseFloat(line[1]));
-          normals.push(parseFloat(line[2]));
-          normals.push(parseFloat(line[3]));
+          wavefront_normals.push(
+            parseFloat(line[1]),
+            parseFloat(line[2]),
+            parseFloat(line[3])
+          );
           break;
         case "f":
           indices = current_shape.indices;
@@ -118,14 +122,8 @@
     result.vertices = new Float32Array(vertices);
     transfer.push(result.vertices.buffer);
 
-    if (normals.length > 0) {
-      result.normals = new Float32Array(normals);
-      transfer.push(result.normals.buffer);
-    }
-
-    if (texture_coords.length > 0) {
-      result.texture_coords = new Float32Array(texture_coords);
-      transfer.push(result.texture_coords.buffer);
+    if (wavefront_normals.length > 0) {
+      normals = new Float32Array(vertices.length);
     }
 
     result.shapes.forEach(function(shape) {
@@ -133,11 +131,15 @@
       transfer.push(shape.indices.buffer);
 
       if (shape.normal_indices.length > 0) {
-        shape.normal_indices = new Uint32Array(shape.normal_indices);
-        transfer.push(shape.normal_indices.buffer);
-      } else {
-        shape.normal_indices = null;
+        for (i = 0, count = shape.normal_indices.length; i < count; i++) {
+          var vi = shape.indices[i] * 3;
+          var ni = shape.normal_indices[i] * 3;
+          normals[vi] = wavefront_normals[ni];
+          normals[vi + 1] = wavefront_normals[ni + 1];
+          normals[vi + 2] = wavefront_normals[ni + 2];
+        }
       }
+      shape.normal_indices = null;
 
       if (shape.texture_indices.length > 0) {
         shape.texture_indices = new Uint32Array(shape.texture_indices);
@@ -146,6 +148,16 @@
         shape.texture_indices = null;
       }
     });
+
+    if (normals) {
+      result.normals = new Float32Array(normals);
+      transfer.push(result.normals.buffer);
+    }
+
+    if (texture_coords.length > 0) {
+      result.texture_coords = new Float32Array(texture_coords);
+      transfer.push(result.texture_coords.buffer);
+    }
 
     return {
       result: result,

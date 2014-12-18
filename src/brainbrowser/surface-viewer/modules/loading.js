@@ -372,7 +372,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   function loadIntensityData(text, filename, options) {
     options = options || {};
     var name = options.name || filename;
-    var type = options.format || "mniobj";
+    var type = options.format || "text";
     var blend = options.blend;
     var model_name = options.model_name;
     var model_data = viewer.model_data.get(model_name);

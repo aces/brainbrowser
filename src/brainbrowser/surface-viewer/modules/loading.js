@@ -242,6 +242,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * * **max** Maximum value of the intensity.
   * * **model\_name** The name of a specific model to which this map will be applied.
   * * **shape\_name** The name of a specific shape to which this map will be applied.
+  * * **name* Name to give the intensity data.
   * * **blend** Blend this data map with previously loaded data.
   * * **complete** Callback function to call when the color update is done.
   *
@@ -274,6 +275,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * * **max** Maximum value of the intensity.
   * * **model\_name** The name of a specific model to which this map will be applied.
   * * **shape\_name** The name of a specific shape to which this map will be applied.
+  * * **name* Name to give the intensity data.
   * * **blend** Blend this data map with previously loaded data.
   * * **complete** Callback function to call when the color update is done.
   *
@@ -659,7 +661,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
         if (BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
           setShapeColors(color_buffer.array, shape_data.color, shape_data.indices);
-        
+
           object_description = {
             position: position_buffer,
             normal: normal_buffer,

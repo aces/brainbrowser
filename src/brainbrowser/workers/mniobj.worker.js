@@ -145,7 +145,7 @@
         
         end = end_indices[i];
 
-        line_index_size += (end - start - 1) * 2;    
+        line_index_size += (end - start - 1) * 2;
       }
 
       line_indices = new Uint32Array(line_index_size);

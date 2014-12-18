@@ -243,7 +243,7 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
     worker.addEventListener("message", function(event) {
       var wire_geometry = new THREE.BufferGeometry();
       var material, wireframe;
-      var position_buffer, color_buffer, index_buffer;
+      var position_buffer, color_buffer;
 
       if (event.data.positions) {
         position_buffer = new THREE.BufferAttribute(event.data.positions, 3);

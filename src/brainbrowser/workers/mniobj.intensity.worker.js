@@ -29,7 +29,7 @@
   "use strict";
   
   self.addEventListener("message", function(e) {
-    var result = parse(e.data.data)
+    var result = parse(e.data.data);
     self.postMessage(result, [result.values.buffer]);
   });
   

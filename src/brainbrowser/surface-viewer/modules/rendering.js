@@ -173,7 +173,6 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   */
   viewer.resetView = function() {
     var model = viewer.model;
-    var i, count;
     var inv = new THREE.Matrix4();
     inv.getInverse(model.matrix);
   

@@ -839,7 +839,6 @@ $(function() {
       }
       
       return false;
-      
     });
 
     // If the user changes the format that's being submitted,
@@ -847,7 +846,9 @@ $(function() {
     $(".file-format").change(function() {
       var div = $(this).closest(".file-select");
       var format = div.find("option:selected").val();
-      div.find(".format-hint").html(BrainBrowser.config.get("model_types." + format).format_hint || "");
+      var config_base = this.id === "data-file-format" ? "intensity_data_types" : "model_types";
+
+      div.find(".format-hint").html(BrainBrowser.config.get(config_base + "." + format).format_hint || "");
     });
 
     // Load a new model from a file that the user has

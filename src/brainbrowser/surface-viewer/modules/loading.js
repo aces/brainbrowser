@@ -41,7 +41,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   viewer.model_data = {
     /**
     * @doc function
-    * @name viewer.model\_data:add
+    * @name viewer.model_data:add
     * @param {string} name Identifier for the model description to
     * retrieve.
     *
@@ -61,7 +61,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
     /**
     * @doc function
-    * @name viewer.model\_data:get
+    * @name viewer.model_data:get
     * @param {string} name (Optional) Identifier for the model description to
     * retrieve.
     *
@@ -73,7 +73,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     * ```js
     * viewer.model_data.get("brain.obj");
     * ```
-    * Note that model\_data **get()** methods will return the first loaded model
+    * Note that model_data **get()** methods will return the first loaded model
     * if no argument is given, and this can act as a convenient shorthand if only
     * one model is loaded.
     * ```js
@@ -88,7 +88,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
     /**
     * @doc function
-    * @name viewer.model\_data:getDefaultIntensityData
+    * @name viewer.model_data:getDefaultIntensityData
     * @param {string} name (Optional) Identifier for the model description to
     * retrieve.
     *
@@ -125,7 +125,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
     /**
     * @doc function
-    * @name viewer.model\_data:count
+    * @name viewer.model_data:count
     *
     * @description
     * Return the number of models loaded.
@@ -140,7 +140,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
     /**
     * @doc function
-    * @name viewer.model\_data:clear
+    * @name viewer.model_data:clear
     *
     * @description
     * Clear stored model data.
@@ -155,7 +155,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
     /**
     * @doc function
-    * @name viewer.model\_data:forEach
+    * @name viewer.model_data:forEach
     * @param {function} callback Callback function to which the
     * model descriptions will be passed.
     *
@@ -186,6 +186,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   *   BrainBrowser.config.
   * * **render_depth** Force rendering at the given depth (can help with transparency).
   * * **pick_ignore** Ignore this object when picking.
+  * * **recenter** Shift object vertex positions to be relative to the centroid (can
+  *   help with transparency).
   * * **parse** Parsing options to pass to the worker that will be used to parse the
   *   input file.
   *
@@ -198,7 +200,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * ```
   */
   viewer.loadModelFromURL = function(url, options) {
-    options = checkBinary(options);
+    options = checkBinary("model_types", options);
 
     loader.loadFromURL(url, loadModel, options);
   };
@@ -213,6 +215,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   *   BrainBrowser.config.
   * * **render_depth** Force rendering at the given depth (can help with transparency).
   * * **pick_ignore** Ignore this object when picking.
+  * * **recenter** Shift object vertex positions to be relative to the centroid (can
+  *   help with transparency).
   * * **parse** Parsing options to pass to the worker that will be used to parse the
   *   input file.
   *
@@ -225,7 +229,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * ```
   */
   viewer.loadModelFromFile = function(file_input, options) {
-    options = checkBinary(options);
+    options = checkBinary("model_types", options);
 
     loader.loadFromFile(file_input, loadModel, options);
   };
@@ -257,7 +261,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * ```
   */
   viewer.loadIntensityDataFromURL = function(url, options) {
-    options = checkBinary(options);
+    options = checkBinary("intensity_data_types", options);
 
     loader.loadFromURL(url, loadIntensityData, options);
   };
@@ -290,7 +294,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * ```
   */
   viewer.loadIntensityDataFromFile = function(file_input, options) {
-    options = checkBinary(options);
+    options = checkBinary("intensity_data_types", options);
 
     loader.loadFromFile(file_input, loadIntensityData, options);
   };
@@ -528,7 +532,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       model_data.colors = unrollColors(model_data.colors, verts.length / 3);
     }
 
-    centerShapes(model_data);
+    findCentroid(model_data);
 
     callback(model_data);
   }
@@ -555,61 +559,18 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     return unrolled_colors;
   }
 
-  function centerShapes(model_data) {
-    var verts = model_data.vertices;
-    var min_x, max_x, min_y, max_y, min_z, max_z;
-
-    model_data.shapes.forEach(function(shape) {
-      var indices = shape.indices;
-      var index;
-      var x, y, z;
-      var i, count;
-
-      min_x = min_y = min_z = Number.POSITIVE_INFINITY;
-      max_x = max_y = max_z = Number.NEGATIVE_INFINITY;
-
-      for (i = 0, count = indices.length; i < count; i++) {
-        index = indices[i];
-        x = verts[index * 3];
-        y = verts[index * 3 + 1];
-        z = verts[index * 3 + 2];
-
-        min_x = Math.min(min_x, x);
-        min_y = Math.min(min_y, y);
-        min_z = Math.min(min_z, z);
-        max_x = Math.max(max_x, x);
-        max_y = Math.max(max_y, y);
-        max_z = Math.max(max_z, z);
-      }
-
-      shape.bounding_box = {
-        min_x: min_x,
-        min_y: min_y,
-        min_z: min_z,
-        max_x: max_x,
-        max_y: max_y,
-        max_z: max_z
-      };
-
-      shape.centroid = {
-        x: min_x + (max_x - min_x) / 2,
-        y: min_y + (max_y - min_y) / 2,
-        z: min_z + (max_z - min_z) / 2
-      };
-    });
-  }
-
   ///////////////////////////////////////////
   // DISPLAY OF LOADED MODELS
   ///////////////////////////////////////////
 
-  // Creates a object based on the description in **model_data** and
+  // Creates three.js objects based on the
+  // description in **model_data** and 
   // displays in on the viewer.
   function displayModel(model_data, filename, options) {
     options = options || {};
     var complete = options.complete;
 
-    var new_shapes = addObject(model_data, filename, options);
+    var new_shapes = createModel(model_data, filename, options);
 
     viewer.triggerEvent("displaymodel", {
       model: viewer.model,
@@ -620,8 +581,11 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     if (complete) complete();
   }
 
-  // Add a polygon object to the scene.
-  function addObject(model_data, filename, options){
+  // Create a model that may be composed of several
+  // shapes. Each shape will get their own three.js
+  // object, though they may share attributes and
+  // buffers.
+  function createModel(model_data, filename, options){
     var model = viewer.model;
     var shapes = model_data.shapes;
     var is_line = model_data.type === "line";
@@ -695,7 +659,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         object_description.centroid = shape_data.centroid;
         object_description.recenter = recenter;
 
-        shape = createObject(object_description);
+        shape = createShape(object_description);
         shape.name = shape_data.name || filename + "_" + (i + 1);
 
         shape.userData.model_name = model_data.name;
@@ -726,7 +690,10 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     return new_shapes;
   }
 
-  function createObject(object_description) {
+  // Create a three.js object to represent
+  // a shape from the model data 'shapes'
+  // array.
+  function createShape(object_description) {
     var position = object_description.position;
     var position_array = position.array;
     var normal = object_description.normal;
@@ -798,6 +765,54 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     return shape;
   }
 
+  // Find centroid and bounding box of a shape.
+  function findCentroid(model_data) {
+    var verts = model_data.vertices;
+    var min_x, max_x, min_y, max_y, min_z, max_z;
+
+    model_data.shapes.forEach(function(shape) {
+      var indices = shape.indices;
+      var index;
+      var x, y, z;
+      var i, count;
+
+      min_x = min_y = min_z = Number.POSITIVE_INFINITY;
+      max_x = max_y = max_z = Number.NEGATIVE_INFINITY;
+
+      for (i = 0, count = indices.length; i < count; i++) {
+        index = indices[i];
+        x = verts[index * 3];
+        y = verts[index * 3 + 1];
+        z = verts[index * 3 + 2];
+
+        min_x = Math.min(min_x, x);
+        min_y = Math.min(min_y, y);
+        min_z = Math.min(min_z, z);
+        max_x = Math.max(max_x, x);
+        max_y = Math.max(max_y, y);
+        max_z = Math.max(max_z, z);
+      }
+
+      shape.bounding_box = {
+        min_x: min_x,
+        min_y: min_y,
+        min_z: min_z,
+        max_x: max_x,
+        max_y: max_y,
+        max_z: max_z
+      };
+
+      shape.centroid = {
+        x: min_x + (max_x - min_x) / 2,
+        y: min_y + (max_y - min_y) / 2,
+        z: min_z + (max_z - min_z) / 2
+      };
+    });
+  }
+
+  // Used for indexed models.
+  // Will adjust the color buffer by putting shape
+  // colors at the right positions.
   function setShapeColors(model_colors, shape_colors, indices) {
     if (!shape_colors) {
       return;
@@ -830,10 +845,11 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     }
   }
 
-  function checkBinary(options) {
+  // Check if request format is binary.
+  function checkBinary(config_base, options) {
     options = options || {};
     var format = options.format || "mniobj";
-    var format_config = BrainBrowser.config.get("model_types." + format);
+    var format_config = BrainBrowser.config.get(config_base + "." + format);
 
     if (format_config && format_config.binary) {
       options.result_type = options.result_type || "arraybuffer";

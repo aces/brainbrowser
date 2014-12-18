@@ -30,7 +30,7 @@
 // BrainBrowser Surface Viewer.
 $(function() {
   "use strict";
-  
+
   var THREE = BrainBrowser.SurfaceViewer.THREE;
   var atlas_labels = {};
 
@@ -671,10 +671,12 @@ $(function() {
           });
           viewer.loadModelFromURL("models/left-color-mesh.obj", {
             format: "mniobj",
+            recenter: true,
             cancel: defaultCancelOptions(current_request)
           });
           viewer.loadModelFromURL("models/right-color-mesh.obj", {
             format: "mniobj",
+            recenter: true,
             cancel: defaultCancelOptions(current_request)
           });
         },

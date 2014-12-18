@@ -28,12 +28,19 @@
   "use strict";
 
   self.addEventListener("message", function(e) {
-    self.postMessage(parseData(JSON.parse(e.data.data)));
+    var parsed = parseData(JSON.parse(e.data.data));
+    var result = parsed.result;
+    var transfer = parsed.transfer;
+
+    self.postMessage(result, transfer);
   });
 
   function parseData(data) {
     var result = { name: data.name, type: data.type, shapes: [] };
-    result.vertices = flatten(data.vertices);
+    var transfer = [];
+
+    result.vertices = new Float32Array(flatten(data.vertices));
+    transfer.push(result.vertices.buffer);
 
     data.colors = data.colors || data.color;
 
@@ -42,12 +49,16 @@
 
       if (result.vertices.length === result.colors.length || result.colors.length === 3) {
         result.colors = insertColorAlpha(result.colors);
+      } else {
+        result.colors = new Float32Array(result.colors);
       }
 
+      transfer.push(result.colors.buffer);
     }
 
     if (data.normals) {
-      result.normals = flatten(data.normals);
+      result.normals = new Float32Array(flatten(data.normals));
+      transfer.push(result.normals.buffer);
     }
 
     if (data.shapes === undefined) {
@@ -59,22 +70,32 @@
     }
 
     data.shapes.forEach(function(shape) {
-      var indices = flatten(shape.indices);
+      var indices = new Uint32Array(flatten(shape.indices));
       
       if (shape.one_indexed) {
         adjustIndices(indices);
       }
       
+      transfer.push(indices.buffer);
+
       shape.color = shape.color || shape.colors;
 
       if (Array.isArray(shape.color) && shape.color.length === 3) {
         shape.color.push(1);
       }
+
+      if (shape.color) {
+        shape.color = new Float32Array(shape.color);
+        transfer.push(shape.color.buffer);
+      }
       
       result.shapes.push({ name: shape.name, indices: indices, color: shape.color });
     });
 
-    return result;
+    return {
+      result: result,
+      transfer: transfer
+    };
   }
 
   function flatten(array, index) {

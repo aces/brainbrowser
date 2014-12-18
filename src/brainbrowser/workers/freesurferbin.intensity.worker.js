@@ -28,7 +28,8 @@
   "use strict";
       
   self.addEventListener("message", function(e) {
-    self.postMessage(parse(e.data.data));
+    var result = parse(e.data.data);
+    self.postMessage(result, [result.values.buffer]);
   });
   
   // Parsing based on http://www.grahamwideman.com/gw/brain/fs/surfacefileformats.htm

@@ -469,6 +469,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
     parse_worker.addEventListener("message", function(event) {
       var model_data = event.data;
+      var transfer;
 
       if (model_data.error){
         error_message = "error parsing model.\n" +
@@ -480,7 +481,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         throw new Error(error_message);
       }
 
-      model_data.colors = model_data.colors || [0.7, 0.7, 0.7, 1.0];
+      model_data.colors = model_data.colors || new Float32Array([0.7, 0.7, 0.7, 1.0]);
 
       if (BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
         loadIndexedModel(model_data, callback);
@@ -491,7 +492,21 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
           callback(event.data);
         });
 
-        deindex_worker.postMessage(model_data);
+        transfer = [model_data.vertices.buffer];
+
+        if (model_data.normals) {
+          transfer.push(model_data.normals.buffer);
+        }
+
+        if (model_data.colors) {
+          transfer.push(model_data.colors.buffer);
+        }
+
+        model_data.shapes.forEach(function(shape) {
+          transfer.push(shape.indices.buffer);
+        });
+
+        deindex_worker.postMessage(model_data, transfer);
       }
 
       parse_worker.terminate();
@@ -610,22 +625,23 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var is_line = model_data.type === "line";
     var render_depth = options.render_depth;
     var pick_ignore = options.pick_ignore;
+    var recenter = options.recenter || model_data.split;
     var new_shapes = [];
     var shape, shape_data;
     var i, count;
     var object_description = {is_line: is_line};
-    var model_position, model_normal, model_color;
+    var position_buffer, normal_buffer, color_buffer;
 
     if (BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
 
-      model_position = new THREE.BufferAttribute(new Float32Array(model_data.vertices), 3);
+      position_buffer = new THREE.BufferAttribute(new Float32Array(model_data.vertices), 3);
 
       if (model_data.normals) {
-        model_normal = new THREE.BufferAttribute(new Float32Array(model_data.normals), 3);
+        normal_buffer = new THREE.BufferAttribute(new Float32Array(model_data.normals), 3);
       }
 
       if (model_data.colors) {
-        model_color = new THREE.BufferAttribute(new Float32Array(model_data.colors), 4);
+        color_buffer = new THREE.BufferAttribute(new Float32Array(model_data.colors), 4);
       }
     }
 
@@ -637,40 +653,45 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       for (i = 0, count = shapes.length; i < count; i++) {
         shape_data = model_data.shapes[i];
 
+        if (shape_data.indices.length === 0) {
+          continue;
+        }
+
         if (BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
-          setShapeColors(model_color.array, shape_data.color, shape_data.indices);
+          setShapeColors(color_buffer.array, shape_data.color, shape_data.indices);
         
           object_description = {
-            position: model_position,
-            normal: model_normal,
-            color: model_color,
+            position: position_buffer,
+            normal: normal_buffer,
+            color: color_buffer,
             index: new THREE.BufferAttribute(new Uint32Array(shape_data.indices), 1),
           };
 
         } else {
 
-          model_position = model_normal = model_color = null;
+          position_buffer = normal_buffer = color_buffer = null;
 
-          model_position = new THREE.BufferAttribute(new Float32Array(shape_data.unindexed.position), 3);
+          position_buffer = new THREE.BufferAttribute(new Float32Array(shape_data.unindexed.position), 3);
 
           if (shape_data.unindexed.normal) {
-            model_normal = new THREE.BufferAttribute(new Float32Array(shape_data.unindexed.normal), 3);
+            normal_buffer = new THREE.BufferAttribute(new Float32Array(shape_data.unindexed.normal), 3);
           }
 
           if (shape_data.unindexed.color) {
-            model_color = new THREE.BufferAttribute(new Float32Array(shape_data.unindexed.color), 4);
+            color_buffer = new THREE.BufferAttribute(new Float32Array(shape_data.unindexed.color), 4);
           }
 
           object_description = {
-            position: model_position,
-            normal: model_normal,
-            color: model_color
+            position: position_buffer,
+            normal: normal_buffer,
+            color: color_buffer
           };
 
         }
 
         object_description.is_line = is_line;
         object_description.centroid = shape_data.centroid;
+        object_description.recenter = recenter;
 
         shape = createObject(object_description);
         shape.name = shape_data.name || filename + "_" + (i + 1);
@@ -711,6 +732,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var index = object_description.index;
     var centroid = object_description.centroid;
     var is_line = object_description.is_line;
+    var recenter = object_description.recenter;
 
     var geometry = new THREE.BufferGeometry();
     var index_array, tmp_position_array, position_index;
@@ -719,21 +741,23 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
     geometry.dynamic = true;
 
-    if (index) {
-      index_array = index.array;
-      // tmp_position_array used because there will be repeats in the index array.
-      tmp_position_array = new Float32Array(position_array);
-      for (i = 0, count = index_array.length; i < count; i++) {
-        position_index = index_array[i] * 3;
-        position_array[position_index]     = tmp_position_array[position_index]     - centroid.x;
-        position_array[position_index + 1] = tmp_position_array[position_index + 1] - centroid.y;
-        position_array[position_index + 2] = tmp_position_array[position_index + 2] - centroid.z;
-      }
-    } else {
-      for (i = 0, count = position_array.length; i < count; i += 3) {
-        position_array[i]     -= centroid.x;
-        position_array[i + 1] -= centroid.y;
-        position_array[i + 2] -= centroid.z;
+    if (recenter) {
+      if (index) {
+        index_array = index.array;
+        // tmp_position_array used because there will be repeats in the index array.
+        tmp_position_array = new Float32Array(position_array);
+        for (i = 0, count = index_array.length; i < count; i++) {
+          position_index = index_array[i] * 3;
+          position_array[position_index]     = tmp_position_array[position_index]     - centroid.x;
+          position_array[position_index + 1] = tmp_position_array[position_index + 1] - centroid.y;
+          position_array[position_index + 2] = tmp_position_array[position_index + 2] - centroid.z;
+        }
+      } else {
+        for (i = 0, count = position_array.length; i < count; i += 3) {
+          position_array[i]     -= centroid.x;
+          position_array[i + 1] -= centroid.y;
+          position_array[i + 2] -= centroid.z;
+        }
       }
     }
 
@@ -759,11 +783,15 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     } else {
       material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0xFFFFFF, specular: 0x101010, shininess: 150, vertexColors: THREE.VertexColors});
       shape = new THREE.Mesh(geometry, material);
-      shape.has_wireframe = true;
+      shape.userData.has_wireframe = true;
     }
 
     shape.userData.centroid = centroid;
-    shape.position.set(centroid.x, centroid.y, centroid.z);
+
+    if (recenter) {
+      shape.userData.recentered = true;
+      shape.position.set(centroid.x, centroid.y, centroid.z);
+    }
 
     return shape;
   }

@@ -173,8 +173,6 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   */
   viewer.resetView = function() {
     var model = viewer.model;
-    var child, wireframe, centroid;
-    var i, count;
     var inv = new THREE.Matrix4();
     inv.getInverse(model.matrix);
   
@@ -182,19 +180,6 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     camera.position.set(0, 0, default_camera_distance);
     light.position.set(0, 0, default_camera_distance);
     viewer.zoom = 1;
-    
-    for (i = 0, count = viewer.model.children.length; i < count; i++) {
-      child = model.children[i];
-      centroid = child.userData.centroid;
-      if (centroid) {
-        child.position.set(centroid.x, centroid.y, centroid.z);
-      } else {
-        child.position.set(0, 0, 0);
-      }
-      child.rotation.set(0, 0, 0);
-
-      wireframe = child.getObjectByName("__WIREFRAME__");
-    }
 
     viewer.updated = true;
   };
@@ -331,14 +316,19 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       } else {
         // We're dealing with an imported model.
 
-        // Objects have their origins centered
-        // to help with transparency, so to check
-        // check against original vertices we have
-        // move them back.
-        centroid = intersect_object.userData.centroid;
-        cx = centroid.x;
-        cy = centroid.y;
-        cz = centroid.z;
+        if (intersect_object.userData.recentered) {
+          // Objects have their origins centered
+          // to help with transparency, so to check
+          // check against original vertices we have
+          // move them back.
+          centroid = intersect_object.userData.centroid;
+          cx = centroid.x;
+          cy = centroid.y;
+          cz = centroid.z;
+        } else {
+          cx = cy = cz = 0;
+        }
+        
 
         inv_matrix.getInverse(intersect_object.matrixWorld);
         intersect_point = intersection.point.applyMatrix4(inv_matrix);

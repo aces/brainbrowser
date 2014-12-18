@@ -29,16 +29,15 @@
   "use strict";
   
   self.addEventListener("message", function(e) {
-    var message = e.data;
-    var data = message.data;
-    self.postMessage(parse(data));
+    var result = parse(e.data.data);
+    self.postMessage(result, [result.values.buffer]);
   });
   
   function parse(string) {
     var result = {};
     var i, count, min, max;
   
-    result.values = string.trim().split(/\s+/).map(parseFloat);
+    result.values = new Float32Array(string.trim().split(/\s+/).map(parseFloat));
     min = result.values[0];
     max = result.values[0];
 

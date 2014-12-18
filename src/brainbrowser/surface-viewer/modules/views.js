@@ -159,7 +159,7 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
       wireframe = shape.getObjectByName("__WIREFRAME__");
       if (wireframe) {
         toggleWireframe(shape, wireframe, is_wireframe);
-      } else if (shape.has_wireframe) {
+      } else if (shape.userData.has_wireframe && !shape.userData.creating_wireframe) {
         createWireframe(shape, function(wireframe) {
           toggleWireframe(shape, wireframe, is_wireframe);
         });
@@ -225,6 +225,7 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   ////////////////////////////////////
 
   function createWireframe(shape, callback) {
+    shape.userData.creating_wireframe = true;
     if (active_wireframe_jobs < MAX_WIREFRAME_WORKERS) {
       launchWireframeWorker(shape, callback);
     } else {
@@ -240,18 +241,27 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
     var message;
 
     worker.addEventListener("message", function(event) {
-      var positions = event.data.positions || geometry.position.array;
-      var colors = event.data.colors || geometry.color.array;
-      var indices = event.data.indices;
-
       var wire_geometry = new THREE.BufferGeometry();
       var material, wireframe;
+      var position_buffer, color_buffer;
 
-      wire_geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
-      wire_geometry.addAttribute("color", new THREE.BufferAttribute(colors, 4));
+      if (event.data.positions) {
+        position_buffer = new THREE.BufferAttribute(event.data.positions, 3);
+      } else {
+        position_buffer = geometry.position;
+      }
 
-      if (indices) {
-        wire_geometry.addAttribute("index", new THREE.BufferAttribute(indices, 1));
+      if (event.data.colors) {
+        color_buffer = new THREE.BufferAttribute(event.data.colors, 4);
+      } else {
+        color_buffer = geometry.color;
+      }
+      
+      wire_geometry.addAttribute("position", position_buffer);
+      wire_geometry.addAttribute("color", color_buffer);
+
+      if (event.data.indices) {
+        wire_geometry.addAttribute("index", new THREE.BufferAttribute(event.data.indices, 1));
       }
 
       wire_geometry.attributes.color.needsUpdate = true;
@@ -262,6 +272,7 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
       wireframe.name = "__WIREFRAME__";
       wireframe.material.visible = false;
       shape.add(wireframe);
+      shape.creating_wireframe = false;
       active_wireframe_jobs--;
       callback(wireframe);
 

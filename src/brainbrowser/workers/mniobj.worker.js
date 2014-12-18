@@ -50,30 +50,48 @@
       error_message: result.error_message
     };
 
+    var transfer = [
+      data.vertices.buffer,
+      data.colors.buffer
+    ];
+
+    if (data.normals) {
+      transfer.push(data.normals.buffer);
+    }
+
     if (data.split) {
       data.shapes = [
         { indices: result.left.indices },
         { indices: result.right.indices }
       ];
+
+      transfer.push(
+        result.left.indices.buffer,
+        result.right.indices.buffer
+      );
     } else {
       data.shapes = [
         { indices: result.indices }
       ];
+      transfer.push(
+        result.indices.buffer
+      );
     }
 
-    self.postMessage(data);
+    self.postMessage(data, transfer);
   });
   
   function parse(data, options) {
     stack = data.trim().split(/\s+/).reverse();
     stack_index = stack.length - 1;
     
-    var i, j, start, end, nitems;
-    var indices, end_indices;
-    var line_indices = [];
     var split_hemispheres = options.split;
     var result = {};
     var object_class = popStack();
+    var i, j, start, end, nitems;
+    var indices, end_indices;
+    var line_indices;
+    var line_index_size, line_index_counter;
 
     // By default models are not split
     // (this option allows us to split hemispheres
@@ -111,24 +129,46 @@
         splitHemispheres(result);
       }
     } else if (result.type === "line") {
+      line_indices = [];
       indices = result.indices;
       end_indices = result.end_indices;
       nitems = result.nitems;
+      line_index_size = line_index_counter = 0;
+
       for (i = 0; i < nitems; i++){
+        
         if (i === 0){
           start = 0;
         } else {
-          start = end_indices[i-1];
+          start = end_indices[i - 1];
         }
-        line_indices.push(indices[start]);
+        
         end = end_indices[i];
-        for (j = start + 1; j < end - 1; j++) {
-          line_indices.push(indices[j]);
-          line_indices.push(indices[j]);
-        }
-        line_indices.push(indices[end-1]);
+
+        line_index_size += (end - start - 1) * 2;    
       }
 
+      line_indices = new Uint32Array(line_index_size);
+
+      for (i = 0; i < nitems; i++){
+        
+        if (i === 0){
+          start = 0;
+        } else {
+          start = end_indices[i - 1];
+        }
+        
+        line_indices[line_index_counter++] = indices[start];
+        end = end_indices[i];
+        
+        for (j = start + 1; j < end - 1; j++) {
+          line_indices[line_index_counter++] = indices[j];
+          line_indices[line_index_counter++] = indices[j];
+        }
+        
+        line_indices[line_index_counter++] = indices[end - 1];
+      }
+      
       result.indices = line_indices;
     }
   
@@ -222,7 +262,7 @@
   
   function parseIndices(result) {
     var count = stack_index + 1;
-    var indices = new Float32Array(count);
+    var indices = new Uint32Array(count);
     var i;
     
     for (i = 0; i < count; i++) {
@@ -236,11 +276,11 @@
     var num_indices = result.indices.length;
 
     result.left = {
-      indices: Array.prototype.slice.call(result.indices, 0, num_indices / 2)
+      indices: new Uint32Array(Array.prototype.slice.call(result.indices, 0, num_indices / 2))
     };
 
     result.right = {
-      indices: Array.prototype.slice.call(result.indices, num_indices / 2)
+      indices: new Uint32Array(Array.prototype.slice.call(result.indices, num_indices / 2))
     };
   }
 

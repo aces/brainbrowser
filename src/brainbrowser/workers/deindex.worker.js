@@ -33,19 +33,40 @@
     var verts = data.vertices;
     var norms = data.normals;
     var colors = data.colors;
+    var transfer = [verts.buffer];
     var i, count;
     var shape, unindexed;
 
     for (i = 0, count = shapes.length; i < count; i++) {
       shape = shapes[i];
-      unindexed = deindex(shapes[i].indices, verts, norms, shape.color || colors);
+      unindexed = deindex(shape.indices, verts, norms, shape.color || colors);
       shape.centroid = unindexed.centroid;
       shape.unindexed = unindexed.unindexed;
+
+      transfer.push(shape.indices.buffer);
+
+      transfer.push(shape.unindexed.position.buffer);
+
+      if (shape.unindexed.normal) {
+        transfer.push(shape.unindexed.normal.buffer);
+      }
+
+      if (shape.unindexed.color) {
+        transfer.push(shape.unindexed.color.buffer);
+      }
+    }
+
+    if (norms) {
+      transfer.push(norms.buffer);
+    }
+
+    if (colors) {
+      transfer.push(colors.buffer);
     }
 
     data.deindexed = true;
 
-    self.postMessage(data);
+    self.postMessage(data, transfer);
   });
   
   function deindex(indices, verts, norms, colors) {

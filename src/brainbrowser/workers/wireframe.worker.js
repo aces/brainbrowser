@@ -30,23 +30,24 @@
   self.addEventListener("message", function(event) {
     var data = event.data;
 
-    var result;
+    var result, transfer;
 
     if (data.indices) {
       result = createIndexedWireframe(data.indices);
+      transfer = [result.indices.buffer];
     } else {
       result = createUnindexedWireframe(data.positions, data.colors);
+      transfer = [result.positions.buffer, result.colors.buffer];
     }
 
-    self.postMessage(result);
+    self.postMessage(result, transfer);
   });
 
   function createIndexedWireframe(indices) {
-    var wire_indices = new Float32Array(indices.length * 2);
-    var i, iw;
-    var num_indices = indices.length / 3;
+    var wire_indices = new Uint32Array(indices.length * 2);
+    var i, iw, count;
 
-    for (i = 0; i < num_indices; i += 3) {
+    for (i = 0, count = indices.length; i < count; i += 3) {
       iw = i * 2;
 
       // v1 - v2
@@ -64,7 +65,7 @@
     }
 
     return {
-      indices: indices
+      indices: wire_indices
     };
   }
 

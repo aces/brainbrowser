@@ -28,7 +28,13 @@
   "use strict";
       
   self.addEventListener("message", function(e) {
-    self.postMessage(parse(e.data.data));
+    var result = parse(e.data.data);
+    var transfer = [
+      result.vertices.buffer,
+      result.shapes[0].indices.buffer
+    ];
+
+    self.postMessage(result, transfer);
   });
   
   function parse(data) {

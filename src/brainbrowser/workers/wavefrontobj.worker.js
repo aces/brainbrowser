@@ -41,6 +41,7 @@
     var vertices = [];
     var texture_coords = [];
     var wavefront_normals = [];
+    var wavefront_shapes = [];
     var normals, indices, texture_indices, normal_indices;
     var line;
     var line_marker;
@@ -50,11 +51,12 @@
    
     var result = {};
     var transfer = [];
+    result.shapes = [];
+
 
     data = data.split("\n");
-    result.shapes = [];
     current_shape = {indices: [], texture_indices:[], normal_indices: []};
-    result.shapes.push(current_shape);
+    wavefront_shapes.push(current_shape);
     for(i = 0, count = data.length; i < count; i++) {
       line = data[i].replace(/^\s+/, "").replace(/\s+$/, "").split(/\s+/);
       line_marker = line[0];
@@ -65,7 +67,7 @@
         case "o":
         case "g":
           current_shape = {name: line[1], indices: [], texture_indices:[], normal_indices: []};
-          result.shapes.push(current_shape);
+          wavefront_shapes.push(current_shape);
           break;
         case "v":
           vertices.push(
@@ -126,27 +128,29 @@
       normals = new Float32Array(vertices.length);
     }
 
-    result.shapes.forEach(function(shape) {
-      shape.indices = new Uint32Array(shape.indices);
+    wavefront_shapes.forEach(function(wavefront_shape) {
+      var shape = {};
+      var vi, ni;
+
+      shape.indices = new Uint32Array(wavefront_shape.indices);
       transfer.push(shape.indices.buffer);
 
-      if (shape.normal_indices.length > 0) {
-        for (i = 0, count = shape.normal_indices.length; i < count; i++) {
-          var vi = shape.indices[i] * 3;
-          var ni = shape.normal_indices[i] * 3;
+      if (wavefront_shape.normal_indices.length > 0) {
+        for (i = 0, count = wavefront_shape.normal_indices.length; i < count; i++) {
+          vi = wavefront_shape.indices[i] * 3;
+          ni = wavefront_shape.normal_indices[i] * 3;
           normals[vi] = wavefront_normals[ni];
           normals[vi + 1] = wavefront_normals[ni + 1];
           normals[vi + 2] = wavefront_normals[ni + 2];
         }
       }
-      shape.normal_indices = null;
 
-      if (shape.texture_indices.length > 0) {
-        shape.texture_indices = new Uint32Array(shape.texture_indices);
+      if (wavefront_shape.texture_indices.length > 0) {
+        shape.texture_indices = new Uint32Array(wavefront_shape.texture_indices);
         transfer.push(shape.texture_indices.buffer);
-      } else {
-        shape.texture_indices = null;
       }
+
+      result.shapes.push(shape);
     });
 
     if (normals) {

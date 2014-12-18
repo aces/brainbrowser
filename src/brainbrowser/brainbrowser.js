@@ -32,6 +32,14 @@
 * The main BrainBrowser namespace. Contains:
 *
 *  * **version**: the version of the current instance of BrainBrowser.
+*  * **CANVAS_ENABLED** Indicates whether the HTML5 canvas is
+*    available in the current browser.
+*  * **WEB_WORKERS_ENABLED** Indicates whether Web Workers are
+*    available in the current browser.
+*  * **WEBGL_ENABLED** Indicates whether WebGL is available
+*    in the current browser.
+*  * **WEBGL_UINT_INDEX_ENABLED** Indicates whether the WebGL
+*    OES_element_index_uint extension is available in the current browser.
 *  * **utils**: general utilities for all applications.
 *  * **events**: event handler functions.
 *  * **createColorMap**: a factory function for creating color map objects.
@@ -73,6 +81,14 @@
 * @doc object
 * @name BrainBrowser
 * @property {string} version The current version of BrainBrowser.
+* @property {boolean} CANVAS_ENABLED Indicates whether the HTML5 canvas is
+* available in the current browser.
+* @property {boolean} WEB_WORKERS_ENABLED Indicates whether Web Workers are
+* available in the current browser.
+* @property {boolean} WEBGL_ENABLED Indicates whether WebGL is available
+* in the current browser.
+* @property {boolean} WEBGL_UINT_INDEX_ENABLED Indicates whether the WebGL 
+* OES_element_index_uint extension is available in the current browser.
 * @property {object} utils General utilities for all applications.
 * @property {object} events Event handler functions.
 * @property {function} createColorMap A factory function for creating color map objects.

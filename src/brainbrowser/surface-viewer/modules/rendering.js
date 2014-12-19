@@ -179,6 +179,28 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     model.applyMatrix(inv);
     camera.position.set(0, 0, default_camera_distance);
     light.position.set(0, 0, default_camera_distance);
+
+    model.children.forEach(function(shape) {
+      var centroid = shape.userData.centroid;
+      var recentered = shape.userData.recentered;
+
+      // The check for original_data tells us
+      // this is a loaded model, rather than
+      // an annotation, etc.
+      if (shape.userData.original_data) {
+        if (centroid && recentered) {
+          shape.position.set(
+            centroid.x,
+            centroid.y,
+            centroid.z
+          );
+        } else {
+          shape.position.set(0, 0, 0);
+        }
+        shape.rotation.set(0, 0, 0);
+      }
+    });
+    
     viewer.zoom = 1;
 
     viewer.updated = true;

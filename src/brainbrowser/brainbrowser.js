@@ -34,11 +34,11 @@
 *  * **version**: the version of the current instance of BrainBrowser.
 *  * **CANVAS_ENABLED** Indicates whether the HTML5 canvas is
 *    available in the current browser.
-*  * **WEB_WORKERS_ENABLED** Indicates whether Web Workers are
+*  * **WEB\_WORKERS_ENABLED** Indicates whether Web Workers are
 *    available in the current browser.
 *  * **WEBGL_ENABLED** Indicates whether WebGL is available
 *    in the current browser.
-*  * **WEBGL_UINT_INDEX_ENABLED** Indicates whether the WebGL
+*  * **WEBGL\_UINT\_INDEX\_ENABLED** Indicates whether the WebGL
 *    OES_element_index_uint extension is available in the current browser.
 *  * **utils**: general utilities for all applications.
 *  * **events**: event handler functions.
@@ -88,7 +88,7 @@
 * @property {boolean} WEBGL_ENABLED Indicates whether WebGL is available
 * in the current browser.
 * @property {boolean} WEBGL_UINT_INDEX_ENABLED Indicates whether the WebGL 
-* OES_element_index_uint extension is available in the current browser.
+* OES\_element\_index\_uint extension is available in the current browser.
 * @property {object} utils General utilities for all applications.
 * @property {object} events Event handler functions.
 * @property {function} createColorMap A factory function for creating color map objects.

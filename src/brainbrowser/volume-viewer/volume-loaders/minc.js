@@ -62,15 +62,41 @@
   };
 
   function createMincVolume(header, raw_data, callback){
-    var cached_slices = {};
+    // var cached_slices = {};
+    var arrayraw = null;
 
+    if(header.type === 'CHAR'){
+      arrayraw = new Uint8Array(raw_data);
+    }else if(header.type === 'SHORT'){
+      arrayraw = new Int16Array(raw_data);
+    }else if(header.type === 'USHORT'){
+      arrayraw = new Uint16Array(raw_data);
+    }else if(header.type === 'LONG'){
+      arrayraw = new Int32Array(raw_data);
+    }else if(header.type === 'ULONG'){
+      arrayraw = new Uint32Array(raw_data);
+    }else if(header.type === 'FLOAT' || header.type === 'DOUBLE'){
+      arrayraw = new Float64Array(raw_data);
+    }else{
+      arrayraw = new Uint8Array(raw_data);
+    }
+
+
+    var intensitymin = Number.MAX_VALUE;
+    var intensitymax = -Number.MAX_VALUE;
+
+    for(var i = 0; i < arrayraw.length; i++){
+      intensitymin = Math.min(arrayraw[i], intensitymin);
+      intensitymax = Math.max(arrayraw[i], intensitymax);
+    }
+    
     var volume = {
       position: {},
       current_time: 0,
-      data: new Uint8Array(raw_data),
+      data: arrayraw,
       header: header,
-      intensity_min: 0,
-      intensity_max: 255,
+      intensity_min: intensitymin,
+      intensity_max: intensitymax,
       slice: function(axis, slice_num, time) {
         slice_num = slice_num === undefined ? volume.position[axis] : slice_num;
         time = time === undefined ? volume.current_time : time;
@@ -83,12 +109,12 @@
 
         time = time || 0;
         
-        cached_slices[axis] = cached_slices[axis] || [];
-        cached_slices[axis][time] =  cached_slices[axis][time] || [];
+        // cached_slices[axis] = cached_slices[axis] || [];
+        // cached_slices[axis][time] =  cached_slices[axis][time] || [];
         
-        if(cached_slices[axis][time][slice_num] !== undefined) {
-          return cached_slices[axis][time][slice_num];
-        }
+        // if(cached_slices[axis][time][slice_num] !== undefined) {
+        //   return cached_slices[axis][time][slice_num];
+        // }
 
         var time_offset = header.time ? time * header.time.offset : 0;
 
@@ -103,7 +129,23 @@
         var width_space_offset = width_space.offset;
         var height_space_offset = height_space.offset;
 
-        var slice_data = new Uint8Array(width * height);
+        var slice_data = null;
+
+        if(header.type === 'CHAR'){
+          slice_data = new Uint8Array(width * height);
+        }else if(header.type === 'SHORT'){
+          slice_data = new Int16Array(width * height);
+        }else if(header.type === 'USHORT'){
+          slice_data = new Uint16Array(width * height);
+        }else if(header.type === 'LONG'){
+          slice_data = new Int32Array(width * height);
+        }else if(header.type === 'ULONG'){
+          slice_data = new Uint32Array(width * height);
+        }else if(header.type === 'FLOAT' || header.type === 'DOUBLE'){
+          slice_data = new Float64Array(width * height);
+        }else{
+          slice_data = new Uint8Array(width * height);
+        }
 
         var slice;
 
@@ -151,7 +193,7 @@
           height: height
         };
 
-        cached_slices[axis][time][slice_num] = slice;
+        // cached_slices[axis][time][slice_num] = slice;
         
         return slice;
       },
@@ -212,6 +254,16 @@
         var slice = volume.slice("zspace", z, time);
 
         return slice.data[(slice.height_space.space_length - y - 1) * slice.width + x];
+      },
+
+      setIntensityValue : function(xyz, value){
+
+        var movsize = [ header[header.order[2]].space_length, header[header.order[1]].space_length ];
+
+        var index =  xyz[2] + (xyz[1])*movsize[0] + (xyz[0])*movsize[0]*movsize[1];
+        
+        volume.data[index] = value;
+
       },
       
       getVoxelCoords: function() {

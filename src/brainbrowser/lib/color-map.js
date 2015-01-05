@@ -65,25 +65,71 @@
     var color;
 
     if (data) {
-      lines = data.trim().split(/\n/);
-      color_map_colors = new Float32Array(lines.length * 4);
-      ic = 0;
 
-      for (i = 0, line_count = lines.length; i < line_count; i++) {
-        color = lines[i].trim().split(/\s+/).slice(0, 4);
-        line_length = color.length;
+      if(options.freesurfer){
+        lines = data.trim().split(/\n/);
+        color_map_colors = {};
+        
+        for(i = 0; i < lines.length; i++){
+          var line = lines[i];
 
-        if (line_length < 3) continue;
+          if (line[0] == '#') {
+            continue;
+          }
+          
+          // split each line
+          var lineFields = line.split(' ');
+          
+          // filter out multiple blanks
+          lineFields = lineFields.filter(function(v) {
 
-        for (j = 0; j < line_length; j++) {
-          color_map_colors[ic + j] = parseFloat(color[j]);
+            return v != '';
+            
+          });
+          
+          // check if we have 6 values
+          if (lineFields.length != 6) {
+            
+            // ignore this line
+            continue;
+            
+          }
+          
+          // here, we have a valid array containing
+          // labelValue, labelName, r, g, b, a
+          
+          // convert r, g, b, a to the range 0..1 and don't forget to make it a
+          // number
+          lineFields[2] = parseInt(lineFields[2], 10); // r
+          lineFields[3] = parseInt(lineFields[3], 10); // g
+          lineFields[4] = parseInt(lineFields[4], 10); // b
+          lineFields[5] = parseInt(lineFields[5], 10); // a
+
+          color_map_colors[lineFields[0]] = [lineFields[1], lineFields[2], lineFields[3], lineFields[4], lineFields[5]];
+          
         }
+        
+      }else{
+        lines = data.trim().split(/\n/);
+        color_map_colors = new Float32Array(lines.length * 4);
+        ic = 0;
 
-        if (line_length < 4) {
-          color_map_colors[ic + 3] = 1;
+        for (i = 0, line_count = lines.length; i < line_count; i++) {
+          color = lines[i].trim().split(/\s+/).slice(0, 4);
+          line_length = color.length;
+
+          if (line_length < 3) continue;
+
+          for (j = 0; j < line_length; j++) {
+            color_map_colors[ic + j] = parseFloat(color[j]);
+          }
+
+          if (line_length < 4) {
+            color_map_colors[ic + 3] = 1;
+          }
+
+          ic += 4;
         }
-
-        ic += 4;
       }
     }
 
@@ -101,6 +147,7 @@
       scale: scale,
       contrast: contrast,
       brightness: brightness,
+      freesurfer : options.freesurfer,
 
       /**
       * @doc function
@@ -139,55 +186,78 @@
         var destination = options.destination || new Float32Array(intensity_values.length * 4);
 
         var color_map_colors = color_map.colors;
-        var color_map_length = color_map.colors.length / 4;
-        
-        var scale = options.scale === undefined ? color_map.scale : options.scale;
-        var clamp = options.clamp === undefined ? color_map.clamp : options.clamp;
-        var flip = options.flip === undefined ? color_map.flip : options.flip;
-        var brightness = options.brightness === undefined ? color_map.brightness : options.brightness;
-        var contrast = options.contrast === undefined ? color_map.contrast : options.contrast;
 
-        // This is used so that when the model color is used in a model
-        // that was just given a single color to apply to the whole model,
-        // the indexes will be set properly (i.e. from 0-4, not 0-no. of
-        // vertices.)
-        var default_color_offset = default_colors.length === 4 ? 0 : 1;
-        var range = max - min;
-        var increment = color_map_length / range;
-        
-        var value;
-        var i, ic, idc, count;
-        var color_map_index;
+        if(color_map.freesurfer){
 
-        brightness *= scale;
-        contrast *= scale;
-
-        //for each value, assign a color
-        for (i = 0, count = intensity_values.length; i < count; i++) {
-          value = intensity_values[i];
-          ic = i * 4;
-
-          color_map_index = getColorMapIndex(value, min, max, increment, clamp, flip, color_map_length);
-
-          //This inserts the RGBA values (R,G,B,A) independently
-          if(color_map_index < 0) {
-            idc = ic * default_color_offset;
-
-            // contrast includes scaling factor
-            destination[ic]     = contrast * default_colors[idc]     + brightness;
-            destination[ic + 1] = contrast * default_colors[idc + 1] + brightness;
-            destination[ic + 2] = contrast * default_colors[idc + 2] + brightness;
-            destination[ic + 3] = scale    * default_colors[idc + 3];
-          } else {
-            // contrast includes scaling factor
-            destination[ic]     = contrast * color_map_colors[color_map_index]     + brightness;
-            destination[ic + 1] = contrast * color_map_colors[color_map_index + 1] + brightness;
-            destination[ic + 2] = contrast * color_map_colors[color_map_index + 2] + brightness;
-            destination[ic + 3] = scale    * color_map_colors[color_map_index + 3];
+          for (i = 0; i < intensity_values.length; i++) {
+            value = intensity_values[i];
+            var ic = i * 4;
+            var color = color_map_colors[value];
+            if(color){
+              destination[ic] = color[1];
+              destination[ic + 1] = color[2];
+              destination[ic + 2] = color[3];
+              destination[ic + 3] = color[4];
+            }else{
+              destination[ic] = 0;
+              destination[ic + 1] = 0;
+              destination[ic + 2] = 0;
+              destination[ic + 3] = 0;
+            }
           }
-        }
 
-        return destination;
+          return destination;
+        }else{
+          var color_map_length = color_map.colors.length / 4;
+        
+          var scale = options.scale === undefined ? color_map.scale : options.scale;
+          var clamp = options.clamp === undefined ? color_map.clamp : options.clamp;
+          var flip = options.flip === undefined ? color_map.flip : options.flip;
+          var brightness = options.brightness === undefined ? color_map.brightness : options.brightness;
+          var contrast = options.contrast === undefined ? color_map.contrast : options.contrast;
+
+          // This is used so that when the model color is used in a model
+          // that was just given a single color to apply to the whole model,
+          // the indexes will be set properly (i.e. from 0-4, not 0-no. of
+          // vertices.)
+          var default_color_offset = default_colors.length === 4 ? 0 : 1;
+          var range = max - min;
+          var increment = color_map_length / range;
+          
+          var value;
+          var i, ic, idc, count;
+          var color_map_index;
+
+          brightness *= scale;
+          contrast *= scale;
+
+          //for each value, assign a color
+          for (i = 0, count = intensity_values.length; i < count; i++) {
+            value = intensity_values[i];
+            ic = i * 4;
+
+            color_map_index = getColorMapIndex(value, min, max, increment, clamp, flip, color_map_length);
+
+            //This inserts the RGBA values (R,G,B,A) independently
+            if(color_map_index < 0) {
+              idc = ic * default_color_offset;
+
+              // contrast includes scaling factor
+              destination[ic]     = contrast * default_colors[idc]     + brightness;
+              destination[ic + 1] = contrast * default_colors[idc + 1] + brightness;
+              destination[ic + 2] = contrast * default_colors[idc + 2] + brightness;
+              destination[ic + 3] = scale    * default_colors[idc + 3];
+            } else {
+              // contrast includes scaling factor
+              destination[ic]     = contrast * color_map_colors[color_map_index]     + brightness;
+              destination[ic + 1] = contrast * color_map_colors[color_map_index + 1] + brightness;
+              destination[ic + 2] = contrast * color_map_colors[color_map_index + 2] + brightness;
+              destination[ic + 3] = scale    * color_map_colors[color_map_index + 3];
+            }
+          }
+
+          return destination;
+        }
       },
 
       /**
@@ -228,44 +298,54 @@
         var brightness = options.brightness === undefined ? color_map.brightness : options.brightness;
         var contrast = options.contrast === undefined ? color_map.contrast : options.contrast;
         var range = max - min;
-        var color_map_length = color_map.colors.length / 4;
-        var increment = color_map_length / range;
-        var color_map_index = getColorMapIndex(
-          value, min, max, increment,
-          color_map.clamp,
-          color_map.flip,
-          color_map_length
-        );
-        
-        var color;
 
-        if (color_map_index >= 0) {
-          color = Array.prototype.slice.call(color_map.colors, color_map_index, color_map_index + 4);
-        } else {
-          color = [0, 0, 0, 1];
+        if(color_map.freesurfer){
+          var color = color_map.colors[value];
+          if(color){
+            return [color[1], color[2], color[3], color[4]];
+          }else{
+            return [0, 0, 0, 0];
+          }
+        }else{
+          var color_map_length = color_map.colors.length / 4;
+          var increment = color_map_length / range;
+          var color_map_index = getColorMapIndex(
+            value, min, max, increment,
+            color_map.clamp,
+            color_map.flip,
+            color_map_length
+          );
+          
+          var color;
+
+          if (color_map_index >= 0) {
+            color = Array.prototype.slice.call(color_map.colors, color_map_index, color_map_index + 4);
+          } else {
+            color = [0, 0, 0, 1];
+          }
+
+          color[0] = Math.max(0, Math.min(contrast * color[0] + brightness, 1));
+          color[1] = Math.max(0, Math.min(contrast * color[1] + brightness, 1));
+          color[2] = Math.max(0, Math.min(contrast * color[2] + brightness, 1));
+
+          if (hex) {
+            color[0] = Math.floor(color[0] * 255);
+            color[1] = Math.floor(color[1] * 255);
+            color[2] = Math.floor(color[2] * 255);
+            color[3] = Math.floor(color[3] * 255);
+            color[0] = ("0" + color[0].toString(16)).slice(-2);
+            color[1] = ("0" + color[1].toString(16)).slice(-2);
+            color[2] = ("0" + color[2].toString(16)).slice(-2);
+            color = color.slice(0, 3).join("");
+          } else {
+            color[0] = color[0] * scale;
+            color[1] = color[1] * scale;
+            color[2] = color[2] * scale;
+            color[3] = color[3] * scale;
+          }
+
+          return color;
         }
-
-        color[0] = Math.max(0, Math.min(contrast * color[0] + brightness, 1));
-        color[1] = Math.max(0, Math.min(contrast * color[1] + brightness, 1));
-        color[2] = Math.max(0, Math.min(contrast * color[2] + brightness, 1));
-
-        if (hex) {
-          color[0] = Math.floor(color[0] * 255);
-          color[1] = Math.floor(color[1] * 255);
-          color[2] = Math.floor(color[2] * 255);
-          color[3] = Math.floor(color[3] * 255);
-          color[0] = ("0" + color[0].toString(16)).slice(-2);
-          color[1] = ("0" + color[1].toString(16)).slice(-2);
-          color[2] = ("0" + color[2].toString(16)).slice(-2);
-          color = color.slice(0, 3).join("");
-        } else {
-          color[0] = color[0] * scale;
-          color[1] = color[1] * scale;
-          color[2] = color[2] * scale;
-          color[3] = color[3] * scale;
-        }
-
-        return color;
       },
 
       /**

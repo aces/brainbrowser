@@ -143,9 +143,13 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   * ```
   */
   viewer.loadVolumeColorMapFromURL = function(vol_id, url, cursor_color, callback) {
+    var options = { scale: 255 };
+    if(url.indexOf('FreeSurfer') !== -1){
+      options.freesurfer = true;
+    }
     BrainBrowser.loader.loadColorMapFromURL(url, function(color_map) {
       setVolumeColorMap(vol_id, color_map, cursor_color, callback);
-    }, { scale: 255 });
+    }, options);
   };
 
   /**
@@ -450,6 +454,13 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   // Create canvases and add mouse interface.
   function createVolumeDisplay(dom_element, vol_id, volume_description) {
     var container = document.createElement("div");
+
+    if(volume_description.style){
+      var att = document.createAttribute("style");
+      att.value = volume_description.style;
+      container.setAttributeNode(att);
+    }
+
     var volume = viewer.volumes[vol_id];
           
     var display = VolumeViewer.createDisplay();

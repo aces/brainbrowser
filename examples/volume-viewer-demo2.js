@@ -69,7 +69,7 @@ $(function() {
             {
               type: "minc",
               header_url: "models/structural3.mnc.header",
-              raw_data_url: "models/structural3.mnc.raw",
+              raw_data_url: "models/structural3.mnc.raw", 
               template: {
                 element_id: "volume-ui-template",
                 viewer_insert_class: "volume-viewer-display"
@@ -491,8 +491,6 @@ $(function() {
             var value = parseFloat(ui.value);
             volume.blend_ratios[0] = 1 - value;
             volume.blend_ratios[1] = value;
-            
-
 
             blend_input.val(value);
             viewer.redrawVolumes();
@@ -675,21 +673,25 @@ $(function() {
       volumes: [
         {
           type: "minc",
-          header_url: "models/structural3.mnc.header",
-          raw_data_url: "models/structural3.mnc.raw",
+          header_url: "models/T1.mnc.header",
+          raw_data_url: "models/T1.mnc.raw",
           template: {
             element_id: "volume-ui-template",
             viewer_insert_class: "volume-viewer-display"
           }
+          // ,
+          // style : "display : none"
         },
         {
           type: 'minc',
-          header_url: "models/structural4.mnc.header",
-          raw_data_url: "models/structural4.mnc.raw",
+          header_url: "models/T1Aseg.mnc.header",
+          raw_data_url: "models/T1Aseg.mnc.raw",
           template: {
             element_id: "volume-ui-template",
             viewer_insert_class: "volume-viewer-display"
           }
+          // ,
+          // style : "display : none"
         }
       ],
       overlay: {
@@ -702,12 +704,25 @@ $(function() {
         loading_div.hide();
         $("#brainbrowser-wrapper").slideDown({duration: 600});
 
-        viewer.volumes.forEach(function(vol){
-          vol.display.forEach(function(panel) {
-              var panvol = panel.volume;
-              var label = 255;
-              if(panvol.data){
+        //viewer.volumes.forEach(function(vol){
+        viewer.synced = true;
+        var vol = viewer.volumes[1];
 
+        viewer.loadVolumeColorMapFromURL(0, 'color-maps/gray-scale.txt', "#FF0000", function() {
+          viewer.redrawVolumes();
+        });
+
+        viewer.loadVolumeColorMapFromURL(1, 'color-maps/FreeSurferColorLUT20120827.txt', "#FF0000", function() {
+          viewer.redrawVolumes();
+        });
+
+        viewer.volumes[2].blend_ratios[0] = 1;
+        viewer.volumes[2].blend_ratios[1] = 1;
+
+        viewer.volumes[2].display.forEach(function(panel) {
+              
+              var label = 255;
+              //if(panvol.data){
                 var offset = [];
                 var size = 0;
 
@@ -719,9 +734,9 @@ $(function() {
                     }
                   }
                 }
-
+                
                 var drawPixel = function(){
-                  var point = panvol.getVoxelCoords();
+                  var point = vol.getVoxelCoords();
                   if(point){
                     
                     var x = point.i;
@@ -731,9 +746,8 @@ $(function() {
                     offset.forEach(function(off){
                       vol.setIntensityValue([x + off[0], y  + off[1], z  + off[2]], label);
                     });
-                    
+
                     viewer.redrawVolumes();
-                      
                   }
                 };
 
@@ -754,9 +768,9 @@ $(function() {
                   }
                 }, false);
                 
-              }
+              //}
             });
-        });
+        //});
       }
     });
 

@@ -69,11 +69,17 @@
       if(options.freesurfer){
         lines = data.trim().split(/\n/);
         color_map_colors = {};
+
+        var filterfunct = function(v) {
+
+          return v !== '';
+          
+        };
         
         for(i = 0; i < lines.length; i++){
           var line = lines[i];
 
-          if (line[0] == '#') {
+          if (line[0] === '#') {
             continue;
           }
           
@@ -81,14 +87,10 @@
           var lineFields = line.split(' ');
           
           // filter out multiple blanks
-          lineFields = lineFields.filter(function(v) {
-
-            return v != '';
-            
-          });
+          lineFields = lineFields.filter(filterfunct);
           
           // check if we have 6 values
-          if (lineFields.length != 6) {
+          if (lineFields.length !== 6) {
             
             // ignore this line
             continue;
@@ -186,12 +188,13 @@
         var destination = options.destination || new Float32Array(intensity_values.length * 4);
 
         var color_map_colors = color_map.colors;
+        var i, ic, idc, count;
 
         if(color_map.freesurfer){
 
           for (i = 0; i < intensity_values.length; i++) {
             value = intensity_values[i];
-            var ic = i * 4;
+            ic = i * 4;
             var color = color_map_colors[value];
             if(color){
               destination[ic] = color[1];
@@ -225,7 +228,6 @@
           var increment = color_map_length / range;
           
           var value;
-          var i, ic, idc, count;
           var color_map_index;
 
           brightness *= scale;
@@ -300,9 +302,9 @@
         var range = max - min;
 
         if(color_map.freesurfer){
-          var color = color_map.colors[value];
-          if(color){
-            return [color[1], color[2], color[3], color[4]];
+          var tempcolor = color_map.colors[value];
+          if(tempcolor){
+            return [tempcolor[1], tempcolor[2], tempcolor[3], tempcolor[4]];
           }else{
             return [0, 0, 0, 0];
           }

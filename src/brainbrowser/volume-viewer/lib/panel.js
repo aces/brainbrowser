@@ -249,8 +249,9 @@
       * ```
       */
       followPointer: function(pointer, dxy) {
+        var cursor;
         if(dxy){
-          var cursor = panel.getCursorPosition();
+          cursor = panel.getCursorPosition();
 
           panel.image_center.x += dxy[0];
           panel.image_center.y += dxy[1];
@@ -259,7 +260,7 @@
         }else{
           var dx = pointer.x - old_pointer_position.x;
           var dy = pointer.y - old_pointer_position.y;
-          var cursor = panel.getCursorPosition();
+          cursor = panel.getCursorPosition();
 
           panel.image_center.x += dx;
           panel.image_center.y += dy;
@@ -273,7 +274,7 @@
         old_pointer_position.y = pointer.y;
 
         panel.updated = true;
-        
+
         return dxy;
       },
 

@@ -248,19 +248,33 @@
       * });
       * ```
       */
-      followPointer: function(pointer) {
-        var dx = pointer.x - old_pointer_position.x;
-        var dy = pointer.y - old_pointer_position.y;
-        var cursor = panel.getCursorPosition();
+      followPointer: function(pointer, dxy) {
+        if(dxy){
+          var cursor = panel.getCursorPosition();
 
-        panel.image_center.x += dx;
-        panel.image_center.y += dy;
-        cursor.x += dx;
-        cursor.y += dy;
+          panel.image_center.x += dxy[0];
+          panel.image_center.y += dxy[1];
+          cursor.x += dxy[0];
+          cursor.y += dxy[1];
+        }else{
+          var dx = pointer.x - old_pointer_position.x;
+          var dy = pointer.y - old_pointer_position.y;
+          var cursor = panel.getCursorPosition();
+
+          panel.image_center.x += dx;
+          panel.image_center.y += dy;
+          cursor.x += dx;
+          cursor.y += dy;
+
+          dxy = [dx, dy];
+        }
+        
         old_pointer_position.x = pointer.x;
         old_pointer_position.y = pointer.y;
 
         panel.updated = true;
+        
+        return dxy;
       },
 
       /**

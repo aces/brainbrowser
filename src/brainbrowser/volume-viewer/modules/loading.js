@@ -553,16 +553,17 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
         }
 
         function drag(pointer, shift_key) {
+          var drag_delta;
 
           if(shift_key) {
-            panel.followPointer(pointer);
+            drag_delta = panel.followPointer(pointer);
             if (viewer.synced){
               viewer.volumes.forEach(function(synced_volume, synced_vol_id) {
                 var synced_panel;
 
                 if (synced_vol_id !== vol_id) {
                   synced_panel = synced_volume.display.getPanel(axis_name);
-                  synced_panel.followPointer(pointer);
+                  synced_panel.translateImage(drag_delta.dx, drag_delta.dy);
                 }
               });
             }

@@ -238,6 +238,9 @@
       * @doc function
       * @name panel.panel:followPointer
       * @param {object} pointer The pointer to follow.
+      * @returns {object} Object containing properties **dx** and **dy** indicating
+      * how much the image moved.
+      *
       * @description
       * Will translate the image by the same amount that the pointer has moved since
       * this method was last called.
@@ -251,14 +254,33 @@
       followPointer: function(pointer) {
         var dx = pointer.x - old_pointer_position.x;
         var dy = pointer.y - old_pointer_position.y;
-        var cursor = panel.getCursorPosition();
 
-        panel.image_center.x += dx;
-        panel.image_center.y += dy;
-        cursor.x += dx;
-        cursor.y += dy;
+        panel.translateImage(dx, dy);
+
         old_pointer_position.x = pointer.x;
         old_pointer_position.y = pointer.y;
+
+        return {
+          dx: dx,
+          dy: dy
+        };
+      },
+
+      /**
+      * @doc function
+      * @name panel.panel:translateImage
+      * @param {number} dx The **x** component of the translation vector.
+      * @param {number} dy The **y** component of the translation vector.
+      *
+      * @description
+      * Translates the slice image by **dx** and **dy**.
+      * ```js
+      * panel.translateImage(10, 40));
+      * ```
+      */
+      translateImage: function(dx, dy) {
+        panel.image_center.x += dx;
+        panel.image_center.y += dy;
 
         panel.updated = true;
       },

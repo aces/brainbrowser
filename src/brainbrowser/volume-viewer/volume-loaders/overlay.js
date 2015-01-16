@@ -42,6 +42,7 @@
     var overlay_volume = {
       type: "overlay",
       position: {},
+      position_continuous: {},
       header: volumes[0] ? volumes[0].header : {},
       intensity_min: 0,
       intensity_max: 255,

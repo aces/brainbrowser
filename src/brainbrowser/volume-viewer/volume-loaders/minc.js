@@ -92,6 +92,7 @@
     
     var volume = {
       position: {},
+      position_continuous: {},
       current_time: 0,
       data: arrayraw,
       header: header,
@@ -360,9 +361,9 @@
         var tz = (-o.x * cz[0] - o.y * cz[1] - o.z * cz[2]) / stepz;
 
         var result = {
-          x: Math.round(x * cx[0] / stepx + y * cx[1] / stepx + z * cx[2] / stepx + tx),
-          y: Math.round(x * cy[0] / stepy + y * cy[1] / stepy + z * cy[2] / stepy + ty),
-          z: Math.round(x * cz[0] / stepz + y * cz[1] / stepz + z * cz[2] / stepz + tz)
+          x: x * cx[0] / stepx + y * cx[1] / stepx + z * cx[2] / stepx + tx,
+          y: x * cy[0] / stepy + y * cy[1] / stepy + z * cy[2] / stepy + ty,
+          z: x * cz[0] / stepz + y * cz[1] / stepz + z * cz[2] / stepz + tz
         };
 
         var ordered = {};

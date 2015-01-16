@@ -225,8 +225,8 @@
 
         if (scale_image) {
           panel.zoom = panel.zoom * ratio;
-          panel.image_center.x = width / 2;
-          panel.image_center.y = height / 2;
+          panel.image_center.x = width / 2.0;
+          panel.image_center.y = height / 2.0;
           panel.updateVolumePosition();
           panel.updateSlice();
         }
@@ -289,8 +289,8 @@
       */
       reset: function() {
         panel.zoom = 1;
-        panel.image_center.x = panel.canvas.width / 2;
-        panel.image_center.y = panel.canvas.height / 2;
+        panel.image_center.x = panel.canvas.width / 2.0;
+        panel.image_center.y = panel.canvas.height / 2.0;
       },
 
       /**
@@ -302,14 +302,25 @@
       * panel.getCursorPosition();
       * ```
       */
-      getCursorPosition: function() {
+      getCursorPosition: function(x_pos, y_pos) {
         var volume = panel.volume;
         var slice = panel.slice;
         var origin = getDrawingOrigin(panel);
+        var x_position = volume.position_continuous[slice.width_space.name];
+        var y_position = volume.position_continuous[slice.height_space.name];
+
+        if(x_pos){
+          x_position = x_pos;
+        }
+
+        if(y_pos){
+          y_position = y_pos;
+        }
+
 
         return {
-          x: volume.position[slice.width_space.name] * Math.abs(slice.width_space.step) * panel.zoom + origin.x,
-          y: (slice.height_space.space_length - volume.position[slice.height_space.name] - 1) * Math.abs(slice.height_space.step) * panel.zoom  + origin.y
+          x: x_position * Math.abs(slice.width_space.step) * panel.zoom + origin.x,
+          y: (slice.height_space.space_length - y_position) * Math.abs(slice.height_space.step) * panel.zoom  + origin.y
         };
       },
 
@@ -327,12 +338,40 @@
       * ```
       */
       updateVolumePosition: function(x, y) {
+        
+        var volume = panel.volume;
+
+        var slice_xy = panel.getVolumePosition(x, y);
+        
+
+        volume.position[panel.slice.width_space.name] = Math.round(slice_xy.slice_x);
+        volume.position[panel.slice.height_space.name] = Math.round(slice_xy.slice_y);
+
+        volume.position_continuous[panel.slice.width_space.name] = slice_xy.slice_x;
+        volume.position_continuous[panel.slice.height_space.name] = slice_xy.slice_y;
+
+        panel.updated = true;
+      },
+
+      /**
+      * @doc function
+      * @name panel.panel:getVolumePosition
+      * @param {number} x The x coordinate of the canvas position.
+      * @param {number} y The y coordinate of the canvas position.
+      * @description
+      * Get the volume position based on the given x and y
+      * coordinates on the panel.
+      * ```js
+      * panel.getVolumePosition(x, y);
+      * ```
+      */
+      getVolumePosition: function(x, y) {
         var origin = getDrawingOrigin(panel);
         var zoom = panel.zoom;
-        var volume = panel.volume;
         var slice = panel.slice;
         var cursor;
-        var slice_x, slice_y;
+        var slice_x, slice_y, step_slice_x, step_slice_y;
+        
 
         if (x === undefined || y === undefined) {
           cursor = panel.getCursorPosition();
@@ -340,13 +379,17 @@
           y = cursor.y;
         }
 
-        slice_x = Math.round((x - origin.x) / zoom / Math.abs(slice.width_space.step));
-        slice_y = Math.round(slice.height_space.space_length - (y - origin.y) / zoom  / Math.abs(slice.height_space.step) - 1);
+        step_slice_x = Math.abs(slice.width_space.step);
+        step_slice_y = Math.abs(slice.height_space.step);
 
-        volume.position[panel.slice.width_space.name] = slice_x;
-        volume.position[panel.slice.height_space.name] = slice_y;
+        slice_x = (x - origin.x) / zoom /step_slice_x - 0.5;
+        slice_y = slice.height_space.space_length - (y - origin.y) / zoom  / step_slice_y + 0.5;
 
-        panel.updated = true;
+        return {
+          slice_x : slice_x,
+          slice_y : slice_y
+        };
+        
       },
 
       /**
@@ -455,7 +498,7 @@
           context: context
         });
         
-        drawCursor(panel, cursor_color);
+        //drawCursor(panel, cursor_color);
 
         if (active) {
           context.save();
@@ -471,6 +514,10 @@
         }
 
         panel.updated = false;
+      },
+
+      drawMousePointer : function(color, coords){
+        drawCursor(panel, color, coords);
       }
     };
 
@@ -506,7 +553,7 @@
   }
 
   // Draw the cursor at its current position on the canvas.
-  function drawCursor(panel, color) {
+  function drawCursor(panel, color, coords) {
     var context = panel.context;
     var cursor = panel.getCursorPosition();
     var zoom = panel.zoom;
@@ -515,6 +562,10 @@
     var distance;
     var dx, dy;
     color = color || "#FF0000";
+
+    if(coords){
+      cursor = coords;
+    }
     
     context.save();
     
@@ -584,8 +635,8 @@
 
     if (image) {
       origin = {
-        x: panel.image_center.x - panel.slice_image.width / 2,
-        y: panel.image_center.y - panel.slice_image.height / 2,
+        x: panel.image_center.x - panel.slice_image.width / 2.0,
+        y: panel.image_center.y - panel.slice_image.height / 2.0,
       };
       panel.context.putImageData(image, origin.x, origin.y);
     }
@@ -596,8 +647,8 @@
   function getDrawingOrigin(panel) {
     var slice = panel.slice;
     return {
-      x: panel.image_center.x - Math.abs(slice.width_space.step * slice.width_space.space_length * panel.zoom) / 2,
-      y: panel.image_center.y - Math.abs(slice.height_space.step * slice.height_space.space_length * panel.zoom) / 2
+      x: panel.image_center.x - Math.abs(slice.width_space.step * slice.width_space.space_length * panel.zoom) / 2.0,
+      y: panel.image_center.y - Math.abs(slice.height_space.step * slice.height_space.space_length * panel.zoom) / 2.0
     };
   }
 

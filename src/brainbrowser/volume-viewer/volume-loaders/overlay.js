@@ -48,6 +48,8 @@
       intensity_max: 255,
       volumes: [],
       blend_ratios: [],
+      mask_overlay : false,
+
       slice: function(axis, slice_num, time) {
         slice_num = slice_num === undefined ? this.position[axis] : slice_num;
         time = time === undefined ? this.current_time : time;
@@ -121,7 +123,8 @@
         return blendImages(
           images,
           overlay_volume.blend_ratios,
-          image_creation_context.createImageData(max_width, max_height)
+          image_creation_context.createImageData(max_width, max_height),
+          overlay_volume.mask_overlay
         );
       },
 
@@ -161,6 +164,10 @@
         return values.reduce(function(intensity, current_value, i) {
           return intensity + current_value * overlay_volume.blend_ratios[i];
         }, 0);
+      },
+
+      setMaskOverlay : function(mask){
+        overlay_volume.mask_overlay = mask;
       }
     };
 
@@ -175,7 +182,7 @@
   };
 
   // Blend the pixels of several images using the alpha value of each
-  function blendImages(images, blend_ratios, target) {
+  function blendImages(images, blend_ratios, target, mask_overlay) {
     var num_images = images.length;
 
     if (num_images === 1) {
@@ -201,6 +208,8 @@
         pixel = (row_offset + x) * 4;
         alpha = 0;
 
+
+
         for (i = 0; i < num_images; i += 1) {
           image = images[i];
 
@@ -208,7 +217,7 @@
             image_data = image.data;
 
             current = image_iter[i];
-      
+
             //Red
             target_data[pixel] = target_data[pixel] * alpha +
                                   image_data[current] * alphas[i];
@@ -220,9 +229,19 @@
             //Blue
             target_data[pixel + 2] = target_data[pixel + 2] * alpha +
                                       image_data[current + 2] * alphas[i];
+
+            if(mask_overlay){
+              var image_alpha = image_data[current + 3]/255*alphas[i];
+              //Red
+              target_data[pixel] = target_data[pixel]*(1-image_alpha) + image_data[current]*image_alpha;
+              //Green
+              target_data[pixel + 1] = target_data[pixel + 1]*(1-image_alpha) + image_data[current + 1]*image_alpha;
+              //Blue
+              target_data[pixel + 2] = target_data[pixel + 2]*(1-image_alpha) + image_data[current + 2]*image_alpha;
+            }
       
             target_data[pixel + 3] = 255;
-            alpha += alphas[i];
+            alpha = alphas[i];
             
             image_iter[i] += 4;
           }

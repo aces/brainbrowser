@@ -195,6 +195,8 @@
       contrast: 1,
       brightness: 0,
       updated: true,
+      draw_cursor : true,
+      cursor_size : 0,
       /**
       * @doc function
       * @name panel.panel:setSize
@@ -306,17 +308,15 @@
         var volume = panel.volume;
         var slice = panel.slice;
         var origin = getDrawingOrigin(panel);
-        var x_position = volume.position_continuous[slice.width_space.name];
-        var y_position = volume.position_continuous[slice.height_space.name];
+        var x_position = volume.position[slice.width_space.name];
+        var y_position = volume.position[slice.height_space.name];
 
         if(x_pos){
           x_position = x_pos;
         }
-
         if(y_pos){
           y_position = y_pos;
         }
-
 
         return {
           x: x_position * Math.abs(slice.width_space.step) * panel.zoom + origin.x,
@@ -344,8 +344,8 @@
         var slice_xy = panel.getVolumePosition(x, y);
         
 
-        volume.position[panel.slice.width_space.name] = Math.round(slice_xy.slice_x);
-        volume.position[panel.slice.height_space.name] = Math.round(slice_xy.slice_y);
+        volume.position[panel.slice.width_space.name] = Math.floor(slice_xy.slice_x);
+        volume.position[panel.slice.height_space.name] = Math.floor(slice_xy.slice_y);
 
         volume.position_continuous[panel.slice.width_space.name] = slice_xy.slice_x;
         volume.position_continuous[panel.slice.height_space.name] = slice_xy.slice_y;
@@ -382,14 +382,29 @@
         step_slice_x = Math.abs(slice.width_space.step);
         step_slice_y = Math.abs(slice.height_space.step);
 
-        slice_x = (x - origin.x) / zoom /step_slice_x - 0.5;
-        slice_y = slice.height_space.space_length - (y - origin.y) / zoom  / step_slice_y + 0.5;
+        slice_x = Math.floor((x - origin.x) / zoom /step_slice_x);
+        slice_y =Math.floor(slice.height_space.space_length - (y - origin.y) / zoom  / step_slice_y);
+        
+        
 
         return {
           slice_x : slice_x,
           slice_y : slice_y
         };
         
+      },
+      /**
+      * @doc function
+      * @name panel.panel:getVoxelCoordinates
+      * @description
+      * Get the current voxel coordinates of the volume
+      */
+      getVoxelCoordinates : function(){
+        return {
+          i : panel.volume.position[panel.volume.header.order[0]],
+          j : panel.volume.position[panel.volume.header.order[1]],
+          k : panel.volume.position[panel.volume.header.order[2]]
+        };
       },
 
       /**
@@ -498,7 +513,8 @@
           context: context
         });
         
-        //drawCursor(panel, cursor_color);
+        drawCursor(panel, cursor_color);
+        
 
         if (active) {
           context.save();
@@ -516,9 +532,20 @@
         panel.updated = false;
       },
 
-      drawMousePointer : function(color, coords){
-        drawCursor(panel, color, coords);
+      drawMousePointer : function(cursor_color, coords){
+        drawCursor(panel, cursor_color, coords);
+      },
+      setDrawCursor : function(draw){
+        panel.draw_cursor = draw;
+      },
+      drawCurrentSlice : function(){
+        drawSlice(panel);
+      },
+      setCursorSize : function(size){
+        panel.cursor_size = size;
+        panel.updated = true;
       }
+
     };
 
     Object.keys(options).forEach(function(k) {
@@ -555,16 +582,21 @@
   // Draw the cursor at its current position on the canvas.
   function drawCursor(panel, color, coords) {
     var context = panel.context;
-    var cursor = panel.getCursorPosition();
+    var cursor;
     var zoom = panel.zoom;
     var length = 8 * zoom;
     var x, y, space;
     var distance;
     var dx, dy;
+    var origx, origy;
+    var cursor_size = panel.cursor_size;
+
     color = color || "#FF0000";
 
     if(coords){
       cursor = coords;
+    }else{
+      cursor = panel.getCursorPosition();
     }
     
     context.save();
@@ -576,16 +608,24 @@
     x = cursor.x;
     y = cursor.y;
 
-    context.lineWidth = space * 2;
+    context.lineWidth = 0.5;
     context.beginPath();
-    context.moveTo(x, y - length);
-    context.lineTo(x, y - space);
-    context.moveTo(x, y + space);
-    context.lineTo(x, y + length);
-    context.moveTo(x - length, y);
-    context.lineTo(x - space, y);
-    context.moveTo(x + space, y);
-    context.lineTo(x + length, y);
+
+    dx = panel.slice.width_space.step*zoom;
+    dy = panel.slice.height_space.step*zoom;
+    
+    origx = x - dx*cursor_size;
+    origy = y + dy*cursor_size;
+
+    dx += 2*dx*cursor_size;
+    dy +=  2*dy*cursor_size;
+
+
+    context.moveTo(origx, origy);
+    context.lineTo(origx + dx, origy);
+    context.lineTo(origx + dx, origy - dy);
+    context.lineTo(origx, origy - dy);
+    context.lineTo(origx, origy);
     context.stroke();
 
     if (panel.anchor) {

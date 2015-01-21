@@ -68,8 +68,8 @@ $(function() {
           volumes: [
             {
               type: "minc",
-              header_url: "models/structural3.mnc.header",
-              raw_data_url: "models/structural3.mnc.raw", 
+              header_url: "models/structural4.mnc.header",
+              raw_data_url: "models/structural4.mnc.raw", 
               template: {
                 element_id: "volume-ui-template",
                 viewer_insert_class: "volume-viewer-display"
@@ -673,8 +673,8 @@ $(function() {
       volumes: [
         {
           type: "minc",
-          header_url: "models/T1.mnc.header",
-          raw_data_url: "models/T1.mnc.raw",
+          header_url: "models/structural3.mnc.header",
+          raw_data_url: "models/structural3.mnc.raw",
           template: {
             element_id: "volume-ui-template",
             viewer_insert_class: "volume-viewer-display"
@@ -684,8 +684,8 @@ $(function() {
         },
         {
           type: 'minc',
-          header_url: "models/T1Aseg.mnc.header",
-          raw_data_url: "models/T1Aseg.mnc.raw",
+          header_url: "models/structural4.mnc.header",
+          raw_data_url: "models/structural4.mnc.raw",
           template: {
             element_id: "volume-ui-template",
             viewer_insert_class: "volume-viewer-display"
@@ -705,7 +705,7 @@ $(function() {
         $("#brainbrowser-wrapper").slideDown({duration: 600});
 
         //viewer.volumes.forEach(function(vol){
-        viewer.synced = true;
+        //viewer.synced = true;
         var vol = viewer.volumes[1];
 
         viewer.loadVolumeColorMapFromURL(0, 'color-maps/gray-scale.txt', "#FF0000", function() {
@@ -718,6 +718,7 @@ $(function() {
 
         viewer.volumes[2].blend_ratios[0] = 1;
         viewer.volumes[2].blend_ratios[1] = 1;
+        viewer.volumes[2].setMaskOverlay(true);
 
         viewer.volumes[2].display.forEach(function(panel) {
               
@@ -725,6 +726,7 @@ $(function() {
               //if(panvol.data){
                 var offset = [];
                 var size = 0;
+                
 
                 for(var i = -size; i <= size; i++){
                   for(var j = -size; j <= size; j++){
@@ -736,20 +738,30 @@ $(function() {
                 }
                 
                 var drawPixel = function(){
-                  var point = vol.getVoxelCoords();
+                  var point = panel.getVoxelCoordinates();
+
                   if(point){
                     
                     var x = point.i;
                     var y = point.j;
                     var z = point.k;
                     
-                    offset.forEach(function(off){
+                    for(var i = 0; i < offset.length; i++){
+                      var off = offset[i];
                       vol.setIntensityValue([x + off[0], y  + off[1], z  + off[2]], label);
-                    });
-
-                    viewer.redrawVolumes();
+                    }
+                    
+                    viewer.redrawVolume(2);
+                    
                   }
                 };
+
+                var drawMousePointer = function(x, y){
+                  var volpos = panel.getVolumePosition(x, y);
+                  var cursorpos = panel.getCursorPosition(volpos.slice_x, volpos.slice_y);
+                  panel.drawCurrentSlice();
+                  panel.drawMousePointer("#000000", cursorpos);
+                }
 
                 var mousedown = false;
 
@@ -763,9 +775,24 @@ $(function() {
                 });
 
                 panel.canvas.addEventListener("mousemove", function (event) {
+                  // var element = event.target;
+                  // var top = 0;
+                  // var left = 0;
+                  
+
                   if(mousedown && !(event.ctrlKey || event.shiftKey)){
+
                     drawPixel();
                   }
+                  // else{
+                  //   while (element.offsetParent) {
+                  //     top += element.offsetTop;
+                  //     left += element.offsetLeft;
+                      
+                  //     element = element.offsetParent;
+                  //   }
+                  //   drawMousePointer(event.x - left, event.y - top);
+                  // }
                 }, false);
                 
               //}

@@ -758,9 +758,11 @@ $(function() {
 
                 var drawMousePointer = function(x, y){
                   var volpos = panel.getVolumePosition(x, y);
-                  var cursorpos = panel.getCursorPosition(volpos.slice_x, volpos.slice_y);
-                  panel.drawCurrentSlice();
-                  panel.drawMousePointer("#000000", cursorpos);
+                  if(volpos){
+                    var cursorpos = panel.getCursorPosition(volpos.slice_x, volpos.slice_y);
+                    panel.drawCurrentSlice();
+                    panel.drawMousePointer("#000000", cursorpos);
+                  }
                 }
 
                 var mousedown = false;
@@ -775,24 +777,21 @@ $(function() {
                 });
 
                 panel.canvas.addEventListener("mousemove", function (event) {
-                  // var element = event.target;
-                  // var top = 0;
-                  // var left = 0;
-                  
-
+                  var element = event.target;
+                  var top = 0;
+                  var left = 0;
                   if(mousedown && !(event.ctrlKey || event.shiftKey)){
-
                     drawPixel();
                   }
-                  // else{
-                  //   while (element.offsetParent) {
-                  //     top += element.offsetTop;
-                  //     left += element.offsetLeft;
+                  else{
+                    while (element.offsetParent) {
+                      top += element.offsetTop;
+                      left += element.offsetLeft;
                       
-                  //     element = element.offsetParent;
-                  //   }
-                  //   drawMousePointer(event.x - left, event.y - top);
-                  // }
+                      element = element.offsetParent;
+                    }
+                    drawMousePointer(event.x - left, event.y - top);
+                  }
                 }, false);
                 
               //}

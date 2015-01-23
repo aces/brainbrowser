@@ -342,15 +342,16 @@
         var volume = panel.volume;
 
         var slice_xy = panel.getVolumePosition(x, y);
+
+        if(slice_xy){
+          volume.position[panel.slice.width_space.name] = Math.floor(slice_xy.slice_x);
+          volume.position[panel.slice.height_space.name] = Math.floor(slice_xy.slice_y);
+
+          volume.position_continuous[panel.slice.width_space.name] = slice_xy.slice_x;
+          volume.position_continuous[panel.slice.height_space.name] = slice_xy.slice_y;
+          panel.updated = true;
+        }
         
-
-        volume.position[panel.slice.width_space.name] = Math.floor(slice_xy.slice_x);
-        volume.position[panel.slice.height_space.name] = Math.floor(slice_xy.slice_y);
-
-        volume.position_continuous[panel.slice.width_space.name] = slice_xy.slice_x;
-        volume.position_continuous[panel.slice.height_space.name] = slice_xy.slice_y;
-
-        panel.updated = true;
       },
 
       /**
@@ -384,8 +385,10 @@
 
         slice_x = Math.floor((x - origin.x) / zoom /step_slice_x);
         slice_y =Math.floor(slice.height_space.space_length - (y - origin.y) / zoom  / step_slice_y);
-        
-        
+
+        if(slice_x < 0 || slice_x > slice.width_space.space_length || slice_y < 0 || slice_y > slice.height_space.space_length){
+          return null;
+        }
 
         return {
           slice_x : slice_x,

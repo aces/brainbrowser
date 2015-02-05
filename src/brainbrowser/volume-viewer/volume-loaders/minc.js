@@ -227,7 +227,7 @@
         });
 
         target_image.data.set(
-          VolumeViewer.utils.nearestNeighbor(
+          VolumeViewer.utils.bilinear(
             source_image.data,
             source_image.width,
             source_image.height,

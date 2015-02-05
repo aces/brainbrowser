@@ -87,6 +87,72 @@
       
       return target;
     },
+    /**
+    * @doc function
+    * @name VolumeViewer.utils.bilinear
+    *
+    * @param {array} source Source image data.
+    * @param {number} width Width of source image.
+    * @param {number} height Height of source image.
+    * @param {number} target_width Width of scaled image.
+    * @param {number} target_height Height of scaled image.
+    * @param {object} options Extra options:
+    * * **block_size** The size of each unit for scaling (default: 1). 
+    * * **ArrayType** Constructor for the result array type (default: Uint8ClampedArray). 
+    * 
+    * @returns {array} The scaled image array.
+    *
+    * @description
+    * Scale an image using bilinear interpolation.
+    * ```js
+    * BrainBrowser.VolumeViewer.utils.bilinear(image_data, 256, 256, 512, 512);
+    * ```
+    */
+    bilinear: function(source, width, height, target_width, target_height, options) {
+      options = options || {};
+
+      var block_size = options.block_size || 1;
+      var ArrayType = options.array_type || Uint8ClampedArray;
+
+      var x_ratio, y_ratio;
+      var source_block_offset, source_y, source_x, source_y_floor, source_x_floor;
+      var target;
+      var target_x, target_y;
+      var target_y_offset, target_block_offset;
+      var k;
+      var interpolation_coeffs;
+
+      //Do nothing if size is the same
+      if(width === target_width && height === target_height) {
+        return source;
+      }
+      
+      target = new ArrayType(target_width * target_height * block_size);
+      x_ratio   = width / target_width;
+      y_ratio   = height / target_height;
+      for (target_y = 0; target_y < target_height; target_y++) {
+        source_y = target_y * y_ratio;
+        source_y_floor = Math.floor(source_y);
+
+        target_y_offset = target_y * target_width;
+
+        for (target_x = 0; target_x < target_width; target_x++)  {
+          source_x = target_x * x_ratio;
+          source_x_floor = Math.floor(source_x);
+          
+          source_block_offset = [((source_y_floor) * width + source_x_floor) * block_size, ((source_y_floor) * width + source_x_floor + 1) * block_size, ((source_y_floor + 1) * width + source_x_floor) * block_size, ((source_y_floor + 1) * width + source_x_floor + 1) * block_size];
+          interpolation_coeffs = [(source_x_floor + 1 - source_x)*(source_y_floor + 1 - source_y), (source_x - source_x_floor)*(source_y_floor + 1 - source_y), (source_x_floor + 1 - source_x)*(source_y - source_y_floor), (source_x - source_x_floor)*(source_y - source_y_floor)];
+
+          target_block_offset = (target_y_offset + target_x) * block_size;
+
+          for (k = 0; k < block_size; k++) {
+            target[target_block_offset+ k] = interpolation_coeffs[0]*source[source_block_offset[0] + k] + interpolation_coeffs[1]*source[source_block_offset[1] + k] + interpolation_coeffs[2]*source[source_block_offset[2] + k] + interpolation_coeffs[3]*source[source_block_offset[3] + k];
+          }
+        }
+      }
+      
+      return target;
+    },
 
     /**
     * @doc function

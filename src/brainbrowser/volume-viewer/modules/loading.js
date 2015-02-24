@@ -325,7 +325,9 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
     viewer.loadVolume({
         volumes: viewer.volumes,
         type: "overlay",
-        template: description.template
+        template: description.template,
+        views: description.views || ["xspace", "yspace", "zspace"],
+        style: description.style
       },
       callback
     );
@@ -470,14 +472,20 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
     display.propagateEventTo("*", volume);
 
-    container.classList.add("volume-container");
+    container.className = "volume-container";
     
     views.forEach(function(axis_name) {
       var canvas = document.createElement("canvas");
+      canvas.id = "canvas_" + axis_name + "_vol" + vol_id;
       canvas.width = default_panel_width;
       canvas.height = default_panel_height;
       canvas.classList.add("slice-display");
       canvas.style.backgroundColor = "#000000";
+
+      var canvasBuffer = document.createElement("canvas");
+      canvasBuffer.id = "canvas_buffer_" + axis_name + "_vol" + vol_id;
+      canvasBuffer.width = volume.header[axis_name].width;
+      canvasBuffer.height = volume.header[axis_name].height;
       
       container.appendChild(canvas);
       display.setPanel(
@@ -487,6 +495,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
           volume_id: vol_id,
           axis: axis_name,
           canvas: canvas,
+          canvas_buffer: canvasBuffer,
           image_center: {
             x: canvas.width / 2,
             y: canvas.height / 2
@@ -721,7 +730,6 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
         function zoom(delta) {
           panel.zoom = Math.max(panel.zoom + delta * 0.05, 0.05);
-          panel.updateVolumePosition();
           panel.updateSlice();
 
           if (viewer.synced){

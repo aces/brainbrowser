@@ -698,7 +698,8 @@ $(function() {
         template: {
           element_id: "overlay-ui-template",
           viewer_insert_class: "overlay-viewer-display"
-        }
+        },
+        views: ["xspace", "yspace", "zspace"]
       },
       complete: function() {
         loading_div.hide();
@@ -715,10 +716,6 @@ $(function() {
         viewer.loadVolumeColorMapFromURL(1, 'color-maps/FreeSurferColorLUT20120827.txt', "#FF0000", function() {
           viewer.redrawVolumes();
         });
-
-        viewer.volumes[2].blend_ratios[0] = 1;
-        viewer.volumes[2].blend_ratios[1] = 1;
-        viewer.volumes[2].setMaskOverlay(true);
 
         viewer.volumes[2].display.forEach(function(panel) {
               
@@ -748,20 +745,21 @@ $(function() {
                     
                     for(var i = 0; i < offset.length; i++){
                       var off = offset[i];
-                      vol.setIntensityValue([x + off[0], y  + off[1], z  + off[2]], label);
+                      viewer.volumes[1].setIntensityValue(x + off[0], y  + off[1], z  + off[2], label);
                     }
                     
-                    viewer.redrawVolume(2);
+                    viewer.redrawVolumes();
                     
                   }
                 };
 
                 var drawMousePointer = function(x, y){
+                  
                   var volpos = panel.getVolumePosition(x, y);
                   if(volpos){
                     var cursorpos = panel.getCursorPosition(volpos.slice_x, volpos.slice_y);
                     panel.drawCurrentSlice();
-                    panel.drawMousePointer("#000000", cursorpos);
+                    
                   }
                 }
 
@@ -780,17 +778,13 @@ $(function() {
                   var element = event.target;
                   var top = 0;
                   var left = 0;
+                  
                   if(mousedown && !(event.ctrlKey || event.shiftKey)){
                     drawPixel();
                   }
                   else{
-                    while (element.offsetParent) {
-                      top += element.offsetTop;
-                      left += element.offsetLeft;
-                      
-                      element = element.offsetParent;
-                    }
-                    drawMousePointer(event.x - left, event.y - top);
+                    var rect = element.getBoundingClientRect();
+                    drawMousePointer(event.x - rect.left, event.y - rect.top);
                   }
                 }, false);
                 

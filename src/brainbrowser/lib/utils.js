@@ -223,20 +223,10 @@
     captureMouse: function(element) {
       var mouse = { x: 0, y: 0, left: false, middle: false, right: false};
 
-      document.addEventListener("mousemove", function(event) {
-        var offset = BrainBrowser.utils.getOffset(element);
-        var x, y;
-
-        if (event.pageX !== undefined) {
-          x = event.pageX;
-          y = event.pageY;
-        } else {
-          x = event.clientX + window.pageXOffset;
-          y = event.clientY + window.pageYOffset;
-        }
-
-        mouse.x = x - offset.left;
-        mouse.y = y - offset.top;
+      element.addEventListener("mousemove", function(event) {
+        var rect = element.getBoundingClientRect();
+        mouse.x = event.x - rect.left;
+        mouse.y = event.y - rect.top;
 
       }, false);
 

@@ -115,12 +115,12 @@
       var ArrayType = options.array_type || Uint8ClampedArray;
 
       var x_ratio, y_ratio;
-      var source_block_offset, source_y, source_x, source_y_floor, source_x_floor;
+      var source_block_offset0, source_block_offset1, source_block_offset2, source_block_offset3, source_y, source_x, source_y_floor, source_x_floor;
       var target;
       var target_x, target_y;
       var target_y_offset, target_block_offset;
       var k;
-      var interpolation_coeffs;
+      var interpolation_coeff0, interpolation_coeff1, interpolation_coeff2, interpolation_coeff3;
 
       //Do nothing if size is the same
       if(width === target_width && height === target_height) {
@@ -140,13 +140,19 @@
           source_x = target_x * x_ratio;
           source_x_floor = Math.floor(source_x);
           
-          source_block_offset = [((source_y_floor) * width + source_x_floor) * block_size, ((source_y_floor) * width + source_x_floor + 1) * block_size, ((source_y_floor + 1) * width + source_x_floor) * block_size, ((source_y_floor + 1) * width + source_x_floor + 1) * block_size];
-          interpolation_coeffs = [(source_x_floor + 1 - source_x)*(source_y_floor + 1 - source_y), (source_x - source_x_floor)*(source_y_floor + 1 - source_y), (source_x_floor + 1 - source_x)*(source_y - source_y_floor), (source_x - source_x_floor)*(source_y - source_y_floor)];
+          source_block_offset0 = ((source_y_floor) * width + source_x_floor) * block_size;
+          source_block_offset1 = ((source_y_floor) * width + source_x_floor + 1) * block_size;
+          source_block_offset2 = ((source_y_floor + 1) * width + source_x_floor) * block_size;
+          source_block_offset3 = ((source_y_floor + 1) * width + source_x_floor + 1) * block_size;
+          interpolation_coeff0 = (source_x_floor + 1 - source_x)*(source_y_floor + 1 - source_y);
+          interpolation_coeff1 = (source_x - source_x_floor)*(source_y_floor + 1 - source_y);
+          interpolation_coeff2 = (source_x_floor + 1 - source_x)*(source_y - source_y_floor);
+          interpolation_coeff3 = (source_x - source_x_floor)*(source_y - source_y_floor);
 
           target_block_offset = (target_y_offset + target_x) * block_size;
 
           for (k = 0; k < block_size; k++) {
-            target[target_block_offset+ k] = interpolation_coeffs[0]*source[source_block_offset[0] + k] + interpolation_coeffs[1]*source[source_block_offset[1] + k] + interpolation_coeffs[2]*source[source_block_offset[2] + k] + interpolation_coeffs[3]*source[source_block_offset[3] + k];
+            target[target_block_offset+ k] = interpolation_coeff0*source[source_block_offset0 + k] + interpolation_coeff1*source[source_block_offset1 + k] + interpolation_coeff2*source[source_block_offset2 + k] + interpolation_coeff3*source[source_block_offset3 + k];
           }
         }
       }

@@ -92,10 +92,10 @@
 
           var xstep = slice.width_space.step;
           var ystep = slice.height_space.step;
-          var target_width = Math.abs(Math.floor(slice.width * xstep * zoom));
-          var target_height = Math.abs(Math.floor(slice.height * ystep * zoom));
+          // var target_width = Math.abs(Math.floor(slice.width * xstep * zoom));
+          // var target_height = Math.abs(Math.floor(slice.height * ystep * zoom));
           var source_image = image_creation_context.createImageData(slice.width, slice.height);
-          var target_image = image_creation_context.createImageData(target_width, target_height);
+          // var target_image = image_creation_context.createImageData(target_width, target_height);
 
           color_map.mapColors(slice.data, {
             min: intensity_min,
@@ -105,19 +105,24 @@
             destination: source_image.data
           });
           
-          target_image.data.set(VolumeViewer.utils.bilinear(
-            source_image.data,
-            source_image.width,
-            source_image.height,
-            target_width,
-            target_height,
-            {block_size: 4}
-          ));
+          // target_image.data.set(VolumeViewer.utils.nearestNeighbor(
+          //   source_image.data,
+          //   source_image.width,
+          //   source_image.height,
+          //   target_width,
+          //   target_height,
+          //   {block_size: 4}
+          // ));
 
-          max_width = Math.max(max_width, target_width);
-          max_height = Math.max(max_height, target_height);
+          // max_width = Math.max(max_width, target_width);
+          // max_height = Math.max(max_height, target_height);
+          //images.push(target_image);
+
+          max_width = Math.max(max_width, Math.abs(Math.floor(slice.width * xstep)));
+          max_height = Math.max(max_height, Math.abs(Math.floor(slice.height * ystep)));
           
-          images.push(target_image);
+          images.push(source_image);
+          
         });
         
         return blendImages(

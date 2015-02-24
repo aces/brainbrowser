@@ -42,11 +42,11 @@ body {
 
 
 .volume-container {
-  display: table-cell;
+  clear:both;
+  width: 855px;
 }
 
 canvas.slice-display {
-  display: block;
   margin: 3px 5px;
 }
 

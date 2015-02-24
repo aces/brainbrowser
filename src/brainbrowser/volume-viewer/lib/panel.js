@@ -674,8 +674,8 @@
 
     var canvas_width = panel.canvas.width;
     var canvas_height = panel.canvas.height;
-    var image_width = panel.slice.width_space.space_length*panel.slice.width_space.step;
-    var image_height = panel.slice.height_space.space_length*panel.slice.height_space.step;
+    var image_width = Math.abs(panel.slice.width_space.space_length*panel.slice.width_space.step);
+    var image_height = Math.abs(panel.slice.height_space.space_length*panel.slice.height_space.step);
 
     if (image) {
       origin = getDrawingOrigin(panel, false);

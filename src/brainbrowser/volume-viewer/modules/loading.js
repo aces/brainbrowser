@@ -496,9 +496,9 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
           axis: axis_name,
           canvas: canvas,
           canvas_buffer: canvasBuffer,
-          image_center: {
-            x: canvas.width / 2,
-            y: canvas.height / 2
+          image_translate: {
+            x: 0,
+            y: 0
           }
         })
       );

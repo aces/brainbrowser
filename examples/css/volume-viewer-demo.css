@@ -42,8 +42,8 @@ body {
 
 
 .volume-container {
-  clear:both;
-  width: 855px;
+  display: inline-table;
+  width: 30%
 }
 
 canvas.slice-display {

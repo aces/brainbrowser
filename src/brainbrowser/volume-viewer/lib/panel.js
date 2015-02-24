@@ -682,6 +682,7 @@
 
       panel.context_buffer.putImageData(image, 0, 0);
       panel.context.setTransform(panel.zoom, 0, 0, panel.zoom, canvas_width/2, canvas_height/2);
+      //panel.context.imageSmoothingEnabled = false;
       panel.context.drawImage(panel.canvas_buffer, origin.x, origin.y, image_width, image_height );
       panel.context.setTransform(1, 0, 0, 1, 0, 0);
       

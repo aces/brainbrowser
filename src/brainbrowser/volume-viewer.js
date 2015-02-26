@@ -316,7 +316,8 @@
     var viewer = {
       dom_element: dom_element,
       volumes: [],
-      synced: false
+      synced: false,
+      interaction_type: 0
     };
 
     /**
@@ -414,72 +415,99 @@
 
         var key = event.which;
         var space_name, time;
-        var cursor;
+        var volume_coordinates;
+        var keys = {};
         
-        var keys = {
-          // CTRL
-          17: function() {
-            if (panel.anchor) {
-              return;
+        if(viewer.interaction_type === 1){
+          keys = {
+            // Left
+            37: function() {
+              if (volume.position[axis_name] > 0) {
+                volume.position[axis_name]--;
+              }
+            },
+            // Up
+            38: function() {
+              if (volume.position[axis_name] < volume.header[axis_name].space_length) {
+                volume.position[axis_name]++;
+              }
+            },
+            // Right
+            39: function() {
+              if (volume.position[axis_name] < volume.header[axis_name].space_length) {
+                volume.position[axis_name]++;
+              }
+            },
+            // Down
+            40: function() {
+              if (volume.position[axis_name] > 0) {
+                volume.position[axis_name]--;
+              }
             }
+          };
+        }else{
+          keys = {
+            // CTRL
+            17: function() {
+              if (panel.anchor) {
+                return;
+              }
 
-            if (panel.mouse.left || panel.mouse.middle || panel.mouse.right) {
-              panel.anchor = {
-                x: panel.mouse.x,
-                y: panel.mouse.y
-              };
+              if (panel.mouse.left || panel.mouse.middle || panel.mouse.right) {
+                panel.anchor = {
+                  x: panel.mouse.x,
+                  y: panel.mouse.y
+                };
+              }
+            },
+            // Left
+            37: function() {
+              space_name = panel.slice.width_space.name;
+              if (volume.position[space_name] > 0) {
+                volume.position[space_name]--;
+              }
+            },
+            // Up
+            38: function() {
+              space_name = panel.slice.height_space.name;
+              if (volume.position[space_name] < panel.slice.height_space.space_length) {
+                volume.position[space_name]++;
+              }
+            },
+            // Right
+            39: function() {
+              space_name = panel.slice.width_space.name;
+              if (volume.position[space_name] < panel.slice.width_space.space_length) {
+                volume.position[space_name]++;
+              }
+            },
+            // Down
+            40: function() {
+              space_name = panel.slice.height_space.name;
+              if (volume.position[space_name] > 0) {
+                volume.position[space_name]--;
+              }
             }
-          },
-          // Left
-          37: function() {
-            space_name = panel.slice.width_space.name;
-            if (volume.position[space_name] > 0) {
-              volume.position[space_name]--;
-            }
-          },
-          // Up
-          38: function() {
-            space_name = panel.slice.height_space.name;
-            if (volume.position[space_name] < panel.slice.height_space.space_length) {
-              volume.position[space_name]++;
-            }
-          },
-          // Right
-          39: function() {
-            space_name = panel.slice.width_space.name;
-            if (volume.position[space_name] < panel.slice.width_space.space_length) {
-              volume.position[space_name]++;
-            }
-          },
-          // Down
-          40: function() {
-            space_name = panel.slice.height_space.name;
-            if (volume.position[space_name] > 0) {
-              volume.position[space_name]--;
-            }
-          }
-        };
-
+          };
+        }
         if (typeof keys[key] === "function") {
           event.preventDefault();
           keys[key]();
 
-          panel.updated = true;
-          volume.display.forEach(function(other_panel) {
-            if (panel !== other_panel) {
-              other_panel.updateSlice();
-            }
-          });
+          //panel.updated = true;
+          viewer.redrawVolumes();
 
           if (viewer.synced){
-            cursor = panel.getCursorPosition();
+            
+            volume_coordinates = panel.getVoxelCoordinates();
 
             viewer.volumes.forEach(function(synced_volume) {
               var synced_panel;
               
               if (synced_volume !== volume) {
-                synced_panel = synced_volume.display.getPanel(axis_name);
-                synced_panel.updateVolumePosition(cursor.x, cursor.y);
+                Object.keys(volume.position).forEach(function(key){
+                  synced_volume.position[key] = volume.position[key];
+                });
                 synced_volume.display.forEach(function(panel) {
                   if (panel !== synced_panel) {
                     panel.updateSlice();

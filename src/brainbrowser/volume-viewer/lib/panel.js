@@ -241,8 +241,6 @@
         var dx = pointer.x - old_pointer_position.x;
         var dy = pointer.y - old_pointer_position.y;
 
-        panel.translateImage(dx, dy);
-
         old_pointer_position.x = pointer.x;
         old_pointer_position.y = pointer.y;
 
@@ -285,6 +283,7 @@
         panel.zoom = 1;
         panel.image_translate.x = panel.canvas.width/2;
         panel.image_translate.y = panel.canvas.height/2;
+        panel.updated = true;
       },
 
       /**
@@ -359,8 +358,7 @@
       * ```
       */
       getVolumePosition: function(x, y) {
-        var origin = getDrawingOrigin(panel, true);
-        var zoom = panel.zoom;
+        var origin = getDrawingOrigin(panel);
         var slice = panel.slice;
         var cursor;
         var slice_x, slice_y, step_slice_x, step_slice_y;
@@ -371,11 +369,15 @@
           y = cursor.y;
         }
 
+        //the current mouse position is translated and scaled to match the transformation
+        x = (x - panel.transformation_matrix[4])/panel.transformation_matrix[0];
+        y = (y - panel.transformation_matrix[5])/panel.transformation_matrix[3];
+
         step_slice_x = Math.abs(slice.width_space.step);
         step_slice_y = Math.abs(slice.height_space.step);
 
-        slice_x = Math.floor(slice.width_space.space_length - (x - origin.x) / zoom / step_slice_x);
-        slice_y = Math.floor(slice.height_space.space_length - (y - origin.y) / zoom  / step_slice_y);
+        slice_x = Math.floor((x - origin.x) / step_slice_x);
+        slice_y = Math.floor(slice.height_space.space_length - (y - origin.y) / step_slice_y);
 
         if(slice_x < 0 || slice_x > slice.width_space.space_length || slice_y < 0 || slice_y > slice.height_space.space_length){
           return null;
@@ -490,13 +492,25 @@
           return;
         }
 
+        
+        
         var canvas = panel.canvas;
         var context = panel.context;
         var frame_width = 4;
         var half_frame_width = frame_width / 2;
+        var tm = null;
         
         context.globalAlpha = 255;
         context.clearRect(-canvas.width, -canvas.height, 2*canvas.width, 2*canvas.height);
+
+        if(panel.invert_x){
+          panel.transformation_matrix = [-panel.zoom, 0, 0, panel.zoom, panel.image_translate.x, panel.image_translate.y];
+        }else{
+          panel.transformation_matrix = [panel.zoom, 0, 0, panel.zoom, panel.image_translate.x, panel.image_translate.y];
+        }
+
+        tm = panel.transformation_matrix;
+        context.setTransform(tm[0], tm[1], tm[2], tm[3], tm[4], tm[5]);
 
         drawSlice(panel);
         
@@ -580,7 +594,6 @@
     var context = panel.context;
     var cursor;
     var zoom = panel.zoom;
-    var length = 3;
     var x, y, space;
     var distance;
     var dx, dy;
@@ -605,8 +618,6 @@
     x = cursor.x;
     y = cursor.y;
 
-    
-
     context.beginPath();
 
     context.lineWidth = 0.5;
@@ -628,15 +639,6 @@
     context.stroke();
     context.closePath();
 
-
-    // context.beginPath();
-    // var origin = getDrawingOrigin(panel);
-    // context.arc(origin.x, origin.y, 5, 0, 2*Math.PI);
-    // context.lineTo(x, y);
-    // context.stroke();
-    // context.closePath();
-
-
     if (panel.anchor) {
       dx = (panel.anchor.x - cursor.x);
       dy = (panel.anchor.y - cursor.y);
@@ -644,24 +646,9 @@
 
       context.save();
       context.setTransform(1, 0, 0, 1, 0, 0);
+
       x = x/panel.zoom + panel.image_translate.x;
       y = y/panel.zoom + panel.image_translate.y;
-
-      if (panel.canvas.width - x < 50) {
-        context.textAlign = "right";
-        x = x - length;
-      } else {
-        context.textAlign = "left";
-        x = x + length;
-      }
-
-      if (y < 30) {
-        context.textBaseline = "top";
-        y = y + length;
-      } else {
-        context.textBaseline = "bottom";
-        y = y - length;
-      }
 
       context.fillText(distance.toFixed(2), x, y);
       context.restore();
@@ -687,41 +674,27 @@
   function drawSlice(panel) {
     var image = panel.slice_image;
     var origin;
-
-    var canvas_width = panel.canvas.width;
-    var canvas_height = panel.canvas.height;
+    
     var image_width = Math.abs(panel.slice.width_space.space_length*panel.slice.width_space.step);
     var image_height = Math.abs(panel.slice.height_space.space_length*panel.slice.height_space.step);
 
     if (image) {
-      origin = getDrawingOrigin(panel, false);
+      origin = getDrawingOrigin(panel);
 
       panel.context_buffer.putImageData(image, 0, 0);
-      panel.context.setTransform(-panel.zoom, 0, 0, panel.zoom, panel.image_translate.x, panel.image_translate.y);
       //panel.context.imageSmoothingEnabled = false;
       panel.context.drawImage(panel.canvas_buffer, origin.x, origin.y, image_width, image_height );
-      
-      // panel.context.beginPath();
-      // panel.context.arc(origin.x, origin.y, 5, 0, 2*Math.PI);
-      // panel.context.strokeStyle = "#FFFF00";
-      // panel.context.stroke();
-      // panel.context.closePath();
-      //panel.context.setTransform(1, 0, 0, 1, 0, 0);
       
     }
 
   }
 
   // Get the origin at which slices should be drawn.
-  function getDrawingOrigin(panel, scale) {
+  function getDrawingOrigin(panel) {
     var slice = panel.slice;
     var x = -Math.abs(slice.width_space.step * slice.width_space.space_length)/2;
     var y = -Math.abs(slice.height_space.step * slice.height_space.space_length)/2;
-
-    if(scale){
-      x = x*panel.zoom + panel.image_translate.x;
-      y = y*panel.zoom + panel.image_translate.y;
-    }
+    
     return {
       x: x,
       y: y

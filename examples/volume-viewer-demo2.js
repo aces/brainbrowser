@@ -709,12 +709,19 @@ $(function() {
         //viewer.synced = true;
         var vol = viewer.volumes[1];
 
+        viewer.interaction_type = 1;
+
         viewer.loadVolumeColorMapFromURL(0, 'color-maps/gray-scale.txt', "#FF0000", function() {
           viewer.redrawVolumes();
         });
 
         viewer.loadVolumeColorMapFromURL(1, 'color-maps/FreeSurferColorLUT20120827.txt', "#FF0000", function() {
           viewer.redrawVolumes();
+        });
+        viewer.volumes.forEach(function(volume){
+          volume.display.forEach(function(panel) {
+            panel.invert_x = true;
+          });
         });
 
         viewer.volumes[2].display.forEach(function(panel) {
@@ -754,6 +761,8 @@ $(function() {
                 };
 
                 var drawMousePointer = function(x, y){
+
+                  // panel.drawMouse("#FFFFFF", {x:x, y:y});
                   
                   var volpos = panel.getVolumePosition(x, y);
                   if(volpos){

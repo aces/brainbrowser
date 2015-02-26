@@ -497,8 +497,8 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
           canvas: canvas,
           canvas_buffer: canvasBuffer,
           image_translate: {
-            x: 0,
-            y: 0
+            x: default_panel_width/2,
+            y: default_panel_height/2
           }
         })
       );
@@ -539,10 +539,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
               });
             });
 
-            panel.anchor = {
-              x: pointer.x,
-              y: pointer.y
-            };
+            panel.anchor = panel.getCursorPosition();
           }
 
           if (!shift_key) {

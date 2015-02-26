@@ -283,8 +283,8 @@
       */
       reset: function() {
         panel.zoom = 1;
-        panel.image_translate.x = 0;
-        panel.image_translate.y = 0;
+        panel.image_translate.x = panel.canvas.width/2;
+        panel.image_translate.y = panel.canvas.height/2;
       },
 
       /**
@@ -299,7 +299,7 @@
       getCursorPosition: function(x_pos, y_pos) {
         var volume = panel.volume;
         var slice = panel.slice;
-        var origin = getDrawingOrigin(panel, true);
+        var origin = getDrawingOrigin(panel);
         var x_position = volume.position[slice.width_space.name];
         var y_position = volume.position[slice.height_space.name];
 
@@ -311,8 +311,8 @@
         }
 
         return {
-          x: (x_position * Math.abs(slice.width_space.step)) * panel.zoom + origin.x,
-          y: (slice.height_space.space_length - y_position) * Math.abs(slice.height_space.step) * panel.zoom  + origin.y
+          x: (x_position) * Math.abs(slice.width_space.step) + origin.x,
+          y: (slice.height_space.space_length - y_position) * Math.abs(slice.height_space.step) + origin.y
         };
       },
 
@@ -374,8 +374,8 @@
         step_slice_x = Math.abs(slice.width_space.step);
         step_slice_y = Math.abs(slice.height_space.step);
 
-        slice_x = Math.floor((x - origin.x) / step_slice_x / zoom);
-        slice_y =Math.floor(slice.height_space.space_length - (y - origin.y) / zoom  / step_slice_y);
+        slice_x = Math.floor(slice.width_space.space_length - (x - origin.x) / zoom / step_slice_x);
+        slice_y = Math.floor(slice.height_space.space_length - (y - origin.y) / zoom  / step_slice_y);
 
         if(slice_x < 0 || slice_x > slice.width_space.space_length || slice_y < 0 || slice_y > slice.height_space.space_length){
           return null;
@@ -512,6 +512,7 @@
 
         if (active) {
           context.save();
+          context.setTransform(1, 0, 0, 1, 0, 0);
           context.strokeStyle = "#EC2121";
           context.lineWidth = frame_width;
           context.strokeRect(
@@ -579,7 +580,7 @@
     var context = panel.context;
     var cursor;
     var zoom = panel.zoom;
-    var length = 8 * zoom;
+    var length = 3;
     var x, y, space;
     var distance;
     var dx, dy;
@@ -609,8 +610,8 @@
     context.beginPath();
 
     context.lineWidth = 0.5;
-    dx = panel.slice.width_space.step*zoom;
-    dy = panel.slice.height_space.step*zoom;
+    dx = panel.slice.width_space.step;
+    dy = panel.slice.height_space.step;
     
     origx = x - dx*cursor_size;
     origy = y + dy*cursor_size;
@@ -625,40 +626,55 @@
     context.lineTo(origx, origy - dy);
     context.lineTo(origx, origy);
     context.stroke();
+    context.closePath();
+
+
+    // context.beginPath();
+    // var origin = getDrawingOrigin(panel);
+    // context.arc(origin.x, origin.y, 5, 0, 2*Math.PI);
+    // context.lineTo(x, y);
+    // context.stroke();
+    // context.closePath();
 
 
     if (panel.anchor) {
-      dx = (panel.anchor.x - cursor.x) / panel.zoom;
-      dy = (panel.anchor.y - cursor.y) / panel.zoom;
+      dx = (panel.anchor.x - cursor.x);
+      dy = (panel.anchor.y - cursor.y);
       distance = Math.sqrt(dx * dx + dy * dy);
 
-      context.font = "bold 12px arial";
+      context.save();
+      context.setTransform(1, 0, 0, 1, 0, 0);
+      x = x/panel.zoom + panel.image_translate.x;
+      y = y/panel.zoom + panel.image_translate.y;
 
-      if (panel.canvas.width - cursor.x < 50) {
+      if (panel.canvas.width - x < 50) {
         context.textAlign = "right";
-        x = cursor.x - length;
+        x = x - length;
       } else {
         context.textAlign = "left";
-        x = cursor.x + length;
+        x = x + length;
       }
 
-      if (cursor.y < 30) {
+      if (y < 30) {
         context.textBaseline = "top";
-        y = cursor.y + length;
+        y = y + length;
       } else {
         context.textBaseline = "bottom";
-        y = cursor.y - length;
+        y = y - length;
       }
 
       context.fillText(distance.toFixed(2), x, y);
+      context.restore();
+
 
       context.lineWidth = 1;
       context.beginPath();
-      context.arc(panel.anchor.x, panel.anchor.y, 2 * space, 0, 2 * Math.PI);
+      context.arc(panel.anchor.x, panel.anchor.y, 1, 0, 2 * Math.PI);
       context.fill();
       context.moveTo(panel.anchor.x, panel.anchor.y);
       context.lineTo(cursor.x, cursor.y);
       context.stroke();
+      
 
     }
 
@@ -681,10 +697,16 @@
       origin = getDrawingOrigin(panel, false);
 
       panel.context_buffer.putImageData(image, 0, 0);
-      panel.context.setTransform(panel.zoom, 0, 0, panel.zoom, canvas_width/2, canvas_height/2);
+      panel.context.setTransform(-panel.zoom, 0, 0, panel.zoom, panel.image_translate.x, panel.image_translate.y);
       //panel.context.imageSmoothingEnabled = false;
       panel.context.drawImage(panel.canvas_buffer, origin.x, origin.y, image_width, image_height );
-      panel.context.setTransform(1, 0, 0, 1, 0, 0);
+      
+      // panel.context.beginPath();
+      // panel.context.arc(origin.x, origin.y, 5, 0, 2*Math.PI);
+      // panel.context.strokeStyle = "#FFFF00";
+      // panel.context.stroke();
+      // panel.context.closePath();
+      //panel.context.setTransform(1, 0, 0, 1, 0, 0);
       
     }
 
@@ -693,14 +715,12 @@
   // Get the origin at which slices should be drawn.
   function getDrawingOrigin(panel, scale) {
     var slice = panel.slice;
-    var canvas_width = panel.canvas.width;
-    var canvas_height = panel.canvas.height;
-    var x = panel.image_translate.x - Math.abs(slice.width_space.step * slice.width_space.space_length)/2;
-    var y = panel.image_translate.y - Math.abs(slice.height_space.step * slice.height_space.space_length)/2;
+    var x = -Math.abs(slice.width_space.step * slice.width_space.space_length)/2;
+    var y = -Math.abs(slice.height_space.step * slice.height_space.space_length)/2;
 
     if(scale){
-      x = x*panel.zoom + canvas_width/2;
-      y = y*panel.zoom + canvas_height/2;
+      x = x*panel.zoom + panel.image_translate.x;
+      y = y*panel.zoom + panel.image_translate.y;
     }
     return {
       x: x,

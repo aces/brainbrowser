@@ -672,9 +672,8 @@ $(function() {
     viewer.loadVolumes({
       volumes: [
         {
-          type: "minc",
-          header_url: "models/structural3.mnc.header",
-          raw_data_url: "models/structural3.mnc.raw",
+          type: "nifti1",
+          nii_url: "models/T1.nii",
           template: {
             element_id: "volume-ui-template",
             viewer_insert_class: "volume-viewer-display"
@@ -683,9 +682,8 @@ $(function() {
           // style : "display : none"
         },
         {
-          type: 'minc',
-          header_url: "models/structural4.mnc.header",
-          raw_data_url: "models/structural4.mnc.raw",
+          type: "nifti1",
+          nii_url: "models/T1_aseg.nii",
           template: {
             element_id: "volume-ui-template",
             viewer_insert_class: "volume-viewer-display"
@@ -720,7 +718,9 @@ $(function() {
         });
         viewer.volumes.forEach(function(volume){
           volume.display.forEach(function(panel) {
-            panel.invert_x = true;
+            if(panel.axis === "xspace"){
+              panel.invert_x = true;
+            }
           });
         });
 

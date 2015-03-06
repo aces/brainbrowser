@@ -216,6 +216,12 @@
         panel.canvas.width = width;
         panel.canvas.height = height;
 
+        if(options.scale_image){
+          panel.image_translate.x = panel.canvas.width/2;
+          panel.image_translate.y = panel.canvas.height/2;
+          panel.zoom = Math.min((panel.canvas.width/(panel.slice.width_space.space_length*panel.slice.width_space.step)), panel.canvas.height/(panel.slice.height_space.space_length*panel.slice.height_space.step));
+        }
+
         panel.updated = true;
       },
 
@@ -265,7 +271,6 @@
       translateImage: function(dx, dy) {
         panel.image_translate.x += dx;
         panel.image_translate.y += dy;
-
         panel.updated = true;
         
       },
@@ -280,9 +285,9 @@
       * ```
       */
       reset: function() {
-        panel.zoom = 1;
         panel.image_translate.x = panel.canvas.width/2;
         panel.image_translate.y = panel.canvas.height/2;
+        panel.zoom = Math.min((panel.canvas.width/(panel.slice.width_space.space_length*panel.slice.width_space.step)), panel.canvas.height/(panel.slice.height_space.space_length*panel.slice.height_space.step));
         panel.updated = true;
       },
 

@@ -292,15 +292,23 @@
 
   function createNifti1Volume(header, raw_data, callback) {
     var byte_data = createNifti1Data(header, raw_data);
-    var cached_slices = {};
+
+    var intensitymin = Number.MAX_VALUE;
+    var intensitymax = -Number.MAX_VALUE;
+
+    for(var i = 0; i < byte_data.length; i++){
+      intensitymin = Math.min(byte_data[i], intensitymin);
+      intensitymax = Math.max(byte_data[i], intensitymax);
+    }
 
     var volume = {
       position: {},
+      position_continuous: {},
       current_time: 0,
       data: byte_data,
       header: header,
-      intensity_min: 0,
-      intensity_max: 255,
+      intensity_min: intensitymin,
+      intensity_max: intensitymax,
       slice: function(axis, slice_num, time) {
         slice_num = slice_num === undefined ? volume.position[axis] : slice_num;
         time = time === undefined ? volume.current_time : time;
@@ -312,13 +320,6 @@
         }
 
         time = time || 0;
-        
-        cached_slices[axis] = cached_slices[axis] || [];
-        cached_slices[axis][time] =  cached_slices[axis][time] || [];
-        
-        if(cached_slices[axis][time][slice_num] !== undefined) {
-          return cached_slices[axis][time][slice_num];
-        }
 
         var time_offset = header.time ? time * header.time.offset : 0;
 
@@ -380,8 +381,6 @@
           width: width,
           height: height
         };
-
-        cached_slices[axis][time][slice_num] = slice;
         
         return slice;
       },
@@ -397,13 +396,8 @@
           volume.triggerEvent("error", error_message);
           throw new Error(error_message);
         }
-
-        var xstep = slice.width_space.step;
-        var ystep = slice.height_space.step;
-        var target_width = Math.abs(Math.floor(slice.width * xstep * zoom));
-        var target_height = Math.abs(Math.floor(slice.height * ystep * zoom));
+        
         var source_image = image_creation_context.createImageData(slice.width, slice.height);
-        var target_image = image_creation_context.createImageData(target_width, target_height);
 
         color_map.mapColors(slice.data, {
           min: volume.intensity_min,
@@ -413,18 +407,7 @@
           destination: source_image.data
         });
 
-        target_image.data.set(
-          VolumeViewer.utils.nearestNeighbor(
-            source_image.data,
-            source_image.width,
-            source_image.height,
-            target_width,
-            target_height,
-            {block_size: 4}
-          )
-        );
-
-        return target_image;
+        return source_image;
       },
 
       getIntensityValue: function(x, y, z, time) {
@@ -442,6 +425,30 @@
         var slice = volume.slice("zspace", z, time);
 
         return slice.data[(slice.height_space.space_length - y - 1) * slice.width + x];
+      },
+
+      getVolumeDataIntensityValue: function(x, y, z){
+
+        if (x < 0 || x > header[header.order[0]].space_length ||
+            y < 0 || y > header[header.order[1]].space_length ||
+            z < 0 || z > header[header.order[2]].space_length) {
+          return null;
+        }
+
+        var movsize = [ header[header.order[2]].space_length, header[header.order[1]].space_length ];
+        var index =  z + (y)*movsize[0] + (x)*movsize[0]*movsize[1];
+
+        return volume.data[index];
+        
+      },
+
+      setIntensityValue : function(x, y, z, value){
+
+        var movsize = [ header[header.order[2]].space_length, header[header.order[1]].space_length ];
+        var index =  z + (y)*movsize[0] + (x)*movsize[0]*movsize[1];
+        
+        volume.data[index] = value;
+
       },
       
       getVoxelCoords: function() {

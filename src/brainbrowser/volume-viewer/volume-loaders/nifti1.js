@@ -39,10 +39,20 @@
     var error_message;
     if (description.nii_url) {
       BrainBrowser.loader.loadFromURL(description.nii_url, function(nii_data) {
+        var url = description.nii_url;
+        var end = url.indexOf('?');
+        if(end !== -1){
+          url = url.slice(0, end);
+        }
+        if(url.indexOf(".gz") !== -1){
+          var inflate = new Zlib.Gunzip(new Uint8Array(nii_data));
+          var data = inflate.decompress();
+          nii_data = data.buffer;
+        }
         parseNifti1Header(nii_data, function(header) {
           createNifti1Volume(header, nii_data, callback);
         });
-      }, {result_type: "arraybuffer" });
+      }, { result_type: "arraybuffer" });
                                         
     } else if (description.nii_file) {
       BrainBrowser.loader.loadFromFile(description.nii_file, function(nii_data) {

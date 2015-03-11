@@ -344,7 +344,7 @@
         var width_space_offset = width_space.offset;
         var height_space_offset = height_space.offset;
 
-        var slice_data = new Uint8Array(width * height);
+        var slice_data = new volume.data.constructor(width * height);
 
         var slice;
 
@@ -616,7 +616,6 @@
       throw new Error(error_message);
     }
 
-    // Convert data to bytes.
     if(header.order.length === 4) {
       header.order = header.order.slice(1);
     }

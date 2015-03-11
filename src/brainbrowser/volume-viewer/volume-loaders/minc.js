@@ -130,23 +130,7 @@
         var width_space_offset = width_space.offset;
         var height_space_offset = height_space.offset;
 
-        var slice_data = null;
-
-        if(header.type === 'CHAR'){
-          slice_data = new Uint8Array(width * height);
-        }else if(header.type === 'SHORT'){
-          slice_data = new Int16Array(width * height);
-        }else if(header.type === 'USHORT'){
-          slice_data = new Uint16Array(width * height);
-        }else if(header.type === 'LONG'){
-          slice_data = new Int32Array(width * height);
-        }else if(header.type === 'ULONG'){
-          slice_data = new Uint32Array(width * height);
-        }else if(header.type === 'FLOAT' || header.type === 'DOUBLE'){
-          slice_data = new Float64Array(width * height);
-        }else{
-          slice_data = new Uint8Array(width * height);
-        }
+        var slice_data = new volume.data.constructor(width * height);
 
         var slice;
 

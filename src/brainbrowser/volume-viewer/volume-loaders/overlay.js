@@ -118,8 +118,8 @@
           // max_height = Math.max(max_height, target_height);
           //images.push(target_image);
 
-          max_width = Math.max(max_width, Math.abs(Math.floor(slice.width * xstep)));
-          max_height = Math.max(max_height, Math.abs(Math.floor(slice.height * ystep)));
+          max_width = Math.max(max_width, slice.width);
+          max_height = Math.max(max_height, slice.height);
           
           images.push(source_image);
           

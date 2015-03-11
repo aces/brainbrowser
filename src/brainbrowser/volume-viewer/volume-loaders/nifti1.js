@@ -579,9 +579,8 @@
   }
 
   function createNifti1Data(header, raw_data) {
-    var byte_data = null;
+    
     var native_data = null;
-    var n_min, n_max;
 
     switch (header.datatype) {
     case 2:                     // DT_UNSIGNED_CHAR
@@ -617,33 +616,7 @@
       throw new Error(error_message);
     }
 
-    var d = 0;                  // Generic loop counter.
-
-    // Apply scaling if specified.
-    if (header.scl_slope !== 0.0 &&
-        header.scl_slope !== 1.0 || header.scl_inter !== 0.0) {
-      var slope = header.scl_slope;
-      var inter = header.scl_inter;
-      for (d = 0; d < native_data.length; d++) {
-        native_data[d] = slope * native_data[d] + inter;
-      }
-    }
-
     // Convert data to bytes.
-    byte_data = new Uint8Array(native_data.length);
-    n_min = native_data[0];
-    n_max = native_data[0];
-
-    for (d = 1; d < native_data.length; d++) {
-      if (native_data[d] > n_max)
-        n_max = native_data[d];
-      if (native_data[d] < n_min)
-        n_min = native_data[d];
-    }
-    for (d = 0; d < native_data.length; d++) {
-      byte_data[d] = ((native_data[d] + n_min) * 255) / (n_max - n_min);
-    }
-
     if(header.order.length === 4) {
       header.order = header.order.slice(1);
     }
@@ -682,7 +655,7 @@
       header.time.offset = header.xspace.space_length * header.yspace.space_length * header.zspace.space_length;
     }
 
-    return byte_data;
+    return native_data;
   }
    
 }());

@@ -396,26 +396,19 @@
       },
 
       getSliceImage: function(slice, zoom, contrast, brightness) {
-        zoom = zoom || 1;
 
         var color_map = volume.color_map;
-        var error_message;
-
-        if (!color_map) {
-          error_message = "No color map set for this volume. Cannot render slice.";
-          volume.triggerEvent("error", error_message);
-          throw new Error(error_message);
-        }
-        
         var source_image = image_creation_context.createImageData(slice.width, slice.height);
 
-        color_map.mapColors(slice.data, {
-          min: volume.intensity_min,
-          max: volume.intensity_max,
-          contrast: contrast,
-          brightness: brightness,
-          destination: source_image.data
-        });
+        if (color_map) {
+          color_map.mapColors(slice.data, {
+            min: volume.intensity_min,
+            max: volume.intensity_max,
+            contrast: contrast,
+            brightness: brightness,
+            destination: source_image.data
+          });
+        }
 
         return source_image;
       },

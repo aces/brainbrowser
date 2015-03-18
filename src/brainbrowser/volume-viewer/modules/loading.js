@@ -327,7 +327,8 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
         type: "overlay",
         template: description.template,
         views: description.views || ["xspace", "yspace", "zspace"],
-        style: description.style
+        style: description.style,
+        id: description.id
       },
       callback
     );
@@ -456,6 +457,14 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   // Create canvases and add mouse interface.
   function createVolumeDisplay(dom_element, vol_id, volume_description) {
     var container = document.createElement("div");
+    if(volume_description.id !== undefined){
+      if(dom_element.id === "brainbrowser-" + volume_description.id){
+        dom_element.appendChild(container);
+      }
+    }else{
+      dom_element.appendChild(container);
+    }
+    
 
     if(volume_description.style){
       var att = document.createAttribute("style");
@@ -783,7 +792,6 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       });
     })();
 
-    dom_element.appendChild(container);
     viewer.triggerEvent("volumeuiloaded", {
       container: container,
       volume: volume,

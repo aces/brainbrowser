@@ -425,24 +425,32 @@
               if (volume.position[axis_name] > 0) {
                 volume.position[axis_name]--;
               }
+              var event = new CustomEvent('BrainBrowser-arrows');
+              document.dispatchEvent(event);
             },
             // Up
             38: function() {
               if (volume.position[axis_name] < volume.header[axis_name].space_length) {
                 volume.position[axis_name]++;
               }
+              var event = new CustomEvent('BrainBrowser-arrows');
+              document.dispatchEvent(event);
             },
             // Right
             39: function() {
               if (volume.position[axis_name] < volume.header[axis_name].space_length) {
                 volume.position[axis_name]++;
               }
+              var event = new CustomEvent('BrainBrowser-arrows');
+              document.dispatchEvent(event);
             },
             // Down
             40: function() {
               if (volume.position[axis_name] > 0) {
                 volume.position[axis_name]--;
               }
+              var event = new CustomEvent('BrainBrowser-arrows');
+              document.dispatchEvent(event);
             }
           };
         }else{

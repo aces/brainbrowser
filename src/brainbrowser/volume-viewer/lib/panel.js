@@ -197,6 +197,7 @@
       updated: true,
       draw_cursor : true,
       cursor_size : 0,
+      view_description: options.view_description,
       /**
       * @doc function
       * @name panel.panel:setSize
@@ -692,6 +693,16 @@
       
     }
 
+    if(panel.view_description){
+      panel.context.save();
+      panel.context.setTransform(1, 0, 0, 1, 0, 0);
+      for(var i = 0; i < panel.view_description.length; i++){
+        var desc = panel.view_description[i];
+        panel.context.fillStyle = "rgba(255,255,255,1)";
+        panel.context.fillText(desc.text, desc.x * panel.canvas.width, desc.y*panel.canvas.height);
+      }
+      panel.context.restore();
+    }
   }
 
   // Get the origin at which slices should be drawn.

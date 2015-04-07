@@ -327,6 +327,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
         type: "overlay",
         template: description.template,
         views: description.views || ["xspace", "yspace", "zspace"],
+        views_description: description.views_description,
         style: description.style,
         id: description.id
       },
@@ -484,6 +485,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
     container.className = "volume-container";
     
     views.forEach(function(axis_name) {
+
       var canvas = document.createElement("canvas");
       canvas.id = "canvas_" + axis_name + "_vol" + vol_id;
       canvas.width = default_panel_width;
@@ -495,8 +497,14 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       canvasBuffer.id = "canvas_buffer_" + axis_name + "_vol" + vol_id;
       canvasBuffer.width = volume.header[axis_name].width;
       canvasBuffer.height = volume.header[axis_name].height;
-      
+
       container.appendChild(canvas);
+
+      var view_description;
+      if(volume_description.views_description && volume_description.views_description[axis_name]){
+        view_description = volume_description.views_description[axis_name];
+      }
+
       display.setPanel(
         axis_name,
         VolumeViewer.createPanel({
@@ -505,6 +513,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
           axis: axis_name,
           canvas: canvas,
           canvas_buffer: canvasBuffer,
+          view_description: view_description,
           image_translate: {
             x: default_panel_width/2,
             y: default_panel_height/2

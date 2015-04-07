@@ -697,7 +697,41 @@ $(function() {
           element_id: "overlay-ui-template",
           viewer_insert_class: "overlay-viewer-display"
         },
-        views: ["xspace", "yspace", "zspace"]
+        views: ["xspace", "yspace", "zspace"],
+        views_description: {
+          "xspace": [{
+            x: 0.05,
+            y: 0.05,
+            text: 'A'
+          },
+          {
+            x: 0.95,
+            y: 0.05,
+            text: 'P'
+          }],
+          "yspace": [{
+            x: 0.05,
+            y: 0.05,
+            text: 'R'
+          },
+          {
+            x: 0.95,
+            y: 0.05,
+            text: 'L'
+          }],
+          "zspace": [
+          {
+            x: 0.05,
+            y: 0.05,
+            text: 'R'
+          },
+          {
+            x: 0.95,
+            y: 0.05,
+            text: 'L'
+          }
+          ]
+        }
       },
       complete: function() {
         loading_div.hide();

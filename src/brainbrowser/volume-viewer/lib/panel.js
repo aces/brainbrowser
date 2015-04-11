@@ -187,7 +187,7 @@
     var update_callbacks = [];
 
     var panel = {
-      image_center: {
+      image_translate: {
         x: 0,
         y: 0
       },
@@ -195,6 +195,10 @@
       contrast: 1,
       brightness: 0,
       updated: true,
+      draw_cursor : true,
+      cursor_size : 0,
+      view_description: options.view_description,
+      smooth_image: true,
       /**
       * @doc function
       * @name panel.panel:setSize
@@ -211,24 +215,24 @@
         width = width > 0 ? width : 0;
         height = height > 0 ? height : 0;
 
-        var scale_image = options.scale_image;
-        var old_width, old_height, ratio;
-
-        if (scale_image) {
-          old_width = panel.canvas.width;
-          old_height = panel.canvas.width;
-          ratio = Math.min(width / old_width, height / old_height);
-        }
-
         panel.canvas.width = width;
         panel.canvas.height = height;
 
-        if (scale_image) {
-          panel.zoom = panel.zoom * ratio;
-          panel.image_center.x = width / 2;
-          panel.image_center.y = height / 2;
-          panel.updateVolumePosition();
-          panel.updateSlice();
+        panel.canvas_div.style.width = width + 10;
+        panel.canvas_div.style.height = height + 10;
+
+        if(panel.canvas_layers){
+          for(var i = 0; i < panel.canvas_layers.length; i++){
+            var canvas_layer = panel.canvas_layers[i].canvas;
+            canvas_layer.width = width;
+            canvas_layer.height = height;
+          }
+        }
+
+        if(options.scale_image){
+          panel.image_translate.x = panel.canvas.width/2;
+          panel.image_translate.y = panel.canvas.height/2;
+          panel.zoom = Math.min((panel.canvas.width/(panel.slice.width_space.space_length*panel.slice.width_space.step)), panel.canvas.height/(panel.slice.height_space.space_length*panel.slice.height_space.step));
         }
 
         panel.updated = true;
@@ -251,11 +255,10 @@
       * });
       * ```
       */
+
       followPointer: function(pointer) {
         var dx = pointer.x - old_pointer_position.x;
         var dy = pointer.y - old_pointer_position.y;
-
-        panel.translateImage(dx, dy);
 
         old_pointer_position.x = pointer.x;
         old_pointer_position.y = pointer.y;
@@ -279,10 +282,10 @@
       * ```
       */
       translateImage: function(dx, dy) {
-        panel.image_center.x += dx;
-        panel.image_center.y += dy;
-
+        panel.image_translate.x += dx;
+        panel.image_translate.y += dy;
         panel.updated = true;
+        
       },
 
       /**
@@ -295,9 +298,10 @@
       * ```
       */
       reset: function() {
-        panel.zoom = 1;
-        panel.image_center.x = panel.canvas.width / 2;
-        panel.image_center.y = panel.canvas.height / 2;
+        panel.image_translate.x = panel.canvas.width/2;
+        panel.image_translate.y = panel.canvas.height/2;
+        panel.zoom = Math.min((panel.canvas.width/(panel.slice.width_space.space_length*panel.slice.width_space.step)), panel.canvas.height/(panel.slice.height_space.space_length*panel.slice.height_space.step));
+        panel.updated = true;
       },
 
       /**
@@ -309,14 +313,23 @@
       * panel.getCursorPosition();
       * ```
       */
-      getCursorPosition: function() {
+      getCursorPosition: function(x_pos, y_pos) {
         var volume = panel.volume;
         var slice = panel.slice;
         var origin = getDrawingOrigin(panel);
+        var x_position = volume.position[slice.width_space.name];
+        var y_position = volume.position[slice.height_space.name];
+
+        if(x_pos){
+          x_position = x_pos;
+        }
+        if(y_pos){
+          y_position = y_pos;
+        }
 
         return {
-          x: volume.position[slice.width_space.name] * Math.abs(slice.width_space.step) * panel.zoom + origin.x,
-          y: (slice.height_space.space_length - volume.position[slice.height_space.name] - 1) * Math.abs(slice.height_space.step) * panel.zoom  + origin.y
+          x: (x_position) * Math.abs(slice.width_space.step) + origin.x,
+          y: (slice.height_space.space_length - y_position) * Math.abs(slice.height_space.step) + origin.y
         };
       },
 
@@ -334,12 +347,39 @@
       * ```
       */
       updateVolumePosition: function(x, y) {
-        var origin = getDrawingOrigin(panel);
-        var zoom = panel.zoom;
+        
         var volume = panel.volume;
+
+        var slice_xy = panel.getVolumePosition(x, y);
+
+        if(slice_xy){
+          volume.position[panel.slice.width_space.name] = Math.floor(slice_xy.slice_x);
+          volume.position[panel.slice.height_space.name] = Math.floor(slice_xy.slice_y);
+
+          volume.position_continuous[panel.slice.width_space.name] = slice_xy.slice_x;
+          volume.position_continuous[panel.slice.height_space.name] = slice_xy.slice_y;
+          panel.updated = true;
+        }
+        
+      },
+
+      /**
+      * @doc function
+      * @name panel.panel:getVolumePosition
+      * @param {number} x The x coordinate of the canvas position.
+      * @param {number} y The y coordinate of the canvas position.
+      * @description
+      * Get the volume position based on the given x and y
+      * coordinates on the panel.
+      * ```js
+      * panel.getVolumePosition(x, y);
+      * ```
+      */
+      getVolumePosition: function(x, y) {
+        var origin = getDrawingOrigin(panel);
         var slice = panel.slice;
         var cursor;
-        var slice_x, slice_y;
+        var slice_x, slice_y, step_slice_x, step_slice_y;
 
         if (x === undefined || y === undefined) {
           cursor = panel.getCursorPosition();
@@ -347,13 +387,38 @@
           y = cursor.y;
         }
 
-        slice_x = Math.round((x - origin.x) / zoom / Math.abs(slice.width_space.step));
-        slice_y = Math.round(slice.height_space.space_length - (y - origin.y) / zoom  / Math.abs(slice.height_space.step) - 1);
+        //the current mouse position is translated and scaled to match the transformation
+        x = (x - panel.transformation_matrix[4])/panel.transformation_matrix[0];
+        y = (y - panel.transformation_matrix[5])/panel.transformation_matrix[3];
 
-        volume.position[panel.slice.width_space.name] = slice_x;
-        volume.position[panel.slice.height_space.name] = slice_y;
+        step_slice_x = Math.abs(slice.width_space.step);
+        step_slice_y = Math.abs(slice.height_space.step);
 
-        panel.updated = true;
+        slice_x = Math.floor((x - origin.x) / step_slice_x);
+        slice_y = Math.floor(slice.height_space.space_length - (y - origin.y) / step_slice_y);
+
+        if(slice_x < 0 || slice_x > slice.width_space.space_length || slice_y < 0 || slice_y > slice.height_space.space_length){
+          return null;
+        }
+
+        return {
+          slice_x : slice_x,
+          slice_y : slice_y
+        };
+        
+      },
+      /**
+      * @doc function
+      * @name panel.panel:getVoxelCoordinates
+      * @description
+      * Get the current voxel coordinates of the volume
+      */
+      getVoxelCoordinates : function(){
+        return {
+          i : panel.volume.position[panel.volume.header.order[0]],
+          j : panel.volume.position[panel.volume.header.order[1]],
+          k : panel.volume.position[panel.volume.header.order[2]]
+        };
       },
 
       /**
@@ -444,16 +509,45 @@
         if (!panel.updated) {
           return;
         }
-
+        
         var canvas = panel.canvas;
         var context = panel.context;
         var frame_width = 4;
         var half_frame_width = frame_width / 2;
+        var tm = null;
         
         context.globalAlpha = 255;
-        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.clearRect(-canvas.width, -canvas.height, 2*canvas.width, 2*canvas.height);
+
+        if(panel.invert_x){
+          panel.transformation_matrix = [-panel.zoom, 0, 0, panel.zoom, panel.image_translate.x, panel.image_translate.y];
+        }else{
+          panel.transformation_matrix = [panel.zoom, 0, 0, panel.zoom, panel.image_translate.x, panel.image_translate.y];
+        }
+
+        tm = panel.transformation_matrix;
+        context.setTransform(tm[0], tm[1], tm[2], tm[3], tm[4], tm[5]);
 
         drawSlice(panel);
+
+        if(panel.canvas_layers){
+
+          var params = {
+            tm: tm,
+            width: panel.slice.width_space.space_length,
+            width_spacing: Math.abs(panel.slice.width_space.step),
+            height: panel.slice.height_space.space_length,
+            height_spacing: Math.abs(panel.slice.height_space.step),
+            origin: getDrawingOrigin(panel),
+            axis: panel.axis
+          };
+          for(var i = 0; i < panel.canvas_layers.length; i++){
+            var canvas_layer = panel.canvas_layers[i];
+            var ctx = canvas_layer.canvas.getContext("2d");
+            ctx.clearRect(-canvas.width, -canvas.height, 2*canvas.width, 2*canvas.height);
+            canvas_layer.draw(canvas_layer.canvas_buffer, ctx, params);
+          }
+        }
         
         panel.triggerEvent("draw", {
           volume: panel.volume,
@@ -463,9 +557,11 @@
         });
         
         drawCursor(panel, cursor_color);
+        
 
         if (active) {
           context.save();
+          context.setTransform(1, 0, 0, 1, 0, 0);
           context.strokeStyle = "#EC2121";
           context.lineWidth = frame_width;
           context.strokeRect(
@@ -478,7 +574,22 @@
         }
 
         panel.updated = false;
+      },
+
+      drawMousePointer : function(cursor_color, coords){
+        drawCursor(panel, cursor_color, coords);
+      },
+      setDrawCursor : function(draw){
+        panel.draw_cursor = draw;
+      },
+      drawCurrentSlice : function(){
+        drawSlice(panel);
+      },
+      setCursorSize : function(size){
+        panel.cursor_size = size;
+        panel.updated = true;
       }
+
     };
 
     Object.keys(options).forEach(function(k) {
@@ -491,8 +602,13 @@
 
     if (panel.canvas && BrainBrowser.utils.isFunction(panel.canvas.getContext)) {
       panel.context = panel.canvas.getContext("2d");
-      panel.mouse = BrainBrowser.utils.captureMouse(panel.canvas);
-      panel.touches = BrainBrowser.utils.captureTouch(panel.canvas);
+      panel.context_buffer = panel.canvas_buffer.getContext("2d");
+      var canvas = panel.canvas;
+      if(panel.canvas_layers && panel.canvas_layers.length > 0){
+        canvas = panel.canvas_layers[panel.canvas_layers.length - 1].canvas;
+      }
+      panel.mouse = BrainBrowser.utils.captureMouse(canvas);
+      panel.touches = BrainBrowser.utils.captureTouch(canvas);
     }
 
     if (panel.volume) {
@@ -513,15 +629,24 @@
   }
 
   // Draw the cursor at its current position on the canvas.
-  function drawCursor(panel, color) {
+  function drawCursor(panel, color, coords) {
     var context = panel.context;
-    var cursor = panel.getCursorPosition();
+    var cursor;
     var zoom = panel.zoom;
-    var length = 8 * zoom;
     var x, y, space;
     var distance;
     var dx, dy;
+    var origx, origy;
+    var cursor_size = panel.cursor_size;
+
+
     color = color || "#FF0000";
+
+    if(coords){
+      cursor = coords;
+    }else{
+      cursor = panel.getCursorPosition();
+    }
     
     context.save();
     
@@ -532,50 +657,50 @@
     x = cursor.x;
     y = cursor.y;
 
-    context.lineWidth = space * 2;
     context.beginPath();
-    context.moveTo(x, y - length);
-    context.lineTo(x, y - space);
-    context.moveTo(x, y + space);
-    context.lineTo(x, y + length);
-    context.moveTo(x - length, y);
-    context.lineTo(x - space, y);
-    context.moveTo(x + space, y);
-    context.lineTo(x + length, y);
+
+    context.lineWidth = 0.5;
+    dx = panel.slice.width_space.step;
+    dy = panel.slice.height_space.step;
+    
+    origx = x - dx*cursor_size;
+    origy = y + dy*cursor_size;
+
+    dx += 2*dx*cursor_size;
+    dy +=  2*dy*cursor_size;
+
+
+    context.moveTo(origx, origy);
+    context.lineTo(origx + dx, origy);
+    context.lineTo(origx + dx, origy - dy);
+    context.lineTo(origx, origy - dy);
+    context.lineTo(origx, origy);
     context.stroke();
+    context.closePath();
 
     if (panel.anchor) {
-      dx = (panel.anchor.x - cursor.x) / panel.zoom;
-      dy = (panel.anchor.y - cursor.y) / panel.zoom;
+      dx = (panel.anchor.x - cursor.x);
+      dy = (panel.anchor.y - cursor.y);
       distance = Math.sqrt(dx * dx + dy * dy);
 
-      context.font = "bold 12px arial";
+      context.save();
+      context.setTransform(1, 0, 0, 1, 0, 0);
 
-      if (panel.canvas.width - cursor.x < 50) {
-        context.textAlign = "right";
-        x = cursor.x - length;
-      } else {
-        context.textAlign = "left";
-        x = cursor.x + length;
-      }
-
-      if (cursor.y < 30) {
-        context.textBaseline = "top";
-        y = cursor.y + length;
-      } else {
-        context.textBaseline = "bottom";
-        y = cursor.y - length;
-      }
+      x = x/panel.zoom + panel.image_translate.x;
+      y = y/panel.zoom + panel.image_translate.y;
 
       context.fillText(distance.toFixed(2), x, y);
+      context.restore();
+
 
       context.lineWidth = 1;
       context.beginPath();
-      context.arc(panel.anchor.x, panel.anchor.y, 2 * space, 0, 2 * Math.PI);
+      context.arc(panel.anchor.x, panel.anchor.y, 1, 0, 2 * Math.PI);
       context.fill();
       context.moveTo(panel.anchor.x, panel.anchor.y);
       context.lineTo(cursor.x, cursor.y);
       context.stroke();
+      
 
     }
 
@@ -588,23 +713,40 @@
   function drawSlice(panel) {
     var image = panel.slice_image;
     var origin;
+    
+    var image_width = Math.abs(panel.slice.width_space.space_length*panel.slice.width_space.step);
+    var image_height = Math.abs(panel.slice.height_space.space_length*panel.slice.height_space.step);
 
     if (image) {
-      origin = {
-        x: panel.image_center.x - panel.slice_image.width / 2,
-        y: panel.image_center.y - panel.slice_image.height / 2,
-      };
-      panel.context.putImageData(image, origin.x, origin.y);
+      origin = getDrawingOrigin(panel);
+
+      panel.context.imageSmoothingEnabled = panel.smooth_image;
+      panel.context_buffer.putImageData(image, 0, 0);
+      panel.context.drawImage(panel.canvas_buffer, origin.x, origin.y, image_width, image_height );
+      
     }
 
+    if(panel.view_description){
+      panel.context.save();
+      panel.context.setTransform(1, 0, 0, 1, 0, 0);
+      for(var i = 0; i < panel.view_description.length; i++){
+        var desc = panel.view_description[i];
+        panel.context.fillStyle = "rgba(255,255,255,1)";
+        panel.context.fillText(desc.text, desc.x * panel.canvas.width, desc.y*panel.canvas.height);
+      }
+      panel.context.restore();
+    }
   }
 
   // Get the origin at which slices should be drawn.
   function getDrawingOrigin(panel) {
     var slice = panel.slice;
+    var x = -Math.abs(slice.width_space.step * slice.width_space.space_length)/2;
+    var y = -Math.abs(slice.height_space.step * slice.height_space.space_length)/2;
+    
     return {
-      x: panel.image_center.x - Math.abs(slice.width_space.step * slice.width_space.space_length * panel.zoom) / 2,
-      y: panel.image_center.y - Math.abs(slice.height_space.step * slice.height_space.space_length * panel.zoom) / 2
+      x: x,
+      y: y
     };
   }
 

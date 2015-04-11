@@ -198,6 +198,7 @@
       draw_cursor : true,
       cursor_size : 0,
       view_description: options.view_description,
+      smooth_image: true,
       /**
       * @doc function
       * @name panel.panel:setSize
@@ -216,6 +217,17 @@
 
         panel.canvas.width = width;
         panel.canvas.height = height;
+
+        panel.canvas_div.style.width = width + 10;
+        panel.canvas_div.style.height = height + 10;
+
+        if(panel.canvas_layers){
+          for(var i = 0; i < panel.canvas_layers.length; i++){
+            var canvas_layer = panel.canvas_layers[i].canvas;
+            canvas_layer.width = width;
+            canvas_layer.height = height;
+          }
+        }
 
         if(options.scale_image){
           panel.image_translate.x = panel.canvas.width/2;
@@ -497,8 +509,6 @@
         if (!panel.updated) {
           return;
         }
-
-        
         
         var canvas = panel.canvas;
         var context = panel.context;
@@ -519,6 +529,25 @@
         context.setTransform(tm[0], tm[1], tm[2], tm[3], tm[4], tm[5]);
 
         drawSlice(panel);
+
+        if(panel.canvas_layers){
+
+          var params = {
+            tm: tm,
+            width: panel.slice.width_space.space_length,
+            width_spacing: Math.abs(panel.slice.width_space.step),
+            height: panel.slice.height_space.space_length,
+            height_spacing: Math.abs(panel.slice.height_space.step),
+            origin: getDrawingOrigin(panel),
+            axis: panel.axis
+          };
+          for(var i = 0; i < panel.canvas_layers.length; i++){
+            var canvas_layer = panel.canvas_layers[i];
+            var ctx = canvas_layer.canvas.getContext("2d");
+            ctx.clearRect(-canvas.width, -canvas.height, 2*canvas.width, 2*canvas.height);
+            canvas_layer.draw(canvas_layer.canvas_buffer, ctx, params);
+          }
+        }
         
         panel.triggerEvent("draw", {
           volume: panel.volume,
@@ -574,8 +603,12 @@
     if (panel.canvas && BrainBrowser.utils.isFunction(panel.canvas.getContext)) {
       panel.context = panel.canvas.getContext("2d");
       panel.context_buffer = panel.canvas_buffer.getContext("2d");
-      panel.mouse = BrainBrowser.utils.captureMouse(panel.canvas);
-      panel.touches = BrainBrowser.utils.captureTouch(panel.canvas);
+      var canvas = panel.canvas;
+      if(panel.canvas_layers && panel.canvas_layers.length > 0){
+        canvas = panel.canvas_layers[panel.canvas_layers.length - 1].canvas;
+      }
+      panel.mouse = BrainBrowser.utils.captureMouse(canvas);
+      panel.touches = BrainBrowser.utils.captureTouch(canvas);
     }
 
     if (panel.volume) {
@@ -687,8 +720,8 @@
     if (image) {
       origin = getDrawingOrigin(panel);
 
+      panel.context.imageSmoothingEnabled = panel.smooth_image;
       panel.context_buffer.putImageData(image, 0, 0);
-      //panel.context.imageSmoothingEnabled = false;
       panel.context.drawImage(panel.canvas_buffer, origin.x, origin.y, image_width, image_height );
       
     }

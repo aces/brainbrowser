@@ -328,6 +328,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
         template: description.template,
         views: description.views || ["xspace", "yspace", "zspace"],
         views_description: description.views_description,
+        canvas_layers: description.canvas_layers,
         style: description.style,
         id: description.id
       },
@@ -490,19 +491,56 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       canvas.id = "canvas_" + axis_name + "_vol" + vol_id;
       canvas.width = default_panel_width;
       canvas.height = default_panel_height;
-      canvas.classList.add("slice-display");
       canvas.style.backgroundColor = "#000000";
+      canvas.style.position = "absolute";
+      canvas.top = 5;
+      canvas.left = 5;
+      canvas.style["z-index"] = 0;
 
       var canvasBuffer = document.createElement("canvas");
       canvasBuffer.id = "canvas_buffer_" + axis_name + "_vol" + vol_id;
       canvasBuffer.width = volume.header[axis_name].width;
       canvasBuffer.height = volume.header[axis_name].height;
 
-      container.appendChild(canvas);
+      var div = document.createElement("div");
+      div.id = "div_" + axis_name + "_vol" + vol_id;
+      div.appendChild(canvas);
+      div.style.position = "relative";
+      div.style.height = default_panel_height + 10 + "px";
+      div.style.width = default_panel_width + 10 + "px";
+      container.appendChild(div);
 
       var view_description;
       if(volume_description.views_description && volume_description.views_description[axis_name]){
         view_description = volume_description.views_description[axis_name];
+      }
+
+      var canvas_layers = [];
+
+      if(volume_description.canvas_layers){
+
+        for(var i = 0; i < volume_description.canvas_layers.length; i++){
+          var canvas_layer = document.createElement("canvas");
+          canvas_layer.id = "canvas_layer_" + axis_name + "_vol" + vol_id;
+          canvas_layer.width = default_panel_width;
+          canvas_layer.height = default_panel_height;
+          canvas_layer.style.position = "absolute";
+          canvas_layer.top = 5;
+          canvas_layer.left = 5;
+          canvas_layer.style["z-index"] = i + 1;
+
+          var canvas_layer_buffer = document.createElement("canvas");
+          canvas_layer_buffer.id = "canvas_layer_buffer_" + axis_name + "_vol" + vol_id;
+          canvas_layer_buffer.width = volume.header[axis_name].width;
+          canvas_layer_buffer.height = volume.header[axis_name].height;
+
+          canvas_layers.push({
+            canvas_buffer: canvas_layer_buffer,
+            canvas: canvas_layer,
+            draw: volume_description.canvas_layers[i].draw
+          });
+          div.appendChild(canvas_layer);
+        }
       }
 
       display.setPanel(
@@ -511,9 +549,11 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
           volume: volume,
           volume_id: vol_id,
           axis: axis_name,
+          canvas_div: div,
           canvas: canvas,
           canvas_buffer: canvasBuffer,
           view_description: view_description,
+          canvas_layers: canvas_layers,
           image_translate: {
             x: default_panel_width/2,
             y: default_panel_height/2
@@ -546,6 +586,9 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       views.forEach(function(axis_name) {
         var panel = display.getPanel(axis_name);
         var canvas = panel.canvas;
+        if(panel.canvas_layers && panel.canvas_layers.length > 0){
+          canvas = panel.canvas_layers[panel.canvas_layers.length - 1].canvas;
+        }
         var last_touch_distance = null;
 
         function startDrag(pointer, shift_key, ctrl_key) {

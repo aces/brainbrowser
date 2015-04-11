@@ -666,6 +666,10 @@ $(function() {
     ///////////////////
     viewer.render();
 
+    var testDraw = function(canvas_buffer, ctx, params){
+        
+    }
+
     /////////////////////
     // Load the volumes.
     /////////////////////
@@ -698,6 +702,11 @@ $(function() {
           viewer_insert_class: "overlay-viewer-display"
         },
         views: ["xspace", "yspace", "zspace"],
+        canvas_layers: [
+          {
+            draw: testDraw
+          }
+        ],
         views_description: {
           "xspace": [{
             x: 0.05,

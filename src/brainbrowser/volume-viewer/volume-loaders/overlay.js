@@ -55,7 +55,15 @@
         var slices = [];
 
         overlay_volume.volumes.forEach(function(volume) {
-          var slice = volume.slice(axis, slice_num, time);
+          /*
+           * We need to correct the slice_num for images with different
+           * numbers of points along an axis. Otherwise we won't form
+           * the composite image correctly.
+           * TODO: This is only a partial fix, and should be improved.
+           */
+          var factor = volume.header[axis].step / volumes[0].header[axis].step;
+          var corrected_slice_num = Math.round(slice_num / factor);
+          var slice = volume.slice(axis, corrected_slice_num, time);
           slices.push(slice);
         });
         
@@ -89,8 +97,10 @@
 
           var xstep = slice.width_space.step;
           var ystep = slice.height_space.step;
+
           var target_width = Math.abs(Math.floor(slice.width * xstep * zoom));
           var target_height = Math.abs(Math.floor(slice.height * ystep * zoom));
+
           var source_image = image_creation_context.createImageData(slice.width, slice.height);
           var target_image = image_creation_context.createImageData(target_width, target_height);
 

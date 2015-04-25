@@ -391,9 +391,38 @@
           width: width,
           height: height
         };
+
+        if(volume.border){
+          slice = volume.getSliceBorder(slice);
+        }
         
         return slice;
       },
+      
+
+      getSliceBorder: function(slice){
+        var sliceOut = new slice.data.constructor(slice.data);
+        var extent = [-slice.width -1, -slice.width, -slice.width + 1, -1, 1, slice.width -1, slice.width, slice.width + 1];
+        var isBorder = function(slice, n){
+          var ret = false;
+          var lab = slice.data[n];
+          for(var i = 0; i < extent.length && !ret; i++){
+            if(n + extent[i] >= 0 && n + extent[i] < slice.data.length && slice.data[n + extent[i]] !== lab){
+              ret = true;
+              break;
+            }
+          }
+          return ret;
+        };
+        for(var i = 0; i < slice.data.length; i++){
+          if(!isBorder(slice, i)){
+            sliceOut[i] = 0;
+          }
+        }
+        slice.data = sliceOut;
+        return slice;
+      },
+
 
       getSliceImage: function(slice, zoom, contrast, brightness) {
 

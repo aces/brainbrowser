@@ -98,6 +98,7 @@
       header: header,
       intensity_min: intensitymin,
       intensity_max: intensitymax,
+      border: false,
       slice: function(axis, slice_num, time) {
         slice_num = slice_num === undefined ? volume.position[axis] : slice_num;
         time = time === undefined ? volume.current_time : time;
@@ -177,12 +178,36 @@
           width: width,
           height: height
         };
-
         // cached_slices[axis][time][slice_num] = slice;
+
+        if(volume.border){
+          slice = volume.getSliceBorder(slice);
+        }
         
         return slice;
       },
-
+      getSliceBorder: function(slice){
+        var sliceOut = new slice.data.constructor(slice.data);
+        var extent = [-slice.width -1, -slice.width, -slice.width + 1, -1, 1, slice.width -1, slice.width, slice.width + 1];
+        var isBorder = function(slice, n){
+          var ret = false;
+          var lab = slice.data[n];
+          for(var i = 0; i < extent.length && !ret; i++){
+            if(n + extent[i] >= 0 && n + extent[i] < slice.data.length && slice.data[n + extent[i]] !== lab){
+              ret = true;
+              break;
+            }
+          }
+          return ret;
+        };
+        for(var i = 0; i < slice.data.length; i++){
+          if(!isBorder(slice, i)){
+            sliceOut[i] = 0;
+          }
+        }
+        slice.data = sliceOut;
+        return slice;
+      },
       getSliceImage: function(slice, zoom, contrast, brightness) {
         zoom = zoom || 1;
 
@@ -194,12 +219,7 @@
           volume.triggerEvent("error", { message: error_message } );
           throw new Error(error_message);
         }
-
-        // var xstep = slice.width_space.step;
-        // var ystep = slice.height_space.step;
-        // var target_width = Math.abs(Math.floor(slice.width * xstep * zoom));
-        // var target_height = Math.abs(Math.floor(slice.height * ystep * zoom));
-        // var target_image = image_creation_context.createImageData(target_width, target_height);
+        
         var source_image = image_creation_context.createImageData(slice.width, slice.height);
         
 
@@ -210,17 +230,7 @@
           brightness: brightness,
           destination: source_image.data
         });
-
-        // target_image.data.set(
-        //   VolumeViewer.utils.nearestNeighbor(
-        //     source_image.data,
-        //     source_image.width,
-        //     source_image.height,
-        //     target_width,
-        //     target_height,
-        //     {block_size: 4}
-        //   )
-        // );
+        
 
         return source_image;
       },

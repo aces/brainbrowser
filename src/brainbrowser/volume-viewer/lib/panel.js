@@ -519,6 +519,10 @@
         context.globalAlpha = 255;
         context.clearRect(-canvas.width, -canvas.height, 2*canvas.width, 2*canvas.height);
 
+        if(panel.disable_zoom){
+          panel.zoom = Math.min((panel.canvas.width/(panel.slice.width_space.space_length*panel.slice.width_space.step)), panel.canvas.height/(panel.slice.height_space.space_length*panel.slice.height_space.step));
+        }
+
         if(panel.invert_x){
           panel.transformation_matrix = [-panel.zoom, 0, 0, panel.zoom, panel.image_translate.x, panel.image_translate.y];
         }else{

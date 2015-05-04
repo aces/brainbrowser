@@ -421,7 +421,7 @@
         if(viewer.interaction_type === 1){
           keys = {
             // Left
-            37: function() {
+            37: function(axis_name) {
               if (volume.position[axis_name] > 0) {
                 volume.position[axis_name]--;
               }
@@ -429,7 +429,7 @@
               document.dispatchEvent(event);
             },
             // Up
-            38: function() {
+            38: function(axis_name) {
               if (volume.position[axis_name] < volume.header[axis_name].space_length) {
                 volume.position[axis_name]++;
               }
@@ -437,7 +437,7 @@
               document.dispatchEvent(event);
             },
             // Right
-            39: function() {
+            39: function(axis_name) {
               if (volume.position[axis_name] < volume.header[axis_name].space_length) {
                 volume.position[axis_name]++;
               }
@@ -445,7 +445,7 @@
               document.dispatchEvent(event);
             },
             // Down
-            40: function() {
+            40: function(axis_name) {
               if (volume.position[axis_name] > 0) {
                 volume.position[axis_name]--;
               }
@@ -500,7 +500,7 @@
         }
         if (typeof keys[key] === "function") {
           event.preventDefault();
-          keys[key]();
+          keys[key](axis_name);
 
           //panel.updated = true;
           viewer.redrawVolumes();

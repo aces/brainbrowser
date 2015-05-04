@@ -559,9 +559,14 @@
           canvas: canvas,
           context: context
         });
-        
-        drawCursor(panel, cursor_color);
-        
+
+        if(panel.canvas_layers.length > 0){
+          var context_layer = panel.canvas_layers[panel.canvas_layers.length - 1].canvas.getContext("2d");
+          context_layer.setTransform(tm[0], tm[1], tm[2], tm[3], tm[4], tm[5]);
+          drawCursor(panel, cursor_color, undefined, context_layer);
+        }else{
+          drawCursor(panel, cursor_color);
+        }
 
         if (active) {
           context.save();
@@ -633,8 +638,8 @@
   }
 
   // Draw the cursor at its current position on the canvas.
-  function drawCursor(panel, color, coords) {
-    var context = panel.context;
+  function drawCursor(panel, color, coords, context_layer) {
+    var context = context_layer? context_layer : panel.context;
     var cursor;
     var zoom = panel.zoom;
     var x, y, space;

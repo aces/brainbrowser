@@ -535,7 +535,6 @@
         drawSlice(panel);
 
         if(panel.canvas_layers){
-
           var params = {
             tm: tm,
             width: panel.slice.width_space.space_length,
@@ -543,7 +542,9 @@
             height: panel.slice.height_space.space_length,
             height_spacing: Math.abs(panel.slice.height_space.step),
             origin: getDrawingOrigin(panel),
-            axis: panel.axis
+            axis: panel.axis,
+            cursor_color: cursor_color,
+            cursor: cursor
           };
           for(var i = 0; i < panel.canvas_layers.length; i++){
             var canvas_layer = panel.canvas_layers[i];
@@ -559,14 +560,8 @@
           canvas: canvas,
           context: context
         });
-
-        if(panel.canvas_layers.length > 0){
-          var context_layer = panel.canvas_layers[panel.canvas_layers.length - 1].canvas.getContext("2d");
-          context_layer.setTransform(tm[0], tm[1], tm[2], tm[3], tm[4], tm[5]);
-          drawCursor(panel, cursor_color, undefined, context_layer);
-        }else{
-          drawCursor(panel, cursor_color);
-        }
+        
+        //drawCursor(panel, cursor_color);
 
         if (active) {
           context.save();
@@ -586,7 +581,12 @@
       },
 
       drawMousePointer : function(cursor_color, coords){
-        drawCursor(panel, cursor_color, coords);
+        var tm = panel.transformation_matrix;
+        var canvas = panel.canvas_layers[panel.canvas_layers.length - 1];
+        var ctx = canvas.getContext("2d");
+        ctx.clearRect(-canvas.width, -canvas.height, 2*canvas.width, 2*canvas.height);
+        ctx.setTransform(tm[0], tm[1], tm[2], tm[3], tm[4], tm[5]);
+        drawCursor(panel, cursor_color, coords, ctx);
       },
       setDrawCursor : function(draw){
         panel.draw_cursor = draw;
@@ -597,6 +597,11 @@
       setCursorSize : function(size){
         panel.cursor_size = size;
         panel.updated = true;
+      },
+      drawCursorLayer : function(buffer, ctx, params){
+        var tm = params.tm;
+        ctx.setTransform(tm[0], tm[1], tm[2], tm[3], tm[4], tm[5]);
+        drawCursor(panel, params.cursor_color, undefined, ctx);
       }
 
     };
@@ -606,6 +611,21 @@
         panel[k] = options[k];
       }
     });
+
+    var canvas_layer_cursor = document.createElement("canvas");
+    canvas_layer_cursor.id = "canvas_layer_" + panel.axis + "_cursor";
+    canvas_layer_cursor.width = panel.canvas.width;
+    canvas_layer_cursor.height = panel.canvas.height;
+    canvas_layer_cursor.style.position = "absolute";
+    canvas_layer_cursor.top = 5;
+    canvas_layer_cursor.left = 5;
+    canvas_layer_cursor.style["z-index"] = panel.canvas_layers.length + 1;
+
+    panel.canvas_layers.push({
+      canvas: canvas_layer_cursor,
+      draw: panel.drawCursorLayer
+    });
+    options.canvas_div.appendChild(canvas_layer_cursor);
 
     BrainBrowser.events.addEventModel(panel);
 
@@ -638,15 +658,17 @@
   }
 
   // Draw the cursor at its current position on the canvas.
-  function drawCursor(panel, color, coords, context_layer) {
-    var context = context_layer? context_layer : panel.context;
+  function drawCursor(panel, color, coords, ctx) {
+    
+    var context = ctx;
     var cursor;
     var zoom = panel.zoom;
-    var x, y, space;
+    var x, y;
     var distance;
     var dx, dy;
     var origx, origy;
     var cursor_size = panel.cursor_size;
+    var image_translate = panel.image_translate;
 
 
     color = color || "#FF0000";
@@ -662,7 +684,6 @@
     context.strokeStyle = color;
     context.fillStyle = color;
 
-    space = zoom;
     x = cursor.x;
     y = cursor.y;
 
@@ -695,8 +716,8 @@
       context.save();
       context.setTransform(1, 0, 0, 1, 0, 0);
 
-      x = x/panel.zoom + panel.image_translate.x;
-      y = y/panel.zoom + panel.image_translate.y;
+      x = x/zoom + image_translate.x;
+      y = y/zoom + image_translate.y;
 
       context.fillText(distance.toFixed(2), x, y);
       context.restore();

@@ -394,8 +394,8 @@
         step_slice_x = Math.abs(slice.width_space.step);
         step_slice_y = Math.abs(slice.height_space.step);
 
-        slice_x = Math.floor((x - origin.x) / step_slice_x);
-        slice_y = Math.floor(slice.height_space.space_length - (y - origin.y) / step_slice_y);
+        slice_x = (x - origin.x) / step_slice_x;
+        slice_y = slice.height_space.space_length - (y - origin.y) / step_slice_y;
 
         if(slice_x < 0 || slice_x > slice.width_space.space_length || slice_y < 0 || slice_y > slice.height_space.space_length){
           return null;
@@ -663,7 +663,7 @@
 
     context.beginPath();
 
-    context.lineWidth = 0.5;
+    context.lineWidth = 0.25;
     dx = panel.slice.width_space.step;
     dy = panel.slice.height_space.step;
     
@@ -696,7 +696,6 @@
       context.fillText(distance.toFixed(2), x, y);
       context.restore();
 
-
       context.lineWidth = 1;
       context.beginPath();
       context.arc(panel.anchor.x, panel.anchor.y, 1, 0, 2 * Math.PI);
@@ -705,7 +704,6 @@
       context.lineTo(cursor.x, cursor.y);
       context.stroke();
       
-
     }
 
     context.restore();

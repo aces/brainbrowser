@@ -424,6 +424,7 @@
             37: function() {
               if (volume.position[axis_name] > 0) {
                 volume.position[axis_name]--;
+                volume.position_continuous[axis_name]--;
               }
               var event = new CustomEvent('BrainBrowser-arrows');
               document.dispatchEvent(event);
@@ -432,6 +433,7 @@
             38: function() {
               if (volume.position[axis_name] < volume.header[axis_name].space_length) {
                 volume.position[axis_name]++;
+                volume.position_continuous[axis_name]++;
               }
               var event = new CustomEvent('BrainBrowser-arrows');
               document.dispatchEvent(event);
@@ -440,6 +442,7 @@
             39: function() {
               if (volume.position[axis_name] < volume.header[axis_name].space_length) {
                 volume.position[axis_name]++;
+                volume.position_continuous[axis_name]++;
               }
               var event = new CustomEvent('BrainBrowser-arrows');
               document.dispatchEvent(event);
@@ -448,6 +451,7 @@
             40: function() {
               if (volume.position[axis_name] > 0) {
                 volume.position[axis_name]--;
+                volume.position_continuous[axis_name]--;
               }
               var event = new CustomEvent('BrainBrowser-arrows');
               document.dispatchEvent(event);
@@ -473,6 +477,7 @@
               space_name = panel.slice.width_space.name;
               if (volume.position[space_name] > 0) {
                 volume.position[space_name]--;
+                volume.position_continuous[space_name]--;
               }
             },
             // Up
@@ -480,6 +485,7 @@
               space_name = panel.slice.height_space.name;
               if (volume.position[space_name] < panel.slice.height_space.space_length) {
                 volume.position[space_name]++;
+                volume.position_continuous[space_name]++;
               }
             },
             // Right
@@ -487,6 +493,7 @@
               space_name = panel.slice.width_space.name;
               if (volume.position[space_name] < panel.slice.width_space.space_length) {
                 volume.position[space_name]++;
+                volume.position_continuous[space_name]++;
               }
             },
             // Down
@@ -494,6 +501,7 @@
               space_name = panel.slice.height_space.name;
               if (volume.position[space_name] > 0) {
                 volume.position[space_name]--;
+                volume.position_continuous[space_name]--;
               }
             }
           };
@@ -515,6 +523,7 @@
               if (synced_volume !== volume) {
                 Object.keys(volume.position).forEach(function(key){
                   synced_volume.position[key] = volume.position[key];
+                  synced_volume.position_continuous[key] = synced_volume.position_continuous[key];
                 });
                 synced_volume.display.forEach(function(panel) {
                   if (panel !== synced_panel) {

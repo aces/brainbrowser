@@ -582,7 +582,7 @@
 
       drawMousePointer : function(cursor_color, coords){
         var tm = panel.transformation_matrix;
-        var canvas = panel.canvas_layers[panel.canvas_layers.length - 1];
+        var canvas = panel.canvas_layers[panel.canvas_layers.length - 1].canvas;
         var ctx = canvas.getContext("2d");
         ctx.clearRect(-canvas.width, -canvas.height, 2*canvas.width, 2*canvas.height);
         ctx.setTransform(tm[0], tm[1], tm[2], tm[3], tm[4], tm[5]);

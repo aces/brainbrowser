@@ -160,7 +160,8 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
   * viewer.setViewerPosition();
   * ```
   */
-  viewer.setViewerPosition = function(pos, pos_continuous) {
+  viewer.setViewerPosition = function(pos_continuous) {
+    var pos = {xspace: Math.floor(pos_continuous.xspace), yspace: Math.floor(pos_continuous.yspace), zspace: Math.floor(pos_continuous.zspace)};
     viewer.volumes.forEach(function (volume) {
       volume.position = pos;
       volume.position_continuous = pos_continuous;

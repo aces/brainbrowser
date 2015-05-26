@@ -149,4 +149,26 @@ BrainBrowser.VolumeViewer.modules.rendering = function(viewer) {
       });
     });
   };
+
+  /**
+  * @doc function
+  * @name viewer.rendering:setViewerPosition
+  *
+  * @description
+  * Set viewer at a precised position
+  * ```js
+  * viewer.setViewerPosition();
+  * ```
+  */
+  viewer.setViewerPosition = function(pos, pos_continuous) {
+    viewer.volumes.forEach(function (volume) {
+      volume.position = pos;
+      volume.position_continuous = pos_continuous;
+      volume.display.forEach(function(panel) {
+        panel.updateSlice();
+      });
+    });
+    viewer.redrawVolumes();
+  };
+
 };

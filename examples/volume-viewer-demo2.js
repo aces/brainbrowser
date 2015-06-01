@@ -804,8 +804,6 @@ $(function() {
                 };
 
                 var drawMousePointer = function(x, y){
-
-                  // panel.drawMouse("#FFFFFF", {x:x, y:y});
                   
                   var volpos = panel.getVolumePosition(x, y);
                   if(volpos){
@@ -817,16 +815,18 @@ $(function() {
 
                 var mousedown = false;
 
-                panel.canvas.addEventListener("mousedown", function () {
+                var canvas = panel.canvas_layers[panel.canvas_layers.length - 1].canvas;
+
+                canvas.addEventListener("mousedown", function () {
                   mousedown = true;
                   drawPixel();
                 });
 
-                panel.canvas.addEventListener("mouseup", function () {
+                canvas.addEventListener("mouseup", function () {
                   mousedown = false;
                 });
 
-                panel.canvas.addEventListener("mousemove", function (event) {
+                canvas.addEventListener("mousemove", function (event) {
                   var element = event.target;
                   var top = 0;
                   var left = 0;

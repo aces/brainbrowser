@@ -44,6 +44,11 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
         model.getObjectByName("right").rotation.z += Math.PI / 2;
         model.rotation.x -= Math.PI / 2;
       }
+      else {
+        model.rotation.x += Math.PI / 2;
+        model.rotation.y += Math.PI;
+        model.rotation.z += Math.PI / 2;
+      }
     },
 
     lateralView: function(model_data) {
@@ -60,6 +65,11 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
         right_child.rotation.z += Math.PI / 2;
         model.rotation.x += Math.PI / 2;
         model.rotation.y += Math.PI;
+      }
+      else {
+        model.rotation.x += Math.PI / 2;
+        model.rotation.y += Math.PI;
+        model.rotation.z -= Math.PI / 2;
       }
     },
 

@@ -102,6 +102,7 @@
     var tlength = dview.getUint16(48, littleEndian);
 
     var datatype = dview.getUint16(70, littleEndian);
+    var bitpix = dview.getUint16(72, littleEndian);
 
     var xstep = dview.getFloat32(80, littleEndian);
     var ystep = dview.getFloat32(84, littleEndian);
@@ -137,6 +138,12 @@
       header.time.name = "time";
       header.order = ["time", "zspace", "yspace", "xspace"];
     }
+
+    /* Record the number of bytes per voxel, and note whether we need 
+     * to swap bytes in the voxel data.
+     */
+    header.bytes_per_voxel = bitpix / 8;
+    header.must_swap_data = !littleEndian && header.bytes_per_voxel > 1;
 
     if (sform_code > 0) {
       /* The "Sform", if present, defines an affine transform which is 
@@ -561,10 +568,29 @@
     }
   }
 
+  function swapn(byte_data, n_per_item) {
+    for (var d = 0; d < byte_data.length; d += n_per_item) {
+      var hi_offset = n_per_item - 1;
+      var lo_offset = 0;
+      while (hi_offset > lo_offset) {
+        var tmp = byte_data[d + hi_offset];
+        byte_data[d + hi_offset] = byte_data[d + lo_offset];
+        byte_data[d + lo_offset] = tmp;
+        hi_offset--;
+        lo_offset++;
+      }
+    }
+  }
+
   function createNifti1Data(header, raw_data) {
     var byte_data = null;
     var native_data = null;
     var n_min, n_max;
+
+    if (header.must_swap_data) {
+      swapn(new Uint8Array(raw_data, header.vox_offset),
+            header.bytes_per_voxel);
+    }
 
     switch (header.datatype) {
     case 2:                     // DT_UNSIGNED_CHAR
@@ -580,7 +606,7 @@
     case 16:                    // DT_FLOAT
       native_data = new Float32Array(raw_data, header.vox_offset);
       break;
-    case 32:                    // DT_DOUBLE
+    case 64:                    // DT_DOUBLE
       native_data = new Float64Array(raw_data, header.vox_offset);
       break;
     // Values above 256 are NIfTI-specific, and rarely used.

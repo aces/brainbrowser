@@ -293,7 +293,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   // Apply a color array to a model.
   function colorModel(color_array, shapes) {
     var geometry, shape, indices;
-    var color_attribute, colors;
+    var color_attribute, geometry_color;
     var i, j, count, shape_count;
     var wireframe;
     var wireframe_color;
@@ -314,10 +314,14 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
       geometry = shape.geometry;
       indices = shape.userData.original_data.indices;
       color_attribute = geometry.attributes.color;
-      colors = color_attribute.array;
+      geometry_color = color_attribute.array;
 
       if (BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
-        colors.set(color_array);
+        // Fixed bug introduced by commit ce8d3c277fef (Skip deindexing if uint indices supported.)
+        // Just use the first colors present in color_array, ignored left-over.
+        for (i = 0; i < geometry_color.length ; i++ ) {
+          geometry_color[i] = color_array[i];
+        }
         if (has_wireframe) {
           wireframe.geometry.attributes.color.array.set(color_array);
         }
@@ -329,55 +333,55 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
           ic = i * 4;
           iwc = ic * 2;
 
-          if (!BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
-            colors[ic]    = color_array[indices[i]*4];
-            colors[ic+1]  = color_array[indices[i]*4+1];
-            colors[ic+2]  = color_array[indices[i]*4+2];
-            colors[ic+3]  = 1.0;
-            colors[ic+4]  = color_array[indices[i+1]*4];
-            colors[ic+5]  = color_array[indices[i+1]*4+1];
-            colors[ic+6]  = color_array[indices[i+1]*4+2];
-            colors[ic+7]  = 1.0;
-            colors[ic+8]  = color_array[indices[i+2]*4];
-            colors[ic+9]  = color_array[indices[i+2]*4+1];
-            colors[ic+10] = color_array[indices[i+2]*4+2];
-            colors[ic+11]  = 1.0;
+          geometry_color[ic]    = color_array[indices[i]*4];
+          geometry_color[ic+1]  = color_array[indices[i]*4+1];
+          geometry_color[ic+2]  = color_array[indices[i]*4+2];
+          geometry_color[ic+3]  = 1.0;
+          geometry_color[ic+4]  = color_array[indices[i+1]*4];
+          geometry_color[ic+5]  = color_array[indices[i+1]*4+1];
+          geometry_color[ic+6]  = color_array[indices[i+1]*4+2];
+          geometry_color[ic+7]  = 1.0;
+          geometry_color[ic+8]  = color_array[indices[i+2]*4];
+          geometry_color[ic+9]  = color_array[indices[i+2]*4+1];
+          geometry_color[ic+10] = color_array[indices[i+2]*4+2];
+          geometry_color[ic+11] = 1.0;
+
+          if (!has_wireframe) {
+            continue;
           }
+          // Treat wireframe
+          // v1 -v2
+          wireframe_color[iwc]     = geometry_color[ic];
+          wireframe_color[iwc + 1] = geometry_color[ic + 1];
+          wireframe_color[iwc + 2] = geometry_color[ic + 2];
+          wireframe_color[iwc + 3] = geometry_color[ic + 3];
+          wireframe_color[iwc + 4] = geometry_color[ic + 4];
+          wireframe_color[iwc + 5] = geometry_color[ic + 5];
+          wireframe_color[iwc + 6] = geometry_color[ic + 6];
+          wireframe_color[iwc + 7] = geometry_color[ic + 7];
 
-          if (has_wireframe) {
-            // v1 -v2
-            wireframe_color[iwc] = colors[ic];
-            wireframe_color[iwc + 1] = colors[ic + 1];
-            wireframe_color[iwc + 2] = colors[ic + 2];
-            wireframe_color[iwc + 3] = colors[ic + 3];
-            wireframe_color[iwc + 4] = colors[ic + 4];
-            wireframe_color[iwc + 5] = colors[ic + 5];
-            wireframe_color[iwc + 6] = colors[ic + 6];
-            wireframe_color[iwc + 7] = colors[ic + 7];
+          // v2 - v3
+          wireframe_color[iwc + 8]  = geometry_color[ic + 4];
+          wireframe_color[iwc + 9]  = geometry_color[ic + 5];
+          wireframe_color[iwc + 10] = geometry_color[ic + 6];
+          wireframe_color[iwc + 11] = geometry_color[ic + 7];
+          wireframe_color[iwc + 12] = geometry_color[ic + 8];
+          wireframe_color[iwc + 13] = geometry_color[ic + 9];
+          wireframe_color[iwc + 14] = geometry_color[ic + 10];
+          wireframe_color[iwc + 15] = geometry_color[ic + 11];
 
-            // v2 - v3
-            wireframe_color[iwc + 8] = colors[ic + 4];
-            wireframe_color[iwc + 9] = colors[ic + 5];
-            wireframe_color[iwc + 10] = colors[ic + 6];
-            wireframe_color[iwc + 11] = colors[ic + 7];
-            wireframe_color[iwc + 12] = colors[ic + 8];
-            wireframe_color[iwc + 13] = colors[ic + 9];
-            wireframe_color[iwc + 14] = colors[ic + 10];
-            wireframe_color[iwc + 15] = colors[ic + 11];
-
-            // v3 - v1
-            wireframe_color[iwc + 16] = colors[ic + 8];
-            wireframe_color[iwc + 17] = colors[ic + 9];
-            wireframe_color[iwc + 18] = colors[ic + 10];
-            wireframe_color[iwc + 19] = colors[ic + 11];
-            wireframe_color[iwc + 20] = colors[ic];
-            wireframe_color[iwc + 21] = colors[ic + 1];
-            wireframe_color[iwc + 22] = colors[ic + 2];
-            wireframe_color[iwc + 23] = colors[ic + 3];
-          }
+          // v3 - v1
+          wireframe_color[iwc + 16] = geometry_color[ic + 8];
+          wireframe_color[iwc + 17] = geometry_color[ic + 9];
+          wireframe_color[iwc + 18] = geometry_color[ic + 10];
+          wireframe_color[iwc + 19] = geometry_color[ic + 11];
+          wireframe_color[iwc + 20] = geometry_color[ic];
+          wireframe_color[iwc + 21] = geometry_color[ic + 1];
+          wireframe_color[iwc + 22] = geometry_color[ic + 2];
+          wireframe_color[iwc + 23] = geometry_color[ic + 3];
         }
       }
-      
+
 
       color_attribute.needsUpdate = true;
 

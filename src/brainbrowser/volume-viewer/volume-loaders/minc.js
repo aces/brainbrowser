@@ -61,13 +61,19 @@
     
   };
 
-  function createMincVolume(header, raw_data, callback){
+  /*
+   * Create a volume object given a header and some byte data that
+   * represents the voxels. Format-specific functions have to be
+   * used to create the header and byte_data, but this function 
+   * combines the information into the generic data structure used 
+   * elsewhere in the volume viewer.
+   */
+  VolumeViewer.createVolume = function(header, byte_data) {
     var cached_slices = {};
-
     var volume = {
       position: {},
       current_time: 0,
-      data: new Uint8Array(raw_data),
+      data: byte_data,
       header: header,
       intensity_min: 0,
       intensity_max: 255,
@@ -164,7 +170,7 @@
 
         if (!color_map) {
           error_message = "No color map set for this volume. Cannot render slice.";
-          volume.triggerEvent("error", { message: error_message } );
+          volume.triggerEvent("error", error_message);
           throw new Error(error_message);
         }
 
@@ -325,6 +331,11 @@
         };
       }
     };
+    return volume;
+  }
+
+  function createMincVolume(header, raw_data, callback){
+    var volume = VolumeViewer.createVolume(header, new Uint8Array(raw_data));
     
     if (BrainBrowser.utils.isFunction(callback)) {
       callback(volume);

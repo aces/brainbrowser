@@ -29,7 +29,6 @@
   "use strict";
      
   var VolumeViewer = BrainBrowser.VolumeViewer;
-  var image_creation_context = document.createElement("canvas").getContext("2d");
 
   VolumeViewer.volume_loaders.minc = function(description, callback) {
     var error_message;
@@ -69,6 +68,7 @@
    * elsewhere in the volume viewer.
    */
   VolumeViewer.createVolume = function(header, byte_data) {
+    var image_creation_context = document.createElement("canvas").getContext("2d");
     var cached_slices = {};
     var volume = {
       position: {},
@@ -332,7 +332,7 @@
       }
     };
     return volume;
-  }
+  };
 
   function createMincVolume(header, raw_data, callback){
     var volume = VolumeViewer.createVolume(header, new Uint8Array(raw_data));

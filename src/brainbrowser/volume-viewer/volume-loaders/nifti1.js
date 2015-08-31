@@ -33,7 +33,6 @@
   "use strict";
      
   var VolumeViewer = BrainBrowser.VolumeViewer;
-  var image_creation_context = document.createElement("canvas").getContext("2d");
 
   VolumeViewer.volume_loaders.nifti1 = function(description, callback) {
     var error_message;
@@ -298,7 +297,7 @@
   }
 
   function createNifti1Volume(header, raw_data, callback) {
-    var volume = VolumeViewer.createVolume(header, 
+    var volume = VolumeViewer.createVolume(header,
                                            createNifti1Data(header, raw_data));
     
     if (BrainBrowser.utils.isFunction(callback)) {

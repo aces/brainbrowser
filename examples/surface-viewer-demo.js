@@ -352,7 +352,6 @@ $(function() {
 
       // Reset all opacity sliders in the UI to 100%
       $(".opacity-slider").each(function(idx,opacity_slider) {
-        console.log(opacity_slider);
         $(opacity_slider).slider("value",100);
       });
     });

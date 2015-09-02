@@ -24,12 +24,12 @@
 * Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
 * Author: Paul Mougel
 */
- 
+
 BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   "use strict";
-  
+
   var THREE = BrainBrowser.SurfaceViewer.THREE;
-  
+
   var renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
   var scene = new THREE.Scene();
   var camera = new THREE.PerspectiveCamera(30, viewer.dom_element.offsetWidth / viewer.dom_element.offsetHeight, 1, 3000);
@@ -43,9 +43,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   var old_zoom_level;
 
   viewer.model = new THREE.Object3D();
-  
+
   scene.add(viewer.model);
-  
+
   /**
   * @doc function
   * @name viewer.rendering:render
@@ -59,14 +59,14 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var dom_element = viewer.dom_element;
     renderer.setClearColor(0x000000);
     dom_element.appendChild(renderer.domElement);
-    
+
     camera.position.z = default_camera_distance;
-    
+
     light.position.set(0, 0, default_camera_distance);
     scene.add(light);
-        
+
     viewer.updateViewport();
-    
+
     renderFrame();
   };
 
@@ -104,7 +104,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   viewer.canvasDataURL = function() {
     return renderer.domElement.toDataURL();
   };
-  
+
   /**
   * @doc function
   * @name viewer.rendering:addEffect
@@ -142,7 +142,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     viewer.updated = true;
   };
-  
+
   /**
   * @doc function
   * @name viewer.rendering:setCameraPosition
@@ -161,7 +161,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     viewer.updated = true;
   };
-  
+
   /**
   * @doc function
   * @name viewer.rendering:resetView
@@ -175,7 +175,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var model = viewer.model;
     var inv = new THREE.Matrix4();
     inv.getInverse(model.matrix);
-  
+
     model.applyMatrix(inv);
     camera.position.set(0, 0, default_camera_distance);
     light.position.set(0, 0, default_camera_distance);
@@ -198,14 +198,15 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
           shape.position.set(0, 0, 0);
         }
         shape.rotation.set(0, 0, 0);
+        shape.material.opacity = 1;
       }
     });
-    
+
     viewer.zoom = 1;
 
     viewer.updated = true;
   };
-  
+
   /**
   * @doc function
   * @name viewer.rendering:setClearColor
@@ -243,10 +244,10 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     var geometry = new THREE.SphereGeometry(radius);
     var material = new THREE.MeshBasicMaterial({color: color});
-  
+
     var sphere = new THREE.Mesh(geometry, material);
     sphere.position.set(x, y, z);
-  
+
     if (viewer.model) {
       viewer.model.add(sphere);
     } else {
@@ -258,7 +259,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     return sphere;
 
   };
-  
+
   /**
   * @doc function
   * @name viewer.rendering:pick
@@ -328,7 +329,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
         intersect_face.b,
         intersect_face.c
       ];
-      
+
       if (intersect_object.userData.annotation_info) {
         vertex_data = {
           index: intersect_object.userData.annotation_info.vertex,
@@ -350,7 +351,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
         } else {
           cx = cy = cz = 0;
         }
-        
+
 
         inv_matrix.getInverse(intersect_object.matrixWorld);
         intersect_point = intersection.point.applyMatrix4(inv_matrix);
@@ -416,7 +417,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
           object: intersect_object
         };
       }
-      
+
 
     } else {
       vertex_data = null;
@@ -424,7 +425,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     return vertex_data;
   };
-  
+
   ////////////////////////////////////
   // PRIVATE FUNCTIONS
   ////////////////////////////////////
@@ -436,12 +437,12 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var rotation;
     var position = camera.position;
     var new_z = default_camera_distance / viewer.zoom;
-    
+
     window.requestAnimationFrame(renderFrame);
-    
+
     last_frame = current_frame || timestamp;
     current_frame = timestamp;
-    
+
     delta = current_frame - last_frame;
     rotation = delta * 0.00015;
 
@@ -599,7 +600,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     canvas.addEventListener("mousewheel", wheelHandler, false);
     canvas.addEventListener("DOMMouseScroll", wheelHandler, false); // Dammit Firefox
-    
+
     canvas.addEventListener( 'contextmenu', function(event) {
       event.preventDefault();
     }, false );
@@ -607,6 +608,6 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   })();
 
 };
- 
- 
- 
+
+
+

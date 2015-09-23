@@ -31,7 +31,7 @@
 
 (function() {
   "use strict";
-  
+
   var VolumeViewer = BrainBrowser.VolumeViewer;
   var image_creation_context = document.createElement("canvas").getContext("2d");
 
@@ -66,7 +66,7 @@
           var slice = volume.slice(axis, corrected_slice_num, time);
           slices.push(slice);
         });
-        
+
         return {
           height_space: slices[0].height_space,
           width_space: slices[0].width_space,
@@ -74,13 +74,48 @@
         };
       },
 
+      // Calculates the axis coordinate in world space.
+      //
+      getSliceCoordinate: function(header, axis_name) {
+        var vc = {
+          i: overlay_volume.position[header.order[0]],
+          j: overlay_volume.position[header.order[1]],
+          k: overlay_volume.position[header.order[2]]
+        };
+        var wc = overlay_volume.volumes[0].voxelToWorld(vc.i, vc.j, vc.k);
+
+        var result = 0;
+        if (axis_name === "xspace")
+          result = wc.x;
+        else if (axis_name === "yspace")
+          result = wc.y;
+        else
+          result = wc.z;
+        return result;
+      },
+
       getSliceImage: function(slice, zoom, contrast, brightness) {
         zoom = zoom || 1;
-        
+
         var slices = slice.slices;
         var images = [];
         var max_width = 0;
         var max_height = 0;
+        var overlay_volume = this;
+
+        // Calculate the maximum width and height for the set of
+        // volumes. We need this to set the overall field of view.
+        //
+        slices.forEach(function(slice, i) {
+          var xstep = slice.width_space.step;
+          var ystep = slice.height_space.step;
+
+          var target_width = Math.abs(Math.floor(slice.width * xstep * zoom));
+          var target_height = Math.abs(Math.floor(slice.height * ystep * zoom));
+
+          max_width = Math.max(max_width, target_width);
+          max_height = Math.max(max_height, target_height);
+        });
 
         slices.forEach(function(slice, i) {
           var volume = overlay_volume.volumes[i];
@@ -95,38 +130,74 @@
             throw new Error(error_message);
           }
 
-          var xstep = slice.width_space.step;
-          var ystep = slice.height_space.step;
+          var target_image = image_creation_context.createImageData(max_width, max_height);
 
-          var target_width = Math.abs(Math.floor(slice.width * xstep * zoom));
-          var target_height = Math.abs(Math.floor(slice.height * ystep * zoom));
+          var min_col = -max_width / 2;
+          var max_col = max_width / 2;
+          var min_row = -max_height / 2;
+          var max_row = max_height / 2;
 
-          var source_image = image_creation_context.createImageData(slice.width, slice.height);
-          var target_image = image_creation_context.createImageData(target_width, target_height);
+          var header = volume.header;
 
-          color_map.mapColors(slice.data, {
+          var time_offset = header.time ? volume.current_time * header.time.offset : 0;
+
+          var axis_space = header[slice.axis];
+          var width_space = axis_space.width_space;
+          var height_space = axis_space.height_space;
+
+          var i_offset = header[header.order[0]].offset;
+          var j_offset = header[header.order[1]].offset;
+          var k_offset = header[header.order[2]].offset;
+
+          var sizes = [
+            header[header.order[0]].space_length,
+            header[header.order[1]].space_length,
+            header[header.order[2]].space_length
+          ];
+
+          var slice_data = new Uint8Array(max_width * max_height);
+          var data_index = 0;
+
+          // We need to calculate the slice coordinate in world
+          // space in order to properly align the volumes.
+          //
+          var c_axis = overlay_volume.getSliceCoordinate(header,
+                                                         axis_space.name);
+
+          for (var c_row = max_row; c_row >= min_row; c_row--) {
+            for (var c_col = min_col; c_col < max_col; c_col++) {
+              var wc = {};
+              wc[slice.axis] = c_axis;
+              wc[width_space.name] = c_col;
+              wc[height_space.name] = c_row;
+              var vc = volume.worldToVoxel(wc.xspace, wc.yspace, wc.zspace);
+              if (vc.i < 0 || vc.i >= sizes[0] ||
+                  vc.j < 0 || vc.j >= sizes[1] ||
+                  vc.k < 0 || vc.k >= sizes[2]) {
+                slice_data[data_index] = 0;
+              }
+              else {
+                var volume_index = (time_offset +
+                                    vc.i * i_offset +
+                                    vc.j * j_offset +
+                                    vc.k * k_offset);
+                slice_data[data_index] = volume.data[volume_index];
+              }
+              data_index++;
+            }
+          }
+
+          color_map.mapColors(slice_data, {
             min: intensity_min,
             max: intensity_max,
             contrast: contrast,
             brightness: brightness,
-            destination: source_image.data
+            destination: target_image.data
           });
-          
-          target_image.data.set(VolumeViewer.utils.nearestNeighbor(
-            source_image.data,
-            source_image.width,
-            source_image.height,
-            target_width,
-            target_height,
-            {block_size: 4}
-          ));
 
-          max_width = Math.max(max_width, target_width);
-          max_height = Math.max(max_height, target_height);
-          
           images.push(target_image);
         });
-        
+
         return blendImages(
           images,
           overlay_volume.blend_ratios,
@@ -151,20 +222,21 @@
             z < 0 || z > header.zspace.space_length) {
             values.push(0);
           }
+          else {
+            var slice = volume.slice("zspace", z, time);
+            var data = slice.data;
+            var slice_x, slice_y;
 
-          var slice = volume.slice("zspace", z, time);
-          var data = slice.data;
-          var slice_x, slice_y;
+            if (slice.width_space.name === "xspace") {
+              slice_x = x;
+              slice_y = y;
+            } else {
+              slice_x = y;
+              slice_y = z;
+            }
 
-          if (slice.width_space.name === "xspace") {
-            slice_x = x;
-            slice_y = y;
-          } else {
-            slice_x = y;
-            slice_y = z;
+            values.push(data[(slice.height_space.space_length - slice_y - 1) * slice.width + slice_x]);
           }
-
-          values.push(data[(slice.height_space.space_length - slice_y - 1) * slice.width + slice_x]);
         });
 
         return values.reduce(function(intensity, current_value, i) {
@@ -177,7 +249,7 @@
       overlay_volume.volumes.push(volume);
       overlay_volume.blend_ratios.push(1 / volumes.length);
     });
-    
+
     if (BrainBrowser.utils.isFunction(callback)) {
       callback(overlay_volume);
     }
@@ -214,25 +286,26 @@
           image = images[i];
 
           if(y < image.height &&  x < image.width) {
+
             image_data = image.data;
 
             current = image_iter[i];
-      
+
             //Red
             target_data[pixel] = target_data[pixel] * alpha +
                                   image_data[current] * alphas[i];
-      
+
             //Green
             target_data[pixel + 1] = target_data[pixel + 1] * alpha +
                                       image_data[current + 1] * alphas[i];
-      
+
             //Blue
             target_data[pixel + 2] = target_data[pixel + 2] * alpha +
                                       image_data[current + 2] * alphas[i];
-      
+
             target_data[pixel + 3] = 255;
             alpha += alphas[i];
-            
+
             image_iter[i] += 4;
           }
 

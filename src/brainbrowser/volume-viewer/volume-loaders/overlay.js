@@ -106,7 +106,7 @@
         // Calculate the maximum width and height for the set of
         // volumes. We need this to set the overall field of view.
         //
-        slices.forEach(function(slice, i) {
+        slices.forEach(function(slice) {
           var xstep = slice.width_space.step;
           var ystep = slice.height_space.step;
 

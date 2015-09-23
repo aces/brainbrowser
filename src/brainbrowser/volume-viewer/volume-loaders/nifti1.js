@@ -24,14 +24,14 @@
 * Author: Nicolas Kassis
 * Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
 * Author: Robert D. Vincent <robert.d.vincent@mcgill.ca>
-* 
-* Loads NIfTI-1 files for volume viewer. For details on the NIfTI-1 format, 
+*
+* Loads NIfTI-1 files for volume viewer. For details on the NIfTI-1 format,
 * see: http://nifti.nimh.nih.gov/nifti-1/documentation/nifti1fields
 */
 
 (function() {
   "use strict";
-     
+
   var VolumeViewer = BrainBrowser.VolumeViewer;
 
   VolumeViewer.volume_loaders.nifti1 = function(description, callback) {
@@ -42,7 +42,7 @@
           createNifti1Volume(header, nii_data, callback);
         });
       }, {result_type: "arraybuffer" });
-                                        
+
     } else if (description.nii_file) {
       BrainBrowser.loader.loadFromFile(description.nii_file, function(nii_data) {
         parseNifti1Header(nii_data, function(header) {
@@ -56,7 +56,7 @@
       BrainBrowser.events.triggerEvent("error", { message: error_message });
       throw new Error(error_message);
     }
-    
+
   };
 
   function parseNifti1Header(raw_data, callback) {
@@ -138,14 +138,14 @@
       header.order = ["time", "zspace", "yspace", "xspace"];
     }
 
-    /* Record the number of bytes per voxel, and note whether we need 
+    /* Record the number of bytes per voxel, and note whether we need
      * to swap bytes in the voxel data.
      */
     header.bytes_per_voxel = bitpix / 8;
     header.must_swap_data = !littleEndian && header.bytes_per_voxel > 1;
 
     if (sform_code > 0) {
-      /* The "Sform", if present, defines an affine transform which is 
+      /* The "Sform", if present, defines an affine transform which is
        * generally assumed to correspond to some standard coordinate
        * space (e.g. Talairach).
        */
@@ -195,7 +195,7 @@
       return Math.sqrt(dotprod);
     }
 
-    // Now that we have the transform, need to convert it to MINC-like 
+    // Now that we have the transform, need to convert it to MINC-like
     // steps and direction_cosines.
 
     var xmag = magnitude(transform[0]);
@@ -211,7 +211,7 @@
       y_dir_cosines[i] = transform[1][i] / ystep;
       z_dir_cosines[i] = transform[2][i] / zstep;
     }
-        
+
     header.xspace.step = xstep;
     header.yspace.step = ystep;
     header.zspace.step = zstep;
@@ -255,7 +255,7 @@
     var d = qd;
     var a, xd, yd, zd;
 
-    // compute a parameter from b,c,d 
+    // compute a parameter from b,c,d
 
     a = 1.0 - (b * b + c * c + d * d);
     if ( a < 1.e-7 ) {           // special case
@@ -268,7 +268,7 @@
       a = Math.sqrt(a);          // angle = 2*arccos(a)
     }
 
-    // load rotation matrix, including scaling factors for voxel sizes 
+    // load rotation matrix, including scaling factors for voxel sizes
 
     xd = (dx > 0.0) ? dx : 1.0;  // make sure are positive
     yd = (dy > 0.0) ? dy : 1.0;
@@ -299,7 +299,8 @@
   function createNifti1Volume(header, raw_data, callback) {
     var volume = VolumeViewer.createVolume(header,
                                            createNifti1Data(header, raw_data));
-    
+
+    volume.saveOriginAndTransform(header);
     if (BrainBrowser.utils.isFunction(callback)) {
       callback(volume);
     }
@@ -420,5 +421,5 @@
 
     return byte_data;
   }
-   
+
 }());

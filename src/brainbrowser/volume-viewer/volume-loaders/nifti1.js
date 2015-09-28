@@ -195,6 +195,13 @@
       return Math.sqrt(dotprod);
     }
 
+    // Calculate the determinant of a 3x3 matrix.
+    function determinant(c0, c1, c2) {
+        return (c0[0] * (c1[1] * c2[2] - c1[2] * c2[1]) +
+                c0[1] * (c1[2] * c2[0] - c1[0] * c2[2]) +
+                c0[2] * (c1[0] * c2[2] - c1[1] * c2[0]));
+    }
+
     // Now that we have the transform, need to convert it to MINC-like
     // steps and direction_cosines.
 
@@ -207,21 +214,33 @@
     zstep = (transform[2][2] < 0) ? -zmag : zmag;
 
     for (var i = 0; i < 3; i++) {
-      x_dir_cosines[i] = transform[0][i] / xstep;
-      y_dir_cosines[i] = transform[1][i] / ystep;
-      z_dir_cosines[i] = transform[2][i] / zstep;
+      x_dir_cosines[i] = transform[i][0] / xstep;
+      y_dir_cosines[i] = transform[i][1] / ystep;
+      z_dir_cosines[i] = transform[i][2] / zstep;
     }
 
     header.xspace.step = xstep;
     header.yspace.step = ystep;
     header.zspace.step = zstep;
 
-    /* The NIfTI-1 transform already encodes the "corrected" origin
-     * in world space, so there is no need for later correction.
-     */
-    header.xspace.start = transform[0][3];
-    header.yspace.start = transform[1][3];
-    header.zspace.start = transform[2][3];
+    // Calculate the corrected start values.
+    var starts = [transform[0][3],
+                  transform[1][3],
+                  transform[2][3]
+                 ];
+
+    // In practice, I believe that the determinant of the direction
+    // cosines should always work out to 1, so the calculation of
+    // this value should not be needed. But I have no idea if NIfTI
+    // enforces this when sform transforms are written.
+    var D = determinant(x_dir_cosines, y_dir_cosines, z_dir_cosines);
+    var xstart = determinant(starts, y_dir_cosines, z_dir_cosines);
+    var ystart = determinant(x_dir_cosines, starts, z_dir_cosines);
+    var zstart = determinant(x_dir_cosines, y_dir_cosines, starts);
+
+    header.xspace.start = xstart / D;
+    header.yspace.start = ystart / D;
+    header.zspace.start = zstart / D;
 
     header.xspace.direction_cosines = x_dir_cosines;
     header.yspace.direction_cosines = y_dir_cosines;

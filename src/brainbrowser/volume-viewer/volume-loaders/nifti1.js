@@ -229,18 +229,18 @@
                   transform[2][3]
                  ];
 
-    // In practice, I believe that the determinant of the direction
+    // (bert): I believe that the determinant of the direction
     // cosines should always work out to 1, so the calculation of
     // this value should not be needed. But I have no idea if NIfTI
     // enforces this when sform transforms are written.
-    var D = determinant(x_dir_cosines, y_dir_cosines, z_dir_cosines);
+    var denom = determinant(x_dir_cosines, y_dir_cosines, z_dir_cosines);
     var xstart = determinant(starts, y_dir_cosines, z_dir_cosines);
     var ystart = determinant(x_dir_cosines, starts, z_dir_cosines);
     var zstart = determinant(x_dir_cosines, y_dir_cosines, starts);
 
-    header.xspace.start = xstart / D;
-    header.yspace.start = ystart / D;
-    header.zspace.start = zstart / D;
+    header.xspace.start = xstart / denom;
+    header.yspace.start = ystart / denom;
+    header.zspace.start = zstart / denom;
 
     header.xspace.direction_cosines = x_dir_cosines;
     header.yspace.direction_cosines = y_dir_cosines;

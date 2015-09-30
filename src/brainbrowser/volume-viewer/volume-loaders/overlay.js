@@ -94,6 +94,9 @@
         return result;
       },
 
+      // Get the slice image, at the requested zoom level, contrast
+      // and brightness. Zoom values of less than one imply a smaller
+      // image (therefore a larger field of view)
       getSliceImage: function(slice, zoom, contrast, brightness) {
         zoom = zoom || 1;
 
@@ -105,7 +108,7 @@
 
         // Calculate the maximum width and height for the set of
         // volumes. We need this to set the overall field of view.
-        //
+        // TODO: Fix this to get a true field of view.
         slices.forEach(function(slice) {
           var xstep = slice.width_space.step;
           var ystep = slice.height_space.step;
@@ -168,8 +171,8 @@
             for (var c_col = min_col; c_col < max_col; c_col++) {
               var wc = {};
               wc[slice.axis] = c_axis;
-              wc[width_space.name] = c_col;
-              wc[height_space.name] = c_row;
+              wc[width_space.name] = c_col / zoom;
+              wc[height_space.name] = c_row / zoom;
               var vc = volume.worldToVoxel(wc.xspace, wc.yspace, wc.zspace);
               if (vc.i < 0 || vc.i >= sizes[0] ||
                   vc.j < 0 || vc.j >= sizes[1] ||

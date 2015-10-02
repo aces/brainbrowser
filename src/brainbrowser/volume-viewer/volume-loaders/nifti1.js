@@ -195,11 +195,19 @@
       return Math.sqrt(dotprod);
     }
 
-    // Calculate the determinant of a 3x3 matrix.
+    // Calculate the determinant of a 3x3 matrix, from:
+    // http://www.mathworks.com/help/aeroblks/determinantof3x3matrix.html
+    //
+    // det(A) = A_{11} (A_{22}A_{33} - A_{23}A_{32}) -
+    //          A_{12} (A_{21}A_{33} - A_{23}A_{31}) +
+    //          A_{13} (A_{21}A_{32} - A_{22}A_{31})
+    //
+    // Of course, I had to change the indices from 1-based to 0-based.
+    //
     function determinant(c0, c1, c2) {
-      return (c0[0] * (c1[1] * c2[2] - c1[2] * c2[1]) +
-              c0[1] * (c1[2] * c2[0] - c1[0] * c2[2]) +
-              c0[2] * (c1[0] * c2[2] - c1[1] * c2[0]));
+      return (c0[0] * (c1[1] * c2[2] - c1[2] * c2[1]) -
+              c0[1] * (c1[0] * c2[2] - c1[2] * c2[0]) +
+              c0[2] * (c1[0] * c2[1] - c1[1] * c2[0]));
     }
 
     // Now that we have the transform, need to convert it to MINC-like

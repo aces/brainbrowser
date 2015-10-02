@@ -93,6 +93,7 @@ $(function() {
           }
         });
       } else if ($(this).val() === "NIfTI-1"){
+        $("#sync-volumes-wrapper").show();
         viewer.clearVolumes();
         viewer.loadVolumes({
           volumes: [

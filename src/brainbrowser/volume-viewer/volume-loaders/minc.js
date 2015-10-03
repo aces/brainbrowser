@@ -70,6 +70,10 @@
   VolumeViewer.createVolume = function(header, byte_data) {
     var image_creation_context = document.createElement("canvas").getContext("2d");
     var cached_slices = {};
+
+    // Populate the header with the universal fields.
+    finishHeader(header);
+
     var volume = {
       position: {},
       current_time: 0,
@@ -356,6 +360,7 @@
 
   function createMincVolume(header, raw_data, callback){
     var volume = VolumeViewer.createVolume(header, new Uint8Array(raw_data));
+    volume.type = "minc";
 
     volume.saveOriginAndTransform(header);
     if (BrainBrowser.utils.isFunction(callback)) {
@@ -363,49 +368,13 @@
     }
   }
 
-  function parseHeader(header_text, callback) {
-    var header;
-    var error_message;
-    var startx, starty, startz, cx, cy, cz;
-
-    try{
-      header = JSON.parse(header_text);
-    } catch(error) {
-      error_message = "server did not respond with valid JSON" + "\n" +
-        "Response was: \n" + header_text;
-
-      BrainBrowser.events.triggerEvent("error", { message: error_message });
-      throw new Error(error_message);
-    }
-
-
-    if(header.order.length === 4) {
-      header.order = header.order.slice(1);
-    }
-
+  /*
+   * Creates common fields all headers must contain.
+   */
+  function finishHeader(header) {
     header.xspace.name = "xspace";
     header.yspace.name = "yspace";
     header.zspace.name = "zspace";
-
-    header.xspace.space_length = parseFloat(header.xspace.space_length);
-    header.yspace.space_length = parseFloat(header.yspace.space_length);
-    header.zspace.space_length = parseFloat(header.zspace.space_length);
-
-    startx = header.xspace.start = parseFloat(header.xspace.start);
-    starty = header.yspace.start = parseFloat(header.yspace.start);
-    startz = header.zspace.start = parseFloat(header.zspace.start);
-
-    header.xspace.step = parseFloat(header.xspace.step);
-    header.yspace.step = parseFloat(header.yspace.step);
-    header.zspace.step = parseFloat(header.zspace.step);
-
-    header.xspace.direction_cosines = header.xspace.direction_cosines || [1, 0, 0];
-    header.yspace.direction_cosines = header.yspace.direction_cosines || [0, 1, 0];
-    header.zspace.direction_cosines = header.zspace.direction_cosines || [0, 0, 1];
-
-    cx = header.xspace.direction_cosines = header.xspace.direction_cosines.map(parseFloat);
-    cy = header.yspace.direction_cosines = header.yspace.direction_cosines.map(parseFloat);
-    cz = header.zspace.direction_cosines = header.zspace.direction_cosines.map(parseFloat);
 
     header.xspace.width_space  = header.yspace;
     header.xspace.width        = header.yspace.space_length;
@@ -421,8 +390,50 @@
     header.zspace.width        = header.xspace.space_length;
     header.zspace.height_space = header.yspace;
     header.zspace.height       = header.yspace.space_length;
+  }
 
-    // Incrementation offsets for each dimension of the volume.
+  function parseHeader(header_text, callback) {
+    var header;
+    var error_message;
+
+    try{
+      header = JSON.parse(header_text);
+    } catch(error) {
+      error_message = "server did not respond with valid JSON" + "\n" +
+        "Response was: \n" + header_text;
+
+      BrainBrowser.events.triggerEvent("error", { message: error_message });
+      throw new Error(error_message);
+    }
+
+    if(header.order.length === 4) {
+      header.order = header.order.slice(1);
+    }
+
+    header.xspace.space_length = parseFloat(header.xspace.space_length);
+    header.yspace.space_length = parseFloat(header.yspace.space_length);
+    header.zspace.space_length = parseFloat(header.zspace.space_length);
+
+    header.xspace.start = parseFloat(header.xspace.start);
+    header.yspace.start = parseFloat(header.yspace.start);
+    header.zspace.start = parseFloat(header.zspace.start);
+
+    header.xspace.step = parseFloat(header.xspace.step);
+    header.yspace.step = parseFloat(header.yspace.step);
+    header.zspace.step = parseFloat(header.zspace.step);
+
+    header.xspace.direction_cosines = header.xspace.direction_cosines || [1, 0, 0];
+    header.yspace.direction_cosines = header.yspace.direction_cosines || [0, 1, 0];
+    header.zspace.direction_cosines = header.zspace.direction_cosines || [0, 0, 1];
+
+    header.xspace.direction_cosines = header.xspace.direction_cosines.map(parseFloat);
+    header.yspace.direction_cosines = header.yspace.direction_cosines.map(parseFloat);
+    header.zspace.direction_cosines = header.zspace.direction_cosines.map(parseFloat);
+
+    /* Incrementation offsets for each dimension of the volume.
+     * Note that this somewhat format-specific, so it does not 
+     * belong in the generic "createVolume()" code.
+     */
     header[header.order[0]].offset = header[header.order[1]].space_length * header[header.order[2]].space_length;
     header[header.order[1]].offset = header[header.order[2]].space_length;
     header[header.order[2]].offset = 1;

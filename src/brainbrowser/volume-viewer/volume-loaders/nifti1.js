@@ -326,7 +326,7 @@
   function createNifti1Volume(header, raw_data, callback) {
     var volume = VolumeViewer.createVolume(header,
                                            createNifti1Data(header, raw_data));
-
+    volume.type = "nifti";
     volume.saveOriginAndTransform(header);
     if (BrainBrowser.utils.isFunction(callback)) {
       callback(volume);
@@ -411,31 +411,6 @@
     if(header.order.length === 4) {
       header.order = header.order.slice(1);
     }
-
-    header.xspace.name = "xspace";
-    header.yspace.name = "yspace";
-    header.zspace.name = "zspace";
-
-    header.voxel_origin = {
-      x: header.xspace.start,
-      y: header.yspace.start,
-      z: header.zspace.start
-    };
-
-    header.xspace.width_space  = header.yspace;
-    header.xspace.width        = header.yspace.space_length;
-    header.xspace.height_space = header.zspace;
-    header.xspace.height       = header.zspace.space_length;
-
-    header.yspace.width_space  = header.xspace;
-    header.yspace.width        = header.xspace.space_length;
-    header.yspace.height_space = header.zspace;
-    header.yspace.height       = header.zspace.space_length;
-
-    header.zspace.width_space  = header.xspace;
-    header.zspace.width        = header.xspace.space_length;
-    header.zspace.height_space = header.yspace;
-    header.zspace.height       = header.yspace.space_length;
 
     // Incrementation offsets for each dimension of the volume.
     header[header.order[0]].offset = header[header.order[1]].space_length * header[header.order[2]].space_length;

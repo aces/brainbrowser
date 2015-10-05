@@ -272,7 +272,14 @@ $(function() {
         }
 
         // Set coordinates and redraw.
-        viewer.volumes[vol_id].setWorldCoords(x, y, z);
+        if (viewer.synced) {
+          viewer.volumes.forEach(function(volume) {
+            volume.setWorldCoords(x, y, z);
+          });
+        }
+        else {
+          viewer.volumes[vol_id].setWorldCoords(x, y, z);
+        }
 
         viewer.redrawVolumes();
       });
@@ -298,6 +305,15 @@ $(function() {
 
         // Set coordinates and redraw.
         viewer.volumes[vol_id].setVoxelCoords(i, j, k);
+        if (viewer.synced) {
+          var synced_volume = viewer.volumes[vol_id];
+          var wc = synced_volume.getWorldCoords();
+          viewer.volumes.forEach(function(volume) {
+            if (synced_volume !== volume) {
+              volume.setWorldCoords(wc.x, wc.y, wc.z);
+            }
+          });
+        }
 
         viewer.redrawVolumes();
       });

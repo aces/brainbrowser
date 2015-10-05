@@ -414,7 +414,6 @@
 
         var key = event.which;
         var space_name, time;
-        var cursor;
         
         var keys = {
           // CTRL
@@ -472,21 +471,7 @@
           });
 
           if (viewer.synced){
-            cursor = panel.getCursorPosition();
-
-            viewer.volumes.forEach(function(synced_volume) {
-              var synced_panel;
-              
-              if (synced_volume !== volume) {
-                synced_panel = synced_volume.display.getPanel(axis_name);
-                synced_panel.updateVolumePosition(cursor.x, cursor.y);
-                synced_volume.display.forEach(function(panel) {
-                  if (panel !== synced_panel) {
-                    panel.updateSlice();
-                  }
-                });
-              }
-            });
+            viewer.syncPosition(panel, volume, axis_name);
           }
           
           return false;

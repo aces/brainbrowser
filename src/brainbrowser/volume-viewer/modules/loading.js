@@ -344,6 +344,22 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
     default_panel_height = height;
   };
 
+  viewer.syncPosition = function(panel, volume, axis_name) {
+    var wc = volume.getWorldCoords();
+    viewer.volumes.forEach(function(synced_volume) {
+      if (synced_volume !== volume) {
+        var synced_panel = synced_volume.display.getPanel(axis_name);
+        synced_panel.volume.setWorldCoords(wc.x, wc.y, wc.z);
+        synced_panel.updated = true;
+        synced_volume.display.forEach(function(panel) {
+          if (panel !== synced_panel) {
+            panel.updateSlice();
+          }
+        });
+      }
+    });
+  };
+
   ///////////////////////////
   // Private Functions
   ///////////////////////////
@@ -533,22 +549,9 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
             });
 
             if (viewer.synced){
-              viewer.volumes.forEach(function(synced_volume, synced_vol_id) {
-                var synced_panel;
-                
-                if (synced_vol_id !== vol_id) {
-                  synced_panel = synced_volume.display.getPanel(axis_name);
-                  synced_panel.updateVolumePosition(pointer.x, pointer.y);
-                  synced_volume.display.forEach(function(panel) {
-                    if (panel !== synced_panel) {
-                      panel.updateSlice();
-                    }
-                  });
-                }
-              });
+              viewer.syncPosition(panel, volume, axis_name);
             }
           }
-
           panel.updated = true;
         }
 
@@ -576,19 +579,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
             });
 
             if (viewer.synced){
-              viewer.volumes.forEach(function(synced_volume, synced_vol_id) {
-                var synced_panel;
-                
-                if (synced_vol_id !== vol_id) {
-                  synced_panel = synced_volume.display.getPanel(axis_name);
-                  synced_panel.updateVolumePosition(pointer.x, pointer.y);
-                  synced_volume.display.forEach(function(panel) {
-                    if (panel !== synced_panel) {
-                      panel.updateSlice();
-                    }
-                  });
-                }
-              });
+              viewer.syncPosition(panel, volume, axis_name);
             }
           }
 

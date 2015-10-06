@@ -481,12 +481,11 @@
         if (key === 32) {
           event.preventDefault();
 
-          if (volume.data.time) {
-
+          if (volume.header.time) {
             if (event.shiftKey) {
               time = Math.max(0, volume.current_time - 1);
             } else {
-              time = Math.min(volume.current_time + 1, volume.data.time.space_length - 1);
+              time = Math.min(volume.current_time + 1, volume.header.time.space_length - 1);
             }
 
             volume.current_time = time;
@@ -494,7 +493,7 @@
             if (viewer.synced){
               viewer.volumes.forEach(function(synced_volume) {
                 if (synced_volume !== volume) {
-                  synced_volume.current_time = Math.max(0, Math.min(time, synced_volume.data.time.space_length - 1));
+                  synced_volume.current_time = Math.max(0, Math.min(time, synced_volume.header.time.space_length - 1));
                 }
               });
             }

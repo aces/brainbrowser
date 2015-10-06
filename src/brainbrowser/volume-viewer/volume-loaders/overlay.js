@@ -120,6 +120,26 @@
       var max_width = Math.round(this.size * zoom);
       var max_height = max_width;
 
+      // Stepping through the dimensions efficiently means we need
+      // to keep stepping our voxel coordinates by the appropriate
+      // amount relative to the world coordinate frame. We do this
+      // by grabbing the appropriate column from the world-to-voxel
+      // transform and scaling those values by the zoom factor.
+      //
+      function voxelStepForSpace(header, name, zoom) {
+        var index = name.charCodeAt(0) - "x".charCodeAt(0);
+        var temp = {
+          xspace: header.w2v[0][index],
+          yspace: header.w2v[1][index],
+          zspace: header.w2v[2][index]
+        };
+        return {
+          di: temp[header.order[0]] / zoom,
+          dj: temp[header.order[1]] / zoom,
+          dk: temp[header.order[2]] / zoom
+        };
+      }
+
       slices.forEach(function(slice, i) {
         var volume = overlay_volume.volumes[i];
         var color_map = volume.color_map;
@@ -152,11 +172,9 @@
         var j_offset = header[header.order[1]].offset;
         var k_offset = header[header.order[2]].offset;
 
-        var sizes = [
-          header[header.order[0]].space_length,
-          header[header.order[1]].space_length,
-          header[header.order[2]].space_length
-        ];
+        var i_size = header[header.order[0]].space_length;
+        var j_size = header[header.order[1]].space_length;
+        var k_size = header[header.order[2]].space_length;
 
         var data_length = max_width * max_height;
         var slice_data = new Uint8Array(data_length);
@@ -165,30 +183,53 @@
         // We need to calculate the slice coordinate in world
         // space in order to properly align the volumes.
         //
-        var c_axis = getSliceCoordinate(overlay_volume, axis_space.name);
+        var w_origin = overlay_volume.getWorldCoords();
+        w_origin[width_space.name[0]] = min_col / zoom;
+        w_origin[height_space.name[0]] = max_row / zoom;
+
+        var v_origin = volume.worldToVoxel(w_origin.x, w_origin.y, w_origin.z);
+
+        // Get the appropriate values for stepping through
+        // the width and height dimensions.
+        //
+        var col_step = voxelStepForSpace(header, width_space.name, zoom);
+        var row_step = voxelStepForSpace(header, height_space.name, zoom);
+
+        // Set the initial coordinate used in the loop.
+        var row_coord = {
+          i: v_origin.i,
+          j: v_origin.j,
+          k: v_origin.k
+        };
 
         for (var c_row = max_row-1; c_row >= min_row; c_row--) {
+          var coord = {
+            i: row_coord.i,
+            j: row_coord.j,
+            k: row_coord.k
+          };
           for (var c_col = min_col; c_col < max_col; c_col++) {
-            var wc = {};
-            wc[slice.axis] = c_axis;
-            wc[width_space.name] = c_col / zoom;
-            wc[height_space.name] = c_row / zoom;
-            var vc = volume.worldToVoxel(wc.xspace, wc.yspace, wc.zspace);
-            if (vc.i < 0 || vc.i >= sizes[0] ||
-                vc.j < 0 || vc.j >= sizes[1] ||
-                vc.k < 0 || vc.k >= sizes[2]) {
+            if (coord.i < 0 || coord.i >= i_size ||
+                coord.j < 0 || coord.j >= j_size ||
+                coord.k < 0 || coord.k >= k_size) {
               slice_data[data_index] = 0;
             }
             else {
               var volume_index = (time_offset +
-                                  vc.i * i_offset +
-                                  vc.j * j_offset +
-                                  vc.k * k_offset);
+                                  Math.round(coord.i) * i_offset +
+                                  Math.round(coord.j) * j_offset +
+                                  Math.round(coord.k) * k_offset);
               if (data_index < data_length)
                 slice_data[data_index] = volume.data[volume_index];
             }
             data_index++;
+            coord.i += col_step.di;
+            coord.j += col_step.dj;
+            coord.k += col_step.dk;
           }
+          row_coord.i -= row_step.di;
+          row_coord.j -= row_step.dj;
+          row_coord.k -= row_step.dk;
         }
 
         color_map.mapColors(slice_data, {
@@ -259,16 +300,6 @@
       callback(overlay_volume);
     }
   };
-
-  // Calculates the axis coordinate in world space.
-  //
-  function getSliceCoordinate(volume, axis_name) {
-    var vc = volume.getVoxelCoords();
-    var wc = volume.voxelToWorld(vc.i, vc.j, vc.k);
-
-    return wc[axis_name[0]];
-  }
-
 
   // Blend the pixels of several images using the alpha value of each
   function blendImages(images, blend_ratios, target) {

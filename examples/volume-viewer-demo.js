@@ -121,7 +121,35 @@ $(function() {
             }
           }
         });
-
+      } else if ($(this).val() === "MGH"){
+        $("#sync-volumes-wrapper").show();
+        viewer.clearVolumes();
+        viewer.loadVolumes({
+          volumes: [
+            {
+              type: "mgh",
+              url: "models/t1.mgh",
+              template: {
+                element_id: "volume-ui-template",
+                viewer_insert_class: "volume-viewer-display"
+              }
+            },
+            {
+              type: 'mgh',
+              url: "models/dti.mgh",
+              template: {
+                element_id: "volume-ui-template",
+                viewer_insert_class: "volume-viewer-display"
+              }
+            }
+          ],
+          overlay: {
+            template: {
+              element_id: "overlay-ui-template",
+              viewer_insert_class: "overlay-viewer-display"
+            }
+          }
+        });
       } else {
         $("#volume-file").show();
         viewer.clearVolumes();
@@ -230,6 +258,23 @@ $(function() {
       viewer.loadVolume({
         type: "nifti1",
         nii_file: document.getElementById("nifti1-file"),
+        template: {
+          element_id: "volume-ui-template",
+          viewer_insert_class: "volume-viewer-display"
+        }
+      }, function() {
+        $(".slice-display").css("display", "inline");
+        $(".volume-controls").css("width", "auto");
+      });
+    });
+
+    // Load a new model from a MGH file that the user has
+    // selected.
+    $("#volume-file-mgh-submit").click(function() {
+      viewer.clearVolumes();
+      viewer.loadVolume({
+        type: "mgh",
+        file: document.getElementById("mgh-file"),
         template: {
           element_id: "volume-ui-template",
           viewer_insert_class: "volume-viewer-display"

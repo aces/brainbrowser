@@ -118,6 +118,25 @@
     </div>
     <div class="volume-viewer-controls volume-controls">
 
+      <div class="coords">
+        <div class="control-heading" id="voxel-coordinates-heading-{{VOLID}}">
+          Voxel Coordinates:
+        </div>
+        <div class="voxel-coords" data-volume-id="{{VOLID}}">
+          I:<input id="voxel-i-{{VOLID}}" class="control-inputs">
+          J:<input id="voxel-j-{{VOLID}}" class="control-inputs">
+          K:<input id="voxel-k-{{VOLID}}" class="control-inputs">
+        </div>
+        <div class="control-heading" id="world-coordinates-heading-{{VOLID}}">
+          World Coordinates:
+        </div>
+        <div class="world-coords" data-volume-id="{{VOLID}}">
+          X:<input id="world-x-{{VOLID}}" class="control-inputs">
+          Y:<input id="world-y-{{VOLID}}" class="control-inputs">
+          Z:<input id="world-z-{{VOLID}}" class="control-inputs">
+        </div>
+      </div>
+
       <div id="intensity-value-div-{{VOLID}}">
         <span class="control-heading" data-volume-id="{{VOLID}}">
           Value:
@@ -153,6 +172,7 @@
           <option value="structural_minc">MINC Structural</option>
           <option value="functional_minc">MINC Functional</option>
           <option value="NIfTI-1">NIfTI-1</option>
+          <option value="MGH">FreeSurfer/MGH</option>
           <option value="file">Load your own volume!</option>
         </select>
         <span class="control-heading">Panel size:</span>
@@ -194,6 +214,14 @@
             <span class="button">Load</span>
           </div>
 
+          <h3><u>For MGH file:</u></h3>
+          <div>
+            <span class="control-heading">MGH file: </span><input type="file" name="mgh-file" id="mgh-file">
+          </div>
+          <div id="volume-file-mgh-submit">
+            <span class="button">Load</span>
+          </div>
+
 
         </div>
 
@@ -221,6 +249,7 @@
   <script src="js/brainbrowser/volume-viewer/volume-loaders/overlay.js"></script>
   <script src="js/brainbrowser/volume-viewer/volume-loaders/minc.js"></script>
   <script src="js/brainbrowser/volume-viewer/volume-loaders/nifti1.js"></script>
+  <script src="js/brainbrowser/volume-viewer/volume-loaders/mgh.js"></script>
   <script src="volume-viewer-demo.config.js"></script>
   <script src="volume-viewer-demo.js"></script>
 </body>

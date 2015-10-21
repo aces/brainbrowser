@@ -254,36 +254,19 @@
      * the overlaid image is defined as the mean of the individual
      * volume intensities, weighted by the blend values.
      */
-    overlay_volume.getIntensityValue = function(x, y, z, time) {
-      x = x === undefined ? this.position.xspace : x;
-      y = y === undefined ? this.position.yspace : y;
-      z = z === undefined ? this.position.zspace : z;
+    overlay_volume.getIntensityValue = function(i, j, k, time) {
+      var vc = overlay_volume.getVoxelCoords();
+      i = i === undefined ? vc.i : i;
+      j = j === undefined ? vc.j : j;
+      k = k === undefined ? vc.k : k;
       time = time === undefined ? this.current_time : time;
       var values = [];
 
+      var wc = overlay_volume.voxelToWorld(i, j, k);
+
       this.volumes.forEach(function(volume) {
-        var header = volume.header;
-
-        if (x < 0 || x > header.xspace.space_length ||
-          y < 0 || y > header.yspace.space_length ||
-          z < 0 || z > header.zspace.space_length) {
-          values.push(0);
-        }
-        else {
-          var slice = volume.slice("zspace", z, time);
-          var data = slice.data;
-          var slice_x, slice_y;
-
-          if (slice.width_space.name === "xspace") {
-            slice_x = x;
-            slice_y = y;
-          } else {
-            slice_x = y;
-            slice_y = z;
-          }
-
-          values.push(data[(slice.height_space.space_length - slice_y - 1) * slice.width + slice_x]);
-        }
+        var vc = volume.worldToVoxel(wc.x, wc.y, wc.z);
+        values.push(volume.getIntensityValue(vc.i, vc.j, vc.k, time));
       });
 
       return values.reduce(function(intensity, current_value, i) {

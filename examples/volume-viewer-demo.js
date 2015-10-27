@@ -355,11 +355,17 @@ $(function() {
         // Slider to modify min and max thresholds.
         var slider = div.find(".slider");
 
+        var volume = viewer.volumes[vol_id];
+
+        // Update the input fields.
+        min_input.val(volume.getVoxelMin());
+        max_input.val(volume.getVoxelMax());
+
         slider.slider({
           range: true,
-          min: 0,
-          max: 255,
-          values: [0, 255],
+          min: volume.getVoxelMin(),
+          max: volume.getVoxelMax(),
+          values: [volume.getVoxelMin(), volume.getVoxelMax()],
           step: 1,
           slide: function(event, ui){
             var values = ui.values;
@@ -384,9 +390,10 @@ $(function() {
 
           // Make sure input is numeric and in range.
           if (!BrainBrowser.utils.isNumeric(value)) {
-            value = 0;
+            value = volume.getVoxelMin();
           }
-          value = Math.max(0, Math.min(value, 255));
+          value = Math.max(volume.getVoxelMin(),
+                           Math.min(value, volume.getVoxelMax()));
           this.value = value;
 
           // Update the slider.
@@ -402,9 +409,10 @@ $(function() {
 
           // Make sure input is numeric and in range.
           if (!BrainBrowser.utils.isNumeric(value)) {
-            value = 255;
+            value = volume.getVoxelMax();
           }
-          value = Math.max(0, Math.min(value, 255));
+          value = Math.max(volume.getVoxelMin(),
+                           Math.min(value, volume.getVoxelMax()));
           this.value = value;
 
           // Update the slider.
@@ -673,6 +681,20 @@ $(function() {
       });
     });
 
+    /* This function simply takes an input hex background color
+     * and returns either "black" or "white" as the appropriate
+     * foreground color for text rendered over the background colour.
+     * Idea from https://24ways.org/2010/calculating-color-contrast/
+     * Equation is from http://www.w3.org/TR/AERT#color-contrast
+     */
+    function getContrastYIQ(hexcolor) {
+      var r = parseInt(hexcolor.substr(0, 2), 16);
+      var g = parseInt(hexcolor.substr(2, 2), 16);
+      var b = parseInt(hexcolor.substr(4, 2), 16);
+      var yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+      return (yiq >= 128) ? 'black' : 'white';
+    }
+
     /////////////////////////////////////////////////////
     // UI updates to be performed after each slice update.
     //////////////////////////////////////////////////////
@@ -698,14 +720,27 @@ $(function() {
       }
 
       value = volume.getIntensityValue();
-      $("#intensity-value-" + vol_id)
-      .css("background-color", "#" + volume.color_map.colorFromValue(value, {
+
+      /* Set background color of intensity value to match colormap
+       * entry for that value.
+       */
+      var bg_color = volume.color_map.colorFromValue(value, {
         hex: true,
-        min: volume.min,
-        max: volume.max,
+        min: volume.intensity_min,
+        max: volume.intensity_max,
         contrast: panel.contrast,
         brightness: panel.brightness
-      }))
+      });
+
+      /* Given that the background color has a wide range, use a little
+       * cleverness to pick either white or black as the foreground color
+       * of the intensity value. This improves readability.
+       */
+      var fg_color = getContrastYIQ(bg_color);
+
+      $("#intensity-value-" + vol_id)
+      .css("background-color", "#" + bg_color)
+      .css("color", fg_color)
       .html(Math.floor(value));
 
       if (volume.header && volume.header.time) {
@@ -772,4 +807,3 @@ $(function() {
   });
 
 });
-

@@ -244,21 +244,25 @@
         return target_image;
       },
 
-      getIntensityValue: function(x, y, z, time) {
-        x = x === undefined ? volume.position.xspace : x;
-        y = y === undefined ? volume.position.yspace : y;
-        z = z === undefined ? volume.position.zspace : z;
+      getIntensityValue: function(i, j, k, time) {
+        var header = volume.header;
+        var vc = volume.getVoxelCoords();
+        i = i === undefined ? vc.i : i;
+        j = j === undefined ? vc.j : j;
+        k = k === undefined ? vc.k : k;
         time = time === undefined ? volume.current_time : time;
 
-        if (x < 0 || x > volume.header.xspace.space_length ||
-            y < 0 || y > volume.header.yspace.space_length ||
-            z < 0 || z > volume.header.zspace.space_length) {
+        if (i < 0 || i >= header[header.order[0]].space_length ||
+            j < 0 || j >= header[header.order[1]].space_length ||
+            k < 0 || k >= header[header.order[2]].space_length) {
           return 0;
         }
-
-        var slice = volume.slice("zspace", z, time);
-
-        return slice.data[(slice.height_space.space_length - y - 1) * slice.width + x];
+        var time_offset = header.time ? time * header.time.offset : 0;
+        var xyzt_offset = (i * header[header.order[0]].offset +
+                           j * header[header.order[1]].offset +
+                           k * header[header.order[2]].offset +
+                           time_offset);
+        return volume.data[xyzt_offset];
       },
 
       getVoxelCoords: function() {
@@ -353,6 +357,12 @@
           j: ordered.yspace,
           k: ordered.zspace
         };
+      },
+      getVoxelMin: function() {
+        return volume.header.voxel_min;
+      },
+      getVoxelMax: function() {
+        return volume.header.voxel_max;
       }
     };
     return volume;
@@ -390,6 +400,11 @@
     header.zspace.width        = header.xspace.space_length;
     header.zspace.height_space = header.yspace;
     header.zspace.height       = header.yspace.space_length;
+
+    if (header.voxel_min === undefined)
+      header.voxel_min = 0;
+    if (header.voxel_max === undefined)
+      header.voxel_max = 255;
   }
 
   function parseHeader(header_text, callback) {

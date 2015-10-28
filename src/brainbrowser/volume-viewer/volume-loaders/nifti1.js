@@ -327,6 +327,8 @@
     var volume = VolumeViewer.createVolume(header,
                                            createNifti1Data(header, raw_data));
     volume.type = "nifti";
+    volume.intensity_min = volume.header.voxel_min;
+    volume.intensity_max = volume.header.voxel_max;
     volume.saveOriginAndTransform(header);
     if (BrainBrowser.utils.isFunction(callback)) {
       callback(volume);
@@ -348,9 +350,7 @@
   }
 
   function createNifti1Data(header, raw_data) {
-    var byte_data = null;
     var native_data = null;
-    var n_min, n_max;
 
     if (header.must_swap_data) {
       swapn(new Uint8Array(raw_data, header.vox_offset),
@@ -392,21 +392,44 @@
     }
 
     var d = 0;                  // Generic loop counter.
-
-    // Convert data to bytes.
-    byte_data = new Uint8Array(native_data.length);
-    n_min = native_data[0];
-    n_max = native_data[0];
-
-    for (d = 1; d < native_data.length; d++) {
-      if (native_data[d] > n_max)
-        n_max = native_data[d];
-      if (native_data[d] < n_min)
-        n_min = native_data[d];
+    var value = 0;              // Scaled value.
+    var slope = header.scl_slope;
+    var inter = header.scl_inter;
+    var n_min, n_max;
+    // According to the NIfTI specification, a slope value of zero means
+    // that the data should _not_ be scaled. Otherwise, every voxel is
+    // transformed according to value = value * slope + inter
+    //
+    if (slope === 0.0) {
+      n_min = native_data[0];
+      n_max = native_data[0];
+      for (d = 0; d < native_data.length; d++) {
+        value = native_data[d];
+        if (value > n_max)
+          n_max = value;
+        if (value < n_min)
+          n_min = value;
+      }
     }
-    for (d = 0; d < native_data.length; d++) {
-      byte_data[d] = ((native_data[d] + n_min) * 255) / (n_max - n_min);
+    else {
+      var float_data = new Float32Array(native_data.length);
+
+      n_min = native_data[0] * slope + inter;
+      n_max = native_data[0] * slope + inter;
+
+      for (d = 0; d < native_data.length; d++) {
+        value = native_data[d] * slope + inter;
+        if (value > n_max)
+          n_max = value;
+        if (value < n_min)
+          n_min = value;
+        float_data[d] = value;
+      }
+      native_data = float_data; // Return the new float buffer.
     }
+
+    header.voxel_min = n_min;
+    header.voxel_max = n_max;
 
     if(header.order.length === 4) {
       header.order = header.order.slice(1);
@@ -421,7 +444,7 @@
       header.time.offset = header.xspace.space_length * header.yspace.space_length * header.zspace.space_length;
     }
 
-    return byte_data;
+    return native_data;
   }
 
 }());

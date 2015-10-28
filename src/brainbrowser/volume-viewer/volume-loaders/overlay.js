@@ -177,7 +177,11 @@
         var k_size = header[header.order[2]].space_length;
 
         var data_length = max_width * max_height;
-        var slice_data = new Uint8Array(data_length);
+
+        // Calling the volume data's constructor guarantees that the
+        // slice data buffer has the same type as the volume.
+        //
+        var slice_data = new volume.data.constructor(data_length);
         var data_index = 0;
 
         // We need to calculate the slice coordinate in world

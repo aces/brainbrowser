@@ -395,14 +395,14 @@
     var value = 0;              // Scaled value.
     var slope = header.scl_slope;
     var inter = header.scl_inter;
-    var n_min, n_max;
+    var n_min = +Infinity;
+    var n_max = -Infinity;
+
     // According to the NIfTI specification, a slope value of zero means
     // that the data should _not_ be scaled. Otherwise, every voxel is
     // transformed according to value = value * slope + inter
     //
     if (slope === 0.0) {
-      n_min = native_data[0];
-      n_max = native_data[0];
       for (d = 0; d < native_data.length; d++) {
         value = native_data[d];
         if (value > n_max)
@@ -413,9 +413,6 @@
     }
     else {
       var float_data = new Float32Array(native_data.length);
-
-      n_min = native_data[0] * slope + inter;
-      n_max = native_data[0] * slope + inter;
 
       for (d = 0; d < native_data.length; d++) {
         value = native_data[d] * slope + inter;

@@ -392,37 +392,31 @@
     }
 
     var d = 0;                  // Generic loop counter.
-    var value = 0;              // Scaled value.
     var slope = header.scl_slope;
     var inter = header.scl_inter;
-    var n_min = +Infinity;
-    var n_max = -Infinity;
 
     // According to the NIfTI specification, a slope value of zero means
     // that the data should _not_ be scaled. Otherwise, every voxel is
     // transformed according to value = value * slope + inter
     //
-    if (slope === 0.0) {
-      for (d = 0; d < native_data.length; d++) {
-        value = native_data[d];
-        if (value > n_max)
-          n_max = value;
-        if (value < n_min)
-          n_min = value;
-      }
-    }
-    else {
+    if (slope !== 0.0) {
       var float_data = new Float32Array(native_data.length);
 
       for (d = 0; d < native_data.length; d++) {
-        value = native_data[d] * slope + inter;
-        if (value > n_max)
-          n_max = value;
-        if (value < n_min)
-          n_min = value;
-        float_data[d] = value;
+        float_data[d] = native_data[d] * slope + inter;
       }
       native_data = float_data; // Return the new float buffer.
+    }
+
+    var n_min = +Infinity;
+    var n_max = -Infinity;
+
+    for (d = 0; d < native_data.length; d++) {
+      var value = native_data[d];
+      if (value > n_max)
+        n_max = value;
+      if (value < n_min)
+        n_min = value;
     }
 
     header.voxel_min = n_min;

@@ -22,10 +22,10 @@
 
 /*
 * Author: Robert D. Vincent <robert.d.vincent@mcgill.ca>
-* 
-* Loads MGH (FreeSurfer) files for volume viewer. For details on the MGH 
+*
+* Loads MGH (FreeSurfer) files for volume viewer. For details on the MGH
 * format, see https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/MghFormat
-* 
+*
 * Here are some of the salient features of the format:
 * 1. A fixed-size binary header similar to NIfTI-1.
 * 2. Generally stored big-endian, even on little-endian systems.
@@ -41,7 +41,7 @@
 
 (function() {
   "use strict";
-     
+
   var VolumeViewer = BrainBrowser.VolumeViewer;
   var debug = false;
 
@@ -53,7 +53,7 @@
           createMGHVolume(header, data, callback);
         });
       }, {result_type: "arraybuffer" });
-                                        
+
     } else if (description.file) {
       BrainBrowser.loader.loadFromFile(description.file, function(data) {
         parseMGHHeader(data, function(header) {
@@ -67,13 +67,13 @@
       BrainBrowser.events.triggerEvent("error", { message: error_message });
       throw new Error(error_message);
     }
-    
+
   };
 
   /* Function to parse the basic MGH header. This is a 284-byte binary
    * object that begins at offset zero in the file.
    * The resulting header object will contain the following fields:
-   * 
+   *
    * header.order[] - An array of strings that gives the order of the
    * spatial dimensions.
    * header.xspace - Description of the X axis (patient left to right)
@@ -98,7 +98,7 @@
     var dview = new DataView(raw_data, 0, 284);
     var little_endian = true;
 
-    /* Read the header version, which should always have the value 
+    /* Read the header version, which should always have the value
      * 0x00000001. We use this to test the endian-ness of the data,
      * but it should always be big-endian.
      */
@@ -159,7 +159,7 @@
     }
 
     if (debug) {
-      // Prints out the transform in a format similar to the output 
+      // Prints out the transform in a format similar to the output
       // of FreeSurfer's mri_info tool.
       //
       for (i = 0; i < 3; i++) {
@@ -215,7 +215,7 @@
       * these naive grid centres using the values stored in the transform.
       * The first approach is what is used by surface files, so to get them
       * to register nicely, we want ignore_offsets to be true. However,
-      * getting volumetric files to register correctly implies setting 
+      * getting volumetric files to register correctly implies setting
       * ignore_offsets to false.
       */
     var ignore_offsets = false;
@@ -290,6 +290,8 @@
     var volume = VolumeViewer.createVolume(header,
                                            createMGHData(header, raw_data));
     volume.type = "mgh";
+    volume.intensity_min = header.voxel_min;
+    volume.intensity_max = header.voxel_max;
     volume.saveOriginAndTransform(header);
     if (BrainBrowser.utils.isFunction(callback)) {
       callback(volume);
@@ -297,9 +299,7 @@
   }
 
   function createMGHData(header, raw_data) {
-    var byte_data = null;
     var native_data = null;
-    var n_min, n_max;
     var bytes_per_voxel = 1;
 
     switch (header.datatype) {
@@ -342,21 +342,18 @@
     }
 
     var d = 0;                  // Generic loop counter.
+    var n_min = +Infinity;
+    var n_max = -Infinity;
 
-    // Convert raw data to bytes.
-    byte_data = new Uint8Array(native_data.length);
-    n_min = native_data[0];
-    n_max = native_data[0];
-
-    for (d = 1; d < native_data.length; d++) {
+    for (d = 0; d < native_data.length; d++) {
       if (native_data[d] > n_max)
         n_max = native_data[d];
       if (native_data[d] < n_min)
         n_min = native_data[d];
     }
-    for (d = 0; d < native_data.length; d++) {
-      byte_data[d] = ((native_data[d] + n_min) * 255) / (n_max - n_min);
-    }
+
+    header.voxel_min = n_min;
+    header.voxel_max = n_max;
 
     // Incrementation offsets for each dimension of the volume. MGH
     // files store the fastest-varying dimension _first_, so the
@@ -368,7 +365,7 @@
       header[header.order[d]].offset = offset;
       offset *= header[header.order[d]].space_length;
     }
-    return byte_data;
+    return native_data;
   }
-   
+
 }());

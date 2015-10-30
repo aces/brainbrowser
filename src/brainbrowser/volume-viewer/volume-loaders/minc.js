@@ -113,7 +113,10 @@
         var width_space_offset = width_space.offset;
         var height_space_offset = height_space.offset;
 
-        var slice_data = new Uint8Array(width * height);
+        // Calling the volume data's constructor guarantees that the
+        // slice data buffer has the same type as the volume.
+        //
+        var slice_data = new volume.data.constructor(width * height);
 
         var slice;
 

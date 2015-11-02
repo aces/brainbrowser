@@ -59,6 +59,82 @@
 
   };
 
+  VolumeViewer.utils.transformToMinc = function(transform, header) {
+    var x_dir_cosines = [];
+    var y_dir_cosines = [];
+    var z_dir_cosines = [];
+
+    // A tiny helper function to calculate the magnitude of the rotational
+    // part of the transform.
+    //
+    function magnitude(v) {
+      var dotprod = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
+      if (dotprod <= 0) {
+        dotprod = 1.0;
+      }
+      return Math.sqrt(dotprod);
+    }
+
+    // Calculate the determinant of a 3x3 matrix, from:
+    // http://www.mathworks.com/help/aeroblks/determinantof3x3matrix.html
+    //
+    // det(A) = A_{11} (A_{22}A_{33} - A_{23}A_{32}) -
+    //          A_{12} (A_{21}A_{33} - A_{23}A_{31}) +
+    //          A_{13} (A_{21}A_{32} - A_{22}A_{31})
+    //
+    // Of course, I had to change the indices from 1-based to 0-based.
+    //
+    function determinant(c0, c1, c2) {
+      return (c0[0] * (c1[1] * c2[2] - c1[2] * c2[1]) -
+              c0[1] * (c1[0] * c2[2] - c1[2] * c2[0]) +
+              c0[2] * (c1[0] * c2[1] - c1[1] * c2[0]));
+    }
+
+    // Now that we have the transform, need to convert it to MINC-like
+    // steps and direction_cosines.
+
+    var xmag = magnitude(transform[0]);
+    var ymag = magnitude(transform[1]);
+    var zmag = magnitude(transform[2]);
+
+    var xstep = (transform[0][0] < 0) ? -xmag : xmag;
+    var ystep = (transform[1][1] < 0) ? -ymag : ymag;
+    var zstep = (transform[2][2] < 0) ? -zmag : zmag;
+
+    for (var i = 0; i < 3; i++) {
+      x_dir_cosines[i] = transform[i][0] / xstep;
+      y_dir_cosines[i] = transform[i][1] / ystep;
+      z_dir_cosines[i] = transform[i][2] / zstep;
+    }
+
+    header.xspace.step = xstep;
+    header.yspace.step = ystep;
+    header.zspace.step = zstep;
+
+    // Calculate the corrected start values.
+    var starts = [transform[0][3],
+                  transform[1][3],
+                  transform[2][3]
+                 ];
+
+    // (bert): I believe that the determinant of the direction
+    // cosines should always work out to 1, so the calculation of
+    // this value should not be needed. But I have no idea if NIfTI
+    // enforces this when sform transforms are written.
+    var denom = determinant(x_dir_cosines, y_dir_cosines, z_dir_cosines);
+    var xstart = determinant(starts, y_dir_cosines, z_dir_cosines);
+    var ystart = determinant(x_dir_cosines, starts, z_dir_cosines);
+    var zstart = determinant(x_dir_cosines, y_dir_cosines, starts);
+
+    header.xspace.start = xstart / denom;
+    header.yspace.start = ystart / denom;
+    header.zspace.start = zstart / denom;
+
+    header.xspace.direction_cosines = x_dir_cosines;
+    header.yspace.direction_cosines = y_dir_cosines;
+    header.zspace.direction_cosines = z_dir_cosines;
+  };
+
   function parseNifti1Header(raw_data, callback) {
     var header = {
       order: ["zspace", "yspace", "xspace"],
@@ -119,9 +195,6 @@
     var qform_code = dview.getUint16(252, littleEndian);
     var sform_code = dview.getUint16(254, littleEndian);
 
-    var x_dir_cosines = [];
-    var y_dir_cosines = [];
-    var z_dir_cosines = [];
     var transform = [
       [1, 0, 0, 0],
       [0, 1, 0, 0],
@@ -184,75 +257,7 @@
       transform[2][2] = zstep;
     }
 
-    // A tiny helper function to calculate the magnitude of the rotational
-    // part of the transform.
-    //
-    function magnitude(v) {
-      var dotprod = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
-      if (dotprod <= 0) {
-        dotprod = 1.0;
-      }
-      return Math.sqrt(dotprod);
-    }
-
-    // Calculate the determinant of a 3x3 matrix, from:
-    // http://www.mathworks.com/help/aeroblks/determinantof3x3matrix.html
-    //
-    // det(A) = A_{11} (A_{22}A_{33} - A_{23}A_{32}) -
-    //          A_{12} (A_{21}A_{33} - A_{23}A_{31}) +
-    //          A_{13} (A_{21}A_{32} - A_{22}A_{31})
-    //
-    // Of course, I had to change the indices from 1-based to 0-based.
-    //
-    function determinant(c0, c1, c2) {
-      return (c0[0] * (c1[1] * c2[2] - c1[2] * c2[1]) -
-              c0[1] * (c1[0] * c2[2] - c1[2] * c2[0]) +
-              c0[2] * (c1[0] * c2[1] - c1[1] * c2[0]));
-    }
-
-    // Now that we have the transform, need to convert it to MINC-like
-    // steps and direction_cosines.
-
-    var xmag = magnitude(transform[0]);
-    var ymag = magnitude(transform[1]);
-    var zmag = magnitude(transform[2]);
-
-    xstep = (transform[0][0] < 0) ? -xmag : xmag;
-    ystep = (transform[1][1] < 0) ? -ymag : ymag;
-    zstep = (transform[2][2] < 0) ? -zmag : zmag;
-
-    for (var i = 0; i < 3; i++) {
-      x_dir_cosines[i] = transform[i][0] / xstep;
-      y_dir_cosines[i] = transform[i][1] / ystep;
-      z_dir_cosines[i] = transform[i][2] / zstep;
-    }
-
-    header.xspace.step = xstep;
-    header.yspace.step = ystep;
-    header.zspace.step = zstep;
-
-    // Calculate the corrected start values.
-    var starts = [transform[0][3],
-                  transform[1][3],
-                  transform[2][3]
-                 ];
-
-    // (bert): I believe that the determinant of the direction
-    // cosines should always work out to 1, so the calculation of
-    // this value should not be needed. But I have no idea if NIfTI
-    // enforces this when sform transforms are written.
-    var denom = determinant(x_dir_cosines, y_dir_cosines, z_dir_cosines);
-    var xstart = determinant(starts, y_dir_cosines, z_dir_cosines);
-    var ystart = determinant(x_dir_cosines, starts, z_dir_cosines);
-    var zstart = determinant(x_dir_cosines, y_dir_cosines, starts);
-
-    header.xspace.start = xstart / denom;
-    header.yspace.start = ystart / denom;
-    header.zspace.start = zstart / denom;
-
-    header.xspace.direction_cosines = x_dir_cosines;
-    header.yspace.direction_cosines = y_dir_cosines;
-    header.zspace.direction_cosines = z_dir_cosines;
+    VolumeViewer.utils.transformToMinc(transform, header);
 
     header.datatype = datatype;
     header.vox_offset = vox_offset;
@@ -335,7 +340,7 @@
     }
   }
 
-  function swapn(byte_data, n_per_item) {
+  VolumeViewer.utils.swapn = function(byte_data, n_per_item) {
     for (var d = 0; d < byte_data.length; d += n_per_item) {
       var hi_offset = n_per_item - 1;
       var lo_offset = 0;
@@ -347,14 +352,14 @@
         lo_offset++;
       }
     }
-  }
+  };
 
   function createNifti1Data(header, raw_data) {
     var native_data = null;
 
     if (header.must_swap_data) {
-      swapn(new Uint8Array(raw_data, header.vox_offset),
-            header.bytes_per_voxel);
+      VolumeViewer.utils.swapn(new Uint8Array(raw_data, header.vox_offset),
+                               header.bytes_per_voxel);
     }
 
     switch (header.datatype) {

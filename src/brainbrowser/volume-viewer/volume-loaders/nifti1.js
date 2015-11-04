@@ -413,19 +413,7 @@
       native_data = float_data; // Return the new float buffer.
     }
 
-    var n_min = +Infinity;
-    var n_max = -Infinity;
-
-    for (d = 0; d < native_data.length; d++) {
-      var value = native_data[d];
-      if (value > n_max)
-        n_max = value;
-      if (value < n_min)
-        n_min = value;
-    }
-
-    header.voxel_min = n_min;
-    header.voxel_max = n_max;
+    VolumeViewer.utils.scanDataRange(native_data, header);
 
     if(header.order.length === 4) {
       header.order = header.order.slice(1);

@@ -97,7 +97,8 @@ canvas.slice-display {
   -moz-box-shadow: 1px 1px 0px 0px #787878;
   -webkit-box-shadow: 1px 1px 0px 0px #787878;
   box-shadow: 1px 1px 0px 0px #787878;
-  width: 2em;
+  width: 3em;
+  font-size: 10px;
 }
 
 .coords .control-inputs {
@@ -162,5 +163,8 @@ canvas.slice-display {
 }
 
 .intensity-value {
-  padding: 1px;
+  padding: 2px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
 }

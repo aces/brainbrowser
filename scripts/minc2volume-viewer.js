@@ -23,6 +23,7 @@
 * Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
 * Author: Nicolas Kassis
 * Author: Paul Mougel
+* Author: Robert D. Vincent <robert.d.vincent@mcgill.ca>
 */
 
 /*
@@ -44,14 +45,36 @@
 var fs = require("fs");
 var exec =  require("child_process").exec;
 var spawn = require("child_process").spawn;
-var version = "0.3.1";
+var version = "0.3.2";
+
+var datatypes = [
+  'int8', 'uint8', 'int16', 'uint16', 'int32', 'uint32', 'float32', 'float64'
+];
 
 if (require.main === module) {
-  var filename = process.argv[2];
+  var args = process.argv.slice(2);
+  var arg;
+  while ((arg = args.shift()) !== undefined) {
+    var filename;
+    var datatype;
+    if (arg === '-T') {
+      datatype = args.shift();
+      if (datatypes.indexOf(datatype) < 0) {
+        printUsage();
+        process.exit(0);
+      }
+    }
+    else {
+      filename = arg;
+    }
+  }
 
   if (filename === undefined) {
     printUsage();
     process.exit(0);
+  }
+  if (datatype === undefined) {
+    datatype = 'uint8';
   }
 
   fs.exists(filename, function(exists) {
@@ -73,7 +96,7 @@ if (require.main === module) {
       console.log("Processing file:", filename);
 
       console.log("Creating header file: ", basename + ".header");
-      getHeader(filename, function(err, header) {
+      getHeaderWithType(filename, datatype, function(err, header) {
         if (err) {
           return logExecutionError(err);
         }
@@ -81,7 +104,7 @@ if (require.main === module) {
       });
 
       console.log("Creating raw data file: ", basename + ".raw");
-      rawDataStream = getRawDataStream(filename);
+      rawDataStream = getRawDataStream(filename, datatype);
       rawDataStream.on('error', logExecutionError);
       rawFileStream = fs.createWriteStream(basename + ".raw");
       rawDataStream.pipe(rawFileStream);
@@ -90,6 +113,7 @@ if (require.main === module) {
   });
 } else {
   module.exports.getHeader = getHeader;
+  module.exports.getHeaderWithType = getHeaderWithType;
   module.exports.getRawDataStream = getRawDataStream;
 }
 
@@ -99,11 +123,45 @@ if (require.main === module) {
 
 function printUsage() {
   console.log("minc2volume-viewer.js v" + version);
-  console.log("\nUsage: node minc2volume-viewer.js <filename>\n");
+  console.log("Usage: node minc2volume-viewer.js [-T <datatype>] <filename>");
+  console.log("       Where datatype is one of: ");
+  for (var k in datatypes)
+    console.log("           " + datatypes[k]);
 }
 
-function getRawDataStream(filename) {
-  var minctoraw = spawn("minctoraw", ["-byte", "-unsigned", "-normalize", filename]);
+function getRawDataStream(filename, datatype) {
+  var args = ["-normalize", filename];
+
+  if (datatype === undefined)
+    datatype = 'uint8';
+
+  switch (datatype) {
+  case 'int8':
+    args.unshift('-byte', '-signed');
+    break;
+  case 'uint8':
+    args.unshift('-byte', '-unsigned');
+    break;
+  case 'int16':
+    args.unshift('-short', '-signed');
+    break;
+  case 'uint16':
+    args.unshift('-short', '-unsigned');
+    break;
+  case 'int32':
+    args.unshift('-int', '-signed');
+    break;
+  case 'uint32':
+    args.unshift('-int', '-unsigned');
+    break;
+  case 'float32':
+    args.unshift('-float');
+    break;
+  case 'float64':
+    args.unshift('-double');
+    break;
+  }
+  var minctoraw = spawn("minctoraw", args);
   minctoraw.on("exit", function (code) {
     if (code === null || code !== 0) {
       var err = new Error("Process minctoraw failed with error code " + code);
@@ -117,7 +175,11 @@ function getRawDataStream(filename) {
 }
 
 function getHeader(filename, callback) {
-  
+  getHeaderWithType(filename, 'uint8', callback);
+}
+
+function getHeaderWithType(filename, datatype, callback) {
+
   function getSpace(filename, header, space, callback) {
     header[space] = {};
     exec("mincinfo -attval " + space + ":start " + filename, function(error, stdout) {
@@ -210,8 +272,10 @@ function getHeader(filename, callback) {
     });
   }
 
-  function buildHeader(filename, callback) {
+  function buildHeader(filename, datatype, callback) {
     var header = {};
+
+    header.datatype = datatype;
    
     getOrder(header, filename, function(err, header) {
       if (err) {
@@ -240,7 +304,7 @@ function getHeader(filename, callback) {
     });
   }
 
-  buildHeader(filename, callback);
+  buildHeader(filename, datatype, callback);
 }
 
 function logExecutionError(error) {

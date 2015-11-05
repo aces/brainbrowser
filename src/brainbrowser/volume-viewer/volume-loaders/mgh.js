@@ -341,25 +341,14 @@
       break;
     }
 
-    var d = 0;                  // Generic loop counter.
-    var n_min = +Infinity;
-    var n_max = -Infinity;
-
-    for (d = 0; d < native_data.length; d++) {
-      if (native_data[d] > n_max)
-        n_max = native_data[d];
-      if (native_data[d] < n_min)
-        n_min = native_data[d];
-    }
-
-    header.voxel_min = n_min;
-    header.voxel_max = n_max;
+    VolumeViewer.utils.scanDataRange(native_data, header);
 
     // Incrementation offsets for each dimension of the volume. MGH
     // files store the fastest-varying dimension _first_, so the
     // "first" dimension actually has the smallest offset. That is
     // why this calculation is different from that for NIfTI-1.
     //
+    var d;
     var offset = 1;
     for (d = 0; d < header.order.length; d++) {
       header[header.order[d]].offset = offset;

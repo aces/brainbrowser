@@ -67,7 +67,7 @@
    * combines the information into the generic data structure used
    * elsewhere in the volume viewer.
    */
-  VolumeViewer.createVolume = function(header, byte_data) {
+  VolumeViewer.createVolume = function(header, native_data) {
     var image_creation_context = document.createElement("canvas").getContext("2d");
     var cached_slices = {};
 
@@ -77,7 +77,7 @@
     var volume = {
       position: {},
       current_time: 0,
-      data: byte_data,
+      data: native_data,
       header: header,
       intensity_min: 0,
       intensity_max: 255,
@@ -371,11 +371,67 @@
     return volume;
   };
 
+  VolumeViewer.utils.scanDataRange = function(native_data, header) {
+    var d = 0;
+    var n_min = +Infinity;
+    var n_max = -Infinity;
+
+    for (d = 0; d < native_data.length; d++) {
+      var value = native_data[d];
+      if (value > n_max)
+        n_max = value;
+      if (value < n_min)
+        n_min = value;
+    }
+    header.voxel_min = n_min;
+    header.voxel_max = n_max;
+  };
+
+  function createMincData(header, raw_data){
+    var native_data = null;
+    switch (header.datatype) {
+    case 'int8':
+      native_data = new Int8Array(raw_data);
+      break;
+    case 'int16':
+      native_data = new Int16Array(raw_data);
+      break;
+    case 'int32':
+      native_data = new Int32Array(raw_data);
+      break;
+    case 'float32':
+      native_data = new Float32Array(raw_data);
+      break;
+    case 'float64':
+      native_data = new Float64Array(raw_data);
+      break;
+    case 'uint8':
+      native_data = new Uint8Array(raw_data);
+      break;
+    case 'uint16':
+      native_data = new Uint16Array(raw_data);
+      break;
+    case 'uint32':
+      native_data = new Uint32Array(raw_data);
+      break;
+    default:
+      var error_message = "Unsupported data type: " + header.datatype;
+      BrainBrowser.events.triggerEvent("error", { message: error_message } );
+      throw new Error(error_message);
+    }
+
+    VolumeViewer.utils.scanDataRange(native_data, header);
+    return native_data;
+  }
+
   function createMincVolume(header, raw_data, callback){
-    var volume = VolumeViewer.createVolume(header, new Uint8Array(raw_data));
+    var volume = VolumeViewer.createVolume(header,
+                                           createMincData(header, raw_data));
     volume.type = "minc";
 
     volume.saveOriginAndTransform(header);
+    volume.intensity_min = header.voxel_min;
+    volume.intensity_max = header.voxel_max;
     if (BrainBrowser.utils.isFunction(callback)) {
       callback(volume);
     }
@@ -427,6 +483,8 @@
     if(header.order.length === 4) {
       header.order = header.order.slice(1);
     }
+
+    header.datatype = header.datatype || "uint8";
 
     header.xspace.space_length = parseFloat(header.xspace.space_length);
     header.yspace.space_length = parseFloat(header.yspace.space_length);

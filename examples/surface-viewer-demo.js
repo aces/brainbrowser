@@ -443,6 +443,30 @@ $(function() {
       viewer.autorotate.z = $("#autorotateZ").is(":checked");
     });
 
+    // Control grid
+    $("#grid-controls").children().change(function() {
+      var grid_name = this.id
+      var grid = viewer.model.getObjectByName(grid_name);
+      var rotation;
+      var is_checked = $(this).is(":checked");
+
+      // If the grid already exists
+      if (grid !== undefined) {
+        grid.visible = is_checked;
+        viewer.updated = true;
+        return
+      }
+
+      // Create and display the grid.
+      rotation = new THREE.Euler();
+      if (grid_name === "gridX") { rotation.set(0, 0, Math.PI/2, "XYZ"); }
+      if (grid_name === "gridY") { rotation.set(0, Math.PI/2, 0, "XYZ"); }
+      if (grid_name === "gridZ") { rotation.set(Math.PI/2, 0, 0, "XYZ"); }
+
+      viewer.drawGrid(100, 10, {euler_rotation: rotation, name: grid_name});
+
+    });
+
     // Color map URLs are read from the config file and added to the
     // color map select box.
     var color_map_select = $('<select id="color-map-select"></select>').change(function() {

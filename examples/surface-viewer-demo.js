@@ -445,7 +445,7 @@ $(function() {
 
     // Control grid
     $("#grid-controls").children().change(function() {
-      var grid_name = this.id
+      var grid_name = this.id;
       var grid = viewer.model.getObjectByName(grid_name);
       var rotation;
       var is_checked = $(this).is(":checked");

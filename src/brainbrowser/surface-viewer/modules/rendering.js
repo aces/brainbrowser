@@ -295,7 +295,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   *
   */
   viewer.drawGrid = function(size, step, options) {
-    var name              = options.name
+    var name              = options.name;
     var color_center_line = options.color_center_line;
     var color_grid        = options.color_grid;
     var x                 = options.x;
@@ -322,7 +322,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     grid.setColors(color_center_line, color_grid);
     grid.position.set(x,y,z);
     // Used euler_rotation only if present
-    if ( euler_rotation !== undefined ) { grid.setRotationFromEuler(euler_rotation) }
+    if ( euler_rotation !== undefined ) { grid.setRotationFromEuler(euler_rotation); }
 
     if (viewer.model) {
       viewer.model.add(grid);
@@ -333,7 +333,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     viewer.updated = true;
 
     return grid;
-  }
+  };
 
   /**
   * @doc function

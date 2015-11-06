@@ -454,7 +454,7 @@ $(function() {
       if (grid !== undefined) {
         grid.visible = is_checked;
         viewer.updated = true;
-        return
+        return;
       }
 
       // Create and display the grid.

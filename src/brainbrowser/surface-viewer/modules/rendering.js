@@ -23,6 +23,8 @@
 /*
 * Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
 * Author: Paul Mougel
+* Author: Lindsay Lewis <lindsayblewis@gmail.com>
+* Author: Natacha Beck <natabeck@gmail.com>
 */
 
 BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
@@ -30,7 +32,11 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
   var THREE = BrainBrowser.SurfaceViewer.THREE;
 
-  var renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
+  var renderer = new THREE.WebGLRenderer({
+    preserveDrawingBuffer: true,
+    alpha: true,
+    autoClear: false,
+  });
   var scene = new THREE.Scene();
   var camera = new THREE.PerspectiveCamera(30, viewer.dom_element.offsetWidth / viewer.dom_element.offsetHeight, 1, 3000);
   var default_camera_distance = 500;
@@ -211,14 +217,16 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * @doc function
   * @name viewer.rendering:setClearColor
   * @param {number} color A hexadecimal number representing the RGB color to use.
+  * @param {number} define the opacity.
   * @description
   * Updates the clear color of the viewer.
   * ```js
   * viewer.setClearColor(0xFF0000);
   * ```
   */
-  viewer.setClearColor = function(color)  {
-    renderer.setClearColor(color, 1.0);
+  viewer.setClearColor = function(color,alpha)  {
+    if (alpha === undefined) alpha = 1;
+    renderer.setClearColor(color, alpha);
 
     viewer.updated = true;
   };
@@ -231,6 +239,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * @param {number} z The z coordinate.
   * @param {number} radius Radius of the sphere (default: 2).
   * @param {number} color Color of the sphere as a hexadecimal integer (default: 0xFF0000).
+  *
+  * @returns {object} The sphere itself.
   *
   * @description Draw a sphere in the current scene. Handy for debugging.
   * ```js
@@ -258,6 +268,71 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     return sphere;
 
+  };
+
+  /**
+  * @doc function
+  * @name viewer.rendering:drawGrid
+  * @param {number} size The size of the grid.
+  * @param {number} step The size of the step between 2 lines.
+  * @param {object} options Options, which include the following:
+  *
+  * * **name** The name of the object.
+  * * **color_center_line** The color of the centerline as a hexadecimal integer (default 0x444444).
+  * * **color_grid** The color of the lines of the grid as a hexadecimal integer (default 0x888888).
+  * * **x** The x coordinate (default: 0).
+  * * **y** The y coordinate (default: 0).
+  * * **z** The z coordinate (default: 0).
+  * * **euler_rotation** The Euler angles to apply.
+  *
+  * @returns {object} The grid itself.
+  *
+  * @description Draw a Grid in the current scene.
+  * ```js
+  * var euler_rotation = new THREE.Euler( 0, 0, Math.PI/2, 'XYZ' );
+  * viewer.drawGrid(100, 10, {euler_rotation: euler_rotation});
+  * ```
+  *
+  */
+  viewer.drawGrid = function(size, step, options) {
+    var name              = options.name;
+    var color_center_line = options.color_center_line;
+    var color_grid        = options.color_grid;
+    var x                 = options.x;
+    var y                 = options.y;
+    var z                 = options.z;
+    var euler_rotation    = options.euler_rotation;
+
+    // Define default size and step
+    if (size === undefined || size <= 0) { size = 100; }
+    if (step === undefined || step <= 0) { step = 10; }
+
+    // Define default colors
+    color_center_line = color_center_line >= 0 ? color_center_line : 0x444444;
+    color_grid        = color_grid        >= 0 ? color_grid        : 0x888888;
+
+    // Define default position
+    x = x || 0;
+    y = y || 0;
+    z = z || 0;
+
+    // Create the grid
+    var grid = new THREE.GridHelper(size, step);
+    grid.name = name;
+    grid.setColors(color_center_line, color_grid);
+    grid.position.set(x,y,z);
+    // Used euler_rotation only if present
+    if ( euler_rotation !== undefined ) { grid.setRotationFromEuler(euler_rotation); }
+
+    if (viewer.model) {
+      viewer.model.add(grid);
+    } else {
+      scene.add(grid);
+    }
+
+    viewer.updated = true;
+
+    return grid;
   };
 
   /**

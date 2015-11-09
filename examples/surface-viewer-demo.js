@@ -448,6 +448,7 @@ $(function() {
       var grid_name = this.id;
       var grid = viewer.model.getObjectByName(grid_name);
       var rotation;
+      var color_grid;
       var is_checked = $(this).is(":checked");
 
       // If the grid already exists
@@ -459,11 +460,20 @@ $(function() {
 
       // Create and display the grid.
       rotation = new THREE.Euler();
-      if (grid_name === "gridX") { rotation.set(0, 0, Math.PI/2, "XYZ"); }
-      if (grid_name === "gridY") { rotation.set(0, Math.PI/2, 0, "XYZ"); }
-      if (grid_name === "gridZ") { rotation.set(Math.PI/2, 0, 0, "XYZ"); }
+      if (grid_name === "gridX") {
+        rotation.set(0, 0, Math.PI/2, "XYZ");
+        color_grid = 0x00ff00;
+      }
+      if (grid_name === "gridY") {
+        rotation.set(0, Math.PI/2, 0, "XYZ");
+        color_grid = 0x0000ff;
+      }
+      if (grid_name === "gridZ") {
+        rotation.set(Math.PI/2, 0, 0, "XYZ");
+        color_grid = 0xff0000;
+      }
 
-      viewer.drawGrid(100, 10, {euler_rotation: rotation, name: grid_name});
+      viewer.drawGrid(100, 10, {euler_rotation: rotation, name: grid_name, color_grid: color_grid});
 
     });
 

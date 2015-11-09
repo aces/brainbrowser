@@ -225,7 +225,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * ```
   */
   viewer.setClearColor = function(color,alpha)  {
-    alpha = typeof(alpha) !== 'undefined' ? alpha : 1.0;
+    alpha = alpha || 1.0;
     renderer.setClearColor(color, alpha);
 
     viewer.updated = true;

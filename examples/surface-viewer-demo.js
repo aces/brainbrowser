@@ -453,7 +453,7 @@ $(function() {
 
       // If the grid already exists
       if (grid !== undefined) {
-        grid.visible = is_checked;
+        grid.visible   = is_checked;
         viewer.updated = true;
         return;
       }
@@ -474,6 +474,23 @@ $(function() {
       }
 
       viewer.drawGrid(100, 10, {euler_rotation: rotation, name: grid_name, color_grid: color_grid});
+
+    });
+
+    // Control Axes
+    $("#axes-controls").change(function() {
+      var axes_name  = this.id;
+      var is_checked = $(this).is(":checked");
+      var axes       = viewer.model.getObjectByName(axes_name);
+
+      // If the axes already exists
+      if (axes !== undefined) {
+        axes.visible   = is_checked;
+        viewer.updated = true;
+        return;
+      }
+
+      viewer.drawAxes(150, {name: axes_name});
 
     });
 

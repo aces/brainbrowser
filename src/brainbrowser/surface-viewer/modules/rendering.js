@@ -250,7 +250,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   viewer.drawDot = function(x, y, z, radius, color) {
     radius = radius || 2;
     radius = radius >= 0 ? radius : 0;
-    color = color >= 0 ? color : 0xFF0000;
+    color  = color  >= 0 ? color  : 0xFF0000;
 
     var geometry = new THREE.SphereGeometry(radius);
     var material = new THREE.MeshBasicMaterial({color: color});
@@ -292,9 +292,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * var euler_rotation = new THREE.Euler( 0, 0, Math.PI/2, 'XYZ' );
   * viewer.drawGrid(100, 10, {euler_rotation: euler_rotation});
   * ```
-  *
   */
   viewer.drawGrid = function(size, step, options) {
+    options               = options || {};
     var name              = options.name;
     var color_center_line = options.color_center_line;
     var color_grid        = options.color_grid;
@@ -317,7 +317,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     z = z || 0;
 
     // Create the grid
-    var grid = new THREE.GridHelper(size, step);
+    var grid  = new THREE.GridHelper(size, step);
     grid.name = name;
     grid.setColors(color_center_line, color_grid);
     grid.position.set(x,y,z);
@@ -333,6 +333,114 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     viewer.updated = true;
 
     return grid;
+  };
+
+  /**
+  * @doc function
+  * @name viewer.rendering:drawLine
+  * @param {object} start A Vector3, start of the line segment
+  * @param {object} end A Vector3, end of the line segment
+  * @param {object} options Options, which include the following:
+  *
+  * * **color** The color of the line as a hexadecimal integer (default 0x444444).
+  * * **dashed** If true create a dashed line
+  * * **draw**   If false don't draw the line
+  *
+  * @returns {object} The line itself.
+  *
+  * @description Draw a line in the current scene.
+  * ```js
+  * var start = new THREE.Vector3(0,0,0);
+  * var end   = new THREE.Vector3(200,200,200);
+  * viewer.drawLine(start, end, {dashed: true});
+  * ```
+  */
+  viewer.drawLine = function( start, end, options ) {
+    options      = options || {};
+    var color    = options.color >= 0 ? options.color : 0x444444;
+
+    // Create the geometry
+    var geometry = new THREE.Geometry();
+    geometry.vertices.push( start.clone() );
+    geometry.vertices.push( end.clone() );
+    geometry.computeLineDistances();
+
+    // Set the material according with the dashed option
+    var material = options.dashed === true ?
+                     new THREE.LineDashedMaterial({ linewidth: 3, color: color, gapSize: 3 })
+                   : new THREE.LineBasicMaterial( { linewidth: 3, color: color });
+
+    var line = new THREE.Line( geometry, material, THREE.LinePieces );
+
+    if (options.draw === false) {return line;}
+
+    if (viewer.model) {
+      viewer.model.add(line);
+    } else {
+      scene.add(line);
+    }
+
+    viewer.updated = true;
+
+    return line;
+  };
+
+  /**
+  * @doc function
+  * @name viewer.rendering:drawAxes
+  * @param {number} size Define the size of the line representing the axes.
+  * @param {object} options Options, which include the following:
+  *
+  * * **name** The name of the axes
+  * * **center** A Vector3, that represent the orgin of the axes
+  * * **x_color** The color of the line as a hexadecimal integer (default 0xff0000).
+  * * **y_color** The color of the line as a hexadecimal integer (default 0x00ff00).
+  * * **z_color** The color of the line as a hexadecimal integer (default 0x0000ff).
+  * * **complete** If true draw postive (plain) and negative axes (dashed)
+  *
+  *
+  * @returns {object} The axes itself.
+  *
+  * @description
+  * Draw Axes in the current scene
+  * ```js
+  *   viewer.drawAxes(300)
+  * ```
+  */
+  viewer.drawAxes = function(size, options) {
+    size         = size    || 300;
+    options      = options || {};
+    var name     = options.name   || "axes";
+    var center   = options.center || new THREE.Vector3(0,0,0);
+    var x_color  = options.x_color >= 0 ? options.x_color : 0xff0000 ;
+    var y_color  = options.y_color >= 0 ? options.y_color : 0x00ff00 ;
+    var z_color  = options.z_color >= 0 ? options.z_color : 0x0000ff ;
+    var complete = options.complete === true;
+
+    var axes  = new THREE.Object3D();
+    axes.name = name;
+
+    // X axes
+    axes.add(viewer.drawLine(center, new THREE.Vector3( size, 0, 0), {color: x_color, dashed: false, draw: false}));
+    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(-size, 0, 0), {color: x_color, dashed: true , draw: false})); }
+
+    // Y axes
+    axes.add(viewer.drawLine(center, new THREE.Vector3(0,  size, 0), {color: y_color, dashed: false, draw: false}));
+    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(0, -size, 0), {color: y_color, dashed: true, draw: false})); }
+
+    // Z axes
+    axes.add(viewer.drawLine(center, new THREE.Vector3(0, 0,  size), {color: z_color, dashed: false, draw: false}));
+    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(0, 0, -size), {color: z_color, dashed: true,  draw: false})); }
+
+    if (viewer.model) {
+      viewer.model.add(axes);
+    } else {
+      scene.add(axes);
+    }
+
+    viewer.updated = true;
+
+    return axes;
   };
 
   /**

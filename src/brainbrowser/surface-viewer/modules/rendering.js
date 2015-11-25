@@ -372,7 +372,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     var line = new THREE.Line( geometry, material, THREE.LinePieces );
 
-    if (options.draw === false) {return line}
+    if (options.draw === false) {return line;}
 
     if (viewer.model) {
       viewer.model.add(line);
@@ -383,7 +383,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     viewer.updated = true;
 
     return line;
-  }
+  };
 
   /**
   * @doc function
@@ -391,6 +391,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * @param {number} size Define the size of the line representing the axes.
   * @param {object} options Options, which include the following:
   *
+  * * **name** The name of the axes
   * * **center** A Vector3, that represent the orgin of the axes
   * * **x_color** The color of the line as a hexadecimal integer (default 0xff0000).
   * * **y_color** The color of the line as a hexadecimal integer (default 0x00ff00).
@@ -409,25 +410,27 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   viewer.drawAxes = function(size, options) {
     size         = size    || 300;
     options      = options || {};
+    var name     = options.name   || "axes";
     var center   = options.center || new THREE.Vector3(0,0,0);
     var x_color  = options.x_color >= 0 ? options.x_color : 0xff0000 ;
     var y_color  = options.y_color >= 0 ? options.y_color : 0x00ff00 ;
     var z_color  = options.z_color >= 0 ? options.z_color : 0x0000ff ;
     var complete = options.complete === true;
 
-    var axes = new THREE.Object3D();
+    var axes  = new THREE.Object3D();
+    axes.name = name;
 
     // X axes
     axes.add(viewer.drawLine(center, new THREE.Vector3( size, 0, 0), {color: x_color, dashed: false, draw: false}));
-    axes.add(viewer.drawLine(center, new THREE.Vector3(-size, 0, 0), {color: x_color, dashed: true , draw: false}));
+    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(-size, 0, 0), {color: x_color, dashed: true , draw: false})); }
 
     // Y axes
     axes.add(viewer.drawLine(center, new THREE.Vector3(0,  size, 0), {color: y_color, dashed: false, draw: false}));
-    axes.add(viewer.drawLine(center, new THREE.Vector3(0, -size, 0), {color: y_color, dashed: true, draw: false}));
+    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(0, -size, 0), {color: y_color, dashed: true, draw: false})); }
 
     // Z axes
     axes.add(viewer.drawLine(center, new THREE.Vector3(0, 0,  size), {color: z_color, dashed: false, draw: false}));
-    axes.add(viewer.drawLine(center, new THREE.Vector3(0, 0, -size), {color: z_color, dashed: true,  draw: false}));
+    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(0, 0, -size), {color: z_color, dashed: true,  draw: false})); }
 
     if (viewer.model) {
       viewer.model.add(axes);
@@ -438,7 +441,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     viewer.updated = true;
 
     return axes;
-  }
+  };
 
   /**
   * @doc function

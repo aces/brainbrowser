@@ -141,17 +141,19 @@
         var i = 0;
 
         z = z_positive ? slice_num : axis_space.space_length - slice_num - 1;
-        tz_offset = time_offset + z * axis_space_offset;
+        if (z >= 0 && z < axis_space.space_length) {
+          tz_offset = time_offset + z * axis_space_offset;
 
-        for (row = height - 1; row >= 0; row--) {
-          y = y_positive ? row : height - row - 1;
-          tzy_offset = tz_offset + y * height_space_offset;
+          for (row = height - 1; row >= 0; row--) {
+            y = y_positive ? row : height - row - 1;
+            tzy_offset = tz_offset + y * height_space_offset;
 
-          for (col = 0; col < width; col++) {
-            x = x_positive ? col : width - col - 1;
-            tzyx_offset = tzy_offset + x * width_space_offset;
+            for (col = 0; col < width; col++) {
+              x = x_positive ? col : width - col - 1;
+              tzyx_offset = tzy_offset + x * width_space_offset;
 
-            slice_data[i++] = volume.data[tzyx_offset];
+              slice_data[i++] = volume.data[tzyx_offset];
+            }
           }
         }
 

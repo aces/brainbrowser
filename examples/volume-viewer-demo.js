@@ -251,6 +251,21 @@ $(function() {
       });
     });
 
+    $("#volume-file-hdf5-submit").click(function() {
+      viewer.clearVolumes();
+      viewer.loadVolume({
+        type: "minc",
+        hdf5_file: document.getElementById("hdf5-file"),
+        template: {
+          element_id: "volume-ui-template",
+          viewer_insert_class: "volume-viewer-display"
+        }
+      }, function() {
+        $(".slice-display").css("display", "inline");
+        $(".volume-controls").css("width", "auto");
+      });
+    });
+
     // Load a new model from a NIfTI-1 file that the user has
     // selected.
     $("#volume-file-nifti1-submit").click(function() {

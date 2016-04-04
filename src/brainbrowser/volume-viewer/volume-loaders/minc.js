@@ -33,7 +33,14 @@
   VolumeViewer.volume_loaders.minc = function(description, callback) {
     var error_message;
 
-    if (description.header_url && description.raw_data_url) {
+    if (description.hdf5_file) {
+      BrainBrowser.loader.loadFromFile(description.hdf5_file, function(raw_data) {
+        var tmp = VolumeViewer.utils.hdf5_loader(raw_data);
+        parseHeader(tmp.header_text, function(header) {
+          createMincVolume(header, tmp.raw_data, callback);
+        });
+      }, { result_type: "arraybuffer" });
+    } else if (description.header_url && description.raw_data_url) {
       BrainBrowser.loader.loadFromURL(description.header_url, function(header_text) {
         parseHeader(header_text, function(header) {
           BrainBrowser.loader.loadFromURL(description.raw_data_url, function(raw_data) {

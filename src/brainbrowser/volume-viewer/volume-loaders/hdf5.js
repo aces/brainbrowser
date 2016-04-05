@@ -22,10 +22,20 @@
 
 /*
 * Author: Robert D. Vincent (robert.d.vincent@mcgill.ca)
+*
+* Interprets a MINIMAL subset of the HDF5 format for the volume viewer. 
+* This is sufficient to parse most MINC 2.0 files, but may not handle
+* HDF5 from other sources!!
+* 
+* Relies on pako (https://github.com/nodeca/pako) to inflate
+* compressed data chunks.
+*
+* For details on the HDF5 format, see:
+* https://www.hdfgroup.org/HDF5/doc/H5.format.html
 */
 (function () {
   'use strict';
-  /** internal type codes. */
+  /** Internal type codes. These have nothing to do with HDF5. */
   var type_enum = {
     INT8: 1,
     UINT8: 2,
@@ -38,12 +48,16 @@
     STR: 9
   };
 
+  function defined(x) {
+    return typeof x !== 'undefined';
+  }
+
   function type_size(typ) {
     var sizes = [0, 1, 1, 2, 2, 4, 4, 4, 8, 0];
     if (typ >= type_enum.INT8 && typ < sizes.length) {
       return sizes[typ];
     }
-    throw 'Unknown type ' + typ;
+    throw new Error('Unknown type ' + typ);
   }
 
   function type_name(typ) {
@@ -54,7 +68,11 @@
     if (typ >= type_enum.INT8 && typ < names.length) {
       return names[typ];
     }
-    throw 'Unknown type ' + typ;
+    throw new Error('Unknown type ' + typ);
+  }
+
+  function type_is_flt(typ) {
+    return (typ >= type_enum.FLT && typ <= type_enum.DBL);
   }
 
   function hdf5_reader(abuf, debug) {
@@ -64,7 +82,7 @@
     var littleEndian = true;
     var continuation_queue = [];
     var dv = new DataView(abuf);
-    var superblk = {};          // superblock
+    var superblk = {};
     var start_offset = 0;
 
     debug = debug || false;
@@ -86,8 +104,9 @@
       r.lnk_name = "";
       r.lnk_attributes = [];
       r.lnk_children = [];
-      r.lnk_dat_array = null;
+      r.lnk_dat_array = undefined;
       r.lnk_type = -1;
+      r.lnk_inflate = false;
       r.lnk_dims = [];
       return r;
     }
@@ -166,7 +185,7 @@
       } else if (offsz === 8) {
         v = dv.getUint64(dv_offset, littleEndian);
       } else {
-        throw 'offsz is ' + offsz;
+        throw new Error('Unsupported value for offset size ' + offsz);
       }
       dv_offset += offsz;
       return v;
@@ -286,7 +305,7 @@
         }
         break;
       default:
-        throw 'Bad type in get_array ' + typ;
+        throw new Error('Bad type in get_array ' + typ);
       }
       if (new_off) {
         dv_offset = spp;
@@ -311,7 +330,7 @@
         v = dv.getUint64(dv_offset, littleEndian);
         break;
       default:
-        throw 'illegal length ' + n;
+        throw new Error('Unsupported type length ' + n);
       }
       dv_offset += n;
       return v;
@@ -347,11 +366,11 @@
     function hdf5_sb() {
       var sb = {};
       if (!check_signature("\u0089HDF\r\n\u001A\n")) {
-        throw 'Bad magic string\n';
+        throw new Error('Bad magic string in HDF5');
       }
       sb.sbver = get_u8();
       if (sb.sbver > 2) {
-        throw 'HDF5 Superblock version ' + sb.sbver + '\n';
+        throw new Error('Unsupported HDF5 superblock version ' + sb.sbver);
       }
       if (sb.sbver <= 1) {
         sb.fsver = get_u8();
@@ -395,11 +414,10 @@
 
     /* read the v2 fractal heap header */
     function hdf5_frhp() {
-      if (!check_signature("FRHP")) {
-        throw 'bad FRHP signature';
-      }
-
       var fh = {};
+      if (!check_signature("FRHP")) {
+        throw new Error('Bad or missing FRHP signature');
+      }
       fh.ver = get_u8();
       fh.idlen = get_u16();
       fh.iof_el = get_u16();
@@ -425,7 +443,7 @@
       fh.root_addr = get_offset();
       fh.rib_crows = get_u16();
       if (fh.iof_el > 0) {
-        console.log("Have to read filter stuff!\n");
+        throw new Error("Filters present in fractal heap.");
       }
       return fh;
     }
@@ -434,7 +452,7 @@
     function hdf5_bthd() {
       var bh = {};
       if (!check_signature("BTHD")) {
-        throw 'bad BTHD signature';
+        throw new Error('Bad or missing BTHD signature');
       }
       bh.ver = get_u8();
       bh.type = get_u8();
@@ -462,14 +480,14 @@
       if (n < names.length) {
         return names[n];
       }
-      throw 'Unknown message type ' + n + " " + tell();
+      throw new Error('Unknown message type ' + n + " " + tell());
     }
 
     function hdf5_btree(link) {
       var i;
       var bt = {};
       if (!check_signature("TREE")) {
-        throw 'bad TREE signature at ' + tell();
+        throw new Error('Bad TREE signature at ' + tell());
       }
 
       bt.keys = [];
@@ -486,7 +504,7 @@
                     bt.left_sibling + " " + bt.right_sibling);
       }
 
-      if (link === null) {
+      if (!link) {
         // If this BTREE is associated with a group (not a dataset),
         // then its keys are single "length" value.
         for (i = 0; i < bt.entries_used; i += 1) {
@@ -538,55 +556,67 @@
           chunks[i].chunk_offsets.push(get_u64());
         }
 
+        /* If we're at a leaf node, we have data to deal with.
+         * We might have to uncompress!
+         */
         if (bt.node_level === 0) {
-          var sl;
+          var length;
           var offset;
           var sp;
           var dp;
+
           for (i = 0; i < bt.entries_used; i += 1) {
-            sl = chunks[i].chunk_size;
-
+            length = chunks[i].chunk_size;
             offset = bt.keys[i].child_address;
-            sp = new Uint8Array(abuf, offset, sl);
-            dp = pako.inflate(sp);
-            switch (link.lnk_type) {
-            case type_enum.INT8:
-              dp = new Int8Array(dp.buffer);
-              break;
-            case type_enum.UINT8:
-              break;
-            case type_enum.INT16:
-              dp = new Int16Array(dp.buffer);
-              break;
-            case type_enum.UINT16:
-              dp = new Uint16Array(dp.buffer);
-              break;
-            case type_enum.INT32:
-              dp = new Int32Array(dp.buffer);
-              break;
-            case type_enum.UINT32:
-              dp = new Uint32Array(dp.buffer);
-              break;
-            case type_enum.FLT:
-              dp = new Float32Array(dp.buffer);
-              break;
-            case type_enum.DBL:
-              dp = new Float64Array(dp.buffer);
-              break;
-            default:
-              throw 'wtf?';
-            }
-            if (link.lnk_dat_array.length - link.lnk_dat_used <
-                dp.length) {
-              dp = dp.subarray(0, link.lnk_dat_array.length -
-                               link.lnk_dat_used);
-            }
-            link.lnk_dat_array.set(dp, link.lnk_dat_used);
-            link.lnk_dat_used += dp.length;
-            if (debug) {
-              console.log(link.lnk_name + " " + sp.length + " " + dp.length + " " + link.lnk_dat_used + "/" + link.lnk_dat_array.length);
-            }
 
+            if (link.lnk_inflate) {
+              sp = new Uint8Array(abuf, offset, length);
+              dp = pako.inflate(sp);
+              switch (link.lnk_type) {
+              case type_enum.INT8:
+                dp = new Int8Array(dp.buffer);
+                break;
+              case type_enum.UINT8:
+                dp = new Uint8Array(dp.buffer);
+                break;
+              case type_enum.INT16:
+                dp = new Int16Array(dp.buffer);
+                break;
+              case type_enum.UINT16:
+                dp = new Uint16Array(dp.buffer);
+                break;
+              case type_enum.INT32:
+                dp = new Int32Array(dp.buffer);
+                break;
+              case type_enum.UINT32:
+                dp = new Uint32Array(dp.buffer);
+                break;
+              case type_enum.FLT:
+                dp = new Float32Array(dp.buffer);
+                break;
+              case type_enum.DBL:
+                dp = new Float64Array(dp.buffer);
+                break;
+              default:
+                throw new Error('Unknown type code ' + link.lnk_type);
+              }
+              if (link.lnk_dat_array.length - link.lnk_dat_used <
+                  dp.length) {
+                dp = dp.subarray(0, link.lnk_dat_array.length -
+                                 link.lnk_dat_used);
+              }
+              link.lnk_dat_array.set(dp, link.lnk_dat_used);
+              link.lnk_dat_used += dp.length;
+              if (debug) {
+                console.log(link.lnk_name + " " + sp.length + " " + dp.length + " " + link.lnk_dat_used + "/" + link.lnk_dat_array.length);
+              }
+            }
+            else {
+              /* no need to inflate data. */
+              dp = get_array(link.lnk_type, length, offset);
+              link.lnk_dat_array.set(dp, link.lnk_dat_used);
+              link.lnk_dat_used += dp.length;
+            }
           }
         } else {
           for (i = 0; i < bt.entries_used; i += 1) {
@@ -600,7 +630,7 @@
 
     function hdf5_snod(lh, link) {
       if (!check_signature("SNOD")) {
-        throw 'bad SNOD signature';
+        throw new Error('Bad or missing SNOD signature');
       }
       var ver = get_u8();
       skip(1);
@@ -625,7 +655,7 @@
           child = hdf5_int_link();
           child.lnk_hdr_offset = ohdr_address;
           link.lnk_children.push(child);
-          if (lh !== null) {
+          if (lh) {
             spp = tell();
             // The link name is a zero-terminated string
             // starting at the link_name_off relative to
@@ -648,7 +678,7 @@
     function hdf5_lheap() {
       var lh = {};
       if (!check_signature("HEAP")) {
-        throw 'bad HEAP signature';
+        throw new Error('Bad or missing HEAP signature');
       }
       lh.lh_ver = get_u8();
       skip(3);
@@ -681,7 +711,7 @@
         n_items *= dlen[i];
       }
 
-      cb = (ver <= 1) ? (n_dim * superblk.lensz + 8) : (n_dim * superblk.lensz + 4);
+      cb = (n_dim * superblk.lensz) + ((ver <= 1) ? 8 : 4);
 
       var dmax = [];
       if ((flag & 1) !== 0) {
@@ -741,7 +771,7 @@
       if (cls < names.length) {
         return names[cls];
       }
-      throw 'Unknown datatype class: ' + cls;
+      throw new Error('Unknown datatype class: ' + cls);
     }
 
     function hdf5_msg_datatype(sz) {
@@ -789,7 +819,7 @@
           type.typ_type = (bf[0] & 8) ? type_enum.INT8 : type_enum.UINT8;
           break;
         default:
-          throw 'unknown type size ' + dt_size;
+          throw new Error('Unknown type size ' + dt_size);
         }
         type.typ_length = dt_size;
         cb += 4;
@@ -812,7 +842,7 @@
             msg += "VX ";
             break;
           default:
-            throw 'reserved fp byte order: ' + bf[0];
+            throw new Error('Reserved fp byte order: ' + bf[0]);
           }
         }
         bit_offs = get_u16();
@@ -840,7 +870,7 @@
                    exp_bias === 127 && dt_size === 4) {
           type.typ_type = type_enum.FLT;
         } else {
-          throw "unknown fp type";
+          throw new Error("Unsupported floating-point type");
         }
         if (debug) {
           console.log(msg);
@@ -866,7 +896,7 @@
         break;
 
       default:
-        throw 'unhandled class ' + cls;
+        throw new Error('Unimplemented HDF5 data class ' + cls);
       }
       if (sz > cb) {
         skip(sz - cb);
@@ -973,7 +1003,12 @@
       }
     }
 
-    function hdf5_msg_pipeline() {
+    /**
+     * @doc function
+     * Read a filter pipeline message. At the moment we _only_ handle
+     * deflate/inflate.
+     */
+    function hdf5_msg_pipeline(link) {
       var ver = get_u8();
       var nflt = get_u8();
 
@@ -994,7 +1029,13 @@
       for (i = 0; i < nflt; i += 1) {
         fiv = get_u16();
         if (fiv !== 1) {             /* deflate */
-          throw "unknown filter " + fiv;
+          throw new Error("Unimplemented HDF5 filter " + fiv);
+        }
+        else {
+          if (typeof pako !== 'object') {
+            throw new Error('Need pako to inflate data.');
+          }
+          link.lnk_inflate = true;
         }
         if (ver === 1 || fiv > 256) {
           nlen = get_u16();
@@ -1028,7 +1069,7 @@
       var ds_len = get_u16();
 
       if ((flags & 3) !== 0) {
-        throw 'Shared dataspaces and datatypes are not yet implemented.';
+        throw new Error('Shared dataspaces and datatypes are not supported.');
       }
 
       if (ver === 3) {
@@ -1104,7 +1145,7 @@
       var ver = get_u8();
       var ltype = 0;
       if (ver !== 1) {
-        throw "Bad Link message version " + ver;
+        throw new Error("Bad link message version " + ver);
       }
       var flags = get_u8();
       if ((flags & 8) !== 0) {
@@ -1136,11 +1177,11 @@
 
     function hdf5_fhdb(fh, link) {
       if (!check_signature("FHDB")) {
-        throw "Bad FHDB signature";
+        throw new Error("Bad or missing FHDB signature");
       }
       var ver = get_u8();
       if (ver !== 0) {
-        throw 'Bad FHDB version: ' + ver;
+        throw new Error('Bad FHDB version: ' + ver);
       }
       get_offset();           // heap header address (IGNORE)
       var cb = Math.ceil(fh.max_heapsz / 8.0);
@@ -1158,7 +1199,7 @@
     function hdf5_msg_attrinfo(link) {
       var ver = get_u8();
       if (ver !== 0) {
-        throw 'wrong attrinfo version';
+        throw new Error('Bad attribute information message version: ' + ver);
       }
 
       var flags = get_u8();
@@ -1205,7 +1246,7 @@
         break;
       case 3:
         val_type = hdf5_msg_datatype(msg.hm_size);
-        if (link !== null) {
+        if (link) {
           link.lnk_type = val_type.typ_type;
         }
         break;
@@ -1219,7 +1260,7 @@
         hdf5_msg_groupinfo();
         break;
       case 11:
-        hdf5_msg_pipeline();
+        hdf5_msg_pipeline(link);
         break;
       case 12:
         hdf5_msg_attribute(msg.hm_size, link);
@@ -1254,14 +1295,14 @@
         skip(msg.hm_size);
         break;
       default:
-        throw 'unknown message type: ' + msg.hm_type;
+        throw new Error('Unknown message type: ' + msg.hm_type);
       }
     }
 
     /** read the v2 object header */
     function hdf5_ohdr2(link) {
       if (!check_signature("OHDR")) {
-        throw 'bad OHDR signature';
+        throw new Error('Bad or missing OHDR signature');
       }
 
       var ver = get_u8();
@@ -1330,21 +1371,19 @@
             console.log('continuing with ' + cq_head.cq_len + ' bytes at ' + tell());
           }
           if (!check_signature("OCHK")) {
-            throw "Bad continuation";
+            throw new Error("Bad v2 object continuation");
           }
         } else {
           break;
         }
       }
 
-      var link_num = 0;
-      link.lnk_children.forEach(function (child) {
+      link.lnk_children.forEach(function (child, link_num) {
         seek(child.lnk_hdr_offset);
         if (debug) {
           console.log(link_num + " " + child.lnk_hdr_offset + " " +
                       child.lnk_name);
         }
-        link_num += 1;
         hdf5_ohdr2(child);
       });
     }
@@ -1390,7 +1429,7 @@
           link.lnk_dat_array = new Float64Array(ab);
           break;
         default:
-          throw 'whoops ' + link.lnk_type;
+          throw new Error('Illegal type: ' + link.lnk_type);
         }
         hdf5_btree(link);
       } else {
@@ -1422,7 +1461,7 @@
       oh.oh_ref_cnt = get_u32();
       oh.oh_hdr_sz = get_u32();
       if (oh.oh_ver !== 1) {
-        throw "Bad OHDR1 version";
+        throw new Error("Bad v1 object header version: " + oh.oh_ver);
       }
       if (debug) {
         console.log("hdf5_ohdr1 V" + oh.oh_ver +
@@ -1460,7 +1499,7 @@
         hmsg.hm_flags = get_u8();
 
         if ((hmsg.hm_size % 8) !== 0) {
-          throw 'size is not 8-byte aligned: ' + hmsg.hm_size;
+          throw new Error('Size is not 8-byte aligned: ' + hmsg.hm_size);
         }
         skip(3);            // skip reserved
         msg_bytes -= (8 + hmsg.hm_size);
@@ -1479,7 +1518,7 @@
 
       if (link.lnk_sym_btree !== 0 && link.lnk_sym_lheap !== 0) {
         seek(link.lnk_sym_btree);
-        var bt = hdf5_btree(null);
+        var bt = hdf5_btree();
         seek(link.lnk_sym_lheap);
         var lh = hdf5_lheap();
         var i;
@@ -1573,71 +1612,99 @@
   }
 
   function find_dataset(link, name, level) {
-    if (link.lnk_name === name && link.lnk_dat_array) {
-      return link;
+    var result;
+    if (link.lnk_name === name && link.lnk_type > 0) {
+      result = link;
     } else {
-      var i;
-      var child;
-      var result;
-      for (i = 0; i < link.lnk_children.length; i += 1) {
-        child = link.lnk_children[i];
+      link.lnk_children.find( function( child ) {
         result = find_dataset(child, name, level + 1);
-        if (result) {
-          return result;
-        }
-      }
-      return null;
+        return defined(result);
+      });
     }
+    return result;
   }
 
   function find_attribute(link, name, level) {
-    var i;
-    var attr;
+    var result = link.lnk_attributes.find( function (element) {
+      return (element.att_name === name);
+    });
 
-    for (i = 0; i < link.lnk_attributes.length; i += 1) {
-      attr = link.lnk_attributes[i];
-      if (attr.att_name === name) {
-        return attr.att_value;
-      }
-    }
+    if (result)
+      return result.att_value;
 
-    var child;
-    var result;
-
-    for (i = 0; i < link.lnk_children.length; i += 1) {
-      child = link.lnk_children[i];
-      result = find_attribute(child, name, level + 1);
-      if (result) {
-        return result;
-      }
-    }
-    return null;
+    link.lnk_children.find( function (child ) {
+      result = find_attribute( child, name, level + 1);
+      return defined(result);
+    });
+    return result;
   }
 
   var VolumeViewer = BrainBrowser.VolumeViewer;
 
   VolumeViewer.utils.hdf5_loader = function (data) {
-    var debug = true;
+    var debug = false;
 
-    console.log('hdf5_loader');
     var root = hdf5_reader(data, debug);
     print_hierarchy(root, 0);
 
-    var image_min = find_dataset(root, 'image-min');
-    var image_max = find_dataset(root, 'image-max');
     var image = find_dataset(root, 'image');
-    var valid_range = find_attribute(image, 'valid_range', 0);
-    var new_abuf = new ArrayBuffer(image.lnk_dat_array.length * 4);
-    var new_data = new Float32Array(new_abuf);
-
-    if (image === null) {
-      throw 'image is null??';
+    if (!defined(image)) {
+      throw new Error("Can't find image dataset.");
     }
-
+    var valid_range = find_attribute(image, 'valid_range', 0);
+    /* If no valid_range is found, we substitute our own. */
+    if (!defined(valid_range)) {
+      var min_val;
+      var max_val;
+      switch (image.lnk_type) {
+      case type_enum.INT8:
+        min_val = -(1 << 7);
+        max_val = (1 << 7) - 1;
+        break;
+      case type_enum.UINT8:
+        min_val = 0;
+        max_val = (1 << 8) - 1;
+        break;
+      case type_enum.INT16:
+        min_val = -(1 << 15);
+        max_val = (1 << 15) - 1;
+        break;
+      case type_enum.UINT16:
+        min_val = 0;
+        max_val = (1 << 16) - 1;
+        break;
+      case type_enum.INT32:
+        min_val = -(1 << 31);
+        max_val = (1 << 31) - 1;
+        break;
+      case type_enum.UINT32:
+        min_val = 0;
+        max_val = (1 << 32) - 1;
+        break;
+      }
+      valid_range = Float32Array.of(min_val, max_val);
+    }
+    var image_min = find_dataset(root, 'image-min');
+    if (!defined(image_min)) {
+      image_min = {
+        lnk_dat_array: Float32Array.of(0),
+        lnk_dims: []
+      };
+    }
+    var image_max = find_dataset(root, 'image-max');
+    if (!defined(image_max)) {
+      image_max = {
+        lnk_dat_array: Float32Array.of(1),
+        lnk_dims: []
+      };
+    }
+    var new_abuf = new ArrayBuffer(image.lnk_dat_array.length *
+                                   Float32Array.BYTES_PER_ELEMENT);
+    var new_data = new Float32Array(new_abuf);
     var n_slice_dims = image.lnk_dims.length - image_min.lnk_dims.length;
 
     if (n_slice_dims < 1) {
-      throw 'too few slice dimensions!';
+      throw new Error('Too few slice dimensions!');
     }
 
     var n_slice_elements = 1;
@@ -1645,7 +1712,9 @@
     for (i = image_min.lnk_dims.length; i < image.lnk_dims.length; i += 1) {
       n_slice_elements *= image.lnk_dims[i];
     }
-    console.log(n_slice_elements + " voxels in slice.");
+    if (debug) {
+      console.log(n_slice_elements + " voxels in slice.");
+    }
     var s = 0;
     var c = 0;
     var x = -Number.MAX_VALUE;
@@ -1659,8 +1728,8 @@
     var vrange;
     var rrange;
     var j;
-    var k;
     var v;
+    var is_float = type_is_flt(image.lnk_type);
     for (i = 0; i < image_min.lnk_dat_array.length; i += 1) {
       if (debug) {
         console.log(i + " " + im_min[i] + " " + im_max[i] + " " +
@@ -1669,8 +1738,12 @@
       vrange = (valid_range[1] - valid_range[0]);
       rrange = (im_max[i] - im_min[i]);
       for (j = 0; j < n_slice_elements; j += 1) {
-        k = i * n_slice_elements + j;
-        v = (im[k] - valid_range[0]) / vrange * rrange + im_min[i];
+        if (is_float) {
+          v = im[c];
+        }
+        else {
+          v = (im[c] - valid_range[0]) / vrange * rrange + im_min[i];
+        }
         new_data[c] = v;
         s += v;
         c += 1;
@@ -1687,23 +1760,43 @@
     console.log('Min: ' + n);
     console.log('Max: ' + x);
 
-    /* create the header */
+    /* Create the header expected by the existing brainbrowser code.
+     */
     var header = {};
     var tmp = find_attribute(image, 'dimorder', 0);
+    if (typeof tmp !== 'string') {
+      throw new Error("Can't find dimension order.");
+    }
     header.order = tmp.split(',');
 
     header.order.forEach(function(dimname) {
       var dim = find_dataset(root, dimname);
+      if (!defined(dim)) {
+        throw new Error("Can't find dimension variable " + dimname);
+      }
       
       header[dimname] = {};
+
       tmp = find_attribute(dim, "step", 0);
+      if (!defined(tmp)) {
+        throw new Error("Can't find step for " + dimname);
+      }
       header[dimname].step = tmp[0];
+
       tmp = find_attribute(dim, "start", 0);
+      if (!defined(tmp)) {
+        throw new Error("Can't find start for " + dimname);
+      }
       header[dimname].start = tmp[0];
+
       tmp = find_attribute(dim, "length", 0);
+      if (!defined(tmp)) {
+        throw new Error("Can't find length for " + dimname);
+      }
       header[dimname].space_length = tmp[0];
+
       tmp = find_attribute(dim, "direction_cosines", 0);
-      if (tmp) {
+      if (defined(tmp)) {
         // why is the bizarre call to slice needed?? it seems to work, though!
         header[dimname].direction_cosines = Array.prototype.slice.call(tmp);
       }

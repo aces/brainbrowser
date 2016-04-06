@@ -108,6 +108,7 @@
       r.lnk_type = -1;
       r.lnk_inflate = false;
       r.lnk_dims = [];
+      r.type_name = type_name;
       return r;
     }
 
@@ -1575,7 +1576,7 @@
     }
     msg += link.lnk_name + (link.lnk_children.length ? "/" : "");
     if (link.lnk_type > 0) {
-      msg += ' ' + type_name(link.lnk_type);
+      msg += ' ' + link.type_name(link.lnk_type);
       if (link.lnk_dims.length) {
         msg += '[' + link.lnk_dims.join(', ') + ']';
       }
@@ -1593,7 +1594,7 @@
         msg += " ";
       }
       msg += link.lnk_name + ':' + attr.att_name + " " +
-        type_name(attr.att_type) + "[" + attr.att_value.length + "] ";
+        link.type_name(attr.att_type) + "[" + attr.att_value.length + "] ";
       if (attr.att_type === type_enum.STR) {
         msg += "'" + attr.att_value + "'";
       } else {
@@ -1644,7 +1645,12 @@
   VolumeViewer.utils.hdf5_loader = function (data) {
     var debug = false;
 
-    var root = hdf5_reader(data, debug);
+    var root;
+    try {
+      root = hdf5_reader(data, debug);
+    } catch (e) {
+      root = VolumeViewer.utils.netcdf_reader(data, debug);
+    }
     print_hierarchy(root, 0);
 
     var image = find_dataset(root, 'image');

@@ -76,7 +76,7 @@
         lnk_name: "",
         lnk_attributes: {},
         lnk_children: [],
-        lnk_dat_array: null,
+        lnk_dat_array: undefined,
         lnk_type: -1,
         lnk_dims: [],
       };
@@ -304,8 +304,11 @@
         child.lnk_attributes.length = tmp;
       }
 
-      child.lnk_dat_array = get_array(nc_type, vsize, begin);
-
+      /* It is possible for the beginning to be after the end of the file.
+       */
+      if (begin + vsize <= dv.byteLength) {
+        child.lnk_dat_array = get_array(nc_type, vsize, begin);
+      }
       if (dimorder.length > 0) {
         child.lnk_attributes.dimorder = dimorder;
       }

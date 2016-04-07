@@ -53,6 +53,9 @@
   }
 
   function type_name(x) {
+    if (typeof x === "undefined") {
+      return "undefined";
+    }
     return x.constructor.name;
   }
 
@@ -1374,7 +1377,14 @@
           console.log(link_num + " " + child.lnk_hdr_offset + " " +
                       child.lnk_name);
         }
-        hdf5_ohdr2(child);
+        if (check_signature("OHDR")) {
+          seek(child.lnk_hdr_offset);
+          hdf5_ohdr2(child);
+        }
+        else {
+          seek(child.lnk_hdr_offset);
+          hdf5_ohdr1(child);
+        }
       });
     }
 
@@ -1637,6 +1647,10 @@
     try {
       root = hdf5_reader(data, debug);
     } catch (e) {
+      if (debug) {
+        console.log(e);
+        console.log("Trying as NetCDF...");
+      }
       root = VolumeViewer.utils.netcdf_reader(data, debug);
     }
     print_hierarchy(root, 0);
@@ -1734,15 +1748,20 @@
       if (is_float) {
         for (j = 0; j < n_slice_elements; j += 1) {
           v = im[c];
-          new_data[c] = v;
-          s += v;
+          if (v < valid_range[0] || v > valid_range[1]) {
+            new_data[c] = 0.0;
+          }
+          else {
+            new_data[c] = v;
+            s += v;
+            if (v > x) {
+              x = v;
+            }
+            if (v < n) {
+              n = v;
+            }
+          }
           c += 1;
-          if (v > x) {
-            x = v;
-          }
-          if (v < n) {
-            n = v;
-          }
         }
       }
       else {

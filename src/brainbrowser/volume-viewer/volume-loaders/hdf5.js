@@ -52,21 +52,14 @@
     return typeof x !== 'undefined';
   }
 
+  function type_name(x) {
+    return x.constructor.name;
+  }
+
   function type_size(typ) {
     var sizes = [0, 1, 1, 2, 2, 4, 4, 4, 8, 0];
     if (typ >= type_enum.INT8 && typ < sizes.length) {
       return sizes[typ];
-    }
-    throw new Error('Unknown type ' + typ);
-  }
-
-  function type_name(typ) {
-    var names = [
-      '', 'Int8', 'UInt8', 'Int16', 'UInt16', 'Int32', 'UInt32',
-      'Float', 'Double', 'String'
-    ];
-    if (typ >= type_enum.INT8 && typ < names.length) {
-      return names[typ];
     }
     throw new Error('Unknown type ' + typ);
   }
@@ -102,13 +95,12 @@
       r.lnk_sym_lheap = 0;
       // permanent/global
       r.lnk_name = "";
-      r.lnk_attributes = [];
+      r.lnk_attributes = {};
       r.lnk_children = [];
       r.lnk_dat_array = undefined;
       r.lnk_type = -1;
       r.lnk_inflate = false;
       r.lnk_dims = [];
-      r.type_name = type_name;
       return r;
     }
 
@@ -1092,13 +1084,9 @@
         }
       }
 
-      var attr = {};
-
-      link.lnk_attributes.push(attr);
-
-      attr.att_name = get_string(nm_len);
+      var att_name = get_string(nm_len);
       if (debug) {
-        msg += " Name: " + attr.att_name;
+        msg += " Name: " + att_name;
         console.log(msg);
       }
       var val_type = hdf5_msg_datatype(dt_len);
@@ -1116,12 +1104,13 @@
       if (debug) {
         console.log("  attribute data size " + val_len + " " + tell());
       }
-      attr.att_type = val_type.typ_type;
-      if (attr.att_type === type_enum.STR) {
-        attr.att_value = get_string(val_len);
+      var att_value;
+      if (val_type.typ_type === type_enum.STR) {
+        att_value = get_string(val_len);
       } else {
-        attr.att_value = get_array(attr.att_type, val_len);
+        att_value = get_array(val_type.typ_type, val_len);
       }
+      link.lnk_attributes[att_name] = att_value;
     }
 
     function hdf5_msg_groupinfo() {
@@ -1576,7 +1565,7 @@
     }
     msg += link.lnk_name + (link.lnk_children.length ? "/" : "");
     if (link.lnk_type > 0) {
-      msg += ' ' + link.type_name(link.lnk_type);
+      msg += ' ' + type_name(link.lnk_dat_array);
       if (link.lnk_dims.length) {
         msg += '[' + link.lnk_dims.join(', ') + ']';
       }
@@ -1588,18 +1577,20 @@
     }
     console.log(msg);
 
-    link.lnk_attributes.forEach(function (attr) {
+    Object.getOwnPropertyNames(link.lnk_attributes).forEach(function (name) {
+      var value = link.lnk_attributes[name];
+
       msg = "";
       for (i = 0; i < level * 2 + 1; i += 1) {
         msg += " ";
       }
-      msg += link.lnk_name + ':' + attr.att_name + " " +
-        link.type_name(attr.att_type) + "[" + attr.att_value.length + "] ";
-      if (attr.att_type === type_enum.STR) {
-        msg += "'" + attr.att_value + "'";
+      msg += link.lnk_name + ':' + name + " " +
+        type_name(value) + "[" + value.length + "] ";
+      if (typeof value === "string") {
+        msg += JSON.stringify(value);
       } else {
-        msg += "{" + join(attr.att_value.slice(0, 16), ', ');
-        if (attr.att_value.length > 16) {
+        msg += "{" + join(value.slice(0, 16), ', ');
+        if (value.length > 16) {
           msg += ", ...";
         }
         msg += "}";
@@ -1626,12 +1617,9 @@
   }
 
   function find_attribute(link, name, level) {
-    var result = link.lnk_attributes.find( function (element) {
-      return (element.att_name === name);
-    });
-
+    var result = link.lnk_attributes[name];
     if (result)
-      return result.att_value;
+      return result;
 
     link.lnk_children.find( function (child ) {
       result = find_attribute( child, name, level + 1);
@@ -1710,7 +1698,7 @@
     var n_slice_dims = image.lnk_dims.length - image_min.lnk_dims.length;
 
     if (n_slice_dims < 1) {
-      throw new Error('Too few slice dimensions!');
+      throw new Error('Too few slice dimensions: ' + image.lnk_dims.length + " " + image_min.lnk_dims.length);
     }
 
     var n_slice_elements = 1;
@@ -1733,6 +1721,8 @@
     }
     var vrange;
     var rrange;
+    var vmin = valid_range[0];
+    var rmin;
     var j;
     var v;
     var is_float = type_is_flt(image.lnk_type);
@@ -1741,23 +1731,35 @@
         console.log(i + " " + im_min[i] + " " + im_max[i] + " " +
                     im[i * n_slice_elements]);
       }
-      vrange = (valid_range[1] - valid_range[0]);
-      rrange = (im_max[i] - im_min[i]);
-      for (j = 0; j < n_slice_elements; j += 1) {
-        if (is_float) {
+      if (is_float) {
+        for (j = 0; j < n_slice_elements; j += 1) {
           v = im[c];
+          new_data[c] = v;
+          s += v;
+          c += 1;
+          if (v > x) {
+            x = v;
+          }
+          if (v < n) {
+            n = v;
+          }
         }
-        else {
-          v = (im[c] - valid_range[0]) / vrange * rrange + im_min[i];
-        }
-        new_data[c] = v;
-        s += v;
-        c += 1;
-        if (v > x) {
-          x = v;
-        }
-        if (v < n) {
-          n = v;
+      }
+      else {
+        vrange = (valid_range[1] - valid_range[0]);
+        rrange = (im_max[i] - im_min[i]);
+        rmin = im_min[i];
+        for (j = 0; j < n_slice_elements; j += 1) {
+          v = (im[c] - vmin) / vrange * rrange + rmin;
+          new_data[c] = v;
+          s += v;
+          c += 1;
+          if (v > x) {
+            x = v;
+          }
+          if (v < n) {
+            n = v;
+          }
         }
       }
     }

@@ -35,7 +35,7 @@
 
     if (!description.header_file && description.raw_data_file) {
       BrainBrowser.loader.loadFromFile(description.raw_data_file, function(raw_data) {
-        var tmp = VolumeViewer.utils.hdf5_loader(raw_data);
+        var tmp = VolumeViewer.utils.hdf5Loader(raw_data);
         parseHeader(tmp.header_text, function(header) {
           createMincVolume(header, tmp.raw_data, callback);
         });

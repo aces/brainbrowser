@@ -1,38 +1,38 @@
 /*
-* BrainBrowser: Web-based Neurological Visualization Tools
-* (https://brainbrowser.cbrain.mcgill.ca)
-*
-* Copyright (C) 2016
-* The Royal Institution for the Advancement of Learning
-* McGill University
-*
-* This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Affero General Public License as
-* published by the Free Software Foundation, either version 3 of the
-* License, or (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU Affero General Public License for more details.
-*
-* You should have received a copy of the GNU Affero General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * BrainBrowser: Web-based Neurological Visualization Tools
+ * (https://brainbrowser.cbrain.mcgill.ca)
+ *
+ * Copyright (C) 2016
+ * The Royal Institution for the Advancement of Learning
+ * McGill University
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /*
-* Author: Robert D. Vincent (robert.d.vincent@mcgill.ca)
-*
-* Interprets a MINIMAL subset of the HDF5 format for the volume viewer. 
-* This is sufficient to parse most MINC 2.0 files, but may not handle
-* HDF5 from other sources!!
-* 
-* Relies on pako (https://github.com/nodeca/pako) to inflate
-* compressed data chunks.
-*
-* For details on the HDF5 format, see:
-* https://www.hdfgroup.org/HDF5/doc/H5.format.html
-*/
+ * Author: Robert D. Vincent (robert.d.vincent@mcgill.ca)
+ *
+ * Interprets a MINIMAL subset of the HDF5 format for the volume viewer.
+ * This is sufficient to parse most MINC 2.0 files, but may not handle
+ * HDF5 from other sources!!
+ *
+ * Relies on pako (https://github.com/nodeca/pako) to inflate
+ * compressed data chunks.
+ *
+ * For details on the HDF5 format, see:
+ * https://www.hdfgroup.org/HDF5/doc/H5.format.html
+ */
 (function () {
   'use strict';
   /** Internal type codes. These have nothing to do with HDF5. */
@@ -52,30 +52,31 @@
     return typeof x !== 'undefined';
   }
 
-  function type_name(x) {
-    if (typeof x === "undefined") {
+  function typeName(x) {
+    if (!defined(x)) {
       return "undefined";
     }
     return x.constructor.name;
   }
 
-  function type_size(typ) {
-    var sizes = [0, 1, 1, 2, 2, 4, 4, 4, 8, 0];
-    if (typ >= type_enum.INT8 && typ < sizes.length) {
-      return sizes[typ];
+  var type_sizes = [0, 1, 1, 2, 2, 4, 4, 4, 8, 0];
+
+  function typeSize(typ) {
+    if (typ >= type_enum.INT8 && typ < type_sizes.length) {
+      return type_sizes[typ];
     }
     throw new Error('Unknown type ' + typ);
   }
 
-  function type_is_flt(typ) {
+  function typeIsFloat(typ) {
     return (typ >= type_enum.FLT && typ <= type_enum.DBL);
   }
 
-  function hdf5_reader(abuf, debug) {
+  function hdf5Reader(abuf, debug) {
     /* 'global' variables. */
     var dv_offset = 0;
     var align = 8;
-    var littleEndian = true;
+    var little_endian = true;
     var continuation_queue = [];
     var dv = new DataView(abuf);
     var superblk = {};
@@ -87,7 +88,7 @@
      * 'link' objects,  which represent either an HDF5 group
      * or dataset here.
      */
-    function hdf5_int_link() {
+    function createLink() {
       var r = {};
       // internal/private
       r.lnk_hdr_offset = 0;
@@ -111,13 +112,13 @@
      * version 1 object header is actually relative to the start
      * of the header. So we update the start position of the
      * header here, so we can refer to it when calculating the
-     * alignment in check_alignment().
+     * alignment in checkAlignment().
      */
-    function start_alignment() {
+    function startAlignment() {
       start_offset = dv_offset;
     }
 
-    function check_alignment() {
+    function checkAlignment() {
       var tmp = dv_offset - start_offset;
       if ((tmp % align) !== 0) {
         var n = align - (tmp % align);
@@ -143,60 +144,60 @@
     }
 
     /* helper functions for access to our DataView. */
-    function get_u8() {
+    function getU8() {
       var v = dv.getUint8(dv_offset);
       dv_offset += 1;
       return v;
     }
-    function get_u16() {
-      var v = dv.getUint16(dv_offset, littleEndian);
+    function getU16() {
+      var v = dv.getUint16(dv_offset, little_endian);
       dv_offset += 2;
       return v;
     }
-    function get_u32() {
-      var v = dv.getUint32(dv_offset, littleEndian);
+    function getU32() {
+      var v = dv.getUint32(dv_offset, little_endian);
       dv_offset += 4;
       return v;
     }
-    function get_u64() {
-      var v = dv.getUint64(dv_offset, littleEndian);
+    function getU64() {
+      var v = dv.getUint64(dv_offset, little_endian);
       dv_offset += 8;
       return v;
     }
-    function get_f32() {
-      var v = dv.getFloat32(dv_offset, littleEndian);
+    function getF32() {
+      var v = dv.getFloat32(dv_offset, little_endian);
       dv_offset += 4;
       return v;
     }
-    function get_f64() {
-      var v = dv.getFloat64(dv_offset, littleEndian);
+    function getF64() {
+      var v = dv.getFloat64(dv_offset, little_endian);
       dv_offset += 8;
       return v;
     }
-    function get_offset(offsz) {
+    function getOffset(offsz) {
       var v = 0;
       offsz = offsz || superblk.offsz;
       if (offsz === 4) {
-        v = dv.getUint32(dv_offset, littleEndian);
+        v = dv.getUint32(dv_offset, little_endian);
       } else if (offsz === 8) {
-        v = dv.getUint64(dv_offset, littleEndian);
+        v = dv.getUint64(dv_offset, little_endian);
       } else {
         throw new Error('Unsupported value for offset size ' + offsz);
       }
       dv_offset += offsz;
       return v;
     }
-    function get_length() {
-      var v = dv.getUint64(dv_offset, littleEndian);
+    function getLength() {
+      var v = dv.getUint64(dv_offset, little_endian);
       dv_offset += superblk.lensz;
       return v;
     }
-    function get_string(length) {
+    function getString(length) {
       var r = "";
       var i;
       var c;
       for (i = 0; i < length; i += 1) {
-        c = get_u8();
+        c = getU8();
         if (c === 0) {
           dv_offset += (length - i - 1);
           break;
@@ -206,7 +207,7 @@
       return r;
     }
 
-    function get_array(typ, n_bytes, new_off) {
+    function getArray(typ, n_bytes, new_off) {
       var value;
       var n_values;
       var new_abuf;
@@ -228,7 +229,7 @@
           n_values = n_bytes / 2;
           value = new Int16Array(new_abuf);
           for (i = 0; i < n_values; i += 1) {
-            value[i] = get_u16();
+            value[i] = getU16();
           }
         } else {
           value = new Int16Array(abuf, dv_offset, n_bytes / 2);
@@ -241,7 +242,7 @@
           n_values = n_bytes / 2;
           value = new Uint16Array(new_abuf);
           for (i = 0; i < n_values; i += 1) {
-            value[i] = get_u16();
+            value[i] = getU16();
           }
         } else {
           value = new Uint16Array(abuf, dv_offset, n_bytes / 2);
@@ -254,7 +255,7 @@
           n_values = n_bytes / 4;
           value = new Int32Array(new_abuf);
           for (i = 0; i < n_values; i += 1) {
-            value[i] = get_u32();
+            value[i] = getU32();
           }
         } else {
           value = new Int32Array(abuf, dv_offset, n_bytes / 4);
@@ -267,7 +268,7 @@
           n_values = n_bytes / 4;
           value = new Uint32Array(new_abuf);
           for (i = 0; i < n_values; i += 1) {
-            value[i] = get_u32();
+            value[i] = getU32();
           }
         } else {
           value = new Uint32Array(abuf, dv_offset, n_bytes / 4);
@@ -280,7 +281,7 @@
           n_values = n_bytes / 4;
           value = new Float32Array(new_abuf);
           for (i = 0; i < n_values; i += 1) {
-            value[i] = get_f32();
+            value[i] = getF32();
           }
         } else {
           value = new Float32Array(abuf, dv_offset, n_bytes / 4);
@@ -293,7 +294,7 @@
           n_values = n_bytes / 8;
           value = new Float64Array(new_abuf);
           for (i = 0; i < n_values; i += 1) {
-            value[i] = get_f64();
+            value[i] = getF64();
           }
         } else {
           value = new Float64Array(abuf, dv_offset, n_bytes / 8);
@@ -301,7 +302,7 @@
         }
         break;
       default:
-        throw new Error('Bad type in get_array ' + typ);
+        throw new Error('Bad type in getArray ' + typ);
       }
       if (new_off) {
         dv_offset = spp;
@@ -310,20 +311,20 @@
     }
 
     /* Get a variably-sized integer from the DataView. */
-    function get_uxx(n) {
+    function getUXX(n) {
       var v;
       switch (n) {
       case 1:
         v = dv.getUint8(dv_offset);
         break;
       case 2:
-        v = dv.getUint16(dv_offset, littleEndian);
+        v = dv.getUint16(dv_offset, little_endian);
         break;
       case 4:
-        v = dv.getUint32(dv_offset, littleEndian);
+        v = dv.getUint32(dv_offset, little_endian);
         break;
       case 8:
-        v = dv.getUint64(dv_offset, littleEndian);
+        v = dv.getUint64(dv_offset, little_endian);
         break;
       default:
         throw new Error('Unsupported type length ' + n);
@@ -336,10 +337,10 @@
      * Note: this won't really quite work b/c Javascript doesn't
      * have support for 64-bit integers.
      */
-    dv.getUint64 = function (off, littleEndian) {
-      var l4 = dv.getUint32(off + 0, littleEndian);
-      var u4 = dv.getUint32(off + 4, littleEndian);
-      if (littleEndian) {
+    dv.getUint64 = function (off, little_endian) {
+      var l4 = dv.getUint32(off + 0, little_endian);
+      var u4 = dv.getUint32(off + 4, little_endian);
+      if (little_endian) {
         return (u4 << 32) + l4;
       } else {
         return (l4 << 32) + u4;
@@ -348,7 +349,7 @@
 
     /* Verify that the expected signature is found at this offset.
      */
-    function check_signature(str) {
+    function checkSignature(str) {
       var i;
       for (i = 0; i < str.length; i += 1) {
         if (dv.getUint8(dv_offset + i) !== str.charCodeAt(i)) {
@@ -359,48 +360,48 @@
       return true;
     }
 
-    function hdf5_sb() {
+    function hdf5Superblock() {
       var sb = {};
-      if (!check_signature("\u0089HDF\r\n\u001A\n")) {
+      if (!checkSignature("\u0089HDF\r\n\u001A\n")) {
         throw new Error('Bad magic string in HDF5');
       }
-      sb.sbver = get_u8();
+      sb.sbver = getU8();
       if (sb.sbver > 2) {
         throw new Error('Unsupported HDF5 superblock version ' + sb.sbver);
       }
       if (sb.sbver <= 1) {
-        sb.fsver = get_u8();
-        sb.rgver = get_u8();
+        sb.fsver = getU8();
+        sb.rgver = getU8();
         skip(1);            // reserved
-        sb.shver = get_u8();
-        sb.offsz = get_u8();
-        sb.lensz = get_u8();
+        sb.shver = getU8();
+        sb.offsz = getU8();
+        sb.lensz = getU8();
         skip(1);            // reserved
-        sb.gln_k = get_u16();
-        sb.gin_k = get_u16();
-        sb.cflags = get_u32();
+        sb.gln_k = getU16();
+        sb.gin_k = getU16();
+        sb.cflags = getU32();
         if (sb.sbver === 1) {
-          sb.isin_k = get_u16();
+          sb.isin_k = getU16();
           skip(2);        // reserved
         }
-        sb.base_addr = get_offset(sb.offsz);
-        sb.gfsi_addr = get_offset(sb.offsz);
-        sb.eof_addr = get_offset(sb.offsz);
-        sb.dib_addr = get_offset(sb.offsz);
-        sb.root_ln_offs = get_offset(sb.offsz);
-        sb.root_addr = get_offset(sb.offsz);
-        sb.root_cache_type = get_u32();
+        sb.base_addr = getOffset(sb.offsz);
+        sb.gfsi_addr = getOffset(sb.offsz);
+        sb.eof_addr = getOffset(sb.offsz);
+        sb.dib_addr = getOffset(sb.offsz);
+        sb.root_ln_offs = getOffset(sb.offsz);
+        sb.root_addr = getOffset(sb.offsz);
+        sb.root_cache_type = getU32();
         skip(4);
         skip(16);
       } else {
-        sb.offsz = get_u8();
-        sb.lensz = get_u8();
-        sb.cflags = get_u8();
-        sb.base_addr = get_offset(sb.offsz);
-        sb.ext_addr = get_offset(sb.offsz);
-        sb.eof_addr = get_offset(sb.offsz);
-        sb.root_addr = get_offset(sb.offsz);
-        sb.checksum = get_u32();
+        sb.offsz = getU8();
+        sb.lensz = getU8();
+        sb.cflags = getU8();
+        sb.base_addr = getOffset(sb.offsz);
+        sb.ext_addr = getOffset(sb.offsz);
+        sb.eof_addr = getOffset(sb.offsz);
+        sb.root_addr = getOffset(sb.offsz);
+        sb.checksum = getU32();
       }
       if (debug) {
         console.log("HDF5 SB " + sb.sbver + " " + sb.offsz + " " + sb.lensz + " " + sb.cflags);
@@ -409,35 +410,35 @@
     }
 
     /* read the v2 fractal heap header */
-    function hdf5_frhp() {
+    function hdf5FractalHeapHeader() {
       var fh = {};
-      if (!check_signature("FRHP")) {
+      if (!checkSignature("FRHP")) {
         throw new Error('Bad or missing FRHP signature');
       }
-      fh.ver = get_u8();
-      fh.idlen = get_u16();
-      fh.iof_el = get_u16();
-      fh.flags = get_u8();
-      fh.objmax = get_u32();
-      fh.objnid = get_length();
-      fh.objbta = get_offset();
-      fh.nf_blk = get_length();
-      fh.af_blk = get_offset();
-      fh.heap_total = get_length();
-      fh.heap_alloc = get_length();
-      fh.bai_offset = get_length();
-      fh.heap_nobj = get_length();
-      fh.heap_chuge = get_length();
-      fh.heap_nhuge = get_length();
-      fh.heap_ctiny = get_length();
-      fh.heap_ntiny = get_length();
-      fh.table_width = get_u16();
-      fh.start_blksz = get_length();
-      fh.max_blksz = get_length();
-      fh.max_heapsz = get_u16();
-      fh.rib_srows = get_u16();
-      fh.root_addr = get_offset();
-      fh.rib_crows = get_u16();
+      fh.ver = getU8();
+      fh.idlen = getU16();
+      fh.iof_el = getU16();
+      fh.flags = getU8();
+      fh.objmax = getU32();
+      fh.objnid = getLength();
+      fh.objbta = getOffset();
+      fh.nf_blk = getLength();
+      fh.af_blk = getOffset();
+      fh.heap_total = getLength();
+      fh.heap_alloc = getLength();
+      fh.bai_offset = getLength();
+      fh.heap_nobj = getLength();
+      fh.heap_chuge = getLength();
+      fh.heap_nhuge = getLength();
+      fh.heap_ctiny = getLength();
+      fh.heap_ntiny = getLength();
+      fh.table_width = getU16();
+      fh.start_blksz = getLength();
+      fh.max_blksz = getLength();
+      fh.max_heapsz = getU16();
+      fh.rib_srows = getU16();
+      fh.root_addr = getOffset();
+      fh.rib_crows = getU16();
       if (fh.iof_el > 0) {
         throw new Error("Filters present in fractal heap.");
       }
@@ -445,54 +446,59 @@
     }
 
     /** read the v2 btree header */
-    function hdf5_bthd() {
+    function hdf5V2BtreeHeader() {
       var bh = {};
-      if (!check_signature("BTHD")) {
+      if (!checkSignature("BTHD")) {
         throw new Error('Bad or missing BTHD signature');
       }
-      bh.ver = get_u8();
-      bh.type = get_u8();
-      bh.nodesz = get_u32();
-      bh.recsz = get_u16();
-      bh.depth = get_u16();
-      bh.splitp = get_u8();
-      bh.mergep = get_u8();
-      bh.root_addr = get_offset();
-      bh.root_nrec = get_u16();
-      bh.total_nrec = get_length();
-      bh.checksum = get_u32();
+      bh.ver = getU8();
+      bh.type = getU8();
+      bh.nodesz = getU32();
+      bh.recsz = getU16();
+      bh.depth = getU16();
+      bh.splitp = getU8();
+      bh.mergep = getU8();
+      bh.root_addr = getOffset();
+      bh.root_nrec = getU16();
+      bh.total_nrec = getLength();
+      bh.checksum = getU32();
       return bh;
     }
 
-    function msg_type_to_str(n) {
-      var names = [
-        "NIL", "Dataspace", "LinkInfo", "Datatype", "FillValue 1", "FillValue 2",
-        "Link", "ExternalFiles", "Layout", "BOGUS", "GroupInfo", "FilterPipeline",
-        "Attribute", "ObjectComment", "ObjectModTime 1", "SharedMsgTable",
-        "ObjHdrContinue", "SymbolTable", "ObjectModTime 2", "BtreeKValue",
-        "DriverInfo", "AttributeInfo", "ObjectRefCnt", "MESSAGE23", "FileSpaceInfo"
-      ];
+    /* Names of the various HDF5 messages.
+     * Note that MESSAGE23 appears to be illegal. All the rest are defined,
+     * although I've never encountered a BOGUS message!
+     */
+    var msg_names = [
+      "NIL", "Dataspace", "LinkInfo", "Datatype", "FillValue 1", "FillValue 2",
+      "Link", "ExternalFiles", "Layout", "BOGUS", "GroupInfo", "FilterPipeline",
+      "Attribute", "ObjectComment", "ObjectModTime 1", "SharedMsgTable",
+      "ObjHdrContinue", "SymbolTable", "ObjectModTime 2", "BtreeKValue",
+      "DriverInfo", "AttrInfo", "ObjectRefCnt", "MESSAGE23",
+      "FileSpaceInfo"
+    ];
 
-      if (n < names.length) {
-        return names[n];
+    function hdf5GetMsgName(n) {
+      if (n < msg_names.length) {
+        return msg_names[n];
       }
       throw new Error('Unknown message type ' + n + " " + tell());
     }
 
-    function hdf5_btree(link) {
+    function hdf5V1BtreeNode(link) {
       var i;
       var bt = {};
-      if (!check_signature("TREE")) {
+      if (!checkSignature("TREE")) {
         throw new Error('Bad TREE signature at ' + tell());
       }
 
       bt.keys = [];
 
-      bt.node_type = get_u8();
-      bt.node_level = get_u8();
-      bt.entries_used = get_u16();
-      bt.left_sibling = get_offset();
-      bt.right_sibling = get_offset();
+      bt.node_type = getU8();
+      bt.node_level = getU8();
+      bt.entries_used = getU16();
+      bt.left_sibling = getOffset();
+      bt.right_sibling = getOffset();
 
       if (debug) {
         console.log("BTREE type " + bt.node_type + " lvl " +
@@ -505,8 +511,8 @@
         // then its keys are single "length" value.
         for (i = 0; i < bt.entries_used; i += 1) {
           bt.keys[i] = {};
-          bt.keys[i].key_value = get_length();
-          bt.keys[i].child_address = get_offset();
+          bt.keys[i].key_value = getLength();
+          bt.keys[i].child_address = getOffset();
           if (debug) {
             console.log("  BTREE " + i + " key " +
                         bt.keys[i].key_value + " adr " +
@@ -528,13 +534,13 @@
         for (i = 0; i < bt.entries_used; i += 1) {
           bt.keys[i] = {};
           chunks[i] = {};
-          chunks[i].chunk_size = get_u32();
-          chunks[i].filter_mask = get_u32();
+          chunks[i].chunk_size = getU32();
+          chunks[i].filter_mask = getU32();
           chunks[i].chunk_offsets = [];
           for (j = 0; j < link.lnk_dims.length + 1; j += 1) {
-            chunks[i].chunk_offsets.push(get_u64());
+            chunks[i].chunk_offsets.push(getU64());
           }
-          bt.keys[i].child_address = get_offset();
+          bt.keys[i].child_address = getOffset();
           if (i < bt.entries_used) {
             if (debug) {
               console.log("  BTREE " + i +
@@ -545,11 +551,11 @@
           }
         }
         chunks[i] = {};
-        chunks[i].chunk_size = get_u32();
-        chunks[i].filter_mask = get_u32();
+        chunks[i].chunk_size = getU32();
+        chunks[i].filter_mask = getU32();
         chunks[i].chunk_offsets = [];
         for (j = 0; j < link.lnk_dims.length + 1; j += 1) {
-          chunks[i].chunk_offsets.push(get_u64());
+          chunks[i].chunk_offsets.push(getU64());
         }
 
         /* If we're at a leaf node, we have data to deal with.
@@ -609,7 +615,7 @@
             }
             else {
               /* no need to inflate data. */
-              dp = get_array(link.lnk_type, length, offset);
+              dp = getArray(link.lnk_type, length, offset);
               link.lnk_dat_array.set(dp, link.lnk_dat_used);
               link.lnk_dat_used += dp.length;
             }
@@ -617,22 +623,22 @@
         } else {
           for (i = 0; i < bt.entries_used; i += 1) {
             seek(bt.keys[i].child_address);
-            hdf5_btree(link);
+            hdf5V1BtreeNode(link);
           }
         }
       }
       return bt;
     }
 
-    function hdf5_snod(lh, link) {
-      if (!check_signature("SNOD")) {
+    function hdf5GroupSymbolTable(lh, link) {
+      if (!checkSignature("SNOD")) {
         throw new Error('Bad or missing SNOD signature');
       }
-      var ver = get_u8();
+      var ver = getU8();
       skip(1);
-      var n_sym = get_u16();
+      var n_sym = getU16();
       if (debug) {
-        console.log("hdf5_snod V" + ver + " #" + n_sym +
+        console.log("hdf5GroupSymbolTable V" + ver + " #" + n_sym +
                     " '" + link.lnk_name + "'");
       }
       var i;
@@ -642,13 +648,13 @@
       var child;
       var spp;
       for (i = 0; i < 2 * superblk.gln_k; i += 1) {
-        link_name_offset = get_offset();
-        ohdr_address = get_offset();
-        cache_type = get_u32();
+        link_name_offset = getOffset();
+        ohdr_address = getOffset();
+        cache_type = getU32();
         skip(20);
 
         if (i < n_sym) {
-          child = hdf5_int_link();
+          child = createLink();
           child.lnk_hdr_offset = ohdr_address;
           link.lnk_children.push(child);
           if (lh) {
@@ -658,7 +664,7 @@
             // the beginning of the data segment of the local
             // heap.
             seek(lh.lh_dseg_off + link_name_offset);
-            child.lnk_name = get_string(lh.lh_dseg_len);
+            child.lnk_name = getString(lh.lh_dseg_len);
             seek(spp);
           }
           if (debug) {
@@ -671,16 +677,16 @@
     }
 
     /** read a v1 local heap */
-    function hdf5_lheap() {
+    function hdf5LocalHeap() {
       var lh = {};
-      if (!check_signature("HEAP")) {
+      if (!checkSignature("HEAP")) {
         throw new Error('Bad or missing HEAP signature');
       }
-      lh.lh_ver = get_u8();
+      lh.lh_ver = getU8();
       skip(3);
-      lh.lh_dseg_len = get_length();
-      lh.lh_flst_len = get_length();
-      lh.lh_dseg_off = get_offset();
+      lh.lh_dseg_len = getLength();
+      lh.lh_flst_len = getLength();
+      lh.lh_dseg_off = getOffset();
       if (debug) {
         console.log("LHEAP V" + lh.lh_ver + " " + lh.lh_dseg_len + " " +
                     lh.lh_flst_len + " " + lh.lh_dseg_off);
@@ -688,11 +694,11 @@
       return lh;
     }
 
-    function hdf5_msg_dataspace(sz, link) {
+    function hdf5MsgDataspace(sz, link) {
       var cb;
-      var ver = get_u8();
-      var n_dim = get_u8();
-      var flag = get_u8();
+      var ver = getU8();
+      var n_dim = getU8();
+      var flag = getU8();
       if (ver <= 1) {
         skip(5);
       } else {
@@ -703,7 +709,7 @@
       var dlen = [];
       var i;
       for (i = 0; i < n_dim; i += 1) {
-        dlen[i] = get_length();
+        dlen[i] = getLength();
         n_items *= dlen[i];
       }
 
@@ -713,7 +719,7 @@
       if ((flag & 1) !== 0) {
         cb += n_dim * superblk.lensz;
         for (i = 0; i < n_dim; i += 1) {
-          dmax[i] = get_length();
+          dmax[i] = getLength();
         }
       }
 
@@ -721,10 +727,10 @@
       if ((flag & 2) !== 0) {
         cb += n_dim * superblk.lensz;
         for (i = 0; i < n_dim; i += 1) {
-          dind[i] = get_length();
+          dind[i] = getLength();
         }
       }
-      var msg = "hdf5_msg_dataspace V" + ver + " N" + n_dim + " F" + flag;
+      var msg = "hdf5MsgDataspace V" + ver + " N" + n_dim + " F" + flag;
       if (debug) {
         if (n_dim !== 0) {
           msg += "[" + dlen.join(', ') + "]";
@@ -740,19 +746,19 @@
       return n_items;
     }
 
-    function hdf5_msg_linkinfo() {
-      var ver = get_u8();
-      var flags = get_u8();
+    function hdf5MsgLinkInfo() {
+      var ver = getU8();
+      var flags = getU8();
       if ((flags & 1) !== 0) {
-        get_u64();          // max. creation index (IGNORE).
+        getU64();          // max. creation index (IGNORE).
       }
-      var fh_address = get_offset(); // fractal heap address
-      var bt_address = get_offset(); // v2 btree for name index
+      var fh_address = getOffset(); // fractal heap address
+      var bt_address = getOffset(); // v2 btree for name index
       if ((flags & 2) !== 0) {
-        get_offset();       // creation order index (IGNORE).
+        getOffset();       // creation order index (IGNORE).
       }
       if (debug) {
-        console.log("hdf5_msg_linkinfo V" + ver + " F" + flags +
+        console.log("hdf5MsgLinkInfo V" + ver + " F" + flags +
                     " FH " + fh_address + " BT " + bt_address);
       }
     }
@@ -770,7 +776,7 @@
       throw new Error('Unknown datatype class: ' + cls);
     }
 
-    function hdf5_msg_datatype(sz) {
+    function hdf5MsgDatatype(sz) {
       var type = {};
       var cb = 8;
       var msg = "";
@@ -782,18 +788,18 @@
       var mnt_sz;
       var exp_bias;
 
-      var cv = get_u8();
+      var cv = getU8();
       var ver = cv >> 4;
       var cls = cv & 15;
       var bf = [];
       var i;
       for (i = 0; i < 3; i += 1) {
-        bf[i] = get_u8();
+        bf[i] = getU8();
       }
-      var dt_size = get_u32();
+      var dt_size = getU32();
 
       if (debug) {
-        console.log("hdf5_msg_datatype V" + ver + " C" + cls +
+        console.log("hdf5MsgDatatype V" + ver + " C" + cls +
                     " " + dt_class_name(cls) +
                     " " + bf[0] + "." + bf[1] + "." + bf[2] +
                     " " + dt_size);
@@ -802,8 +808,8 @@
       switch (cls) {
       case 0:
         /* Fixed: bit 0 for byte order, bit 3 for signed */
-        bit_offs = get_u16();
-        bit_prec = get_u16();
+        bit_offs = getU16();
+        bit_prec = getU16();
         switch (dt_size) {
         case 4:
           type.typ_type = (bf[0] & 8) ? type_enum.INT32 : type_enum.UINT32;
@@ -841,13 +847,13 @@
             throw new Error('Reserved fp byte order: ' + bf[0]);
           }
         }
-        bit_offs = get_u16();
-        bit_prec = get_u16();
-        exp_loc = get_u8();
-        exp_sz = get_u8();
-        mnt_loc = get_u8();
-        mnt_sz = get_u8();
-        exp_bias = get_u32();
+        bit_offs = getU16();
+        bit_prec = getU16();
+        exp_loc = getU8();
+        exp_sz = getU8();
+        mnt_loc = getU8();
+        mnt_sz = getU8();
+        exp_bias = getU32();
         if (debug) {
           msg += (bit_offs + " " + bit_prec + " " + exp_loc + " " + exp_sz +
                   " " + mnt_loc + " " + mnt_sz + " " + exp_bias);
@@ -877,7 +883,7 @@
 
       case 2:
         /* bit 0 for byte order */
-        bit_prec = get_u16();
+        bit_prec = getU16();
         if (debug) {
           console.log(bit_prec);
         }
@@ -900,10 +906,10 @@
       return type;
     }
 
-    function hdf5_msg_layout(link) {
+    function hdf5MsgLayout(link) {
       var msg = "";
 
-      var ver = get_u8();
+      var ver = getU8();
       var cls;
       var n_dim;
       var cdsz;
@@ -914,14 +920,14 @@
       var elsz;
 
       if (ver === 1 || ver === 2) {
-        n_dim = get_u8();
-        cls = get_u8();
+        n_dim = getU8();
+        cls = getU8();
         skip(5);
         if (debug) {
-          msg += "hdf5_msg_layout V" + ver + " N" + n_dim + " C" + cls;
+          msg += "hdf5MsgLayout V" + ver + " N" + n_dim + " C" + cls;
         }
         if (cls === 1 || cls === 2) {
-          var addr = get_offset();
+          var addr = getOffset();
           if (debug) {
             msg += " A" + addr;
           }
@@ -930,7 +936,7 @@
 
         var n_items = 1;
         for (i = 0; i < n_dim; i += 1) {
-          dim[i] = get_u32();
+          dim[i] = getU32();
           n_items *= dim[i];
         }
 
@@ -939,53 +945,53 @@
         }
 
         if (cls === 2) {
-          elsz = get_u32();
+          elsz = getU32();
           if (debug) {
             msg += " E" + elsz;
           }
         }
         if (cls === 0) {
-          cdsz = get_u32();
+          cdsz = getU32();
           if (debug) {
             msg += "(" + cdsz + ")";
           }
           link.lnk_dat_offset = tell();
           link.lnk_dat_length = cdsz;
         } else if (cls === 1) {
-          link.lnk_dat_length = type_size(link.lnk_type) * n_items;
+          link.lnk_dat_length = typeSize(link.lnk_type) * n_items;
         }
       } else if (ver === 3) {
-        cls = get_u8();
-        msg = "hdf5_msg_layout V" + ver + " C" + cls;
+        cls = getU8();
+        msg = "hdf5MsgLayout V" + ver + " C" + cls;
 
         if (cls === 0) {
-          cdsz = get_u16();
+          cdsz = getU16();
           if (debug) {
             msg += "(" + cdsz + ")";
           }
           link.lnk_dat_offset = tell();
           link.lnk_dat_length = cdsz;
         } else if (cls === 1) {
-          dtadr = get_offset();
-          dtsz = get_length();
+          dtadr = getOffset();
+          dtsz = getLength();
           if (debug) {
             msg += "(" + dtadr + ", " + dtsz + ")";
           }
           link.lnk_dat_offset = dtadr;
           link.lnk_dat_length = dtsz;
         } else if (cls === 2) {
-          n_dim = get_u8();
-          dtadr = get_offset();
+          n_dim = getU8();
+          dtadr = getOffset();
           link.lnk_dat_offset = dtadr;
           link.lnk_ck_sz = 1;
           for (i = 0; i < n_dim - 1; i += 1) {
-            dim[i] = get_u32();
+            dim[i] = getU32();
             link.lnk_ck_sz *= dim[i];
           }
           if (debug) {
             msg += "(N" + n_dim + ", A" + dtadr + " [" + dim.join(',') + "]";
           }
-          elsz = get_u32();
+          elsz = getU32();
           link.lnk_ck_sz *= elsz;
           if (debug) {
             msg += " E" + elsz;
@@ -1004,11 +1010,11 @@
      * Read a filter pipeline message. At the moment we _only_ handle
      * deflate/inflate.
      */
-    function hdf5_msg_pipeline(link) {
-      var ver = get_u8();
-      var nflt = get_u8();
+    function hdf5MsgPipeline(link) {
+      var ver = getU8();
+      var nflt = getU8();
 
-      var msg = "hdf5_msg_pipeline V" + ver + " N" + nflt;
+      var msg = "hdf5MsgPipeline V" + ver + " N" + nflt;
       if (ver === 1) {
         skip(6);
       }
@@ -1023,7 +1029,7 @@
       var flags;
       var ncdv;
       for (i = 0; i < nflt; i += 1) {
-        fiv = get_u16();
+        fiv = getU16();
         if (fiv !== 1) {             /* deflate */
           throw new Error("Unimplemented HDF5 filter " + fiv);
         }
@@ -1034,13 +1040,13 @@
           link.lnk_inflate = true;
         }
         if (ver === 1 || fiv > 256) {
-          nlen = get_u16();
+          nlen = getU16();
         } else {
           nlen = 0;
         }
 
-        flags = get_u16();
-        ncdv = get_u16();
+        flags = getU16();
+        ncdv = getU16();
         if ((ncdv & 1) !== 0) {
           ncdv += 1;
         }
@@ -1056,20 +1062,20 @@
       }
     }
 
-    function hdf5_msg_attribute(sz, link) {
-      var ver = get_u8();
-      var msg = "hdf5_msg_attribute V" + ver + " " + sz + ": ";
-      var flags = get_u8();
-      var nm_len = get_u16();
-      var dt_len = get_u16();
-      var ds_len = get_u16();
+    function hdf5MsgAttribute(sz, link) {
+      var ver = getU8();
+      var msg = "hdf5MsgAttribute V" + ver + " " + sz + ": ";
+      var flags = getU8();
+      var nm_len = getU16();
+      var dt_len = getU16();
+      var ds_len = getU16();
 
       if ((flags & 3) !== 0) {
         throw new Error('Shared dataspaces and datatypes are not supported.');
       }
 
       if (ver === 3) {
-        var cset = get_u8();
+        var cset = getU8();
         if (debug) {
           msg += (cset === 0) ? "ASCII" : "UTF-8";
         }
@@ -1087,13 +1093,13 @@
         }
       }
 
-      var att_name = get_string(nm_len);
+      var att_name = getString(nm_len);
       if (debug) {
         msg += " Name: " + att_name;
         console.log(msg);
       }
-      var val_type = hdf5_msg_datatype(dt_len);
-      var n_items = hdf5_msg_dataspace(ds_len);
+      var val_type = hdf5MsgDatatype(dt_len);
+      var n_items = hdf5MsgDataspace(ds_len);
       var val_len = 0;
       if (sz > 0) {
         if (ver < 3) {
@@ -1109,172 +1115,172 @@
       }
       var att_value;
       if (val_type.typ_type === type_enum.STR) {
-        att_value = get_string(val_len);
+        att_value = getString(val_len);
       } else {
-        att_value = get_array(val_type.typ_type, val_len);
+        att_value = getArray(val_type.typ_type, val_len);
       }
       link.lnk_attributes[att_name] = att_value;
     }
 
-    function hdf5_msg_groupinfo() {
+    function hdf5MsgGroupInfo() {
       var n_ent = 4;
       var n_lnl = 8;
-      var ver = get_u8();
-      var flags = get_u8();
+      var ver = getU8();
+      var flags = getU8();
       if ((flags & 1) !== 0) {
-        get_u16();          // link phase change: max compact value (IGNORE)
-        get_u16();          // link phase cange: max dense value (IGNORE)
+        getU16();          // link phase change: max compact value (IGNORE)
+        getU16();          // link phase cange: max dense value (IGNORE)
       }
       if ((flags & 2) !== 0) {
-        n_ent = get_u16();
-        n_lnl = get_u16();
+        n_ent = getU16();
+        n_lnl = getU16();
       }
       if (debug) {
-        console.log("hdf5_msg_groupinfo V" + ver + " F" + flags + " ENT " + n_ent + " LNL " + n_lnl);
+        console.log("hdf5MsgGroupInfo V" + ver + " F" + flags + " ENT " + n_ent + " LNL " + n_lnl);
       }
     }
 
-    function hdf5_msg_link(link) {
-      var ver = get_u8();
+    function hdf5MsgLink(link) {
+      var ver = getU8();
       var ltype = 0;
       if (ver !== 1) {
         throw new Error("Bad link message version " + ver);
       }
-      var flags = get_u8();
+      var flags = getU8();
       if ((flags & 8) !== 0) {
-        ltype = get_u8();
+        ltype = getU8();
       }
       if ((flags & 4) !== 0) {
-        get_u64();          // creation order (IGNORE)
+        getU64();               // creation order (IGNORE)
       }
       if ((flags & 16) !== 0) {
-        get_u8();           // link name character set (IGNORE)
+        getU8();                // link name character set (IGNORE)
       }
       var cb = 1 << (flags & 3);
-      var lnsz = get_uxx(cb);
+      var lnsz = getUXX(cb);
 
-      var child = hdf5_int_link();
+      var child = createLink();
 
-      child.lnk_name = get_string(lnsz);
+      child.lnk_name = getString(lnsz);
 
       if ((flags & 8) === 0) {
-        child.lnk_hdr_offset = get_offset();
+        child.lnk_hdr_offset = getOffset();
       }
 
       if (debug) {
-        console.log("hdf5_msg_link V" + ver + " F" + flags + " T" + ltype +
+        console.log("hdf5MsgLink V" + ver + " F" + flags + " T" + ltype +
                     " NM " + child.lnk_name + " OF " + child.lnk_hdr_offset);
       }
       link.lnk_children.push(child);
     }
 
-    function hdf5_fhdb(fh, link) {
-      if (!check_signature("FHDB")) {
+    function hdf5FractalHeapDirectBlock(fh, link) {
+      if (!checkSignature("FHDB")) {
         throw new Error("Bad or missing FHDB signature");
       }
-      var ver = get_u8();
+      var ver = getU8();
       if (ver !== 0) {
         throw new Error('Bad FHDB version: ' + ver);
       }
-      get_offset();           // heap header address (IGNORE)
+      getOffset();           // heap header address (IGNORE)
       var cb = Math.ceil(fh.max_heapsz / 8.0);
       skip(cb);               // block offset (IGNORE)
       if ((fh.flags & 2) !== 0) {
-        get_u32();          // checksum (IGNORE)
+        getU32();          // checksum (IGNORE)
       }
 
       var i;
       for (i = 0; i < fh.heap_nobj; i += 1) {
-        hdf5_msg_attribute(-1, link);
+        hdf5MsgAttribute(-1, link);
       }
     }
 
-    function hdf5_msg_attrinfo(link) {
-      var ver = get_u8();
+    function hdf5MsgAttrInfo(link) {
+      var ver = getU8();
       if (ver !== 0) {
         throw new Error('Bad attribute information message version: ' + ver);
       }
 
-      var flags = get_u8();
+      var flags = getU8();
 
       if ((flags & 1) !== 0) {
-        get_u16();          // maximum creation index (IGNORE)
+        getU16();          // maximum creation index (IGNORE)
       }
-      var fh_addr = get_offset();
-      var bt_addr = get_offset();
+      var fh_addr = getOffset();
+      var bt_addr = getOffset();
       if ((flags & 2) !== 0) {
-        get_offset();       // attribute creation order (IGNORE)
+        getOffset();       // attribute creation order (IGNORE)
       }
 
       if (debug) {
-        console.log("hdf5_msg_attrinfo V" + ver + " F" + flags + " HP " + fh_addr +
+        console.log("hdf5MsgAttrInfo V" + ver + " F" + flags + " HP " + fh_addr +
                     " AN " + bt_addr);
       }
 
       var spp = tell();
       if (fh_addr < superblk.eof_addr) {
         seek(fh_addr);
-        var fh = hdf5_frhp();
+        var fh = hdf5FractalHeapHeader();
         seek(fh.root_addr);
 
-        hdf5_fhdb(fh, link);
+        hdf5FractalHeapDirectBlock(fh, link);
       }
       if (bt_addr < superblk.eof_addr) {
         seek(bt_addr);
-        hdf5_bthd();
+        hdf5V2BtreeHeader();
       }
       seek(spp);
     }
 
-    function hdf5_process_message(msg, link) {
+    function hdf5ProcessMessage(msg, link) {
       var cq_new = {};
       var val_type;
 
       switch (msg.hm_type) {
       case 1:
-        hdf5_msg_dataspace(msg.hm_size, link);
+        hdf5MsgDataspace(msg.hm_size, link);
         break;
       case 2:
-        hdf5_msg_linkinfo();
+        hdf5MsgLinkInfo();
         break;
       case 3:
-        val_type = hdf5_msg_datatype(msg.hm_size);
+        val_type = hdf5MsgDatatype(msg.hm_size);
         if (link) {
           link.lnk_type = val_type.typ_type;
         }
         break;
       case 6:
-        hdf5_msg_link(link);
+        hdf5MsgLink(link);
         break;
       case 8:
-        hdf5_msg_layout(link);
+        hdf5MsgLayout(link);
         break;
       case 10:
-        hdf5_msg_groupinfo();
+        hdf5MsgGroupInfo();
         break;
       case 11:
-        hdf5_msg_pipeline(link);
+        hdf5MsgPipeline(link);
         break;
       case 12:
-        hdf5_msg_attribute(msg.hm_size, link);
+        hdf5MsgAttribute(msg.hm_size, link);
         break;
       case 16:
-        cq_new.cq_off = get_offset();
-        cq_new.cq_len = get_length();
+        cq_new.cq_off = getOffset();
+        cq_new.cq_len = getLength();
         continuation_queue.push(cq_new);
         if (debug) {
-          console.log("hdf5_msg_objhdrcontinue " + cq_new.cq_off + " " + cq_new.cq_len);
+          console.log("hdf5MsgObjHdrContinue " + cq_new.cq_off + " " + cq_new.cq_len);
         }
         break;
       case 17: // SymbolTable
-        link.lnk_sym_btree = get_offset();
-        link.lnk_sym_lheap = get_offset();
+        link.lnk_sym_btree = getOffset();
+        link.lnk_sym_lheap = getOffset();
         if (debug) {
-          console.log("hdf5_msg_symboltable " + link.lnk_sym_btree + " " + link.lnk_sym_lheap);
+          console.log("hdf5MsgSymbolTable " + link.lnk_sym_btree + " " + link.lnk_sym_lheap);
         }
         break;
       case 21:
-        hdf5_msg_attrinfo(link);
+        hdf5MsgAttrInfo(link);
         break;
       case 0:
       case 4:
@@ -1293,35 +1299,35 @@
     }
 
     /** read the v2 object header */
-    function hdf5_ohdr2(link) {
-      if (!check_signature("OHDR")) {
+    function hdf5V2ObjectHeader(link) {
+      if (!checkSignature("OHDR")) {
         throw new Error('Bad or missing OHDR signature');
       }
 
-      var ver = get_u8();
-      var flags = get_u8();
+      var ver = getU8();
+      var flags = getU8();
 
       if ((flags & 0x20) !== 0) {
-        get_u32();          // access time (IGNORE)
-        get_u32();          // modify time (IGNORE)
-        get_u32();          // change time (IGNORE)
-        get_u32();          // birth time (IGNORE)
+        getU32();          // access time (IGNORE)
+        getU32();          // modify time (IGNORE)
+        getU32();          // change time (IGNORE)
+        getU32();          // birth time (IGNORE)
       }
 
       if ((flags & 0x10) !== 0) {
-        get_u16(); // maximum number of compact attributes (IGNORE)
-        get_u16(); // maximum number of dense attributes (IGNORE)
+        getU16(); // maximum number of compact attributes (IGNORE)
+        getU16(); // maximum number of dense attributes (IGNORE)
       }
 
       var cb = 1 << (flags & 3);
-      var ck0_size = get_uxx(cb);
+      var ck0_size = getUXX(cb);
 
       var msg_num = 0;
       var msg_offs = 0;
       var msg_bytes = ck0_size;
 
       if (debug) {
-        console.log("hdf5_ohdr2 V" + ver + " F" + flags + " HS" + ck0_size);
+        console.log("hdf5V2ObjectHeader V" + ver + " F" + flags + " HS" + ck0_size);
       }
 
       var hmsg;
@@ -1331,17 +1337,20 @@
       while (true) {
         while (msg_bytes - msg_offs >= 8) {
           hmsg = {};
-          hmsg.hm_type = get_u8();
-          hmsg.hm_size = get_u16();
-          hmsg.hm_flags = get_u8();
+          hmsg.hm_type = getU8();
+          hmsg.hm_size = getU16();
+          hmsg.hm_flags = getU8();
           if (debug) {
-            console.log("  msg" + msg_num + " F" + hmsg.hm_flags + " T " + hmsg.hm_type + " S " + hmsg.hm_size + " (" + msg_offs + "/" + msg_bytes + ") " + msg_type_to_str(hmsg.hm_type));
+            console.log("  msg" + msg_num + " F" + hmsg.hm_flags + " T " +
+                        hmsg.hm_type + " S " + hmsg.hm_size +
+                        " (" + msg_offs + "/" + msg_bytes + ") " +
+                        hdf5GetMsgName(hmsg.hm_type));
           }
           if ((flags & 0x04) !== 0) {
-            hmsg.hm_corder = get_u16();
+            hmsg.hm_corder = getU16();
           }
           spp = tell();
-          hdf5_process_message(hmsg, link);
+          hdf5ProcessMessage(hmsg, link);
           seek(spp + hmsg.hm_size);
 
           msg_offs += hmsg.hm_size + 4;
@@ -1353,7 +1362,7 @@
           skip(msg_bytes - (msg_offs + 4));
         }
 
-        get_u32();          // checksum (IGNORE)
+        getU32();          // checksum (IGNORE)
 
         if (continuation_queue.length !== 0) {
           cq_head = continuation_queue.shift();
@@ -1363,7 +1372,7 @@
           if (debug) {
             console.log('continuing with ' + cq_head.cq_len + ' bytes at ' + tell());
           }
-          if (!check_signature("OCHK")) {
+          if (!checkSignature("OCHK")) {
             throw new Error("Bad v2 object continuation");
           }
         } else {
@@ -1377,18 +1386,18 @@
           console.log(link_num + " " + child.lnk_hdr_offset + " " +
                       child.lnk_name);
         }
-        if (check_signature("OHDR")) {
+        if (checkSignature("OHDR")) {
           seek(child.lnk_hdr_offset);
-          hdf5_ohdr2(child);
+          hdf5V2ObjectHeader(child);
         }
         else {
           seek(child.lnk_hdr_offset);
-          hdf5_ohdr1(child);
+          hdf5V1ObjectHeader(child);
         }
       });
     }
 
-    function load_data(link) {
+    function loadData(link) {
       if (link.lnk_ck_sz !== 0) {
         seek(link.lnk_dat_offset);
 
@@ -1397,7 +1406,7 @@
         for (i = 0; i < link.lnk_dims.length; i += 1) {
           n_bytes *= link.lnk_dims[i];
         }
-        n_bytes *= type_size(link.lnk_type);
+        n_bytes *= typeSize(link.lnk_type);
         if (debug) {
           console.log('allocating ' + n_bytes + ' bytes');
         }
@@ -1431,15 +1440,14 @@
         default:
           throw new Error('Illegal type: ' + link.lnk_type);
         }
-        hdf5_btree(link);
+        hdf5V1BtreeNode(link);
       } else {
         if (link.lnk_dat_offset > 0 && link.lnk_dat_offset < superblk.eof_addr) {
           if (debug) {
             console.log('loading ' + link.lnk_dat_length + ' bytes from ' + link.lnk_dat_offset + ' to ' + link.lnk_name);
           }
-          link.lnk_dat_array = get_array(link.lnk_type,
-                                         link.lnk_dat_length,
-                                         link.lnk_dat_offset);
+          link.lnk_dat_array = getArray(link.lnk_type, link.lnk_dat_length,
+                                        link.lnk_dat_offset);
         } else {
           if (debug) {
             console.log('data not present for /' + link.lnk_name + '/');
@@ -1448,23 +1456,23 @@
       }
 
       link.lnk_children.forEach(function (child) {
-        load_data(child);
+        loadData(child);
       });
     }
 
-    function hdf5_ohdr1(link) {
+    function hdf5V1ObjectHeader(link) {
       var oh = {};
-      start_alignment();
-      oh.oh_ver = get_u8();
+      startAlignment();
+      oh.oh_ver = getU8();
       skip(1);                // reserved
-      oh.oh_n_msgs = get_u16();
-      oh.oh_ref_cnt = get_u32();
-      oh.oh_hdr_sz = get_u32();
+      oh.oh_n_msgs = getU16();
+      oh.oh_ref_cnt = getU32();
+      oh.oh_hdr_sz = getU32();
       if (oh.oh_ver !== 1) {
         throw new Error("Bad v1 object header version: " + oh.oh_ver);
       }
       if (debug) {
-        console.log("hdf5_ohdr1 V" + oh.oh_ver +
+        console.log("hdf5V1ObjectHeader V" + oh.oh_ver +
                     " #M " + oh.oh_n_msgs +
                     " RC " + oh.oh_ref_cnt +
                     " HS " + oh.oh_hdr_sz);
@@ -1485,18 +1493,18 @@
             if (debug) {
               console.log('continuing with ' + msg_bytes + ' bytes at ' + tell());
             }
-            start_alignment();
+            startAlignment();
           } else {
             break;
           }
         }
 
-        check_alignment();
+        checkAlignment();
 
         hmsg = {};
-        hmsg.hm_type = get_u16();
-        hmsg.hm_size = get_u16();
-        hmsg.hm_flags = get_u8();
+        hmsg.hm_type = getU16();
+        hmsg.hm_size = getU16();
+        hmsg.hm_flags = getU8();
 
         if ((hmsg.hm_size % 8) !== 0) {
           throw new Error('Size is not 8-byte aligned: ' + hmsg.hm_size);
@@ -1508,50 +1516,58 @@
                       " F " + hmsg.hm_flags +
                       " T " + hmsg.hm_type +
                       " S " + hmsg.hm_size +
-                      "(" + msg_bytes + ") " + msg_type_to_str(hmsg.hm_type));
+                      "(" + msg_bytes + ") " + hdf5GetMsgName(hmsg.hm_type));
         }
 
         spp = tell();
-        hdf5_process_message(hmsg, link);
+        hdf5ProcessMessage(hmsg, link);
         seek(spp + hmsg.hm_size); // skip whole message.
       }
 
       if (link.lnk_sym_btree !== 0 && link.lnk_sym_lheap !== 0) {
         seek(link.lnk_sym_btree);
-        var bt = hdf5_btree();
+        var bt = hdf5V1BtreeNode();
         seek(link.lnk_sym_lheap);
-        var lh = hdf5_lheap();
+        var lh = hdf5LocalHeap();
         var i;
         for (i = 0; i < bt.entries_used; i += 1) {
           seek(bt.keys[i].child_address);
-          if (check_signature("SNOD")) {
+          if (checkSignature("SNOD")) {
             seek(bt.keys[i].child_address);
-            hdf5_snod(lh, link);
+            hdf5GroupSymbolTable(lh, link);
           } else {
             seek(bt.keys[i].child_address);
-            hdf5_ohdr1(link);
+            hdf5V1ObjectHeader(link);
           }
         }
 
         link.lnk_children.forEach(function (child) {
           seek(child.lnk_hdr_offset);
-          hdf5_ohdr1(child);
+          hdf5V1ObjectHeader(child);
         });
       }
     }
 
-    var root = hdf5_int_link();
+    var root = createLink();
 
-    superblk = hdf5_sb();
+    superblk = hdf5Superblock();
     seek(superblk.root_addr);
     if (superblk.sbver <= 1) {
-      hdf5_ohdr1(root);
+      hdf5V1ObjectHeader(root);
     } else {
-      hdf5_ohdr2(root);
+      hdf5V2ObjectHeader(root);
     }
-    load_data(root);
+    loadData(root);
     return root;
   }
+
+
+  /**
+   * The remaining code after this point is not truly HDF5 specific -
+   * it's mostly about converting the MINC file into the form
+   * BrainBrowser is able to use. Therefore it is used for both HDF5
+   * and NetCDF files.
+   */
 
   /** why is this needed?? */
   function join(array, string) {
@@ -1567,7 +1583,7 @@
     return result;
   }
 
-  function print_hierarchy(link, level) {
+  function printStructure(link, level) {
     var i;
     var msg = "";
     for (i = 0; i < level * 2; i += 1) {
@@ -1575,7 +1591,7 @@
     }
     msg += link.lnk_name + (link.lnk_children.length ? "/" : "");
     if (link.lnk_type > 0) {
-      msg += ' ' + type_name(link.lnk_dat_array);
+      msg += ' ' + typeName(link.lnk_dat_array);
       if (link.lnk_dims.length) {
         msg += '[' + link.lnk_dims.join(', ') + ']';
       }
@@ -1595,7 +1611,7 @@
         msg += " ";
       }
       msg += link.lnk_name + ':' + name + " " +
-        type_name(value) + "[" + value.length + "] ";
+        typeName(value) + "[" + value.length + "] ";
       if (typeof value === "string") {
         msg += JSON.stringify(value);
       } else {
@@ -1609,112 +1625,53 @@
     });
 
     link.lnk_children.forEach(function (child) {
-      print_hierarchy(child, level + 1);
+      printStructure(child, level + 1);
     });
   }
 
-  function find_dataset(link, name, level) {
+  function findDataset(link, name, level) {
     var result;
     if (link.lnk_name === name && link.lnk_type > 0) {
       result = link;
     } else {
       link.lnk_children.find( function( child ) {
-        result = find_dataset(child, name, level + 1);
+        result = findDataset(child, name, level + 1);
         return defined(result);
       });
     }
     return result;
   }
 
-  function find_attribute(link, name, level) {
+  function findAttribute(link, name, level) {
     var result = link.lnk_attributes[name];
     if (result)
       return result;
 
     link.lnk_children.find( function (child ) {
-      result = find_attribute( child, name, level + 1);
+      result = findAttribute( child, name, level + 1);
       return defined(result);
     });
     return result;
   }
 
-  var VolumeViewer = BrainBrowser.VolumeViewer;
-
-  VolumeViewer.utils.hdf5_loader = function (data) {
-    var debug = false;
-
-    var root;
-    try {
-      root = hdf5_reader(data, debug);
-    } catch (e) {
-      if (debug) {
-        console.log(e);
-        console.log("Trying as NetCDF...");
-      }
-      root = VolumeViewer.utils.netcdf_reader(data, debug);
-    }
-    print_hierarchy(root, 0);
-
-    var image = find_dataset(root, 'image');
-    if (!defined(image)) {
-      throw new Error("Can't find image dataset.");
-    }
-    var valid_range = find_attribute(image, 'valid_range', 0);
-    /* If no valid_range is found, we substitute our own. */
-    if (!defined(valid_range)) {
-      var min_val;
-      var max_val;
-      switch (image.lnk_type) {
-      case type_enum.INT8:
-        min_val = -(1 << 7);
-        max_val = (1 << 7) - 1;
-        break;
-      case type_enum.UINT8:
-        min_val = 0;
-        max_val = (1 << 8) - 1;
-        break;
-      case type_enum.INT16:
-        min_val = -(1 << 15);
-        max_val = (1 << 15) - 1;
-        break;
-      case type_enum.UINT16:
-        min_val = 0;
-        max_val = (1 << 16) - 1;
-        break;
-      case type_enum.INT32:
-        min_val = -(1 << 31);
-        max_val = (1 << 31) - 1;
-        break;
-      case type_enum.UINT32:
-        min_val = 0;
-        max_val = (1 << 32) - 1;
-        break;
-      }
-      valid_range = Float32Array.of(min_val, max_val);
-    }
-    var image_min = find_dataset(root, 'image-min');
-    if (!defined(image_min)) {
-      image_min = {
-        lnk_dat_array: Float32Array.of(0),
-        lnk_dims: []
-      };
-    }
-    var image_max = find_dataset(root, 'image-max');
-    if (!defined(image_max)) {
-      image_max = {
-        lnk_dat_array: Float32Array.of(1),
-        lnk_dims: []
-      };
-    }
+  /**
+   * Convert the data from voxel to real range. This returns a new
+   * buffer that contains the "real" voxel values. It does less work
+   * for floating-point volumes, since they don't need scaling.
+   *
+   * For debugging/testing purposes, also gathers basic voxel statistics,
+   * for comparison against mincstats.
+   */
+  function scaleVoxels(image, image_min, image_max, valid_range, debug) {
     var new_abuf = new ArrayBuffer(image.lnk_dat_array.length *
                                    Float32Array.BYTES_PER_ELEMENT);
     var new_data = new Float32Array(new_abuf);
     var n_slice_dims = image.lnk_dims.length - image_min.lnk_dims.length;
 
     if (n_slice_dims < 1) {
-      throw new Error('Too few slice dimensions: ' + image.lnk_dims.length + " " + image_min.lnk_dims.length);
+      throw new Error("Too few slice dimensions: " + image.lnk_dims.length +
+                      " " + image_min.lnk_dims.length);
     }
-
     var n_slice_elements = 1;
     var i;
     for (i = image_min.lnk_dims.length; i < image.lnk_dims.length; i += 1) {
@@ -1731,7 +1688,7 @@
     var im_max = image_max.lnk_dat_array;
     var im_min = image_min.lnk_dat_array;
     if (debug) {
-      console.log('valid range is ' + valid_range[0] + " to " + valid_range[1]);
+      console.log("valid range is " + valid_range[0] + " to " + valid_range[1]);
     }
     var vrange;
     var rrange;
@@ -1739,7 +1696,7 @@
     var rmin;
     var j;
     var v;
-    var is_float = type_is_flt(image.lnk_type);
+    var is_float = typeIsFloat(image.lnk_type);
     for (i = 0; i < image_min.lnk_dat_array.length; i += 1) {
       if (debug) {
         console.log(i + " " + im_min[i] + " " + im_max[i] + " " +
@@ -1782,47 +1739,122 @@
         }
       }
     }
-    console.log('Sum: ' + s);
-    console.log('Mean: ' + s / c);
-    console.log('Min: ' + n);
-    console.log('Max: ' + x);
+
+    console.log("Sum: " + s);
+    console.log("Mean: " + s / c);
+    console.log("Min: " + n);
+    console.log("Max: " + x);
+
+    return new_abuf;
+  }
+
+  var VolumeViewer = BrainBrowser.VolumeViewer;
+
+  VolumeViewer.utils.hdf5Loader = function (data) {
+    var debug = false;
+
+    var root;
+    try {
+      root = hdf5Reader(data, debug);
+    } catch (e) {
+      if (debug) {
+        console.log(e);
+        console.log("Trying as NetCDF...");
+      }
+      root = VolumeViewer.utils.netcdfReader(data, debug);
+    }
+    printStructure(root, 0);
+
+    var image = findDataset(root, "image");
+    if (!defined(image)) {
+      throw new Error("Can't find image dataset.");
+    }
+    var valid_range = findAttribute(image, "valid_range", 0);
+    /* If no valid_range is found, we substitute our own. */
+    if (!defined(valid_range)) {
+      var min_val;
+      var max_val;
+      switch (image.lnk_type) {
+      case type_enum.INT8:
+        min_val = -(1 << 7);
+        max_val = (1 << 7) - 1;
+        break;
+      case type_enum.UINT8:
+        min_val = 0;
+        max_val = (1 << 8) - 1;
+        break;
+      case type_enum.INT16:
+        min_val = -(1 << 15);
+        max_val = (1 << 15) - 1;
+        break;
+      case type_enum.UINT16:
+        min_val = 0;
+        max_val = (1 << 16) - 1;
+        break;
+      case type_enum.INT32:
+        min_val = -(1 << 31);
+        max_val = (1 << 31) - 1;
+        break;
+      case type_enum.UINT32:
+        min_val = 0;
+        max_val = (1 << 32) - 1;
+        break;
+      }
+      valid_range = Float32Array.of(min_val, max_val);
+    }
+    var image_min = findDataset(root, "image-min");
+    if (!defined(image_min)) {
+      image_min = {
+        lnk_dat_array: Float32Array.of(0),
+        lnk_dims: []
+      };
+    }
+    var image_max = findDataset(root, "image-max");
+    if (!defined(image_max)) {
+      image_max = {
+        lnk_dat_array: Float32Array.of(1),
+        lnk_dims: []
+      };
+    }
+
+    var new_abuf = scaleVoxels(image, image_min, image_max, valid_range, debug);
 
     /* Create the header expected by the existing brainbrowser code.
      */
     var header = {};
-    var tmp = find_attribute(image, 'dimorder', 0);
+    var tmp = findAttribute(image, "dimorder", 0);
     if (typeof tmp !== 'string') {
       throw new Error("Can't find dimension order.");
     }
     header.order = tmp.split(',');
 
     header.order.forEach(function(dimname) {
-      var dim = find_dataset(root, dimname);
+      var dim = findDataset(root, dimname);
       if (!defined(dim)) {
         throw new Error("Can't find dimension variable " + dimname);
       }
-      
+
       header[dimname] = {};
 
-      tmp = find_attribute(dim, "step", 0);
+      tmp = findAttribute(dim, "step", 0);
       if (!defined(tmp)) {
         throw new Error("Can't find step for " + dimname);
       }
       header[dimname].step = tmp[0];
 
-      tmp = find_attribute(dim, "start", 0);
+      tmp = findAttribute(dim, "start", 0);
       if (!defined(tmp)) {
         throw new Error("Can't find start for " + dimname);
       }
       header[dimname].start = tmp[0];
 
-      tmp = find_attribute(dim, "length", 0);
+      tmp = findAttribute(dim, "length", 0);
       if (!defined(tmp)) {
         throw new Error("Can't find length for " + dimname);
       }
       header[dimname].space_length = tmp[0];
 
-      tmp = find_attribute(dim, "direction_cosines", 0);
+      tmp = findAttribute(dim, "direction_cosines", 0);
       if (defined(tmp)) {
         // why is the bizarre call to slice needed?? it seems to work, though!
         header[dimname].direction_cosines = Array.prototype.slice.call(tmp);

@@ -1,8 +1,9 @@
 {
   "name": "brainbrowser",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "license": "GNU Affero GPL 3.0",
   "devDependencies": {
+    "bower": "~1.7.9",
     "grunt": "~0.4.1",
     "grunt-contrib-jshint": "~0.6.4",
     "grunt-contrib-uglify": "~0.2.4",

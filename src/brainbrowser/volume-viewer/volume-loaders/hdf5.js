@@ -91,20 +91,21 @@
     function createLink() {
       var r = {};
       // internal/private
-      r.lnk_hdr_offset = 0;
-      r.lnk_dat_offset = 0;
-      r.lnk_dat_length = 0;
-      r.lnk_ck_sz = 0;
-      r.lnk_sym_btree = 0;
-      r.lnk_sym_lheap = 0;
+      r.hdr_offset = 0;         // offset to object header.
+      r.data_offset = 0;        // offset to actual data.
+      r.data_length = 0;        // length of data.
+      r.n_filled = 0;           // counts elements written to array
+      r.chunk_size = 0;         // size of chunks
+      r.sym_btree = 0;          // offset of symbol table btree
+      r.sym_lheap = 0;          // offset of symbol table local heap
       // permanent/global
-      r.lnk_name = "";
-      r.lnk_attributes = {};
-      r.lnk_children = [];
-      r.lnk_dat_array = undefined;
-      r.lnk_type = -1;
-      r.lnk_inflate = false;
-      r.lnk_dims = [];
+      r.name = "";              // name of this group or dataset.
+      r.attributes = {};        // indexed by attribute name.
+      r.children = [];          // not associative for now.
+      r.array = undefined;      // actual data, if dataset.
+      r.type = -1;              // type of data.
+      r.inflate = false;        // true if need to inflate (gzip).
+      r.dims = [];              // dimension sizes.
       return r;
     }
 
@@ -537,7 +538,7 @@
           chunks[i].chunk_size = getU32();
           chunks[i].filter_mask = getU32();
           chunks[i].chunk_offsets = [];
-          for (j = 0; j < link.lnk_dims.length + 1; j += 1) {
+          for (j = 0; j < link.dims.length + 1; j += 1) {
             chunks[i].chunk_offsets.push(getU64());
           }
           bt.keys[i].child_address = getOffset();
@@ -554,7 +555,7 @@
         chunks[i].chunk_size = getU32();
         chunks[i].filter_mask = getU32();
         chunks[i].chunk_offsets = [];
-        for (j = 0; j < link.lnk_dims.length + 1; j += 1) {
+        for (j = 0; j < link.dims.length + 1; j += 1) {
           chunks[i].chunk_offsets.push(getU64());
         }
 
@@ -571,10 +572,10 @@
             length = chunks[i].chunk_size;
             offset = bt.keys[i].child_address;
 
-            if (link.lnk_inflate) {
+            if (link.inflate) {
               sp = new Uint8Array(abuf, offset, length);
               dp = pako.inflate(sp);
-              switch (link.lnk_type) {
+              switch (link.type) {
               case type_enum.INT8:
                 dp = new Int8Array(dp.buffer);
                 break;
@@ -600,24 +601,22 @@
                 dp = new Float64Array(dp.buffer);
                 break;
               default:
-                throw new Error('Unknown type code ' + link.lnk_type);
+                throw new Error('Unknown type code ' + link.type);
               }
-              if (link.lnk_dat_array.length - link.lnk_dat_used <
-                  dp.length) {
-                dp = dp.subarray(0, link.lnk_dat_array.length -
-                                 link.lnk_dat_used);
+              if (link.array.length - link.n_filled < dp.length) {
+                dp = dp.subarray(0, link.array.length - link.n_filled);
               }
-              link.lnk_dat_array.set(dp, link.lnk_dat_used);
-              link.lnk_dat_used += dp.length;
+              link.array.set(dp, link.n_filled);
+              link.n_filled += dp.length;
               if (debug) {
-                console.log(link.lnk_name + " " + sp.length + " " + dp.length + " " + link.lnk_dat_used + "/" + link.lnk_dat_array.length);
+                console.log(link.name + " " + sp.length + " " + dp.length + " " + link.n_filled + "/" + link.array.length);
               }
             }
             else {
               /* no need to inflate data. */
-              dp = getArray(link.lnk_type, length, offset);
-              link.lnk_dat_array.set(dp, link.lnk_dat_used);
-              link.lnk_dat_used += dp.length;
+              dp = getArray(link.type, length, offset);
+              link.array.set(dp, link.n_filled);
+              link.n_filled += dp.length;
             }
           }
         } else {
@@ -639,7 +638,7 @@
       var n_sym = getU16();
       if (debug) {
         console.log("hdf5GroupSymbolTable V" + ver + " #" + n_sym +
-                    " '" + link.lnk_name + "'");
+                    " '" + link.name + "'");
       }
       var i;
       var link_name_offset;
@@ -655,8 +654,7 @@
 
         if (i < n_sym) {
           child = createLink();
-          child.lnk_hdr_offset = ohdr_address;
-          link.lnk_children.push(child);
+          child.hdr_offset = ohdr_address;
           if (lh) {
             spp = tell();
             // The link name is a zero-terminated string
@@ -664,14 +662,15 @@
             // the beginning of the data segment of the local
             // heap.
             seek(lh.lh_dseg_off + link_name_offset);
-            child.lnk_name = getString(lh.lh_dseg_len);
+            child.name = getString(lh.lh_dseg_len);
             seek(spp);
           }
           if (debug) {
             console.log("    " + i + " O " + link_name_offset + " A " +
                         ohdr_address + " T " + cache_type + " '" +
-                        child.lnk_name + "'");
+                        child.name + "'");
           }
+          link.children.push(child);
         }
       }
     }
@@ -741,7 +740,7 @@
         skip(sz - cb);
       }
       if (link) {
-        link.lnk_dims = dlen;
+        link.dims = dlen;
       }
       return n_items;
     }
@@ -931,7 +930,7 @@
           if (debug) {
             msg += " A" + addr;
           }
-          link.lnk_dat_offset = addr;
+          link.data_offset = addr;
         }
 
         var n_items = 1;
@@ -955,10 +954,10 @@
           if (debug) {
             msg += "(" + cdsz + ")";
           }
-          link.lnk_dat_offset = tell();
-          link.lnk_dat_length = cdsz;
+          link.data_offset = tell();
+          link.data_length = cdsz;
         } else if (cls === 1) {
-          link.lnk_dat_length = typeSize(link.lnk_type) * n_items;
+          link.data_length = typeSize(link.type) * n_items;
         }
       } else if (ver === 3) {
         cls = getU8();
@@ -969,30 +968,30 @@
           if (debug) {
             msg += "(" + cdsz + ")";
           }
-          link.lnk_dat_offset = tell();
-          link.lnk_dat_length = cdsz;
+          link.data_offset = tell();
+          link.data_length = cdsz;
         } else if (cls === 1) {
           dtadr = getOffset();
           dtsz = getLength();
           if (debug) {
             msg += "(" + dtadr + ", " + dtsz + ")";
           }
-          link.lnk_dat_offset = dtadr;
-          link.lnk_dat_length = dtsz;
+          link.data_offset = dtadr;
+          link.data_length = dtsz;
         } else if (cls === 2) {
           n_dim = getU8();
           dtadr = getOffset();
-          link.lnk_dat_offset = dtadr;
-          link.lnk_ck_sz = 1;
+          link.data_offset = dtadr;
+          link.chunk_size = 1;
           for (i = 0; i < n_dim - 1; i += 1) {
             dim[i] = getU32();
-            link.lnk_ck_sz *= dim[i];
+            link.chunk_size *= dim[i];
           }
           if (debug) {
             msg += "(N" + n_dim + ", A" + dtadr + " [" + dim.join(',') + "]";
           }
           elsz = getU32();
-          link.lnk_ck_sz *= elsz;
+          link.chunk_size *= elsz;
           if (debug) {
             msg += " E" + elsz;
           }
@@ -1037,7 +1036,7 @@
           if (typeof pako !== 'object') {
             throw new Error('Need pako to inflate data.');
           }
-          link.lnk_inflate = true;
+          link.inflate = true;
         }
         if (ver === 1 || fiv > 256) {
           nlen = getU16();
@@ -1119,7 +1118,7 @@
       } else {
         att_value = getArray(val_type.typ_type, val_len);
       }
-      link.lnk_attributes[att_name] = att_value;
+      link.attributes[att_name] = att_value;
     }
 
     function hdf5MsgGroupInfo() {
@@ -1161,17 +1160,17 @@
 
       var child = createLink();
 
-      child.lnk_name = getString(lnsz);
+      child.name = getString(lnsz);
 
       if ((flags & 8) === 0) {
-        child.lnk_hdr_offset = getOffset();
+        child.hdr_offset = getOffset();
       }
 
       if (debug) {
         console.log("hdf5MsgLink V" + ver + " F" + flags + " T" + ltype +
-                    " NM " + child.lnk_name + " OF " + child.lnk_hdr_offset);
+                    " NM " + child.name + " OF " + child.hdr_offset);
       }
-      link.lnk_children.push(child);
+      link.children.push(child);
     }
 
     function hdf5FractalHeapDirectBlock(fh, link) {
@@ -1246,7 +1245,7 @@
       case 3:
         val_type = hdf5MsgDatatype(msg.hm_size);
         if (link) {
-          link.lnk_type = val_type.typ_type;
+          link.type = val_type.typ_type;
         }
         break;
       case 6:
@@ -1273,10 +1272,10 @@
         }
         break;
       case 17: // SymbolTable
-        link.lnk_sym_btree = getOffset();
-        link.lnk_sym_lheap = getOffset();
+        link.sym_btree = getOffset();
+        link.sym_lheap = getOffset();
         if (debug) {
-          console.log("hdf5MsgSymbolTable " + link.lnk_sym_btree + " " + link.lnk_sym_lheap);
+          console.log("hdf5MsgSymbolTable " + link.sym_btree + " " + link.sym_lheap);
         }
         break;
       case 21:
@@ -1380,82 +1379,81 @@
         }
       }
 
-      link.lnk_children.forEach(function (child, link_num) {
-        seek(child.lnk_hdr_offset);
+      link.children.forEach(function (child, link_num) {
+        seek(child.hdr_offset);
         if (debug) {
-          console.log(link_num + " " + child.lnk_hdr_offset + " " +
-                      child.lnk_name);
+          console.log(link_num + " " + child.hdr_offset + " " + child.name);
         }
         if (checkSignature("OHDR")) {
-          seek(child.lnk_hdr_offset);
+          seek(child.hdr_offset);
           hdf5V2ObjectHeader(child);
         }
         else {
-          seek(child.lnk_hdr_offset);
+          seek(child.hdr_offset);
           hdf5V1ObjectHeader(child);
         }
       });
     }
 
     function loadData(link) {
-      if (link.lnk_ck_sz !== 0) {
-        seek(link.lnk_dat_offset);
+      if (link.chunk_size !== 0) {
+        seek(link.data_offset);
 
         var n_bytes = 1;
         var i;
-        for (i = 0; i < link.lnk_dims.length; i += 1) {
-          n_bytes *= link.lnk_dims[i];
+        for (i = 0; i < link.dims.length; i += 1) {
+          n_bytes *= link.dims[i];
         }
-        n_bytes *= typeSize(link.lnk_type);
+        n_bytes *= typeSize(link.type);
         if (debug) {
           console.log('allocating ' + n_bytes + ' bytes');
         }
         var ab = new ArrayBuffer(n_bytes);
-        link.lnk_dat_used = 0;
-        switch (link.lnk_type) {
+        link.n_filled = 0;
+        switch (link.type) {
         case type_enum.INT8:
-          link.lnk_dat_array = new Int8Array(ab);
+          link.array = new Int8Array(ab);
           break;
         case type_enum.UINT8:
-          link.lnk_dat_array = new Uint8Array(ab);
+          link.array = new Uint8Array(ab);
           break;
         case type_enum.INT16:
-          link.lnk_dat_array = new Int16Array(ab);
+          link.array = new Int16Array(ab);
           break;
         case type_enum.UINT16:
-          link.lnk_dat_array = new Uint16Array(ab);
+          link.array = new Uint16Array(ab);
           break;
         case type_enum.INT32:
-          link.lnk_dat_array = new Int32Array(ab);
+          link.array = new Int32Array(ab);
           break;
         case type_enum.UINT32:
-          link.lnk_dat_array = new Uint32Array(ab);
+          link.array = new Uint32Array(ab);
           break;
         case type_enum.FLT:
-          link.lnk_dat_array = new Float32Array(ab);
+          link.array = new Float32Array(ab);
           break;
         case type_enum.DBL:
-          link.lnk_dat_array = new Float64Array(ab);
+          link.array = new Float64Array(ab);
           break;
         default:
-          throw new Error('Illegal type: ' + link.lnk_type);
+          throw new Error('Illegal type: ' + link.type);
         }
         hdf5V1BtreeNode(link);
       } else {
-        if (link.lnk_dat_offset > 0 && link.lnk_dat_offset < superblk.eof_addr) {
+        if (link.data_offset > 0 && link.data_offset < superblk.eof_addr) {
           if (debug) {
-            console.log('loading ' + link.lnk_dat_length + ' bytes from ' + link.lnk_dat_offset + ' to ' + link.lnk_name);
+            console.log('loading ' + link.data_length + ' bytes from ' + link.data_offset + ' to ' + link.name);
           }
-          link.lnk_dat_array = getArray(link.lnk_type, link.lnk_dat_length,
-                                        link.lnk_dat_offset);
+          link.array = getArray(link.type, link.data_length,
+                                     link.data_offset);
         } else {
           if (debug) {
-            console.log('data not present for /' + link.lnk_name + '/');
+            console.log('data not present for /' + link.name + '/');
           }
         }
       }
 
-      link.lnk_children.forEach(function (child) {
+      link.children.forEach(function (child) {
         loadData(child);
       });
     }
@@ -1524,10 +1522,10 @@
         seek(spp + hmsg.hm_size); // skip whole message.
       }
 
-      if (link.lnk_sym_btree !== 0 && link.lnk_sym_lheap !== 0) {
-        seek(link.lnk_sym_btree);
+      if (link.sym_btree !== 0 && link.sym_lheap !== 0) {
+        seek(link.sym_btree);
         var bt = hdf5V1BtreeNode();
-        seek(link.lnk_sym_lheap);
+        seek(link.sym_lheap);
         var lh = hdf5LocalHeap();
         var i;
         for (i = 0; i < bt.entries_used; i += 1) {
@@ -1541,8 +1539,8 @@
           }
         }
 
-        link.lnk_children.forEach(function (child) {
-          seek(child.lnk_hdr_offset);
+        link.children.forEach(function (child) {
+          seek(child.hdr_offset);
           hdf5V1ObjectHeader(child);
         });
       }
@@ -1589,28 +1587,28 @@
     for (i = 0; i < level * 2; i += 1) {
       msg += " ";
     }
-    msg += link.lnk_name + (link.lnk_children.length ? "/" : "");
-    if (link.lnk_type > 0) {
-      msg += ' ' + typeName(link.lnk_dat_array);
-      if (link.lnk_dims.length) {
-        msg += '[' + link.lnk_dims.join(', ') + ']';
+    msg += link.name + (link.children.length ? "/" : "");
+    if (link.type > 0) {
+      msg += ' ' + typeName(link.array);
+      if (link.dims.length) {
+        msg += '[' + link.dims.join(', ') + ']';
       }
-      if (link.lnk_dat_array) {
-        msg += ":" + link.lnk_dat_array.length;
+      if (link.array) {
+        msg += ":" + link.array.length;
       } else {
         msg += " NULL";
       }
     }
     console.log(msg);
 
-    Object.getOwnPropertyNames(link.lnk_attributes).forEach(function (name) {
-      var value = link.lnk_attributes[name];
+    Object.keys(link.attributes).forEach(function (name) {
+      var value = link.attributes[name];
 
       msg = "";
       for (i = 0; i < level * 2 + 1; i += 1) {
         msg += " ";
       }
-      msg += link.lnk_name + ':' + name + " " +
+      msg += link.name + ':' + name + " " +
         typeName(value) + "[" + value.length + "] ";
       if (typeof value === "string") {
         msg += JSON.stringify(value);
@@ -1624,17 +1622,17 @@
       console.log(msg);
     });
 
-    link.lnk_children.forEach(function (child) {
+    link.children.forEach(function (child) {
       printStructure(child, level + 1);
     });
   }
 
   function findDataset(link, name, level) {
     var result;
-    if (link.lnk_name === name && link.lnk_type > 0) {
+    if (link.name === name && link.type > 0) {
       result = link;
     } else {
-      link.lnk_children.find( function( child ) {
+      link.children.find( function( child ) {
         result = findDataset(child, name, level + 1);
         return defined(result);
       });
@@ -1643,11 +1641,11 @@
   }
 
   function findAttribute(link, name, level) {
-    var result = link.lnk_attributes[name];
+    var result = link.attributes[name];
     if (result)
       return result;
 
-    link.lnk_children.find( function (child ) {
+    link.children.find( function (child ) {
       result = findAttribute( child, name, level + 1);
       return defined(result);
     });
@@ -1663,19 +1661,19 @@
    * for comparison against mincstats.
    */
   function scaleVoxels(image, image_min, image_max, valid_range, debug) {
-    var new_abuf = new ArrayBuffer(image.lnk_dat_array.length *
+    var new_abuf = new ArrayBuffer(image.array.length *
                                    Float32Array.BYTES_PER_ELEMENT);
     var new_data = new Float32Array(new_abuf);
-    var n_slice_dims = image.lnk_dims.length - image_min.lnk_dims.length;
+    var n_slice_dims = image.dims.length - image_min.dims.length;
 
     if (n_slice_dims < 1) {
-      throw new Error("Too few slice dimensions: " + image.lnk_dims.length +
-                      " " + image_min.lnk_dims.length);
+      throw new Error("Too few slice dimensions: " + image.dims.length +
+                      " " + image_min.dims.length);
     }
     var n_slice_elements = 1;
     var i;
-    for (i = image_min.lnk_dims.length; i < image.lnk_dims.length; i += 1) {
-      n_slice_elements *= image.lnk_dims[i];
+    for (i = image_min.dims.length; i < image.dims.length; i += 1) {
+      n_slice_elements *= image.dims[i];
     }
     if (debug) {
       console.log(n_slice_elements + " voxels in slice.");
@@ -1684,9 +1682,9 @@
     var c = 0;
     var x = -Number.MAX_VALUE;
     var n = Number.MAX_VALUE;
-    var im = image.lnk_dat_array;
-    var im_max = image_max.lnk_dat_array;
-    var im_min = image_min.lnk_dat_array;
+    var im = image.array;
+    var im_max = image_max.array;
+    var im_min = image_min.array;
     if (debug) {
       console.log("valid range is " + valid_range[0] + " to " + valid_range[1]);
     }
@@ -1696,8 +1694,8 @@
     var rmin;
     var j;
     var v;
-    var is_float = typeIsFloat(image.lnk_type);
-    for (i = 0; i < image_min.lnk_dat_array.length; i += 1) {
+    var is_float = typeIsFloat(image.type);
+    for (i = 0; i < image_min.array.length; i += 1) {
       if (debug) {
         console.log(i + " " + im_min[i] + " " + im_max[i] + " " +
                     im[i * n_slice_elements]);
@@ -1748,6 +1746,37 @@
     return new_abuf;
   }
 
+  /* A volume is an RGB volume if all three are true:
+   * 1. The voxel type is unsigned byte.
+   * 2. It has a vector_dimension in the last (fastest-varying) position.
+   * 3. The vector dimension has length 3.
+   */
+  function isRgbVolume(header, image) {
+    var order = header.order;
+    return (image.array.constructor.name === 'Uint8Array' &&
+            order.length > 0 &&
+            order[order.length - 1] === "vector_dimension" &&
+            header.vector_dimension.space_length === 3);
+  }
+
+  /* This function copies the RGB voxels to the destination buffer.
+   * Essentially we just convert from 24 to 32 bits per voxel.
+   */
+  function rgbVoxels(image) {
+    var im = image.array;
+    var n = im.length;
+    var new_abuf = new ArrayBuffer(n / 3 * 4);
+    var new_byte = new Uint8Array(new_abuf);
+    var i, j = 0;
+    for (i = 0; i < n; i += 3) {
+      new_byte[j+0] = im[i+0];
+      new_byte[j+1] = im[i+1];
+      new_byte[j+2] = im[i+2];
+      new_byte[j+3] = 255;
+      j += 4;
+    }
+    return new_abuf;
+  }
   var VolumeViewer = BrainBrowser.VolumeViewer;
 
   VolumeViewer.utils.hdf5Loader = function (data) {
@@ -1774,7 +1803,7 @@
     if (!defined(valid_range)) {
       var min_val;
       var max_val;
-      switch (image.lnk_type) {
+      switch (image.type) {
       case type_enum.INT8:
         min_val = -(1 << 7);
         max_val = (1 << 7) - 1;
@@ -1805,19 +1834,17 @@
     var image_min = findDataset(root, "image-min");
     if (!defined(image_min)) {
       image_min = {
-        lnk_dat_array: Float32Array.of(0),
-        lnk_dims: []
+        array: Float32Array.of(0),
+        dims: []
       };
     }
     var image_max = findDataset(root, "image-max");
     if (!defined(image_max)) {
       image_max = {
-        lnk_dat_array: Float32Array.of(1),
-        lnk_dims: []
+        array: Float32Array.of(1),
+        dims: []
       };
     }
-
-    var new_abuf = scaleVoxels(image, image_min, image_max, valid_range, debug);
 
     /* Create the header expected by the existing brainbrowser code.
      */
@@ -1859,8 +1886,19 @@
         // why is the bizarre call to slice needed?? it seems to work, though!
         header[dimname].direction_cosines = Array.prototype.slice.call(tmp);
       }
-      header.datatype = 'float32';
     });
+
+    var new_abuf;
+
+    if (isRgbVolume(header, image)) {
+      header.order.pop();
+      header.datatype = 'rgb8';
+      new_abuf = rgbVoxels(image);
+    }
+    else {
+      header.datatype = 'float32';
+      new_abuf = scaleVoxels(image, image_min, image_max, valid_range, debug);
+    }
 
     return { header_text: JSON.stringify(header),
              raw_data: new_abuf};

@@ -234,13 +234,19 @@
         var source_image = image_creation_context.createImageData(slice.width, slice.height);
         var target_image = image_creation_context.createImageData(target_width, target_height);
 
-        color_map.mapColors(slice.data, {
-          min: volume.intensity_min,
-          max: volume.intensity_max,
-          contrast: contrast,
-          brightness: brightness,
-          destination: source_image.data
-        });
+        if (volume.header.datatype === 'rgb8') {
+          var tmp = new Uint8ClampedArray(slice.data.buffer);
+          source_image.data.set(tmp, 0);
+        }
+        else {
+          color_map.mapColors(slice.data, {
+            min: volume.intensity_min,
+            max: volume.intensity_max,
+            contrast: contrast,
+            brightness: brightness,
+            destination: source_image.data
+          });
+        }
 
         target_image.data.set(
           VolumeViewer.utils.nearestNeighbor(
@@ -421,6 +427,7 @@
       native_data = new Uint16Array(raw_data);
       break;
     case 'uint32':
+    case 'rgb8':
       native_data = new Uint32Array(raw_data);
       break;
     default:

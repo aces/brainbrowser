@@ -46,11 +46,42 @@
 
   var type_sizes = [0, 1, 1, 2, 4, 4, 8];
 
+  /* Returns the size in bytes for the given type.
+   */
   function typeSize(typ) {
     if (typ >= type_enum.BYTE && typ < type_sizes.length) {
       return type_sizes[typ];
     }
     throw 'Unknown type ' + typ;
+  }
+
+  /* This function collects up all of the MINC-specific processing
+   * we do in this library. We should figure out a way to abstract
+   * it out completely.
+   */
+  function mincify(link, dimids, file_dimensions) {
+    var my_dim = file_dimensions.find(function (dim) {
+      return link.name === dim.name;
+    });
+    if (my_dim) {
+      var tmp = new Int32Array(new ArrayBuffer(4));
+      tmp[0] = my_dim.length;
+      link.attributes.length = tmp;
+    }
+
+    var dimorder = "";
+    var i;
+    var dimid;
+    for (i = 0; i < dimids.length; i++) {
+      dimid = dimids[i];
+      if (dimorder.length > 0) {
+        dimorder += ",";
+      }
+      dimorder += file_dimensions[dimid].name;
+    }
+    if (dimorder.length > 0) {
+      link.attributes.dimorder = dimorder;
+    }
   }
 
   var VolumeViewer = BrainBrowser.VolumeViewer;
@@ -70,15 +101,15 @@
     function createLink() {
       return {
         // internal/private
-        lnk_dat_offset: 0,
-        lnk_dat_length: 0,
+        begin: 0,
+        vsize: 0,
         // permanent/global
-        lnk_name: "",
-        lnk_attributes: {},
-        lnk_children: [],
-        lnk_dat_array: undefined,
-        lnk_type: -1,
-        lnk_dims: [],
+        name: "",
+        attributes: {},
+        children: [],
+        array: undefined,
+        type: -1,
+        dims: [],
       };
     }
 
@@ -214,9 +245,6 @@
       var namelen = getU32();
       var dimname = getString(pad(namelen));
       var dimlen = getU32();
-      if (dimlen === 0) {
-        throw new Error("Record dimension not implemented.");
-      }
       file_dimensions.push({ name: dimname, length: dimlen });
     }
 
@@ -227,7 +255,7 @@
     }
 
     /** Read a NetCDF attribute from the buffer.
-     * The attribute will be saved in the lnk_attributes array of
+     * The attribute will be saved in the attributes array of
      * the link.
      */
     function attribute(link) {
@@ -237,7 +265,7 @@
       var nelems = getU32();
       var value = getArray(nc_type, typeSize(nc_type) * nelems);
 
-      link.lnk_attributes[name] = value;
+      link.attributes[name] = value;
     }
 
     /** Read a tagged list consisting of NetCDF attributes.
@@ -247,7 +275,7 @@
     }
 
     /** Read a NetCDF variable from the buffer.
-     * A new "link" object will be created and added to the lnk_children
+     * A new "link" object will be created and added to the children
      * of the parent.
      *
      * Two non-obvious extensions: 1. The automatic creation
@@ -262,9 +290,10 @@
       var name = getString(pad(namelen));
       var ndims = getU32();
       var dims = [];
+      var dimids = [];
       var dimid;
       var child = createLink();
-      var dimorder = "";
+      var is_record = false;
 
       /* Get the dimension id's associated with this variable. */
       for (i = 0; i < ndims; i++) {
@@ -272,13 +301,11 @@
         if (dimid < 0 || dimid >= file_dimensions.length) {
           throw new Error("Illegal dimension id: " + dimid);
         }
+        dimids.push(dimid);
         dims.push(file_dimensions[dimid].length);
-
-        /* Mock up the dimorder attribute for this variable. */
-        if (dimorder.length > 0) {
-          dimorder += ",";
+        if (dims[i] === 0) {
+          is_record = true;
         }
-        dimorder += file_dimensions[dimid].name;
       }
 
       attributes(child);
@@ -286,38 +313,90 @@
       var vsize = getU32();      // size in bytes
       var begin = getU32();      // offset in file
 
-      child.lnk_name = name;
-      child.lnk_type = nc_type;
-      child.lnk_dims = dims;
-      child.lnk_dat_length = vsize;
-      child.lnk_dat_offset = begin;
-      parent.lnk_children.push(child);
+      child.name = name;
+      child.type = nc_type;
+      child.dims = dims;
+      child.vsize = vsize;
+      child.begin = begin;
+      parent.children.push(child);
 
-      /** See if this is a dimension variable.
-       */
-      var my_dim = file_dimensions.find(function (dim) {
-        return child.lnk_name === dim.name;
-      });
-      if (my_dim) {
-        var tmp = new Int32Array(new ArrayBuffer(4));
-        tmp[0] = my_dim.length;
-        child.lnk_attributes.length = tmp;
+      if (is_record) {
+        var abuf = new ArrayBuffer(vsize * numrec);
+        recvar.push(child);
+        switch (nc_type) {
+        case type_enum.BYTE:
+          child.array = new Uint8Array(abuf);
+          break;
+        case type_enum.CHAR:
+          child.array = [];
+          break;
+        case type_enum.SHORT:
+          child.array = new Int16Array(abuf);
+          break;
+        case type_enum.INT:
+          child.array = new Int32Array(abuf);
+          break;
+        case type_enum.FLOAT:
+          child.array = new Float32Array(abuf);
+          break;
+        case type_enum.DOUBLE:
+          child.array = new Float64Array(abuf);
+          break;
+        default:
+          throw new Error("Unknown type: " + nc_type);
+          break;
+        }
+      } else if (begin + vsize <= dv.byteLength) {
+        /* It is possible for the beginning to be after the end of the file.
+         */
+        child.array = getArray(nc_type, vsize, begin);
       }
 
-      /* It is possible for the beginning to be after the end of the file.
-       */
-      if (begin + vsize <= dv.byteLength) {
-        child.lnk_dat_array = getArray(nc_type, vsize, begin);
-      }
-      if (dimorder.length > 0) {
-        child.lnk_attributes.dimorder = dimorder;
-      }
+      mincify(child, dimids, file_dimensions); // <-- MINC specific stuff
     }
 
     /** Read a tagged list consisting of NetCDF attributes.
      */
     function variables(root) {
       taggedList(11, variable, root);
+    }
+
+    /** Read the record variable data.
+     */
+    function records() {
+      var i;
+      var j;
+      var recsz = 0;
+      var file_offset;
+      var array_offset;
+      var link;
+
+      for (i = 0; i < recvar.length; i++) {
+        link = recvar[i];
+        recsz += link.vsize;
+      }
+
+      for (i = 0; i < recvar.length; i++) {
+        link = recvar[i];
+        file_offset = link.begin;
+        array_offset = 0;
+        var tmp;
+        if (link.type === type_enum.CHAR) {
+          for (j = 0; j < numrec; j++) {
+            tmp = getArray(link.type, link.vsize, file_offset);
+            link.array.push(tmp);
+            file_offset += recsz;
+          }
+        }
+        else {
+          for (j = 0; j < numrec; j++) {
+            tmp = getArray(link.type, link.vsize, file_offset);
+            link.array.set(tmp, array_offset);
+            file_offset += recsz;
+            array_offset += tmp.length;
+          }
+        }
+      }
     }
 
     /** The core of the NetCDF reader:
@@ -331,13 +410,12 @@
       throw new Error("Sorry, this does not look like a NetCDF file.");
     }
     var root = createLink();
-    var numrec = getU32();
-    if (numrec !== 0) {
-      throw new Error("Record dimension not implemented.");
-    }
+    var numrec = getU32();      // number of records.
+    var recvar = [];            // record variable list.
     dimensions();
     attributes(root);
     variables(root);
+    records();
     return root;
   };
 

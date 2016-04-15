@@ -170,6 +170,19 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
   /**
   * @doc function
+  * @name viewer.rendering:getCameraPosition
+  * @description
+  * Get the camera position.
+  * ```js
+  * viewer.getCameraPosition();
+  * ```
+  */
+  viewer.getCameraPosition = function() {
+    return camera.position;
+  };
+
+  /**
+  * @doc function
   * @name viewer.rendering:resetView
   * @description
   * Resets the view of the scene.
@@ -179,7 +192,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   */
   viewer.resetView = function() {
     var model = viewer.model;
-    var inv = new THREE.Matrix4();
+    var inv   = new THREE.Matrix4();
     inv.getInverse(model.matrix);
 
     model.applyMatrix(inv);
@@ -187,7 +200,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     light.position.set(0, 0, default_camera_distance);
 
     model.children.forEach(function(shape) {
-      var centroid = shape.userData.centroid;
+      var centroid   = shape.userData.centroid;
       var recentered = shape.userData.recentered;
 
       // The check for original_data tells us
@@ -208,6 +221,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       }
     });
 
+    model.rotation.set(0, 0, 0);
     viewer.zoom = 1;
 
     viewer.updated = true;

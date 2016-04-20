@@ -361,10 +361,10 @@
         default:
           throw new Error("Unknown type: " + nc_type);
         }
-      } else if (begin + vsize <= dv.byteLength) {
+      } else if (begin + child.nelem <= dv.byteLength) {
         /* It is possible for the beginning to be after the end of the file.
          */
-        child.array = getArray(nc_type, vsize, dims, begin);
+        child.array = getArray(nc_type, child.nelem, dims, begin);
       }
 
       mincify(child, dimids, file_dimensions); // <-- MINC specific stuff

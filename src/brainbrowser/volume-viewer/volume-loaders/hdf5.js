@@ -23,9 +23,9 @@
 /*
  * Author: Robert D. Vincent (robert.d.vincent@mcgill.ca)
  *
- * Interprets a MINIMAL subset of the HDF5 format for the volume viewer.
- * This is sufficient to parse most MINC 2.0 files, but may not handle
- * HDF5 from other sources!!
+ * Interprets a subset of the HDF5 format for the volume viewer.  This
+ * is sufficient to parse most MINC 2.0 files, but may not handle HDF5
+ * from other sources!!
  *
  * Relies on pako (https://github.com/nodeca/pako) to inflate
  * compressed data chunks.
@@ -314,6 +314,7 @@
     /* Get a variably-sized integer from the DataView. */
     function getUXX(n) {
       var v;
+      var i;
       switch (n) {
       case 1:
         v = dv.getUint8(dv_offset);
@@ -328,7 +329,20 @@
         v = dv.getUint64(dv_offset, little_endian);
         break;
       default:
-        throw new Error('Unsupported type length ' + n);
+        /* Certain hdf5 types can have odd numbers of bytes. We try
+         * to deal with that special case here.
+         */
+        v = 0;
+        if (!little_endian) {
+          for (i = 0; i < n; i++) {
+            v = (v << 8) + dv.getUint8(dv_offset + i);
+          }
+        }
+        else {
+          for (i = n - 1; i >= 0; i--) {
+            v = (v << 8) + dv.getUint8(dv_offset + i);
+          }
+        }
       }
       dv_offset += n;
       return v;
@@ -416,30 +430,40 @@
       if (!checkSignature("FRHP")) {
         throw new Error('Bad or missing FRHP signature');
       }
-      fh.ver = getU8();
-      fh.idlen = getU16();
-      fh.iof_el = getU16();
-      fh.flags = getU8();
-      fh.objmax = getU32();
-      fh.objnid = getLength();
-      fh.objbta = getOffset();
-      fh.nf_blk = getLength();
-      fh.af_blk = getOffset();
-      fh.heap_total = getLength();
-      fh.heap_alloc = getLength();
-      fh.bai_offset = getLength();
-      fh.heap_nobj = getLength();
-      fh.heap_chuge = getLength();
-      fh.heap_nhuge = getLength();
-      fh.heap_ctiny = getLength();
-      fh.heap_ntiny = getLength();
-      fh.table_width = getU16();
-      fh.start_blksz = getLength();
-      fh.max_blksz = getLength();
-      fh.max_heapsz = getU16();
-      fh.rib_srows = getU16();
-      fh.root_addr = getOffset();
-      fh.rib_crows = getU16();
+      fh.ver = getU8();         // Version
+      fh.idlen = getU16();      // Heap ID length
+      fh.iof_el = getU16();     // I/O filter's encoded length
+      fh.flags = getU8();       // Flags
+      fh.objmax = getU32();     // Maximum size of managed objects.
+      fh.objnid = getLength();  // Next huge object ID
+      fh.objbta = getOffset();  // v2 B-tree address of huge objects
+      fh.nf_blk = getLength();  // Amount of free space in managed blocks
+      fh.af_blk = getOffset();  // Address of managed block free space manager
+      fh.heap_total = getLength(); // Amount of managed space in heap
+      fh.heap_alloc = getLength(); // Amount of allocated managed space in heap
+      fh.bai_offset = getLength(); // Offset of direct block allocation iterator
+      fh.heap_nobj = getLength();  // Number of managed objects in heap
+      fh.heap_chuge = getLength(); // Size of huge objects in heap
+      fh.heap_nhuge = getLength(); // Number of huge objects in heap
+      fh.heap_ctiny = getLength(); // Size of tiny objects in heap
+      fh.heap_ntiny = getLength(); // Number of tiny objects in heap
+      fh.table_width = getU16();   // Table width
+      fh.start_blksz = getLength(); // Starting block size
+      fh.max_blksz = getLength();   // Maximum direct block size
+      fh.max_heapsz = getU16();     // Maximum heap size
+      fh.rib_srows = getU16();      // Starting # of rows in root indirect block
+      fh.root_addr = getOffset();   // Address of root block
+      fh.rib_crows = getU16();      // Current # of rows in root indirect block
+
+      var max_dblock_rows = Math.log2(fh.max_blksz) - Math.log2(fh.start_blksz) + 2;
+      fh.K = Math.min(fh.rib_crows, max_dblock_rows) * fh.table_width;
+      fh.N = (fh.rib_crows < max_dblock_rows) ? 0 : fh.K - (max_dblock_rows * fh.table_width);
+
+      if (debug) {
+        console.log("FRHP V" + fh.ver + " F" + fh.flags + " " + fh.objbta + " Total:" + fh.heap_total + " Alloc:" + fh.heap_alloc + " #obj:" + fh.heap_nobj + " width:" + fh.table_width + " start_blksz:" + fh.start_blksz + " max_blksz:" + fh.max_blksz + " " + fh.max_heapsz + " srows:" + fh.rib_srows + " crows:" + fh.rib_crows + " " + fh.heap_nhuge);
+        console.log("   K: " + fh.K + " N: " + fh.N);
+      }
+
       if (fh.iof_el > 0) {
         throw new Error("Filters present in fractal heap.");
       }
@@ -463,7 +487,163 @@
       bh.root_nrec = getU16();
       bh.total_nrec = getLength();
       bh.checksum = getU32();
+
+      if (debug) {
+        console.log("BTHD V" + bh.ver + " T" + bh.type + " " + bh.nodesz + " " + bh.recsz + " " + bh.depth + " " + bh.root_addr + " " + bh.root_nrec + " " + bh.total_nrec);
+      }
       return bh;
+    }
+
+    var huge_id;
+
+    /**
+     * Enumerates btree records in a block. Records are found both in direct
+     * and indirect v2 btree blocks.
+     */
+    function hdf5V2BtreeRecords(fh, bt_type, nrec, link) {
+      var i;
+      var spp;                  // saved position pointer
+      var offset;
+      var length;
+      if (bt_type === 1) {
+        for (i = 0; i < nrec; i++) {
+          offset = getOffset();
+          length = getLength();
+          var id = getLength();
+          if (debug) {
+            console.log("  -> " + offset + " " + length + " " + id + " " + huge_id);
+          }
+          spp = tell();
+          if (id === huge_id) {
+            seek(offset);
+            hdf5MsgAttribute(length, link);
+          }
+          seek(spp);
+        }
+      }
+      else if (bt_type === 8) {
+        var cb_offs;
+        var cb_leng;
+        /* maximum heap size is stored in bits! */
+        cb_offs = fh.max_heapsz / 8;
+        var tmp = Math.min(fh.objmax, fh.max_blksz);
+        if (tmp <= 256) {
+          cb_leng = 1;
+        }
+        else if (tmp <= 65536) {
+          cb_leng = 2;
+        }
+        else {
+          cb_leng = 4;
+        }
+        for (i = 0; i < nrec; i++) {
+          /* Read managed fractal heap ID.
+           */
+          var vt = getU8();
+          if ((vt & 0xc0) !== 0) {
+            throw new Error('Bad Fractal Heap ID version ' + vt);
+          }
+          var id_type = (vt & 0x30);
+          var flags;
+          if (id_type === 0x10) {     // huge!
+            huge_id = getUXX(7);
+          }
+          else if (id_type === 0x00) { // managed.
+            offset = getUXX(cb_offs);
+            length = getUXX(cb_leng);
+          }
+          else {
+            throw new Error("Can't handle this Heap ID: " + vt);
+          }
+          flags = getU8();
+
+          /* Read the rest of the record.
+           */
+          getU32();               // creation order (IGNORE)
+          getU32();               // hash (IGNORE)
+          if (debug) {
+            console.log("  -> " + vt + " " + offset + " " + length + " " + flags);
+          }
+          spp = tell();
+          if (id_type === 0x10) {
+            /* A "huge" object is found by indexing through the btree
+             * present in the header
+             */
+            seek(fh.objbta);
+            var bh = hdf5V2BtreeHeader();
+            if (bh.type === 1) {
+              seek(bh.root_addr);
+              hdf5V2BtreeLeafNode(fh, bh.root_nrec, link);
+            }
+            else {
+              throw new Error("Can only handle type-1 btrees");
+            }
+          }
+          else {
+            /**
+             * A managed object implies that the attribute message is found in the
+             * associated fractal heap at the specified offset in the heap. We get the
+             * actual address corresponding to the offset here.
+             */
+            var location = hdf5FractalHeapOffset(fh, offset);
+            seek(location);
+            hdf5MsgAttribute(length, link);
+          }
+          seek(spp);
+        }
+      }
+      else {
+        throw new Error("Unhandled V2 btree type.");
+      }
+    }
+
+    /** read a v2 btree leaf node */
+    function hdf5V2BtreeLeafNode(fh, nrec, link) {
+
+      if (!checkSignature("BTLF")) {
+        throw new Error('Bad or missing BTLF signature');
+      }
+
+      var ver = getU8();
+      var typ = getU8();
+
+      if (debug) {
+        console.log("BTLF V" + ver + " T" + typ + " " + tell());
+      }
+      hdf5V2BtreeRecords(fh, typ, nrec, link);
+    }
+
+    /* read the hdf5 v2 btree internal node */
+    function hdf5V2BtreeInternalNode(fh, nrec, depth, link) {
+
+      if (!checkSignature("BTIN")) {
+        throw new Error('Bad or missing BTIN signature');
+      }
+      var ver = getU8();
+      var type = getU8();
+      var i;
+
+      if (debug) {
+        console.log("BTIN V" + ver + " T" + type);
+      }
+      hdf5V2BtreeRecords(fh, type, nrec, link);
+      for (i = 0; i <= nrec; i++) {
+        var child_offset = getOffset();
+        var child_nrec = getUXX(1); // TODO: calculate real size!!
+        var child_total;
+        /* TODO: unfortunately, this field is optional and
+         * variably-sized. Calculating the size is non-trivial, as it
+         * depends on the total depth and size of the tree. For now
+         * we will just assume it is its minimum size, as I've never
+         * encountered a file with depth > 1 anyway.
+         */
+        if (depth > 1) {
+          child_total = getUXX(1);
+        }
+        if (debug) {
+          console.log(" child->" + child_offset + " " + child_nrec + " " + child_total);
+        }
+      }
     }
 
     /* Names of the various HDF5 messages.
@@ -646,6 +826,7 @@
       var cache_type;
       var child;
       var spp;
+
       for (i = 0; i < 2 * superblk.gln_k; i += 1) {
         link_name_offset = getOffset();
         ohdr_address = getOffset();
@@ -745,7 +926,13 @@
       return n_items;
     }
 
-    function hdf5MsgLinkInfo() {
+    /**
+     * link info messages may contain a fractal heap address where we
+     * can find additional link messages for this object. This
+     * happens, for example, when there are lots of links in a
+     * particular group.
+     */
+    function hdf5MsgLinkInfo(link) {
       var ver = getU8();
       var flags = getU8();
       if ((flags & 1) !== 0) {
@@ -760,6 +947,25 @@
         console.log("hdf5MsgLinkInfo V" + ver + " F" + flags +
                     " FH " + fh_address + " BT " + bt_address);
       }
+      var spp = tell();
+      if (fh_address < superblk.eof_addr) {
+        seek(fh_address);
+        /* If there is a valid fractal heap address in the link info message, that
+         * means the fractal heap is a collection of link messages. We can ignore
+         * the btree address because we can get the names from the link messages.
+         */
+        var fh = hdf5FractalHeapHeader();
+        var n_msg = 0;
+        hdf5FractalHeapEnumerate( fh, function(row, address, block_offset, block_length) {
+          var end_address = address + block_length;
+          while (n_msg < fh.heap_nobj && tell() < end_address) {
+            hdf5MsgLink(link);
+            n_msg += 1;
+          }
+          return true;          // continue with enumeration.
+        });
+      }
+      seek(spp);
     }
 
     function dt_class_name(cls) {
@@ -1063,11 +1269,11 @@
 
     function hdf5MsgAttribute(sz, link) {
       var ver = getU8();
-      var msg = "hdf5MsgAttribute V" + ver + " " + sz + ": ";
       var flags = getU8();
       var nm_len = getU16();
       var dt_len = getU16();
       var ds_len = getU16();
+      var msg = "hdf5MsgAttribute V" + ver + " F" + flags + " " + sz + ": ";
 
       if ((flags & 3) !== 0) {
         throw new Error('Shared dataspaces and datatypes are not supported.');
@@ -1139,6 +1345,7 @@
       }
     }
 
+    /** returns the number of bytes processed */
     function hdf5MsgLink(link) {
       var ver = getU8();
       var ltype = 0;
@@ -1173,7 +1380,7 @@
       link.children.push(child);
     }
 
-    function hdf5FractalHeapDirectBlock(fh, link) {
+    function hdf5FractalHeapDirectBlock(fh, row, address, callback) {
       if (!checkSignature("FHDB")) {
         throw new Error("Bad or missing FHDB signature");
       }
@@ -1181,19 +1388,125 @@
       if (ver !== 0) {
         throw new Error('Bad FHDB version: ' + ver);
       }
-      getOffset();           // heap header address (IGNORE)
+      getOffset();              // heap header address (IGNORE)
       var cb = Math.ceil(fh.max_heapsz / 8.0);
-      skip(cb);               // block offset (IGNORE)
+      var block_offset = getUXX(cb); // block offset
       if ((fh.flags & 2) !== 0) {
-        getU32();          // checksum (IGNORE)
+        getU32();               // checksum (IGNORE)
       }
 
+      if (debug) {
+        console.log("FHDB V:" + ver + " R:" + row + " O:" + block_offset + " A:" + address);
+      }
+      var header_length = 5 + superblk.offsz + cb;
+      if ((fh.flags & 2) !== 0) {
+        header_length += 4;
+      }
+      var block_length;
+      if (row <= 1) {
+        block_length = fh.start_blksz;
+      }
+      else {
+        block_length = Math.pow(2, row - 1) * fh.start_blksz;
+      }
+      if (callback) {
+        return callback(row, address, block_offset, block_length);
+      }
+      else
+        return true;            // continue enumeration.
+    }
+
+    function hdf5FractalHeapIndirectBlock(fh, row, callback) {
+      if (!checkSignature("FHIB")) {
+        throw new Error("Bad or missing FHIB signature");
+      }
+      var ver = getU8();
+      if (ver !== 0) {
+        throw new Error('Bad FHIB version: ' + ver);
+      }
+      getOffset();              // heap header address (IGNORE)
+      var cb = Math.ceil(fh.max_heapsz / 8.0);
+      var block_offset = getUXX(cb); // block offset
+
+      if (debug) {
+        console.log("FHIB V:" + ver + " R:" + row + " O:" + block_offset);
+      }
       var i;
-      for (i = 0; i < fh.heap_nobj; i += 1) {
-        hdf5MsgAttribute(-1, link);
+      var address;
+      var db_addrs = [];
+      for (i = 0; i < fh.K; i += 1) {
+        address = getOffset();
+        if (address < superblk.eof_addr) {
+          if (debug) {
+            console.log("direct block at " + address);
+          }
+          db_addrs.push(address);
+        }
+      }
+
+      var ib_addrs = [];
+      for (i = 0; i < fh.N; i += 1) {
+        address = getOffset();
+        if (address < superblk.eof_addr) {
+          if (debug) {
+            console.log("indirect block at " + address);
+          }
+          ib_addrs.push(address);
+        }
+      }
+      getU32();                 // checksum (IGNORE)
+
+      /* Finished reading the indirect block, now go read its children.
+       */
+      for (i = 0; i < db_addrs.length; i++) {
+        seek(db_addrs[i]);
+        /* TODO: fix row calculation!
+         */
+        if (!hdf5FractalHeapDirectBlock(fh, i / fh.table_width, db_addrs[i], callback)) {
+          return false;
+        }
+      }
+      for (i = 0; i < ib_addrs.length; i++) {
+        seek(ib_addrs[i]);
+        /* TODO: fix row calculation (see above)!
+         */
+        if (!hdf5FractalHeapIndirectBlock(fh, i / fh.table_width, callback)) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    /** enumerate over all of the direct blocks in the fractal heap.
+     */
+    function hdf5FractalHeapEnumerate(fh, callback) {
+      seek(fh.root_addr);
+      if (fh.K === 0) {
+        hdf5FractalHeapDirectBlock(fh, 0, fh.root_addr, callback);
+      }
+      else {
+        hdf5FractalHeapIndirectBlock(fh, 0, callback);
       }
     }
 
+    function hdf5FractalHeapOffset(fh, offset) {
+      var location;
+      hdf5FractalHeapEnumerate(fh, function(row, address, block_offset, block_length) {
+        if (offset >= block_offset && offset < block_offset + block_length) {
+          location = address + (offset - block_offset);
+          return false;         // stop enumeration.
+        }
+        return true;            // continue enumeration.
+      });
+      return location;
+    }
+
+    /*
+     * Attribute info messages contain pointers to a fractal heap and a v2 btree.
+     * If these pointers are valid, we must follow them to find more attributes.
+     * The attributes are indexed by records in the "type 8" btree. These btree
+     * records
+     */
     function hdf5MsgAttrInfo(link) {
       var ver = getU8();
       if (ver !== 0) {
@@ -1217,16 +1530,24 @@
       }
 
       var spp = tell();
+      var fh;                   // fractal heap header.
       if (fh_addr < superblk.eof_addr) {
         seek(fh_addr);
-        var fh = hdf5FractalHeapHeader();
-        seek(fh.root_addr);
-
-        hdf5FractalHeapDirectBlock(fh, link);
+        fh = hdf5FractalHeapHeader();
       }
       if (bt_addr < superblk.eof_addr) {
         seek(bt_addr);
-        hdf5V2BtreeHeader();
+        var bh = hdf5V2BtreeHeader();
+        if (bh.type !== 8) {
+          throw new Error("Can only handle indexed attributes.");
+        }
+        seek(bh.root_addr);
+        if (bh.depth > 0) {
+          hdf5V2BtreeInternalNode(fh, bh.root_nrec, bh.depth, link);
+        }
+        else {
+          hdf5V2BtreeLeafNode(fh, bh.root_nrec, link);
+        }
       }
       seek(spp);
     }
@@ -1240,7 +1561,7 @@
         hdf5MsgDataspace(msg.hm_size, link);
         break;
       case 2:
-        hdf5MsgLinkInfo();
+        hdf5MsgLinkInfo(link);
         break;
       case 3:
         val_type = hdf5MsgDatatype(msg.hm_size);
@@ -1738,10 +2059,10 @@
       }
     }
 
-    console.log("Sum: " + s);
-    console.log("Mean: " + s / c);
     console.log("Min: " + n);
     console.log("Max: " + x);
+    console.log("Sum: " + s);
+    console.log("Mean: " + s / c);
 
     return new_abuf;
   }

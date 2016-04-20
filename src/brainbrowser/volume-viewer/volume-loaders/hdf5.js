@@ -2186,13 +2186,13 @@
 
       tmp = findAttribute(dim, "step", 0);
       if (!defined(tmp)) {
-        throw new Error("Can't find step for " + dimname);
+        tmp = Float32Array.of(1);
       }
       header[dimname].step = tmp[0];
 
       tmp = findAttribute(dim, "start", 0);
       if (!defined(tmp)) {
-        throw new Error("Can't find start for " + dimname);
+        tmp = Float32Array.of(0);
       }
       header[dimname].start = tmp[0];
 
@@ -2206,6 +2206,15 @@
       if (defined(tmp)) {
         // why is the bizarre call to slice needed?? it seems to work, though!
         header[dimname].direction_cosines = Array.prototype.slice.call(tmp);
+      }
+      else {
+        if (dimname === "xspace") {
+          header[dimname].direction_cosines = [1, 0, 0];
+        } else if (dimname === "yspace") {
+          header[dimname].direction_cosines = [0, 1, 0];
+        } else if (dimname === "zspace") {
+          header[dimname].direction_cosines = [0, 0, 1];
+        }
       }
     });
 

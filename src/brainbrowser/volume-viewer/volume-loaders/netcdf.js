@@ -110,6 +110,7 @@
         array: undefined,
         type: -1,
         dims: [],
+        nelem: 0
       };
     }
 
@@ -156,7 +157,7 @@
      * boundaries, but it doesn't guarantee 8-byte alignment for
      * 64-bit floats. So we have to do some heavier lifting there.
      */
-    function getArray(typ, n_bytes, offset) {
+    function getArray(typ, n_bytes, dims, offset) {
       var value;
       var i;
       offset = offset || dv_offset;
@@ -164,13 +165,21 @@
       if (typ === type_enum.CHAR) {
         var c;
 
-        value = "";
-        for (i = 0; i < n_bytes; i += 1) {
-          c = dv.getUint8(offset + i);
-          if (c === 0) {
-            break;
+        if (dims.length > 1) {
+          value = [];
+          for (i = 0; i < dims[0]; i++) {
+            value.push(getArray(typ, dims[1], [], offset + i * dims[1]));
           }
-          value += String.fromCharCode(c);
+        }
+        else {
+          value = "";
+          for (i = 0; i < n_bytes; i += 1) {
+            c = dv.getUint8(offset + i);
+            if (c === 0) {
+              break;
+            }
+            value += String.fromCharCode(c);
+          }
         }
       } else if (typ === type_enum.BYTE) {
         value = new Uint8Array(abuf, offset, n_bytes);
@@ -263,7 +272,7 @@
       var name = getString(pad(namelen));
       var nc_type = getU32();
       var nelems = getU32();
-      var value = getArray(nc_type, typeSize(nc_type) * nelems);
+      var value = getArray(nc_type, typeSize(nc_type) * nelems, []);
 
       link.attributes[name] = value;
     }
@@ -318,10 +327,17 @@
       child.dims = dims;
       child.vsize = vsize;
       child.begin = begin;
+      child.nelem = 1;
+      for (i = 0; i < dims.length; i++) {
+        if (dims[i] !== 0) {
+          child.nelem *= dims[i];
+        }
+      }
+      child.nelem *= typeSize(nc_type);
       parent.children.push(child);
 
       if (is_record) {
-        var abuf = new ArrayBuffer(vsize * numrec);
+        var abuf = new ArrayBuffer(child.nelem * numrec);
         recvar.push(child);
         switch (nc_type) {
         case type_enum.BYTE:
@@ -344,12 +360,11 @@
           break;
         default:
           throw new Error("Unknown type: " + nc_type);
-          break;
         }
       } else if (begin + vsize <= dv.byteLength) {
         /* It is possible for the beginning to be after the end of the file.
          */
-        child.array = getArray(nc_type, vsize, begin);
+        child.array = getArray(nc_type, vsize, dims, begin);
       }
 
       mincify(child, dimids, file_dimensions); // <-- MINC specific stuff
@@ -378,19 +393,22 @@
 
       for (i = 0; i < recvar.length; i++) {
         link = recvar[i];
+        if (debug) {
+          console.log(link.name + " " + link.nelem + " " + link.vsize + " " + numrec);
+        }
         file_offset = link.begin;
         array_offset = 0;
         var tmp;
         if (link.type === type_enum.CHAR) {
           for (j = 0; j < numrec; j++) {
-            tmp = getArray(link.type, link.vsize, file_offset);
+            tmp = getArray(link.type, link.vsize, [], file_offset);
             link.array.push(tmp);
             file_offset += recsz;
           }
         }
         else {
           for (j = 0; j < numrec; j++) {
-            tmp = getArray(link.type, link.vsize, file_offset);
+            tmp = getArray(link.type, link.nelem, [], file_offset);
             link.array.set(tmp, array_offset);
             file_offset += recsz;
             array_offset += tmp.length;
@@ -416,6 +434,8 @@
     attributes(root);
     variables(root);
     records();
+    root.dimensions = file_dimensions;
+    root.numrec = numrec;
     return root;
   };
 

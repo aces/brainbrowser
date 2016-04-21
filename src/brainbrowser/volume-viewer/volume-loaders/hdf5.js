@@ -688,8 +688,9 @@
       }
 
       if (!link) {
-        // If this BTREE is associated with a group (not a dataset),
-        // then its keys are single "length" value.
+        /* If this BTREE is associated with a group (not a dataset),
+         * then its keys are single "length" value.
+         */
         for (i = 0; i < bt.entries_used; i += 1) {
           bt.keys[i] = {};
           bt.keys[i].key_value = getLength();
@@ -703,13 +704,13 @@
       } else {
         var j;
 
-        // If this BTREE is a "chunked raw data node" associated
-        // with a dataset, then its keys are complex, consisting
-        // of the chunk size in bytes, a filter mask, and a set of
-        // offsets matching the dimensionality of the chunk layout.
-        // The chunk size stores the actual stored length of the
-        // data, so it may not equal the uncompressed chunk size.
-        //
+        /* If this BTREE is a "chunked raw data node" associated
+         * with a dataset, then its keys are complex, consisting
+         * of the chunk size in bytes, a filter mask, and a set of
+         * offsets matching the dimensionality of the chunk layout.
+         * The chunk size stores the actual stored length of the
+         * data, so it may not equal the uncompressed chunk size.
+         */
         var chunks = [];
 
         for (i = 0; i < bt.entries_used; i += 1) {
@@ -838,10 +839,11 @@
           child.hdr_offset = ohdr_address;
           if (lh) {
             spp = tell();
-            // The link name is a zero-terminated string
-            // starting at the link_name_off relative to
-            // the beginning of the data segment of the local
-            // heap.
+            /* The link name is a zero-terminated string
+             * starting at the link_name_off relative to
+             * the beginning of the data segment of the local
+             * heap.
+             */
             seek(lh.lh_dseg_off + link_name_offset);
             child.name = getString(lh.lh_dseg_len);
             seek(spp);
@@ -856,7 +858,10 @@
       }
     }
 
-    /** read a v1 local heap */
+    /* Read a v1 local heap header. These define relatively small
+     * regions used primarily for storing symbol names associated with
+     * a symbol table message.
+     */
     function hdf5LocalHeap() {
       var lh = {};
       if (!checkSignature("HEAP")) {
@@ -874,6 +879,16 @@
       return lh;
     }
 
+    /* Process a "dataspace" message. Dataspaces define the
+     * dimensionality of a dataset or attribute. They define the
+     * number of dimensions (rank) and the current length of each
+     * dimension. It is possible to specify a "maximum" length that is
+     * greater than or equal to the current length, but MINC doesn't
+     * rely on that feature so these values are ignored.  Finally it
+     * is also possible to specify a "permutation index" that alters
+     * storage order of the dataset, but again, MINC doesn't rely on
+     * this feature, so the values are ignored.
+     */
     function hdf5MsgDataspace(sz, link) {
       var cb;
       var ver = getU8();
@@ -981,6 +996,18 @@
       throw new Error('Unknown datatype class: ' + cls);
     }
 
+    /* Process a "datatype" message. These messages specify the data
+     * type of a single element within a dataset or attribute. Data
+     * types are extremely flexible, HDF5 supports a range of options
+     * for bit widths and organization atomic types. We support only
+     * fixed, float, and string atomic types, and those only for
+     * certain restricted (but common) cases.  At this point we
+     * provide no support for more exotic types such as bit field,
+     * enumerated, array, opaque, compound, time, reference,
+     * variable-length, etc.
+     *
+     * TODO: should support enumerated types, possibly a few others.
+     */
     function hdf5MsgDatatype(sz) {
       var type = {};
       var cb = 8;
@@ -1011,8 +1038,7 @@
       }
 
       switch (cls) {
-      case 0:
-        /* Fixed: bit 0 for byte order, bit 3 for signed */
+      case 0:      /* Fixed (integer): bit 0 for byte order, bit 3 for signed */
         bit_offs = getU16();
         bit_prec = getU16();
         switch (dt_size) {
@@ -1034,8 +1060,7 @@
           console.log('  (' + bit_offs + ' ' + bit_prec + ')');
         }
         break;
-      case 1:
-        /* Float: uses bits 0,6 for byte order */
+      case 1:                /* Float: uses bits 0,6 for byte order */
         msg = "";
         if (debug) {
           switch (bf[0] & 0x41) {
@@ -1064,7 +1089,7 @@
                   " " + mnt_loc + " " + mnt_sz + " " + exp_bias);
         }
         /* See if it's one of the formats we recognize.
-           IEEE 64-bit
+           IEEE 64-bit or IEEE 32-bit are the only two we handle.
         */
         if (bit_prec === 64 && bit_offs === 0 &&
             exp_loc === 52 && exp_sz === 11 &&
@@ -1086,16 +1111,7 @@
         cb += 12;
         break;
 
-      case 2:
-        /* bit 0 for byte order */
-        bit_prec = getU16();
-        if (debug) {
-          console.log(bit_prec);
-        }
-        cb += 2;
-        break;
-
-      case 3:
+      case 3:                   // string
         /* bits 0-3 = 0: null terminate, 1: null pad, 2: space pad */
         /* bits 4-7 = 0: ASCII, 1: UTF-8 */
         type.typ_type = type_enum.STR;
@@ -1111,6 +1127,12 @@
       return type;
     }
 
+    /* Process a "layout" message. These messages specify the location and organization
+     * of data in a dataset. The organization can be either compact, contiguous, or
+     * chunked. Compact data is stored in the message as a contiguous block. Contiguous
+     * data is stored elsewhere in the file in a single chunk. Chunked data is stored within
+     * a V1 Btree as a series of possibly filtered (e.g. compressed) chunks.
+     */
     function hdf5MsgLayout(link) {
       var msg = "";
 
@@ -1131,7 +1153,7 @@
         if (debug) {
           msg += "hdf5MsgLayout V" + ver + " N" + n_dim + " C" + cls;
         }
-        if (cls === 1 || cls === 2) {
+        if (cls === 1 || cls === 2) { // contiguous or chunked
           var addr = getOffset();
           if (debug) {
             msg += " A" + addr;
@@ -1149,13 +1171,13 @@
           msg += "[" + dim.join(', ') + "]";
         }
 
-        if (cls === 2) {
+        if (cls === 2) {        // chunked
           elsz = getU32();
           if (debug) {
             msg += " E" + elsz;
           }
         }
-        if (cls === 0) {
+        if (cls === 0) {        // compact
           cdsz = getU32();
           if (debug) {
             msg += "(" + cdsz + ")";
@@ -1212,8 +1234,8 @@
 
     /**
      * @doc function
-     * Read a filter pipeline message. At the moment we _only_ handle
-     * deflate/inflate.
+     * Read a "filter pipeline" message. At the moment we _only_ handle
+     * deflate/inflate. Anything else will cause us to throw an exception.
      */
     function hdf5MsgPipeline(link) {
       var ver = getU8();
@@ -1267,6 +1289,11 @@
       }
     }
 
+    /* Process an "attribute" message. This actually defines an attribute that is
+     * to be associated with a group or dataset (what I generally call a "link"
+     * in this code. Attributes include a name, a datatype, and a dataspace, followed
+     * by the actual data.
+     */
     function hdf5MsgAttribute(sz, link) {
       var ver = getU8();
       var flags = getU8();
@@ -1327,6 +1354,8 @@
       link.attributes[att_name] = att_value;
     }
 
+    /* Process a "group info" message. We don't actually do anything with these.
+     */
     function hdf5MsgGroupInfo() {
       var n_ent = 4;
       var n_lnl = 8;
@@ -1345,7 +1374,10 @@
       }
     }
 
-    /** returns the number of bytes processed */
+    /* Process a "link" message. This specifies the name and header location of either a
+     * group or a dataset within the current group. It is probably also used to implement
+     * internal links but we don't really support that.
+     */
     function hdf5MsgLink(link) {
       var ver = getU8();
       var ltype = 0;
@@ -1380,6 +1412,18 @@
       link.children.push(child);
     }
 
+    /*
+     * The fractal heap direct block contains:
+     * 1. A signature.
+     * 2. a byte version.
+     * 3. an offset pointing to the header (for integrity checking).
+     * 4. A variably-sized block offset that gives (_I think_) the mininum block offset
+     * associated with this block.
+     * 5. Variably-sized data. Block size varies with row number in a slightly tricky
+     * fashion. Each "row" consists of "table_width" blocks. The first two rows, row 0 and 1,
+     * have blocks of the "starting block size". Row 2-N have blocks of size 2^(row-1) times
+     * the starting block size.
+     */
     function hdf5FractalHeapDirectBlock(fh, row, address, callback) {
       if (!checkSignature("FHDB")) {
         throw new Error("Bad or missing FHDB signature");
@@ -1416,7 +1460,21 @@
         return true;            // continue enumeration.
     }
 
-    function hdf5FractalHeapIndirectBlock(fh, row, callback) {
+    /*
+     * The fractal heap indirect block contains:
+     * 1. A signature.
+     * 2. a byte version
+     * 3. an offset pointing to the header (for integrity checking).
+     * 4. a variably-sized block offset that gives (_I think_) the mininum block offset
+     * associated with children of this block.
+     * 5. pointers to K direct blocks
+     * 6. pointers to N indirect blocks
+     * 7. A checksum. This code completely ignores checksums.
+     * See calculations of K and N in hdf5FractalHeapHeader(). Note that there can also
+     * be additional information in the header if "filtered" direct blocks are used. I have
+     * made no attempt to support this.
+     */
+    function hdf5FractalHeapIndirectBlock(fh, callback) {
       if (!checkSignature("FHIB")) {
         throw new Error("Bad or missing FHIB signature");
       }
@@ -1429,7 +1487,7 @@
       var block_offset = getUXX(cb); // block offset
 
       if (debug) {
-        console.log("FHIB V:" + ver + " R:" + row + " O:" + block_offset);
+        console.log("FHIB V:" + ver + " O:" + block_offset);
       }
       var i;
       var address;
@@ -1460,7 +1518,7 @@
        */
       for (i = 0; i < db_addrs.length; i++) {
         seek(db_addrs[i]);
-        /* TODO: fix row calculation!
+        /* TODO: check row calculation!
          */
         if (!hdf5FractalHeapDirectBlock(fh, i / fh.table_width, db_addrs[i], callback)) {
           return false;
@@ -1468,9 +1526,7 @@
       }
       for (i = 0; i < ib_addrs.length; i++) {
         seek(ib_addrs[i]);
-        /* TODO: fix row calculation (see above)!
-         */
-        if (!hdf5FractalHeapIndirectBlock(fh, i / fh.table_width, callback)) {
+        if (!hdf5FractalHeapIndirectBlock(fh, callback)) {
           return false;
         }
       }
@@ -1485,7 +1541,7 @@
         hdf5FractalHeapDirectBlock(fh, 0, fh.root_addr, callback);
       }
       else {
-        hdf5FractalHeapIndirectBlock(fh, 0, callback);
+        hdf5FractalHeapIndirectBlock(fh, callback);
       }
     }
 
@@ -1552,6 +1608,15 @@
       seek(spp);
     }
 
+    /* Process a single message, given a message header. Assumes that
+     * the data view offset is pointing to the remainder of the
+     * message.
+     *
+     * V1 and V2 files use different sets of messages to accomplish
+     * similar things. For example, V1 files tend to use "symbol
+     * table" messages to describe links within a group, whereas V2
+     * files use "link" and "linkinfo" messages.
+     */
     function hdf5ProcessMessage(msg, link) {
       var cq_new = {};
       var val_type;
@@ -1585,6 +1650,14 @@
         hdf5MsgAttribute(msg.hm_size, link);
         break;
       case 16:
+        /* Process an object header continuation message. These
+         * basically just say this header continues with a new segment
+         * with a given location and length. They can come before the
+         * end of the current message segment, and multiple
+         * continuation messages can occur in any particular segment.
+         * This means we have to enqueue them and shift them off the
+         * queue when we finish processing the current segment.
+         */
         cq_new.cq_off = getOffset();
         cq_new.cq_len = getLength();
         continuation_queue.push(cq_new);
@@ -1618,7 +1691,10 @@
       }
     }
 
-    /** read the v2 object header */
+    /* Read a V2 object header. Object headers contain a series of messages that define
+     * an HDF5 object, primarily a group or a dataset. V2 object headers, and V2 objects
+     * generally, are much less concerned about alignment than V1 objects.
+     */
     function hdf5V2ObjectHeader(link) {
       if (!checkSignature("OHDR")) {
         throw new Error('Bad or missing OHDR signature');
@@ -1671,7 +1747,7 @@
           }
           spp = tell();
           hdf5ProcessMessage(hmsg, link);
-          seek(spp + hmsg.hm_size);
+          seek(spp + hmsg.hm_size); // skip past message.
 
           msg_offs += hmsg.hm_size + 4;
 
@@ -1779,6 +1855,14 @@
       });
     }
 
+    /* Read a v1 object header. Object headers contain a series of
+     * messages that define an HDF5 object, primarily a group or a
+     * dataset. The v1 object header, like most of the v1 format, is
+     * very careful about alignment. Every message must be on an
+     * 8-byte alignment RELATIVE TO THE START OF THE HEADER. So if the
+     * header starts on an odd boundary, messages may start on odd
+     * boundaries as well. No, this doesn't make much sense.
+     */
     function hdf5V1ObjectHeader(link) {
       var oh = {};
       startAlignment();
@@ -1867,6 +1951,8 @@
       }
     }
 
+    /* This is where the actual HDF5 loading process gets started.
+     */
     var root = createLink();
 
     superblk = hdf5Superblock();
@@ -1888,7 +1974,10 @@
    * and NetCDF files.
    */
 
-  /** why is this needed?? */
+  /**
+   * Join does not seem to be defined on the typed arrays in
+   * javascript, so I've re-implemented it here, sadly.
+   */
   function join(array, string) {
     var result = "";
     if (array && array.length) {
@@ -1902,6 +1991,9 @@
     return result;
   }
 
+  /** Recursively print out the structure and contents of the file.
+   *  Primarily useful for debugging.
+   */
   function printStructure(link, level) {
     var i;
     var msg = "";
@@ -1948,6 +2040,11 @@
     });
   }
 
+  /* Find a dataset with a given name, by recursively searching through
+   * the links. Groups will have 'type' fields of -1, since they contain
+   * no data.
+   * TODO (maybe): Use associative array for children?
+   */
   function findDataset(link, name, level) {
     var result;
     if (link.name === name && link.type > 0) {
@@ -1961,6 +2058,8 @@
     return result;
   }
 
+  /* Find an attribute with a given name.
+   */
   function findAttribute(link, name, level) {
     var result = link.attributes[name];
     if (result)
@@ -1974,9 +2073,9 @@
   }
 
   /**
-   * Convert the data from voxel to real range. This returns a new
-   * buffer that contains the "real" voxel values. It does less work
-   * for floating-point volumes, since they don't need scaling.
+   * Convert the MINC data from voxel to real range. This returns a
+   * new buffer that contains the "real" voxel values. It does less
+   * work for floating-point volumes, since they don't need scaling.
    *
    * For debugging/testing purposes, also gathers basic voxel statistics,
    * for comparison against mincstats.
@@ -2022,6 +2121,10 @@
                     im[i * n_slice_elements]);
       }
       if (is_float) {
+        /* For floating-point volumes there is no scaling to be performed.
+         * We do scan the data and make sure voxels are within the valid
+         * range, and collect our statistics.
+         */
         for (j = 0; j < n_slice_elements; j += 1) {
           v = im[c];
           if (v < valid_range[0] || v > valid_range[1]) {
@@ -2041,6 +2144,9 @@
         }
       }
       else {
+        /* For integer volumes we have to scale each slice according to image-min,
+         * image-max, and valid_range.
+         */
         vrange = (valid_range[1] - valid_range[0]);
         rrange = (im_max[i] - im_min[i]);
         rmin = im_min[i];
@@ -2067,7 +2173,7 @@
     return new_abuf;
   }
 
-  /* A volume is an RGB volume if all three are true:
+  /* A MINC volume is an RGB volume if all three are true:
    * 1. The voxel type is unsigned byte.
    * 2. It has a vector_dimension in the last (fastest-varying) position.
    * 3. The vector dimension has length 3.
@@ -2081,7 +2187,8 @@
   }
 
   /* This function copies the RGB voxels to the destination buffer.
-   * Essentially we just convert from 24 to 32 bits per voxel.
+   * Essentially we just convert from 24 to 32 bits per voxel. This
+   * is another MINC-specific function.
    */
   function rgbVoxels(image) {
     var im = image.array;
@@ -2098,6 +2205,7 @@
     }
     return new_abuf;
   }
+
   var VolumeViewer = BrainBrowser.VolumeViewer;
 
   VolumeViewer.utils.hdf5Loader = function (data) {
@@ -2113,8 +2221,16 @@
       }
       root = VolumeViewer.utils.netcdfReader(data, debug);
     }
+    /* TODO: don't do this unless debug is true! */
     printStructure(root, 0);
 
+    /* The rest of this code is MINC-specific, so like some of the functions above,
+     * it can migrate into minc.js once things have stabilized.
+     *
+     * This code is responsible for collecting up the various pieces of important
+     * data and metadata, and reorganizing them into the form the volume viewer can
+     * handle.
+     */
     var image = findDataset(root, "image");
     if (!defined(image)) {
       throw new Error("Can't find image dataset.");

@@ -372,6 +372,21 @@
       },
       getVoxelMax: function() {
         return volume.header.voxel_max;
+      },
+      /* given a width and height (from the panel), this function returns the "best"
+       * single zoom level that will guarantee that the image fits exactly into the
+       * current panel.
+       */
+      getPreferredZoom: function(width, height) {
+        var header = volume.header;
+        var x_fov = header.xspace.space_length * Math.abs(header.xspace.step);
+        var y_fov = header.yspace.space_length * Math.abs(header.yspace.step);
+        var z_fov = header.zspace.space_length * Math.abs(header.xspace.step);
+        var xw = width / x_fov;
+        var yw = width / y_fov;
+        var yh = height / y_fov;
+        var zh = height / z_fov;
+        return Math.min(yw, xw, zh, yh);
       }
     };
     return volume;

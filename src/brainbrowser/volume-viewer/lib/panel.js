@@ -497,6 +497,7 @@
 
     if (panel.volume) {
       setSlice(panel, panel.volume.slice(panel.axis));
+      panel.zoom = panel.volume.getPreferredZoom(panel.canvas.width, panel.canvas.height);
     }
 
     return panel;

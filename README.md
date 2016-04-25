@@ -35,7 +35,7 @@ The BrainBrowser Surface Viewer allows users to display and manipulate 3D surfac
   });
 ```
 
-Full documentation of the Surface Viewer API can be found [here](https://brainbrowser.cbrain.mcgill.ca/documentation/brainbrowser/surface-viewer).
+Full documentation of the Surface Viewer API can be found [here](https://brainbrowser.cbrain.mcgill.ca/documentation/brainbrowser/surface-viewer/index).
 
 Volume Viewer
 --------------
@@ -48,7 +48,7 @@ The BrainBrowser Volume Viewer allows users to display and manipulate volumetric
   });
 ```
 
-Full documentation of the Volume Viewer API can be found [here](https://brainbrowser.cbrain.mcgill.ca/documentation/brainbrowser/volume-viewer).
+Full documentation of the Volume Viewer API can be found [here](https://brainbrowser.cbrain.mcgill.ca/documentation/brainbrowser/volume-viewer/index).
 
 Contributing
 ------------

@@ -40,6 +40,14 @@
           createMincVolume(header, tmp.raw_data, callback);
         });
       }, { result_type: "arraybuffer" });
+    } else if (!description.header_url && description.raw_data_url) {
+      console.log("IN !description.header_url && description.raw_data_url")
+      BrainBrowser.loader.loadFromURL(description.raw_data_url, function(raw_data) {
+        var tmp = VolumeViewer.utils.hdf5Loader(raw_data);
+        parseHeader(tmp.header_text, function(header) {
+          createMincVolume(header, tmp.raw_data, callback);
+        });
+      }, { result_type: "arraybuffer" });
     } else if (description.header_url && description.raw_data_url) {
       BrainBrowser.loader.loadFromURL(description.header_url, function(header_text) {
         parseHeader(header_text, function(header) {
@@ -523,7 +531,7 @@
     header.zspace.direction_cosines = header.zspace.direction_cosines.map(parseFloat);
 
     /* Incrementation offsets for each dimension of the volume.
-     * Note that this somewhat format-specific, so it does not 
+     * Note that this somewhat format-specific, so it does not
      * belong in the generic "createVolume()" code.
      */
     header[header.order[0]].offset = header[header.order[1]].space_length * header[header.order[2]].space_length;

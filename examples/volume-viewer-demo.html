@@ -189,18 +189,7 @@
         <div id="volume-file" class="file-select">
           <h3><u>For MINC file:</u></h3>
           <div>
-            <span class="control-heading">Header file: </span><input type="file" name="header-file" id="header-file">
-          </div>
-          <div>
-            <span class="control-heading">Raw data file: </span><input type="file" name="raw-data-file" id="raw-data-file">
-          </div>
-          <div id="volume-file-hint">
-            Use
-            <a href="scripts/minc2volume-viewer.js" target="_blank">minc2volume-viewer.js</a>
-            or
-            <a href="scripts/minc2volume-viewer.py" target="_blank">minc2volume-viewer.py</a>
-            to convert your MINC files into the header and raw data files required by the volume viewer (requires
-            installation of the <a href="http://www.bic.mni.mcgill.ca/ServicesSoftware/MINC" target="_blank">MINC tools</a>).
+            <span class="control-heading">MINC file: </span><input type="file" name="raw-data-file" id="raw-data-file">
           </div>
           <div id="volume-file-minc-submit">
             <span class="button">Load</span>
@@ -222,7 +211,6 @@
             <span class="button">Load</span>
           </div>
 
-
         </div>
 
         <div class="instructions">Shift-click to drag. Hold ctrl to measure distance.</div>
@@ -233,6 +221,7 @@
   <script src="js/jquery-1.6.4.min.js"></script>
   <script src="js/jquery-ui-1.8.10.custom.min.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/pako.js"></script>
   <script src="js/brainbrowser/brainbrowser.js"></script>
   <script src="js/brainbrowser/core/tree-store.js"></script>
   <script src="js/brainbrowser/lib/config.js"></script>
@@ -250,6 +239,8 @@
   <script src="js/brainbrowser/volume-viewer/volume-loaders/minc.js"></script>
   <script src="js/brainbrowser/volume-viewer/volume-loaders/nifti1.js"></script>
   <script src="js/brainbrowser/volume-viewer/volume-loaders/mgh.js"></script>
+  <script src="js/brainbrowser/volume-viewer/volume-loaders/hdf5.js"></script>
+  <script src="js/brainbrowser/volume-viewer/volume-loaders/netcdf.js"></script>
   <script src="volume-viewer-demo.config.js"></script>
   <script src="volume-viewer-demo.js"></script>
 </body>

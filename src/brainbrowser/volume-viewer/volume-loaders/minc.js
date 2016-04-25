@@ -33,7 +33,14 @@
   VolumeViewer.volume_loaders.minc = function(description, callback) {
     var error_message;
 
-    if (description.header_url && description.raw_data_url) {
+    if (!description.header_file && description.raw_data_file) {
+      BrainBrowser.loader.loadFromFile(description.raw_data_file, function(raw_data) {
+        var tmp = VolumeViewer.utils.hdf5Loader(raw_data);
+        parseHeader(tmp.header_text, function(header) {
+          createMincVolume(header, tmp.raw_data, callback);
+        });
+      }, { result_type: "arraybuffer" });
+    } else if (description.header_url && description.raw_data_url) {
       BrainBrowser.loader.loadFromURL(description.header_url, function(header_text) {
         parseHeader(header_text, function(header) {
           BrainBrowser.loader.loadFromURL(description.raw_data_url, function(raw_data) {
@@ -227,13 +234,19 @@
         var source_image = image_creation_context.createImageData(slice.width, slice.height);
         var target_image = image_creation_context.createImageData(target_width, target_height);
 
-        color_map.mapColors(slice.data, {
-          min: volume.intensity_min,
-          max: volume.intensity_max,
-          contrast: contrast,
-          brightness: brightness,
-          destination: source_image.data
-        });
+        if (volume.header.datatype === 'rgb8') {
+          var tmp = new Uint8ClampedArray(slice.data.buffer);
+          source_image.data.set(tmp, 0);
+        }
+        else {
+          color_map.mapColors(slice.data, {
+            min: volume.intensity_min,
+            max: volume.intensity_max,
+            contrast: contrast,
+            brightness: brightness,
+            destination: source_image.data
+          });
+        }
 
         target_image.data.set(
           VolumeViewer.utils.nearestNeighbor(
@@ -414,6 +427,7 @@
       native_data = new Uint16Array(raw_data);
       break;
     case 'uint32':
+    case 'rgb8':
       native_data = new Uint32Array(raw_data);
       break;
     default:

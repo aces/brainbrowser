@@ -41,7 +41,6 @@
         });
       }, { result_type: "arraybuffer" });
     } else if (!description.header_url && description.raw_data_url) {
-      console.log("IN !description.header_url && description.raw_data_url")
       BrainBrowser.loader.loadFromURL(description.raw_data_url, function(raw_data) {
         var tmp = VolumeViewer.utils.hdf5Loader(raw_data);
         parseHeader(tmp.header_text, function(header) {

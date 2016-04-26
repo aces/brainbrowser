@@ -1146,6 +1146,7 @@
       var dtsz;
       var elsz;
 
+      var n_items = 1;
       if (ver === 1 || ver === 2) {
         n_dim = getU8();
         cls = getU8();
@@ -1161,7 +1162,6 @@
           link.data_offset = addr;
         }
 
-        var n_items = 1;
         for (i = 0; i < n_dim; i += 1) {
           dim[i] = getU32();
           n_items *= dim[i];
@@ -1173,6 +1173,7 @@
 
         if (cls === 2) {        // chunked
           elsz = getU32();
+          link.chunk_size = n_items * elsz;
           if (debug) {
             msg += " E" + elsz;
           }
@@ -1185,7 +1186,7 @@
           link.data_offset = tell();
           link.data_length = cdsz;
         } else if (cls === 1) {
-          link.data_length = typeSize(link.type) * n_items;
+          link.data_length = n_items;
         }
       } else if (ver === 3) {
         cls = getU8();
@@ -1213,13 +1214,13 @@
           link.chunk_size = 1;
           for (i = 0; i < n_dim - 1; i += 1) {
             dim[i] = getU32();
-            link.chunk_size *= dim[i];
+            n_items *= dim[i];
           }
           if (debug) {
             msg += "(N" + n_dim + ", A" + dtadr + " [" + dim.join(',') + "]";
           }
           elsz = getU32();
-          link.chunk_size *= elsz;
+          link.chunk_size = n_items * elsz;
           if (debug) {
             msg += " E" + elsz;
           }

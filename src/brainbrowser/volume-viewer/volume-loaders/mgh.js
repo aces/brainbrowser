@@ -60,9 +60,13 @@
           createMGHVolume(header, data, callback);
         });
       }, {result_type: "arraybuffer" });
+    } else if (description.source) {
+      parseMGHHeader(description.source, function(header) {
+        createMGHVolume(header, description.source, callback);
+      });
     } else {
       error_message = "invalid volume description.\n" +
-        "Description must contain the property 'url' or 'file'.";
+        "Description must contain the property 'url', 'file' or 'source'.";
 
       BrainBrowser.events.triggerEvent("error", { message: error_message });
       throw new Error(error_message);

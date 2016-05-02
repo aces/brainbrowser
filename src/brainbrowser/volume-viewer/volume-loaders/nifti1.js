@@ -49,9 +49,13 @@
           createNifti1Volume(header, nii_data, callback);
         });
       }, {result_type: "arraybuffer" });
+    } else if (description.nii_source) {
+      parseNifti1Header(description.nii_source, function(header) {
+        createNifti1Volume(header, description.nii_source, callback);
+      });
     } else {
       error_message = "invalid volume description.\n" +
-        "Description must contain the property 'nii_url' or 'nii_file'.";
+        "Description must contain the property 'nii_url' or 'nii_file' or 'nii_source'.";
 
       BrainBrowser.events.triggerEvent("error", { message: error_message });
       throw new Error(error_message);

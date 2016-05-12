@@ -199,6 +199,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     camera.position.set(0, 0, default_camera_distance);
     light.position.set(0, 0, default_camera_distance);
 
+    var offset = model.userData.offset || new THREE.Vector3(0,0,0);
     model.children.forEach(function(shape) {
       var centroid   = shape.userData.centroid;
       var recentered = shape.userData.recentered;
@@ -209,12 +210,12 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       if (shape.userData.original_data) {
         if (centroid && recentered) {
           shape.position.set(
-            centroid.x,
-            centroid.y,
-            centroid.z
+            centroid.x + offset.x,
+            centroid.y + offset.y,
+            centroid.z + offset.z
           );
         } else {
-          shape.position.set(0, 0, 0);
+          shape.position.set(0 + offset.x, 0 + offset.y, 0 + offset.z);
         }
         shape.rotation.set(0, 0, 0);
         shape.material.opacity = 1;

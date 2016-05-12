@@ -269,10 +269,16 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var geometry = new THREE.SphereGeometry(radius);
     var material = new THREE.MeshBasicMaterial({color: color});
 
-    var sphere = new THREE.Mesh(geometry, material);
+    var sphere   = new THREE.Mesh(geometry, material);
     sphere.position.set(x, y, z);
 
     if (viewer.model) {
+      var offset = viewer.model.userData.offset;
+      if (offset !== undefined) {
+        sphere.translateX(offset.x);
+        sphere.translateY(offset.y);
+        sphere.translateZ(offset.z);
+      }
       viewer.model.add(sphere);
     } else {
       scene.add(sphere);
@@ -488,8 +494,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     y = (-y / viewer.dom_element.offsetHeight) * 2 + 1;
 
     var model = viewer.model;
-    var raycaster = new THREE.Raycaster();
-    var vector = new THREE.Vector3(x, y, camera.near);
+    var raycaster    = new THREE.Raycaster();
+    var vector       = new THREE.Vector3(x, y, camera.near);
     var intersection = null;
     var intersects, vertex_data;
     var intersect_object, intersect_point, intersect_indices, intersect_face;
@@ -689,8 +695,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     function drag(pointer, multiplier) {
       var inverse = new THREE.Matrix4();
-      var x = pointer.x;
-      var y = pointer.y;
+      var x       = pointer.x;
+      var y       = pointer.y;
       var dx, dy;
 
 
@@ -700,8 +706,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
         if (movement === "rotate") {
 
-          // Want to always be rotating around
-          // world axes.
+          // Want to always be rotating around world axes.
           inverse.getInverse(model.matrix);
           var axis = new THREE.Vector3(1, 0, 0).applyMatrix4(inverse).normalize();
           model.rotateOnAxis(axis, dy / 150);
@@ -710,13 +715,13 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
           axis = new THREE.Vector3(0, 1, 0).applyMatrix4(inverse).normalize();
           model.rotateOnAxis(axis, dx / 150);
         } else {
-          multiplier = multiplier || 1.0;
+          multiplier  = multiplier || 1.0;
           multiplier *= camera.position.z / default_camera_distance;
 
           camera.position.x -= dx * multiplier * 0.25;
-          light.position.x -= dx * multiplier * 0.25;
+          light.position.x  -= dx * multiplier * 0.25;
           camera.position.y += dy * multiplier * 0.25;
-          light.position.y += dy * multiplier * 0.25;
+          light.position.y  += dy * multiplier * 0.25;
         }
       }
 

@@ -695,7 +695,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       var bounding_box = new THREE.BoundingBoxHelper(model);
       bounding_box.update();
 
-      model.userData.model_centric = true
+      model.userData.model_centric = true;
+      model.userData.offset        = new THREE.Vector3(-bounding_box.position.x, -bounding_box.position.y, -bounding_box.position.z)
 
       model.children.forEach(function(children) {
         children.translateX(-bounding_box.position.x);

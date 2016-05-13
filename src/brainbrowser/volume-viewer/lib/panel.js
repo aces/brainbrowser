@@ -295,9 +295,10 @@
       * ```
       */
       reset: function() {
-        panel.zoom = 1;
+        panel.zoom = panel.default_zoom;
         panel.image_center.x = panel.canvas.width / 2;
         panel.image_center.y = panel.canvas.height / 2;
+        panel.updated = true;
       },
 
       /**
@@ -496,7 +497,10 @@
     }
 
     if (panel.volume) {
-      setSlice(panel, panel.volume.slice(panel.axis));
+      var volume = panel.volume;
+      setSlice(panel, volume.slice(panel.axis));
+      panel.default_zoom = volume.getPreferredZoom(panel.canvas.width, panel.canvas.height);
+      panel.zoom = panel.default_zoom;
     }
 
     return panel;
@@ -517,7 +521,7 @@
     var context = panel.context;
     var cursor = panel.getCursorPosition();
     var zoom = panel.zoom;
-    var length = 8 * zoom;
+    var length = 8 * (zoom / panel.default_zoom);
     var x, y, space;
     var distance;
     var dx, dy;
@@ -528,7 +532,7 @@
     context.strokeStyle = color;
     context.fillStyle = color;
 
-    space = zoom;
+    space = 1;
     x = cursor.x;
     y = cursor.y;
 

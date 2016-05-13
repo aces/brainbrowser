@@ -646,7 +646,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
 
           last_touch_distance = null;
         }
-        
+
         canvas.addEventListener("mousedown", function(event) {
           event.preventDefault();
 
@@ -696,7 +696,8 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
         }
 
         function zoom(delta) {
-          panel.zoom = Math.max(panel.zoom + delta * 0.05, 0.05);
+          panel.zoom *= (delta < 0) ? 1/1.05 : 1.05;
+          panel.zoom = Math.max(panel.zoom, 0.25);
           panel.updateVolumePosition();
           panel.updateSlice();
 

@@ -494,6 +494,11 @@ $(function() {
 
     });
 
+    // Origin position
+    $("#model_centric").change(function() {
+      viewer.model_centric($(this).is(":checked"));
+    });
+
     // Color map URLs are read from the config file and added to the
     // color map select box.
     var color_map_select = $('<select id="color-map-select"></select>').change(function() {
@@ -532,8 +537,8 @@ $(function() {
         $("#pick-index").html(pick_info.index);
         $("#annotation-wrapper").show();
 
-        picked_object = pick_info.object;
-        model_data = viewer.model_data.get(picked_object.userData.model_name);
+        picked_object  = pick_info.object;
+        model_data     = viewer.model_data.get(picked_object.userData.model_name);
         intensity_data = model_data.intensity_data[0];
 
         if (intensity_data) {
@@ -634,9 +639,9 @@ $(function() {
     });
 
     $("#annotation-save").click(function() {
-      var vertex_num = parseInt($("#pick-index").html(), 10);
+      var vertex_num         = parseInt($("#pick-index").html(), 10);
       var annotation_display = $("#annotation-display");
-      var media = $("#annotation-media");
+      var media              = $("#annotation-media");
 
       var annotation, annotation_data;
       var vertex;
@@ -658,15 +663,15 @@ $(function() {
         vertex = viewer.getVertex(vertex_num);
 
         annotation_data.image = $("#annotation-image").val();
-        annotation_data.url = $("#annotation-url").val();
-        annotation_data.text = $("#annotation-text").val();
+        annotation_data.url   = $("#annotation-url").val();
+        annotation_data.text  = $("#annotation-text").val();
 
         media.html("");
 
         if (annotation_data.image) {
-          var image = new Image();
+          var image   = new Image();
           image.width = 200;
-          image.src = annotation_data.image;
+          image.src   = annotation_data.image;
           annotation_display.show();
           media.append(image);
         }
@@ -914,7 +919,12 @@ $(function() {
       showLoading();
       viewer.loadModelFromFile(document.getElementById("objfile"), {
         format: format,
-        complete: hideLoading
+        complete: function() {
+          if ($("#model_centric").is(":checked")) {
+            viewer.model_centric(true);
+            }
+            hideLoading();
+          }
       });
 
       return false;

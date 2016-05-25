@@ -199,7 +199,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     camera.position.set(0, 0, default_camera_distance);
     light.position.set(0, 0, default_camera_distance);
 
-    var offset = model.userData.offset || new THREE.Vector3(0,0,0);
+    var offset = model.userData.model_center_offset || new THREE.Vector3(0,0,0);
     model.children.forEach(function(shape) {
       var centroid   = shape.userData.centroid;
       var recentered = shape.userData.recentered;
@@ -274,7 +274,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     sphere.position.set(x, y, z);
 
     if (viewer.model) {
-      var offset = viewer.model.userData.offset;
+      var offset = viewer.model.userData.model_center_offset;
       if (offset !== undefined) {
         sphere.translateX(offset.x);
         sphere.translateY(offset.y);
@@ -630,6 +630,78 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     return vertex_data;
   };
 
+  viewer.model_centric = function(model_centric) {
+    var model = viewer.model;
+
+    // Calculate bounding box only if needed
+    if (model.userData.model_center_offset === undefined) {
+      // Calculate bounding box for all children given by the user
+      // ignore other children
+      var min_x, max_x, min_y, max_y, min_z, max_z;
+      min_x = min_y = min_z = Number.POSITIVE_INFINITY;
+      max_x = max_y = max_z = Number.NEGATIVE_INFINITY;
+
+      model.children.forEach(function(children){
+        var model_name    = children.userData.model_name;
+        var model_data    = viewer.model_data.get(model_name);
+
+        var current_shape = undefined;
+        var children_name = children.name;
+        model_data.shapes.forEach(function(shape){
+            if (shape.name !== children_name)      { return };
+            if (children.material.opacity === 0)   { return };
+            current_shape = shape;
+            var bounding_box  = shape.bounding_box;
+
+            // min
+            min_x = Math.min(min_x, bounding_box.min_x);
+            min_y = Math.min(min_y, bounding_box.min_y);
+            min_z = Math.min(min_z, bounding_box.min_z);
+            // max
+            max_x = Math.max(max_x, bounding_box.max_x);
+            max_y = Math.max(max_y, bounding_box.max_y);
+            max_z = Math.max(max_z, bounding_box.max_z);
+        });
+      });
+
+      // centroid of all the model
+      var centroid = new THREE.Vector3()
+      centroid.x   =  min_x + (max_x - min_x) / 2;
+      centroid.y   =  min_y + (max_y - min_y) / 2;
+      centroid.z   =  min_z + (max_z - min_z) / 2;
+
+      model.userData.model_centric = true;
+      model.userData.model_center_offset        = new THREE.Vector3(-centroid.x, -centroid.y, -centroid.z)
+    }
+
+
+    if (model_centric === true) {
+      // Calculate bounding only if needed
+      // Translate each children
+      centroid = model.userData.model_center_offset;
+      model.children.forEach(function(children) {
+        // Return if children is not given by the user
+        if (Object.keys(children.userData).length === 0 && children.userData.constructor === Object) {return};
+        console.log(children.name)
+        children.translateX(centroid.x);
+        children.translateY(centroid.y);
+        children.translateZ(centroid.z);
+      });
+    } else {
+      // Revert the translation for each children
+      if (model.userData.model_centric !== true) {return};
+      var centroid = model.userData.model_center_offset;
+      model.children.forEach(function(children) {
+        // Return if children is not given by the user
+        if (Object.keys(children.userData).length === 0 && children.userData.constructor === Object) {return};
+        children.translateX(-centroid.x);
+        children.translateY(-centroid.y);
+        children.translateZ(-centroid.z);
+      });
+    }
+    viewer.updated = true;
+  };
+
   ////////////////////////////////////
   // PRIVATE FUNCTIONS
   ////////////////////////////////////
@@ -640,7 +712,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var delta;
     var rotation;
     var position = camera.position;
-    var new_z = default_camera_distance / viewer.zoom;
+    var new_z    = default_camera_distance / viewer.zoom;
 
     window.requestAnimationFrame(renderFrame);
 

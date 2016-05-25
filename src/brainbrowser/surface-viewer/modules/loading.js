@@ -691,20 +691,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       }
     }
 
-    if (options.model_centric === true) {
-      var bounding_box = new THREE.BoundingBoxHelper(model);
-      bounding_box.update();
-
-      model.userData.model_centric = true;
-      model.userData.offset        = new THREE.Vector3(-bounding_box.position.x, -bounding_box.position.y, -bounding_box.position.z)
-
-      model.children.forEach(function(children) {
-        children.translateX(-bounding_box.position.x);
-        children.translateY(-bounding_box.position.y);
-        children.translateZ(-bounding_box.position.z);
-      });
-    }
-
     return new_shapes;
   }
 

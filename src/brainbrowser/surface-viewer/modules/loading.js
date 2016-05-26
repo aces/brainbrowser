@@ -188,7 +188,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * * **pick_ignore** Ignore this object when picking.
   * * **recenter** Shift object vertex positions to be relative to the centroid (can
   *   help with transparency).
-  * * **model_centric** the origin of the model will be the center of the model.
   * * **parse** Parsing options to pass to the worker that will be used to parse the
   *   input file.
   *
@@ -218,7 +217,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * * **pick_ignore** Ignore this object when picking.
   * * **recenter** Shift object vertex positions to be relative to the centroid (can
   *   help with transparency).
-  * * **model_centric** the origin of the model will be the center of the model.
   * * **parse** Parsing options to pass to the worker that will be used to parse the
   *   input file.
   *
@@ -671,7 +669,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
           indices:  shape_data.indices,
           normals:  model_data.normals,
           colors:   model_data.colors,
-          model_centric: options.model_centric,
         };
 
         shape.userData.pick_ignore = pick_ignore;

@@ -633,7 +633,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
   /**
   * @doc function
-  * @name viewer.rendering:model_centric
+  * @name viewer.rendering:modelCentric
   * @param {boolean} if true, recenter all userData shape on origin. Otherwise
   * return to the original userData.
   *

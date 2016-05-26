@@ -924,7 +924,7 @@ $(function() {
           document.getElementById("model_centric").checked = true;
           viewer.modelCentric(true);
           hideLoading();
-          }
+        }
       });
 
       return false;

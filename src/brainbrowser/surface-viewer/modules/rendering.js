@@ -645,25 +645,26 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * viewer.modelCentric(true);
   * ```
   */
-  viewer.modelCentric = function(model_centric=false) {
-    var model = viewer.model;
+  viewer.modelCentric = function(model_centric) {
+    model_centric = model_centric === undefined ? false : true;
 
+    var model = viewer.model;
     viewer.findUserDataCentroid(model);
 
-    if (model_centric === model.userData.model_centric) {return};
+    if (model_centric === model.userData.model_centric) {return;}
 
     // Caculate the offset
     var offset_centroid = new THREE.Vector3();
     offset_centroid.copy(model.userData.model_center_offset);
-    if (model_centric === false) { offset_centroid.negate()};
+    if (model_centric === false) { offset_centroid.negate();}
 
     model.children.forEach(function(children) {
       // Return if children is not given by the user
-      if (Object.keys(children.userData).length === 0 && children.userData.constructor === Object) {return};
-        children.translateX(offset_centroid.x);
-        children.translateY(offset_centroid.y);
-        children.translateZ(offset_centroid.z);
-        model.userData.model_centric = model_centric;
+      if (Object.keys(children.userData).length === 0 && children.userData.constructor === Object) {return;}
+      children.translateX(offset_centroid.x);
+      children.translateY(offset_centroid.y);
+      children.translateZ(offset_centroid.z);
+      model.userData.model_centric = model_centric;
     });
     viewer.updated = true;
   };
@@ -684,7 +685,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   */
   viewer.findUserDataCentroid = function(model) {
     // Calculate only if needed
-    if (model.userData.model_center_offset !== undefined) {return};
+    if (model.userData.model_center_offset !== undefined) {return;}
 
     // Calculate bounding box for all children given by the user
     // ignore other children
@@ -696,30 +697,28 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       var model_name    = children.userData.model_name;
       var model_data    = viewer.model_data.get(model_name);
 
-      var current_shape = undefined;
       var children_name = children.name;
       model_data.shapes.forEach(function(shape){
-          if (shape.name !== children_name)      { return };
-          current_shape     = shape;
-          var bounding_box  = shape.bounding_box;
+        if (shape.name !== children_name)      {return;}
+        var bounding_box  = shape.bounding_box;
 
-          // min
-          min_x = Math.min(min_x, bounding_box.min_x);
-          min_y = Math.min(min_y, bounding_box.min_y);
-          min_z = Math.min(min_z, bounding_box.min_z);
-          // max
-          max_x = Math.max(max_x, bounding_box.max_x);
-          max_y = Math.max(max_y, bounding_box.max_y);
-          max_z = Math.max(max_z, bounding_box.max_z);
+        // min
+        min_x = Math.min(min_x, bounding_box.min_x);
+        min_y = Math.min(min_y, bounding_box.min_y);
+        min_z = Math.min(min_z, bounding_box.min_z);
+        // max
+        max_x = Math.max(max_x, bounding_box.max_x);
+        max_y = Math.max(max_y, bounding_box.max_y);
+        max_z = Math.max(max_z, bounding_box.max_z);
       });
 
       // centroid of all the model
-      var centroid = new THREE.Vector3()
+      var centroid = new THREE.Vector3();
       centroid.x   =  min_x + (max_x - min_x) / 2;
       centroid.y   =  min_y + (max_y - min_y) / 2;
       centroid.z   =  min_z + (max_z - min_z) / 2;
 
-      model.userData.model_center_offset  = new THREE.Vector3(-centroid.x, -centroid.y, -centroid.z)
+      model.userData.model_center_offset  = new THREE.Vector3(-centroid.x, -centroid.y, -centroid.z);
     });
   };
 

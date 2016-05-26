@@ -594,7 +594,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var render_depth  = options.render_depth;
     var pick_ignore   = options.pick_ignore;
     var recenter      = options.recenter || model_data.split;
-    var model_centric = options.model_centric;
     var new_shapes    = [];
     var shape, shape_data;
     var i, count;

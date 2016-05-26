@@ -215,7 +215,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
             centroid.z + offset.z
           );
         } else {
-          shape.position.set(0 + offset.x, 0 + offset.y, 0 + offset.z);
+          shape.position.set(offset.x, offset.y, offset.z);
         }
         shape.rotation.set(0, 0, 0);
         shape.material.opacity = 1;
@@ -274,8 +274,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     sphere.position.set(x, y, z);
 
     if (viewer.model) {
-      var offset = viewer.model.userData.model_center_offset;
-      if (offset !== undefined) {
+      var offset     = viewer.model.userData.model_center_offset;
+      var is_centric = viewer.model.userData.model_centric;
+      if (offset !== undefined && is_centric === true) {
         sphere.translateX(offset.x);
         sphere.translateY(offset.y);
         sphere.translateZ(offset.z);
@@ -646,7 +647,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * ```
   */
   viewer.modelCentric = function(model_centric) {
-    model_centric = model_centric === undefined ? false : true;
+    if (model_centric === undefined) {model_centric = false}
 
     var model = viewer.model;
     viewer.findUserDataCentroid(model);
@@ -664,8 +665,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       children.translateX(offset_centroid.x);
       children.translateY(offset_centroid.y);
       children.translateZ(offset_centroid.z);
-      model.userData.model_centric = model_centric;
     });
+    model.userData.model_centric = model_centric;
+
     viewer.updated = true;
   };
 

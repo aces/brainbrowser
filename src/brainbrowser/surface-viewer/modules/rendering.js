@@ -630,38 +630,87 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     return vertex_data;
   };
 
-  viewer.model_centric = function(model_centric) {
+
+  /**
+  * @doc function
+  * @name viewer.rendering:model_centric
+  * @param {boolean} if true, recenter all userData shape on origin. Otherwise
+  * return to the original userData.
+  *
+  * @description
+  * Use to recenter data when userData input is shifted in space.
+  *
+  *
+  * ```js
+  * viewer.modelCentric(true);
+  * ```
+  */
+  viewer.modelCentric = function(model_centric=false) {
     var model = viewer.model;
 
-    // Calculate bounding box only if needed
-    if (model.userData.model_center_offset === undefined) {
-      // Calculate bounding box for all children given by the user
-      // ignore other children
-      var min_x, max_x, min_y, max_y, min_z, max_z;
-      min_x = min_y = min_z = Number.POSITIVE_INFINITY;
-      max_x = max_y = max_z = Number.NEGATIVE_INFINITY;
+    viewer.findUserDataCentroid(model);
 
-      model.children.forEach(function(children){
-        var model_name    = children.userData.model_name;
-        var model_data    = viewer.model_data.get(model_name);
+    if (model_centric === model.userData.model_centric) {return};
 
-        var current_shape = undefined;
-        var children_name = children.name;
-        model_data.shapes.forEach(function(shape){
-            if (shape.name !== children_name)      { return };
-            if (children.material.opacity === 0)   { return };
-            current_shape = shape;
-            var bounding_box  = shape.bounding_box;
+    // Caculate the offset
+    var offset_centroid = new THREE.Vector3();
+    offset_centroid.copy(model.userData.model_center_offset);
+    if (model_centric === false) { offset_centroid.negate()};
 
-            // min
-            min_x = Math.min(min_x, bounding_box.min_x);
-            min_y = Math.min(min_y, bounding_box.min_y);
-            min_z = Math.min(min_z, bounding_box.min_z);
-            // max
-            max_x = Math.max(max_x, bounding_box.max_x);
-            max_y = Math.max(max_y, bounding_box.max_y);
-            max_z = Math.max(max_z, bounding_box.max_z);
-        });
+    model.children.forEach(function(children) {
+      // Return if children is not given by the user
+      if (Object.keys(children.userData).length === 0 && children.userData.constructor === Object) {return};
+        children.translateX(offset_centroid.x);
+        children.translateY(offset_centroid.y);
+        children.translateZ(offset_centroid.z);
+        model.userData.model_centric = model_centric;
+    });
+    viewer.updated = true;
+  };
+
+  /**
+  * @doc function
+  * @name viewer.rendering:findUserDataCentroid
+  * @param {object} a model.
+  *
+  * @description
+  * Find centroid of the model (only take in account userData).
+  *
+  * @returns {object} The initial information with additionnal model_center_offset argument.
+  *
+  * ```js
+  * viewer.findUserDataCentroid(true);
+  * ```
+  */
+  viewer.findUserDataCentroid = function(model) {
+    // Calculate only if needed
+    if (model.userData.model_center_offset !== undefined) {return};
+
+    // Calculate bounding box for all children given by the user
+    // ignore other children
+    var min_x, max_x, min_y, max_y, min_z, max_z;
+    min_x = min_y = min_z = Number.POSITIVE_INFINITY;
+    max_x = max_y = max_z = Number.NEGATIVE_INFINITY;
+
+    model.children.forEach(function(children){
+      var model_name    = children.userData.model_name;
+      var model_data    = viewer.model_data.get(model_name);
+
+      var current_shape = undefined;
+      var children_name = children.name;
+      model_data.shapes.forEach(function(shape){
+          if (shape.name !== children_name)      { return };
+          current_shape     = shape;
+          var bounding_box  = shape.bounding_box;
+
+          // min
+          min_x = Math.min(min_x, bounding_box.min_x);
+          min_y = Math.min(min_y, bounding_box.min_y);
+          min_z = Math.min(min_z, bounding_box.min_z);
+          // max
+          max_x = Math.max(max_x, bounding_box.max_x);
+          max_y = Math.max(max_y, bounding_box.max_y);
+          max_z = Math.max(max_z, bounding_box.max_z);
       });
 
       // centroid of all the model
@@ -670,36 +719,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       centroid.y   =  min_y + (max_y - min_y) / 2;
       centroid.z   =  min_z + (max_z - min_z) / 2;
 
-      model.userData.model_centric = true;
-      model.userData.model_center_offset        = new THREE.Vector3(-centroid.x, -centroid.y, -centroid.z)
-    }
-
-
-    if (model_centric === true) {
-      // Calculate bounding only if needed
-      // Translate each children
-      centroid = model.userData.model_center_offset;
-      model.children.forEach(function(children) {
-        // Return if children is not given by the user
-        if (Object.keys(children.userData).length === 0 && children.userData.constructor === Object) {return};
-        console.log(children.name)
-        children.translateX(centroid.x);
-        children.translateY(centroid.y);
-        children.translateZ(centroid.z);
-      });
-    } else {
-      // Revert the translation for each children
-      if (model.userData.model_centric !== true) {return};
-      var centroid = model.userData.model_center_offset;
-      model.children.forEach(function(children) {
-        // Return if children is not given by the user
-        if (Object.keys(children.userData).length === 0 && children.userData.constructor === Object) {return};
-        children.translateX(-centroid.x);
-        children.translateY(-centroid.y);
-        children.translateZ(-centroid.z);
-      });
-    }
-    viewer.updated = true;
+      model.userData.model_center_offset  = new THREE.Vector3(-centroid.x, -centroid.y, -centroid.z)
+    });
   };
 
   ////////////////////////////////////

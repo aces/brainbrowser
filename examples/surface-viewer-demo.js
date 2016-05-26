@@ -496,7 +496,7 @@ $(function() {
 
     // Origin position
     $("#model_centric").change(function() {
-      viewer.model_centric($(this).is(":checked"));
+      viewer.modelCentric($(this).is(":checked"));
     });
 
     // Color map URLs are read from the config file and added to the
@@ -516,6 +516,7 @@ $(function() {
       viewer.clearScreen();
       current_request = 0;
       current_request_name = "";
+      document.getElementById("model_centric").checked = false;
       loading_div.hide();
     });
 
@@ -524,8 +525,8 @@ $(function() {
       if (viewer.model.children.length === 0) return;
 
       var annotation_display = $("#annotation-display");
-      var media = $("#annotation-media");
-      var pick_info = viewer.pick();
+      var media              = $("#annotation-media");
+      var pick_info          = viewer.pick();
       var model_data, intensity_data;
       var annotation_info;
       var value, label, text;
@@ -920,10 +921,9 @@ $(function() {
       viewer.loadModelFromFile(document.getElementById("objfile"), {
         format: format,
         complete: function() {
-          if ($("#model_centric").is(":checked")) {
-            viewer.model_centric(true);
-            }
-            hideLoading();
+          document.getElementById("model_centric").checked = true;
+          viewer.modelCentric(true);
+          hideLoading();
           }
       });
 

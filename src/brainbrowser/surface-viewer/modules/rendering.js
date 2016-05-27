@@ -661,11 +661,15 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     // Caculate the offset
     var offset_centroid = new THREE.Vector3();
     offset_centroid.copy(model.userData.model_center_offset);
-    if (model_centric === false) { offset_centroid.negate();}
+    if (model_centric === false) {
+      offset_centroid.negate();
+    }
 
     model.children.forEach(function(children) {
       // Return if children is not given by the user
-      if (Object.keys(children.userData).length === 0 && children.userData.constructor === Object) {return;}
+      if (Object.keys(children.userData).length === 0 && children.userData.constructor === Object) {
+        return;
+      }
       children.translateX(offset_centroid.x);
       children.translateY(offset_centroid.y);
       children.translateZ(offset_centroid.z);

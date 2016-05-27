@@ -647,12 +647,16 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * ```
   */
   viewer.modelCentric = function(model_centric) {
-    if (model_centric === undefined) {model_centric = false}
+    if (model_centric === undefined) {
+      model_centric = false;
+    }
 
     var model = viewer.model;
     viewer.findUserDataCentroid(model);
 
-    if (model_centric === model.userData.model_centric) {return;}
+    if (model_centric === model.userData.model_centric) {
+      return;
+    }
 
     // Caculate the offset
     var offset_centroid = new THREE.Vector3();
@@ -687,7 +691,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   */
   viewer.findUserDataCentroid = function(model) {
     // Calculate only if needed
-    if (model.userData.model_center_offset !== undefined) {return;}
+    if (model.userData.model_center_offset !== undefined) {
+      return;
+    }
 
     // Calculate bounding box for all children given by the user
     // ignore other children
@@ -701,7 +707,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
       var children_name = children.name;
       model_data.shapes.forEach(function(shape){
-        if (shape.name !== children_name)      {return;}
+        if (shape.name !== children_name)      {
+          return;
+        }
         var bounding_box  = shape.bounding_box;
 
         // min

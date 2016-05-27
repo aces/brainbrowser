@@ -494,6 +494,11 @@ $(function() {
 
     });
 
+    // Origin position
+    $("#model_centric").change(function() {
+      viewer.modelCentric($(this).is(":checked"));
+    });
+
     // Color map URLs are read from the config file and added to the
     // color map select box.
     var color_map_select = $('<select id="color-map-select"></select>').change(function() {
@@ -511,6 +516,7 @@ $(function() {
       viewer.clearScreen();
       current_request = 0;
       current_request_name = "";
+      document.getElementById("model_centric").checked = false;
       loading_div.hide();
     });
 
@@ -519,8 +525,8 @@ $(function() {
       if (viewer.model.children.length === 0) return;
 
       var annotation_display = $("#annotation-display");
-      var media = $("#annotation-media");
-      var pick_info = viewer.pick();
+      var media              = $("#annotation-media");
+      var pick_info          = viewer.pick();
       var model_data, intensity_data;
       var annotation_info;
       var value, label, text;
@@ -532,8 +538,8 @@ $(function() {
         $("#pick-index").html(pick_info.index);
         $("#annotation-wrapper").show();
 
-        picked_object = pick_info.object;
-        model_data = viewer.model_data.get(picked_object.userData.model_name);
+        picked_object  = pick_info.object;
+        model_data     = viewer.model_data.get(picked_object.userData.model_name);
         intensity_data = model_data.intensity_data[0];
 
         if (intensity_data) {
@@ -634,9 +640,9 @@ $(function() {
     });
 
     $("#annotation-save").click(function() {
-      var vertex_num = parseInt($("#pick-index").html(), 10);
+      var vertex_num         = parseInt($("#pick-index").html(), 10);
       var annotation_display = $("#annotation-display");
-      var media = $("#annotation-media");
+      var media              = $("#annotation-media");
 
       var annotation, annotation_data;
       var vertex;
@@ -658,15 +664,15 @@ $(function() {
         vertex = viewer.getVertex(vertex_num);
 
         annotation_data.image = $("#annotation-image").val();
-        annotation_data.url = $("#annotation-url").val();
-        annotation_data.text = $("#annotation-text").val();
+        annotation_data.url   = $("#annotation-url").val();
+        annotation_data.text  = $("#annotation-text").val();
 
         media.html("");
 
         if (annotation_data.image) {
-          var image = new Image();
+          var image   = new Image();
           image.width = 200;
-          image.src = annotation_data.image;
+          image.src   = annotation_data.image;
           annotation_display.show();
           media.append(image);
         }
@@ -914,7 +920,14 @@ $(function() {
       showLoading();
       viewer.loadModelFromFile(document.getElementById("objfile"), {
         format: format,
-        complete: hideLoading
+        complete: function() {
+          document.getElementById("model_centric").checked = true;
+          viewer.modelCentric(true);
+          $("#vertex-data-wrapper").show();
+          $("#pick-value-wrapper").show();
+          $("#pick-label-wrapper").show();
+          hideLoading();
+        }
       });
 
       return false;

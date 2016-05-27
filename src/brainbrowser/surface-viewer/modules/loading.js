@@ -164,7 +164,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     * function. The function will receive the model description and the model name
     * as arguments.
     * ```js
-    * viewer.model_data.forEach(function(mode_data, model_name) {
+    * viewer.model_data.forEach(function(model_data, model_name) {
     *   console.log(model_name, model_data.vertices.length);
     * });
     * ```
@@ -363,9 +363,9 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   ////////////////////////////////////
 
   function loadModel(data, filename, options) {
-    options = options || {};
-    var type = options.format || "mniobj";
-    var parse_options = options.parse || {};
+    options           = options        || {};
+    var type          = options.format || "mniobj";
+    var parse_options = options.parse  || {};
 
     // Parse model info based on the given file type.
     parseModel(data, type, parse_options, function(model_data) {
@@ -376,12 +376,12 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   }
 
   function loadIntensityData(text, filename, options) {
-    options = options || {};
-    var name = options.name || filename;
-    var type = options.format || "text";
-    var blend = options.blend;
-    var model_name = options.model_name;
-    var model_data = viewer.model_data.get(model_name);
+    options            = options        || {};
+    var name           = options.name   || filename;
+    var type           = options.format || "text";
+    var blend          = options.blend;
+    var model_name     = options.model_name;
+    var model_data     = viewer.model_data.get(model_name);
     var intensity_data = model_data.intensity_data[0];
 
     var old_range = {};
@@ -564,18 +564,18 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   ///////////////////////////////////////////
 
   // Creates three.js objects based on the
-  // description in **model_data** and 
+  // description in **model_data** and
   // displays in on the viewer.
   function displayModel(model_data, filename, options) {
-    options = options || {};
+    options      = options || {};
     var complete = options.complete;
 
     var new_shapes = createModel(model_data, filename, options);
 
     viewer.triggerEvent("displaymodel", {
-      model: viewer.model,
+      model:      viewer.model,
       model_data: model_data,
-      new_shapes: new_shapes
+      new_shapes: new_shapes,
     });
 
     if (complete) complete();
@@ -586,13 +586,13 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   // object, though they may share attributes and
   // buffers.
   function createModel(model_data, filename, options){
-    var model = viewer.model;
-    var shapes = model_data.shapes;
-    var is_line = model_data.type === "line";
-    var render_depth = options.render_depth;
-    var pick_ignore = options.pick_ignore;
-    var recenter = options.recenter || model_data.split;
-    var new_shapes = [];
+    var model         = viewer.model;
+    var shapes        = model_data.shapes;
+    var is_line       = model_data.type === "line";
+    var render_depth  = options.render_depth;
+    var pick_ignore   = options.pick_ignore;
+    var recenter      = options.recenter || model_data.split;
+    var new_shapes    = [];
     var shape, shape_data;
     var i, count;
     var object_description = {is_line: is_line};
@@ -628,9 +628,9 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
           object_description = {
             position: position_buffer,
-            normal: normal_buffer,
-            color: color_buffer,
-            index: new THREE.BufferAttribute(new Uint32Array(shape_data.indices), 1),
+            normal:   normal_buffer,
+            color:    color_buffer,
+            index:    new THREE.BufferAttribute(new Uint32Array(shape_data.indices), 1),
           };
 
         } else {
@@ -649,26 +649,26 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
           object_description = {
             position: position_buffer,
-            normal: normal_buffer,
-            color: color_buffer
+            normal:   normal_buffer,
+            color:    color_buffer
           };
 
         }
 
-        object_description.is_line = is_line;
+        object_description.is_line  = is_line;
         object_description.centroid = shape_data.centroid;
         object_description.recenter = recenter;
 
-        shape = createShape(object_description);
+        shape      = createShape(object_description);
         shape.name = shape_data.name || filename + "_" + (i + 1);
 
         shape.userData.model_name = model_data.name;
 
         shape.userData.original_data = {
           vertices: model_data.vertices,
-          indices: shape_data.indices,
-          normals: model_data.normals,
-          colors: model_data.colors
+          indices:  shape_data.indices,
+          normals:  model_data.normals,
+          colors:   model_data.colors,
         };
 
         shape.userData.pick_ignore = pick_ignore;
@@ -694,14 +694,14 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   // a shape from the model data 'shapes'
   // array.
   function createShape(object_description) {
-    var position = object_description.position;
+    var position       = object_description.position;
     var position_array = position.array;
-    var normal = object_description.normal;
-    var color = object_description.color;
-    var index = object_description.index;
-    var centroid = object_description.centroid;
-    var is_line = object_description.is_line;
-    var recenter = object_description.recenter;
+    var normal         = object_description.normal;
+    var color          = object_description.color;
+    var index          = object_description.index;
+    var centroid       = object_description.centroid;
+    var is_line        = object_description.is_line;
+    var recenter       = object_description.recenter;
 
     var geometry = new THREE.BufferGeometry();
     var index_array, tmp_position_array, position_index;
@@ -748,10 +748,10 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
     if (is_line) {
       material = new THREE.LineBasicMaterial({vertexColors: THREE.VertexColors});
-      shape = new THREE.Line(geometry, material, THREE.LinePieces);
+      shape    = new THREE.Line(geometry, material, THREE.LinePieces);
     } else {
       material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0xFFFFFF, specular: 0x101010, shininess: 150, vertexColors: THREE.VertexColors});
-      shape = new THREE.Mesh(geometry, material);
+      shape    = new THREE.Mesh(geometry, material);
       shape.userData.has_wireframe = true;
     }
 

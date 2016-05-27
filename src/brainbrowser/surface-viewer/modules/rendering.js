@@ -647,7 +647,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * ```
   */
   viewer.modelCentric = function(model_centric) {
-    if (model_centric === undefined) {model_centric = false}
+    if (model_centric === undefined) {model_centric = false;}
 
     var model = viewer.model;
     viewer.findUserDataCentroid(model);

@@ -225,6 +225,7 @@
 
         if (scale_image) {
           panel.zoom = panel.zoom * ratio;
+          panel.default_zoom = panel.default_zoom * ratio;
           panel.image_center.x = width / 2;
           panel.image_center.y = height / 2;
           panel.updateVolumePosition();

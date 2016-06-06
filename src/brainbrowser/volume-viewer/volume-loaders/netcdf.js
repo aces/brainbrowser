@@ -174,24 +174,7 @@
       offset = offset || dv_offset;
 
       if (typ === type_enum.CHAR) {
-        var c;
-
-        if (dims.length > 1) {
-          value = [];
-          for (i = 0; i < dims[0]; i++) {
-            value.push(getArray(typ, dims[1], [], offset + i * dims[1]));
-          }
-        }
-        else {
-          value = "";
-          for (i = 0; i < n_bytes; i += 1) {
-            c = dv.getUint8(offset + i);
-            if (c === 0) {
-              break;
-            }
-            value += String.fromCharCode(c);
-          }
-        }
+        value = new Int8Array(abuf, offset, n_bytes);
       } else if (typ === type_enum.BYTE) {
         value = new Uint8Array(abuf, offset, n_bytes);
       } else if (typ === type_enum.DOUBLE) {
@@ -284,7 +267,18 @@
       var nc_type = getU32();
       var nelems = getU32();
       var value = getArray(nc_type, typeSize(nc_type) * nelems, []);
-
+      if (nc_type === type_enum.CHAR) {
+        var str = "";
+        var i;
+        for (i = 0; i < value.length; i++) {
+          var chr = value[i];
+          if (chr === 0) {
+            break;
+          }
+          str += String.fromCharCode(chr);
+        }
+        value = str;
+      }
       link.attributes[name] = value;
     }
 
@@ -336,6 +330,7 @@
       child.name = name;
       child.type = nc_type;
       child.dims = dims;
+      child.dimids = dimids;
       child.vsize = vsize;
       child.begin = begin;
       child.nelem = 1;
@@ -355,7 +350,7 @@
           child.array = new Uint8Array(abuf);
           break;
         case type_enum.CHAR:
-          child.array = [];
+          child.array = new Int8Array(abuf);
           break;
         case type_enum.SHORT:
           child.array = new Int16Array(abuf);
@@ -410,20 +405,11 @@
         file_offset = link.begin;
         array_offset = 0;
         var tmp;
-        if (link.type === type_enum.CHAR) {
-          for (j = 0; j < numrec; j++) {
-            tmp = getArray(link.type, link.vsize, [], file_offset);
-            link.array.push(tmp);
-            file_offset += recsz;
-          }
-        }
-        else {
-          for (j = 0; j < numrec; j++) {
-            tmp = getArray(link.type, link.nelem, [], file_offset);
-            link.array.set(tmp, array_offset);
-            file_offset += recsz;
-            array_offset += tmp.length;
-          }
+        for (j = 0; j < numrec; j++) {
+          tmp = getArray(link.type, link.nelem, [], file_offset);
+          link.array.set(tmp, array_offset);
+          file_offset += recsz;
+          array_offset += tmp.length;
         }
       }
     }

@@ -35,7 +35,7 @@
  */
 (function () {
   'use strict';
-  /** Internal type codes. These have nothing to do with HDF5. */
+  /* Internal type codes. These have nothing to do with HDF5. */
   var type_enum = {
     INT8: 1,
     UINT8: 2,
@@ -72,6 +72,17 @@
     return (typ >= type_enum.FLT && typ <= type_enum.DBL);
   }
 
+  /**
+   * @doc function
+   * @name hdf5Reader
+   * @param {object} abuf The ArrayBuffer containing the data to be
+   * parsed.
+   * @param {boolean} debug True if we should print debugging information
+   * to the console.
+   * @returns A 'link' object that corresponds to the root group of the HDF5
+   * file structure.
+   * @description Attempts to interpret an ArrayBuffer as an HDF5 file.
+   */
   function hdf5Reader(abuf, debug) {
     /* 'global' variables. */
     var dv_offset = 0;
@@ -83,8 +94,29 @@
     var start_offset = 0;
 
     debug = debug || false;
-
-    /* Function to create and initialize one of our internal
+    /**
+     * @doc object
+     * @name hdf5.link
+     * @property {string} name The name associated with this object.
+     * @property {object} attributes Hash of all of the attributes
+     * associated with this object.
+     * @property {array} children Indexed list of child nodes.
+     * @property {object} array The typed array that contains the actual
+     * data associated with the link.
+     * @property {number} type The type of the data associated with this 
+     * node, one of the type_enum values.
+     * @property {boolean} inflate True if the data needs to be decompressed
+     * during loading.
+     * @property {array} dims The lengths of each dimension in the image.
+     * @description This object is used to represent HDF5 objects such as
+     * groups and datasets, or NetCDF variables.
+     */
+    /**
+     * @doc function
+     * @name hdf5Reader.createLink
+     * @returns {object} One of our internal 'link' objects.
+     * @description
+     * Function to create and initialize one of our internal
      * 'link' objects,  which represent either an HDF5 group
      * or dataset here.
      */
@@ -470,7 +502,7 @@
       return fh;
     }
 
-    /** read the v2 btree header */
+    /* read the v2 btree header */
     function hdf5V2BtreeHeader() {
       var bh = {};
       if (!checkSignature("BTHD")) {
@@ -496,7 +528,7 @@
 
     var huge_id;
 
-    /**
+    /*
      * Enumerates btree records in a block. Records are found both in direct
      * and indirect v2 btree blocks.
      */
@@ -580,10 +612,11 @@
             }
           }
           else {
-            /**
-             * A managed object implies that the attribute message is found in the
-             * associated fractal heap at the specified offset in the heap. We get the
-             * actual address corresponding to the offset here.
+            /*
+             * A managed object implies that the attribute message is
+             * found in the associated fractal heap at the specified
+             * offset in the heap. We get the actual address
+             * corresponding to the offset here.
              */
             var location = hdf5FractalHeapOffset(fh, offset);
             seek(location);
@@ -597,7 +630,7 @@
       }
     }
 
-    /** read a v2 btree leaf node */
+    /* read a v2 btree leaf node */
     function hdf5V2BtreeLeafNode(fh, nrec, link) {
 
       if (!checkSignature("BTLF")) {
@@ -941,7 +974,7 @@
       return n_items;
     }
 
-    /**
+    /*
      * link info messages may contain a fractal heap address where we
      * can find additional link messages for this object. This
      * happens, for example, when there are lots of links in a
@@ -1226,15 +1259,14 @@
           }
         }
       } else {
-        console.log("Illegal layout version " + ver);
+        throw new Error("Illegal layout version " + ver);
       }
       if (debug) {
         console.log(msg);
       }
     }
 
-    /**
-     * @doc function
+    /*
      * Read a "filter pipeline" message. At the moment we _only_ handle
      * deflate/inflate. Anything else will cause us to throw an exception.
      */
@@ -1457,8 +1489,9 @@
       if (callback) {
         return callback(row, address, block_offset, block_length);
       }
-      else
+      else {
         return true;            // continue enumeration.
+      }
     }
 
     /*
@@ -1534,7 +1567,7 @@
       return true;
     }
 
-    /** enumerate over all of the direct blocks in the fractal heap.
+    /* enumerate over all of the direct blocks in the fractal heap.
      */
     function hdf5FractalHeapEnumerate(fh, callback) {
       seek(fh.root_addr);
@@ -1965,17 +1998,17 @@
     }
     loadData(root);
     return root;
-  }
+  } /* end of hdf5Reader() */
 
 
-  /**
+  /*
    * The remaining code after this point is not truly HDF5 specific -
    * it's mostly about converting the MINC file into the form
    * BrainBrowser is able to use. Therefore it is used for both HDF5
    * and NetCDF files.
    */
 
-  /**
+  /*
    * Join does not seem to be defined on the typed arrays in
    * javascript, so I've re-implemented it here, sadly.
    */
@@ -1992,8 +2025,9 @@
     return result;
   }
 
-  /** Recursively print out the structure and contents of the file.
-   *  Primarily useful for debugging.
+  /*
+   * Recursively print out the structure and contents of the file.
+   * Primarily useful for debugging.
    */
   function printStructure(link, level) {
     var i;
@@ -2074,6 +2108,18 @@
   }
 
   /**
+   * @doc function
+   * @name hdf5.scaleVoxels
+   * @param {object} image The link object corresponding to the image data.
+   * @param {object} image_min The link object corresponding to the image-min
+   * data.
+   * @param {object} image_max The link object corresponding to the image-max
+   * data.
+   * @param {object} valid_range An array of exactly two items corresponding
+   * to the minimum and maximum valid _raw_ voxel values.
+   * @param {boolean} debug True if we should print debugging information.
+   * @returns A new ArrayBuffer containing the rescaled data.
+   * @description
    * Convert the MINC data from voxel to real range. This returns a
    * new buffer that contains the "real" voxel values. It does less
    * work for floating-point volumes, since they don't need scaling.
@@ -2166,15 +2212,26 @@
       }
     }
 
-    console.log("Min: " + n);
-    console.log("Max: " + x);
-    console.log("Sum: " + s);
-    console.log("Mean: " + s / c);
+    if (debug) {
+      console.log("Min: " + n);
+      console.log("Max: " + x);
+      console.log("Sum: " + s);
+      console.log("Mean: " + s / c);
+    }
 
     return new_abuf;
   }
 
-  /* A MINC volume is an RGB volume if all three are true:
+  /**
+   * @doc function
+   * @name hdf5.isRgbVolume
+   * @param {object} header The header object representing the structure 
+   * of the MINC file.
+   * @param {object} image The typed array object used to represent the
+   * image data.
+   * @returns {boolean} True if this is an RGB volume.
+   * @description
+   * A MINC volume is an RGB volume if all three are true:
    * 1. The voxel type is unsigned byte.
    * 2. It has a vector_dimension in the last (fastest-varying) position.
    * 3. The vector dimension has length 3.
@@ -2187,7 +2244,15 @@
             header.vector_dimension.space_length === 3);
   }
 
-  /* This function copies the RGB voxels to the destination buffer.
+  /**
+   * @doc function
+   * @name hdf5.rgbVoxels
+   * @param {object} image The 'link' object created using createLink(),
+   * that corresponds to the image within the HDF5 or NetCDF file.
+   * @returns {object} A new ArrayBuffer that contains the original RGB 
+   * data augmented with alpha values.
+   * @description
+   * This function copies the RGB voxels to the destination buffer.
    * Essentially we just convert from 24 to 32 bits per voxel. This
    * is another MINC-specific function.
    */
@@ -2209,6 +2274,18 @@
 
   var VolumeViewer = BrainBrowser.VolumeViewer;
 
+  /**
+   * @doc function
+   * @name VolumeViewer.utils.hdf5Loader
+   * @param {object} data An ArrayBuffer object that contains the binary
+   * data to be interpreted as an HDF5 file.
+   *
+   * @description This function is the primary entry point for loading
+   * either MINC 1.0 or 2.0 files. It attempts to interpret the file
+   * as an HDF5 (MINC 2.0) file. If that fails (e.g. throws an
+   * exception), the code falls back to interpreting the file as a
+   * NetCDF (MINC 1.0) file.
+   */
   VolumeViewer.utils.hdf5Loader = function (data) {
     var debug = false;
 
@@ -2222,15 +2299,17 @@
       }
       root = VolumeViewer.utils.netcdfReader(data, debug);
     }
-    /* TODO: don't do this unless debug is true! */
-    printStructure(root, 0);
+    if (debug) {
+      printStructure(root, 0);
+    }
 
-    /* The rest of this code is MINC-specific, so like some of the functions above,
-     * it can migrate into minc.js once things have stabilized.
+    /* The rest of this code is MINC-specific, so like some of the
+     * functions above, it can migrate into minc.js once things have
+     * stabilized.
      *
-     * This code is responsible for collecting up the various pieces of important
-     * data and metadata, and reorganizing them into the form the volume viewer can
-     * handle.
+     * This code is responsible for collecting up the various pieces
+     * of important data and metadata, and reorganizing them into the
+     * form the volume viewer can handle.
      */
     var image = findDataset(root, "image");
     if (!defined(image)) {
@@ -2350,6 +2429,4 @@
     return { header_text: JSON.stringify(header),
              raw_data: new_abuf};
   };
-
-  console.log("HDF5 is loaded!");
 }());

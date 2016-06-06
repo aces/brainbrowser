@@ -34,7 +34,7 @@
 (function () {
   "use strict";
 
-  /** netcdf type codes. */
+  /* netcdf type codes. */
   var type_enum = {
     BYTE: 1,
     CHAR: 2,
@@ -86,6 +86,17 @@
 
   var VolumeViewer = BrainBrowser.VolumeViewer;
 
+  /**
+   * @doc function
+   * @name VolumeViewer.utils.netcdfReader
+   * @param {object} abuf The ArrayBuffer containing the data to be
+   * parsed.
+   * @param {boolean} debug True if we should print debugging information
+   * to the console.
+   * @returns A 'link' object that corresponds to the root of the NetCDF
+   * file structure.
+   * @description Attempts to interpret an ArrayBuffer as an NetCDF file.
+   */
   VolumeViewer.utils.netcdfReader = function (abuf, debug) {
     /* 'global' variables. */
     var dv_offset = 0;
@@ -147,7 +158,7 @@
       return Math.floor((n + 3) / 4) * 4;
     }
 
-    /** Get an array from the NetCDF file.
+    /* Get an array from the NetCDF file.
      *
      * Tries to be reasonably intelligent about the conversion. In
      * particular, it tries to return an appropriately-typed view
@@ -215,7 +226,7 @@
       return value;
     }
 
-    /** Read and verify the magic number in a NetCDF file.
+    /* Read and verify the magic number in a NetCDF file.
      * We support only version 1 files, so the first 4 bytes
      * should be "CDF\001".
      */
@@ -229,7 +240,7 @@
       return true;
     }
 
-    /** Generic function for reading "tagged lists", which
+    /* Generic function for reading "tagged lists", which
      * correspond to dimensions, attributes, and/or variables
      * in NetCDF classic.
      */
@@ -247,7 +258,7 @@
       }
     }
 
-    /** Read a NetCDF dimension from the buffer.
+    /* Read a NetCDF dimension from the buffer.
      * The dimension will be saved in the array file_dimensions.
      */
     function dimension() {
@@ -257,13 +268,13 @@
       file_dimensions.push({ name: dimname, length: dimlen });
     }
 
-    /** Read a tagged list consisting of NetCDF dimensions.
+    /* Read a tagged list consisting of NetCDF dimensions.
      */
     function dimensions() {
       taggedList(10, dimension);
     }
 
-    /** Read a NetCDF attribute from the buffer.
+    /* Read a NetCDF attribute from the buffer.
      * The attribute will be saved in the attributes array of
      * the link.
      */
@@ -277,13 +288,13 @@
       link.attributes[name] = value;
     }
 
-    /** Read a tagged list consisting of NetCDF attributes.
+    /* Read a tagged list consisting of NetCDF attributes.
      */
     function attributes(link) {
       taggedList(12, attribute, link);
     }
 
-    /** Read a NetCDF variable from the buffer.
+    /* Read a NetCDF variable from the buffer.
      * A new "link" object will be created and added to the children
      * of the parent.
      *
@@ -370,13 +381,13 @@
       mincify(child, dimids, file_dimensions); // <-- MINC specific stuff
     }
 
-    /** Read a tagged list consisting of NetCDF attributes.
+    /* Read a tagged list consisting of NetCDF attributes.
      */
     function variables(root) {
       taggedList(11, variable, root);
     }
 
-    /** Read the record variable data.
+    /* Read the record variable data.
      */
     function records() {
       var i;
@@ -417,7 +428,7 @@
       }
     }
 
-    /** The core of the NetCDF reader:
+    /* The core of the NetCDF reader:
      * 1. Check the magic number.
      * 2. Read the numrec value.
      * 3. Read the list of dimensions.
@@ -438,6 +449,4 @@
     root.numrec = numrec;
     return root;
   };
-
-  console.log("NetCDF is loaded!");
 })();

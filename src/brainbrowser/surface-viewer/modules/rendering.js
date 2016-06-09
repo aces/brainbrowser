@@ -634,6 +634,61 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
   /**
   * @doc function
+  * @name viewer.rendering:changeCenterRotation
+  * @param XXX
+  *
+  * @description
+  * Use to change center of rotation.
+  *
+  *
+  * ```js
+  * viewer.changeCenterRotation(XXX);
+  * ```
+  */
+  viewer.changeCenterRotation = function(center) {
+    var center     = center || new THREE.Vector3(0 , 0, 0);
+    var model      = viewer.model;
+
+    var model_center_offset = model.userData.model_center_offset || new THREE.Vector3( 0, 0, 0 );
+
+    var offset_diff         = new THREE.Vector3( 0, 0, 0 );
+        offset_diff.x       = model_center_offset.x - center.x;
+        offset_diff.y       = model_center_offset.y - center.y;
+        offset_diff.z       = model_center_offset.z - center.z;
+    console.log(offset_diff)
+
+
+    // translate all children
+    model.children.forEach(function(children) {
+      // Return if children is not given by the user
+      if (Object.keys(children.userData).length === 0 && children.userData.constructor === Object) {
+        return;
+      }
+      children.translateX(offset_diff.x);
+      children.translateY(offset_diff.y);
+      children.translateZ(offset_diff.z);
+    });
+
+    // Unapply previous adjustment to scene position due to user manual rotation (this does nothing / has no effect before 1st rotation)
+    var inverse_matrix = new THREE.Matrix4().getInverse(model.matrix);
+    model.parent.position.applyMatrix4(inverse_matrix);
+
+    // Compensate scene position for all offsets done to model above
+    model.parent.translateX(-offset_diff.x);
+    model.parent.translateY(-offset_diff.y);
+    model.parent.translateZ(-offset_diff.z);
+
+    // Adjust scene position due to user manual rotation
+    model.parent.position.applyMatrix4(model.matrix);
+
+    viewer.model.userData.model_center_offset = center;
+
+    viewer.updated = true;
+  };
+
+
+  /**
+  * @doc function
   * @name viewer.rendering:modelCentric
   * @param {boolean} if true, recenter all userData shape on origin. Otherwise
   * return to the original userData.
@@ -690,7 +745,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * @returns {object} The initial information with additionnal model_center_offset argument.
   *
   * ```js
-  * viewer.findUserDataCentroid(true);
+  * viewer.findUserDataCentroid(model);
   * ```
   */
   viewer.findUserDataCentroid = function(model) {

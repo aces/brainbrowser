@@ -921,8 +921,8 @@ $(function() {
       viewer.loadModelFromFile(document.getElementById("objfile"), {
         format: format,
         complete: function() {
-          document.getElementById("model_centric").checked = true;
-          viewer.modelCentric(true);
+          //document.getElementById("model_centric").checked = true;
+          //viewer.modelCentric(true);
           $("#vertex-data-wrapper").show();
           $("#pick-value-wrapper").show();
           $("#pick-label-wrapper").show();

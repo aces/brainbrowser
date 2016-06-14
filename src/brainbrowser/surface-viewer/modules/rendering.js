@@ -273,13 +273,16 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var sphere   = new THREE.Mesh(geometry, material);
     sphere.position.set(x, y, z);
 
+console.log(sphere.position)
+console.log(viewer.model.userData.model_center_offset)
+
     if (viewer.model) {
       var offset     = viewer.model.userData.model_center_offset;
       var is_centric = viewer.model.userData.model_centric;
-      if (offset !== undefined && is_centric === true) {
-        sphere.translateX(offset.x);
-        sphere.translateY(offset.y);
-        sphere.translateZ(offset.z);
+      if (offset !== undefined) {
+        sphere.translateX(-offset.x);
+        sphere.translateY(-offset.y);
+        sphere.translateZ(-offset.z);
       }
       viewer.model.add(sphere);
     } else {
@@ -635,53 +638,75 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   /**
   * @doc function
   * @name viewer.rendering:changeCenterRotation
-  * @param XXX
+  * @param {center} a Vector3 that indigate the new center
   *
   * @description
   * Use to change center of rotation.
   *
   *
   * ```js
-  * viewer.changeCenterRotation(XXX);
+  * viewer.changeCenterRotation(center);
   * ```
   */
-  viewer.changeCenterRotation = function(center) {
-    var center     = center || new THREE.Vector3(0 , 0, 0);
+  viewer.changeCenterRotation = function(center, need_to_be_adjust) {
+    var offset     = new THREE.Vector3(0 , 0, 0);
+    // Copy the center into offset, in order to keep center intact 
+    // we do not want to manipulate center
+        offset.copy(center)
     var model      = viewer.model;
 
-    var model_center_offset = model.userData.model_center_offset || new THREE.Vector3( 0, 0, 0 );
+    // Adjust the offset value if needed (e.g: if the model was already moved)
+    var offset_old = new THREE.Vector3(0,0,0);
+    if ( model.userData.model_center_offset !== undefined && need_to_be_adjust === true) {
+      offset_old =  model.userData.model_center_offset;
+    }
+    offset.x = -offset_old.x - offset.x
+    offset.y = -offset_old.y - offset.y
+    offset.z = -offset_old.z - offset.z
+    offset.negate()
 
-    var offset_diff         = new THREE.Vector3( 0, 0, 0 );
-        offset_diff.x       = model_center_offset.x - center.x;
-        offset_diff.y       = model_center_offset.y - center.y;
-        offset_diff.z       = model_center_offset.z - center.z;
-    console.log(offset_diff)
+    /*
+      Adjsut all the children. 
+    */
 
-
-    // translate all children
-    model.children.forEach(function(children) {
-      // Return if children is not given by the user
-      if (Object.keys(children.userData).length === 0 && children.userData.constructor === Object) {
-        return;
-      }
-      children.translateX(offset_diff.x);
-      children.translateY(offset_diff.y);
-      children.translateZ(offset_diff.z);
+    // Translate to original place first 
+     model.children.forEach(function(children) {
+      children.translateX(offset_old.x)
+      children.translateY(offset_old.y)
+      children.translateZ(offset_old.z)
     });
+    
+    // Translate to the new place
+    model.children.forEach(function(children) {
+      children.translateX(-offset.x)
+      children.translateY(-offset.y)
+      children.translateZ(-offset.z)
+    });
+
+    /*
+      Adjsut the parent (a.k.a: the scene) 
+    */
 
     // Unapply previous adjustment to scene position due to user manual rotation (this does nothing / has no effect before 1st rotation)
     var inverse_matrix = new THREE.Matrix4().getInverse(model.matrix);
     model.parent.position.applyMatrix4(inverse_matrix);
 
-    // Compensate scene position for all offsets done to model above
-    model.parent.translateX(-offset_diff.x);
-    model.parent.translateY(-offset_diff.y);
-    model.parent.translateZ(-offset_diff.z);
+    // Translate the scene to original position
+    model.parent.translateX(-offset_old.x);
+    model.parent.translateY(-offset_old.y);
+    model.parent.translateZ(-offset_old.z);
 
-    // Adjust scene position due to user manual rotation
+    // Compensate scene position for all offsets done to model above
+    model.parent.translateX(offset.x);
+    model.parent.translateY(offset.y);
+    model.parent.translateZ(offset.z);
+
+    // Reapply previous adjustment to scene position due to user manual rotation (this does nothing / has no effect before 1st rotation)
+    var inverse_matrix = new THREE.Matrix4().getInverse(model.matrix);
     model.parent.position.applyMatrix4(model.matrix);
 
-    viewer.model.userData.model_center_offset = center;
+    // Save offset information in userData
+    viewer.model.userData.model_center_offset = offset;
 
     viewer.updated = true;
   };
@@ -742,7 +767,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * @description
   * Find centroid of the model (only take in account userData).
   *
-  * @returns {object} The initial information with additionnal model_center_offset argument.
+  * @returns {object} The initial information with additionnal model_center argument.
   *
   * ```js
   * viewer.findUserDataCentroid(model);
@@ -787,7 +812,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       centroid.y   =  min_y + (max_y - min_y) / 2;
       centroid.z   =  min_z + (max_z - min_z) / 2;
 
-      model.userData.model_center_offset  = new THREE.Vector3(-centroid.x, -centroid.y, -centroid.z);
+      model.userData.model_center  = new THREE.Vector3(centroid.x, centroid.y, centroid.z);
     });
   };
 

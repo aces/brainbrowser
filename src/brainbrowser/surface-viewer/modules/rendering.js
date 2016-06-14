@@ -648,7 +648,7 @@ console.log(viewer.model.userData.model_center_offset)
   * viewer.changeCenterRotation(center);
   * ```
   */
-  viewer.changeCenterRotation = function(center, need_to_be_adjust) {
+  viewer.changeCenterRotation = function(center) {
     var offset     = new THREE.Vector3(0 , 0, 0);
     // Copy the center into offset, in order to keep center intact 
     // we do not want to manipulate center
@@ -656,10 +656,7 @@ console.log(viewer.model.userData.model_center_offset)
     var model      = viewer.model;
 
     // Adjust the offset value if needed (e.g: if the model was already moved)
-    var offset_old = new THREE.Vector3(0,0,0);
-    if ( model.userData.model_center_offset !== undefined && need_to_be_adjust === true) {
-      offset_old =  model.userData.model_center_offset;
-    }
+    var offset_old = model.userData.model_center_offset || new THREE.Vector3(0,0,0)
     offset.x = -offset_old.x - offset.x
     offset.y = -offset_old.y - offset.y
     offset.z = -offset_old.z - offset.z
@@ -715,8 +712,6 @@ console.log(viewer.model.userData.model_center_offset)
   /**
   * @doc function
   * @name viewer.rendering:modelCentric
-  * @param {boolean} if true, recenter all userData shape on origin. Otherwise
-  * return to the original userData.
   *
   * @description
   * Use to recenter data when userData input is shifted in space.
@@ -726,35 +721,16 @@ console.log(viewer.model.userData.model_center_offset)
   * viewer.modelCentric(true);
   * ```
   */
-  viewer.modelCentric = function(model_centric) {
-    if (model_centric === undefined) {
-      model_centric = false;
-    }
-
+  viewer.modelCentric = function() {
     var model = viewer.model;
     viewer.findUserDataCentroid(model);
+    var center = model.userData.model_center
 
-    if (model_centric === model.userData.model_centric) {
-      return;
-    }
+    // Set Camera position
+    viewer.setCameraPosition(center.x,center.y,center.z)
 
-    // Caculate the offset
-    var offset_centroid = new THREE.Vector3();
-    offset_centroid.copy(model.userData.model_center_offset);
-    if (model_centric === false) {
-      offset_centroid.negate();
-    }
-
-    model.children.forEach(function(children) {
-      // Return if children is not given by the user
-      if (Object.keys(children.userData).length === 0 && children.userData.constructor === Object) {
-        return;
-      }
-      children.translateX(offset_centroid.x);
-      children.translateY(offset_centroid.y);
-      children.translateZ(offset_centroid.z);
-    });
-    model.userData.model_centric = model_centric;
+    // Set center position
+    viewer.changeCenterRotation(center)
 
     viewer.updated = true;
   };

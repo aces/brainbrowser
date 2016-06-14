@@ -494,11 +494,6 @@ $(function() {
 
     });
 
-    // Origin position
-    $("#model_centric").change(function() {
-      viewer.modelCentric($(this).is(":checked"));
-    });
-
     // Color map URLs are read from the config file and added to the
     // color map select box.
     var color_map_select = $('<select id="color-map-select"></select>').change(function() {
@@ -516,7 +511,6 @@ $(function() {
       viewer.clearScreen();
       current_request = 0;
       current_request_name = "";
-      document.getElementById("model_centric").checked = false;
       loading_div.hide();
     });
 
@@ -921,8 +915,7 @@ $(function() {
       viewer.loadModelFromFile(document.getElementById("objfile"), {
         format: format,
         complete: function() {
-          //document.getElementById("model_centric").checked = true;
-          //viewer.modelCentric(true);
+          viewer.modelCentric();
           $("#vertex-data-wrapper").show();
           $("#pick-value-wrapper").show();
           $("#pick-label-wrapper").show();

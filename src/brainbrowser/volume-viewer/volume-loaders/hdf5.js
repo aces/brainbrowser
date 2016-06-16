@@ -51,7 +51,7 @@
   /* The following polyfill copied verbatim from MDN 2016-06-16 */
   if (!Array.prototype.find) {
     Array.prototype.find = function(predicate) {
-      if (this == null) {
+      if (this === null) {
         throw new TypeError('Array.prototype.find called on null or undefined');
       }
       if (typeof predicate !== 'function') {

@@ -127,11 +127,56 @@
       var reader = new FileReader();
       var parts = file_input.value.split("\\");
       var filename = parts[parts.length-1];
-      
+
       reader.file = files[0];
-      
+
       reader.onloadend = function(event) {
-        callback(event.target.result, filename, options);
+        var result = event.target.result;
+        try {
+          /* See if the data can be inflated.
+           */
+          var unzipped = pako.inflate(result);
+          result = unzipped.buffer;
+        } catch(e) {
+          /* pako probably didn't recognize this as gzip.
+           */
+        } finally {
+          /* At this point, we have a binary hunk of data that may
+           * have been inflated.
+           */
+          if (result_type !== 'arraybuffer') {
+            /* The caller requested the data as a string, so we have
+             * to perform an additional step to convert the
+             * arraybuffer we have into the string the caller wants.
+             */
+            if (typeof TextDecoder !== 'function') {
+              /* Use the slightly slower blob-to-filereader conversion
+               * to string.
+               */
+              var blob = new Blob([result]);
+              var rdr2 = new FileReader();
+              rdr2.onload = function(event) {
+                callback(event.target.result, filename, options);
+              };
+              rdr2.readAsText(blob);
+            }
+            else {
+              /* Simpler but newer conversion using TextDecoder, this
+               * might not work on some browsers.
+               */
+              var dv = new DataView(result);
+              var decoder = new TextDecoder();
+              result = decoder.decode(dv);
+              callback(result, filename, options);
+            }
+          }
+          else {
+            /* The caller requested an arraybuffer, so we just pass it
+             * back now.
+             */
+            callback(result, filename, options);
+          }
+        }
       };
 
       reader.onerror = function() {
@@ -141,11 +186,7 @@
         throw new Error(error_message);
       };
       
-      if (result_type === "arraybuffer") {
-        reader.readAsArrayBuffer(files[0]);
-      } else {
-        reader.readAsText(files[0]);
-      }
+      reader.readAsArrayBuffer(files[0]);
     },
 
     /**

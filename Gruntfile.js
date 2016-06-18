@@ -122,7 +122,8 @@ module.exports = function(grunt) {
             BrainBrowser: true,
             alert: true,
             console: true,
-            pako: true
+            pako: true,
+            TextDecoder: true
           }
         },
         src: [

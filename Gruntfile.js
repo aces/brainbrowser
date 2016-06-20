@@ -2,7 +2,7 @@
 * BrainBrowser: Web-based Neurological Visualization Tools
 * (https://brainbrowser.cbrain.mcgill.ca)
 *
-* Copyright (C) 2011 
+* Copyright (C) 2011
 * The Royal Institution for the Advancement of Learning
 * McGill University
 *
@@ -24,7 +24,7 @@
 
 module.exports = function(grunt) {
   "use strict";
-  
+
   grunt.initConfig({
     pkg: grunt.file.readJSON("package.json"),
     BRAINBROWSER_VERSION: "<%= pkg.version %>",
@@ -129,7 +129,8 @@ module.exports = function(grunt) {
         src: [
           "<%= concat.surface.src %>",
           "<%= concat.volume.src %>",
-          "!src/brainbrowser/surface-viewer/lib/three.js"
+          "!src/brainbrowser/surface-viewer/lib/three.js",
+          "!src/brainbrowser/lib/pako.js"
         ]
       },
       workers: {

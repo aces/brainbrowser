@@ -514,6 +514,16 @@ $(function() {
       loading_div.hide();
     });
 
+    $("#centric_rotation").change(function(){
+      var is_checked = $(this).is(":checked");
+      if (!is_checked && $("#pick-x").html() === "" && $("#pick-y").html() === "" && $("#pick-z").html() === "") {return;}
+      var offset = viewer.model.userData.model_center_offset || new THREE.Vector3(0,0,0);
+      var center = new THREE.Vector3(parseFloat($("#pick-x").html()) + -offset.x,
+                                     parseFloat($("#pick-y").html()) + -offset.y,
+                                     parseFloat($("#pick-z").html()) + -offset.z)
+      viewer.changeCenterRotation(center)
+    });
+
     $("#brainbrowser").click(function(event) {
       if (!event.shiftKey && !event.ctrlKey) return;
       if (viewer.model.children.length === 0) return;
@@ -566,6 +576,15 @@ $(function() {
           $("#pick-label").html(text);
         }
 
+        if ($("#centric_rotation").is(":checked")) {
+          if ($("#pick-x").html() === "" && $("#pick-y").html() === "" && $("#pick-z").html() === "") {return;}
+          var offset     = viewer.model.userData.model_center_offset || new THREE.Vector3(0,0,0);
+          var center = new THREE.Vector3(parseFloat($("#pick-x").html()) + -offset.x,
+                                         parseFloat($("#pick-y").html()) + -offset.y,
+                                         parseFloat($("#pick-z").html()) + -offset.z)
+          viewer.changeCenterRotation(center)
+        }
+
         annotation_info = pick_info.object.userData.annotation_info;
 
         if (annotation_info) {
@@ -584,9 +603,9 @@ $(function() {
         media.html("");
 
         if (annotation_info.data.image) {
-          var image = new Image();
+          var image    = new Image();
           image.height = 200;
-          image.src = annotation_info.data.image;
+          image.src    = annotation_info.data.image;
           annotation_display.show();
           media.append(image);
         }
@@ -594,12 +613,10 @@ $(function() {
           annotation_display.show();
           media.append($('<div><a href="' + annotation_info.data.url + '" target="_blank">' + annotation_info.data.url + '</a></div>'));
         }
-
         if (annotation_info.data.text) {
           annotation_display.show();
           media.append($('<div>' + annotation_info.data.text + '</div>'));
         }
-
       } else {
         $("#pick-x").html("");
         $("#pick-y").html("");

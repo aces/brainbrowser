@@ -273,12 +273,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var sphere   = new THREE.Mesh(geometry, material);
     sphere.position.set(x, y, z);
 
-console.log(sphere.position)
-console.log(viewer.model.userData.model_center_offset)
-
     if (viewer.model) {
       var offset     = viewer.model.userData.model_center_offset;
-      var is_centric = viewer.model.userData.model_centric;
       if (offset !== undefined) {
         sphere.translateX(-offset.x);
         sphere.translateY(-offset.y);
@@ -650,7 +646,7 @@ console.log(viewer.model.userData.model_center_offset)
   */
   viewer.changeCenterRotation = function(center) {
     var offset     = new THREE.Vector3(0 , 0, 0);
-    // Copy the center into offset, in order to keep center intact 
+    // Copy the center into offset, in order to keep center intact
     // we do not want to manipulate center
         offset.copy(center)
     var model      = viewer.model;
@@ -663,16 +659,16 @@ console.log(viewer.model.userData.model_center_offset)
     offset.negate()
 
     /*
-      Adjsut all the children. 
+      Adjsut all the children.
     */
 
-    // Translate to original place first 
+    // Translate to original place first
      model.children.forEach(function(children) {
       children.translateX(offset_old.x)
       children.translateY(offset_old.y)
       children.translateZ(offset_old.z)
     });
-    
+
     // Translate to the new place
     model.children.forEach(function(children) {
       children.translateX(-offset.x)
@@ -681,7 +677,7 @@ console.log(viewer.model.userData.model_center_offset)
     });
 
     /*
-      Adjsut the parent (a.k.a: the scene) 
+      Adjsut the parent (a.k.a: the scene)
     */
 
     // Unapply previous adjustment to scene position due to user manual rotation (this does nothing / has no effect before 1st rotation)

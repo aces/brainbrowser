@@ -648,32 +648,32 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var offset     = new THREE.Vector3(0 , 0, 0);
     // Copy the center into offset, in order to keep center intact
     // we do not want to manipulate center
-        offset.copy(center)
+    offset.copy(center);
     var model      = viewer.model;
 
     // Adjust the offset value if needed (e.g: if the model was already moved)
-    var offset_old = model.userData.model_center_offset || new THREE.Vector3(0,0,0)
-    offset.x = -offset_old.x - offset.x
-    offset.y = -offset_old.y - offset.y
-    offset.z = -offset_old.z - offset.z
-    offset.negate()
+    var offset_old = model.userData.model_center_offset || new THREE.Vector3(0,0,0);
+    offset.x = -offset_old.x - offset.x;
+    offset.y = -offset_old.y - offset.y;
+    offset.z = -offset_old.z - offset.z;
+    offset.negate();
 
     /*
       Adjsut all the children.
     */
 
     // Translate to original place first
-     model.children.forEach(function(children) {
-      children.translateX(offset_old.x)
-      children.translateY(offset_old.y)
-      children.translateZ(offset_old.z)
+    model.children.forEach(function(children) {
+      children.translateX(offset_old.x);
+      children.translateY(offset_old.y);
+      children.translateZ(offset_old.z);
     });
 
     // Translate to the new place
     model.children.forEach(function(children) {
-      children.translateX(-offset.x)
-      children.translateY(-offset.y)
-      children.translateZ(-offset.z)
+      children.translateX(-offset.x);
+      children.translateY(-offset.y);
+      children.translateZ(-offset.z);
     });
 
     /*
@@ -695,7 +695,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     model.parent.translateZ(offset.z);
 
     // Reapply previous adjustment to scene position due to user manual rotation (this does nothing / has no effect before 1st rotation)
-    var inverse_matrix = new THREE.Matrix4().getInverse(model.matrix);
+    inverse_matrix = new THREE.Matrix4().getInverse(model.matrix);
     model.parent.position.applyMatrix4(model.matrix);
 
     // Save offset information in userData
@@ -720,13 +720,13 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   viewer.modelCentric = function() {
     var model = viewer.model;
     viewer.findUserDataCentroid(model);
-    var center = model.userData.model_center
+    var center = model.userData.model_center;
 
     // Set Camera position
-    viewer.setCameraPosition(center.x,center.y,center.z)
+    viewer.setCameraPosition(center.x,center.y,center.z);
 
     // Set center position
-    viewer.changeCenterRotation(center)
+    viewer.changeCenterRotation(center);
 
     viewer.updated = true;
   };

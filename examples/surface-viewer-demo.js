@@ -518,10 +518,8 @@ $(function() {
       var is_checked = $(this).is(":checked");
       if (!is_checked && $("#pick-x").html() === "" && $("#pick-y").html() === "" && $("#pick-z").html() === "") {return;}
       var offset = viewer.model.userData.model_center_offset || new THREE.Vector3(0,0,0);
-      var center = new THREE.Vector3(parseFloat($("#pick-x").html()) + -offset.x,
-                                     parseFloat($("#pick-y").html()) + -offset.y,
-                                     parseFloat($("#pick-z").html()) + -offset.z)
-      viewer.changeCenterRotation(center)
+      var center = new THREE.Vector3(parseFloat($("#pick-x").html()) + -offset.x, parseFloat($("#pick-y").html()) + -offset.y, parseFloat($("#pick-z").html()) + -offset.z);
+      viewer.changeCenterRotation(center);
     });
 
     $("#brainbrowser").click(function(event) {
@@ -579,10 +577,8 @@ $(function() {
         if ($("#centric_rotation").is(":checked")) {
           if ($("#pick-x").html() === "" && $("#pick-y").html() === "" && $("#pick-z").html() === "") {return;}
           var offset     = viewer.model.userData.model_center_offset || new THREE.Vector3(0,0,0);
-          var center = new THREE.Vector3(parseFloat($("#pick-x").html()) + -offset.x,
-                                         parseFloat($("#pick-y").html()) + -offset.y,
-                                         parseFloat($("#pick-z").html()) + -offset.z)
-          viewer.changeCenterRotation(center)
+          var center = new THREE.Vector3(parseFloat($("#pick-x").html()) + -offset.x, parseFloat($("#pick-y").html()) + -offset.y, parseFloat($("#pick-z").html()) + -offset.z);
+          viewer.changeCenterRotation(center);
         }
 
         annotation_info = pick_info.object.userData.annotation_info;

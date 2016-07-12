@@ -662,18 +662,11 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       Adjsut all the children.
     */
 
-    // Translate to original place first
+    // Translate to original place first then translate to new place
     model.children.forEach(function(children) {
-      children.translateX(offset_old.x);
-      children.translateY(offset_old.y);
-      children.translateZ(offset_old.z);
-    });
-
-    // Translate to the new place
-    model.children.forEach(function(children) {
-      children.translateX(-offset.x);
-      children.translateY(-offset.y);
-      children.translateZ(-offset.z);
+      children.translateX(offset_old.x - offset.x);
+      children.translateY(offset_old.y - offset.y);
+      children.translateZ(offset_old.z - offset.z);
     });
 
     /*
@@ -720,7 +713,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   viewer.modelCentric = function() {
     var model = viewer.model;
     viewer.findUserDataCentroid(model);
-    var center = model.userData.model_center;
+    var center = model.userData.model_center || new THREE.Vector3(0,0,0);
 
     // Set Camera position
     viewer.setCameraPosition(center.x,center.y,center.z);

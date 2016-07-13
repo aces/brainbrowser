@@ -490,7 +490,7 @@ $(function() {
         return;
       }
 
-      viewer.drawAxes(150, {name: axes_name});
+      viewer.drawAxes();
 
     });
 

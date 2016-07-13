@@ -319,9 +319,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var name              = options.name;
     var color_center_line = options.color_center_line;
     var color_grid        = options.color_grid;
-    var x                 = options.x;
-    var y                 = options.y;
-    var z                 = options.z;
+    var x                 = options.x || 0;
+    var y                 = options.y || 0;
+    var z                 = options.z || 0;
     var euler_rotation    = options.euler_rotation;
 
     // Define default size and step
@@ -331,11 +331,6 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     // Define default colors
     color_center_line = color_center_line >= 0 ? color_center_line : 0x444444;
     color_grid        = color_grid        >= 0 ? color_grid        : 0x888888;
-
-    // Define default position
-    x = x || 0;
-    y = y || 0;
-    z = z || 0;
 
     // Create the grid
     var grid  = new THREE.GridHelper(size, step);
@@ -429,7 +424,6 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * ```
   */
   viewer.drawAxes = function(size, options) {
-    size         = size    || 300;
     options      = options || {};
     var name     = options.name   || "axes";
     var center   = options.center || new THREE.Vector3(0,0,0);
@@ -438,20 +432,27 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var z_color  = options.z_color >= 0 ? options.z_color : 0x0000ff ;
     var complete = options.complete === true;
 
+    // If size is not defined set a reasonable default value
+    if (size === undefined) {
+      var sizes = viewer.model_data.get().size;
+      var max_size = Math.max(sizes.x, sizes.y, sizes.z);
+      size = (max_size / 2) *  1.2;
+    }
+
     var axes  = new THREE.Object3D();
     axes.name = name;
 
     // X axes
-    axes.add(viewer.drawLine(center, new THREE.Vector3( size, 0, 0), {color: x_color, dashed: false, draw: false}));
-    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(-size, 0, 0), {color: x_color, dashed: true , draw: false})); }
+    axes.add(viewer.drawLine(center, new THREE.Vector3( center.x + size, center.y, center.z), {color: x_color, dashed: false, draw: false}));
+    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(-size + center.x, center.y, center.z), {color: x_color, dashed: true , draw: false})); }
 
     // Y axes
-    axes.add(viewer.drawLine(center, new THREE.Vector3(0,  size, 0), {color: y_color, dashed: false, draw: false}));
-    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(0, -size, 0), {color: y_color, dashed: true, draw: false})); }
+    axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, center.y + size, center.z), {color: y_color, dashed: false, draw: false}));
+    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, -size + center.y, center.z), {color: y_color, dashed: true, draw: false})); }
 
     // Z axes
-    axes.add(viewer.drawLine(center, new THREE.Vector3(0, 0,  size), {color: z_color, dashed: false, draw: false}));
-    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(0, 0, -size), {color: z_color, dashed: true,  draw: false})); }
+    axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, center.y, center.z + size), {color: z_color, dashed: false, draw: false}));
+    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, center.y, -size + center.z), {color: z_color, dashed: true,  draw: false})); }
 
     if (viewer.model) {
       viewer.model.add(axes);
@@ -653,9 +654,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     // Adjust the offset value if needed (e.g: if the model was already moved)
     var offset_old = model.userData.model_center_offset || new THREE.Vector3(0,0,0);
-    offset.x = -offset_old.x - offset.x;
-    offset.y = -offset_old.y - offset.y;
-    offset.z = -offset_old.z - offset.z;
+    offset.x       = -offset_old.x - offset.x;
+    offset.y       = -offset_old.y - offset.y;
+    offset.z       = -offset_old.z - offset.z;
     offset.negate();
 
     /*
@@ -664,6 +665,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     // Translate to original place first then translate to new place
     model.children.forEach(function(children) {
+      // Return if children was not part of the original model (e.g: axes and grid)
+      if (Object.keys(children.userData).length === 0 && children.userData.constructor === Object) { return ; }
       children.translateX(offset_old.x - offset.x);
       children.translateY(offset_old.y - offset.y);
       children.translateZ(offset_old.z - offset.z);
@@ -756,7 +759,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
       var children_name = children.name;
       model_data.shapes.forEach(function(shape){
-        if (shape.name !== children_name)      {
+        if (shape.name !== children_name) {
           return;
         }
         var bounding_box  = shape.bounding_box;

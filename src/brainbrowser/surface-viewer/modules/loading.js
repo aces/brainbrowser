@@ -832,14 +832,14 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         max_x: global_max_x,
         max_y: global_max_y,
         max_z: global_max_z
-    }
+      };
 
     // Set size of the model in x, y and z
     model_data.size = {
         x: global_max_x - global_min_x,
         y: global_max_y - global_min_y,
         z: global_max_z - global_min_z,
-    }
+      };
   }
 
   // Used for indexed models.

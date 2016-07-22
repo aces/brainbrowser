@@ -192,7 +192,7 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   * Note that if this method is called without an explicit **intensity\_data**
   * argument, it will update the first available intensity dataset.
   * ```js
-  * viewer.ssetIntensityRange(2.0, 3.0);
+  * viewer.setIntensityRange(2.0, 3.0);
   * ```
   */
   viewer.setIntensityRange = function() {

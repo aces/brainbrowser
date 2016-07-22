@@ -275,11 +275,10 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     if (viewer.model) {
       var offset     = viewer.model.userData.model_center_offset;
-      var is_centric = viewer.model.userData.model_centric;
-      if (offset !== undefined && is_centric === true) {
-        sphere.translateX(offset.x);
-        sphere.translateY(offset.y);
-        sphere.translateZ(offset.z);
+      if (offset !== undefined) {
+        sphere.translateX(-offset.x);
+        sphere.translateY(-offset.y);
+        sphere.translateZ(-offset.z);
       }
       viewer.model.add(sphere);
     } else {
@@ -320,9 +319,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var name              = options.name;
     var color_center_line = options.color_center_line;
     var color_grid        = options.color_grid;
-    var x                 = options.x;
-    var y                 = options.y;
-    var z                 = options.z;
+    var x                 = options.x || 0;
+    var y                 = options.y || 0;
+    var z                 = options.z || 0;
     var euler_rotation    = options.euler_rotation;
 
     // Define default size and step
@@ -332,11 +331,6 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     // Define default colors
     color_center_line = color_center_line >= 0 ? color_center_line : 0x444444;
     color_grid        = color_grid        >= 0 ? color_grid        : 0x888888;
-
-    // Define default position
-    x = x || 0;
-    y = y || 0;
-    z = z || 0;
 
     // Create the grid
     var grid  = new THREE.GridHelper(size, step);
@@ -430,7 +424,6 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * ```
   */
   viewer.drawAxes = function(size, options) {
-    size         = size    || 300;
     options      = options || {};
     var name     = options.name   || "axes";
     var center   = options.center || new THREE.Vector3(0,0,0);
@@ -439,20 +432,27 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var z_color  = options.z_color >= 0 ? options.z_color : 0x0000ff ;
     var complete = options.complete === true;
 
+    // If size is not defined set a reasonable default value
+    if (size === undefined) {
+      var sizes = viewer.model_data.get().size;
+      var max_size = Math.max(sizes.x, sizes.y, sizes.z);
+      size = (max_size / 2) *  1.2;
+    }
+
     var axes  = new THREE.Object3D();
     axes.name = name;
 
     // X axes
-    axes.add(viewer.drawLine(center, new THREE.Vector3( size, 0, 0), {color: x_color, dashed: false, draw: false}));
-    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(-size, 0, 0), {color: x_color, dashed: true , draw: false})); }
+    axes.add(viewer.drawLine(center, new THREE.Vector3( center.x + size, center.y, center.z), {color: x_color, dashed: false, draw: false}));
+    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(-size + center.x, center.y, center.z), {color: x_color, dashed: true , draw: false})); }
 
     // Y axes
-    axes.add(viewer.drawLine(center, new THREE.Vector3(0,  size, 0), {color: y_color, dashed: false, draw: false}));
-    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(0, -size, 0), {color: y_color, dashed: true, draw: false})); }
+    axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, center.y + size, center.z), {color: y_color, dashed: false, draw: false}));
+    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, -size + center.y, center.z), {color: y_color, dashed: true, draw: false})); }
 
     // Z axes
-    axes.add(viewer.drawLine(center, new THREE.Vector3(0, 0,  size), {color: z_color, dashed: false, draw: false}));
-    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(0, 0, -size), {color: z_color, dashed: true,  draw: false})); }
+    axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, center.y, center.z + size), {color: z_color, dashed: false, draw: false}));
+    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, center.y, -size + center.z), {color: z_color, dashed: true,  draw: false})); }
 
     if (viewer.model) {
       viewer.model.add(axes);
@@ -634,9 +634,76 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
   /**
   * @doc function
+  * @name viewer.rendering:changeCenterRotation
+  * @param {center} a Vector3 that indigate the new center
+  *
+  * @description
+  * Use to change center of rotation.
+  *
+  *
+  * ```js
+  * viewer.changeCenterRotation(center);
+  * ```
+  */
+  viewer.changeCenterRotation = function(center) {
+    var offset     = new THREE.Vector3(0 , 0, 0);
+    // Copy the center into offset, in order to keep center intact
+    // we do not want to manipulate center
+    offset.copy(center);
+    var model      = viewer.model;
+
+    // Adjust the offset value if needed (e.g: if the model was already moved)
+    var offset_old = model.userData.model_center_offset || new THREE.Vector3(0,0,0);
+    offset.x       = -offset_old.x - offset.x;
+    offset.y       = -offset_old.y - offset.y;
+    offset.z       = -offset_old.z - offset.z;
+    offset.negate();
+
+    /*
+      Adjsut all the children.
+    */
+
+    // Translate to original place first then translate to new place
+    model.children.forEach(function(children) {
+      // Return if children was not part of the original model (e.g: axes and grid)
+      if (Object.keys(children.userData).length === 0 && children.userData.constructor === Object) { return ; }
+      children.translateX(offset_old.x - offset.x);
+      children.translateY(offset_old.y - offset.y);
+      children.translateZ(offset_old.z - offset.z);
+    });
+
+    /*
+      Adjsut the parent (a.k.a: the scene)
+    */
+
+    // Unapply previous adjustment to scene position due to user manual rotation (this does nothing / has no effect before 1st rotation)
+    var inverse_matrix = new THREE.Matrix4().getInverse(model.matrix);
+    model.parent.position.applyMatrix4(inverse_matrix);
+
+    // Translate the scene to original position
+    model.parent.translateX(-offset_old.x);
+    model.parent.translateY(-offset_old.y);
+    model.parent.translateZ(-offset_old.z);
+
+    // Compensate scene position for all offsets done to model above
+    model.parent.translateX(offset.x);
+    model.parent.translateY(offset.y);
+    model.parent.translateZ(offset.z);
+
+    // Reapply previous adjustment to scene position due to user manual rotation (this does nothing / has no effect before 1st rotation)
+    inverse_matrix = new THREE.Matrix4().getInverse(model.matrix);
+    model.parent.position.applyMatrix4(model.matrix);
+
+    // Save offset information in userData
+    viewer.model.userData.model_center_offset = offset;
+
+    viewer.updated = true;
+  };
+
+
+  /**
+  * @doc function
   * @name viewer.rendering:modelCentric
-  * @param {boolean} if true, recenter all userData shape on origin. Otherwise
-  * return to the original userData.
   *
   * @description
   * Use to recenter data when userData input is shifted in space.
@@ -646,35 +713,16 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * viewer.modelCentric(true);
   * ```
   */
-  viewer.modelCentric = function(model_centric) {
-    if (model_centric === undefined) {
-      model_centric = false;
-    }
-
+  viewer.modelCentric = function() {
     var model = viewer.model;
     viewer.findUserDataCentroid(model);
+    var center = model.userData.model_center || new THREE.Vector3(0,0,0);
 
-    if (model_centric === model.userData.model_centric) {
-      return;
-    }
+    // Set Camera position
+    viewer.setCameraPosition(center.x,center.y,center.z);
 
-    // Caculate the offset
-    var offset_centroid = new THREE.Vector3();
-    offset_centroid.copy(model.userData.model_center_offset);
-    if (model_centric === false) {
-      offset_centroid.negate();
-    }
-
-    model.children.forEach(function(children) {
-      // Return if children is not given by the user
-      if (Object.keys(children.userData).length === 0 && children.userData.constructor === Object) {
-        return;
-      }
-      children.translateX(offset_centroid.x);
-      children.translateY(offset_centroid.y);
-      children.translateZ(offset_centroid.z);
-    });
-    model.userData.model_centric = model_centric;
+    // Set center position
+    viewer.changeCenterRotation(center);
 
     viewer.updated = true;
   };
@@ -687,10 +735,10 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * @description
   * Find centroid of the model (only take in account userData).
   *
-  * @returns {object} The initial information with additionnal model_center_offset argument.
+  * @returns {object} The initial information with additionnal model_center argument.
   *
   * ```js
-  * viewer.findUserDataCentroid(true);
+  * viewer.findUserDataCentroid(model);
   * ```
   */
   viewer.findUserDataCentroid = function(model) {
@@ -711,7 +759,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
       var children_name = children.name;
       model_data.shapes.forEach(function(shape){
-        if (shape.name !== children_name)      {
+        if (shape.name !== children_name) {
           return;
         }
         var bounding_box  = shape.bounding_box;
@@ -732,7 +780,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       centroid.y   =  min_y + (max_y - min_y) / 2;
       centroid.z   =  min_z + (max_z - min_z) / 2;
 
-      model.userData.model_center_offset  = new THREE.Vector3(-centroid.x, -centroid.y, -centroid.z);
+      model.userData.model_center  = new THREE.Vector3(centroid.x, centroid.y, centroid.z);
     });
   };
 

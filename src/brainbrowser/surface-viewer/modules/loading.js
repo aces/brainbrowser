@@ -768,7 +768,11 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   // Find centroid and bounding box of a shape.
   function findCentroid(model_data) {
     var verts = model_data.vertices;
-    var min_x, max_x, min_y, max_y, min_z, max_z;
+
+    // Global bounding box.
+    var global_min_x, global_max_x, global_min_y, global_max_y, global_min_z, global_max_z;
+    global_min_x = global_min_y = global_min_z = Number.POSITIVE_INFINITY;
+    global_max_x = global_max_y = global_max_z = Number.NEGATIVE_INFINITY;
 
     model_data.shapes.forEach(function(shape) {
       var indices = shape.indices;
@@ -776,6 +780,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       var x, y, z;
       var i, count;
 
+      // Shape bounding box
+      var min_x, max_x, min_y, max_y, min_z, max_z;
       min_x = min_y = min_z = Number.POSITIVE_INFINITY;
       max_x = max_y = max_z = Number.NEGATIVE_INFINITY;
 
@@ -807,7 +813,33 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         y: min_y + (max_y - min_y) / 2,
         z: min_z + (max_z - min_z) / 2
       };
+
+      // Find global min for bounding box
+      global_min_x = Math.min(global_min_x, min_x);
+      global_min_y = Math.min(global_min_y, min_y);
+      global_min_z = Math.min(global_min_z, min_z);
+      // Find global max for bounding box
+      global_max_x = Math.max(global_max_x, max_x);
+      global_max_y = Math.max(global_max_y, max_y);
+      global_max_z = Math.max(global_max_z, max_z);
     });
+
+    // Set the bounding box
+    model_data.bounding_box = {
+        min_x: global_min_x,
+        min_y: global_min_y,
+        min_z: global_min_z,
+        max_x: global_max_x,
+        max_y: global_max_y,
+        max_z: global_max_z
+      };
+
+    // Set size of the model in x, y and z
+    model_data.size = {
+        x: global_max_x - global_min_x,
+        y: global_max_y - global_min_y,
+        z: global_max_z - global_min_z,
+      };
   }
 
   // Used for indexed models.

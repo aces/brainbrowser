@@ -1,0 +1,207 @@
+
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;    
+}
+
+.button {
+  display: inline-block;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 0.5em 1em;
+  background-color: #1E8FFF;
+  color: #F0F0F0;
+}
+
+.on-off-button {
+  display: inline-block;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 0.5em 1em;
+  background-color: green;
+  color: #F0F0F0;
+}
+
+.icon {
+  display: inline-block;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 0.3em 0.3em;
+  background-color: #1E8FFF;
+  color: #F0F0F0;
+}
+
+.icon:hover {
+  background-color: #3EAFFF;
+}
+
+.icon:active {
+  background-color: orange;
+}
+
+input[type=checkbox].icon {
+  display: none;
+}
+
+input[type=checkbox].icon + label {
+  display: inline-block;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 0.3em 0.3em;
+  background-color: #1E8FFF;
+  color: #F0F0F0;
+}
+
+input[type=checkbox].icon + label:hover {
+  background-color: #5ECFFF;
+}
+
+input[type=checkbox].icon + label:active {
+  background-color: orange;
+}
+
+input[type=checkbox].icon:checked + label {
+  background-color: orange;
+}
+
+input[type=checkbox].icon:checked + label:hover {
+  background-color: #FFC520;
+}
+
+input[type=checkbox].icon:checked + label:active {
+  background-color: #1E8FFF;
+}
+
+.wireframe_off {
+  display: none;
+}
+
+.wireframe_off + label {
+  display: inline-block;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 0.3em 0.3em;
+  background-color: #1E8FFF;
+  color: #F0F0F0;
+}
+
+.wireframe_off + label:hover {
+  background-color: #5ECFFF;
+}
+
+.wireframe_off + label:active {
+  background-color: #1E8FFF;
+}
+
+.wireframe_on {
+  display: none;
+}
+  
+.wireframe_on + label {
+  display: inline-block;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 0.3em 0.3em;
+  background-color: red;
+  color: #F0F0F0;
+}
+
+.wireframe_on + label:hover {
+  background-color: #5ECFFF;
+}
+
+.wireframe_on + label:active {
+  background-color: red;
+}
+
+.wireframe_mixed {
+  display: none;
+}
+  
+.wireframe_mixed + label {
+  display: inline-block;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 0.3em 0.3em;
+  background-color: green;
+  color: #F0F0F0;
+}
+
+.wireframe_mixed + label:hover {
+  background-color: #5ECFFF;
+}
+
+.wireframe_mixed + label:active {
+  background-color: green;
+}
+
+
+
+.button:hover {
+  background-color: #3EAFFF;
+}
+
+.buttonset {
+  word-spacing: 0px;
+}
+
+.buttonset .button {
+  margin: 0;
+}
+
+
+#forkongithub {
+  position: absolute;
+  display: block;
+  top: 0;
+  right: 0;
+  width: 200px;
+  overflow: hidden;
+  height: 200px;
+  z-index: 999;
+}
+
+#forkongithub a {
+  position: absolute;
+  top: 46px;
+  right: -85px;
+  background: #1E8FFF;
+  color: #fff;
+  text-decoration: none;
+  font-family: arial, sans-serif;
+  text-align: center;
+  font-weight: bold;
+  padding: 5px 40px;
+  font-size: 14px;
+  line-height: 1.5em;
+  width: 283px;
+  white-space: nowrap;
+  transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+  box-shadow: 4px 4px 10px rgba(0,0,0,0.8);
+}
+
+#forkongithub a::before, #forkongithub a::after {
+  content: "";
+  width: 100%;
+  display: block;
+  position: absolute;
+  top: 1px;
+  left: 0;
+  height: 1px;
+  background: #fff;
+}
+
+#forkongithub a::after {
+  bottom: 1px;
+  top: auto;
+}
+

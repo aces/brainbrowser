@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">  
-  <head>  
+<html lang="en">
+  <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link type="text/css" href="css/ui-darkness/jquery-ui-1.8.10.custom.css" rel="stylesheet">
     <link type="text/css" href="css/widgets.css" rel="stylesheet">
-    <link type="text/css" href="css/common.css" rel="stylesheet">
-    <link type="text/css" href="css/surface-viewer-demo.css" rel="stylesheet">
+    <link type="text/css" href="css/bigbrain-common.css" rel="stylesheet">
+    <link type="text/css" href="css/bigbrain-viewer-demo.css" rel="stylesheet">
     <link rel="icon" type="image/png" href="img/brainbrowser.png">
     <title>BigBrain Surface Viewer (powered by BrainBrowser)</title>
     <meta name="description" content="The BrainBrowser Surface Viewer is a WebGL-based visualization tool capable of displaying 3D neurological surface data in real-time.">
@@ -17,8 +17,8 @@
     <meta name="twitter:title" content="BigBrain Surface Viewer (powered by BrainBrowser)">
     <meta name="twitter:description" content="The BrainBrowser Surface Viewer is a WebGL-based visualization tool capable of displaying 3D neurological surface data in real-time.">
     <meta name="twitter:image" content="https://brainbrowser.cbrain.mcgill.ca/img/surface-viewer.png">
-  </head>  
-  <body>  
+  </head>
+  <body>
     <div id="display">
       <h1 id="app-name" class="app-label">
         BigBrain Surface Viewer<br>
@@ -36,11 +36,11 @@
             <h4>Load your own data!</h4>
             <div class="instructions">
               (Note: your data will remain on your computer and will not be transferred to the BrainBrowser server.)
-            </div>     
+            </div>
             <div id="obj_file_select" class="file-select">
               Model File:
               <div id="browse_obj_file"><input type="file" name="objfile" id="objfile"></div><br>
-              Format: 
+              Format:
               <select id="obj_file_format" class="file-format" name="format">
                 <option value="json">JSON</option>
                 <option value="mniobj">MNI OBJ</option>
@@ -70,10 +70,10 @@
                   <option value="0xffff00">Yellow</option>
                 </select><br>
                 <div class="button-row">
-                  Autorotate: 
+                  Autorotate:
                   <span id="autorotate-controls" class="buttonset">
-                    <input type="checkbox" id="autorotateX" class="icon"><label for="autorotateX">X</label> 
-                    <input type="checkbox" id="autorotateY" class="icon"><label for="autorotateY">Y</label> 
+                    <input type="checkbox" id="autorotateX" class="icon"><label for="autorotateX">X</label>
+                    <input type="checkbox" id="autorotateY" class="icon"><label for="autorotateY">Y</label>
                     <input type="checkbox" id="autorotateZ" class="icon"><label for="autorotateZ">Z</label>
                   </span>
                 </div><br>
@@ -87,30 +87,30 @@
                 </div>
 	      </center>
             </div>
-          </div>        
+          </div>
         </div>
       </div>
     </div>
-    <script src="js/lib/jquery-1.6.4.min.js"></script>
-    <script src="js/lib/jquery-ui-1.8.10.custom.min.js"></script>
-    <script src="js/lib/common.js"></script>
+    <script src="js/jquery-1.6.4.min.js"></script>
+    <script src="js/jquery-ui-1.8.10.custom.min.js"></script>
+    <script src="js/bigbrain-ui.js"></script>
     <script src="js/brainbrowser/brainbrowser.js"></script>
     <script src="js/brainbrowser/core/tree-store.js"></script>
     <script src="js/brainbrowser/lib/config.js"></script>
     <script src="js/brainbrowser/lib/utils.js"></script>
-    <script src="js/brainbrowser/lib/events.js"></script> 
+    <script src="js/brainbrowser/lib/events.js"></script>
     <script src="js/brainbrowser/lib/loader.js"></script>
-    <script src="js/brainbrowser/lib/color-map.js"></script> 
+    <script src="js/brainbrowser/lib/color-map.js"></script>
     <script src="js/brainbrowser/surface-viewer.js"></script>
     <script src="js/brainbrowser/surface-viewer/lib/three.js"></script>
-    <script src="js/brainbrowser/surface-viewer/lib/parse-intensity-data.js"></script> 
+    <script src="js/brainbrowser/surface-viewer/lib/parse-intensity-data.js"></script>
     <script src="js/brainbrowser/surface-viewer/modules/annotations.js"></script>
     <script src="js/brainbrowser/surface-viewer/modules/color.js"></script>
     <script src="js/brainbrowser/surface-viewer/modules/loading.js"></script>
     <script src="js/brainbrowser/surface-viewer/modules/rendering.js"></script>
     <script src="js/brainbrowser/surface-viewer/modules/views.js"></script>
-    <script src="js/surface-viewer-demo.config.js"></script> 
-    <script src="js/lib/AnaglyphEffect.js"></script>
-    <script src="js/surface-viewer-demo.js"></script> 
-  </body>  
-</html>  
+    <script src="js/AnaglyphEffect.js"></script>
+    <script src="bigbrain-viewer-demo.config.js"></script>
+    <script src="bigbrain-viewer-demo.js"></script>
+  </body>
+</html>

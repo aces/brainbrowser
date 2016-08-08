@@ -1,0 +1,37 @@
+body {
+  font-size: 16px;
+  height: 100%;
+  margin: 0;
+  color: #F0F0F0;
+}
+
+#app-name {
+  top: 15px;
+  left: 15px;
+  z-index: 9;
+}
+
+.app-label {
+  font-size: 1.5em;
+  white-space: nowrap;
+  position: absolute;
+  margin: 0;
+  padding: 0.4em;
+  background-color: #1E8FFF;
+  border: 3px solid orange;
+}
+
+#loading {
+  z-index: 999;
+  position: absolute;
+  top: 83px;
+  left: 101px;
+  font-size: 3em;
+}
+
+.button-row {
+  display: inline-block;
+  margin: 0.3em 0 0 0;
+}
+
+

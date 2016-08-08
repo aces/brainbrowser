@@ -69,7 +69,7 @@ $(function() {
     var opacity_toggle_customoff_2 = "custom";
     var axes_toggle = "off";
     var slider_backup = {};
-    var on_off_backup = {}
+    var on_off_backup = {};
     var marker = "";
     var axes_length = 100;
     var current_count;
@@ -87,7 +87,7 @@ $(function() {
     var m1_model_data_get;
     var m2_model_data_get;
     var m1_offset = 0;
-    var grid_backup = undefined;
+    var grid_backup;
     var grid_length = 100;
     var grid_partitions = Math.round(grid_length/10);
     var user_defined_grid_length = "no";
@@ -178,9 +178,9 @@ $(function() {
           $(this).addClass("current");
           $("#"+tab_id).addClass("current");
 
-          m_selected = parseInt((tab_id.slice(-1)));
-        })
-      })
+          m_selected = parseInt((tab_id.slice(-1)),10);
+        });
+      });
 
       shapes_header_div.appendTo("#select");
 
@@ -265,7 +265,7 @@ $(function() {
                 }
                 //END TEMP FIX
               }
-            slider_backup[shape.name + "-" + j] = $(".opacity-slider[data-shape-name='" + shape.name + "-" + j + "']").slider("value");
+              slider_backup[shape.name + "-" + j] = $(".opacity-slider[data-shape-name='" + shape.name + "-" + j + "']").slider("value");
             }
           });
 
@@ -327,15 +327,16 @@ $(function() {
           viewer.model.children[j].name = shape.name + "-" + j;
 
           //Change opacity slider background to same color as the shape it represents
+          var r,g,b;
           if (m === 1){
-            var r = Math.round(255*m1_model_data_get.shapes[i].color[0]);
-            var g = Math.round(255*m1_model_data_get.shapes[i].color[1]);
-            var b = Math.round(255*m1_model_data_get.shapes[i].color[2]);
+            r = Math.round(255*m1_model_data_get.shapes[i].color[0]);
+            g = Math.round(255*m1_model_data_get.shapes[i].color[1]);
+            b = Math.round(255*m1_model_data_get.shapes[i].color[2]);
             document.getElementById("opacity-slider-" + j).style.background = "rgb("+ r + ", " + g + ", " + b + ")";
           } else if (m === 2){
-            var r = Math.round(255*m2_model_data_get.shapes[i].color[0]);
-            var g = Math.round(255*m2_model_data_get.shapes[i].color[1]);
-            var b = Math.round(255*m2_model_data_get.shapes[i].color[2]);
+            r = Math.round(255*m2_model_data_get.shapes[i].color[0]);
+            g = Math.round(255*m2_model_data_get.shapes[i].color[1]);
+            b = Math.round(255*m2_model_data_get.shapes[i].color[2]);
             document.getElementById("opacity-slider-" + j).style.background = "rgb("+ r + ", " + g + ", " + b + ")";
           }
         });
@@ -393,7 +394,7 @@ $(function() {
           if (eval("opacity_toggle_customoff_" + m) === "custom") {
             var m_unselected;
             if (m_selected === 1) { m_unselected = 2;}
-            else if (m_selected === 2) {m_unselected = 1};
+            else if (m_selected === 2) {m_unselected = 1;}
             for (var i = 0; i < viewer.model.children.length; i++) {
               if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid") && (i >= m_index_begin[m_selected]) && (i < m_index_end[m_selected])){
                 slider_backup[viewer.model.children[i].name] = $(".opacity-slider[data-shape-name='" + viewer.model.children[i].name + "']").slider("value");
@@ -570,7 +571,7 @@ $(function() {
               }
             }
             clearShape("marker");
-            marker = viewer.drawDot(picked_coords.x, picked_coords.y, picked_coords.z, .3);
+            marker = viewer.drawDot(picked_coords.x, picked_coords.y, picked_coords.z, 0.3);
             marker.name = "marker";
             viewer.setTransparency(picked_object.material.opacity, {shape_name: "marker"});
             if ((window.axesbox !== undefined) && (axesbox.model.name === "axes_on")){
@@ -702,7 +703,7 @@ $(function() {
           }
         } else if (two_models_toggle === 2){
           two_models_toggle = 1;
-  }
+        }
       });
     });
 
@@ -1231,10 +1232,10 @@ $(function() {
                 document.getElementById("shape-" + i).style.backgroundColor = "#1E8FFF";
                 document.getElementById("top-" + i).style.visibility = "visible";
 
-                  var changeCenterRotation_return_array = changeCenterRotation(i, two_models_toggle, offset_old, m, m_index_begin, m_index_end, offset_diff_total);
-                  offset_old = changeCenterRotation_return_array[0];
-                  m_selected = changeCenterRotation_return_array[1];
-                  offset_diff_total = changeCenterRotation_return_array[2];
+                var changeCenterRotation_return_array = changeCenterRotation(i, two_models_toggle, offset_old, m, m_index_begin, m_index_end, offset_diff_total);
+                offset_old = changeCenterRotation_return_array[0];
+                m_selected = changeCenterRotation_return_array[1];
+                offset_diff_total = changeCenterRotation_return_array[2];
 
 //viewer.model.children[i].renderDepth = 1;
               } else {   //focus selected object, no need for shift-click
@@ -1424,7 +1425,7 @@ $(function() {
       var filename = document.getElementById("objfile").value;
 
       if (filename.indexOf(".json") > -1){
-       document.getElementById("obj_file_format").value = 'json';
+        document.getElementById("obj_file_format").value = 'json';
       } else if (filename.indexOf(".obj") > -1){
         document.getElementById("obj_file_format").value = 'mniobj';
       } else if (filename.indexOf(".asc") > -1){
@@ -1801,7 +1802,7 @@ $(function() {
         "<div id=\"posterior_legend\"><p class=\"alignleft\">Posterior</p><p class=\"alignright\"><canvas id=\"posterior\"></canvas></p></div><div style=\"clear: both;\"></div>" +
         "<div id=\"left_legend\"><p class=\"alignleft\">Left</p><p class=\"alignright\"><canvas id=\"left\"></canvas></p></div><div style=\"clear: both;\"></div>" +
         "<div id=\"right_legend\"><p class=\"alignleft\">Right</p><p class=\"alignright\"><canvas id=\"right\"></canvas></p></div><div style=\"clear: both;\"></div></div>");
-        legend_div.appendTo("#axes_legend");
+      legend_div.appendTo("#axes_legend");
 
       if (bgcolor !== 65535){
         drawDashed("dorsal","#00ffff",150); //cyan solid
@@ -1825,15 +1826,14 @@ $(function() {
         drawDashed("right","#000000",8);      //black dashed
       }
 
-      document.getElementById("dorsal_legend").style.color = font_color;
-      document.getElementById("ventral_legend").style.color = font_color;
-      document.getElementById("anterior_legend").style.color = font_color;
+      document.getElementById("dorsal_legend").style.color    = font_color;
+      document.getElementById("ventral_legend").style.color   = font_color;
+      document.getElementById("anterior_legend").style.color  = font_color;
       document.getElementById("posterior_legend").style.color = font_color;
-      document.getElementById("left_legend").style.color = font_color;
-      document.getElementById("right_legend").style.color = font_color;
+      document.getElementById("left_legend").style.color      = font_color;
+      document.getElementById("right_legend").style.color     = font_color;
 
       // Grid / perspective axes
-
       var grid_div = $("<div class=\"grid_class\"><div id=\"grid\"><p class=\"alignleft\">Grid scale: <span title=\"Type in value to change default of 10\">" +
                        "<input id=\"grid_partitions\" type=\"text\" value=\"" + grid_partitions + "\" style=\"width: 70px;\"></span>" +
                        " units</p><div style=\"clear: both;\"></div></div></div>");
@@ -1848,14 +1848,14 @@ $(function() {
       grid_div.appendTo("#vertex-data-wrapper");
       grid_length_div.appendTo("#grid");
 
-      document.getElementById("grid").style.color = font_color;
+      document.getElementById("grid").style.color        = font_color;
       document.getElementById("grid_length").style.color = font_color;
 
       $("#grid_partitions").keyup(function(event){
         if(event.keyCode === 13){  //if enter key is pressed
           user_defined_grid_partitions = "yes";
           if (document.getElementById("grid_partitions").value !== ""){
-            grid_partitions = parseInt(document.getElementById("grid_partitions").value);
+            grid_partitions = parseInt(document.getElementById("grid_partitions").value,10);
             clearShape("grid");
             buildGrid(user_defined_grid_partitions, user_defined_grid_length, grid_partitions, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
           }
@@ -1866,7 +1866,7 @@ $(function() {
         if(event.keyCode === 13){  //if enter key is pressed
           user_defined_grid_length = "yes";
           if (document.getElementById("grid_length2").value !== ""){
-            grid_length = parseInt(document.getElementById("grid_length2").value);
+            grid_length = parseInt(document.getElementById("grid_length2").value,10);
             clearShape("grid");
             buildGrid(user_defined_grid_partitions, user_defined_grid_length, grid_partitions, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
           }
@@ -1955,7 +1955,7 @@ $(function() {
                   bounding_box_max_z[i] = -1000000;
                 }
               }
-            j=j+1;
+              j=j+1;
             }
           }
 
@@ -1994,17 +1994,17 @@ $(function() {
           if (user_defined_grid_partitions === "no"){
             //Set grid partitions to (somewhat arbitrary) 1/10th of the average distance between bounding box limits for x,y,z
             var bounding_box_length_avg = Math.round(Math.abs(bounding_box_max_x - bounding_box_min_x) + Math.abs(bounding_box_max_y - bounding_box_min_y) + Math.abs(bounding_box_max_z - bounding_box_min_z))/3;
-                  grid_partitions = Math.round(bounding_box_length_avg/10);
-                  document.getElementById("grid_partitions").value = grid_partitions;
-                  document.getElementById("grid_length2").value = "";
+            grid_partitions = Math.round(bounding_box_length_avg/10);
+            document.getElementById("grid_partitions").value = grid_partitions;
+            document.getElementById("grid_length2").value = "";
           }
         } else {
           bounding_box_min_x = -grid_length;
-          bounding_box_max_x = grid_length;
+          bounding_box_max_x =  grid_length;
           bounding_box_min_y = -grid_length;
-          bounding_box_max_y = grid_length;
+          bounding_box_max_y =  grid_length;
           bounding_box_min_z = -grid_length;
-          bounding_box_max_z = grid_length;
+          bounding_box_max_z =  grid_length;
         }
 
         //Round down or up (for mins and maxes) to make sure that all bounding boxes contain an even number of partitions (not a fraction of one)

@@ -33722,7 +33722,7 @@
 
   //  THREE.GridHelper = function ( size, step ) {
   // XXX Should not be here, due to merge of Bigbrain viewer, need to be refactor
-  THREE.GridHelperBB = function ( mode, bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, step, picked_coords_grid, horizontal_color, vertical_color ) {
+  THREE.GridHelper = function ( mode, bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, step, picked_coords_grid, horizontal_color, vertical_color ) {
 
     var geometry = new THREE.Geometry();
     var material = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors } );

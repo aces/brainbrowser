@@ -203,7 +203,7 @@ $(function() {
 
           slider_div = $("<div id=\"shape-" + j + "\" class=\"shape\">" +
             "<h4> <p class=\"alignleft\"></p></h4>" +
-      "<div id=\"top-" + j + "\" style=\"visibility: hidden\"><p class=\"alignright\">" +
+            "<div id=\"top-" + j + "\" style=\"visibility: hidden\"><p class=\"alignright\">" +
             "<input type=\"button\" onClick=\"window.location.hash='#shapes-" + m + "';window.location.hash='#views'\" value=\"back to top\"/></p></div><br />" +
             "<div style=\"clear: both;\">" +
             "Name: " + shape.name + "<br />" +
@@ -232,9 +232,11 @@ $(function() {
                   clearShape("grid");
                   window.axesbox = undefined;
                   if (picked_coords !== undefined){
-                    var axes = buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+                    console.log("if")
+                    buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
                   } else {
-                    var axes = buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+                    console.log("else")
+                    buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
                   }
                   opacity_grid_toggle = "off";
                 } else if ((opacity_grid_toggle === "off") && (alpha >= 0.25 )){
@@ -246,9 +248,9 @@ $(function() {
                   clearShape("grid");
                   window.axesbox = undefined;
                   if (picked_coords !== undefined){
-                    var axes = buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+                    buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
                   } else {
-                    var axes = buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+                    buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
                   }
                   opacity_grid_toggle = "on";
                 }
@@ -289,9 +291,9 @@ $(function() {
                 clearShape("grid");
                 window.axesbox = undefined;
                 if (picked_coords !== undefined){
-                  var axes = buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+                  buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
                 } else {
-                  var axes = buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+                  buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
                 }
                 opacity_grid_toggle = "off";
               }
@@ -315,9 +317,9 @@ $(function() {
                 clearShape("grid");
                 window.axesbox = undefined;
                 if (picked_coords !== undefined){
-                  var axes = buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+                  buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
                 } else {
-                  var axes = buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+                  buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
                 }
                 opacity_grid_toggle = "on";
               }
@@ -347,7 +349,7 @@ $(function() {
           $( ".grid_class" ).remove();
           clearShape("axes");
           clearShape("grid");
-          var axes = buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+          buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
           grid_backup = undefined;
         }
 
@@ -513,9 +515,9 @@ $(function() {
               clearShape("grid");
               window.axesbox = undefined;
               if (picked_coords !== undefined){
-                var axes = buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+                buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
               } else {
-                var axes = buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+                buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
               }
             }
 
@@ -581,7 +583,7 @@ $(function() {
               clearShape("axes");
               clearShape("grid");
               window.axesbox = undefined;
-              var axes = buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+              buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
             }
           }
           focus_toggle = "on";
@@ -656,9 +658,9 @@ $(function() {
             clearShape("grid");
             window.axesbox = undefined;
             if (picked_coords !== undefined){
-              var axes = buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+              buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
             } else {
-              var axes = buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+              buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
             }
           }
 
@@ -691,9 +693,9 @@ $(function() {
             user_defined_grid_partitions = "no";
             user_defined_grid_length = "no";
             if (picked_coords !== undefined){
-              var axes = buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+              buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
             } else {
-              var axes = buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+              buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
             }
           }
 
@@ -954,9 +956,9 @@ $(function() {
         clearShape("grid");
         window.axesbox = undefined;
         if (picked_coords !== undefined){
-          var axes = buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+          buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
         } else {
-          var axes = buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+          buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
         }
       }
 
@@ -993,9 +995,9 @@ $(function() {
         clearShape("grid");
         window.axesbox = undefined;
         if (picked_coords !== undefined){
-          var axes = buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+          buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
         } else {
-          var axes = buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+          buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
         }
       }
 
@@ -1158,9 +1160,9 @@ $(function() {
     $("#toggle-axes").click(function() {
       if (axes_toggle === "off"){
         if (picked_coords !== undefined){
-          var axes = buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+          buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
         } else {
-          var axes = buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+          buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
         }
         axes_toggle = "on";
       } else {
@@ -1268,7 +1270,7 @@ $(function() {
             clearShape("axes");
             clearShape("grid");
             window.axesbox = undefined;
-            var axes = buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+            buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
           }
         }
       } else if (two_models_toggle === 2) {

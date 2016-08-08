@@ -2,7 +2,7 @@
 * BrainBrowser: Web-based Neurological Visualization Tools
 * (https://brainbrowser.cbrain.mcgill.ca)
 *
-* Copyright (C) 2011 
+* Copyright (C) 2011
 * The Royal Institution for the Advancement of Learning
 * McGill University
 *
@@ -21,7 +21,7 @@
 */
 
 /*
-* Author: Lindsay B. Lewis <lindsayblewis@gmail.com> 
+* Author: Lindsay B. Lewis <lindsayblewis@gmail.com>
 * Author: Tarek Sherif  <tsherif@gmail.com> (http://tareksherif.ca/)
 * Author: Nicolas Kassis
 */
@@ -169,17 +169,17 @@ $(function() {
       shapes_div.appendTo("#shape-wrap");
 
       $(document).ready(function(){
-	
-	$("ul.tabs li").click(function(){
-	  var tab_id = $(this).attr("data-tab");
-	  $("ul.tabs li").removeClass("current");
-	  $(".tab-content").removeClass("current");
 
-	  $(this).addClass("current");
-	  $("#"+tab_id).addClass("current");
+        $("ul.tabs li").click(function(){
+          var tab_id = $(this).attr("data-tab");
+          $("ul.tabs li").removeClass("current");
+          $(".tab-content").removeClass("current");
+
+          $(this).addClass("current");
+          $("#"+tab_id).addClass("current");
 
           m_selected = parseInt((tab_id.slice(-1)));
-	})
+        })
       })
 
       shapes_header_div.appendTo("#select");
@@ -189,7 +189,7 @@ $(function() {
       current_count = $("#shapes-" + m).children().length;
       m_index_begin[m] = total_children;
       m_index_end[m] = total_children + children.length;
-      total_children = m_index_end[m];  
+      total_children = m_index_end[m];
 
       if(children.length - current_count > 0 ) {
         children.slice(current_count).forEach(function(shape, i) {
@@ -203,13 +203,13 @@ $(function() {
 
           slider_div = $("<div id=\"shape-" + j + "\" class=\"shape\">" +
             "<h4> <p class=\"alignleft\"></p></h4>" +
-	    "<div id=\"top-" + j + "\" style=\"visibility: hidden\"><p class=\"alignright\">" + 
+      "<div id=\"top-" + j + "\" style=\"visibility: hidden\"><p class=\"alignright\">" +
             "<input type=\"button\" onClick=\"window.location.hash='#shapes-" + m + "';window.location.hash='#views'\" value=\"back to top\"/></p></div><br />" +
             "<div style=\"clear: both;\">" +
             "Name: " + shape.name + "<br />" +
             "<p class=\"alignleft\"> Opacity: </p></div>");
           slider = $("<div id=\"opacity-slider-" + j + "\" class=\"opacity-slider aligncenter slider\" data-shape-name=\"" + shape.name + "-" + j + "\">");
-  	  slider_div_end = $("<p class=\"alignright\"><a class=\"on-off-button\" id=\"individualtoggleopacity-" + j + "\">On</a></p>");
+          slider_div_end = $("<p class=\"alignright\"><a class=\"on-off-button\" id=\"individualtoggleopacity-" + j + "\">On</a></p>");
           slider.slider({
             value: 100,
             min: 0,
@@ -223,7 +223,7 @@ $(function() {
                 shape_name: shape_name
               });
               if ((window.axesbox !== undefined) && (axesbox.model.name === "axes_on")){
-		if ((opacity_grid_toggle === "on") && (alpha < 0.25 )){
+                if ((opacity_grid_toggle === "on") && (alpha < 0.25 )){
                   slider_backup[viewer.model.children[j].name] = alpha * 100;
                   $( ".axes_class" ).remove();
                   $( ".axes_legend_class" ).remove();
@@ -236,7 +236,7 @@ $(function() {
                   } else {
                     var axes = buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
                   }
-		  opacity_grid_toggle = "off";
+                  opacity_grid_toggle = "off";
                 } else if ((opacity_grid_toggle === "off") && (alpha >= 0.25 )){
                   slider_backup[viewer.model.children[j].name] = alpha * 100;
                   $( ".axes_class" ).remove();
@@ -251,20 +251,20 @@ $(function() {
                     var axes = buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
                   }
                   opacity_grid_toggle = "on";
-		}
-	      }
+                }
+              }
 
 
-              if ((marker !== "") && (shape_name == picked_object.name)){
+              if ((marker !== "") && (shape_name === picked_object.name)){
                 viewer.setTransparency(picked_object.material.opacity, {shape_name: "marker"});
                 //TEMP FIX FOR MARKER OPACITY
-                if (viewer.model.children[viewer.model.children.length-1].name == "marker"){
+                if (viewer.model.children[viewer.model.children.length-1].name === "marker"){
                   viewer.model.children[viewer.model.children.length-1].renderDepth = 1;
-                } else if (viewer.model.children[viewer.model.children.length-2].name == "marker"){
+                } else if (viewer.model.children[viewer.model.children.length-2].name === "marker"){
                   viewer.model.children[viewer.model.children.length-2].renderDepth = 1;
                 }
                 //END TEMP FIX
-	      }
+              }
             slider_backup[shape.name + "-" + j] = $(".opacity-slider[data-shape-name='" + shape.name + "-" + j + "']").slider("value");
             }
           });
@@ -275,8 +275,8 @@ $(function() {
           slider_backup[shape.name + "-" + j] = $(".opacity-slider[data-shape-name='" + shape.name + "-" + j + "']").slider("value");
           $("#individualtoggleopacity-" + j).click(function() {
 
-	    if ($(this).html() == "On"){
-	      slider_backup[shape.name + "-" + j] = $(".opacity-slider[data-shape-name='" + shape.name + "-" + j + "']").slider("value");
+            if ($(this).html() === "On"){
+              slider_backup[shape.name + "-" + j] = $(".opacity-slider[data-shape-name='" + shape.name + "-" + j + "']").slider("value");
               viewer.setTransparency(0, {shape_name: shape.name + "-" + j});
               $(this).html("Off");
               document.getElementById("individualtoggleopacity-" + j).style.backgroundColor = "red";
@@ -294,8 +294,8 @@ $(function() {
                   var axes = buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
                 }
                 opacity_grid_toggle = "off";
-	      }
-	    } else {
+              }
+            } else {
               var alpha = slider_backup[shape.name + "-" + j] / 100;
               viewer.setTransparency(alpha, {shape_name: shape.name + "-" + j});
               $(".opacity-slider[data-shape-name='" + shape.name + "-" + j + "']").slider("value", slider_backup[shape.name + "-" + j]);
@@ -303,9 +303,9 @@ $(function() {
               document.getElementById("individualtoggleopacity-" + j).style.backgroundColor = "green";
               document.getElementById("opacity-slider-" + j).style.visibility = "visible";
               if (marker !== ""){
-	        marker = viewer.drawDot(picked_coords.x, picked_coords.y, picked_coords.z, 0.3);
-	        marker.name = "marker";
-	        viewer.setTransparency(picked_object.material.opacity, {shape_name: "marker"});
+                marker = viewer.drawDot(picked_coords.x, picked_coords.y, picked_coords.z, 0.3);
+                marker.name = "marker";
+                viewer.setTransparency(picked_object.material.opacity, {shape_name: "marker"});
               }
               if ((window.axesbox !== undefined) && (axesbox.model.name === "axes_on")){
                 $( ".axes_class" ).remove();
@@ -321,18 +321,18 @@ $(function() {
                 }
                 opacity_grid_toggle = "on";
               }
-	    }
+            }
           });
           viewer.model.children[j].model = m;
           viewer.model.children[j].name = shape.name + "-" + j;
 
           //Change opacity slider background to same color as the shape it represents
-          if (m == 1){
+          if (m === 1){
             var r = Math.round(255*m1_model_data_get.shapes[i].color[0]);
             var g = Math.round(255*m1_model_data_get.shapes[i].color[1]);
             var b = Math.round(255*m1_model_data_get.shapes[i].color[2]);
             document.getElementById("opacity-slider-" + j).style.background = "rgb("+ r + ", " + g + ", " + b + ")";
-          } else if (m == 2){
+          } else if (m === 2){
             var r = Math.round(255*m2_model_data_get.shapes[i].color[0]);
             var g = Math.round(255*m2_model_data_get.shapes[i].color[1]);
             var b = Math.round(255*m2_model_data_get.shapes[i].color[2]);
@@ -372,11 +372,11 @@ $(function() {
 //        cylinder.rotation.x = 0.5*Math.PI;
 
         //  If model 2 is loaded and if model 1 has already been recentered, move model 2's origin to be the same as model 1's original origin
-        if ((m == 2) && (m1_offset == 1)){
+        if ((m === 2) && (m1_offset === 1)){
           viewer.model.children[m_index_begin[2]].geometry.applyMatrix(new THREE.Matrix4().makeTranslation( -offset_old.x, -offset_old.y, -offset_old.z ) );
         }
 
-        // This is a little hack to make sure that none of the shapes slip outside of the original radius 
+        // This is a little hack to make sure that none of the shapes slip outside of the original radius
         // after the geometry is translated to the center of a previous shape.
         // Can also set boundingSphere to null but this seems to slow down the performance too much.
 
@@ -390,10 +390,10 @@ $(function() {
 
         // Toggle / hide opacity for a tab (custom vs. off).
         $("#hidetab-" + m).click(function() {
-          if (eval("opacity_toggle_customoff_" + m) == "custom") {
-	    var m_unselected;
-	    if (m_selected == 1) { m_unselected = 2;} 
-	    else if (m_selected == 2) {m_unselected = 1};
+          if (eval("opacity_toggle_customoff_" + m) === "custom") {
+            var m_unselected;
+            if (m_selected === 1) { m_unselected = 2;}
+            else if (m_selected === 2) {m_unselected = 1};
             for (var i = 0; i < viewer.model.children.length; i++) {
               if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid") && (i >= m_index_begin[m_selected]) && (i < m_index_end[m_selected])){
                 slider_backup[viewer.model.children[i].name] = $(".opacity-slider[data-shape-name='" + viewer.model.children[i].name + "']").slider("value");
@@ -402,26 +402,25 @@ $(function() {
                 document.getElementById("individualtoggleopacity-" + i).style.backgroundColor = "red";
                 document.getElementById("opacity-slider-" + i).style.visibility = "hidden";
                 $("#individualtoggleopacity-" + i).html("Off");
-            
-	        if ((picked_object !== null) && (picked_object.name == viewer.model.children[i].name) && (marker !== "")){
+
+                if ((picked_object !== null) && (picked_object.name === viewer.model.children[i].name) && (marker !== "")){
                   viewer.setTransparency(0, {shape_name: "marker"});
                 }
-	      //Have to reorder rendering of other model so that its transparent shapes are not cutoff / intersected by model that is being hidden
+              //Have to reorder rendering of other model so that its transparent shapes are not cutoff / intersected by model that is being hidden
               } else if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid") && (i >= m_index_begin[m_unselected]) && (i < m_index_end[m_unselected])){
-		viewer.model.children[i].renderDepth = 1;
-		viewer.updated = true;
-	      }
-	    }
+                viewer.model.children[i].renderDepth = 1;
+                viewer.updated = true;
+              }
+            }
             eval("opacity_toggle_customoff_" + m + " = \"off\"");
-	  } else if (eval("opacity_toggle_customoff_" + m) == "off") {
-
+          } else if (eval("opacity_toggle_customoff_" + m) === "off") {
             for (var i = 0; i < viewer.model.children.length; i++) {
               if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid") && (i >= m_index_begin[m_selected]) && (i < m_index_end[m_selected])){
                 var alpha = slider_backup[viewer.model.children[i].name] / 100;
                 viewer.setTransparency(alpha, {shape_name: viewer.model.children[i].name});
                 $(".opacity-slider[data-shape-name='" + viewer.model.children[i].name + "']").slider("value", slider_backup[viewer.model.children[i].name]);
                 $("#individualtoggleopacity-" + i).html(on_off_backup[i]);
-                if (on_off_backup[i] == "On"){
+                if (on_off_backup[i] === "On"){
                   document.getElementById("individualtoggleopacity-" + i).style.backgroundColor = "green";
                   document.getElementById("opacity-slider-" + i).style.visibility = "visible";
                 } else {
@@ -435,7 +434,7 @@ $(function() {
               viewer.setTransparency(picked_object.material.opacity, {shape_name: "marker"});
             }
             eval("opacity_toggle_customoff_" + m + " = \"custom\"");
-	  }
+          }
         });
 
         if ((m>1) && (marker !== "")){
@@ -467,7 +466,7 @@ $(function() {
             $("#pick-index").html("");
 
             for (var i = m_index_begin[m_selected]; i < m_index_end[m_selected]; i++) {
-              if (searchshapes.value == autoshapes[i]){
+              if (searchshapes.value === autoshapes[i]){
                 searchshapes_value_long = autoshapes_long[i];
               }
             }
@@ -476,7 +475,7 @@ $(function() {
               if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid")){
                 on_off_backup[i] = $("#individualtoggleopacity-" + i).html();
                 slider_backup[viewer.model.children[i].name] = $(".opacity-slider[data-shape-name='" + viewer.model.children[i].name + "']").slider("value");
-                if (viewer.model.children[i].name == searchshapes_value_long) {
+                if (viewer.model.children[i].name === searchshapes_value_long) {
 
                   var changeCenterRotation_return_array = changeCenterRotation(i, two_models_toggle, offset_old, m, m_index_begin, m_index_end, offset_diff_total);
                   offset_old = changeCenterRotation_return_array[0];
@@ -527,7 +526,7 @@ $(function() {
             for (var i = 0; i < viewer.model.children.length; i++) {
 
               if ((i >= m_index_begin[m_selected]) && (i < m_index_end[m_selected])) {
-                if (searchshapes_value_long == autoshapes_long[i]){
+                if (searchshapes_value_long === autoshapes_long[i]){
                   searchshapes_value = autoshapes[i];
                 }
               }
@@ -535,7 +534,7 @@ $(function() {
               if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid")){
                 on_off_backup[i] = $("#individualtoggleopacity-" + i).html();
                 slider_backup[viewer.model.children[i].name] = $(".opacity-slider[data-shape-name='" + viewer.model.children[i].name + "']").slider("value");
-                if (viewer.model.children[i].name == picked_object.name) {
+                if (viewer.model.children[i].name === picked_object.name) {
                   window.location.hash = "#shape-" + i;
                   window.location.hash = "#views";
                   document.getElementById("shape-"+ i).style.backgroundColor = "#1E8FFF";
@@ -562,10 +561,10 @@ $(function() {
               }
             }
 
-            if (m_selected == 1 ){
+            if (m_selected === 1 ){
               picked_coords.subVectors(picked_coords, offset_diff_total);
-            } else if (m_selected == 2){
-              if (two_models_toggle == 1){
+            } else if (m_selected === 2){
+              if (two_models_toggle === 1){
                 two_models_toggle = 2;
                 picked_coords.subVectors(picked_coords, offset_old);
               }
@@ -585,10 +584,10 @@ $(function() {
             }
           }
           focus_toggle = "on";
-          if (two_models_toggle == 1) {
+          if (two_models_toggle === 1) {
             two_models_toggle = 2;
           }
-        } else if (two_models_toggle == 2) {
+        } else if (two_models_toggle === 2) {
           two_models_toggle = 1;
         }
       });
@@ -607,25 +606,25 @@ $(function() {
             viewer.setTransparency(alpha, {shape_name: viewer.model.children[i].name});
             $(".opacity-slider[data-shape-name='" + viewer.model.children[i].name + "']").slider("value", slider_backup[viewer.model.children[i].name]);
             $("#individualtoggleopacity-" + i).html(on_off_backup[i]);
-            if (on_off_backup[i] == "Off"){
-                document.getElementById("individualtoggleopacity-" + i).style.backgroundColor = "red";
-                document.getElementById("opacity-slider-" + i).style.visibility = "hidden";
-                viewer.setTransparency(0, {shape_name: viewer.model.children[i].name});
+            if (on_off_backup[i] === "Off"){
+              document.getElementById("individualtoggleopacity-" + i).style.backgroundColor = "red";
+              document.getElementById("opacity-slider-" + i).style.visibility = "hidden";
+              viewer.setTransparency(0, {shape_name: viewer.model.children[i].name});
             } else {
-                document.getElementById("individualtoggleopacity-" + i).style.backgroundColor = "green";
-                document.getElementById("opacity-slider-" + i).style.visibility = "visible";
-	    }
+              document.getElementById("individualtoggleopacity-" + i).style.backgroundColor = "green";
+              document.getElementById("opacity-slider-" + i).style.visibility = "visible";
+            }
           }
         }
-      focus_toggle = "off";
-      searchshapes.value = "";
-      searchshapes.value_long = "";
-      $("#pick-name").html("");
-      $("#pick-shape-number").html("");
-      $("#pick-x").html("");
-      $("#pick-y").html("");
-      $("#pick-z").html("");
-      $("#pick-index").html("");
+        focus_toggle = "off";
+        searchshapes.value = "";
+        searchshapes.value_long = "";
+        $("#pick-name").html("");
+        $("#pick-shape-number").html("");
+        $("#pick-x").html("");
+        $("#pick-y").html("");
+        $("#pick-z").html("");
+        $("#pick-index").html("");
       });
 
       $("#focus-shape").click(function(event) {
@@ -633,7 +632,7 @@ $(function() {
         var name = searchshapes_value_long;
         var ct=1;
 
-        if ((focus_toggle == "off") && (ct < viewer.model.children.length) && (two_models_toggle < 2)){
+        if ((focus_toggle === "off") && (ct < viewer.model.children.length) && (two_models_toggle < 2)){
           for (var i = 0; i < viewer.model.children.length; i++) {
             if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid")){
               if (viewer.model.children[i].name !== name) {
@@ -663,10 +662,10 @@ $(function() {
           }
 
           focus_toggle = "on";
-          if (two_models_toggle == 1){
+          if (two_models_toggle === 1){
             two_models_toggle = 2;
           }
-        } else if ((focus_toggle == "on") && (ct < viewer.model.children.length) && (two_models_toggle < 2)){
+        } else if ((focus_toggle === "on") && (ct < viewer.model.children.length) && (two_models_toggle < 2)){
           for (var i = 0; i < viewer.model.children.length; i++) {
             if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid")){
               if (viewer.model.children[i].name !== name) {
@@ -698,12 +697,12 @@ $(function() {
           }
 
           focus_toggle = "off";
-          if (two_models_toggle == 1){
+          if (two_models_toggle === 1){
             two_models_toggle = 2;
           }
-        } else if (two_models_toggle == 2){
+        } else if (two_models_toggle === 2){
           two_models_toggle = 1;
-	}
+  }
       });
     });
 
@@ -813,7 +812,7 @@ $(function() {
             intensity_data.range_min = min;
             intensity_data.range_max = max;
 
-	    viewer.setIntensityRange(intensity_data, min, max);
+            viewer.setIntensityRange(intensity_data, min, max);
           }
         });
 
@@ -825,7 +824,7 @@ $(function() {
         function inputRangeChange() {
           var min = parseFloat(min_input.val());
           var max = parseFloat(max_input.val());
-          
+
           slider.slider("values", 0, min);
           slider.slider("values", 1, max);
           viewer.setIntensityRange(intensity_data, min, max);
@@ -926,7 +925,7 @@ $(function() {
       link.attr("href", BrainBrowser.utils.createDataURL(values.join("\n")));
       $("#intensity-data-export-link").attr("download", "intensity-values.txt");
       $("#intensity-data-export").show();
-    }); 
+    });
 
     ////////////////////////////////////
     //  START RENDERING
@@ -946,7 +945,7 @@ $(function() {
       bgcolor = parseInt($(e.target).val(), 16);
       viewer.setClearColor(bgcolor);
 
-      if ((window.axesbox !== undefined) && (axesbox.model.name === "axes_on")){ 
+      if ((window.axesbox !== undefined) && (axesbox.model.name === "axes_on")){
         $( ".axes_class" ).remove();
         $( ".axes_legend_class" ).remove();
         $( ".grid_class" ).remove();
@@ -961,7 +960,7 @@ $(function() {
       }
 
     });
-    
+
     // Reset to the default view.
     $("#resetview").click(function() {
 
@@ -1004,43 +1003,43 @@ $(function() {
     // Toggle opacity (custom vs. on).
     $("#toggleopacitycustom").click(function() {
 
-      if (  opacity_toggle_oncustom == "custom") {
+      if (  opacity_toggle_oncustom === "custom") {
         for (var i = 0; i < viewer.model.children.length; i++) {
           if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid")){
             var alpha = slider_backup[viewer.model.children[i].name] / 100;
             viewer.setTransparency(alpha, {shape_name: viewer.model.children[i].name});
             $(".opacity-slider[data-shape-name='" + viewer.model.children[i].name + "']").slider("value", slider_backup[viewer.model.children[i].name]);
             $("#individualtoggleopacity-" + i).html(on_off_backup[i]);
-            if (on_off_backup[i] == "On"){
-                document.getElementById("individualtoggleopacity-" + i).style.backgroundColor = "green";
-                document.getElementById("opacity-slider-" + i).style.visibility = "visible";
+            if (on_off_backup[i] === "On"){
+              document.getElementById("individualtoggleopacity-" + i).style.backgroundColor = "green";
+              document.getElementById("opacity-slider-" + i).style.visibility = "visible";
             } else {
-                document.getElementById("individualtoggleopacity-" + i).style.backgroundColor = "red";
-                document.getElementById("opacity-slider-" + i).style.visibility = "hidden";
-                viewer.setTransparency(0, {shape_name: viewer.model.children[i].name});
+              document.getElementById("individualtoggleopacity-" + i).style.backgroundColor = "red";
+              document.getElementById("opacity-slider-" + i).style.visibility = "hidden";
+              viewer.setTransparency(0, {shape_name: viewer.model.children[i].name});
             }
           }
-	} 
+        }
         if (marker !== ""){
           viewer.setTransparency(picked_object.material.opacity, {shape_name: "marker"});
         }
-	opacity_toggle_oncustom = "on";
-      } else if (  opacity_toggle_oncustom == "on"){
+        opacity_toggle_oncustom = "on";
+      } else if (  opacity_toggle_oncustom === "on"){
         if (marker !== ""){
           viewer.setTransparency(1, {shape_name: "marker"});
         }
         for (var i = 0; i < viewer.model.children.length; i++) {
-          if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid")){ 
+          if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid")){
             slider_backup[viewer.model.children[i].name] = $(".opacity-slider[data-shape-name='" + viewer.model.children[i].name + "']").slider("value");
             on_off_backup[i] = $("#individualtoggleopacity-" + i).html();
             viewer.setTransparency(1, {shape_name: viewer.model.children[i].name});
             $(".opacity-slider[data-shape-name='" + viewer.model.children[i].name + "']").slider("value", 100);
             document.getElementById("individualtoggleopacity-" + i).style.backgroundColor = "green";
             $("#individualtoggleopacity-" + i).html("On");
-            document.getElementById("opacity-slider-" + i).style.visibility = "visible";           
+            document.getElementById("opacity-slider-" + i).style.visibility = "visible";
           }
         }
-	opacity_toggle_oncustom = "custom";
+        opacity_toggle_oncustom = "custom";
       }
     });
 
@@ -1056,13 +1055,13 @@ $(function() {
 
       viewer.updated = true;
     });
-    
+
     // Set the view type (medial, lateral,
     // inferior, anterior, posterior).
     $("[name=hem_view]").change(function() {
       viewer.setView($("[name=hem_view]:checked").val());
     });
-    
+
     // Toggle wireframe between off, on, and mixed.
     $("#meshmode").click(function() {
       $(this).toggleClass(function (i, className, b) {
@@ -1072,12 +1071,12 @@ $(function() {
         return classNames[index];
       });
     });
-    
+
     // Toggle 3D anaglyph effect.
     $("#threedee").change(function() {
       viewer.setEffect($(this).is(":checked") ? "AnaglyphEffect" : "None");
     });
-    
+
     // Grab a screenshot of the canvas.
     $("#screenshot").click(function() {
       var dom_element = viewer.dom_element;
@@ -1085,14 +1084,14 @@ $(function() {
       var spectrum_canvas = document.getElementById("spectrum-canvas");
       var context = canvas.getContext("2d");
       var viewer_image = new Image();
-      
+
       canvas.width = dom_element.offsetWidth;
       canvas.height = dom_element.offsetHeight;
-    
+
       // Display the final image in a dialog box.
       function displayImage() {
         var result_image = new Image();
-        
+
         result_image.onload = function() {
           $("<div></div>").append(result_image).dialog({
             title: "Screenshot",
@@ -1102,7 +1101,7 @@ $(function() {
         };
         result_image.src = canvas.toDataURL();
       }
-   
+
       // Grab the spectrum canvas to display with the
       // image.
       function getSpectrumImage() {
@@ -1113,7 +1112,7 @@ $(function() {
         };
         spectrum_image.src = spectrum_canvas.toDataURL();
       }
-      
+
       // Draw an image of the viewer area, add the spectrum
       // image if it's available, and display everything
       // in a dialog box.
@@ -1146,7 +1145,7 @@ $(function() {
       }
 
     });
-    
+
     // Control autorotation.
     $("#autorotate-controls").children().change(function() {
       viewer.autorotate.x = $("#autorotateX").is(":checked");
@@ -1170,7 +1169,7 @@ $(function() {
         clearShape("axes");
         clearShape("grid");
         window.axesbox = undefined;
-	axes_toggle = "off";
+        axes_toggle = "off";
         if (marker !== ""){
           marker = viewer.drawDot(picked_coords.x, picked_coords.y, picked_coords.z, 0.3);
           marker.name = "marker";
@@ -1216,10 +1215,10 @@ $(function() {
 
           for (var i = 0; i < viewer.model.children.length; i++) {
             if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid")){
-              if (viewer.model.children[i].name == picked_object.name) {
+              if (viewer.model.children[i].name === picked_object.name) {
                 for (var n = 1; n < m+1; n++) {
                   $("#shapes-" + n + " .shape").each(function() {
-                    if (this.id == "shape-" + i){
+                    if (this.id === "shape-" + i){
                       $("ul.tabs li").removeClass("current");
                       $(".tab-content").removeClass("current");
                       $("#tabid-"+n).addClass("current");
@@ -1247,16 +1246,16 @@ $(function() {
           }
         }
 
-        if (m_selected == 1 ){
+        if (m_selected === 1 ){
           picked_coords.subVectors(picked_coords, offset_old);
-        } else if (m_selected == 2){
-          if (two_models_toggle == 1){
+        } else if (m_selected === 2){
+          if (two_models_toggle === 1){
             picked_coords.subVectors(picked_coords, offset_old);
           }
         }
         focus_toggle = "on";
         clearShape("marker");
-        if ((viewer.model.children[viewer.model.children.length-1].name != "marker") && (viewer.model.children[viewer.model.children.length-2].name != "marker")){
+        if ((viewer.model.children[viewer.model.children.length-1].name !== "marker") && (viewer.model.children[viewer.model.children.length-2].name !== "marker")){
           marker = viewer.drawDot(picked_coords.x, picked_coords.y, picked_coords.z, 0.3);
           marker.name = "marker";
           viewer.setTransparency(picked_object.material.opacity, {shape_name: "marker"});
@@ -1271,7 +1270,7 @@ $(function() {
             var axes = buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
           }
         }
-      } else if (two_models_toggle == 2) {
+      } else if (two_models_toggle === 2) {
         two_models_toggle = 1;
       }
     });
@@ -1282,7 +1281,7 @@ $(function() {
 
       $( ".per_vertex_class" ).remove();
 
-      if (document.getElementById("objfile").value == ""){
+      if (document.getElementById("objfile").value === ""){
         window.alert("Please select a file!");
         return;
       }
@@ -1309,7 +1308,7 @@ $(function() {
       if ((format === "mniobj") || (format === "freesurferasc") ){
         var per_vertex_div = $("<div class=\"per_vertex_class\"><div id=\"per_vertex_file_select\" class=\"file-select\">Per vertex data: <div id=\"browse_per_vertex_data\">" +
           "<input id=\"datafile\" type =\"file\" name=\"datafile\"></input></div></div>" +
-          "<div id=\"tmp\" class=\"file-select\">Format:  <select id=\"data-file-format\" class=\"file-format\" name=\"format\">" + 
+          "<div id=\"tmp\" class=\"file-select\">Format:  <select id=\"data-file-format\" class=\"file-format\" name=\"format\">" +
           "<option value=\"text\">Text</option>" +
           "<option value=\"freesurferasc\">Freesurfer ASC</option>" +
           "</select></div>" +
@@ -1317,8 +1316,8 @@ $(function() {
           "<span id=\"data_submit_clear\" class=\"button\">Unload All</span>" +
           "</div>");
         per_vertex_div.appendTo("#surface_choice");
-	if (format === "freesurferasc"){
-           document.getElementById("data-file-format").value = 'freesurferasc';
+        if (format === "freesurferasc"){
+          document.getElementById("data-file-format").value = 'freesurferasc';
         }
       } else {
         $( ".per_vertex_class" ).remove();
@@ -1389,7 +1388,7 @@ $(function() {
 
         color_div.appendTo("#data-range-box");
 
-	//Default: spectral.
+  //Default: spectral.
         viewer.loadColorMapFromURL("color-maps/spectral.txt");
 
         $("#color-map-select").change(function() {
@@ -1425,7 +1424,7 @@ $(function() {
       var filename = document.getElementById("objfile").value;
 
       if (filename.indexOf(".json") > -1){
-	document.getElementById("obj_file_format").value = 'json';
+       document.getElementById("obj_file_format").value = 'json';
       } else if (filename.indexOf(".obj") > -1){
         document.getElementById("obj_file_format").value = 'mniobj';
       } else if (filename.indexOf(".asc") > -1){
@@ -1433,7 +1432,7 @@ $(function() {
       }
 
       var format = $(this).closest(".file-select").find("option:selected").val();
-      
+
       showLoading();
       viewer.loadModelFromFile(document.getElementById("objfile"), {
         format: format,
@@ -1453,7 +1452,7 @@ $(function() {
 
         per_vertex_div.appendTo("#surface_choice");
         if (format === "freesurferasc"){
-           document.getElementById("data-file-format").value = 'freesurferasc';
+          document.getElementById("data-file-format").value = 'freesurferasc';
         }
       } else {
         $( ".per_vertex_class" ).remove();
@@ -1599,9 +1598,9 @@ $(function() {
       var annotation_display = $("#annotation-display");
       var media = $("#annotation-media");
       var model_data_get_selected;
-      if (m_selected == 1 ){
+      if (m_selected === 1 ){
         model_data_get_selected=m1_model_data_get;
-      } else if (m_selected == 2 ){
+      } else if (m_selected === 2 ){
         model_data_get_selected=m2_model_data_get;
       }
       var pick_info = viewer.pick(x, y, searchshapes.value, m_selected, m_index_begin, m_index_end, offset_diff_total, model_data_get_selected);
@@ -1615,7 +1614,7 @@ $(function() {
         searchshapes_value =  pick_info.object.name;
         var obj_name_short;
         var matches = pick_info.object.name.match(/-/g);
-        if (matches.length == 2){
+        if (matches.length === 2){
           var n = pick_info.object.name.lastIndexOf("-");
           obj_name_short = pick_info.object.name.substr(0,n);
         }
@@ -1628,7 +1627,7 @@ $(function() {
         $("#pick-index").html(pick_info.index);
         $("#annotation-wrapper").show();
         picked_object = pick_info.object;
-        picked_coords = pick_info.point; 
+        picked_coords = pick_info.point;
         model_data = viewer.model_data.get(picked_object.userData.model_name);
         intensity_data = model_data.intensity_data[0];
 
@@ -1647,7 +1646,7 @@ $(function() {
             hex: true,
             min: intensity_data.range_min,
             max: intensity_data.range_max
-	  }));
+          }));
           label = atlas_labels[value];
           if (label) {
             text = label + '<BR><a target="_blank" href="http://www.ncbi.nlm.nih.gov/pubmed/?term=' +
@@ -1720,7 +1719,7 @@ $(function() {
       }
     }
 
-    function clearShape(name) {     
+    function clearShape(name) {
       if ((name === "axes") && (window.axesbox !== undefined)){
         axesbox.model.children.forEach(function(child,i) {
 
@@ -1783,11 +1782,11 @@ $(function() {
 
       if (window.axesbox === undefined){
         window.axesbox = BrainBrowser.SurfaceViewer.start("axes", function(axesbox) {
-	  axesbox.render();
+          axesbox.render();
           axesbox.setClearColor(0, 0);
           axesbox.updated = true;
         });
-      } 
+      }
 
       axesbox.model.add(axes_all);
       axesbox.model.rotation.x = viewer.model.rotation.x;
@@ -1805,25 +1804,25 @@ $(function() {
         legend_div.appendTo("#axes_legend");
 
       if (bgcolor !== 65535){
-        drawDashed("dorsal","#00ffff",150);	//cyan solid
-        drawDashed("ventral","#00ffff",8);    	//cyan dashed
+        drawDashed("dorsal","#00ffff",150); //cyan solid
+        drawDashed("ventral","#00ffff",8);      //cyan dashed
       } else {
-        drawDashed("dorsal","#000000",150);   	//black solid
-        drawDashed("ventral","#000000",8);    	//black dashed
+        drawDashed("dorsal","#000000",150);     //black solid
+        drawDashed("ventral","#000000",8);      //black dashed
       }
       if (bgcolor !== 16776960){
-        drawDashed("anterior","#ffff00",150);	//yellow solid
-        drawDashed("posterior","#ffff00",8);	//yellow dashed
+        drawDashed("anterior","#ffff00",150); //yellow solid
+        drawDashed("posterior","#ffff00",8);  //yellow dashed
       } else {
-        drawDashed("anterior","#000000",150); 	//black solid
-        drawDashed("posterior","#000000",8);  	//black dashed
+        drawDashed("anterior","#000000",150);   //black solid
+        drawDashed("posterior","#000000",8);    //black dashed
       }
       if (bgcolor !== 16711935){
         drawDashed("left","#ff00ff",150);       //magenta solid
-        drawDashed("right","#ff00ff",8);	//magenta dashed
+        drawDashed("right","#ff00ff",8);  //magenta dashed
       } else {
         drawDashed("left","#000000",150);       //black solid
-        drawDashed("right","#000000",8);    	//black dashed
+        drawDashed("right","#000000",8);      //black dashed
       }
 
       document.getElementById("dorsal_legend").style.color = font_color;
@@ -1853,7 +1852,7 @@ $(function() {
       document.getElementById("grid_length").style.color = font_color;
 
       $("#grid_partitions").keyup(function(event){
-        if(event.keyCode == 13){  //if enter key is pressed
+        if(event.keyCode === 13){  //if enter key is pressed
           user_defined_grid_partitions = "yes";
           if (document.getElementById("grid_partitions").value !== ""){
             grid_partitions = parseInt(document.getElementById("grid_partitions").value);
@@ -1864,7 +1863,7 @@ $(function() {
       });
 
       $("#grid_length2").keyup(function(event){
-        if(event.keyCode == 13){  //if enter key is pressed
+        if(event.keyCode === 13){  //if enter key is pressed
           user_defined_grid_length = "yes";
           if (document.getElementById("grid_length2").value !== ""){
             grid_length = parseInt(document.getElementById("grid_length2").value);
@@ -1969,7 +1968,7 @@ $(function() {
 
           //USEFUL FOR DEBUGGING BOUNDING BOX
           //var material = new THREE.LineBasicMaterial({ color: 0x0000ff});
-  
+
           //var geometry = new THREE.Geometry();
           //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_max_y, bounding_box_max_z));
           //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_max_y, bounding_box_max_z));
@@ -1988,25 +1987,25 @@ $(function() {
           //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_max_y, bounding_box_min_z));
           //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_min_y, bounding_box_min_z));
           //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_min_y, bounding_box_max_z));
-  
+
           //var line = new THREE.Line(geometry, material);
           //viewer.model.add( line);
 
-	  if (user_defined_grid_partitions === "no"){
-	    //Set grid partitions to (somewhat arbitrary) 1/10th of the average distance between bounding box limits for x,y,z
-	    var bounding_box_length_avg = Math.round(Math.abs(bounding_box_max_x - bounding_box_min_x) + Math.abs(bounding_box_max_y - bounding_box_min_y) + Math.abs(bounding_box_max_z - bounding_box_min_z))/3;
-       	    grid_partitions = Math.round(bounding_box_length_avg/10);
-            document.getElementById("grid_partitions").value = grid_partitions;
-            document.getElementById("grid_length2").value = "";
-	  }
+          if (user_defined_grid_partitions === "no"){
+            //Set grid partitions to (somewhat arbitrary) 1/10th of the average distance between bounding box limits for x,y,z
+            var bounding_box_length_avg = Math.round(Math.abs(bounding_box_max_x - bounding_box_min_x) + Math.abs(bounding_box_max_y - bounding_box_min_y) + Math.abs(bounding_box_max_z - bounding_box_min_z))/3;
+                  grid_partitions = Math.round(bounding_box_length_avg/10);
+                  document.getElementById("grid_partitions").value = grid_partitions;
+                  document.getElementById("grid_length2").value = "";
+          }
         } else {
-	  bounding_box_min_x = -grid_length;
+          bounding_box_min_x = -grid_length;
           bounding_box_max_x = grid_length;
           bounding_box_min_y = -grid_length;
           bounding_box_max_y = grid_length;
           bounding_box_min_z = -grid_length;
           bounding_box_max_z = grid_length;
-	}
+        }
 
         //Round down or up (for mins and maxes) to make sure that all bounding boxes contain an even number of partitions (not a fraction of one)
         bounding_box_min_x = grid_partitions*Math.floor(bounding_box_min_x/grid_partitions);
@@ -2022,9 +2021,9 @@ $(function() {
         var picked_coords_grid;
 
         if (picked_coords !== undefined){
-          picked_coords_grid = picked_coords; 
+          picked_coords_grid = picked_coords;
         } else {
-	  picked_coords_grid = new THREE.Vector3( 0, 0, 0 );
+          picked_coords_grid = new THREE.Vector3( 0, 0, 0 );
         }
 
         if ((bgcolor !== 16711935) && (bgcolor !== 16776960) && (bgcolor !== 65535)){ //if bg not magenta or yellow or cyan
@@ -2072,7 +2071,7 @@ $(function() {
 
       function buildAxis( src, dst, colorHex, dashed ) {
         var geom = new THREE.Geometry(),mat;
- 
+
         if(dashed) {
           mat = new THREE.LineDashedMaterial({ linewidth: 3, color: colorHex, dashSize: 3, gapSize: 3 });
         } else {
@@ -2098,7 +2097,7 @@ $(function() {
         context.lineTo(190, 70);
         context.lineWidth = 30;
         context.setLineDash([width]);
-  
+
         // set line color
         context.strokeStyle = color;
         context.stroke();
@@ -2112,12 +2111,12 @@ $(function() {
         offset_diff.x=offset_old.x-offset_new.x;
         offset_diff.y=offset_old.y-offset_new.y;
         offset_diff.z=offset_old.z-offset_new.z;
-        if (m == 1) {
+        if (m === 1) {
           viewer.model.children[i].geometry.applyMatrix(new THREE.Matrix4().makeTranslation( offset_diff.x, offset_diff.y, offset_diff.z) );
-          if (m1_offset == 0){
-	    m1_offset  = 1;
-	  }
-        } else if (m == 2) {
+          if (m1_offset === 0){
+            m1_offset  = 1;
+          }
+        } else if (m === 2) {
           viewer.model.children[m_index_begin[1]].geometry.applyMatrix(new THREE.Matrix4().makeTranslation( offset_diff.x, offset_diff.y, offset_diff.z ) );
           viewer.model.children[m_index_begin[2]].geometry.applyMatrix(new THREE.Matrix4().makeTranslation( offset_diff.x, offset_diff.y, offset_diff.z ) );
           if (i<m_index_end[1]){ // model 1

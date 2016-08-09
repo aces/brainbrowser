@@ -83,7 +83,6 @@ $(function() {
     var offset_old = new THREE.Vector3( 0, 0, 0 );
     var offset_diff_total = new THREE.Vector3( 0, 0, 0 );
     var m_selected = 0;
-    var offset_diff = new THREE.Vector3( 0, 0, 0 );
     var m1_model_data_get;
     var m2_model_data_get;
     var m1_offset = 0;
@@ -97,6 +96,7 @@ $(function() {
     var toggle_grid_YZ = "on";
     var opacity_grid_toggle = "on";
     var classNames = ["wireframe_off", "wireframe_on", "wireframe_mixed"];
+    var searchshapes = {};
 
     // Add the three.js 3D anaglyph effect to the viewer.
     viewer.addEffect("AnaglyphEffect");
@@ -352,7 +352,7 @@ $(function() {
         }
 
         //If 2 models, get rid of duplicates in list that user sees in search box
-        var o = {}, i, l = autoshapes.length, autoshapes_norepeats = [];
+        var o = {}, i, l = autoshapes.length;
         for(i=0; i<l;i+=1) o[autoshapes[i]] = autoshapes[i];
         for(i in o) autoshapes_norepeats.push(o[i]);
 
@@ -394,31 +394,31 @@ $(function() {
             var m_unselected;
             if (m_selected === 1) { m_unselected = 2;}
             else if (m_selected === 2) {m_unselected = 1;}
-            for (var i = 0; i < viewer.model.children.length; i++) {
-              if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid") && (i >= m_index_begin[m_selected]) && (i < m_index_end[m_selected])){
-                slider_backup[viewer.model.children[i].name] = $(".opacity-slider[data-shape-name='" + viewer.model.children[i].name + "']").slider("value");
+            viewer.model.children.forEach(function(child,i) {
+              if ((child.name !== "axes") && (child.name !== "marker") && (child.name !== "grid") && (i >= m_index_begin[m_selected]) && (i < m_index_end[m_selected])){
+                slider_backup[child.name] = $(".opacity-slider[data-shape-name='" + child.name + "']").slider("value");
                 on_off_backup[i] = $("#individualtoggleopacity-" + i).html();
-                viewer.setTransparency(0, {shape_name: viewer.model.children[i].name});
+                viewer.setTransparency(0, {shape_name: child.name});
                 document.getElementById("individualtoggleopacity-" + i).style.backgroundColor = "red";
                 document.getElementById("opacity-slider-" + i).style.visibility = "hidden";
                 $("#individualtoggleopacity-" + i).html("Off");
 
-                if ((picked_object !== null) && (picked_object.name === viewer.model.children[i].name) && (marker !== "")){
+                if ((picked_object !== null) && (picked_object.name === child.name) && (marker !== "")){
                   viewer.setTransparency(0, {shape_name: "marker"});
                 }
               //Have to reorder rendering of other model so that its transparent shapes are not cutoff / intersected by model that is being hidden
-              } else if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid") && (i >= m_index_begin[m_unselected]) && (i < m_index_end[m_unselected])){
-                viewer.model.children[i].renderDepth = 1;
+              } else if ((child.name !== "axes") && (child.name !== "marker") && (child.name !== "grid") && (i >= m_index_begin[m_unselected]) && (i < m_index_end[m_unselected])){
+                child.renderDepth = 1;
                 viewer.updated = true;
               }
-            }
+            });
             eval("opacity_toggle_customoff_" + m + " = \"off\"");
           } else if (eval("opacity_toggle_customoff_" + m) === "off") {
-            for (var i = 0; i < viewer.model.children.length; i++) {
-              if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid") && (i >= m_index_begin[m_selected]) && (i < m_index_end[m_selected])){
-                var alpha = slider_backup[viewer.model.children[i].name] / 100;
-                viewer.setTransparency(alpha, {shape_name: viewer.model.children[i].name});
-                $(".opacity-slider[data-shape-name='" + viewer.model.children[i].name + "']").slider("value", slider_backup[viewer.model.children[i].name]);
+            viewer.model.children.forEach(function(child,i) {
+              if ((child.name !== "axes") && (child.name !== "marker") && (child.name !== "grid") && (i >= m_index_begin[m_selected]) && (i < m_index_end[m_selected])){
+                var alpha = slider_backup[child.name] / 100;
+                viewer.setTransparency(alpha, {shape_name: child[i].name});
+                $(".opacity-slider[data-shape-name='" + child.name + "']").slider("value", slider_backup[child.name]);
                 $("#individualtoggleopacity-" + i).html(on_off_backup[i]);
                 if (on_off_backup[i] === "On"){
                   document.getElementById("individualtoggleopacity-" + i).style.backgroundColor = "green";
@@ -426,10 +426,10 @@ $(function() {
                 } else {
                   document.getElementById("individualtoggleopacity-" + i).style.backgroundColor = "red";
                   document.getElementById("opacity-slider-" + i).style.visibility = "hidden";
-                  viewer.setTransparency(0, {shape_name: viewer.model.children[i].name});
+                  viewer.setTransparency(0, {shape_name: child.name});
                 }
               }
-            }
+            });
             if (marker !== ""){
               viewer.setTransparency(picked_object.material.opacity, {shape_name: "marker"});
             }
@@ -597,25 +597,25 @@ $(function() {
 
         clearShape("marker");
         document.getElementById("searchshapes").value = "";
-        for (var i = 0; i < viewer.model.children.length; i++) {
-          if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid")){
+        viewer.model.children.forEach(function(child,i) {
+          if ((child.name !== "axes") && (child.name !== "marker") && (child.name !== "grid")){
             window.location.hash = "#surface-choice";
             document.getElementById("shape-" + i).style.backgroundColor = "#333333";
             document.getElementById("top-" + i).style.visibility = "hidden";
-            var alpha = slider_backup[viewer.model.children[i].name] / 100;
-            viewer.setTransparency(alpha, {shape_name: viewer.model.children[i].name});
-            $(".opacity-slider[data-shape-name='" + viewer.model.children[i].name + "']").slider("value", slider_backup[viewer.model.children[i].name]);
+            var alpha = slider_backup[child.name] / 100;
+            viewer.setTransparency(alpha, {shape_name: child.name});
+            $(".opacity-slider[data-shape-name='" + child.name + "']").slider("value", slider_backup[child.name]);
             $("#individualtoggleopacity-" + i).html(on_off_backup[i]);
             if (on_off_backup[i] === "Off"){
               document.getElementById("individualtoggleopacity-" + i).style.backgroundColor = "red";
               document.getElementById("opacity-slider-" + i).style.visibility = "hidden";
-              viewer.setTransparency(0, {shape_name: viewer.model.children[i].name});
+              viewer.setTransparency(0, {shape_name: child.name});
             } else {
               document.getElementById("individualtoggleopacity-" + i).style.backgroundColor = "green";
               document.getElementById("opacity-slider-" + i).style.visibility = "visible";
             }
           }
-        }
+        });
         focus_toggle = "off";
         searchshapes.value = "";
         searchshapes.value_long = "";
@@ -627,7 +627,7 @@ $(function() {
         $("#pick-index").html("");
       });
 
-      $("#focus-shape").click(function(event) {
+      $("#focus-shape").click(function() {
 
         var name = searchshapes_value_long;
         var ct=1;
@@ -666,19 +666,19 @@ $(function() {
             two_models_toggle = 2;
           }
         } else if ((focus_toggle === "on") && (ct < viewer.model.children.length) && (two_models_toggle < 2)){
-          for (var i = 0; i < viewer.model.children.length; i++) {
-            if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid")){
-              if (viewer.model.children[i].name !== name) {
+          viewer.model.children.forEach(function(child,i) {
+            if ((child.name !== "axes") && (child.name !== "marker") && (child.name !== "grid")){
+              if (child.name !== name) {
                 ct=ct+1;
-                var alpha = slider_backup[viewer.model.children[i].name] / 100;
-                viewer.setTransparency(alpha, {shape_name: viewer.model.children[i].name});
-                $(".opacity-slider[data-shape-name='" + viewer.model.children[i].name + "']").slider("value", slider_backup[viewer.model.children[i].name]);
+                var alpha = slider_backup[child.name] / 100;
+                viewer.setTransparency(alpha, {shape_name: child.name});
+                $(".opacity-slider[data-shape-name='" + child.name + "']").slider("value", slider_backup[child.name]);
                 document.getElementById("opacity-slider-" + i).style.visibility = "visible";
                 document.getElementById("individualtoggleopacity-" + i).style.backgroundColor = "green";
                 $("#individualtoggleopacity-" + i).html("On");
               }
             }
-          }
+          });
 
           if ((window.axesbox !== undefined) && (axesbox.model.name === "axes_on")){
             $( ".axes_class" ).remove();
@@ -970,17 +970,17 @@ $(function() {
       // automatically reset its position and opacity is reset to 100% for all shapes.
       viewer.setView($("[name=hem_view]:checked").val());
 
-      for (var i = 0; i < viewer.model.children.length; i++) {
-        if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid")){
-          viewer.setTransparency(1, {shape_name: viewer.model.children[i].name});
-          $(".opacity-slider[data-shape-name='" + viewer.model.children[i].name + "']").slider("value", 100);
+      viewer.model.children.forEach(function(child,i) {
+        if ((child.name !== "axes") && (child.name !== "marker") && (child.name !== "grid")){
+          viewer.setTransparency(1, {shape_name: child.name});
+          $(".opacity-slider[data-shape-name='" + child.name + "']").slider("value", 100);
           document.getElementById("individualtoggleopacity-" + i).style.backgroundColor = "green";
           $("#individualtoggleopacity-" + i).html("On");
           document.getElementById("opacity-slider-" + i).style.visibility = "visible";
           document.getElementById("shape-" + i).style.backgroundColor = "#333333";
           document.getElementById("top-" + i).style.visibility = "hidden";
         }
-      }
+      });
       window.location.hash = "#shape-0";
       window.location.hash = "#surface_choice";
 
@@ -1004,11 +1004,11 @@ $(function() {
     $("#toggleopacitycustom").click(function() {
 
       if (  opacity_toggle_oncustom === "custom") {
-        for (var i = 0; i < viewer.model.children.length; i++) {
-          if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid")){
-            var alpha = slider_backup[viewer.model.children[i].name] / 100;
-            viewer.setTransparency(alpha, {shape_name: viewer.model.children[i].name});
-            $(".opacity-slider[data-shape-name='" + viewer.model.children[i].name + "']").slider("value", slider_backup[viewer.model.children[i].name]);
+        viewer.model.children.forEach(function(child,i) {
+          if ((child.name !== "axes") && (child.name !== "marker") && (child.name !== "grid")){
+            var alpha = slider_backup[child.name] / 100;
+            viewer.setTransparency(alpha, {shape_name: child.name});
+            $(".opacity-slider[data-shape-name='" + viewer.model.children[i].name + "']").slider("value", slider_backup[child.name]);
             $("#individualtoggleopacity-" + i).html(on_off_backup[i]);
             if (on_off_backup[i] === "On"){
               document.getElementById("individualtoggleopacity-" + i).style.backgroundColor = "green";
@@ -1016,10 +1016,10 @@ $(function() {
             } else {
               document.getElementById("individualtoggleopacity-" + i).style.backgroundColor = "red";
               document.getElementById("opacity-slider-" + i).style.visibility = "hidden";
-              viewer.setTransparency(0, {shape_name: viewer.model.children[i].name});
+              viewer.setTransparency(0, {shape_name: child.name});
             }
           }
-        }
+        });
         if (marker !== ""){
           viewer.setTransparency(picked_object.material.opacity, {shape_name: "marker"});
         }
@@ -1064,7 +1064,7 @@ $(function() {
 
     // Toggle wireframe between off, on, and mixed.
     $("#meshmode").click(function() {
-      $(this).toggleClass(function (i, className, b) {
+      $(this).toggleClass(function (i, className) {
         var index = (classNames.indexOf(className) + 1) % classNames.length;
         viewer.setWireframe(classNames[index]);
         $(this).removeClass(className);
@@ -1198,11 +1198,11 @@ $(function() {
 
         clearShape("marker");
 
-        for (var i = 0; i < viewer.model.children.length; i++) {
-          if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid")){
-            slider_backup[viewer.model.children[i].name] = $(".opacity-slider[data-shape-name='" + viewer.model.children[i].name + "']").slider("value");
+        viewer.model.children.forEach(function(child) {
+          if ((child.name !== "axes") && (child.name !== "marker") && (child.name !== "grid")){
+            slider_backup[child.name] = $(".opacity-slider[data-shape-name='" + child.name + "']").slider("value");
           }
-        }
+        });
 
         pick(viewer.mouse.x, viewer.mouse.y, event.ctrlKey);
 
@@ -1592,7 +1592,7 @@ $(function() {
       }
     });
 
-    function pick(x, y, paint) {
+    function pick(x, y) {
       if (viewer.model.children.length === 0) return;
 
       var annotation_display = $("#annotation-display");
@@ -1936,7 +1936,7 @@ $(function() {
           }
 
           if ( m > 1 ) {
-            for (var i = m1_model_data_get.shapes.length; i < (m1_model_data_get.shapes.length + m2_model_data_get.shapes.length); i++) {
+            for (i = m1_model_data_get.shapes.length; i < (m1_model_data_get.shapes.length + m2_model_data_get.shapes.length); i++) {
               if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid")){
                 if ((slider_backup[viewer.model.children[i].name] > 25) && (document.getElementById("opacity-slider-" + i).style.visibility !== "hidden")){ //Include this shape for computing bounding box of visible shapes if opacity >25% and if not turned off
                   bounding_box_min_x[i] = m2_model_data_get.shapes[j].bounding_box.min_x;
@@ -2145,6 +2145,34 @@ $(function() {
       user_defined_grid_partitions = "no";
       user_defined_grid_length = "no";
       return [offset_old, m_selected, offset_diff_total];
+    }
+
+    // If two color maps are loaded to be blended, create
+    // slider to control the blending ratios.
+    function blendUI(show){
+      var div = $("#blend-box");
+
+      div.html("");
+
+      if (!show) {
+        return;
+      }
+
+      var blend_text = $("<span id=\"blend_value\">0.5</span>");
+
+      div.html("Blend Ratio: ");
+      blend_text.appendTo(div);
+      $("<div class=\"blend_slider\" id=\"blend_slider\" width=\"100px\" + height=\"10\"></div>").slider({
+        min: 0.1,
+        max: 0.99,
+        value: 0.5,
+        step: 0.01,
+        slide: function() {
+          var value = $(this).slider("value");
+          viewer.blend(value);
+          blend_text.html(value);
+        }
+      }).appendTo(div);
     }
 
   });

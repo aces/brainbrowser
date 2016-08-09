@@ -659,13 +659,14 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     var model = viewer.model;
     var vertex_data;
+    var vector;
+    var intersect_object;
+
 
     if ((searchindex !== "") && (/^\d+$/.test(searchindex))){  // If strictly numeric, search by vertex number
 
-      var intersect_object;
 
-      //var vector = viewer.getVertex(searchindex); //find xyz coords of vertex number
-      var vector = viewer.getVertex2(searchindex, model_data_get_selected); //find xyz coords of vertex number
+      vector = viewer.getVertex2(searchindex, model_data_get_selected); //find xyz coords of vertex number
 
       var startsearch = 0;
       var endsearch = model.children.length;
@@ -677,22 +678,21 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
       for (i = startsearch; i < endsearch; i++) {
         if ((model.children[i].name !== "axes") && (model.children[i].name !== "marker") && (model.children[i].name !== "grid")){
-
           var vertices = model.children[i].geometry.attributes.index.array;
-        var j;
+          var j;
 
           for (j = 0; j < vertices.length; j++) {
-      if (vertices[j] == searchindex){
-        intersect_object = model.children[i];
-              searchindex = parseInt(searchindex);
+            if (vertices[j] === searchindex){
+              intersect_object = model.children[i];
+              searchindex = parseInt(searchindex,10);
               vertex_data = {
                 index: searchindex,
                 point: vector,
                 object: intersect_object,
               };
-        break;
-        }
-        }
+              break;
+            }
+          }
         }
       }
     } else {  //if searching by shift-click (and not searchstring), find intersection
@@ -710,10 +710,10 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       y = (-y / viewer.dom_element.offsetHeight) * 2 + 1;
 
       var raycaster = new THREE.Raycaster();
-      var vector = new THREE.Vector3(x, y, camera.near);
+      vector    = new THREE.Vector3(x, y, camera.near);
       var intersection = null;
-      var intersects, vertex_data;
-      var intersect_object, intersect_point, intersect_indices, intersect_face;
+      var intersects;
+      var intersect_point, intersect_indices, intersect_face;
       var intersect_vertex_index, intersect_vertex_coords;
       var min_distance;
       var original_vertices, original_indices;
@@ -740,14 +740,13 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       }
 
       if (intersection !== null) {
-
         intersect_object = intersection.object;
-        intersect_face = intersection.face;
-  intersect_indices = [
-    intersect_face.a,
-    intersect_face.b,
-    intersect_face.c
-  ];
+        intersect_face   = intersection.face;
+        intersect_indices = [
+          intersect_face.a,
+          intersect_face.b,
+          intersect_face.c
+        ];
 
         if (intersect_object.userData.annotation_info) {
           vertex_data = {
@@ -755,7 +754,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
             point: intersect_object.userData.annotation_info.position,
             object: intersect_object
           };
-    return vertex_data;
+          return vertex_data;
         } else {
           // We're dealing with an imported model.
 
@@ -768,9 +767,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
             cx = centroid.x;
             cy = centroid.y;
             cz = centroid.z;
-    } else {
-      cx = cy = cz = 0;
-    }
+          } else {
+            cx = cy = cz = 0;
+          }
 
           inv_matrix.getInverse(intersect_object.matrixWorld);
           intersect_point = intersection.point.applyMatrix4(inv_matrix);
@@ -778,13 +777,13 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
           original_vertices = intersect_object.userData.original_data.vertices;
           original_indices = intersect_object.userData.original_data.indices;
 
-    index = intersect_indices[0];
-    if (!BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
-      // Have to get the vertex pointed to by the original index because of
-      // the de-indexing (see workers/deindex.worker.js)
-      index = original_indices[index];
-    }
-    intersect_vertex_index = index;
+          index = intersect_indices[0];
+          if (!BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
+            // Have to get the vertex pointed to by the original index because of
+            // the de-indexing (see workers/deindex.worker.js)
+            index = original_indices[index];
+          }
+          intersect_vertex_index = index;
 
           intersect_vertex_coords = new THREE.Vector3(
             original_vertices[index*3],
@@ -802,12 +801,12 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
           );
 
           for (i = 1, count = intersect_indices.length; i < count; i++) {
-      index = intersect_indices[i];
-      if (!BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
-        // Have to get the vertex pointed to by the original index because of
+            index = intersect_indices[i];
+            if (!BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
+              // Have to get the vertex pointed to by the original index because of
               // the de-indexing (see workers/deindex.worker.js)
               index = original_indices[index];
-      }
+            }
             coords = new THREE.Vector3(
               original_vertices[index*3],
               original_vertices[index*3+1],
@@ -1083,14 +1082,14 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
           model.rotateOnAxis(axis, dx / 150);
 
           // XXX Should not be here, due to merge of Bigbrain viewer, need to be refactor
-          if ((window.axesbox !== undefined) && (axesbox.model.name === "axes_on") && (viewer.model.name !== "axes_on") && (model === viewer.model)){ //if axes have been activated and it's the model being rotated
-            axesbox.model.rotation.x = model.rotation.x;
-            axesbox.model.rotation.y = model.rotation.y;
-            axesbox.model.rotation.z = model.rotation.z;
-          } else if ((window.axesbox !== undefined) && (axesbox.model.name === "axes_on") && (viewer.model.name === "axes_on") && (model === viewer.model)){ //if axes have been activated and it's the axes being rotated
-            window.viewer.model.rotation.x = axesbox.model.rotation.x;
-            window.viewer.model.rotation.y = axesbox.model.rotation.y;
-            window.viewer.model.rotation.z = axesbox.model.rotation.z;
+          if ((window.axesbox !== undefined) && (window.axesbox.model.name === "axes_on") && (window.viewer.model.name !== "axes_on") && (model === viewer.model)){ //if axes have been activated and it's the model being rotated
+            window.axesbox.model.rotation.x = model.rotation.x;
+            window.axesbox.model.rotation.y = model.rotation.y;
+            window.axesbox.model.rotation.z = model.rotation.z;
+          } else if ((window.axesbox !== undefined) && (window.axesbox.model.name === "axes_on") && (window.viewer.model.name === "axes_on") && (model === viewer.model)){ //if axes have been activated and it's the axes being rotated
+            window.viewer.model.rotation.x = window.axesbox.model.rotation.x;
+            window.viewer.model.rotation.y = window.axesbox.model.rotation.y;
+            window.viewer.model.rotation.z = window.axesbox.model.rotation.z;
           }
         } else {
           multiplier  = multiplier || 1.0;

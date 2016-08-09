@@ -26,6 +26,9 @@
 * Author: Nicolas Kassis
 */
 
+/*jshint loopfunc: true */
+/*jshint evil:true */
+
 // This script is meant to be a demonstration of how to
 // use most of the functionality available in the
 // BrainBrowser Surface Viewer.
@@ -96,7 +99,6 @@ $(function() {
     var toggle_grid_YZ = "on";
     var opacity_grid_toggle = "on";
     var classNames = ["wireframe_off", "wireframe_on", "wireframe_mixed"];
-    var searchshapes = {};
 
     // Add the three.js 3D anaglyph effect to the viewer.
     viewer.addEffect("AnaglyphEffect");
@@ -456,7 +458,9 @@ $(function() {
           clearShape("marker");
           marker = "";
 
-          if ((searchshapes.value !== "") && (!/^\d+$/.test(searchshapes.value))){  //Only do the following if string is not blank & contains some text (i.e. not strictly numeric)
+          var input_searchshapes = $("#searchshapes").val();
+          // Only do the following if string is not blank & contains some text (i.e. not strictly numeric)
+          if ((input_searchshapes !== "") && (!/^\d+$/.test(input_searchshapes))){
 
             $("#pick-name").html("");
             $("#pick-shape-number").html("");
@@ -466,7 +470,7 @@ $(function() {
             $("#pick-index").html("");
 
             for (var i = m_index_begin[m_selected]; i < m_index_end[m_selected]; i++) {
-              if (searchshapes.value === autoshapes[i]){
+              if (input_searchshapes === autoshapes[i]){
                 searchshapes_value_long = autoshapes_long[i];
               }
             }
@@ -483,7 +487,7 @@ $(function() {
                   offset_diff_total = changeCenterRotation_return_array[2];
 
                   $("#pick-shape-number").html(i+1);
-                  $("#pick-name").html(searchshapes.value);
+                  $("#pick-name").html(input_searchshapes);
                   window.location.hash = "#shape-" + i;
                   window.location.hash = "#views";
                   document.getElementById("shape-" + i).style.backgroundColor = "#1E8FFF";
@@ -517,14 +521,12 @@ $(function() {
                 buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
               }
             }
-
-          } else if ((searchshapes.value !== "") && (/^\d+$/.test(searchshapes.value)))  {  // If strictly numeric, search by vertex number
-
-            pick(viewer.x, viewer.y, searchshapes.value);   //viewer.x and viewer.y are irrelevant and overwritten
+            // If strictly numeric, search by vertex number
+          } else if ((input_searchshapes !== "") && (/^\d+$/.test(input_searchshapes)))  {
+            pick(viewer.x, viewer.y, input_searchshapes);
             searchshapes_value_long = picked_object.name;
 
             viewer.model.children.forEach(function(child,i) {
-
               if ((i >= m_index_begin[m_selected]) && (i < m_index_end[m_selected])) {
                 if (searchshapes_value_long === autoshapes_long[i]){
                   searchshapes_value = autoshapes[i];
@@ -617,8 +619,8 @@ $(function() {
           }
         });
         focus_toggle = "off";
-        searchshapes.value = "";
-        searchshapes.value_long = "";
+        // searchshapes.value = "";
+        // searchshapes.value_long = "";
         $("#pick-name").html("");
         $("#pick-shape-number").html("");
         $("#pick-x").html("");
@@ -1194,7 +1196,7 @@ $(function() {
       if (viewer.model.children.length === 0) return;
 
       if (two_models_toggle < 2) {
-        searchshapes.value = "";
+        // searchshapes.value = "";
 
         clearShape("marker");
 
@@ -1592,7 +1594,7 @@ $(function() {
       }
     });
 
-    function pick(x, y) {
+    function pick(x, y, shape_name) {
       if (viewer.model.children.length === 0) return;
 
       var annotation_display = $("#annotation-display");
@@ -1603,7 +1605,7 @@ $(function() {
       } else if (m_selected === 2 ){
         model_data_get_selected=m2_model_data_get;
       }
-      var pick_info = viewer.pick(x, y, searchshapes.value, m_selected, m_index_begin, m_index_end, offset_diff_total, model_data_get_selected);
+      var pick_info = viewer.pick_bb(x, y, shape_name, m_selected, m_index_begin, m_index_end, offset_diff_total, model_data_get_selected);
       var model_data, intensity_data;
       var annotation_info;
       var value, label, text;

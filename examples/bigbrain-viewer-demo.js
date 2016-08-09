@@ -224,7 +224,7 @@ $(function() {
               viewer.setTransparency(alpha, {
                 shape_name: shape_name
               });
-              if ((window.axesbox !== undefined) && (axesbox.model.name === "axes_on")){
+              if ((window.axesbox !== undefined) && (window.axesbox.model.name === "axes_on")){
                 if ((opacity_grid_toggle === "on") && (alpha < 0.25 )){
                   slider_backup[viewer.model.children[j].name] = alpha * 100;
                   $( ".axes_class" ).remove();
@@ -283,7 +283,7 @@ $(function() {
               $(this).html("Off");
               document.getElementById("individualtoggleopacity-" + j).style.backgroundColor = "red";
               document.getElementById("opacity-slider-" + j).style.visibility = "hidden";
-              if ((window.axesbox !== undefined) && (axesbox.model.name === "axes_on")){
+              if ((window.axesbox !== undefined) && (window.axesbox.model.name === "axes_on")){
                 $( ".axes_class" ).remove();
                 $( ".axes_legend_class" ).remove();
                 $( ".grid_class" ).remove();
@@ -309,7 +309,7 @@ $(function() {
                 marker.name = "marker";
                 viewer.setTransparency(picked_object.material.opacity, {shape_name: "marker"});
               }
-              if ((window.axesbox !== undefined) && (axesbox.model.name === "axes_on")){
+              if ((window.axesbox !== undefined) && (window.axesbox.model.name === "axes_on")){
                 $( ".axes_class" ).remove();
                 $( ".axes_legend_class" ).remove();
                 $( ".grid_class" ).remove();
@@ -508,7 +508,7 @@ $(function() {
               }
             });
 
-            if ((window.axesbox !== undefined) && (axesbox.model.name === "axes_on")){
+            if ( window.axesbox !== undefined && window.axesbox.model.name === "axes_on"){
               $( ".axes_class" ).remove();
               $( ".axes_legend_class" ).remove();
               $( ".grid_class" ).remove();
@@ -575,7 +575,7 @@ $(function() {
             marker = viewer.drawDot(picked_coords.x, picked_coords.y, picked_coords.z, 0.3);
             marker.name = "marker";
             viewer.setTransparency(picked_object.material.opacity, {shape_name: "marker"});
-            if ((window.axesbox !== undefined) && (axesbox.model.name === "axes_on")){
+            if (window.axesbox !== undefined && window.axesbox.model.name === "axes_on"){
               $( ".axes_class" ).remove();
               $( ".axes_legend_class" ).remove();
               $( ".grid_class" ).remove();
@@ -649,7 +649,7 @@ $(function() {
             }
           });
 
-          if ((window.axesbox !== undefined) && (axesbox.model.name === "axes_on")){
+          if (window.axesbox !== undefined && window.axesbox.model.name === "axes_on"){
             $( ".axes_class" ).remove();
             $( ".axes_legend_class" ).remove();
             $( ".grid_class" ).remove();
@@ -682,7 +682,7 @@ $(function() {
             }
           });
 
-          if ((window.axesbox !== undefined) && (axesbox.model.name === "axes_on")){
+          if (window.axesbox !== undefined && window.axesbox.model.name === "axes_on"){
             $( ".axes_class" ).remove();
             $( ".axes_legend_class" ).remove();
             $( ".grid_class" ).remove();
@@ -731,7 +731,7 @@ $(function() {
       picked_object = null;
       marker = "";
       focus_toggle = "off";
-      opacity_toggle_oncustom = "off";
+      opacity_toggle_oncustom    = "off";
       opacity_toggle_customoff_1 = "custom";
       opacity_toggle_customoff_2 = "custom";
       axes_toggle= "off";
@@ -947,7 +947,7 @@ $(function() {
       bgcolor = parseInt($(e.target).val(), 16);
       viewer.setClearColor(bgcolor);
 
-      if ((window.axesbox !== undefined) && (axesbox.model.name === "axes_on")){
+      if (window.axesbox !== undefined && window.axesbox.model.name === "axes_on"){
         $( ".axes_class" ).remove();
         $( ".axes_legend_class" ).remove();
         $( ".grid_class" ).remove();
@@ -986,7 +986,7 @@ $(function() {
       window.location.hash = "#shape-0";
       window.location.hash = "#surface_choice";
 
-      if ((window.axesbox !== undefined) && (axesbox.model.name === "axes_on")){
+      if (window.axesbox !== undefined && window.axesbox.model.name === "axes_on"){
         $( ".axes_class" ).remove();
         $( ".axes_legend_class" ).remove();
         $( ".grid_class" ).remove();
@@ -1262,7 +1262,7 @@ $(function() {
           marker.name = "marker";
           viewer.setTransparency(picked_object.material.opacity, {shape_name: "marker"});
           focus_toggle = "off";
-          if ((window.axesbox !== undefined) && (axesbox.model.name === "axes_on")){
+          if (window.axesbox !== undefined && window.axesbox.model.name === "axes_on"){
             $( ".axes_class" ).remove();
             $( ".axes_legend_class" ).remove();
             $( ".grid_class" ).remove();
@@ -1722,7 +1722,8 @@ $(function() {
     }
 
     function clearShape(name) {
-      if ((name === "axes") && (window.axesbox !== undefined)){
+      var axesbox = window.axesbox;
+      if ((name === "axes") && (axesbox !== undefined)){
         axesbox.model.children.forEach(function(child,i) {
 
           if (child.name === name) {
@@ -1790,12 +1791,12 @@ $(function() {
         });
       }
 
-      axesbox.model.add(axes_all);
-      axesbox.model.rotation.x = viewer.model.rotation.x;
-      axesbox.model.rotation.y = viewer.model.rotation.y;
-      axesbox.model.rotation.z = viewer.model.rotation.z;
-      axesbox.model.name = "axes_on";
-      axesbox.setClearColor(0, 0);
+      window.axesbox.model.add(axes_all);
+      window.axesbox.model.rotation.x = viewer.model.rotation.x;
+      window.axesbox.model.rotation.y = viewer.model.rotation.y;
+      window.axesbox.model.rotation.z = viewer.model.rotation.z;
+      window.axesbox.model.name = "axes_on";
+      window.axesbox.setClearColor(0, 0);
 
       legend_div = $("<div class=\"legend\"><div id=\"dorsal_legend\"><p class=\"alignleft\">Dorsal</p><p class=\"alignright\"><canvas id=\"dorsal\"></canvas></p></div><div style=\"clear: both;\"></div>" +
         "<div id=\"ventral_legend\"><p class=\"alignleft\">Ventral</p><p class=\"alignright\"><canvas id=\"ventral\"></canvas></p></div><div style=\"clear: both;\"></div>" +

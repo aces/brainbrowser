@@ -659,14 +659,13 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     var model = viewer.model;
     var vertex_data;
-    var vector;
-    var intersect_object;
-
 
     if ((searchindex !== "") && (/^\d+$/.test(searchindex))){  // If strictly numeric, search by vertex number
 
+      var intersect_object;
 
-      vector = viewer.getVertex2(searchindex, model_data_get_selected); //find xyz coords of vertex number
+      //var vector = viewer.getVertex(searchindex); //find xyz coords of vertex number
+      var vector = viewer.getVertex2(searchindex, model_data_get_selected); //find xyz coords of vertex number
 
       var startsearch = 0;
       var endsearch = model.children.length;
@@ -678,13 +677,14 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
       for (i = startsearch; i < endsearch; i++) {
         if ((model.children[i].name !== "axes") && (model.children[i].name !== "marker") && (model.children[i].name !== "grid")){
+
           var vertices = model.children[i].geometry.attributes.index.array;
           var j;
 
           for (j = 0; j < vertices.length; j++) {
-            if (vertices[j] === searchindex){
+            if (vertices[j] == searchindex){
               intersect_object = model.children[i];
-              searchindex = parseInt(searchindex,10);
+              searchindex = parseInt(searchindex);
               vertex_data = {
                 index: searchindex,
                 point: vector,
@@ -710,10 +710,10 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       y = (-y / viewer.dom_element.offsetHeight) * 2 + 1;
 
       var raycaster = new THREE.Raycaster();
-      vector    = new THREE.Vector3(x, y, camera.near);
+      var vector = new THREE.Vector3(x, y, camera.near);
       var intersection = null;
-      var intersects;
-      var intersect_point, intersect_indices, intersect_face;
+      var intersects, vertex_data;
+      var intersect_object, intersect_point, intersect_indices, intersect_face;
       var intersect_vertex_index, intersect_vertex_coords;
       var min_distance;
       var original_vertices, original_indices;
@@ -740,8 +740,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       }
 
       if (intersection !== null) {
+
         intersect_object = intersection.object;
-        intersect_face   = intersection.face;
+        intersect_face = intersection.face;
         intersect_indices = [
           intersect_face.a,
           intersect_face.b,
@@ -804,8 +805,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
             index = intersect_indices[i];
             if (!BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
               // Have to get the vertex pointed to by the original index because of
-              // the de-indexing (see workers/deindex.worker.js)
-              index = original_indices[index];
+                    // the de-indexing (see workers/deindex.worker.js)
+                    index = original_indices[index];
             }
             coords = new THREE.Vector3(
               original_vertices[index*3],

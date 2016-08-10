@@ -352,6 +352,7 @@
           return new SurfaceViewer.THREE.Vector3(vertices[i], vertices[i+1], vertices[i+2]);
         },
 
+        // XXX TODO: should not be here
         getVertex2: function(index, model_data_get_selected) {
           var vertices = model_data_get_selected.vertices;
           var i = index * 3;

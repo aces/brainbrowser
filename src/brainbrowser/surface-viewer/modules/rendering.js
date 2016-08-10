@@ -1081,12 +1081,11 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
           axis = new THREE.Vector3(0, 1, 0).applyMatrix4(inverse).normalize();
           model.rotateOnAxis(axis, dx / 150);
 
-          // XXX Should not be here, due to merge of Bigbrain viewer, need to be refactor
-          if ((window.axesbox !== undefined) && (window.axesbox.model.name === "axes_on") && (window.viewer.model.name !== "axes_on") && (model === viewer.model)){ //if axes have been activated and it's the model being rotated
+          if ((window.axesbox !== undefined) && (window.axesbox.model.name === "axes_on") && (viewer.model.name !== "axes_on") && (model === viewer.model)){ //if axes have been activated and it's the model being rotated
             window.axesbox.model.rotation.x = model.rotation.x;
             window.axesbox.model.rotation.y = model.rotation.y;
             window.axesbox.model.rotation.z = model.rotation.z;
-          } else if ((window.axesbox !== undefined) && (window.axesbox.model.name === "axes_on") && (window.viewer.model.name === "axes_on") && (model === viewer.model)){ //if axes have been activated and it's the axes being rotated
+          } else if ((window.axesbox !== undefined) && (window.axesbox.model.name === "axes_on") && (viewer.model.name === "axes_on") && (model === viewer.model)){ //if axes have been activated and it's the axes being rotated
             window.viewer.model.rotation.x = window.axesbox.model.rotation.x;
             window.viewer.model.rotation.y = window.axesbox.model.rotation.y;
             window.viewer.model.rotation.z = window.axesbox.model.rotation.z;

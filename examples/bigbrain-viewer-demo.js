@@ -1570,8 +1570,8 @@ $(function() {
         vertex = viewer.getVertex(vertex_num);
 
         annotation_data.image = $("#annotation-image").val();
-        annotation_data.url = $("#annotation-url").val();
-        annotation_data.text = $("#annotation-text").val();
+        annotation_data.url   = $("#annotation-url").val();
+        annotation_data.text  = $("#annotation-text").val();
 
         media.html("");
 

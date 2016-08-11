@@ -1831,7 +1831,14 @@ $(function() {
       } else if (m_selected === 2 ){
         model_data_get_selected=m2_model_data_get;
       }
-      var pick_info = viewer.pick_bb(x, y, vertex, m_selected, m_index_begin, m_index_end, offset_diff_total, model_data_get_selected);
+
+      // Get information about picked vertex
+      var pick_info = undefined;
+      if (vertex !== undefined) {
+        pick_info = viewer.pick(x, y);
+      } else {
+        pick_info = viewer.pick_bb(x, y, vertex, m_selected, m_index_begin, m_index_end, offset_diff_total, model_data_get_selected);
+      }
       console.log("In bigbrain-viewer-demo pick")
       console.log(pick_info);
       var model_data, intensity_data;

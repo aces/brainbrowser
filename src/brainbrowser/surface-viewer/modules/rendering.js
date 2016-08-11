@@ -470,6 +470,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * @name viewer.rendering:pick
   * @param {number} x The x coordinate on the canvas (defaults to current mouse position).
   * @param {number} y The y coordinate on the canvas (defaults to current mouse position).
+  * @param {number} opacity_threshold ignore shape that have opacity lower than the opacity_threshold integer between 0 and 100,
   * @returns {object} If an intersection is detected, returns an object with the following information:
   *
   * * **object** The THREE.Object3D object with which the the click intersected.
@@ -485,11 +486,13 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * ```js
   * viewer.pick();          // Pick at current mouse position.
   * viewer.pick(125, 250);  // Pick at given position.
+  * viewer.pick(125, 250, 25);  // Pick at given position only if opacity of shape is >= to 25%.
   * ```
   */
-  viewer.pick = function(x, y) {
+  viewer.pick = function(x, y, opacity_threshold) {
     x = x === undefined ? viewer.mouse.x : x;
     y = y === undefined ? viewer.mouse.y : y;
+    opacity_threshold = opacity_threshold === undefined ? 0.25 : (opacity_threshold / 100.0)
 
     // Convert to normalized device coordinates.
     x = (x / viewer.dom_element.offsetWidth) * 2 - 1;
@@ -519,6 +522,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     intersects = raycaster.intersectObject(model, true);
 
     for (i = 0; i < intersects.length; i++) {
+      intersec qts[i].object.userData.pick_ignore = (intersects[i].object.material.opacity < opacity_threshold) ? true : false;
       if (!intersects[i].object.userData.pick_ignore) {
         intersection = intersects[i];
         break;

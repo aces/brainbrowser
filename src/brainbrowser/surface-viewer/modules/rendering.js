@@ -484,15 +484,15 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * and a certain x and y on the canvas. Defaults to
   * the current mouse position.
   * ```js
-  * viewer.pick();          // Pick at current mouse position.
-  * viewer.pick(125, 250);  // Pick at given position.
+  * viewer.pick();              // Pick at current mouse position.
+  * viewer.pick(125, 250);      // Pick at given position.
   * viewer.pick(125, 250, 25);  // Pick at given position only if opacity of shape is >= to 25%.
   * ```
   */
   viewer.pick = function(x, y, opacity_threshold) {
     x = x === undefined ? viewer.mouse.x : x;
     y = y === undefined ? viewer.mouse.y : y;
-    opacity_threshold = opacity_threshold === undefined ? 0.25 : (opacity_threshold / 100.0)
+    opacity_threshold = opacity_threshold === undefined ? 0.25 : (opacity_threshold / 100.0);
 
     // Convert to normalized device coordinates.
     x = (x / viewer.dom_element.offsetWidth) * 2 - 1;
@@ -522,7 +522,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     intersects = raycaster.intersectObject(model, true);
 
     for (i = 0; i < intersects.length; i++) {
-      intersec qts[i].object.userData.pick_ignore = (intersects[i].object.material.opacity < opacity_threshold) ? true : false;
+      intersects[i].object.userData.pick_ignore = (intersects[i].object.material.opacity < opacity_threshold) ? true : false;
       if (!intersects[i].object.userData.pick_ignore) {
         intersection = intersects[i];
         break;
@@ -637,9 +637,13 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
   /**
   * @doc function
-  * @name viewer.rendering:pick
-  * @param {number} x The x coordinate on the canvas (defaults to current mouse position).
-  * @param {number} y The y coordinate on the canvas (defaults to current mouse position).
+  * @name viewer.rendering:pickByVertex
+  * @param {number} index Index of the vertex.
+  * @param {object} options Options, which include the following:
+  *
+  * * **model_name**: if more than one model file has been loaded, refer to the appropriate
+  * model using the **model_name** option.
+  *
   * @returns {object} If an intersection is detected, returns an object with the following information:
   *
   * * **object** The THREE.Object3D object with which the the click intersected.
@@ -649,202 +653,42 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * Otherwise returns **null**.
   *
   * @description
-  * Returns information about the displayed object
-  * and a certain x and y on the canvas. Defaults to
-  * the current mouse position.
+  *
   * ```js
-  * viewer.pick();          // Pick at current mouse position.
-  * viewer.pick(125, 250);  // Pick at given position.
+  * viewer.pickByVertex(2356);
+  * viewer.pickByVertex(2356, { model_name: "brain.obj" });
   * ```
   */
-  viewer.pick_bb = function(x, y, searchindex, m_selected, m_index_begin, m_index_end, offset_diff_total, model_data_get_selected) { //if x,y defined, find index;  if index defined (via search), find x,y
-    x = x === undefined ? viewer.mouse.x : x;
-    y = y === undefined ? viewer.mouse.y : y;
-
+  viewer.pickByVertex = function(index, options) {
     var model = viewer.model;
+    options   = options || {};
+
+    if ((index !== "") && !(/^\d+$/.test(index))) {return null;}
+
+    var vector = viewer.getVertex(index, {model_name: options.model_name});
+
+    var intersect_object;
     var vertex_data;
+    model.children.forEach(function(child) {
+      if (Object.keys(child.userData).length === 0 && child.userData.constructor === Object) { return ; }
+      if (Object.keys(child.userData).length !== 0 && child.userData.model_name !== options.model_name) { return ; }
 
-    if ((searchindex !== "") && (/^\d+$/.test(searchindex))){  // If strictly numeric, search by vertex number
+      var vertices = child.geometry.attributes.index.array;
+      var j;
 
-      var intersect_object;
-
-      //var vector = viewer.getVertex(searchindex); //find xyz coords of vertex number
-      var vector = viewer.getVertex2(searchindex, model_data_get_selected); //find xyz coords of vertex number
-
-      var startsearch = 0;
-      var endsearch = model.children.length;
-
-      if (m_selected > 0) {
-        startsearch = m_index_begin[m_selected];
-        endsearch = m_index_end[m_selected];
-      }
-
-      for (i = startsearch; i < endsearch; i++) {
-        if ((model.children[i].name !== "axes") && (model.children[i].name !== "marker") && (model.children[i].name !== "grid")){
-
-          var vertices = model.children[i].geometry.attributes.index.array;
-          var j;
-
-          for (j = 0; j < vertices.length; j++) {
-            if (vertices[j] == searchindex){
-              intersect_object = model.children[i];
-              searchindex = parseInt(searchindex);
-              vertex_data = {
-                index: searchindex,
-                point: vector,
-                object: intersect_object,
-              };
-              break;
-            }
-          }
-        }
-      }
-    } else {  //if searching by shift-click (and not searchstring), find intersection
-
-      //clear grid so that it doesn't block view of model
-      model.children.forEach(function(child,i) {
-        if (child.name === "grid") {
-          model.children.splice(i, 1);
-          viewer.updated = true;
-        }
-      });
-
-      // Convert to normalized device coordinates.
-      x = (x / viewer.dom_element.offsetWidth) * 2 - 1;
-      y = (-y / viewer.dom_element.offsetHeight) * 2 + 1;
-
-      var raycaster = new THREE.Raycaster();
-      var vector = new THREE.Vector3(x, y, camera.near);
-      var intersection = null;
-      var intersects, vertex_data;
-      var intersect_object, intersect_point, intersect_indices, intersect_face;
-      var intersect_vertex_index, intersect_vertex_coords;
-      var min_distance;
-      var original_vertices, original_indices;
-      var index, coords, distance;
-      var i, count;
-      var centroid, cx, cy, cz;
-      var opacity_threshold = 0.25; //somewhat arbitrary threshold of 25%
-
-      // Because we're comparing against the vertices in their original positions, we have to move everything to place the model at its original position.
-      var inv_matrix = new THREE.Matrix4();
-
-      vector.unproject(camera);
-      raycaster.set(camera.position, vector.sub(camera.position).normalize());
-
-      intersects = raycaster.intersectObject(model, true);
-
-      for (i = 0; i < intersects.length; i++) {
-        if (intersects[i].object.material.opacity < opacity_threshold){
-          intersects[i].object.userData.pick_ignore = true;
-        } else {
-          intersection = intersects[i];
+     index = parseInt(index,0)
+      for (j = 0; j < vertices.length; j++) {
+        if (vertices[j] === index){
+          intersect_object = child;
+          vertex_data = {
+            index: index,
+            point: vector,
+            object: intersect_object,
+          };
           break;
         }
       }
-
-      if (intersection !== null) {
-
-        intersect_object = intersection.object;
-        intersect_face = intersection.face;
-        intersect_indices = [
-          intersect_face.a,
-          intersect_face.b,
-          intersect_face.c
-        ];
-
-        if (intersect_object.userData.annotation_info) {
-          vertex_data = {
-            index: intersect_object.userData.annotation_info.vertex,
-            point: intersect_object.userData.annotation_info.position,
-            object: intersect_object
-          };
-          return vertex_data;
-        } else {
-          // We're dealing with an imported model.
-
-          if (intersect_object.userData.recentered) {
-            // Objects have their origins centered
-            // to help with transparency, so to check
-            // check against original vertices we have
-            // move them back.
-            centroid = intersect_object.userData.centroid;
-            cx = centroid.x;
-            cy = centroid.y;
-            cz = centroid.z;
-          } else {
-            cx = cy = cz = 0;
-          }
-
-          inv_matrix.getInverse(intersect_object.matrixWorld);
-          intersect_point = intersection.point.applyMatrix4(inv_matrix);
-
-          original_vertices = intersect_object.userData.original_data.vertices;
-          original_indices = intersect_object.userData.original_data.indices;
-
-          index = intersect_indices[0];
-          if (!BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
-            // Have to get the vertex pointed to by the original index because of
-            // the de-indexing (see workers/deindex.worker.js)
-            index = original_indices[index];
-          }
-          intersect_vertex_index = index;
-
-          intersect_vertex_coords = new THREE.Vector3(
-            original_vertices[index*3],
-            original_vertices[index*3+1],
-            original_vertices[index*3+2]
-          );
-
-          //Compensate for a translated center.
-          min_distance = intersect_point.distanceTo(
-            new THREE.Vector3(
-              intersect_vertex_coords.x - cx,
-              intersect_vertex_coords.y - cy,
-              intersect_vertex_coords.z - cz
-            )
-          );
-
-          for (i = 1, count = intersect_indices.length; i < count; i++) {
-            index = intersect_indices[i];
-            if (!BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
-              // Have to get the vertex pointed to by the original index because of
-                    // the de-indexing (see workers/deindex.worker.js)
-                    index = original_indices[index];
-            }
-            coords = new THREE.Vector3(
-              original_vertices[index*3],
-              original_vertices[index*3+1],
-              original_vertices[index*3+2]
-            );
-            distance = intersect_point.distanceTo(
-              new THREE.Vector3(
-                coords.x - cx,
-                coords.y - cy,
-                coords.z - cz
-              )
-            );
-
-            if (distance < min_distance) {
-              intersect_vertex_index = index;
-              intersect_vertex_coords = coords;
-              min_distance = distance;
-            }
-
-          }
-
-          vertex_data = {
-            index: intersect_vertex_index,
-            point: intersect_vertex_coords,
-            object: intersect_object,
-            vector: vector
-          };
-
-        }
-      } else {
-        vertex_data = null;
-      }
-    }
+    });
     return vertex_data;
   };
 

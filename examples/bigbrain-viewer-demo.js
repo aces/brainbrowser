@@ -1826,21 +1826,21 @@ $(function() {
       var annotation_display = $("#annotation-display");
       var media = $("#annotation-media");
       var model_data_get_selected;
+
       if (m_selected === 1 ){
-        model_data_get_selected=m1_model_data_get;
+        model_data_get_selected = m1_model_data_get;
       } else if (m_selected === 2 ){
-        model_data_get_selected=m2_model_data_get;
+        model_data_get_selected = m2_model_data_get;
       }
 
       // Get information about picked vertex
       var pick_info = undefined;
-      if (vertex !== undefined) {
+      if (vertex !== undefined && !((/^\d+$/.test(vertex) ))) {
         pick_info = viewer.pick(x, y);
-      } else {
-        pick_info = viewer.pick_bb(x, y, vertex, m_selected, m_index_begin, m_index_end, offset_diff_total, model_data_get_selected);
+      } else if (vertex !== undefined && ((/^\d+$/.test(vertex) ))) {
+        pick_info = viewer.pickByVertex(vertex, {model_name: model_data_get_selected.name});
       }
-      console.log("In bigbrain-viewer-demo pick")
-      console.log(pick_info);
+
       var model_data, intensity_data;
       var annotation_info;
       var value, label, text;

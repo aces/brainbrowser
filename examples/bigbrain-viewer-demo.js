@@ -2307,9 +2307,10 @@ $(function() {
           color_z = new THREE.Color(0x000000);
         }
 
-        gridXZ = new THREE.GridHelper('XZ', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, color_x, color_z);
-        gridXY = new THREE.GridHelper('XY', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, color_x, color_y);
-        gridYZ = new THREE.GridHelper('YZ', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, color_y, color_z);
+      gridXZ = viewer.GridHelper('XZ', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, color_x, color_z);
+      gridXY = viewer.GridHelper('XY', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, color_x, color_y);
+      gridYZ = viewer.GridHelper('YZ', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, color_y, color_z);
+
 
         gridXZ.position.set(x,y,z);
 

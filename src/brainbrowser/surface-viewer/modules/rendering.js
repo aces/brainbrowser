@@ -351,6 +351,73 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     return grid;
   };
 
+  viewer.GridHelper = function ( mode, bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, step, picked_coords_grid, horizontal_color, vertical_color ) {
+    var geometry = new THREE.Geometry();
+    var material = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors } );
+
+    var grid     = Object.create( THREE.GridHelper.prototype )
+
+    grid.color1  = new THREE.Color( 0x444444 );
+    grid.color2  = new THREE.Color( 0x888888 );
+
+    if (mode === 'XY'){
+      for ( var i = -bounding_box_max_y + picked_coords_grid.y; i <= -bounding_box_min_y + picked_coords_grid.y; i += step ) {
+        geometry.vertices.push(
+          new THREE.Vector3( bounding_box_min_x - picked_coords_grid.x, 0, i ), new THREE.Vector3( bounding_box_max_x - picked_coords_grid.x, 0, i )
+        );
+        var color = i === 0 ? grid.color1 : grid.color2;
+        geometry.colors.push( horizontal_color, horizontal_color );
+      }
+
+      for ( var i = bounding_box_min_x - picked_coords_grid.x; i <= bounding_box_max_x - picked_coords_grid.x; i += step ) {
+        geometry.vertices.push(
+          new THREE.Vector3( i, 0, -bounding_box_min_y + picked_coords_grid.y), new THREE.Vector3( i, 0, -bounding_box_max_y + picked_coords_grid.y )
+        );
+        var color = i === 0 ? grid.color1 : grid.color2;
+        geometry.colors.push( vertical_color, vertical_color );
+      }
+    }
+
+    if (mode === 'XZ'){
+      for ( var i = bounding_box_min_z - picked_coords_grid.z; i <= bounding_box_max_z - picked_coords_grid.z; i += step ) {
+        geometry.vertices.push(
+          new THREE.Vector3( bounding_box_min_x - picked_coords_grid.x, 0, i ), new THREE.Vector3( bounding_box_max_x - picked_coords_grid.x, 0, i )
+        );
+        var color = i === 0 ? grid.color1 : grid.color2;
+        geometry.colors.push( horizontal_color, horizontal_color );
+      }
+
+      for ( var i = bounding_box_min_x - picked_coords_grid.x; i <= bounding_box_max_x - picked_coords_grid.x; i += step ) {
+        geometry.vertices.push(
+          new THREE.Vector3( i, 0, bounding_box_min_z - picked_coords_grid.z ), new THREE.Vector3( i, 0, bounding_box_max_z - picked_coords_grid.z )
+        );
+        var color = i === 0 ? grid.color1 : grid.color2;
+        geometry.colors.push( vertical_color, vertical_color );
+      }
+    }
+
+    if (mode === 'YZ'){
+      for ( var i = bounding_box_min_z - picked_coords_grid.z; i <= bounding_box_max_z - picked_coords_grid.z; i += step ) {
+        geometry.vertices.push(
+          new THREE.Vector3( bounding_box_min_y - picked_coords_grid.y, 0, i ), new THREE.Vector3( bounding_box_max_y - picked_coords_grid.y, 0, i )
+        );
+        var color = i === 0 ? grid.color1 : grid.color2;
+        geometry.colors.push( horizontal_color, horizontal_color );
+      }
+
+      for ( var i = bounding_box_min_y - picked_coords_grid.y; i <= bounding_box_max_y - picked_coords_grid.y; i += step ) {
+        geometry.vertices.push(
+          new THREE.Vector3( i, 0, bounding_box_min_z - picked_coords_grid.z), new THREE.Vector3( i, 0, bounding_box_max_z - picked_coords_grid.z)
+        );
+        var color = i === 0 ? grid.color1 : grid.color2;
+        geometry.colors.push( vertical_color, vertical_color );
+      }
+    }
+
+    THREE.Line.call( grid, geometry, material, THREE.LinePieces );
+    return grid
+  };
+
   /**
   * @doc function
   * @name viewer.rendering:drawLine

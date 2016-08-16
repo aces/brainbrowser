@@ -2307,10 +2307,49 @@ $(function() {
           color_z = new THREE.Color(0x000000);
         }
 
-      gridXZ = viewer.GridHelper('XZ', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, color_x, color_z);
-      gridXY = viewer.GridHelper('XY', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, color_x, color_y);
-      gridYZ = viewer.GridHelper('YZ', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, color_y, color_z);
+      var step = grid_partitions;
 
+      gridXY = viewer.GridHelper(
+         bounding_box_min_z - picked_coords_grid.z, // horizontal_from
+         bounding_box_max_z - picked_coords_grid.z, // horizontal_to
+         bounding_box_min_x - picked_coords_grid.x, // x1
+         bounding_box_max_x - picked_coords_grid.x, // x2
+         color_x,                                   // horizontal_color
+         bounding_box_min_x - picked_coords_grid.x, // vertical_from
+         bounding_box_max_x - picked_coords_grid.x, // vertical_to
+        -bounding_box_min_y + picked_coords_grid.y, // z1
+        -bounding_box_max_y + picked_coords_grid.y, // z2
+         color_y,                                   // vertical_color
+         step
+      )
+
+      gridXZ = viewer.GridHelper(
+        -bounding_box_max_y + picked_coords_grid.y, // horizontal_from
+        -bounding_box_min_y + picked_coords_grid.y, // horizontal_to
+         bounding_box_min_x - picked_coords_grid.x, // x1
+         bounding_box_max_x - picked_coords_grid.x, // x2
+         color_x,                                   // horizontal_color
+         bounding_box_min_x - picked_coords_grid.x, // vertical_from
+         bounding_box_max_x - picked_coords_grid.x, // vertical_to
+         bounding_box_min_z - picked_coords_grid.z, // z1
+         bounding_box_max_z - picked_coords_grid.z, // z2
+         color_z,                                   // vertical_color
+         step
+      )
+
+      gridYZ = viewer.GridHelper(
+         bounding_box_min_z - picked_coords_grid.z, // horizontal_from
+         bounding_box_max_z - picked_coords_grid.z, // horizontal_to
+         bounding_box_min_y - picked_coords_grid.y, // x1
+         bounding_box_max_y - picked_coords_grid.y, // x2
+         color_y,                                   // horizontal_color
+         bounding_box_min_y - picked_coords_grid.y, // vertical_from
+         bounding_box_max_y - picked_coords_grid.y, // vertical_to
+         bounding_box_min_z - picked_coords_grid.z, // z1
+         bounding_box_max_z - picked_coords_grid.z, // z2
+         color_z,                                   // vertical_color
+         step
+      )
 
         gridXZ.position.set(x,y,z);
 

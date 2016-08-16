@@ -33720,6 +33720,49 @@
    * @author mrdoob / http://mrdoob.com/
    */
 
+  THREE.GridHelper = function ( size, step ) {
+
+    var geometry = new THREE.Geometry();
+    var material = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors } );
+
+    this.color1 = new THREE.Color( 0x444444 );
+    this.color2 = new THREE.Color( 0x888888 );
+
+    for ( var i = - size; i <= size; i += step ) {
+
+      geometry.vertices.push(
+        new THREE.Vector3( - size, 0, i ), new THREE.Vector3( size, 0, i ),
+        new THREE.Vector3( i, 0, - size ), new THREE.Vector3( i, 0, size )
+      );
+
+      var color = i === 0 ? this.color1 : this.color2;
+
+      geometry.colors.push( color, color, color, color );
+
+    }
+
+    THREE.Line.call( this, geometry, material, THREE.LinePieces );
+
+  };
+
+  THREE.GridHelper.prototype = Object.create( THREE.Line.prototype );
+
+  THREE.GridHelper.prototype.setColors = function( colorCenterLine, colorGrid ) {
+
+    this.color1.set( colorCenterLine );
+    this.color2.set( colorGrid );
+
+    this.geometry.colorsNeedUpdate = true;
+
+  }
+
+
+  // File:src/extras/helpers/GridHelper.js
+
+  /**
+   * @author mrdoob / http://mrdoob.com/
+   */
+
   //  THREE.GridHelper = function ( size, step ) {
   // XXX Should not be here, due to merge of Bigbrain viewer, need to be refactor
   THREE.GridHelper = function ( mode, bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, step, picked_coords_grid, horizontal_color, vertical_color ) {

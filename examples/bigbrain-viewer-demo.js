@@ -2293,23 +2293,23 @@ $(function() {
           picked_coords_grid = new THREE.Vector3( 0, 0, 0 );
         }
 
-        if ((bgcolor !== 16711935) && (bgcolor !== 16776960) && (bgcolor !== 65535)){ //if bg not magenta or yellow or cyan
-          gridXZ = new THREE.GridHelper('XZ', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, new THREE.Color(0xFF00FF), new THREE.Color(0x00FFFF));  //magenta horizontal, cyan vertical
-          gridXY = new THREE.GridHelper('XY', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, new THREE.Color(0xFF00FF), new THREE.Color(0xFFFF00));  //magenta horizontal, yellow vertical
-          gridYZ = new THREE.GridHelper('YZ', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, new THREE.Color(0xFFFF00), new THREE.Color(0x00FFFF));  //yellow horizontal, cyan vertical
-        } else if (bgcolor === 16711935){ //if bg is magenta
-          gridXZ = new THREE.GridHelper('XZ', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, new THREE.Color(0x000000), new THREE.Color(0x00FFFF));  //black horizontal, cyan vertical
-          gridXY = new THREE.GridHelper('XY', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, new THREE.Color(0x000000), new THREE.Color(0xFFFF00));  //black horizontal, yellow vertical
-          gridYZ = new THREE.GridHelper('YZ', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, new THREE.Color(0xFFFF00), new THREE.Color(0x00FFFF));  //yellow horizontal, cyan vertical
-        } else if (bgcolor === 16776960){ //if bg is yellow
-          gridXZ = new THREE.GridHelper('XZ', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, new THREE.Color(0xFF00FF), new THREE.Color(0x00FFFF));  //magenta horizontal, cyan vertical
-          gridXY = new THREE.GridHelper('XY', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, new THREE.Color(0xFF00FF), new THREE.Color(0x000000));  //magenta horizontal, black vertical
-          gridYZ = new THREE.GridHelper('YZ', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, new THREE.Color(0x000000), new THREE.Color(0x00FFFF));  //black horizontal, cyan vertical
-        } else if (bgcolor === 65535){ //if bg is cyan
-          gridXZ = new THREE.GridHelper('XZ', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, new THREE.Color(0xFF00FF), new THREE.Color(0x000000));  //magenta horizontal, black vertical
-          gridXY = new THREE.GridHelper('XY', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, new THREE.Color(0xFF00FF), new THREE.Color(0xFFFF00));  //magenta horizontal, yellow vertical
-          gridYZ = new THREE.GridHelper('YZ', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, new THREE.Color(0xFFFF00), new THREE.Color(0x000000));  //yellow horizontal, black vertical
+        // Default color
+        var color_x = new THREE.Color(0xFF00FF); // magenta
+        var color_y = new THREE.Color(0xFFFF00); // yellow
+        var color_z = new THREE.Color(0x00FFFF); // cyan
+
+        // Change some color if bg === color
+        if        (bgcolor === 16711935) { // magenta
+          color_x = new THREE.Color(0x000000);
+        } else if (bgcolor === 16776960) { // yellow
+          color_y =  new THREE.Color(0x000000);
+        } else if (bgcolor === 65535)    { // cyan
+          color_z = new THREE.Color(0x000000);
         }
+
+        gridXZ = new THREE.GridHelper('XZ', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, color_x, color_z);
+        gridXY = new THREE.GridHelper('XY', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, color_x, color_y);
+        gridYZ = new THREE.GridHelper('YZ', bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions, picked_coords_grid, color_y, color_z);
 
         gridXZ.position.set(x,y,z);
 

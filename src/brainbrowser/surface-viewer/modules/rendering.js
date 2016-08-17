@@ -351,33 +351,57 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     return grid;
   };
 
-  // DOC TODO
-  viewer.GridHelper = function ( horizontal_from, horizontal_to, x1, x2, horizontal_color, vertical_from, vertical_to, z1, z2, vertical_color, step) {
+  /**
+  * @doc function
+  * @name viewer.rendering:gridHelper
+  * @param {number} where start the grid horizontally
+  * @param {number} where end the grid horizontally
+  * @param {number} ???
+  * @param {number} ???
+  * @param {object} a THREE color
+  * @param {number} where start the grid vertically
+  * @param {number} where end the grid vertically
+  * @param {number} ???
+  * @param {number} ???
+  * @param {object} a THREE color
+  * @param {number} step of the grid
+  *
+  * @returns {object} The grid itself.
+  *
+  * @description return an object that represent the grid.
+  * ```js
+  * var horizontal_color = new THREE.Color(0x000000);
+  * var vertical_color   = new THREE.Color(0xFF0000);
+  * var gridXY = viewer.gridHelper( -100, 100, -100, 100, horizontal_color, -100, 100, 100, -100, vertical_color, 10)
+  * ```
+  *
+  */
+  viewer.gridHelper = function ( horizontal_from, horizontal_to, x1, x2, horizontal_color, vertical_from, vertical_to, z1, z2, vertical_color, step) {
     var geometry = new THREE.Geometry();
     var material = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors } );
 
-    var grid     = Object.create( THREE.GridHelper.prototype )
+    var grid     = Object.create( THREE.GridHelper.prototype );
 
     // Horizontal axes
-    for ( var i = horizontal_from; i <= horizontal_to; i += step ) {
+    for ( var z = horizontal_from; z <= horizontal_to; z += step ) {
       geometry.vertices.push(
-        new THREE.Vector3( x1, 0, i ),
-        new THREE.Vector3( x2, 0, i )
+        new THREE.Vector3( x1, 0, z ),
+        new THREE.Vector3( x2, 0, z )
       );
       geometry.colors.push( horizontal_color, horizontal_color );
     }
 
     // Vertical axes
-    for ( var i = vertical_from; i <= vertical_to; i += step ) {
+    for ( var x = vertical_from; x <= vertical_to; x += step ) {
       geometry.vertices.push(
-        new THREE.Vector3( i, 0, z1),
-        new THREE.Vector3( i, 0, z2)
+        new THREE.Vector3( x, 0, z1),
+        new THREE.Vector3( x, 0, z2)
       );
       geometry.colors.push( vertical_color, vertical_color );
     }
 
     THREE.Line.call( grid, geometry, material, THREE.LinePieces );
-    return grid
+    return grid;
   };
 
   /**
@@ -705,7 +729,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       var vertices = child.geometry.attributes.index.array;
       var j;
 
-     index = parseInt(index,0)
+      index = parseInt(index,0);
       for (j = 0; j < vertices.length; j++) {
         if (vertices[j] === index){
           intersect_object = child;

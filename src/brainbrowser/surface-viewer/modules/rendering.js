@@ -983,11 +983,13 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
           axis = new THREE.Vector3(0, 1, 0).applyMatrix4(inverse).normalize();
           model.rotateOnAxis(axis, dx / 150);
 
-          viewer.model_data.related_models.forEach(function(child){
-            child.rotation.x = model.rotation.x;
-            child.rotation.y = model.rotation.y;
-            child.rotation.z = model.rotation.z;
-          });
+          if (viewer.model_data.related_models !== undefined ) {
+            viewer.model_data.related_models.forEach(function(child){
+              child.rotation.x = model.rotation.x;
+              child.rotation.y = model.rotation.y;
+              child.rotation.z = model.rotation.z;
+            });
+          }
         } else {
           multiplier  = multiplier || 1.0;
           multiplier *= camera.position.z / default_camera_distance;

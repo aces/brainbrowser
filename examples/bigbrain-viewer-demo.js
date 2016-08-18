@@ -381,17 +381,20 @@ $(function() {
           viewer.model.children[j].model = m;
           viewer.model.children[j].name = shape.name + "-" + j;
 
-          //Change opacity slider background to same color as the shape it represents
+          // Change opacity slider background to same color as the shape it represents
           var r,g,b;
+          var color = [0,0,0]
           if (m === 1){
-            r = Math.round(255*m1_model_data_get.shapes[i].color[0]);
-            g = Math.round(255*m1_model_data_get.shapes[i].color[1]);
-            b = Math.round(255*m1_model_data_get.shapes[i].color[2]);
+            if (m1_model_data_get.shapes[i].color !== undefined) { color = m1_model_data_get.shapes[i].color;}
+            r = Math.round(255*color[0]);
+            g = Math.round(255*color[1]);
+            b = Math.round(255*color[2]);
             document.getElementById("opacity-slider-" + j).style.background = "rgb("+ r + ", " + g + ", " + b + ")";
           } else if (m === 2){
-            r = Math.round(255*m2_model_data_get.shapes[i].color[0]);
-            g = Math.round(255*m2_model_data_get.shapes[i].color[1]);
-            b = Math.round(255*m2_model_data_get.shapes[i].color[2]);
+            if (m2_model_data_get.shapes[i].color !== undefined) { color = m2_model_data_get.shapes[i].color;}
+            r = Math.round(255*color[0]);
+            g = Math.round(255*color[1]);
+            b = Math.round(255*color[2]);
             document.getElementById("opacity-slider-" + j).style.background = "rgb("+ r + ", " + g + ", " + b + ")";
           }
         });

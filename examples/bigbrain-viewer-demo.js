@@ -1529,15 +1529,19 @@ $(function() {
         document.getElementById("obj_file_format").value = 'mniobj';
       } else if (filename.indexOf(".asc") > -1){
         document.getElementById("obj_file_format").value = 'freesurferasc';
+      } else {
+        document.getElementById("obj_file_format").value = 'unknown';
       }
 
       var format = $(this).closest(".file-select").find("option:selected").val();
 
-      showLoading();
-      viewer.loadModelFromFile(document.getElementById("objfile"), {
-        format: format,
-        complete: hideLoading
-      });
+      if (format !== 'unknown' && format !== 'mniobj') {
+        showLoading();
+        viewer.loadModelFromFile(document.getElementById("objfile"), {
+          format: format,
+          complete: hideLoading
+        });
+      }
 
       if ((format === "mniobj") || (format === "freesurferasc") ){
         var per_vertex_div = $("<div class=\"per_vertex_class\"><div id=\"per_vertex_file_select\" class=\"file-select\">Per vertex data: <div id=\"browse_per_vertex_data\">" +
@@ -1663,15 +1667,20 @@ $(function() {
         document.getElementById("obj_file_format").value = 'mniobj';
       } else if (filename.indexOf(".asc") > -1){
         document.getElementById("obj_file_format").value = 'freesurferasc';
+      } else {
+        document.getElementById("obj_file_format").value = 'unknown';
       }
 
       var format = $(this).closest(".file-select").find("option:selected").val();
 
-      showLoading();
-      viewer.loadModelFromFile(document.getElementById("objfile"), {
-        format: format,
-        complete: hideLoading
-      });
+      // No autoload for unknow format and mniobj format
+      if (format !== 'unknown' && format !== 'mniobj') {
+        showLoading();
+        viewer.loadModelFromFile(document.getElementById("objfile"), {
+          format: format,
+          complete: hideLoading
+        });
+      }
 
       if ((format === "mniobj") || (format === "freesurferasc")){
         var per_vertex_div = $("<div class=\"per_vertex_class\"><div id=\"per_vertex_file_select\" class=\"file-select\">Per vertex data: <div id=\"browse_per_vertex_data\">" +

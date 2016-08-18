@@ -383,7 +383,7 @@ $(function() {
 
           // Change opacity slider background to same color as the shape it represents
           var r,g,b;
-          var color = [0,0,0]
+          var color = [0,0,0];
           if (m === 1){
             if (m1_model_data_get.shapes[i].color !== undefined) { color = m1_model_data_get.shapes[i].color;}
             r = Math.round(255*color[0]);
@@ -475,7 +475,7 @@ $(function() {
             viewer.model.children.forEach(function(child,i) {
               if ((child.name !== "axes") && (child.name !== "marker") && (child.name !== "grid") && (i >= m_index_begin[m_selected]) && (i < m_index_end[m_selected])){
                 var alpha = slider_backup[child.name] / 100;
-                viewer.setTransparency(alpha, {shape_name: child[i].name});
+                viewer.setTransparency(alpha, {shape_name: child.name});
                 $(".opacity-slider[data-shape-name='" + child.name + "']").slider("value", slider_backup[child.name]);
                 $("#individualtoggleopacity-" + i).html(on_off_backup[i]);
                 if (on_off_backup[i] === "On"){
@@ -1339,9 +1339,9 @@ $(function() {
       viewer.autorotate.x = $("#autorotateX").is(":checked");
       viewer.autorotate.y = $("#autorotateY").is(":checked");
       viewer.autorotate.z = $("#autorotateZ").is(":checked");
-      axesbox.autorotate.x = $("#autorotateX").is(":checked");
-      axesbox.autorotate.y = $("#autorotateY").is(":checked");
-      axesbox.autorotate.z = $("#autorotateZ").is(":checked");
+      window.axesbox.autorotate.x = $("#autorotateX").is(":checked");
+      window.axesbox.autorotate.y = $("#autorotateY").is(":checked");
+      window.axesbox.autorotate.z = $("#autorotateZ").is(":checked");
     });
 
     // Toggle axes.
@@ -2039,8 +2039,8 @@ $(function() {
           axesbox.setClearColor(0, 0);
           axesbox.updated = true;
         });
-        axesbox.model_data.related_models = [viewer.model]
-        viewer.model_data.related_models  = [axesbox.model]
+        window.axesbox.model_data.related_models = [viewer.model];
+        viewer.model_data.related_models         = [window.axesbox.model];
       }
 
       window.axesbox.model.add(axes_all);

@@ -1336,6 +1336,9 @@ $(function() {
       viewer.autorotate.x = $("#autorotateX").is(":checked");
       viewer.autorotate.y = $("#autorotateY").is(":checked");
       viewer.autorotate.z = $("#autorotateZ").is(":checked");
+      axesbox.autorotate.x = $("#autorotateX").is(":checked");
+      axesbox.autorotate.y = $("#autorotateY").is(":checked");
+      axesbox.autorotate.z = $("#autorotateZ").is(":checked");
     });
 
     // Toggle axes.
@@ -2024,6 +2027,8 @@ $(function() {
           axesbox.setClearColor(0, 0);
           axesbox.updated = true;
         });
+        axesbox.model_data.related_models = [viewer.model]
+        viewer.model_data.related_models  = [axesbox.model]
       }
 
       window.axesbox.model.add(axes_all);

@@ -2157,24 +2157,6 @@ $(function() {
 
       buildGrid(colors, x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ);
 
-      function buildAxis( src, dst, colorHex, dashed ) {
-        var geom = new THREE.Geometry(),mat;
-
-        if(dashed) {
-          mat = new THREE.LineDashedMaterial({ linewidth: 3, color: colorHex, dashSize: 3, gapSize: 3 });
-        } else {
-          mat = new THREE.LineBasicMaterial({ linewidth: 3, color: colorHex });
-        }
-
-        geom.vertices.push( src.clone() );
-        geom.vertices.push( dst.clone() );
-        geom.computeLineDistances();
-
-        var axis = new THREE.Line( geom, mat, THREE.LinePieces );
-
-        return axis;
-      }
-
       function drawDashed(name,color,width) {
 
         var canvas = document.getElementById(name);
@@ -2408,6 +2390,24 @@ $(function() {
       }
       viewer.model.add(grid);
       return [bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions];
+    }
+
+    function buildAxis( src, dst, colorHex, dashed ) {
+      var geom = new THREE.Geometry(),mat;
+
+      if(dashed) {
+        mat = new THREE.LineDashedMaterial({ linewidth: 3, color: colorHex, dashSize: 3, gapSize: 3 });
+      } else {
+        mat = new THREE.LineBasicMaterial({ linewidth: 3, color: colorHex });
+      }
+
+      geom.vertices.push( src.clone() );
+      geom.vertices.push( dst.clone() );
+      geom.computeLineDistances();
+
+      var axis = new THREE.Line( geom, mat, THREE.LinePieces );
+
+      return axis;
     }
 
     function changeCenterRotation(i, two_models_toggle, offset_old, m, m_index_begin, m_index_end, offset_diff_total) {

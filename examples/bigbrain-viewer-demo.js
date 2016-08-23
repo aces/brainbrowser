@@ -2006,29 +2006,14 @@ $(function() {
       axes_all.name = "axes";
       var origin_y = 0;
 
-      if (bgcolor !== 16711935){ //if bg not magenta
-        axes_all.add( buildAxis( new THREE.Vector3( 0, origin_y, 0 ), new THREE.Vector3( -length, origin_y, 0 ), 0xFF00FF, false ) ); // +X     magenta dashed = right
-        axes_all.add( buildAxis( new THREE.Vector3( 0, origin_y, 0 ), new THREE.Vector3( length, origin_y, 0 ), 0xFF00FF, true) ); // -X        magenta solid = left
-      } else { //if bg is magenta
-        axes_all.add( buildAxis( new THREE.Vector3( 0, origin_y, 0 ), new THREE.Vector3( -length, origin_y, 0 ), 0x000000, false ) ); // +X     black dashed = right
-        axes_all.add( buildAxis( new THREE.Vector3( 0, origin_y, 0 ), new THREE.Vector3( length, origin_y, 0 ), 0x000000, true) ); // -X        black solid = left
-      }
+      var colors = getColorAxes(bgcolor);
 
-      if (bgcolor !== 16776960){ //if bg not yellow
-        axes_all.add( buildAxis( new THREE.Vector3( 0, origin_y, 0 ), new THREE.Vector3( 0, length + origin_y, 0 ), 0xFFFF00, false ) ); // +Y  yellow solid = anterior
-        axes_all.add( buildAxis( new THREE.Vector3( 0, origin_y, 0 ), new THREE.Vector3( 0, -length + origin_y, 0 ), 0xFFFF00, true ) ); // -Y  yellow dashed = posterior
-      } else { //if bg is yellow
-        axes_all.add( buildAxis( new THREE.Vector3( 0, origin_y, 0 ), new THREE.Vector3( 0, length + origin_y, 0 ), 0x000000, false ) ); // +X  black solid = anterior
-        axes_all.add( buildAxis( new THREE.Vector3( 0, origin_y, 0 ), new THREE.Vector3( 0, -length + origin_y, 0 ), 0x000000, true) ); // -X   black dashed = posterior
-      }
-
-      if (bgcolor !== 65535){ //if bg not cyan
-        axes_all.add( buildAxis( new THREE.Vector3( 0, origin_y, 0 ), new THREE.Vector3( 0, origin_y, length ), 0x00FFFF, false ) ); // +Z      cyan solid = dorsal
-        axes_all.add( buildAxis( new THREE.Vector3( 0, origin_y, 0 ), new THREE.Vector3( 0, origin_y, -length ), 0x00FFFF, true ) ); // -Z      cyan dashed = ventral
-      } else { //if bg is cyan
-        axes_all.add( buildAxis( new THREE.Vector3( 0, origin_y, 0 ), new THREE.Vector3( 0, origin_y, length ), 0x000000, false ) ); // +X      black solid = dorsal
-        axes_all.add( buildAxis( new THREE.Vector3( 0, origin_y, 0 ), new THREE.Vector3( 0, origin_y, -length ), 0x000000, true) ); // -X       black dashed = ventral
-      }
+      axes_all.add( buildAxis( new THREE.Vector3( 0, origin_y, 0 ), new THREE.Vector3( -length, origin_y, 0 ),     colors.three_x, false ) ); // +X right
+      axes_all.add( buildAxis( new THREE.Vector3( 0, origin_y, 0 ), new THREE.Vector3( length, origin_y, 0 ),      colors.three_x, true) );   // -X left
+      axes_all.add( buildAxis( new THREE.Vector3( 0, origin_y, 0 ), new THREE.Vector3( 0, length + origin_y, 0 ),  colors.three_y, false ) ); // +Y anterior
+      axes_all.add( buildAxis( new THREE.Vector3( 0, origin_y, 0 ), new THREE.Vector3( 0, -length + origin_y, 0 ), colors.three_y, true ) );  // -Y posterior
+      axes_all.add( buildAxis( new THREE.Vector3( 0, origin_y, 0 ), new THREE.Vector3( 0, origin_y, length ),      colors.three_z, false ) ); // +Z dorsal
+      axes_all.add( buildAxis( new THREE.Vector3( 0, origin_y, 0 ), new THREE.Vector3( 0, origin_y, -length ),     colors.three_z, true ) );  // -Z ventral
 
       var axes_div = $("<div class=\"axes_class\"><div id=\"axes\"></div></div><div class=\"axes_legend_class\"><div id=\"axes_legend\"></div></div>");
       axes_div.appendTo("#vertex-data-wrapper");
@@ -2058,27 +2043,12 @@ $(function() {
         "<div id=\"right_legend\"><p class=\"alignleft\">Right</p><p class=\"alignright\"><canvas id=\"right\"></canvas></p></div><div style=\"clear: both;\"></div></div>");
       legend_div.appendTo("#axes_legend");
 
-      if (bgcolor !== 65535){
-        drawDashed("dorsal","#00ffff",150); //cyan solid
-        drawDashed("ventral","#00ffff",8);      //cyan dashed
-      } else {
-        drawDashed("dorsal","#000000",150);     //black solid
-        drawDashed("ventral","#000000",8);      //black dashed
-      }
-      if (bgcolor !== 16776960){
-        drawDashed("anterior","#ffff00",150); //yellow solid
-        drawDashed("posterior","#ffff00",8);  //yellow dashed
-      } else {
-        drawDashed("anterior","#000000",150);   //black solid
-        drawDashed("posterior","#000000",8);    //black dashed
-      }
-      if (bgcolor !== 16711935){
-        drawDashed("left","#ff00ff",150);       //magenta solid
-        drawDashed("right","#ff00ff",8);  //magenta dashed
-      } else {
-        drawDashed("left","#000000",150);       //black solid
-        drawDashed("right","#000000",8);      //black dashed
-      }
+      drawDashed("right",    colors.x,8);
+      drawDashed("left",     colors.x,150);
+      drawDashed("anterior", colors.y,150);
+      drawDashed("posterior",colors.y,8);
+      drawDashed("dorsal",   colors.z,150);
+      drawDashed("ventral",  colors.z,8);
 
       document.getElementById("dorsal_legend").style.color    = font_color;
       document.getElementById("ventral_legend").style.color   = font_color;
@@ -2310,20 +2280,6 @@ $(function() {
           picked_coords_grid = new THREE.Vector3( 0, 0, 0 );
         }
 
-        // Default color
-        var color_x = new THREE.Color(0xFF00FF); // magenta
-        var color_y = new THREE.Color(0xFFFF00); // yellow
-        var color_z = new THREE.Color(0x00FFFF); // cyan
-
-        // Change some color if bg === color
-        if        (bgcolor === 16711935) { // magenta
-          color_x = new THREE.Color(0x000000);
-        } else if (bgcolor === 16776960) { // yellow
-          color_y =  new THREE.Color(0x000000);
-        } else if (bgcolor === 65535)    { // cyan
-          color_z = new THREE.Color(0x000000);
-        }
-
         var step = grid_partitions;
 
         gridXY = viewer.gridHelper(
@@ -2331,12 +2287,12 @@ $(function() {
           -bounding_box_min_y + picked_coords_grid.y, // horizontal_to
            bounding_box_min_x - picked_coords_grid.x, // x1
            bounding_box_max_x - picked_coords_grid.x, // x2
-           color_x,                                   // horizontal_color
+           colors.three_x,                                   // horizontal_color
            bounding_box_min_x - picked_coords_grid.x, // vertical_from
            bounding_box_max_x - picked_coords_grid.x, // vertical_to
           -bounding_box_min_y + picked_coords_grid.y, // z1
           -bounding_box_max_y + picked_coords_grid.y, // z2
-           color_y,                                   // vertical_color
+           colors.three_y,                                   // vertical_color
            step
         );
 
@@ -2345,12 +2301,12 @@ $(function() {
            bounding_box_max_z - picked_coords_grid.z, // horizontal_to
            bounding_box_min_x - picked_coords_grid.x, // x1
            bounding_box_max_x - picked_coords_grid.x, // x2
-           color_x,                                   // horizontal_color
+           colors.three_x,                                   // horizontal_color
            bounding_box_min_x - picked_coords_grid.x, // vertical_from
            bounding_box_max_x - picked_coords_grid.x, // vertical_to
            bounding_box_min_z - picked_coords_grid.z, // z1
            bounding_box_max_z - picked_coords_grid.z, // z2
-           color_z,                                   // vertical_color
+           colors.three_z,                                   // vertical_color
            step
         );
 
@@ -2359,12 +2315,12 @@ $(function() {
            bounding_box_max_z - picked_coords_grid.z, // horizontal_to
            bounding_box_min_y - picked_coords_grid.y, // x1
            bounding_box_max_y - picked_coords_grid.y, // x2
-           color_y,                                   // horizontal_color
+           colors.three_y,                                   // horizontal_color
            bounding_box_min_y - picked_coords_grid.y, // vertical_from
            bounding_box_max_y - picked_coords_grid.y, // vertical_to
            bounding_box_min_z - picked_coords_grid.z, // z1
            bounding_box_max_z - picked_coords_grid.z, // z2
-           color_z,                                   // vertical_color
+           colors.three_z,                                   // vertical_color
            step
         );
 
@@ -2427,6 +2383,31 @@ $(function() {
         context.strokeStyle = color;
         context.stroke();
       }
+    }
+
+    function getColorAxes (bgcolor) {
+      var colors = {};
+
+      // Default color
+      colors.x = "#f0f"; // magenta
+      colors.y = "#ff0"; // yellow
+      colors.z = "#0ff"; //cyan
+
+      // Change some color if bg === color
+      if        (bgcolor === 16711935) { // magenta
+        colors.x = "#000" // black
+      } else if (bgcolor === 16776960) { // yellow
+        colors.y = "#000" // black
+      } else if (bgcolor === 65535)    { // cyan
+        colors.z = "#000" // black
+      }
+
+
+      colors.three_x =  new THREE.Color(colors.x);
+      colors.three_y =  new THREE.Color(colors.y);
+      colors.three_z =  new THREE.Color(colors.z);
+
+      return colors;
     }
 
     function changeCenterRotation(i, two_models_toggle, offset_old, m, m_index_begin, m_index_end, offset_diff_total) {

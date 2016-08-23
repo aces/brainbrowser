@@ -2156,22 +2156,6 @@ $(function() {
       });
 
       buildGrid(colors, x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ);
-
-      function drawDashed(name,color,width) {
-
-        var canvas = document.getElementById(name);
-        var context = canvas.getContext("2d");
-
-        context.beginPath();
-        context.moveTo(40, 70);
-        context.lineTo(190, 70);
-        context.lineWidth = 30;
-        context.setLineDash([width]);
-
-        // set line color
-        context.strokeStyle = color;
-        context.stroke();
-      }
     }
 
     function getColorAxes (bgcolor) {
@@ -2452,6 +2436,22 @@ $(function() {
       user_defined_grid_partitions = "no";
       user_defined_grid_length = "no";
       return [offset_old, m_selected, offset_diff_total];
+    }
+
+    function drawDashed(name,color,width) {
+
+      var canvas = document.getElementById(name);
+      var context = canvas.getContext("2d");
+
+      context.beginPath();
+      context.moveTo(40, 70);
+      context.lineTo(190, 70);
+      context.lineWidth = 30;
+      context.setLineDash([width]);
+
+      // set line color
+      context.strokeStyle = color;
+      context.stroke();
     }
 
     // If two color maps are loaded to be blended, create

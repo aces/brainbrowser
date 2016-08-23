@@ -2109,7 +2109,7 @@ $(function() {
           if (document.getElementById("grid_partitions").value !== ""){
             grid_partitions = parseInt(document.getElementById("grid_partitions").value,10);
             clearShape("grid");
-            buildGrid(colors, x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ);
+            buildGrid(x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ);
           }
         }
       });
@@ -2120,7 +2120,7 @@ $(function() {
           if (document.getElementById("grid_length_user_input").value !== ""){
             grid_length = parseInt(document.getElementById("grid_length_user_input").value,10);
             clearShape("grid");
-            buildGrid(colors, x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ);
+            buildGrid(x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ);
           }
         }
       });
@@ -2132,7 +2132,7 @@ $(function() {
           toggle_grid_XY = "on";
         }
         clearShape("grid");
-        buildGrid(colors, x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ);
+        buildGrid(x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ);
       });
 
       $("#toggle_grid_XZ").click(function() {
@@ -2142,7 +2142,7 @@ $(function() {
           toggle_grid_XZ = "on";
         }
         clearShape("grid");
-        buildGrid(colors, x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ);
+        buildGrid(x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ);
       });
 
       $("#toggle_grid_YZ").click(function() {
@@ -2152,13 +2152,13 @@ $(function() {
           toggle_grid_YZ = "on";
         }
         clearShape("grid");
-        buildGrid(colors, x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ);
+        buildGrid(x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ);
       });
 
-      buildGrid(colors, x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ);
+      buildGrid(x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ);
     }
 
-    function getColorAxes (bgcolor) {
+    function getColorAxes () {
       var colors = {};
 
       // Default color
@@ -2183,7 +2183,9 @@ $(function() {
       return colors;
     }
 
-    function buildGrid(colors, x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ){
+    function buildGrid(x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ){
+      var colors = getColorAxes();
+
       if (grid_auto_toggle === "on") {
         bounding_box_min_x = [];
         bounding_box_max_x = [];

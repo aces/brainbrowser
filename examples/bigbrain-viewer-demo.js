@@ -2109,7 +2109,7 @@ $(function() {
           if (document.getElementById("grid_partitions").value !== ""){
             grid_partitions = parseInt(document.getElementById("grid_partitions").value,10);
             clearShape("grid");
-            buildGrid(user_defined_grid_partitions, user_defined_grid_length);
+            buildGrid(colors, x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ);
           }
         }
       });
@@ -2120,7 +2120,7 @@ $(function() {
           if (document.getElementById("grid_length_user_input").value !== ""){
             grid_length = parseInt(document.getElementById("grid_length_user_input").value,10);
             clearShape("grid");
-            buildGrid(user_defined_grid_partitions, user_defined_grid_length);
+            buildGrid(colors, x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ);
           }
         }
       });
@@ -2132,7 +2132,7 @@ $(function() {
           toggle_grid_XY = "on";
         }
         clearShape("grid");
-        buildGrid(user_defined_grid_partitions, user_defined_grid_length);
+        buildGrid(colors, x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ);
       });
 
       $("#toggle_grid_XZ").click(function() {
@@ -2142,7 +2142,7 @@ $(function() {
           toggle_grid_XZ = "on";
         }
         clearShape("grid");
-        buildGrid(user_defined_grid_partitions, user_defined_grid_length);
+        buildGrid(colors, x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ);
       });
 
       $("#toggle_grid_YZ").click(function() {
@@ -2152,203 +2152,10 @@ $(function() {
           toggle_grid_YZ = "on";
         }
         clearShape("grid");
-        buildGrid(user_defined_grid_partitions, user_defined_grid_length);
+        buildGrid(colors, x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ);
       });
 
-      buildGrid(user_defined_grid_partitions, user_defined_grid_length);
-
-      function buildGrid(user_defined_grid_partitions, user_defined_grid_length){
-        if (grid_auto_toggle === "on") {
-          bounding_box_min_x = [];
-          bounding_box_max_x = [];
-          bounding_box_min_y = [];
-          bounding_box_max_y = [];
-          bounding_box_min_z = [];
-          bounding_box_max_z = [];
-
-          var j=0;
-
-          if ((viewer.model.children.length !== 0) && (user_defined_grid_length === "no")){
-            for (i = 0; i < m1_model_data_get.shapes.length; i++) {
-              if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid")){
-                if ((slider_backup[viewer.model.children[i].name] > 25) && (document.getElementById("opacity-slider-" + i).style.visibility !== "hidden")){ //Include this shape for computing bounding box of visible shapes if opacity >25% and if not turned off
-                  bounding_box_min_x[i] = m1_model_data_get.shapes[i].bounding_box.min_x;
-                  bounding_box_max_x[i] = m1_model_data_get.shapes[i].bounding_box.max_x;
-                  bounding_box_min_y[i] = m1_model_data_get.shapes[i].bounding_box.min_y;
-                  bounding_box_max_y[i] = m1_model_data_get.shapes[i].bounding_box.max_y;
-                  bounding_box_min_z[i] = m1_model_data_get.shapes[i].bounding_box.min_z;
-                  bounding_box_max_z[i] = m1_model_data_get.shapes[i].bounding_box.max_z;
-                } else {  // Or else set to fake values so extreme in the wrong direction that they won't influence max / mins (this is a hack because using null returned 0)
-                  bounding_box_min_x[i] = 1000000;
-                  bounding_box_max_x[i] = -1000000;
-                  bounding_box_min_y[i] = 1000000;
-                  bounding_box_max_y[i] = -1000000;
-                  bounding_box_min_z[i] = 1000000;
-                  bounding_box_max_z[i] = -1000000;
-                }
-              }
-            }
-
-            if ( m > 1 ) {
-              for (var i = m1_model_data_get.shapes.length; i < (m1_model_data_get.shapes.length + m2_model_data_get.shapes.length); i++) {
-                if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid")){
-                  if ((slider_backup[viewer.model.children[i].name] > 25) && (document.getElementById("opacity-slider-" + i).style.visibility !== "hidden")){ //Include this shape for computing bounding box of visible shapes if opacity >25% and if not turned off
-                    bounding_box_min_x[i] = m2_model_data_get.shapes[j].bounding_box.min_x;
-                    bounding_box_max_x[i] = m2_model_data_get.shapes[j].bounding_box.max_x;
-                    bounding_box_min_y[i] = m2_model_data_get.shapes[j].bounding_box.min_y;
-                    bounding_box_max_y[i] = m2_model_data_get.shapes[j].bounding_box.max_y;
-                    bounding_box_min_z[i] = m2_model_data_get.shapes[j].bounding_box.min_z;
-                    bounding_box_max_z[i] = m2_model_data_get.shapes[j].bounding_box.max_z;
-                  } else {  // Or else set to fake values so extreme in the wrong direction that they won't influence max / mins (this is a hack because using null returned 0)
-                    bounding_box_min_x[i] = 1000000;
-                    bounding_box_max_x[i] = -1000000;
-                    bounding_box_min_y[i] = 1000000;
-                    bounding_box_max_y[i] = -1000000;
-                    bounding_box_min_z[i] = 1000000;
-                    bounding_box_max_z[i] = -1000000;
-                  }
-                }
-                j=j+1;
-              }
-            }
-
-            bounding_box_min_x = Math.min.apply(null, bounding_box_min_x) - offset_diff_total.x;
-            bounding_box_max_x = Math.max.apply(null, bounding_box_max_x) - offset_diff_total.x;
-            bounding_box_min_y = Math.min.apply(null, bounding_box_min_y) - offset_diff_total.y;
-            bounding_box_max_y = Math.max.apply(null, bounding_box_max_y) - offset_diff_total.y;
-            bounding_box_min_z = Math.min.apply(null, bounding_box_min_z) - offset_diff_total.z;
-            bounding_box_max_z = Math.max.apply(null, bounding_box_max_z) - offset_diff_total.z;
-
-            //USEFUL FOR DEBUGGING BOUNDING BOX
-            //var material = new THREE.LineBasicMaterial({ color: 0x0000ff});
-
-            //var geometry = new THREE.Geometry();
-            //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_max_y, bounding_box_max_z));
-            //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_max_y, bounding_box_max_z));
-            //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_min_y, bounding_box_max_z));
-            //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_min_y, bounding_box_max_z));
-            //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_max_y, bounding_box_max_z));
-            //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_max_y, bounding_box_min_z));
-            //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_max_y, bounding_box_min_z));
-            //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_min_y, bounding_box_min_z));
-            //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_min_y, bounding_box_min_z));
-            //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_max_y, bounding_box_min_z));
-            //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_min_y, bounding_box_min_z));
-            //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_min_y, bounding_box_max_z));
-            //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_max_y, bounding_box_max_z));
-            //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_max_y, bounding_box_max_z));
-            //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_max_y, bounding_box_min_z));
-            //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_min_y, bounding_box_min_z));
-            //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_min_y, bounding_box_max_z));
-
-            //var line = new THREE.Line(geometry, material);
-            //viewer.model.add( line);
-
-            if (user_defined_grid_partitions === "no"){
-              //Set grid partitions to (somewhat arbitrary) 1/10th of the average distance between bounding box limits for x,y,z
-              var bounding_box_length_avg = Math.round(Math.abs(bounding_box_max_x - bounding_box_min_x) + Math.abs(bounding_box_max_y - bounding_box_min_y) + Math.abs(bounding_box_max_z - bounding_box_min_z))/3;
-              grid_partitions = Math.round(bounding_box_length_avg/10);
-              document.getElementById("grid_partitions").value = grid_partitions;
-              document.getElementById("grid_length_user_input").value = "";
-            }
-          } else {
-            bounding_box_min_x = -grid_length;
-            bounding_box_max_x = grid_length;
-            bounding_box_min_y = -grid_length;
-            bounding_box_max_y = grid_length;
-            bounding_box_min_z = -grid_length;
-            bounding_box_max_z = grid_length;
-          }
-
-          //Round down or up (for mins and maxes) to make sure that all bounding boxes contain an even number of partitions (not a fraction of one)
-          bounding_box_min_x = grid_partitions*Math.floor(bounding_box_min_x/grid_partitions);
-          bounding_box_max_x = grid_partitions*Math.ceil(bounding_box_max_x/grid_partitions);
-          bounding_box_min_y = grid_partitions*Math.floor(bounding_box_min_y/grid_partitions);
-          bounding_box_max_y = grid_partitions*Math.ceil(bounding_box_max_y/grid_partitions);
-          bounding_box_min_z = grid_partitions*Math.floor(bounding_box_min_z/grid_partitions);
-          bounding_box_max_z = grid_partitions*Math.ceil(bounding_box_max_z/grid_partitions);
-        }
-
-        var gridXZ;
-        var gridXY;
-        var gridYZ;
-        var picked_coords_grid;
-
-        if (picked_coords !== undefined){
-          picked_coords_grid = picked_coords;
-        } else {
-          picked_coords_grid = new THREE.Vector3( 0, 0, 0 );
-        }
-
-        var step = grid_partitions;
-
-        gridXY = viewer.gridHelper(
-          -bounding_box_max_y + picked_coords_grid.y, // horizontal_from
-          -bounding_box_min_y + picked_coords_grid.y, // horizontal_to
-           bounding_box_min_x - picked_coords_grid.x, // x1
-           bounding_box_max_x - picked_coords_grid.x, // x2
-           colors.three_x,                                   // horizontal_color
-           bounding_box_min_x - picked_coords_grid.x, // vertical_from
-           bounding_box_max_x - picked_coords_grid.x, // vertical_to
-          -bounding_box_min_y + picked_coords_grid.y, // z1
-          -bounding_box_max_y + picked_coords_grid.y, // z2
-           colors.three_y,                                   // vertical_color
-           step
-        );
-
-        gridXZ = viewer.gridHelper(
-           bounding_box_min_z - picked_coords_grid.z, // horizontal_from
-           bounding_box_max_z - picked_coords_grid.z, // horizontal_to
-           bounding_box_min_x - picked_coords_grid.x, // x1
-           bounding_box_max_x - picked_coords_grid.x, // x2
-           colors.three_x,                                   // horizontal_color
-           bounding_box_min_x - picked_coords_grid.x, // vertical_from
-           bounding_box_max_x - picked_coords_grid.x, // vertical_to
-           bounding_box_min_z - picked_coords_grid.z, // z1
-           bounding_box_max_z - picked_coords_grid.z, // z2
-           colors.three_z,                                   // vertical_color
-           step
-        );
-
-        gridYZ = viewer.gridHelper(
-           bounding_box_min_z - picked_coords_grid.z, // horizontal_from
-           bounding_box_max_z - picked_coords_grid.z, // horizontal_to
-           bounding_box_min_y - picked_coords_grid.y, // x1
-           bounding_box_max_y - picked_coords_grid.y, // x2
-           colors.three_y,                                   // horizontal_color
-           bounding_box_min_y - picked_coords_grid.y, // vertical_from
-           bounding_box_max_y - picked_coords_grid.y, // vertical_to
-           bounding_box_min_z - picked_coords_grid.z, // z1
-           bounding_box_max_z - picked_coords_grid.z, // z2
-           colors.three_z,                                   // vertical_color
-           step
-        );
-
-        gridXZ.position.set(x,y,z);
-
-        gridXY.rotation.x = Math.PI/2;
-        gridXY.position.set(x,y,z);
-
-        gridYZ.rotation.z = Math.PI/2;
-        gridYZ.position.set(x,y,z);
-
-        var grid = new THREE.Object3D();
-        grid.name = "grid";
-
-        if (toggle_grid_XZ === "on"){
-          grid.add(gridXZ);
-        }
-
-        if (toggle_grid_XY === "on"){
-          grid.add(gridXY);
-        }
-
-        if (toggle_grid_YZ === "on"){
-          grid.add(gridYZ);
-        }
-        viewer.model.add(grid);
-        return [bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions];
-      }
+      buildGrid(colors, x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ);
 
       function buildAxis( src, dst, colorHex, dashed ) {
         var geom = new THREE.Geometry(),mat;
@@ -2408,6 +2215,199 @@ $(function() {
       colors.three_z =  new THREE.Color(colors.z);
 
       return colors;
+    }
+
+    function buildGrid(colors, x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ){
+      if (grid_auto_toggle === "on") {
+        bounding_box_min_x = [];
+        bounding_box_max_x = [];
+        bounding_box_min_y = [];
+        bounding_box_max_y = [];
+        bounding_box_min_z = [];
+        bounding_box_max_z = [];
+
+        var j=0;
+
+        if ((viewer.model.children.length !== 0) && (user_defined_grid_length === "no")){
+          for (i = 0; i < m1_model_data_get.shapes.length; i++) {
+            if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid")){
+              if ((slider_backup[viewer.model.children[i].name] > 25) && (document.getElementById("opacity-slider-" + i).style.visibility !== "hidden")){ //Include this shape for computing bounding box of visible shapes if opacity >25% and if not turned off
+                bounding_box_min_x[i] = m1_model_data_get.shapes[i].bounding_box.min_x;
+                bounding_box_max_x[i] = m1_model_data_get.shapes[i].bounding_box.max_x;
+                bounding_box_min_y[i] = m1_model_data_get.shapes[i].bounding_box.min_y;
+                bounding_box_max_y[i] = m1_model_data_get.shapes[i].bounding_box.max_y;
+                bounding_box_min_z[i] = m1_model_data_get.shapes[i].bounding_box.min_z;
+                bounding_box_max_z[i] = m1_model_data_get.shapes[i].bounding_box.max_z;
+              } else {  // Or else set to fake values so extreme in the wrong direction that they won't influence max / mins (this is a hack because using null returned 0)
+                bounding_box_min_x[i] = 1000000;
+                bounding_box_max_x[i] = -1000000;
+                bounding_box_min_y[i] = 1000000;
+                bounding_box_max_y[i] = -1000000;
+                bounding_box_min_z[i] = 1000000;
+                bounding_box_max_z[i] = -1000000;
+              }
+            }
+          }
+
+          if ( m > 1 ) {
+            for (var i = m1_model_data_get.shapes.length; i < (m1_model_data_get.shapes.length + m2_model_data_get.shapes.length); i++) {
+              if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid")){
+                if ((slider_backup[viewer.model.children[i].name] > 25) && (document.getElementById("opacity-slider-" + i).style.visibility !== "hidden")){ //Include this shape for computing bounding box of visible shapes if opacity >25% and if not turned off
+                  bounding_box_min_x[i] = m2_model_data_get.shapes[j].bounding_box.min_x;
+                  bounding_box_max_x[i] = m2_model_data_get.shapes[j].bounding_box.max_x;
+                  bounding_box_min_y[i] = m2_model_data_get.shapes[j].bounding_box.min_y;
+                  bounding_box_max_y[i] = m2_model_data_get.shapes[j].bounding_box.max_y;
+                  bounding_box_min_z[i] = m2_model_data_get.shapes[j].bounding_box.min_z;
+                  bounding_box_max_z[i] = m2_model_data_get.shapes[j].bounding_box.max_z;
+                } else {  // Or else set to fake values so extreme in the wrong direction that they won't influence max / mins (this is a hack because using null returned 0)
+                  bounding_box_min_x[i] = 1000000;
+                  bounding_box_max_x[i] = -1000000;
+                  bounding_box_min_y[i] = 1000000;
+                  bounding_box_max_y[i] = -1000000;
+                  bounding_box_min_z[i] = 1000000;
+                  bounding_box_max_z[i] = -1000000;
+                }
+              }
+              j=j+1;
+            }
+          }
+
+          bounding_box_min_x = Math.min.apply(null, bounding_box_min_x) - offset_diff_total.x;
+          bounding_box_max_x = Math.max.apply(null, bounding_box_max_x) - offset_diff_total.x;
+          bounding_box_min_y = Math.min.apply(null, bounding_box_min_y) - offset_diff_total.y;
+          bounding_box_max_y = Math.max.apply(null, bounding_box_max_y) - offset_diff_total.y;
+          bounding_box_min_z = Math.min.apply(null, bounding_box_min_z) - offset_diff_total.z;
+          bounding_box_max_z = Math.max.apply(null, bounding_box_max_z) - offset_diff_total.z;
+
+          //USEFUL FOR DEBUGGING BOUNDING BOX
+          //var material = new THREE.LineBasicMaterial({ color: 0x0000ff});
+
+          //var geometry = new THREE.Geometry();
+          //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_max_y, bounding_box_max_z));
+          //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_max_y, bounding_box_max_z));
+          //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_min_y, bounding_box_max_z));
+          //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_min_y, bounding_box_max_z));
+          //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_max_y, bounding_box_max_z));
+          //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_max_y, bounding_box_min_z));
+          //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_max_y, bounding_box_min_z));
+          //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_min_y, bounding_box_min_z));
+          //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_min_y, bounding_box_min_z));
+          //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_max_y, bounding_box_min_z));
+          //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_min_y, bounding_box_min_z));
+          //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_min_y, bounding_box_max_z));
+          //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_max_y, bounding_box_max_z));
+          //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_max_y, bounding_box_max_z));
+          //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_max_y, bounding_box_min_z));
+          //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_min_y, bounding_box_min_z));
+          //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_min_y, bounding_box_max_z));
+
+          //var line = new THREE.Line(geometry, material);
+          //viewer.model.add( line);
+
+          if (user_defined_grid_partitions === "no"){
+            //Set grid partitions to (somewhat arbitrary) 1/10th of the average distance between bounding box limits for x,y,z
+            var bounding_box_length_avg = Math.round(Math.abs(bounding_box_max_x - bounding_box_min_x) + Math.abs(bounding_box_max_y - bounding_box_min_y) + Math.abs(bounding_box_max_z - bounding_box_min_z))/3;
+            grid_partitions = Math.round(bounding_box_length_avg/10);
+            document.getElementById("grid_partitions").value = grid_partitions;
+            document.getElementById("grid_length_user_input").value = "";
+          }
+        } else {
+          bounding_box_min_x = -grid_length;
+          bounding_box_max_x = grid_length;
+          bounding_box_min_y = -grid_length;
+          bounding_box_max_y = grid_length;
+          bounding_box_min_z = -grid_length;
+          bounding_box_max_z = grid_length;
+        }
+
+        //Round down or up (for mins and maxes) to make sure that all bounding boxes contain an even number of partitions (not a fraction of one)
+        bounding_box_min_x = grid_partitions*Math.floor(bounding_box_min_x/grid_partitions);
+        bounding_box_max_x = grid_partitions*Math.ceil(bounding_box_max_x/grid_partitions);
+        bounding_box_min_y = grid_partitions*Math.floor(bounding_box_min_y/grid_partitions);
+        bounding_box_max_y = grid_partitions*Math.ceil(bounding_box_max_y/grid_partitions);
+        bounding_box_min_z = grid_partitions*Math.floor(bounding_box_min_z/grid_partitions);
+        bounding_box_max_z = grid_partitions*Math.ceil(bounding_box_max_z/grid_partitions);
+      }
+
+      var gridXZ;
+      var gridXY;
+      var gridYZ;
+      var picked_coords_grid;
+
+      if (picked_coords !== undefined){
+        picked_coords_grid = picked_coords;
+      } else {
+        picked_coords_grid = new THREE.Vector3( 0, 0, 0 );
+      }
+
+      var step = grid_partitions;
+
+      gridXY = viewer.gridHelper(
+        -bounding_box_max_y + picked_coords_grid.y, // horizontal_from
+        -bounding_box_min_y + picked_coords_grid.y, // horizontal_to
+         bounding_box_min_x - picked_coords_grid.x, // x1
+         bounding_box_max_x - picked_coords_grid.x, // x2
+         colors.three_x,                                   // horizontal_color
+         bounding_box_min_x - picked_coords_grid.x, // vertical_from
+         bounding_box_max_x - picked_coords_grid.x, // vertical_to
+        -bounding_box_min_y + picked_coords_grid.y, // z1
+        -bounding_box_max_y + picked_coords_grid.y, // z2
+         colors.three_y,                                   // vertical_color
+         step
+      );
+
+      gridXZ = viewer.gridHelper(
+         bounding_box_min_z - picked_coords_grid.z, // horizontal_from
+         bounding_box_max_z - picked_coords_grid.z, // horizontal_to
+         bounding_box_min_x - picked_coords_grid.x, // x1
+         bounding_box_max_x - picked_coords_grid.x, // x2
+         colors.three_x,                                   // horizontal_color
+         bounding_box_min_x - picked_coords_grid.x, // vertical_from
+         bounding_box_max_x - picked_coords_grid.x, // vertical_to
+         bounding_box_min_z - picked_coords_grid.z, // z1
+         bounding_box_max_z - picked_coords_grid.z, // z2
+         colors.three_z,                                   // vertical_color
+         step
+      );
+
+      gridYZ = viewer.gridHelper(
+         bounding_box_min_z - picked_coords_grid.z, // horizontal_from
+         bounding_box_max_z - picked_coords_grid.z, // horizontal_to
+         bounding_box_min_y - picked_coords_grid.y, // x1
+         bounding_box_max_y - picked_coords_grid.y, // x2
+         colors.three_y,                                   // horizontal_color
+         bounding_box_min_y - picked_coords_grid.y, // vertical_from
+         bounding_box_max_y - picked_coords_grid.y, // vertical_to
+         bounding_box_min_z - picked_coords_grid.z, // z1
+         bounding_box_max_z - picked_coords_grid.z, // z2
+         colors.three_z,                                   // vertical_color
+         step
+      );
+
+      gridXZ.position.set(x,y,z);
+
+      gridXY.rotation.x = Math.PI/2;
+      gridXY.position.set(x,y,z);
+
+      gridYZ.rotation.z = Math.PI/2;
+      gridYZ.position.set(x,y,z);
+
+      var grid = new THREE.Object3D();
+      grid.name = "grid";
+
+      if (toggle_grid_XZ === "on"){
+        grid.add(gridXZ);
+      }
+
+      if (toggle_grid_XY === "on"){
+        grid.add(gridXY);
+      }
+
+      if (toggle_grid_YZ === "on"){
+        grid.add(gridYZ);
+      }
+      viewer.model.add(grid);
+      return [bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions];
     }
 
     function changeCenterRotation(i, two_models_toggle, offset_old, m, m_index_begin, m_index_end, offset_diff_total) {

@@ -256,14 +256,16 @@ $(function() {
                 }
               }
 
-              if (picked_coords !== undefined){
-                clearShape("grid");
-                buildGrid( picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ);
-              } else {
-                clearShape("grid");
-                buildGrid( 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ);
+              // Only call buildGrid if usefull
+              if (toggle_grid_XY === "off" || toggle_grid_YZ === "off" || toggle_grid_XZ === "off" || axes_toggle === "on") {
+                if (picked_coords !== undefined){
+                  clearShape("grid");
+                  buildGrid( picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ);
+                } else {
+                  clearShape("grid");
+                  buildGrid( 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ);
+                }
               }
-
 
               if ((marker !== "") && (shape_name === picked_object.name)){
                 viewer.setTransparency(picked_object.material.opacity, {shape_name: "marker"});

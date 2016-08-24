@@ -98,7 +98,6 @@ $(function() {
     var toggle_grid_XZ = "on";
     var toggle_grid_YZ = "on";
     var opacity_grid_toggle = "on";
-    var classNames = ["wireframe_off", "wireframe_on", "wireframe_mixed"];
     var grid_auto_toggle = "on";
     var bounding_box_min_x = [];
     var bounding_box_max_x = [];
@@ -1247,15 +1246,27 @@ $(function() {
       viewer.setView($("[name=hem_view]:checked").val());
     });
 
-    // Toggle wireframe between off, on, and mixed.
-    $("#meshmode").click(function() {
-      $(this).toggleClass(function (i, className) {
-        var index = (classNames.indexOf(className) + 1) % classNames.length;
-        viewer.setWireframe(classNames[index]);
-        $(this).removeClass(className);
-        return classNames[index];
-      });
-    });
+    document.getElementById('meshmode').onclick = (function(){
+      var i = 0;
+      var states = ["wireframe_off", "wireframe_on", "wireframe_mixed"];
+
+      return function(){
+        // Increment the counter, but don't let it exceed the maximum index
+        i = ++i % states.length;
+        var state  = states[i];
+        var elem   = $("#meshmode");
+        elem.value = state;
+        elem.removeClass();
+        elem.toggleClass(state);
+        if (state === "wireframe_off") {
+          viewer.setWireframe(false);
+        } else if (state === "wireframe_on") {
+          viewer.setWireframe(true);
+        } else {
+          viewer.setWireframe(true, { keep_surface: true});
+        }
+      };
+    })();
 
     // Toggle 3D anaglyph effect.
     $("#threedee").change(function() {
@@ -1569,11 +1580,9 @@ $(function() {
           document.getElementById("data-file-format").value = 'freesurferasc';
         }
 
-        var format = $(this).closest(".file-select").find("option:selected").val();
         var file = document.getElementById("datafile");
 
         //Color map
-
         var data_range_div = $("<div class=\"data-range-class\"><div id=\"data-range-box\"><br><div id=\"data-range\"></div><div id=\"blend-box\"></div></div></div>");
 
         data_range_div.appendTo("#data-submit");
@@ -1604,11 +1613,9 @@ $(function() {
 
       $("#data_submit_load").click(function() {
 
-        var format = $(this).closest(".file-select").find("option:selected").val();
         var file = document.getElementById("datafile");
 
         //Color map
-
         var data_range_div = $("<div class=\"data-range-class\"><div id=\"data-range-box\"><br><div id=\"data-range\"></div><div id=\"blend-box\"></div></div></div>");
 
         data_range_div.appendTo("#data-submit");
@@ -1713,11 +1720,9 @@ $(function() {
 
       $("#data_submit_load").click(function() {
 
-        var format = $(this).closest(".file-select").find("option:selected").val();
         var file = document.getElementById("datafile");
 
         //Color map
-
         var data_range_div = $("<div class=\"data-range-class\"><div id=\"data-range-box\"><br><div id=\"data-range\"></div><div id=\"blend-box\"></div></div></div>");
 
         data_range_div.appendTo("#data-submit");

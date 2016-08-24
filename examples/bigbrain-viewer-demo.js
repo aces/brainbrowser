@@ -2142,7 +2142,6 @@ $(function() {
           }
           else {
             user_defined_grid_length = "no";
-            document.getElementById("grid_length_user_input").value == null;
             clearShape("grid");
             buildGrid(x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ);
           }

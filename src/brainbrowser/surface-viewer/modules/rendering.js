@@ -716,7 +716,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var model = viewer.model;
     options   = options || {};
 
-    if ((index !== "") && !(/^\d+$/.test(index))) {return null;}
+    if (index === undefined) {return null;}
 
     var vector = viewer.getVertex(index, {model_name: options.model_name});
 

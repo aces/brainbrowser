@@ -1596,7 +1596,7 @@ $(function() {
         });
 
         viewer.loadIntensityDataFromFile(file, {
-          format: format,
+          format: document.getElementById("data-file-format").value,
           blend: true
         });
 
@@ -1631,7 +1631,7 @@ $(function() {
         });
 
         viewer.loadIntensityDataFromFile(file, {
-          format: format,
+          format: document.getElementById("data-file-format").value,
           blend: true
         });
       });
@@ -1740,7 +1740,7 @@ $(function() {
         });
 
         viewer.loadIntensityDataFromFile(file, {
-          format: format,
+          format: document.getElementById("data-file-format").value,
           blend: true
         });
       });

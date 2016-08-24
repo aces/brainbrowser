@@ -715,7 +715,21 @@ $(function() {
               document.getElementById("opacity-slider-" + i).style.visibility = "visible";
             }
           }
+
+          // Add logic to update grid
+          if (toggle_grid_XY === "off" || toggle_grid_YZ === "off" || toggle_grid_XZ === "off" || axes_toggle === "on") {
+            clearShape("grid");
+            if (picked_coords !== undefined){
+              buildGrid( picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+            } else {
+              buildGrid( 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+            }
+          }
+
         });
+
+
+
         focus_toggle = "off";
         // searchshapes.value = "";
         // searchshapes.value_long = "";
@@ -2119,10 +2133,16 @@ $(function() {
       });
 
       $("#grid_length_user_input").keyup(function(event){
-        if(event.keyCode === 13){  //if enter key is pressed
-          user_defined_grid_length = "yes";
+        if(event.keyCode === 13){  // if enter key is pressed
           if (document.getElementById("grid_length_user_input").value !== ""){
+            user_defined_grid_length = "yes";
             grid_length = parseInt(document.getElementById("grid_length_user_input").value,10);
+            clearShape("grid");
+            buildGrid(x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ);
+          }
+          else {
+            user_defined_grid_length = "no";
+            document.getElementById("grid_length_user_input").value == null;
             clearShape("grid");
             buildGrid(x, y, z, toggle_grid_XZ, toggle_grid_XY, toggle_grid_YZ);
           }
@@ -2252,30 +2272,30 @@ $(function() {
           bounding_box_min_z = Math.min.apply(null, bounding_box_min_z) - offset_diff_total.z;
           bounding_box_max_z = Math.max.apply(null, bounding_box_max_z) - offset_diff_total.z;
 
-          //USEFUL FOR DEBUGGING BOUNDING BOX
-          //var material = new THREE.LineBasicMaterial({ color: 0x0000ff});
+//USEFUL FOR DEBUGGING BOUNDING BOX
+//var material = new THREE.LineBasicMaterial({ color: 0x0000ff});
 
-          //var geometry = new THREE.Geometry();
-          //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_max_y, bounding_box_max_z));
-          //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_max_y, bounding_box_max_z));
-          //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_min_y, bounding_box_max_z));
-          //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_min_y, bounding_box_max_z));
-          //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_max_y, bounding_box_max_z));
-          //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_max_y, bounding_box_min_z));
-          //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_max_y, bounding_box_min_z));
-          //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_min_y, bounding_box_min_z));
-          //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_min_y, bounding_box_min_z));
-          //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_max_y, bounding_box_min_z));
-          //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_min_y, bounding_box_min_z));
-          //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_min_y, bounding_box_max_z));
-          //geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_max_y, bounding_box_max_z));
-          //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_max_y, bounding_box_max_z));
-          //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_max_y, bounding_box_min_z));
-          //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_min_y, bounding_box_min_z));
-          //geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_min_y, bounding_box_max_z));
+//var geometry = new THREE.Geometry();
+//geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_max_y, bounding_box_max_z));
+//geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_max_y, bounding_box_max_z));
+//geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_min_y, bounding_box_max_z));
+//geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_min_y, bounding_box_max_z));
+//geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_max_y, bounding_box_max_z));
+//geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_max_y, bounding_box_min_z));
+//geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_max_y, bounding_box_min_z));
+//geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_min_y, bounding_box_min_z));
+//geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_min_y, bounding_box_min_z));
+//geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_max_y, bounding_box_min_z));
+//geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_min_y, bounding_box_min_z));
+//geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_min_y, bounding_box_max_z));
+//geometry.vertices.push(new THREE.Vector3(bounding_box_min_x, bounding_box_max_y, bounding_box_max_z));
+//geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_max_y, bounding_box_max_z));
+//geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_max_y, bounding_box_min_z));
+//geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_min_y, bounding_box_min_z));
+//geometry.vertices.push(new THREE.Vector3(bounding_box_max_x, bounding_box_min_y, bounding_box_max_z));
 
-          //var line = new THREE.Line(geometry, material);
-          //viewer.model.add( line);
+//var line = new THREE.Line(geometry, material);
+//viewer.model.add( line);
 
           if (user_defined_grid_partitions === "no"){
             //Set grid partitions to (somewhat arbitrary) 1/10th of the average distance between bounding box limits for x,y,z

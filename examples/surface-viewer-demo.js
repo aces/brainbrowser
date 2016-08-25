@@ -490,13 +490,8 @@ $(function() {
         return;
       }
 
-      viewer.drawAxes(150, {name: axes_name});
+      viewer.drawAxes();
 
-    });
-
-    // Origin position
-    $("#model_centric").change(function() {
-      viewer.modelCentric($(this).is(":checked"));
     });
 
     // Color map URLs are read from the config file and added to the
@@ -516,8 +511,13 @@ $(function() {
       viewer.clearScreen();
       current_request = 0;
       current_request_name = "";
-      document.getElementById("model_centric").checked = false;
       loading_div.hide();
+    });
+
+    $("#centric_rotation").change(function(){
+      var is_checked = $(this).is(":checked");
+      if (!is_checked && $("#pick-x").html() === "" && $("#pick-y").html() === "" && $("#pick-z").html() === "") {return;}
+      setCenterRotation();
     });
 
     $("#brainbrowser").click(function(event) {
@@ -572,6 +572,11 @@ $(function() {
           $("#pick-label").html(text);
         }
 
+        if ($("#centric_rotation").is(":checked")) {
+          if ($("#pick-x").html() === "" && $("#pick-y").html() === "" && $("#pick-z").html() === "") {return;}
+          setCenterRotation();
+        }
+
         annotation_info = pick_info.object.userData.annotation_info;
 
         if (annotation_info) {
@@ -590,9 +595,9 @@ $(function() {
         media.html("");
 
         if (annotation_info.data.image) {
-          var image = new Image();
+          var image    = new Image();
           image.height = 200;
-          image.src = annotation_info.data.image;
+          image.src    = annotation_info.data.image;
           annotation_display.show();
           media.append(image);
         }
@@ -600,12 +605,10 @@ $(function() {
           annotation_display.show();
           media.append($('<div><a href="' + annotation_info.data.url + '" target="_blank">' + annotation_info.data.url + '</a></div>'));
         }
-
         if (annotation_info.data.text) {
           annotation_display.show();
           media.append($('<div>' + annotation_info.data.text + '</div>'));
         }
-
       } else {
         $("#pick-x").html("");
         $("#pick-y").html("");
@@ -615,6 +618,13 @@ $(function() {
       }
 
     });
+
+    function setCenterRotation() {
+      var offset = viewer.model.userData.model_center_offset || new THREE.Vector3(0,0,0);
+      var center = new THREE.Vector3(parseFloat($("#pick-x").html()) + -offset.x, parseFloat($("#pick-y").html()) + -offset.y, parseFloat($("#pick-z").html()) + -offset.z);
+      viewer.changeCenterRotation(center);
+    }
+
 
     $("#pick-value").change(function() {
       var index = parseInt($("#pick-index").html(), 10);
@@ -917,12 +927,13 @@ $(function() {
     // selected.
     $("#obj_file_submit").click(function() {
       var format = $(this).closest(".file-select").find("option:selected").val();
+      $('#centric_rotation').prop('checked', false);
+      viewer.model.userData.model_center_offset = undefined;
       showLoading();
       viewer.loadModelFromFile(document.getElementById("objfile"), {
         format: format,
         complete: function() {
-          document.getElementById("model_centric").checked = true;
-          viewer.modelCentric(true);
+          viewer.modelCentric();
           $("#vertex-data-wrapper").show();
           $("#pick-value-wrapper").show();
           $("#pick-label-wrapper").show();

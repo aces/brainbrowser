@@ -43,6 +43,7 @@
           <div>X: <span id="pick-x" class="pick-data"></span></div>
           <div>Y: <span id="pick-y" class="pick-data"></span></div>
           <div>Z: <span id="pick-z" class="pick-data"></span></div>
+          <input id="centric_rotation" type="checkbox"><label for="centric_rotation">Defined selected point as center of rotation<br /></label>
           <div>Vertex number: <span id="pick-index" class="pick-data"></span></div>
           <div id="pick-value-wrapper" style="display:none">
             Value: <input id="pick-value" class="pick-data" size="5">
@@ -189,12 +190,7 @@
                 </span>
               </p>
               <p>
-                <input id="axes-controls" type="checkbox">Display axes<br />
-              </p>
-              <p>
-                <div>
-                  <input type="checkbox"  id="model_centric"><label for="model_centric">Origin corresponds to model's center</label>
-                </div>
+                <input type="checkbox" id="axes-controls"><label for="axes-controls">Display axes</label>
               </p>
               <p>
                 <a class="button" id="resetview">Reset View</a>

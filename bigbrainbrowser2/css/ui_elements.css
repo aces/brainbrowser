@@ -1,0 +1,119 @@
+
+
+/* Regular buttons */
+.buttonBB{
+  border: 1px solid hsl(196, 100%, 70%);
+  padding: 5px;
+  text-align: center;
+  color: hsl(196, 100%, 40%);
+  margin-top: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+
+.buttonBB:hover{
+  background-color: hsla(196, 100%, 100%, 0.8);
+}
+
+.buttonBB:active{
+  background-color: hsla(196, 100%, 40%, 0.8);
+  color: #FFF;
+  border-color: #FFF;
+}
+
+
+/* div containing 2 buttons */
+.twoButtons{
+  display: flex;
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+.twoButtons .buttonBB{
+  margin-left:0;
+  margin-right: 0;
+  width: 45%;
+}
+
+.twoButtons :nth-child(1){
+  margin-right: 5px;
+}
+
+.twoButtons :nth-child(2){
+  margin-left: 5px;
+}
+
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;           /* Non-prefixed version, currently
+                                  not supported by any browser */
+}
+
+
+
+.commonTextField{
+  color: hsl(196, 100%, 45%);
+  width: calc(100% - 30px);
+  padding: 5px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 15px;
+  box-sizing:border-box;
+  border: 1px solid hsla(196, 100%, 70%, 0.0);
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.75);
+}
+
+
+.dropdownMenu{
+  margin-left: 13px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 2px;
+  filter: sepia(100) hue-rotate(166deg);
+  width: calc(100% - 2*13px);
+  box-sizing:border-box;
+}
+
+
+
+.sixButtons{
+  display: flex;
+  margin-left: 15px;
+  margin-right: 15px;
+
+}
+
+.sixButtons .buttonBB{
+  width: calc(16.6% - 5px);
+  margin-left: 0px;
+  margin-right: 10px;
+}
+
+.sixButtons :nth-last-child(1){
+  margin-right: 0px;
+}
+
+
+
+.separator{
+  border: none;
+  border-top: 1px dashed hsla(196, 100%, 70%, 1);
+  margin: 10px 0 10px 0;
+}
+
+
+.label{
+  padding: 5px;
+  text-align: center;
+  color: hsl(196, 100%, 40%);
+}

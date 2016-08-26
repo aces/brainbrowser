@@ -1,0 +1,10 @@
+
+.ui-widget-content{
+  color: hsl(196, 100%, 40%);
+}
+
+
+.ui-widget.ui-widget-content{
+  border: 1px solid hsl(196, 100%, 70%);
+  border-top-color: hsl(196, 100%, 90%);
+}

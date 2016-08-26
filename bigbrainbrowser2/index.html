@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title> BigBrainBrowser 2 </title>
+
+
+  <script src="js/vendors/jquery-3.1.0.js"></script>
+  <script src="js/vendors/jquery-ui.js"></script>
+  <script src="js/ui.js"></script>
+
+
+  <!-- Style -->
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,900" rel="stylesheet">
+  <link rel="stylesheet" href="css/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/jquery-ui/jquery-ui.css">
+  <link rel="stylesheet" type="text/css" href="css/jqueryui-overload.css" />
+  <link rel="stylesheet" type="text/css" href="css/ui_elements.css" />
+  <link rel="stylesheet" type="text/css" href="css/style.css" />
+
+</head>
+
+<body>
+
+  <div id="content">
+      <img class="logo" src="img/logo.png" />
+
+      <div id="hideLeft" class="hideButton">
+        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+
+      </div>
+
+      <div id="hideRight" class="hideButton">
+        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+
+      </div>
+
+    <!-- LEFT SIDE -->
+    <div id="leftSidebar" class="sidebar">
+
+
+      <div class="controls">
+        <!-- Everything that is supposed to go to the side bar goes here -->
+
+
+        <!-- Two buttons -->
+        <div class="twoButtons">
+          <div class="buttonBB noselect"><i class="fa fa-undo" aria-hidden="true"></i>Undo</div>
+          <div class="buttonBB noselect"><i class="fa fa-repeat" aria-hidden="true"></i>Redo</div>
+        </div>
+
+        <div class="separator"></div>
+
+
+        <!-- a LABEL -->
+        <div class="label">A label</div>
+
+
+        <!-- a single button -->
+        <div class="buttonBB noselect">Button</div>
+
+
+        <!-- a single textfield -->
+        <input id="tags" class="commonTextField" value="" placeholder="name" autocomplete="off" type="text">
+
+
+        <!-- a dropdown menu -->
+        <select class="dropdownMenu" onchange="" autocomplete="off">
+          <option value="none">none</option>
+          <option value="test01">test01</option>
+        </select>
+
+        <div class="separator"></div>
+
+        <!-- list of 6 buttons -->
+        <div class="sixButtons">
+          <div class="buttonBB miniButton noselect">A</div>
+          <div class="buttonBB miniButton noselect">B</div>
+          <div class="buttonBB miniButton noselect">B</div>
+          <div class="buttonBB miniButton noselect">B</div>
+          <div class="buttonBB miniButton noselect">B</div>
+          <div class="buttonBB miniButton noselect">B</div>
+        </div>
+
+
+      </div> <!-- END controls -->
+    </div> <!-- END leftSidebar -->
+
+
+
+    <!-- RIGHT SIDE -->
+    <div id="rightSidebar" class="sidebar">
+
+      <div class="controls">
+        <!-- Everything that is supposed to go to the side bar goes here -->
+
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam maximus eros non metus molestie, vitae egestas velit accumsan. Integer aliquet tempor varius. Phasellus eleifend, risus a rutrum tempor, velit libero sollicitudin augue, eget lobortis augue neque et arcu. Aliquam mattis pharetra massa sed condimentum. Praesent fermentum ante a neque pharetra tincidunt. Proin vel urna tristique, laoreet lacus sed, scelerisque nibh. Aenean eu bibendum metus. Sed quis dolor cursus, gravida ligula eu, auctor mauris. In hac habitasse platea dictumst. Vivamus vitae augue vulputate, lacinia nibh et, venenatis arcu.
+
+        Interdum et malesuada fames ac ante ipsum primis in faucibus. Vestibulum orci dolor, imperdiet a elit at, tristique ultrices ipsum. Praesent tempus quam quis ligula consequat accumsan. Maecenas urna lectus, fermentum ac blandit non, tempus sed nisl. Donec eu erat quis massa pharetra euismod vel eu mi. Etiam varius nec lorem ut eleifend. Etiam quis enim eu leo lobortis porta. Phasellus iaculis lacus ut lorem mollis consequat.
+
+        Curabitur nibh eros, porta in ligula vitae, molestie ultrices diam. Maecenas consequat lectus vitae justo interdum, a imperdiet lacus ultrices. Proin enim arcu, scelerisque et nulla et, dictum elementum nunc. Ut finibus ante tortor, nec ultricies magna venenatis vitae. Etiam sit amet semper lorem. Ut non quam quis tellus commodo laoreet eget at tellus. Vestibulum varius, leo et tincidunt faucibus, nisi mauris sollicitudin nunc, eget fermentum metus urna eget ligula. Fusce ut elit erat.
+
+        Sed sodales sapien in sodales imperdiet. Vivamus lacinia sollicitudin massa, sit amet semper dolor. Cras turpis lorem, eleifend eu elit quis, pretium eleifend lacus. Ut imperdiet diam lacus. Praesent convallis egestas leo, ut dictum risus. Duis ornare interdum enim ut tincidunt. Sed orci lorem, suscipit non porttitor vitae, venenatis sed ipsum. Pellentesque vulputate sem nisl. Aliquam varius ut mi non elementum. Aliquam vel bibendum augue, eget scelerisque massa. Vivamus vehicula pellentesque enim, vitae scelerisque elit malesuada in. Mauris faucibus ex tortor, et blandit nibh lobortis ac. Vestibulum gravida orci vel porta sollicitudin. Nam in velit egestas, aliquet orci quis, rutrum tellus. Quisque eget felis ornare, accumsan eros quis, consectetur tortor.
+
+        Donec a neque et risus convallis efficitur. In sit amet sem ornare, elementum tellus a, vulputate justo. Donec sem lorem, facilisis ut dignissim eget, fermentum eu elit. Phasellus quis quam finibus lorem finibus mattis eget at ligula. Vivamus finibus lobortis quam vel lobortis. Sed euismod sed leo ac pharetra. Duis eget urna justo. Integer nunc nisi, elementum et aliquet vel, maximus eget magna. Nulla facilisi. Praesent in dui id erat convallis vulputate sed ac mi. Etiam sed pulvinar augue. Nam ac gravida orci. Nulla odio sem, faucibus eget congue consequat, luctus sit amet magna. Phasellus posuere vitae lorem sit amet lobortis. Sed tristique tempus diam, imperdiet laoreet dui lobortis at.
+
+      </div> <!-- END controls -->
+    </div> <!-- END rightSidebar -->
+
+
+
+
+    <!--MAIN -->
+    <div id="brainbrowser">
+      one two three four five six seven height nine ten eleven twelve
+      <canvas></canvas>
+    </div>
+
+  </div>
+
+</body>
+</html>

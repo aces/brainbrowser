@@ -1,0 +1,141 @@
+body{
+  margin:0;
+  font-family: 'Lato', sans-serif;
+  font-size: 16px;
+  color: hsl(196, 100%, 40%);
+  overflow: hidden;
+}
+
+
+#content{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+
+  background-color: #115588;
+  overflow: hidden;
+}
+
+
+
+#leftSidebar{
+  background-color: hsl(196, 100%, 92%);
+  position: absolute;
+  left: 0;
+}
+
+
+#rightSidebar{
+  background-color: hsl(196, 100%, 92%);
+  position: absolute;
+  right: 0;
+}
+
+
+#brainbrowser{
+  background-color: #991166;
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  z-index: 0;
+}
+
+
+
+
+
+/*
+  This style is adapted to fit a logo at top left, the scrollbar is hidden
+  out of the window and the height is adapted to not overlat with the hide button
+*/
+#leftSidebar .controls{
+  margin-top: 70px;
+  direction:rtl;
+  left: -15px;
+  padding-right: 15px;
+  padding-left: 15px;
+  position: absolute;
+  /*width: auto;*/
+  width: 100%;
+  text-align: left;
+  height: calc(100% - 85px);
+}
+
+
+#leftSidebar .controls *{
+  direction:ltr;
+}
+
+#rightSidebar .controls{
+  right: -15px;
+  padding-right: 15px;
+  padding-left: 15px;
+  position: absolute;
+  width: auto;
+  text-align: left;
+  height: calc(100% - 15px);
+}
+
+
+
+.sidebar{
+  width: 300px;
+  height: 100%;
+  z-index: 2;
+}
+
+
+.hideButton{
+  background-color: #fff;
+
+  width: 40px;
+  height: 40px;
+  z-index: 3;
+}
+
+#hideLeft{
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  transform: rotate(45deg);
+}
+
+#hideLeft .fa{
+  position: absolute;
+  bottom: 11px;
+  right: 5px;
+
+}
+
+#hideRight{
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  transform: rotate(-45deg);
+}
+
+
+#hideRight .fa{
+  position: absolute;
+  bottom: 11px;
+  left: 5px;
+}
+
+.sidebar .controls{
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
+    height: 100%;
+}
+
+
+.logo{
+  width: 270px;
+  position: absolute;
+  left:0;
+  top: 0;
+  margin: 15px;
+  z-index: 3;
+
+}

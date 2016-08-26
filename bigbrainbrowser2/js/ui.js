@@ -26,7 +26,9 @@ $(function() {
 
 
 
+  /*
 
+  */
   function toggleShape(toggleShapeButton){
     //$("#leftSidebar").slideToggle("fast");
     var slider = $(toggleShapeButton).siblings().find(".slider");

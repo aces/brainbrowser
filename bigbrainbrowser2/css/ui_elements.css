@@ -117,3 +117,90 @@
   text-align: center;
   color: hsl(196, 100%, 40%);
 }
+
+
+.labelAndDropdown{
+  display: flex;
+  margin-left: 15px;
+  margin-right: 15px;
+  position: relative;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.labelAndDropdown *{
+
+  text-align: left;
+  position: absolute;
+  top: 0;
+
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 0;
+  margin-right: 0;
+
+
+}
+
+
+
+
+.labelAndDropdown .label{
+left:0;
+width: 50%;
+padding-left: 0;
+}
+
+.labelAndDropdown .dropdownMenu{
+right:0;
+width: 50%;
+}
+
+
+
+.opacityWidget{
+  width: calc(100% - 30px);
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.opacityWidget .aligned{
+  display: flex;
+
+}
+
+
+.opacityWidget .name{
+  margin-bottom: 10px;
+}
+
+.opacityWidget .opacityLogo{
+  color: #000;
+}
+
+.opacityWidget input[type="range"]{
+  background-color: rgb(128, 255, 158);
+}
+
+.opacityWidget .separator{
+  width: calc(100% - 15px);
+}
+
+.opacityWidget .aligned .buttonBB{
+  margin: 0;
+  margin-top: -5px;
+  width: 100%;
+  margin-left: 10px;
+}
+
+
+.disabled{
+  opacity: 0.2;
+}
+
+
+.red{
+  color: #B00;
+}

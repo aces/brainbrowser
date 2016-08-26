@@ -68,11 +68,11 @@ body{
 }
 
 #rightSidebar .controls{
-  right: -15px;
-  padding-right: 15px;
-  padding-left: 15px;
+  /*right: -15px;*/
+  /*padding-right: 15px;*/
+  /*padding-left: 15px;*/
   position: absolute;
-  width: auto;
+  width: calc(100% + 15px);
   text-align: left;
   height: calc(100% - 15px);
 }
@@ -88,7 +88,7 @@ body{
 
 .hideButton{
   background-color: #fff;
-
+  cursor: pointer;
   width: 40px;
   height: 40px;
   z-index: 3;

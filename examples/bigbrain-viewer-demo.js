@@ -750,7 +750,7 @@ $(function() {
           viewer.model.children.forEach(function(child,i) {
             if ((child.name !== "axes") && (child.name !== "marker") && (child.name !== "grid")){
               if (child.name !== name) {
-                ct=ct+1;
+                ct = ct+1;
                 slider_backup[child.name] = $(".opacity-slider[data-shape-name='" + child.name + "']").slider("value");
                 viewer.setTransparency(0, {shape_name: child.name});
                 $(".opacity-slider[data-shape-name='" + child.name + "']").slider("value", 0);
@@ -839,14 +839,10 @@ $(function() {
               grid_auto_toggle = "off";
             }
 
-            $( ".axes_class" ).remove();
-            $( ".axes_legend_class" ).remove();
-            $( ".grid_class" ).remove();
-            clearShape("axes");
             clearShape("grid");
             window.axesbox = undefined;
             user_defined_grid_partitions = "no";
-            user_defined_grid_length = "no";
+            user_defined_grid_length     = "no";
             if (picked_coords !== undefined){
               buildGrid( picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
             } else {
@@ -1534,7 +1530,6 @@ $(function() {
     });
 
     // Load a new model from a file that the user has previously selected (only applies for a page reload).
-
     $("#obj_file_submit").click(function() {
 
       $( ".per_vertex_class" ).remove();
@@ -1544,22 +1539,9 @@ $(function() {
         return;
       }
 
-      // Attempt to automatically detect filetype based on filename extension.  May be incorrect for Wavefront OBJ, but we use MNI OBJ more often.
-      var filename = document.getElementById("objfile").value;
-
-      if (filename.indexOf(".json") > -1){
-        document.getElementById("obj_file_format").value = 'json';
-      } else if (filename.indexOf(".obj") > -1){
-        document.getElementById("obj_file_format").value = 'mniobj';
-      } else if (filename.indexOf(".asc") > -1){
-        document.getElementById("obj_file_format").value = 'freesurferasc';
-      } else {
-        document.getElementById("obj_file_format").value = 'unknown';
-      }
-
       var format = $(this).closest(".file-select").find("option:selected").val();
 
-      if (format !== 'unknown' && format !== 'mniobj') {
+      if (format !== 'unknown') {
         showLoading();
         viewer.loadModelFromFile(document.getElementById("objfile"), {
           format: format,
@@ -1683,8 +1665,6 @@ $(function() {
 
       if (filename.indexOf(".json") > -1){
         document.getElementById("obj_file_format").value = 'json';
-      } else if (filename.indexOf(".obj") > -1){
-        document.getElementById("obj_file_format").value = 'mniobj';
       } else if (filename.indexOf(".asc") > -1){
         document.getElementById("obj_file_format").value = 'freesurferasc';
       } else {
@@ -1694,7 +1674,7 @@ $(function() {
       var format = $(this).closest(".file-select").find("option:selected").val();
 
       // No autoload for unknow format and mniobj format
-      if (format !== 'unknown' && format !== 'mniobj') {
+      if (format !== 'unknown') {
         showLoading();
         viewer.loadModelFromFile(document.getElementById("objfile"), {
           format: format,

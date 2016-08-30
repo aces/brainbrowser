@@ -120,6 +120,13 @@ $(function() {
     // When a new model is added to the viewer, create a transparency slider
     // for each shape that makes up the model.
     viewer.addEventListener("displaymodel", function(event) {
+      console.log( viewer.model );
+      console.log( event);
+      console.log( event.model_data);
+      console.log( event.model_data.shapes );
+
+      //return;
+
 
       // Temporarily disable grid if it was turned on before model is loaded
       viewer.model.children.forEach(function(child,i) {
@@ -222,11 +229,15 @@ $(function() {
             value: 100,
             min: 0,
             max: 100,
+
             slide: function(event, ui) {
               var target = event.target;
               var shape_name = $(target).attr('data-shape-name');
+              console.log(shape_name);
               var alpha = ui.value;
               alpha = Math.min(100, Math.max(0, alpha)) / 100.0;
+
+              console.log(alpha);
               viewer.setTransparency(alpha, {
                 shape_name: shape_name
               });
@@ -900,6 +911,7 @@ $(function() {
 
     // When the intensity range changes, adjust the displayed spectrum.
     viewer.addEventListener("changeintensityrange", function(event) {
+      console.log("changeintensityrange");
       var intensity_data = event.intensity_data;
       var canvas = viewer.color_map.createElement(intensity_data.range_min, intensity_data.range_max);
       canvas.id = "spectrum-canvas";

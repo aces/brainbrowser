@@ -1,5 +1,21 @@
+// the shapePanel is the tabbed panel that shows
+// all the shapes with opacity slider.
+var shapePanel = null;
+
 
 $(function() {
+  // init hbs and preload templates
+  initTemplates();
+
+  // init the ShapePanel
+  shapePanel = new ShapePanel();
+
+  // callback for each slider
+  shapePanel.setSliderCallback(function(fileID, shapeID, shapeIdOverall, value){
+    console.log(arguments);
+  });
+
+
 
   $("#hideRight").click(function(){
     //$("#rightSidebar").fadeOut();
@@ -13,82 +29,64 @@ $(function() {
 
 
 
-  $("#toggleAllShapes").click(function(){
-    $(".toggleShape").trigger("click");
+
+
+  $( "#loadedFilesTabs" ).tabs();
+
+
+
+  $("#testButton1").click(function(){
+    shapePanel.loadFile("theFile", "theFile.json");
   });
 
-  /*
 
-  */
-  $(".toggleShape").click(function(){
-    toggleShape(this);
+  $("#testButton2").click(function(){
+    shapePanel.loadFile("theFile2", "theFile2.json");
   });
 
-
-
-  /*
-
-  */
-  function toggleShape(toggleShapeButton){
-    //$("#leftSidebar").slideToggle("fast");
-    var slider = $(toggleShapeButton).siblings().find(".slider");
-    var eyeicon = $(toggleShapeButton).find(".eyeicon");
-    var sliderCurrentValue = $(slider).val();
-
-    // we want to switch off
-    if($(toggleShapeButton).attr("visible") == 1){
-      // saving the value
-      $(slider).attr("previousValue", sliderCurrentValue);
-      $(slider).val(0);
-      // disabling the slider
-      $(slider).prop('disabled', true);
-      $(slider).addClass("disabled");
-      $(toggleShapeButton).attr("visible", 0);
-      $(eyeicon).removeClass("fa-eye");
-      $(eyeicon).addClass("fa-eye-slash");
-      $(eyeicon).addClass("red");
-    }
-    // we want to switch on
-    else{
-      $(slider).prop('disabled', false);
-      $(slider).removeClass("disabled");
-      $(slider).val( $(slider).attr("previousValue") );
-      $(toggleShapeButton).attr("visible", 1);
-      $(eyeicon).removeClass("fa-eye-slash");
-      $(eyeicon).addClass("fa-eye")
-      $(eyeicon).removeClass("red");
-    }
-  }
 
 
 
 
   var availableTags = [
-  "ActionScript",
-  "AppleScript",
-  "Asp",
-  "BASIC",
-  "C",
-  "C++",
-  "Clojure",
-  "COBOL",
-  "ColdFusion",
-  "Erlang",
-  "Fortran",
-  "Groovy",
-  "Haskell",
-  "Java",
-  "JavaScript",
-  "Lisp",
-  "Perl",
-  "PHP",
-  "Python",
-  "Ruby",
-  "Scala",
-  "Scheme"
-];
-$( "#tags" ).autocomplete({
-  source: availableTags
-});
+    "ActionScript",
+    "AppleScript",
+    "Asp",
+    "BASIC",
+    "C",
+    "C++",
+    "Clojure",
+    "COBOL",
+    "ColdFusion",
+    "Erlang",
+    "Fortran",
+    "Groovy",
+    "Haskell",
+    "Java",
+    "JavaScript",
+    "Lisp",
+    "Perl",
+    "PHP",
+    "Python",
+    "Ruby",
+    "Scala",
+    "Scheme"
+  ];
+
+
+  $( "#tags" ).autocomplete({
+    source: availableTags
+  });
 
 });
+
+
+
+function initTemplates(){
+  $.hbs({
+    templatePath: 'templates', // folder where to find the templates
+    templateExtension: 'hbs', // file extension for templates
+    partialPath: 'templates', // folder where to find the partials
+    partialExtension: 'partial' // file extension of the partials
+  });
+}

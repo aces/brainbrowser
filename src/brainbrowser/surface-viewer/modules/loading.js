@@ -891,4 +891,3 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   }
 
 };
-

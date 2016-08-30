@@ -177,7 +177,7 @@ width: 50%;
 }
 
 .opacityWidget input[type="range"]{
-  background-color: rgb(128, 255, 158);
+  /*background-color: rgb(128, 255, 158);*/
 }
 
 .opacityWidget .separator{
@@ -238,4 +238,23 @@ width: 50%;
   width: 50%;
   position: absolute;
   left: 0;
+}
+
+
+.hidden{
+  display: none;
+}
+
+
+.colorFocused{
+
+}
+
+
+.blink_me {
+  animation: blinker 0.5s linear infinite;
+}
+
+@keyframes blinker {
+  50% { opacity: 0.2; }
 }

@@ -5,10 +5,24 @@
   <meta charset="UTF-8">
   <title> BigBrainBrowser 2 </title>
 
-
+  <!-- jquery -->
   <script src="js/vendors/jquery-3.1.0.js"></script>
   <script src="js/vendors/jquery-ui.js"></script>
-  <script src="js/ui.js"></script>
+
+
+  <script src="js/vendors/jquery-scrollintoview/jquery.scrollintoview.min.js"></script>
+
+
+  <!-- Handlebars -->
+  <script src="js/vendors/handlequery/js/handlebars-1.0.0.js"></script>
+  <script src="js/vendors/handlequery/js/handlejquery.js"></script>
+
+  <!-- mainly about callbacks -->
+  <script src="js/ShapePanel.js"></script>
+  <script src="js/ModelCollection.js"></script>
+  <script src="js/ShapePicker.js"></script>
+  <script src="js/initialize.js"></script>
+  <!-- <script src="js/ui.js"></script> -->
 
 
   <!-- Style -->
@@ -48,17 +62,19 @@
         <!-- Everything that is supposed to go to the side bar goes here -->
 
         <!-- open -->
-        <div id="openBt" class="buttonBB noselect"><i class="fa fa-cube" aria-hidden="true"></i>
- Open model</div>
+       <div id="openBt" class="buttonBB noselect" onclick="document.getElementById('modelOpener').click()">
+         <i class="fa fa-cube" aria-hidden="true"></i> Open model
+       </div>
+        <input type="file" id="modelOpener" class="hidden">
 
 
         <!-- Select filetype -->
         <div class="labelAndDropdown">
           <div class="label">Data format</div>
-          <select class="dropdownMenu" onchange="" autocomplete="off">
+          <select id="modelFormatSelector" class="dropdownMenu" onchange="" autocomplete="off">
             <option value="unknown">unknown</option>
             <option value="json">JSON</option>
-            <option value="miniobj">MINI OBJ</option>
+            <option value="mniobj">MINI OBJ</option>
             <option value="wavefrontobj">Wavefront OBJ</option>
             <option value="freesurferasc">Freesurfer ASC</option>
           </select>
@@ -150,8 +166,8 @@
 
 
         <!-- a single button -->
-        <div class="buttonBB noselect">Button</div>
-
+        <div id="testButton1" class="buttonBB noselect">Test button 1</div>
+        <div id="testButton2" class="buttonBB noselect">Test button 2</div>
 
         <!-- a single textfield -->
         <input id="tags" class="commonTextField" value="" placeholder="name" autocomplete="off" type="text">
@@ -201,69 +217,13 @@
 
 
       <!-- Everything that is supposed to go to the side bar goes here -->
+      <div class="controls">
 
-
-      <div id="rightSidebar" class="sidebar">
-
-
-        <div id="toggleAllShapes" class="buttonBB noselect">Toggle all</div>
-        <div class="separator"></div>
-
-        <div class="opacityWidget">
-          <div class="name">
-            This is the name
-          </div>
-          <div class="aligned">
-            <div class="opacityLogo">
-              <i class="fa fa-adjust" aria-hidden="true"></i>
-            </div>
-            <div >
-              <input class="slider" type="range" name="points" min="0" max="100" step="1"  autocomplete="off" value="100">
-            </div>
-            <div class="buttonBB noselect toggleShape" visible="1">
-              <i class="fa fa-eye eyeicon" aria-hidden="true"></i>
-            </div>
-          </div>
-        </div>
-        <div class="separator"></div>
-
-
-        <div class="opacityWidget">
-          <div class="name">
-            This is the name
-          </div>
-          <div class="aligned">
-            <div class="opacityLogo">
-              <i class="fa fa-adjust" aria-hidden="true"></i>
-            </div>
-            <div >
-              <input class="slider" type="range" name="points" min="0" max="100" step="1"  autocomplete="off" value="100">
-            </div>
-            <div class="buttonBB noselect toggleShape" visible="1">
-              <i class="fa fa-eye eyeicon" aria-hidden="true"></i>
-            </div>
-          </div>
-        </div>
-        <div class="separator"></div>
-
-
-        <div class="opacityWidget">
-          <div class="name">
-            This is the name
-          </div>
-          <div class="aligned">
-            <div class="opacityLogo">
-              <i class="fa fa-adjust" aria-hidden="true"></i>
-            </div>
-            <div >
-              <input class="slider" type="range" name="points" min="0" max="100" step="1"  autocomplete="off" value="100">
-            </div>
-            <div class="buttonBB noselect toggleShape" visible="1">
-              <i class="fa fa-eye eyeicon" aria-hidden="true"></i>
-            </div>
-          </div>
-        </div>
-        <div class="separator"></div>
+      <!-- The tab pannel with all the opacity widgets -->
+      <div id="loadedFilesTabs" style="display: none;">
+        <ul id="tabNames">
+        </ul>
+      </div>
 
 
       </div> <!-- END controls -->
@@ -274,11 +234,36 @@
 
     <!--MAIN -->
     <div id="brainbrowser">
-      one two three four five six seven height nine ten eleven twelve
-      <canvas></canvas>
     </div> <!-- END brainbrowser -->
 
   </div>
+
+
+
+  <!-- BrainBrowser -->
+  <script src="js/vendors/pako.js"></script>
+  <script src="js/brainbrowser/brainbrowser.js"></script>
+  <script src="js/brainbrowser/core/tree-store.js"></script>
+  <script src="js/brainbrowser/lib/config.js"></script>
+  <script src="js/brainbrowser/lib/utils.js"></script>
+  <script src="js/brainbrowser/lib/events.js"></script>
+  <script src="js/brainbrowser/lib/loader.js"></script>
+  <script src="js/brainbrowser/lib/color-map.js"></script>
+  <script src="js/brainbrowser/surface-viewer.js"></script>
+  <script src="js/brainbrowser/surface-viewer/lib/three.js"></script>
+  <script src="js/brainbrowser/surface-viewer/lib/parse-intensity-data.js"></script>
+  <script src="js/brainbrowser/surface-viewer/modules/annotations.js"></script>
+  <script src="js/brainbrowser/surface-viewer/modules/color.js"></script>
+  <script src="js/brainbrowser/surface-viewer/modules/loading.js"></script>
+  <script src="js/brainbrowser/surface-viewer/modules/rendering.js"></script>
+  <script src="js/brainbrowser/surface-viewer/modules/views.js"></script>
+  <script src="js/vendors/AnaglyphEffect.js"></script>
+  <script src="js/bigbrain-viewer-demo.config.js"></script>
+
+
+  <script src="js/core.js"></script>
+
+
 
 </body>
 </html>

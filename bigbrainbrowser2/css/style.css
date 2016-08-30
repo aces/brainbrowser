@@ -53,11 +53,11 @@ body{
   margin-top: 70px;
   direction:rtl;
   left: -15px;
-  padding-right: 15px;
-  padding-left: 15px;
+  /*padding-right: 15px;*/
+  /*padding-left: 15px;*/
   position: absolute;
   /*width: auto;*/
-  width: 100%;
+  width: calc(100% + 15px);
   text-align: left;
   height: calc(100% - 85px);
 }
@@ -138,4 +138,10 @@ body{
   margin: 15px;
   z-index: 3;
 
+}
+
+
+#loadedFilesTabs{
+  border:none;
+  background-color: transparent;
 }

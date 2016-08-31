@@ -2411,8 +2411,13 @@ $(function() {
         grid.add(gridYZ);
       }
       viewer.model.add(grid);
+
+
+
       return [bounding_box_min_x, bounding_box_max_x, bounding_box_min_y, bounding_box_max_y, bounding_box_min_z, bounding_box_max_z, grid_partitions];
     }
+
+
 
     function buildAxis( src, dst, colorHex, dashed ) {
       var geom = new THREE.Geometry(),mat;

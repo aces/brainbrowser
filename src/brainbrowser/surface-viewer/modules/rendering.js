@@ -1086,6 +1086,3 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   })();
 
 };
-
-
-

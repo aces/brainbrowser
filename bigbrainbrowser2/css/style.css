@@ -144,6 +144,8 @@ body{
 #loadedFilesTabs{
   border:none;
   background-color: transparent;
+  height: calc(100% - 80px);
+  overflow-y: auto;
 }
 
 

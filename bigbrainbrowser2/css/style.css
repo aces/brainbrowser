@@ -72,7 +72,7 @@ body{
   /*padding-right: 15px;*/
   /*padding-left: 15px;*/
   position: absolute;
-  width: calc(100% + 15px);
+  /*width: calc(100% + 15px);*/
   text-align: left;
   height: calc(100% - 15px);
 }
@@ -144,4 +144,9 @@ body{
 #loadedFilesTabs{
   border:none;
   background-color: transparent;
+}
+
+
+#shapeSearchBt{
+  margin-top: 0;
 }

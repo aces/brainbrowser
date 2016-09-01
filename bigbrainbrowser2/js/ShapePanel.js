@@ -19,6 +19,10 @@ var ShapePanel = function(BrainBrowserViewer){
 
   this.initUnloadAllButton();
 
+  this.opacityThreshold = 0.25;
+  this.opacityCallback = null; // happens when a cursor crosses the opacity threshold
+  this.blockOpacityCallback = false; // when toggling all, we dont want to lanch the callbac n times!
+
   $( "#loadedFilesTabs" ).tabs();
 }
 
@@ -66,6 +70,26 @@ ShapePanel.prototype.setShapeIndexer = function(si){
 
 
 /*
+  The opacity callback is called anytime the slider cursor crosses
+  the _this.opacityThreshold_ (or jumps over it).
+
+  The callback must have one argument:
+  cb args:
+    shapeNameOverall: string - unique name of the shape
+*/
+ShapePanel.prototype.setOpacityCallback = function(cb){
+  this.opacityCallback = cb;
+}
+
+
+/*
+  Defines the opacity threshold. Must be in [0, 1]
+*/
+ShapePanel.prototype.setOpacityThreshold = function(t){
+  this.opacityThreshold = t;
+}
+
+/*
   Loads the IU related to a new file
 */
 ShapePanel.prototype.loadFile = function(loadEvent, filename){
@@ -96,7 +120,7 @@ ShapePanel.prototype.loadFile = function(loadEvent, filename){
   });
 
   // create callbacks for the newly loaded opacity buttons
-  this.updateTabCallbacks();
+  this.initToggleCallbacks();
 
   // show the tab pannel
   //if(! $("#loadedFilesTabs").is(":visible") )
@@ -140,7 +164,6 @@ ShapePanel.prototype.appendFileShapesToTab = function(loadEvent){
     }
 
     // the shapeNameOverall is unique, even if we load multiple times the same file
-    //var shapeNameOverall = shapeName + " (file " + that.fileCounter + ")";
     var shapeNameOverall = shapeName + " (id " + that.shapeCounter + ")";
 
     // append the opacity widget for this shape
@@ -156,15 +179,27 @@ ShapePanel.prototype.appendFileShapesToTab = function(loadEvent){
     });
 
     // calling the callback with necessary arguments
-    $("#shape_" + that.shapeCounter).on("input change", function() {
+    $("#shape_" + that.shapeCounter).on("input change", function(event) {
+
       var value = $(this).find(".slider").val();
+      var previousValue = $(this).find(".slider").attr("previousValue");
       var fileID = $(this).attr("fileID");
       var shapeNameOverall = $(this).attr("shapeNameOverall");
 
       // asking the viewer to actually change the opacity for this shape
-      that.viewer.setTransparency(value / 100, {
+      that.viewer.setTransparency(value, {
         shape_name: shapeNameOverall
       });
+
+      var crossedThreshold = ((previousValue - that.opacityThreshold) * (value - that.opacityThreshold)) < 0;
+
+      // the slider just crossed the threshold
+      if((crossedThreshold || value == that.opacityThreshold ) && !that.blockOpacityCallback ){
+        that.opacityCallback(shapeNameOverall);
+      }
+
+      // storing the previous value to
+      $(this).find(".slider").attr("previousValue", value);
     });
 
     // add the shape to the indexer
@@ -172,6 +207,7 @@ ShapePanel.prototype.appendFileShapesToTab = function(loadEvent){
 
     // update the model shape name to be unique
     that.viewer.model.children[that.shapeCounter].name = shapeNameOverall;
+    //that.viewer.updateShapeName(shapeName, shapeNameOverall);
     //that.viewer.model.children[that.shapeCounter].overallIndex = that.shapeCounter;
     //that.viewer.model.children[that.shapeCounter].fileIndex = that.fileCounter;
 
@@ -203,16 +239,25 @@ ShapePanel.prototype.getNumberOfTabs = function(){
 
 
 /*
-  add callbacks to the buttons of the newly created tab pannel
+  Adds a callback for the toggle buttons
 */
-ShapePanel.prototype.updateTabCallbacks = function(){
+ShapePanel.prototype.initToggleCallbacks = function(){
   var that = this;
 
   // toggle allshapes callback
   $("#model_" + this.fileCounter + " .toggleAllShapes").click(function(){
+
+    // prevent the opacity callback to be called for all shapes!
+    that.blockOpacityCallback = true;
+
     $(this).siblings().each(function(){
       $(this).find(".toggleShape").trigger("click");
     });
+
+    that.blockOpacityCallback = false;
+
+    // call the opacity callback once for all
+    that.opacityCallback("ALL");
   });
 
   // eye icon button callback
@@ -234,7 +279,7 @@ ShapePanel.prototype.toggleShape = function(toggleShapeButton){
   // we want to switch off
   if($(toggleShapeButton).attr("visible") == 1){
     // saving the value
-    $(slider).attr("previousValue", sliderCurrentValue);
+    $(slider).attr("backupValue", sliderCurrentValue);
     $(slider).val(0);
     // disabling the slider
     $(slider).prop('disabled', true);
@@ -248,7 +293,7 @@ ShapePanel.prototype.toggleShape = function(toggleShapeButton){
   else{
     $(slider).prop('disabled', false);
     $(slider).removeClass("disabled");
-    $(slider).val( $(slider).attr("previousValue") );
+    $(slider).val( $(slider).attr("backupValue") );
     $(toggleShapeButton).attr("visible", 1);
     $(eyeicon).removeClass("fa-eye-slash");
     $(eyeicon).addClass("fa-eye")

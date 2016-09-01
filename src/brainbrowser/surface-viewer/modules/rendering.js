@@ -902,11 +902,43 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   };
 
 
-
+  // added by JO
   viewer.updateBoundingBoxes = function(){
-    viewer.model.children.forEach(function(children){
-      children.geometry.computeBoundingBox();
+
+
+    
+    viewer.model.children.forEach(function(shape){
+      shape.geometry.computeBoundingBox();
     });
+  }
+
+
+  // added by JO
+  // TODO: sometimes, a shape has no name, so it can not search for it to rename it
+  /*
+    Rename a shape (children of model) after having checked
+    the name is not already taken.
+  */
+  viewer.updateShapeName = function(currentName, newName){
+    var renamed = false;
+
+    var shapeToRename = viewer.model.getObjectByName(currentName);
+
+    // checking if the new name is already taken
+    var doesNotExist = !viewer.model.getObjectByName(newName);
+
+    if(doesNotExist && shapeToRename){
+      console.log("renaming " + currentName + " __to__ " + newName);
+      shapeToRename.name = newName;
+      renamed = true;
+    }else {
+      console.log("ERROR renaming " + currentName + " __to__ " + newName);
+      console.log(doesNotExist);
+      console.log(shapeToRename);
+    }
+
+    console.log("----------------------");
+    return true;
   }
 
   ////////////////////////////////////

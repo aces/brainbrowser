@@ -121,6 +121,15 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
       material = shape.material;
       material.opacity = alpha;
 
+
+      // to keep!
+      // allow nested shapes that were generated after to use transparency
+      if(alpha < 0.05){
+        shape.visible = false;
+      }else{
+        shape.visible = true;
+      }
+
       if ((alpha === 1) || (alpha > 1)) {
         material.transparent = false;
       } else {
@@ -314,4 +323,3 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   }
 
 };
-

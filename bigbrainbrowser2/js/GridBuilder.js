@@ -38,8 +38,10 @@ GridBuilder.prototype.updateBoundingBox = function(t){
   var that = this;
   var shapeCounter = 0;
 
+  this.viewer.updateBoundingBoxes();
 
-  viewer.model_data.forEach(function(model_data, model_name){
+  this.viewer.model_data.forEach(function(model_data, model_name){
+    /*
     console.log(model_name);
     console.log(model_data);
 
@@ -54,11 +56,18 @@ GridBuilder.prototype.updateBoundingBox = function(t){
         zMax : model_data.shapes[0].bounding_box.max_z
       };
     }
+    */
 
 
     model_data.shapes.forEach(function(elem){
+      /*
+      console.log("logic data:");
+      console.log(elem.bounding_box);
 
-
+      console.log("graphic data");
+      console.log(that.viewer.model.children[shapeCounter].geometry.boundingBox);
+      //console.log(that.viewer);
+      */
 
       // finding the equivalent graphic shape (THREE object)
 

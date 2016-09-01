@@ -354,7 +354,11 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     viewer.model_data.clear();
 
     viewer.resetView();
+
     viewer.triggerEvent("clearscreen");
+
+    // added by JO
+    //viewer.updateBoundingBoxes();
   };
 
 

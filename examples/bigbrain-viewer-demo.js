@@ -377,7 +377,8 @@ $(function() {
             }
           });
           viewer.model.children[j].model = m;
-          viewer.model.children[j].name = shape.name + "-" + j;
+          shape.name                     = shape.name === shape.name + "-" + j ? shape.name : shape.name + "-" + j;
+          viewer.model.children[j].name  = shape.name;
 
           // Change opacity slider background to same color as the shape it represents
           var r,g,b;
@@ -535,10 +536,19 @@ $(function() {
                 slider_backup[child.name] = $(".opacity-slider[data-shape-name='" + child.name + "']").slider("value");
                 if (child.name === searchshapes_value_long) {
 
-                  var changeCenterRotation_return_array = changeCenterRotation(i, two_models_toggle, offset_old, m, m_index_begin, m_index_end, offset_diff_total);
-                  offset_old = changeCenterRotation_return_array[0];
-                  m_selected = changeCenterRotation_return_array[1];
-                  offset_diff_total = changeCenterRotation_return_array[2];
+                  var offset       = viewer.model.userData.model_center_offset || new THREE.Vector3(0,0,0);
+                  var shape_center = {};
+                  viewer.model_data.forEach(function(model_data, model_name){
+                    viewer.model_data.get(model_name).shapes.forEach(function(shape){
+                        if (shape.name !== child.name) {
+                          return;
+                        }
+                        shape_center = shape.centroid
+                      });
+                  });
+
+                  var center = new THREE.Vector3(shape_center.x + -offset.x , shape_center.y + -offset.y, shape_center.z + -offset.z);
+                  changeCenterRotation(center);
 
                   $("#pick-shape-number").html(i+1);
                   $("#pick-name").html(input_searchshapes);
@@ -622,12 +632,10 @@ $(function() {
                   document.getElementById("opacity-slider-" + i).style.visibility = "visible";
                   document.getElementById("individualtoggleopacity-" + i).style.backgroundColor = "green";
                   $("#individualtoggleopacity-" + i).html("On");
-
-                  var changeCenterRotation_return_array = changeCenterRotation(i, two_models_toggle, offset_old, m, m_index_begin, m_index_end, offset_diff_total);
-                  offset_old = changeCenterRotation_return_array[0];
-                  m_selected = changeCenterRotation_return_array[1];
-                  offset_diff_total = changeCenterRotation_return_array[2];
-
+                  // Change center of roration
+                  var offset = viewer.model.userData.model_center_offset || new THREE.Vector3(0,0,0);
+                  var center = new THREE.Vector3(parseFloat($("#pick-x").html()) + -offset.x, parseFloat($("#pick-y").html()) + -offset.y, parseFloat($("#pick-z").html()) + -offset.z);
+                  changeCenterRotation(center);
                 } else {   //focus selected object, no need for shift-click
                   document.getElementById("shape-" + i).style.backgroundColor = "#333333";
                   document.getElementById("top-" + i).style.visibility = "hidden";
@@ -1461,13 +1469,12 @@ $(function() {
                 window.location.hash = "#shape-" + i;
                 window.location.hash = "#views";
                 document.getElementById("shape-" + i).style.backgroundColor = "#1E8FFF";
-                document.getElementById("top-" + i).style.visibility = "visible";
+                document.getElementById("top-" + i).style.visibility        = "visible";
 
-                var changeCenterRotation_return_array = changeCenterRotation(i, two_models_toggle, offset_old, m, m_index_begin, m_index_end, offset_diff_total);
-                offset_old = changeCenterRotation_return_array[0];
-                m_selected = changeCenterRotation_return_array[1];
-                offset_diff_total = changeCenterRotation_return_array[2];
-
+                // Change Center of roration
+                var offset = viewer.model.userData.model_center_offset || new THREE.Vector3(0,0,0);
+                var center = new THREE.Vector3(parseFloat($("#pick-x").html()) + -offset.x, parseFloat($("#pick-y").html()) + -offset.y, parseFloat($("#pick-z").html()) + -offset.z);
+                changeCenterRotation(center);
 //viewer.model.children[i].renderDepth = 1;
               } else {   //focus selected object, no need for shift-click
                 document.getElementById("shape-" + i).style.backgroundColor = "#333333";
@@ -1542,10 +1549,14 @@ $(function() {
       var format = $(this).closest(".file-select").find("option:selected").val();
 
       if (format !== 'unknown') {
+        viewer.model.userData.model_center_offset = undefined;
         showLoading();
         viewer.loadModelFromFile(document.getElementById("objfile"), {
           format: format,
-          complete: hideLoading
+          complete: function() {
+            hideLoading();
+            viewer.modelCentric();
+          }
         });
       }
 
@@ -1644,9 +1655,13 @@ $(function() {
       $("#data_submit_clear").click(function() {
         viewer.clearScreen2();
         showLoading();
+        viewer.model.userData.model_center_offset = undefined;
         viewer.loadModelFromFile(document.getElementById("objfile"), {
           format: format,
-          complete: hideLoading
+          complete: function() {
+            hideLoading();
+            viewer.modelCentric();
+          }
         });
         $(".data-range-class").remove();
       });
@@ -1676,9 +1691,13 @@ $(function() {
       // No autoload for unknow format and mniobj format
       if (format !== 'unknown') {
         showLoading();
+        viewer.model.userData.model_center_offset = undefined;
         viewer.loadModelFromFile(document.getElementById("objfile"), {
           format: format,
-          complete: hideLoading
+          complete: function() {
+            hideLoading();
+            viewer.modelCentric();
+          }
         });
       }
 
@@ -1749,9 +1768,13 @@ $(function() {
       $("#data_submit_clear").click(function() {
         viewer.clearScreen2();
         showLoading();
+        viewer.model.userData.model_center_offset = undefined;
         viewer.loadModelFromFile(document.getElementById("objfile"), {
           format: format,
-          complete: hideLoading
+          complete: function() {
+            hideLoading;
+            viewer.modelCentric();
+          }
         });
         $(".data-range-class").remove();
       });
@@ -1876,9 +1899,9 @@ $(function() {
         $("#pick-z").html(pick_info.point.z.toPrecision(4));
         $("#pick-index").html(pick_info.index);
         $("#annotation-wrapper").show();
-        picked_object = pick_info.object;
-        picked_coords = pick_info.point;
-        model_data = viewer.model_data.get(picked_object.userData.model_name);
+        picked_object  = pick_info.object;
+        picked_coords  = pick_info.point;
+        model_data     = viewer.model_data.get(picked_object.userData.model_name);
         intensity_data = model_data.intensity_data[0];
 
         if (intensity_data) {
@@ -2314,45 +2337,48 @@ $(function() {
 
       var step = grid_partitions;
 
+      // Z axes
       gridXY = viewer.gridHelper(
         -bounding_box_max_y + picked_coords_grid.y, // horizontal_from
         -bounding_box_min_y + picked_coords_grid.y, // horizontal_to
          bounding_box_min_x - picked_coords_grid.x, // x1
          bounding_box_max_x - picked_coords_grid.x, // x2
-         colors.three_x,                                   // horizontal_color
+         colors.three_x,                                       // horizontal_color
          bounding_box_min_x - picked_coords_grid.x, // vertical_from
          bounding_box_max_x - picked_coords_grid.x, // vertical_to
         -bounding_box_min_y + picked_coords_grid.y, // z1
         -bounding_box_max_y + picked_coords_grid.y, // z2
-         colors.three_y,                                   // vertical_color
+         colors.three_y,                            // vertical_color
          step
       );
 
+      // Y axes
       gridXZ = viewer.gridHelper(
          bounding_box_min_z - picked_coords_grid.z, // horizontal_from
          bounding_box_max_z - picked_coords_grid.z, // horizontal_to
          bounding_box_min_x - picked_coords_grid.x, // x1
          bounding_box_max_x - picked_coords_grid.x, // x2
-         colors.three_x,                                   // horizontal_color
+         colors.three_x,                            // horizontal_color
          bounding_box_min_x - picked_coords_grid.x, // vertical_from
          bounding_box_max_x - picked_coords_grid.x, // vertical_to
          bounding_box_min_z - picked_coords_grid.z, // z1
          bounding_box_max_z - picked_coords_grid.z, // z2
-         colors.three_z,                                   // vertical_color
+         colors.three_z,                            // vertical_color
          step
       );
 
+      // X axes
       gridYZ = viewer.gridHelper(
          bounding_box_min_z - picked_coords_grid.z, // horizontal_from
          bounding_box_max_z - picked_coords_grid.z, // horizontal_to
          bounding_box_min_y - picked_coords_grid.y, // x1
          bounding_box_max_y - picked_coords_grid.y, // x2
-         colors.three_y,                                   // horizontal_color
+         colors.three_y,                            // horizontal_color
          bounding_box_min_y - picked_coords_grid.y, // vertical_from
          bounding_box_max_y - picked_coords_grid.y, // vertical_to
          bounding_box_min_z - picked_coords_grid.z, // z1
          bounding_box_max_z - picked_coords_grid.z, // z2
-         colors.three_z,                                   // vertical_color
+         colors.three_z,                            // vertical_color
          step
       );
 
@@ -2400,48 +2426,13 @@ $(function() {
       return axis;
     }
 
-    function changeCenterRotation(i, two_models_toggle, offset_old, m, m_index_begin, m_index_end, offset_diff_total) {
-      if  (two_models_toggle < 2){
-        var offset_new = viewer.model.children[i].userData.centroid;
-        var offset_diff = new THREE.Vector3( 0, 0, 0 );
-        offset_diff.x=offset_old.x-offset_new.x;
-        offset_diff.y=offset_old.y-offset_new.y;
-        offset_diff.z=offset_old.z-offset_new.z;
-        if (m === 1) {
-          viewer.model.children[i].geometry.applyMatrix(new THREE.Matrix4().makeTranslation( offset_diff.x, offset_diff.y, offset_diff.z) );
-          if (m1_offset === 0){
-            m1_offset  = 1;
-          }
-        } else if (m === 2) {
-          viewer.model.children[m_index_begin[1]].geometry.applyMatrix(new THREE.Matrix4().makeTranslation( offset_diff.x, offset_diff.y, offset_diff.z ) );
-          viewer.model.children[m_index_begin[2]].geometry.applyMatrix(new THREE.Matrix4().makeTranslation( offset_diff.x, offset_diff.y, offset_diff.z ) );
-          if (i<m_index_end[1]){ // model 1
-            m_selected = 1;
-          } else if (i>=m_index_end[1]){ // model 2
-            m_selected = 2;
-          }
-        }
-
-        //Unapply previous adjustment to scene position due to user manual rotation (this does nothing / has no effect before 1st rotation)
-        var inverse_matrix = new THREE.Matrix4().getInverse(viewer.model.matrix);
-        viewer.model.parent.position.applyMatrix4(inverse_matrix);
-
-        //Compensate scene position for all offsets done to model above
-        viewer.model.parent.translateX(-offset_diff.x);
-        viewer.model.parent.translateY(-offset_diff.y);
-        viewer.model.parent.translateZ(-offset_diff.z);
-
-        //Adjust scene position due to user manual rotation
-        viewer.model.parent.position.applyMatrix4(viewer.model.matrix);
-
-        offset_old=offset_new;
-        offset_diff_total.x = offset_diff_total.x - offset_diff.x;
-        offset_diff_total.y = offset_diff_total.y - offset_diff.y;
-        offset_diff_total.z = offset_diff_total.z - offset_diff.z;
-      }
+    function changeCenterRotation(center) {
       user_defined_grid_partitions = "no";
-      user_defined_grid_length = "no";
-      return [offset_old, m_selected, offset_diff_total];
+      user_defined_grid_length     = "no";
+      if (!(two_models_toggle < 2)) {
+        return;
+      }
+      viewer.changeCenterRotation(center);
     }
 
     function drawDashed(name,color,width) {

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title> BigBrainBrowser 2 </title>
+
+
+  <script src="js/vendors/jquery-3.1.0.js"></script>
+  <script src="js/vendors/jquery-ui.js"></script>
+  <script src="js/ui.js"></script>
+
+
+  <!-- Style -->
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,900" rel="stylesheet">
+  <link rel="stylesheet" href="css/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/jquery-ui/jquery-ui.css">
+  <link rel="stylesheet" type="text/css" href="css/jqueryui-overload.css" />
+  <link rel="stylesheet" type="text/css" href="css/ui_elements.css" />
+  <link rel="stylesheet" type="text/css" href="css/style.css" />
+
+</head>
+
+<body>
+
+  <div id="content">
+    <!-- The top left logo, remains when menus are collapsed -->
+    <img class="logo" src="img/logo.png" />
+
+
+    <!-- Button to collapse the left side menu -->
+    <div id="hideLeft" class="hideButton">
+      <i class="fa fa-chevron-left" aria-hidden="true"></i>
+    </div>
+
+
+    <!-- Button to collapse the right side menu -->
+    <div id="hideRight" class="hideButton">
+      <i class="fa fa-chevron-right" aria-hidden="true"></i>
+    </div>
+
+
+    <!-- LEFT SIDE COLUMN-->
+    <div id="leftSidebar" class="sidebar">
+
+
+      <div class="controls">
+        <!-- Everything that is supposed to go to the side bar goes here -->
+
+
+        <!-- Two buttons -->
+        <div class="twoButtons">
+          <div class="buttonBB noselect"><i class="fa fa-undo" aria-hidden="true"></i>Undo</div>
+          <div class="buttonBB noselect"><i class="fa fa-repeat" aria-hidden="true"></i>Redo</div>
+        </div>
+
+        <!-- just a dashed line -->
+        <div class="separator"></div>
+
+
+        <!-- a label -->
+        <div class="label">A label</div>
+
+
+        <!-- a single button -->
+        <div class="buttonBB noselect">Button</div>
+
+
+        <!-- a single textfield -->
+        <input id="tags" class="commonTextField" value="" placeholder="name" autocomplete="off" type="text">
+
+
+        <!-- a dropdown menu -->
+        <select class="dropdownMenu" onchange="" autocomplete="off">
+          <option value="none">none</option>
+          <option value="test01">test01</option>
+        </select>
+
+
+        <!-- just a dashed line -->
+        <div class="separator"></div>
+
+
+        <!-- list of 6 buttons -->
+        <div class="sixButtons">
+          <div class="buttonBB miniButton noselect">A</div>
+          <div class="buttonBB miniButton noselect">B</div>
+          <div class="buttonBB miniButton noselect">B</div>
+          <div class="buttonBB miniButton noselect">B</div>
+          <div class="buttonBB miniButton noselect">B</div>
+          <div class="buttonBB miniButton noselect">B</div>
+        </div>
+
+
+        <!-- A label and a dropdown menu -->
+        <div class="labelAndDropdown">
+          <div class="label">Background color</div>
+          <select class="dropdownMenu" onchange="" autocomplete="off">
+            <option value="black">black</option>
+            <option value="yellow">yellow</option>
+            <option value="orange">orange</option>
+            <option value="white">white</option>
+          </select>
+        </div>
+
+
+      </div> <!-- END controls -->
+    </div> <!-- END leftSidebar -->
+
+
+
+    <!-- RIGHT SIDE COLUMN -->
+    <div id="rightSidebar" class="sidebar">
+
+
+      <!-- Everything that is supposed to go to the side bar goes here -->
+
+
+      <div id="rightSidebar" class="sidebar">
+
+
+        <div id="toggleAllShapes" class="buttonBB noselect">Toggle all</div>
+        <div class="separator"></div>
+
+        <div class="opacityWidget">
+          <div class="name">
+            This is the name
+          </div>
+          <div class="aligned">
+            <div class="opacityLogo">
+              <i class="fa fa-adjust" aria-hidden="true"></i>
+            </div>
+            <div >
+              <input class="slider" type="range" name="points" min="0" max="100" step="1"  autocomplete="off" value="100">
+            </div>
+            <div class="buttonBB noselect toggleShape" visible="1">
+              <i class="fa fa-eye eyeicon" aria-hidden="true"></i>
+            </div>
+          </div>
+        </div>
+        <div class="separator"></div>
+
+
+        <div class="opacityWidget">
+          <div class="name">
+            This is the name
+          </div>
+          <div class="aligned">
+            <div class="opacityLogo">
+              <i class="fa fa-adjust" aria-hidden="true"></i>
+            </div>
+            <div >
+              <input class="slider" type="range" name="points" min="0" max="100" step="1"  autocomplete="off" value="100">
+            </div>
+            <div class="buttonBB noselect toggleShape" visible="1">
+              <i class="fa fa-eye eyeicon" aria-hidden="true"></i>
+            </div>
+          </div>
+        </div>
+        <div class="separator"></div>
+
+
+        <div class="opacityWidget">
+          <div class="name">
+            This is the name
+          </div>
+          <div class="aligned">
+            <div class="opacityLogo">
+              <i class="fa fa-adjust" aria-hidden="true"></i>
+            </div>
+            <div >
+              <input class="slider" type="range" name="points" min="0" max="100" step="1"  autocomplete="off" value="100">
+            </div>
+            <div class="buttonBB noselect toggleShape" visible="1">
+              <i class="fa fa-eye eyeicon" aria-hidden="true"></i>
+            </div>
+          </div>
+        </div>
+        <div class="separator"></div>
+
+
+        <!-- Three buttons -->
+        <div class="threeButtons">
+          <div class="buttonBB noselect">ixe</div>
+          <div class="buttonBB noselect">ygrec</div>
+          <div class="buttonBB noselect">zede</div>
+        </div>
+
+
+
+
+      </div> <!-- END controls -->
+    </div> <!-- END rightSidebar -->
+
+
+
+
+    <!--MAIN -->
+    <div id="brainbrowser">
+      one two three four five six seven height nine ten eleven twelve
+      <canvas></canvas>
+    </div> <!-- END brainbrowser -->
+
+  </div>
+
+</body>
+</html>

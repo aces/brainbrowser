@@ -220,6 +220,10 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
         shape.rotation.set(0, 0, 0);
         shape.material.opacity = 1;
       }
+
+      // used later to build the grids
+      shape.geometry.computeBoundingBox();
+
     });
 
     model.rotation.set(0, 0, 0);
@@ -896,6 +900,14 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       model.userData.model_center  = new THREE.Vector3(centroid.x, centroid.y, centroid.z);
     });
   };
+
+
+
+  viewer.updateBoundingBoxes = function(){
+    viewer.model.children.forEach(function(children){
+      children.geometry.computeBoundingBox();
+    });
+  }
 
   ////////////////////////////////////
   // PRIVATE FUNCTIONS

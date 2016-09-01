@@ -2253,6 +2253,7 @@ $(function() {
             }
           }
 
+
           if ( m > 1 ) {
             for (var i = m1_model_data_get.shapes.length; i < (m1_model_data_get.shapes.length + m2_model_data_get.shapes.length); i++) {
               if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid")){

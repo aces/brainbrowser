@@ -1,0 +1,25 @@
+<!--
+{{shapeIndex}} is just incremental and should always e unique, even when loading the same file several times.
+{{ shapeNameOverall }} is shapeName + "-" + that.shapeCounter;
+{{fileID}} kind of useless, give the info to what files it's related
+{{shapeName}} is a string that describes the shape
+{{ red }}, {{ green }}, {{ blue }} and {{ alpha }} are for background color
+-->
+
+<div id="shape_{{ shapeIndex }}" class="opacityWidget" shapeName="{{ shapeName }}" fileID="model_{{ fileID }}" shapeNameOverall="{{ shapeNameOverall }}">
+  <div class="name">
+    {{ shapeName }}
+  </div>
+  <div class="aligned">
+    <div class="opacityLogo">
+      <i class="fa fa-adjust" aria-hidden="true"></i>
+    </div>
+    <div >
+      <input class="slider" type="range" name="points" min="0" max="100" step="1"  autocomplete="off" value="100" style="background-color: rgba({{ red }}, {{ green }}, {{ blue }}, {{ alpha }});">
+    </div>
+    <div class="buttonBB noselect toggleShape" visible="1">
+      <i class="fa fa-eye eyeicon" aria-hidden="true"></i>
+    </div>
+  </div>
+</div>
+<div class="separator"></div>

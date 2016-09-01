@@ -19,7 +19,7 @@ var ShapePanel = function(BrainBrowserViewer){
 
   this.initUnloadAllButton();
 
-  this.opacityThreshold = 0.25;
+  this.opacityThreshold = 0.15;
   this.opacityCallback = null; // happens when a cursor crosses the opacity threshold
   this.blockOpacityCallback = false; // when toggling all, we dont want to lanch the callbac n times!
 

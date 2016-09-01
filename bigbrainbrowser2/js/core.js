@@ -1,5 +1,6 @@
 // the shapePanel is the tabbed panel that shows
 // all the shapes with opacity slider.
+var THREE = null;
 var shapePanel = null;
 var modelCollection = null;
 var shapePicker = null;
@@ -14,7 +15,7 @@ $(function() {
   // init hbs and preload templates
   init();
 
-
+  var aasdad = new THREE.Vector3();
 
   window.viewer = BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
     // render, no matter we load files or not
@@ -54,12 +55,6 @@ $(function() {
 
 
 
-
-
-  $("#testButton1").click(function(){
-    shapePanel.focusOnSlider(108);
-  });
-
 });
 
 
@@ -85,6 +80,7 @@ function defineUiCallbacks(){
   */
   shapePanel.setOpacityCallback(function(shapeNameOverall){
       console.log("The shape " + shapeNameOverall + " just changed its visibility status");
+      gridBuilder.updateBoundingBox();
   });
 
 }

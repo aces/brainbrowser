@@ -1,4 +1,6 @@
 function init(){
+  THREE = BrainBrowser.SurfaceViewer.THREE;
+
   initTemplates();
 
   initCallbacks();

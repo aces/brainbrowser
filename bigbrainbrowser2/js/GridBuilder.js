@@ -34,46 +34,48 @@ GridBuilder.prototype.setOpacityThreshold = function(t){
 /*
   The bounding box takes under consideration the opacity of the shapes.
 */
-GridBuilder.prototype.updateBoundingBox = function(t){
+GridBuilder.prototype.updateBoundingBox = function(){
   var that = this;
   var shapeCounter = 0;
 
-  this.viewer.updateBoundingBoxes();
+  var bbox = null;//THREE.Box3();
 
   this.viewer.model_data.forEach(function(model_data, model_name){
-    /*
-    console.log(model_name);
-    console.log(model_data);
 
-    // init the bounding box
-    if(shapeCounter == 0){
-      that.boundingBox = {
-        xMin : model_data.shapes[0].bounding_box.min_x,
-        xMax : model_data.shapes[0].bounding_box.max_x,
-        yMin : model_data.shapes[0].bounding_box.min_y,
-        yMax : model_data.shapes[0].bounding_box.max_y,
-        zMin : model_data.shapes[0].bounding_box.min_z,
-        zMax : model_data.shapes[0].bounding_box.max_z
-      };
-    }
-    */
-
-
-    model_data.shapes.forEach(function(elem){
-      /*
-      console.log("logic data:");
-      console.log(elem.bounding_box);
-
-      console.log("graphic data");
-      console.log(that.viewer.model.children[shapeCounter].geometry.boundingBox);
-      //console.log(that.viewer);
-      */
+    model_data.shapes.forEach(function(logicShape){
 
       // finding the equivalent graphic shape (THREE object)
+      var graphicShape = that.viewer.model.children[shapeCounter];
+
+      if(graphicShape.visible &&
+        parseFloat(graphicShape.material.opacity) > that.opacityThreshold ){
+
+        var min = new THREE.Vector3(
+            logicShape.bounding_box.min_x,
+            logicShape.bounding_box.min_y,
+            logicShape.bounding_box.min_z
+          );
+
+        var max = new THREE.Vector3(
+            logicShape.bounding_box.max_x,
+            logicShape.bounding_box.max_y,
+            logicShape.bounding_box.max_z
+          );
+
+        // init the box with the first point
+        if(!bbox){
+          bbox = new THREE.Box3(min, max);
+        }else{
+          bbox.expandByPoint(min, max);
+        }
+
+      }
 
       shapeCounter ++;
     });
 
-
   });
+
+  console.log(bbox);
+
 }

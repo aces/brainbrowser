@@ -1,7 +1,7 @@
-// the shapePanel is the tabbed panel that shows
+// the shapeController is the tabbed panel that shows
 // all the shapes with opacity slider.
 var THREE = null;
-var shapePanel = null;
+var shapeController = null;
 var modelCollection = null;
 var shapePicker = null;
 
@@ -15,8 +15,6 @@ $(function() {
   // init hbs and preload templates
   init();
 
-  var aasdad = new THREE.Vector3();
-
   window.viewer = BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
     // render, no matter we load files or not
     viewer.render();
@@ -25,8 +23,8 @@ $(function() {
     modelCollection = new ModelCollection(viewer);
 
     // Deals with opacity sliders
-    shapePanel = new ShapePanel(viewer);
-    shapePanel.setShapeIndexer( shapeIndexer );
+    shapeController = new ShapeController(viewer);
+    shapeController.setShapeIndexer( shapeIndexer );
 
     // deals with picking shapes
     shapePicker = new ShapePicker(viewer);
@@ -45,10 +43,11 @@ $(function() {
 
       // add all the opacity sliders for this fils/model
       // (possible a large number of shapes)
-      shapePanel.loadFile(event, filename);
-
+      shapeController.loadFile(event, filename);
 
       gridBuilder.updateBoundingBox();
+      gridBuilder.setGridCenterAuto();
+      gridBuilder.defineGridSizeAuto();
     });
 
   });
@@ -71,16 +70,30 @@ function defineUiCallbacks(){
     //console.log(viewer.model);
     //console.log(viewer.model.children[0].geometry.boundingBox);
 
-    shapePanel.focusOnSlider(shapeInfo.object.name);
+    shapeController.focusOnSlider(shapeInfo.object.name);
   });
 
 
   /*
     Callback: when a opacity slider crosses the opacity threshold
   */
-  shapePanel.setOpacityCallback(function(shapeNameOverall){
+  shapeController.setOpacityCallback(function(shapeNameOverall){
       console.log("The shape " + shapeNameOverall + " just changed its visibility status");
+      //gridBuilder.updateBoundingBox();
+
       gridBuilder.updateBoundingBox();
+      gridBuilder.setGridCenterAuto();
+      gridBuilder.defineGridSizeAuto();
+  });
+
+
+
+
+
+
+  // to slide the left pannel
+  $("#testButton1").click(function(){
+
   });
 
 }

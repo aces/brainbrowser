@@ -579,6 +579,12 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     intersects = raycaster.intersectObject(model, true);
 
     for (i = 0; i < intersects.length; i++) {
+
+      // avoid the grid
+      if(intersects[i].object.parent.name == "grid"){
+        continue;
+      }
+
       intersects[i].object.userData.pick_ignore = (intersects[i].object.material.opacity < opacity_threshold) ? true : false;
       if (!intersects[i].object.userData.pick_ignore) {
         intersection = intersects[i];
@@ -906,7 +912,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   viewer.updateBoundingBoxes = function(){
 
 
-    
+
     viewer.model.children.forEach(function(shape){
       shape.geometry.computeBoundingBox();
     });

@@ -2382,13 +2382,14 @@ $(function() {
          step
       );
 
-      gridXZ.position.set(x,y,z);
+      var offset = viewer.model.userData.model_center_offset || new THREE.Vector3(0,0,0);
+      gridXZ.position.set(x - offset.x, y - offset.y, z - offset.z);
 
       gridXY.rotation.x = Math.PI/2;
-      gridXY.position.set(x,y,z);
+      gridXY.position.set(x - offset.x, y - offset.y, z - offset.z);
 
       gridYZ.rotation.z = Math.PI/2;
-      gridYZ.position.set(x,y,z);
+      gridYZ.position.set(x - offset.x, y - offset.y, z - offset.z);
 
       var grid = new THREE.Object3D();
       grid.name = "grid";
@@ -2433,6 +2434,7 @@ $(function() {
         return;
       }
       viewer.changeCenterRotation(center);
+      // picked_coords = center;
     }
 
     function drawDashed(name,color,width) {

@@ -233,23 +233,9 @@ $(function() {
 
               if ((window.axesbox !== undefined) && (window.axesbox.model.name === "axes_on")) {
                 slider_backup[viewer.model.children[j].name] = alpha * 100;
-                if ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === true)){
-                  toggle_grid_XY = "off";
-                } else if ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === false)){
-                  toggle_grid_XY = "on";
-                }
-
-                if ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === true)){
-                  toggle_grid_YZ = "off";
-                } else if ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === false)){
-                  toggle_grid_YZ = "on";
-                }
-
-                if ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === true)){
-                  toggle_grid_XZ = "off";
-                } else if ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === false)){
-                  toggle_grid_XZ = "on";
-                }
+                toggle_grid_XY = ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === true)) ? "off" : "on";
+                toggle_grid_YZ = ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === true)) ? "off" : "on";
+                toggle_grid_XZ = ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === true)) ? "off" : "on";
 
                 if ((document.getElementById("grid_auto_toggle")) && ($("#grid_auto_toggle").html() === "Off")){
                   grid_auto_toggle = "off";
@@ -294,21 +280,10 @@ $(function() {
               document.getElementById("individualtoggleopacity-" + j).style.backgroundColor = "red";
               document.getElementById("opacity-slider-" + j).style.visibility = "hidden";
               if ((window.axesbox !== undefined) && (window.axesbox.model.name === "axes_on")){
-                if ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === true)){
-                  toggle_grid_XY = "off";
-                } else if ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === false)){
-                  toggle_grid_XY = "on";
-                }
-                if ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === true)){
-                  toggle_grid_YZ = "off";
-                } else if ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === false)){
-                  toggle_grid_YZ = "on";
-                }
-                if ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === true)){
-                  toggle_grid_XZ = "off";
-                } else if ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === false)){
-                  toggle_grid_XZ = "on";
-                }
+                toggle_grid_XY = ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === true)) ? "off" : "on";
+                toggle_grid_YZ = ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === true)) ? "off" : "on";
+                toggle_grid_XZ = ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === true)) ? "off" : "on";
+
                 if ((document.getElementById("grid_auto_toggle")) && ($("#grid_auto_toggle").html() === "Off")){
                   grid_auto_toggle = "off";
                 }
@@ -339,23 +314,9 @@ $(function() {
                 viewer.setTransparency(picked_object.material.opacity, {shape_name: "marker"});
               }
               if ((window.axesbox !== undefined) && (window.axesbox.model.name === "axes_on")){
-                if ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === true)){
-                  toggle_grid_XY = "off";
-                } else if ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === false)){
-                  toggle_grid_XY = "on";
-                }
-
-                if ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === true)){
-                  toggle_grid_YZ = "off";
-                } else if ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === false)){
-                  toggle_grid_YZ = "on";
-                }
-
-                if ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === true)){
-                  toggle_grid_XZ = "off";
-                } else if ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === false)){
-                  toggle_grid_XZ = "on";
-                }
+                toggle_grid_XY = ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === true)) ? "off" : "on";
+                toggle_grid_YZ = ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === true)) ? "off" : "on";
+                toggle_grid_XZ = ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === true)) ? "off" : "on";
 
                 if ((document.getElementById("grid_auto_toggle")) && ($("#grid_auto_toggle").html() === "Off")){
                   grid_auto_toggle = "off";
@@ -548,6 +509,7 @@ $(function() {
                   });
 
                   var center = new THREE.Vector3(shape_center.x + -offset.x , shape_center.y + -offset.y, shape_center.z + -offset.z);
+                  picked_coords = shape_center;
                   changeCenterRotation(center);
 
                   $("#pick-shape-number").html(i+1);
@@ -573,23 +535,9 @@ $(function() {
             });
 
             if (window.axesbox !== undefined && window.axesbox.model.name === "axes_on"){
-              if ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === true)){
-                toggle_grid_XY = "off";
-              } else if ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === false)){
-                toggle_grid_XY = "on";
-              }
-
-              if ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === true)){
-                toggle_grid_YZ = "off";
-              } else if ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === false)){
-                toggle_grid_YZ = "on";
-              }
-
-              if ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === true)){
-                toggle_grid_XZ = "off";
-              } else if ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === false)){
-                toggle_grid_XZ = "on";
-              }
+              toggle_grid_XY = ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === true)) ? "off" : "on";
+              toggle_grid_YZ = ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === true)) ? "off" : "on";
+              toggle_grid_XZ = ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === true)) ? "off" : "on";
 
               if ((document.getElementById("grid_auto_toggle")) && ($("#grid_auto_toggle").html() === "Off")){
                 grid_auto_toggle = "off";
@@ -660,23 +608,9 @@ $(function() {
             marker.name = "marker";
             viewer.setTransparency(picked_object.material.opacity, {shape_name: "marker"});
             if (window.axesbox !== undefined && window.axesbox.model.name === "axes_on"){
-              if ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === true)){
-                toggle_grid_XY = "off";
-              } else if ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === false)){
-                toggle_grid_XY = "on";
-              }
-
-              if ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === true)){
-                toggle_grid_YZ = "off";
-              } else if ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === false)){
-                toggle_grid_YZ = "on";
-              }
-
-              if ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === true)){
-                toggle_grid_XZ = "off";
-              } else if ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === false)){
-                toggle_grid_XZ = "on";
-              }
+              toggle_grid_XY = ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === true)) ? "off" : "on";
+              toggle_grid_YZ = ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === true)) ? "off" : "on";
+              toggle_grid_XZ = ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === true)) ? "off" : "on";
 
               if ((document.getElementById("grid_auto_toggle")) && ($("#grid_auto_toggle").html() === "Off")){
                 grid_auto_toggle = "off";
@@ -770,23 +704,9 @@ $(function() {
           });
 
           if (window.axesbox !== undefined && window.axesbox.model.name === "axes_on"){
-            if ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === true)){
-              toggle_grid_XY = "off";
-            } else if ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === false)){
-              toggle_grid_XY = "on";
-            }
-
-            if ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === true)){
-              toggle_grid_YZ = "off";
-            } else if ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === false)){
-              toggle_grid_YZ = "on";
-            }
-
-            if ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === true)){
-              toggle_grid_XZ = "off";
-            } else if ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === false)){
-              toggle_grid_XZ = "on";
-            }
+            toggle_grid_XY = ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === true)) ? "off" : "on";
+            toggle_grid_YZ = ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === true)) ? "off" : "on";
+            toggle_grid_XZ = ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === true)) ? "off" : "on";
 
             if ((document.getElementById("grid_auto_toggle")) && ($("#grid_auto_toggle").html() === "Off")){
               grid_auto_toggle = "off";
@@ -825,23 +745,9 @@ $(function() {
           });
 
           if (window.axesbox !== undefined && window.axesbox.model.name === "axes_on"){
-            if ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === true)){
-              toggle_grid_XY = "off";
-            } else if ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === false)){
-              toggle_grid_XY = "on";
-            }
-
-            if ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === true)){
-              toggle_grid_YZ = "off";
-            } else if ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === false)){
-              toggle_grid_YZ = "on";
-            }
-
-            if ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === true)){
-              toggle_grid_XZ = "off";
-            } else if ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === false)){
-              toggle_grid_XZ = "on";
-            }
+            toggle_grid_XY = ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === true)) ? "off" : "on";
+            toggle_grid_YZ = ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === true)) ? "off" : "on";
+            toggle_grid_XZ = ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === true)) ? "off" : "on";
 
             if ((document.getElementById("grid_auto_toggle")) && ($("#grid_auto_toggle").html() === "Off")){
               grid_auto_toggle = "off";
@@ -1108,23 +1014,9 @@ $(function() {
       viewer.setClearColor(bgcolor);
 
       if (window.axesbox !== undefined && window.axesbox.model.name === "axes_on"){
-        if ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === true)){
-          toggle_grid_XY = "off";
-        } else if ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === false)){
-          toggle_grid_XY = "on";
-        }
-
-        if ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === true)){
-          toggle_grid_YZ = "off";
-        } else if ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === false)){
-          toggle_grid_YZ = "on";
-        }
-
-        if ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === true)){
-          toggle_grid_XZ = "off";
-        } else if ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === false)){
-          toggle_grid_XZ = "on";
-        }
+        toggle_grid_XY = ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === true)) ? "off" : "on";
+        toggle_grid_YZ = ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === true)) ? "off" : "on";
+        toggle_grid_XZ = ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === true)) ? "off" : "on";
 
         if ((document.getElementById("grid_auto_toggle")) && ($("#grid_auto_toggle").html() === "Off")){
           grid_auto_toggle = "off";
@@ -1151,6 +1043,7 @@ $(function() {
 
       // Setting the view to its current view type will
       // automatically reset its position and opacity is reset to 100% for all shapes.
+      viewer.model.userData.model_center_offset = undefined;
       viewer.setView($("[name=hem_view]:checked").val());
 
       viewer.model.children.forEach(function(child,i) {
@@ -1168,23 +1061,9 @@ $(function() {
       window.location.hash = "#surface_choice";
 
       if (window.axesbox !== undefined && window.axesbox.model.name === "axes_on"){
-        if ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === true)){
-          toggle_grid_XY = "off";
-        } else if ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === false)){
-          toggle_grid_XY = "on";
-        }
-
-        if ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === true)){
-          toggle_grid_YZ = "off";
-        } else if ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === false)){
-          toggle_grid_YZ = "on";
-        }
-
-        if ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === true)){
-          toggle_grid_XZ = "off";
-        } else if ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === false)){
-          toggle_grid_XZ = "on";
-        }
+        toggle_grid_XY = ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === true)) ? "off" : "on";
+        toggle_grid_YZ = ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === true)) ? "off" : "on";
+        toggle_grid_XZ = ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === true)) ? "off" : "on";
 
         if ((document.getElementById("grid_auto_toggle")) && ($("#grid_auto_toggle").html() === "Off")){
           grid_auto_toggle = "off";
@@ -1382,23 +1261,9 @@ $(function() {
         }
         axes_toggle = "on";
       } else {
-        if ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === true)){
-          toggle_grid_XY = "off";
-        } else if ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === false)){
-          toggle_grid_XY = "on";
-        }
-
-        if ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === true)){
-          toggle_grid_YZ = "off";
-        } else if ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === false)){
-          toggle_grid_YZ = "on";
-        }
-
-        if ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === true)){
-          toggle_grid_XZ = "off";
-        } else if ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === false)){
-          toggle_grid_XZ = "on";
-        }
+        toggle_grid_XY = ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === true)) ? "off" : "on";
+        toggle_grid_YZ = ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === true)) ? "off" : "on";
+        toggle_grid_XZ = ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === true)) ? "off" : "on";
 
         if ((document.getElementById("grid_auto_toggle")) && ($("#grid_auto_toggle").html() === "Off")){
           grid_auto_toggle = "off";
@@ -1500,23 +1365,9 @@ $(function() {
           viewer.setTransparency(picked_object.material.opacity, {shape_name: "marker"});
           focus_toggle = "off";
           if (window.axesbox !== undefined && window.axesbox.model.name === "axes_on"){
-            if ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === true)){
-              toggle_grid_XY = "off";
-            } else if ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === false)){
-              toggle_grid_XY = "on";
-            }
-
-            if ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === true)){
-              toggle_grid_YZ = "off";
-            } else if ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === false)){
-              toggle_grid_YZ = "on";
-            }
-
-            if ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === true)){
-              toggle_grid_XZ = "off";
-            } else if ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === false)){
-              toggle_grid_XZ = "on";
-            }
+            toggle_grid_XY = ((document.getElementById("toggle_grid_XY")) && (document.getElementById("toggle_grid_XY").checked === true)) ? "off" : "on";
+            toggle_grid_YZ = ((document.getElementById("toggle_grid_YZ")) && (document.getElementById("toggle_grid_YZ").checked === true)) ? "off" : "on";
+            toggle_grid_XZ = ((document.getElementById("toggle_grid_XZ")) && (document.getElementById("toggle_grid_XZ").checked === true)) ? "off" : "on";
 
             if ((document.getElementById("grid_auto_toggle")) && ($("#grid_auto_toggle").html() === "Off")){
               grid_auto_toggle = "off";
@@ -1556,6 +1407,7 @@ $(function() {
           complete: function() {
             hideLoading();
             viewer.modelCentric();
+            picked_coords   = viewer.model.userData.model_center;
           }
         });
       }
@@ -1661,6 +1513,7 @@ $(function() {
           complete: function() {
             hideLoading();
             viewer.modelCentric();
+            picked_coords   = viewer.model.userData.model_center;
           }
         });
         $(".data-range-class").remove();
@@ -1697,6 +1550,7 @@ $(function() {
           complete: function() {
             hideLoading();
             viewer.modelCentric();
+            picked_coords   = viewer.model.userData.model_center;
           }
         });
       }
@@ -1774,6 +1628,7 @@ $(function() {
           complete: function() {
             hideLoading;
             viewer.modelCentric();
+            picked_coords   = viewer.model.userData.model_center;
           }
         });
         $(".data-range-class").remove();

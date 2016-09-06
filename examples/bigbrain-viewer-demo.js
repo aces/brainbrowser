@@ -504,7 +504,7 @@ $(function() {
                         if (shape.name !== child.name) {
                           return;
                         }
-                        shape_center = shape.centroid
+                        shape_center = shape.centroid;
                       });
                   });
 
@@ -1626,7 +1626,7 @@ $(function() {
         viewer.loadModelFromFile(document.getElementById("objfile"), {
           format: format,
           complete: function() {
-            hideLoading;
+            hideLoading();
             viewer.modelCentric();
             picked_coords   = viewer.model.userData.model_center;
           }
@@ -2285,7 +2285,7 @@ $(function() {
     function changeCenterRotation(center) {
       user_defined_grid_partitions = "no";
       user_defined_grid_length     = "no";
-      if (!(two_models_toggle < 2)) {
+      if ( two_models_toggle >= 2) {
         return;
       }
       viewer.changeCenterRotation(center);

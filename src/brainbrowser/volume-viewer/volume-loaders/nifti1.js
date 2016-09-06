@@ -94,6 +94,7 @@
               c0[2] * (c1[0] * c2[1] - c1[1] * c2[0]));
     }
 
+
     // Now that we have the transform, need to convert it to MINC-like
     // steps and direction_cosines.
 
@@ -141,7 +142,7 @@
 
   function parseNifti1Header(raw_data, callback) {
     var header = {
-      order: ["zspace", "yspace", "xspace"],
+      order: [],
       xspace: {},
       yspace: {},
       zspace: {}
@@ -175,9 +176,6 @@
       throw new Error(error_message);
     }
 
-    header.xspace.space_length = dview.getUint16(42, littleEndian);
-    header.yspace.space_length = dview.getUint16(44, littleEndian);
-    header.zspace.space_length = dview.getUint16(46, littleEndian);
     var tlength = dview.getUint16(48, littleEndian);
 
     var datatype = dview.getUint16(70, littleEndian);
@@ -199,7 +197,7 @@
     var qform_code = dview.getUint16(252, littleEndian);
     var sform_code = dview.getUint16(254, littleEndian);
 
-    var transform = [
+    var nifti_xfm = [
       [1, 0, 0, 0],
       [0, 1, 0, 0],
       [0, 0, 1, 0],
@@ -212,7 +210,6 @@
       header.time.step = tstep;
       header.time.start = 0;
       header.time.name = "time";
-      header.order = ["time", "zspace", "yspace", "xspace"];
     }
 
     /* Record the number of bytes per voxel, and note whether we need
@@ -226,18 +223,18 @@
        * generally assumed to correspond to some standard coordinate
        * space (e.g. Talairach).
        */
-      transform[0][0] = dview.getFloat32(280, littleEndian);
-      transform[0][1] = dview.getFloat32(284, littleEndian);
-      transform[0][2] = dview.getFloat32(288, littleEndian);
-      transform[0][3] = dview.getFloat32(292, littleEndian);
-      transform[1][0] = dview.getFloat32(296, littleEndian);
-      transform[1][1] = dview.getFloat32(300, littleEndian);
-      transform[1][2] = dview.getFloat32(304, littleEndian);
-      transform[1][3] = dview.getFloat32(308, littleEndian);
-      transform[2][0] = dview.getFloat32(312, littleEndian);
-      transform[2][1] = dview.getFloat32(316, littleEndian);
-      transform[2][2] = dview.getFloat32(320, littleEndian);
-      transform[2][3] = dview.getFloat32(324, littleEndian);
+      nifti_xfm[0][0] = dview.getFloat32(280, littleEndian);
+      nifti_xfm[0][1] = dview.getFloat32(284, littleEndian);
+      nifti_xfm[0][2] = dview.getFloat32(288, littleEndian);
+      nifti_xfm[0][3] = dview.getFloat32(292, littleEndian);
+      nifti_xfm[1][0] = dview.getFloat32(296, littleEndian);
+      nifti_xfm[1][1] = dview.getFloat32(300, littleEndian);
+      nifti_xfm[1][2] = dview.getFloat32(304, littleEndian);
+      nifti_xfm[1][3] = dview.getFloat32(308, littleEndian);
+      nifti_xfm[2][0] = dview.getFloat32(312, littleEndian);
+      nifti_xfm[2][1] = dview.getFloat32(316, littleEndian);
+      nifti_xfm[2][2] = dview.getFloat32(320, littleEndian);
+      nifti_xfm[2][3] = dview.getFloat32(324, littleEndian);
     }
     else if (qform_code > 0) {
       /* The "Qform", if present, defines a quaternion which specifies
@@ -251,18 +248,62 @@
       var qoffset_z = dview.getFloat32(276, littleEndian);
       var qfac = (dview.getFloat32(76, littleEndian) < 0) ? -1.0 : 1.0;
 
-      transform = niftiQuaternToMat44(quatern_b, quatern_c, quatern_d,
+      nifti_xfm = niftiQuaternToMat44(quatern_b, quatern_c, quatern_d,
                                       qoffset_x, qoffset_y, qoffset_z,
                                       xstep, ystep, zstep, qfac);
     }
     else {
-      transform[0][0] = xstep;
-      transform[1][1] = ystep;
-      transform[2][2] = zstep;
+      nifti_xfm[0][0] = xstep;
+      nifti_xfm[1][1] = ystep;
+      nifti_xfm[2][2] = zstep;
+    }
+
+    var i, j;
+    var axis_index_from_file = [0, 1, 2];
+    var transform = [[0, 0, 0, 0],
+                     [0, 0, 0, 0],
+                     [0, 0, 0, 0],
+                     [0, 0, 0, 1]];
+                 
+    for (i = 0; i < 3; i++) {
+      var c_x = Math.abs(nifti_xfm[0][i]);
+      var c_y = Math.abs(nifti_xfm[1][i]);
+      var c_z = Math.abs(nifti_xfm[2][i]);
+      
+      if (c_x > c_y && c_x > c_z) {
+        header.order[2 - i] = "xspace";
+        axis_index_from_file[i] = 0;
+      }
+      else if (c_y > c_x && c_y > c_z) {
+        header.order[2 - i] = "yspace";
+        axis_index_from_file[i] = 1;
+      }
+      else {
+        header.order[2 - i] = "zspace";
+        axis_index_from_file[i] = 2;
+      }
+    }
+
+    for (i = 0; i < 3; i++) {
+      for (j = 0; j < 4; j++) {
+        var volume_axis = j;
+        if (j < 3) {
+          volume_axis = axis_index_from_file[j];
+        }
+        transform[i][volume_axis] = nifti_xfm[i][j];
+      }
     }
 
     VolumeViewer.utils.transformToMinc(transform, header);
 
+    header[header.order[2]].space_length = dview.getUint16(42, littleEndian);
+    header[header.order[1]].space_length = dview.getUint16(44, littleEndian);
+    header[header.order[0]].space_length = dview.getUint16(46, littleEndian);
+    
+    if (tlength >= 1) {
+      header.order.unshift("time");
+    }
+    
     header.datatype = datatype;
     header.vox_offset = vox_offset;
     header.scl_slope = scl_slope;

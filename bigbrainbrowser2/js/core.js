@@ -45,7 +45,7 @@ $(function() {
       // (possible a large number of shapes)
       shapeController.loadFile(event, filename);
 
-      gridBuilder.updateBoundingBox();
+      gridBuilder.updateBoundingBoxVisible();
       gridBuilder.setGridCenterAuto();
       gridBuilder.defineGridSizeAuto();
     });
@@ -66,11 +66,23 @@ function defineUiCallbacks(){
   */
   shapePicker.shiftPick(function(shapeInfo){
     var shapeNameOverall = shapeInfo.object.name;
-
-    //console.log(viewer.model);
-    //console.log(viewer.model.children[0].geometry.boundingBox);
-
     shapeController.focusOnSlider(shapeInfo.object.name);
+  });
+
+
+  /*
+    Callback: when ctrl+click is performed on a shape
+  */
+  shapePicker.ctrlPick(function(shapeInfo){
+    console.log(shapeInfo);
+
+    if(gridBuilder){
+
+      //gridBuilder.updateBoundingBoxVisible();
+      gridBuilder.setGridCenterShapeCenter(shapeInfo.object.name);
+      //gridBuilder.setGridCenterThreeObj( shapeInfo.point );
+      gridBuilder.defineGridSizeAuto();
+    }
   });
 
 
@@ -79,9 +91,9 @@ function defineUiCallbacks(){
   */
   shapeController.setOpacityCallback(function(shapeNameOverall){
       console.log("The shape " + shapeNameOverall + " just changed its visibility status");
-      //gridBuilder.updateBoundingBox();
+      //gridBuilder.updateBoundingBoxVisible();
 
-      gridBuilder.updateBoundingBox();
+      gridBuilder.updateBoundingBoxVisible();
       gridBuilder.setGridCenterAuto();
       gridBuilder.defineGridSizeAuto();
   });

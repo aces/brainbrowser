@@ -34,7 +34,7 @@ GridBuilder.prototype.setOpacityThreshold = function(t){
 /*
   The bounding box takes under consideration the opacity of the shapes.
 */
-GridBuilder.prototype.updateBoundingBox = function(){
+GridBuilder.prototype.updateBoundingBoxVisible = function(){
   var that = this;
   var shapeCounter = 1; // the first is the grid
 
@@ -76,8 +76,51 @@ GridBuilder.prototype.updateBoundingBox = function(){
     });
   });
 
+  // add 10% to the box, so that shapes are not just at the border or it.
+  // (average over the 3 dim)
+  var size = new THREE.Vector3();
+  this.boundingBox.size( size );
+  this.boundingBox.expandByScalar( 0.1 * (size.x + size.y + size.z)/3 );
+
+}
 
 
+/*
+  Uses the center of a given shape as center of the grid.
+  Args:
+    shapeNameOverall: String - unique name identifier for a shape
+*/
+GridBuilder.prototype.setGridCenterShapeCenter = function(shapeNameOverall){
+  var that = this;
+  var shapeNotFound = true;
+
+  this.viewer.model_data.forEach(function(model_data, model_name){
+    model_data.shapes.forEach(function(logicShape){
+
+      if(logicShape.name == shapeNameOverall){
+        var shapeCenter = new THREE.Vector3(
+          (logicShape.bounding_box.min_x + logicShape.bounding_box.max_x) / 2,
+          (logicShape.bounding_box.min_y + logicShape.bounding_box.max_y) / 2,
+          (logicShape.bounding_box.min_z + logicShape.bounding_box.max_z) / 2
+        );
+
+        that.setGridCenterThreeObj(shapeCenter);
+        shapeNotFound = false;
+        return;
+      }
+    });
+
+    if(!shapeNotFound){
+      return;
+    }
+
+  });
+
+  // this should NOT happen, but just in case the naming is really messed up
+  // we use the auto center
+  if(shapeNotFound){
+    this.setGridCenterAuto();
+  }
 }
 
 
@@ -100,12 +143,23 @@ GridBuilder.prototype.setGridCenter = function(center){
 
 
 /*
+  defines the center of the grid.
+  Args:
+    center: THREE.Vector3 -- will be deep copied
+*/
+GridBuilder.prototype.setGridCenterThreeObj = function(center){
+  this.gridCenter.copy(center);
+}
+
+/*
   If the _this.boundingBox_ exists, takes the center of it,
   if it doesn't, just take (0, 0, 0).
 */
 GridBuilder.prototype.setGridCenterAuto = function(){
   if(this.boundingBox){
     this.gridCenter = this.boundingBox.center();
+    console.log("auto center is ");
+    console.log(this.gridCenter);
   }else{
     this.gridCenter.set(0, 0, 0);
   }
@@ -147,13 +201,6 @@ GridBuilder.prototype.defineGridSizeAuto = function(){
   var ySize = 2 * Math.max(this.boundingBox.max.y - this.gridCenter.y, this.gridCenter.y - this.boundingBox.min.y);
 
   var zSize = 2 * Math.max(this.boundingBox.max.z - this.gridCenter.z, this.gridCenter.z - this.boundingBox.min.z);
-
-
-  // TODO: maybe remove that, we may not use it
-  // computing planes dimensions.
-  var xyPlaneSize = new THREE.Vector3(xSize, ySize, 0);
-  var xzPlaneSize = new THREE.Vector3(xSize, 0, zSize);
-  var yzPlaneSize = new THREE.Vector3(0, ySize, zSize);
 
   // we will now using a mockup consisting in using planes instead of grids
   // because it's easier to build for testing
@@ -197,6 +244,8 @@ GridBuilder.prototype.defineGridSizeAuto = function(){
   //yzPlaneGeometry.rotateY(Math.PI / 2);
 
   // assembling the meshes
+  // names are given to each plane but we dont really need that.
+  // It comes pretty handy for debugging though
   var xyPlaneMesh = new THREE.Mesh( xyPlaneGeometry, xyBoxMaterial );
   xyPlaneMesh.name = "xyPlane";
   var xzPlaneMesh = new THREE.Mesh( xzPlaneGeometry, xzBoxMaterial );
@@ -213,5 +262,8 @@ GridBuilder.prototype.defineGridSizeAuto = function(){
 
   // translate the grid system so that it centers on the _this.gridCenter_
   this.gridSystem.position.copy(this.gridCenter);
+
+  // refresh
+  this.viewer.updated = true;
 
 }

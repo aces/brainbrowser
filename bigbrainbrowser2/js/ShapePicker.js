@@ -37,3 +37,15 @@ ShapePicker.prototype.shiftPick = function(callback){
     }
   });
 }
+
+
+/*
+  Perform a pick and call the callback only it the CTRL key was pressed.
+*/
+ShapePicker.prototype.ctrlPick = function(callback){
+  this.genericPick(function(event, shapeInfo){
+    if(event.ctrlKey){
+      callback(shapeInfo);
+    }
+  });
+}

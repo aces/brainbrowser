@@ -41,9 +41,13 @@ GridBuilder.prototype.updateBoundingBoxVisible = function(){
   // reinit the boundingBox
   this.boundingBox = null;
 
+      console.log(that.viewer.model);
+
   this.viewer.model_data.forEach(function(model_data, model_name){
 
     model_data.shapes.forEach(function(logicShape){
+
+
 
       // finding the equivalent graphic shape (THREE object)
       var graphicShape = that.viewer.model.children[shapeCounter];

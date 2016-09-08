@@ -209,6 +209,7 @@ ShapeController.prototype.appendFileShapesToTab = function(loadEvent){
 
     // update the model shape name to be unique
     // we are using +1 because the very first is the grid
+    console.log(that.viewer.model.children[that.shapeCounter+1]);
     that.viewer.model.children[that.shapeCounter+1].name = shapeNameOverall;
     shape.name = shapeNameOverall;
     //that.viewer.updateShapeName(shapeName, shapeNameOverall);
@@ -487,7 +488,7 @@ ShapeController.prototype.unloadAllShapes = function(){
   $("#loadedFilesTabs").children().not("#tabNames").remove();
 
   // clearing the shape indexer
-  this.shapeIndexer.clear();
+  this.shapeIndexer.clearIndex();
 
   // reseting the counters
   this.fileCounter = 0;

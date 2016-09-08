@@ -684,7 +684,6 @@ $(function() {
       });
 
       $("#focus-shape").click(function() {
-
         var name = searchshapes_value_long;
         var ct=1;
 
@@ -712,16 +711,11 @@ $(function() {
               grid_auto_toggle = "off";
             }
 
-            $( ".axes_class" ).remove();
-            $( ".axes_legend_class" ).remove();
-            $( ".grid_class" ).remove();
-            clearShape("axes");
             clearShape("grid");
-            window.axesbox = undefined;
             if (picked_coords !== undefined){
-              buildAxes( axes_length, picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+              buildGrid( picked_coords.x, picked_coords.y, picked_coords.z, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
             } else {
-              buildAxes( axes_length, 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
+              buildGrid( 0, 0, 0, toggle_grid_XY, toggle_grid_XZ, toggle_grid_YZ );
             }
           }
 
@@ -752,9 +746,7 @@ $(function() {
             if ((document.getElementById("grid_auto_toggle")) && ($("#grid_auto_toggle").html() === "Off")){
               grid_auto_toggle = "off";
             }
-
             clearShape("grid");
-            window.axesbox = undefined;
             user_defined_grid_partitions = "no";
             user_defined_grid_length     = "no";
             if (picked_coords !== undefined){

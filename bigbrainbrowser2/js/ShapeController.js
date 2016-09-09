@@ -1,5 +1,7 @@
-var ShapeController = function(BrainBrowserViewer){
 
+
+
+var ShapeController = function(BrainBrowserViewer){
 
   // preload some widgets
   $.hbsPreload("opacityWidget");
@@ -141,7 +143,7 @@ ShapeController.prototype.loadFile = function(loadEvent, filename){
 ShapeController.prototype.appendFileShapesToTab = function(loadEvent){
   var that = this;
 
-
+console.log(that.viewer.model.children);
 
   // for each shape of this model
   loadEvent.model_data.shapes.forEach(function(shape, index){
@@ -209,8 +211,9 @@ ShapeController.prototype.appendFileShapesToTab = function(loadEvent){
 
     // update the model shape name to be unique
     // we are using +1 because the very first is the grid
-    console.log(that.viewer.model.children[that.shapeCounter+1]);
-    that.viewer.model.children[that.shapeCounter+1].name = shapeNameOverall;
+
+    //that.viewer.model.children[that.shapeCounter+1].name = shapeNameOverall;
+    that.viewer.model.children[that.shapeCounter].name = shapeNameOverall;
     shape.name = shapeNameOverall;
     //that.viewer.updateShapeName(shapeName, shapeNameOverall);
     //that.viewer.model.children[that.shapeCounter].overallIndex = that.shapeCounter;

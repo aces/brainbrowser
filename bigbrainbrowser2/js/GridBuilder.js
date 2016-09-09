@@ -17,7 +17,7 @@ var GridBuilder = function(BrainBrowserViewer){
   // will contain the grid but also the mockup (rectangles)
   this.gridSystem = new THREE.Object3D();
   this.gridSystem.name = "grid";
-  this.viewer.model.add(this.gridSystem);
+  this.viewer.model.parent.add(this.gridSystem);
 }
 
 
@@ -36,7 +36,7 @@ GridBuilder.prototype.setOpacityThreshold = function(t){
 */
 GridBuilder.prototype.updateBoundingBoxVisible = function(){
   var that = this;
-  var shapeCounter = 1; // the first is the grid
+  var shapeCounter = 0; // the first is the grid
 
   // reinit the boundingBox
   this.boundingBox = null;

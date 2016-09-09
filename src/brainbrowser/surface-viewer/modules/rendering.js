@@ -40,7 +40,31 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   var scene = new THREE.Scene();
   var camera = new THREE.PerspectiveCamera(30, viewer.dom_element.offsetWidth / viewer.dom_element.offsetHeight, 1, 3000);
   var default_camera_distance = 500;
-  var light = new THREE.PointLight(0xFFFFFF);
+
+  var lightSystem = new THREE.Object3D();
+
+  var intensity = 0.9;
+  var lightCam = new THREE.PointLight(0xFF0000, intensity);
+  var lightCamOp = new THREE.PointLight(0x0000FF, intensity);
+  var lightLeft = new THREE.PointLight(0xFFFFFF, intensity/4);
+  var lightRight = new THREE.PointLight(0xFFFFFF, intensity/4);
+  var lightTop = new THREE.PointLight(0xFFFFFF, intensity/8);
+  var lightBottom = new THREE.PointLight(0xFFFFFF, intensity/8);
+
+
+
+  //var ambientLight = new THREE.AmbientLight( 0x222222 ); // soft white light
+  lightSystem.add(lightCam);
+  lightSystem.add(lightCamOp);
+  /*lightSystem.add(lightLeft);
+  lightSystem.add(lightRight);
+  lightSystem.add(lightTop);
+  lightSystem.add(lightBottom);*/
+  lightSystem.position.set(0, 0, 0);
+  lightSystem.name = "lightSystem";
+
+
+
   var current_frame;
   var last_frame;
   var effect = renderer;
@@ -68,8 +92,18 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     camera.position.z = default_camera_distance;
 
-    light.position.set(0, 0, default_camera_distance);
-    scene.add(light);
+
+    // light positioning
+    lightCam.position.set(0, 0, -default_camera_distance);
+    lightCamOp.position.set(0, 0, default_camera_distance);
+    lightLeft.position.set(-default_camera_distance, 0, 0);
+    lightRight.position.set(default_camera_distance, 0, 0);
+    lightTop.position.set(0, default_camera_distance, 0);
+    lightBottom.position.set(0, -default_camera_distance, 0);
+
+    scene.add(lightSystem);
+
+    //scene.add( ambientLight );
 
     viewer.updateViewport();
 
@@ -163,7 +197,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   */
   viewer.setCameraPosition = function(x, y, z) {
     camera.position.set(x, y, z);
-    light.position.set(x, y, z);
+    //light.position.set(x, y, z);
+
 
     viewer.updated = true;
   };
@@ -197,10 +232,12 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     model.applyMatrix(inv);
     camera.position.set(0, 0, default_camera_distance);
-    light.position.set(0, 0, default_camera_distance);
+    //light.position.set(0, 0, default_camera_distance);
+    lightSystem.position.set(0, 0, 0);
 
     var offset = model.userData.model_center_offset || new THREE.Vector3(0,0,0);
     model.children.forEach(function(shape) {
+
       var centroid   = shape.userData.centroid;
       var recentered = shape.userData.recentered;
 
@@ -988,7 +1025,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     if (viewer.updated) {
       if (new_z > camera.near && new_z < 0.9 * camera.far) {
         position.z = new_z;
-        light.position.z = new_z;
+        //light.position.z = new_z;
+        //lightSystem.position.z = new_z + default_camera_distance;
       }
       effect.render(scene, camera);
       viewer.triggerEvent("draw", {
@@ -1006,17 +1044,19 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
   (function() {
     var model = viewer.model;
+    var scene = model.parent;
+
     var movement = "rotate";
     var last_x = null;
     var last_y = null;
     var last_touch_distance = null;
 
     function drag(pointer, multiplier) {
+
       var inverse = new THREE.Matrix4();
       var x       = pointer.x;
       var y       = pointer.y;
       var dx, dy;
-
 
       if (last_x !== null) {
         dx = x - last_x;
@@ -1025,29 +1065,40 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
         if (movement === "rotate") {
 
           // Want to always be rotating around world axes.
-          inverse.getInverse(model.matrix);
+          inverse.getInverse(scene.matrix);
           var axis = new THREE.Vector3(1, 0, 0).applyMatrix4(inverse).normalize();
-          model.rotateOnAxis(axis, dy / 150);
+          scene.rotateOnAxis(axis, dy / 150);
 
-          inverse.getInverse(model.matrix);
+
+
+          inverse.getInverse(scene.matrix);
           axis = new THREE.Vector3(0, 1, 0).applyMatrix4(inverse).normalize();
-          model.rotateOnAxis(axis, dx / 150);
+          scene.rotateOnAxis(axis, dx / 150);
+
 
           if (viewer.model_data.related_models !== undefined ) {
             viewer.model_data.related_models.forEach(function(child){
-              child.rotation.x = model.rotation.x;
-              child.rotation.y = model.rotation.y;
-              child.rotation.z = model.rotation.z;
+              child.rotation.x = scene.rotation.x;
+              child.rotation.y = scene.rotation.y;
+              child.rotation.z = scene.rotation.z;
             });
           }
+
         } else {
+
           multiplier  = multiplier || 1.0;
           multiplier *= camera.position.z / default_camera_distance;
 
           camera.position.x -= dx * multiplier * 0.25;
-          light.position.x  -= dx * multiplier * 0.25;
           camera.position.y += dy * multiplier * 0.25;
-          light.position.y  += dy * multiplier * 0.25;
+
+          //light.position.x  -= dx * multiplier * 0.25;
+          //light.position.y  += dy * multiplier * 0.25;
+
+          //lightSystem.position.x  -= dx * multiplier * 0.25;
+          //lightSystem.position.y  += dy * multiplier * 0.25;
+
+
         }
       }
 

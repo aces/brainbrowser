@@ -37,9 +37,11 @@ $(function() {
 
     // when a model is loaded...
     viewer.addEventListener("displaymodel", function(event) {
+
       console.log(viewer.model);
 
       var filename = document.getElementById("modelOpener").value;
+      filename = filename.replace(/^.*\\/, ""); // replace everything before the last \ to prevent fakepath
 
       // add all the opacity sliders for this fils/model
       // (possible a large number of shapes)

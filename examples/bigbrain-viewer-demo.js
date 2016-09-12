@@ -275,7 +275,7 @@ $(function() {
 
             if ($(this).html() === "On"){
               slider_backup[shape.name + "-" + j] = $(".opacity-slider[data-shape-name='" + shape.name + "-" + j + "']").slider("value");
-              viewer.setTransparency(0, {shape_name: shape.name + "-" + j});
+              viewer.setTransparency(0, {shape_name: shape.name});
               $(this).html("Off");
               document.getElementById("individualtoggleopacity-" + j).style.backgroundColor = "red";
               document.getElementById("opacity-slider-" + j).style.visibility = "hidden";
@@ -302,8 +302,8 @@ $(function() {
                 opacity_grid_toggle = "off";
               }
             } else {
-              var alpha = slider_backup[shape.name + "-" + j] / 100;
-              viewer.setTransparency(alpha, {shape_name: shape.name + "-" + j});
+              var alpha = slider_backup[shape.name] / 100;
+              viewer.setTransparency(alpha, {shape_name: shape.name});
               $(".opacity-slider[data-shape-name='" + shape.name + "-" + j + "']").slider("value", slider_backup[shape.name + "-" + j]);
               $(this).html("On");
               document.getElementById("individualtoggleopacity-" + j).style.backgroundColor = "green";

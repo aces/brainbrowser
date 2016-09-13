@@ -10,12 +10,16 @@ var shapeIndexer = new ShapeIndexer();
 
 var gridBuilder = null;
 
+var bbViewer = null;
+
 
 $(function() {
   // init hbs and preload templates
   init();
 
   window.viewer = BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
+    bbViewer = viewer;
+
     // render, no matter we load files or not
     viewer.render();
 
@@ -35,10 +39,10 @@ $(function() {
     // init all the callbacks related to ui
     defineUiCallbacks();
 
+
+
     // when a model is loaded...
     viewer.addEventListener("displaymodel", function(event) {
-
-      console.log(viewer.model);
 
       var filename = document.getElementById("modelOpener").value;
       filename = filename.replace(/^.*\\/, ""); // replace everything before the last \ to prevent fakepath
@@ -76,7 +80,6 @@ function defineUiCallbacks(){
     Callback: when ctrl+click is performed on a shape
   */
   shapePicker.ctrlPick(function(shapeInfo){
-    console.log(shapeInfo);
 
     if(gridBuilder){
 
@@ -102,6 +105,10 @@ function defineUiCallbacks(){
 
 
 
+  // to slide the left pannel
+  $("#resetview").click(function(){
+    bbViewer.resetView2();
+  });
 
 
 

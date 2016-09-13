@@ -27,6 +27,43 @@
 * Author: Natacha Beck <natabeck@gmail.com>
 */
 
+
+/*
+
+  A quick overview of how the elements are arranged within the scene:
+
+                   +-------+
+        +----------+ scene +-----------+
+        |          +-------+           |
+        |                              |
+        |                              |
+        |                              |
+        |                              |
+        |                              |
++-------+-------+             +--------+---------+
+|  lightSystem  |             |  graphicObjects  +------------+
++---------------+             +-+-----------+----+            |
+                                |            |                |
+                                |            |                |
+                                |            |                |
+                                |            |                |
+                                |            |                |
+                           +----+-+      +---+---+        +---+---+
+                           | axis |      |  grid |        | model |
+                           +------+      +-------+        +-+-----+
+                                                            |
+                                                        +---+----+
+                                                        | mesh01 |
+                                                        | mesh02 |
+                                                        | mesh03 |
+                                                        | ...    |
+                                                        +--------+
+
+  When dragging, graphicObjects is spinning around its center so that the shapes
+  (aka. model), the grid and the axis are turning all together.
+
+*/
+
 BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   "use strict";
 
@@ -41,28 +78,31 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   var camera = new THREE.PerspectiveCamera(30, viewer.dom_element.offsetWidth / viewer.dom_element.offsetHeight, 1, 3000);
   var default_camera_distance = 500;
 
-  var lightSystem = new THREE.Object3D();
+  viewer.camera = camera;
 
-  var intensity = 0.9;
-  var lightCam = new THREE.PointLight(0xFF0000, intensity);
-  var lightCamOp = new THREE.PointLight(0x0000FF, intensity);
-  var lightLeft = new THREE.PointLight(0xFFFFFF, intensity/4);
-  var lightRight = new THREE.PointLight(0xFFFFFF, intensity/4);
-  var lightTop = new THREE.PointLight(0xFFFFFF, intensity/8);
-  var lightBottom = new THREE.PointLight(0xFFFFFF, intensity/8);
 
+  viewer.lightSystem = new THREE.Object3D();
+
+  var intensity = 1;
+  var light1 = new THREE.PointLight(0xFFFFFF, intensity);
+  var light2 = new THREE.PointLight(0x0000FF, intensity);
+  var light3 = new THREE.PointLight(0xFFFFFF, intensity);
+  var light4 = new THREE.PointLight(0xFF00FF, intensity);
+  var light5 = new THREE.PointLight(0xFFFFFF, intensity/8);
+  var light6 = new THREE.PointLight(0xFFFFFF, intensity/8);
 
 
   //var ambientLight = new THREE.AmbientLight( 0x222222 ); // soft white light
-  lightSystem.add(lightCam);
-  lightSystem.add(lightCamOp);
-  /*lightSystem.add(lightLeft);
-  lightSystem.add(lightRight);
-  lightSystem.add(lightTop);
-  lightSystem.add(lightBottom);*/
-  lightSystem.position.set(0, 0, 0);
-  lightSystem.name = "lightSystem";
+  viewer.lightSystem.add(light1);
+  //viewer.lightSystem.add(light2);
+  //viewer.lightSystem.add(light3);
+  //viewer.lightSystem.add(light4);
+  /*viewer.lightSystem.add(light5);
+  viewer.lightSystem.add(light6);*/
 
+
+  viewer.lightSystem.position.set(0, 0, 0);
+  viewer.lightSystem.name = "lightSystem";
 
 
   var current_frame;
@@ -73,8 +113,14 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   var old_zoom_level;
 
   viewer.model = new THREE.Object3D();
+  viewer.graphicObjects = new THREE.Object3D();
 
-  scene.add(viewer.model);
+  scene.add(viewer.graphicObjects);
+  viewer.graphicObjects.add(viewer.model);
+
+  // TODO: to set later
+  viewer.gridSystem = null;
+
 
   /**
   * @doc function
@@ -94,14 +140,14 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
 
     // light positioning
-    lightCam.position.set(0, 0, -default_camera_distance);
-    lightCamOp.position.set(0, 0, default_camera_distance);
-    lightLeft.position.set(-default_camera_distance, 0, 0);
-    lightRight.position.set(default_camera_distance, 0, 0);
-    lightTop.position.set(0, default_camera_distance, 0);
-    lightBottom.position.set(0, -default_camera_distance, 0);
+    light1.position.set(default_camera_distance/8, default_camera_distance/4, default_camera_distance);
+    light2.position.set(-default_camera_distance, 0, default_camera_distance);
+    light3.position.set(default_camera_distance, default_camera_distance, default_camera_distance);
+    light4.position.set(default_camera_distance, -default_camera_distance, default_camera_distance);
+    //light5.position.set(0, default_camera_distance, 0);
+    //light6.position.set(0, -default_camera_distance, 0);
 
-    scene.add(lightSystem);
+    scene.add(viewer.lightSystem);
 
     //scene.add( ambientLight );
 
@@ -233,7 +279,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     model.applyMatrix(inv);
     camera.position.set(0, 0, default_camera_distance);
     //light.position.set(0, 0, default_camera_distance);
-    lightSystem.position.set(0, 0, 0);
+    viewer.lightSystem.position.set(0, 0, 0);
 
     var offset = model.userData.model_center_offset || new THREE.Vector3(0,0,0);
     model.children.forEach(function(shape) {
@@ -268,6 +314,18 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     viewer.updated = true;
   };
+
+
+  /*
+    Added by jo
+  */
+  viewer.resetView2 = function() {
+    viewer.graphicObjects.rotation.set(0, 0, 0);
+    camera.position.set(0, 0, default_camera_distance);
+    viewer.lightSystem.position.set(0, 0, 0);
+    viewer.zoom = 1;
+    viewer.updated = true;
+  }
 
   /**
   * @doc function
@@ -861,6 +919,134 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   };
 
 
+  /*
+    Added by jo.
+
+    The offset is computed based on the model, and then the same offset is
+    applied to all the children of graphicObjects.
+
+    Args:
+      center: THREE.Vector3 - center relative to inside graphicObject
+  */
+  viewer.changeCenterRotation2 = function(center) {
+    var scene = viewer.graphicObjects.parent;
+
+
+    var centerInWorld = new THREE.Vector3().copy(center);
+    viewer.model.localToWorld(centerInWorld);
+
+
+
+
+
+    var offset = new THREE.Vector3()
+      .copy(viewer.model.position)
+      .sub(center);
+
+
+
+
+
+
+      /*
+    console.log("center (relative):");
+    console.log(center);
+    console.log('centerInWorld (new):');
+    console.log(centerInWorld);
+    console.log("model pos (old):");
+    console.log(viewer.model.position);
+    console.log("offset old-->new:");
+    console.log(offset);
+*/
+    //viewer.graphicObjects.position.sub(offset);
+    //viewer.graphicObjects.children.forEach(function(elem){
+    //  elem.position.sub(centerInWorld);
+    //});
+
+    console.log("REQUIRED (this position should switch to (0, 0, 0) )");
+    console.log(center);
+
+
+    console.log("OFFSET");
+    console.log(offset);
+
+    console.log("pos BEFORE");
+    console.log(viewer.model.position);
+
+    //scene.position.sub(centerInWorld);
+
+    //viewer.graphicObjects.children.forEach(function(elem){
+    //  elem.position.sub(center);
+    //});
+
+    //viewer.graphicObjects.position.set(-1.69, -74, -8);
+  //  viewer.graphicObjects.position.set(29.229369521141052, -74.21904736757278, -9.435798645019531);
+    //viewer.model.position.set(29.229369521141052, -74.21904736757278, -9.435798645019531);
+
+    //viewer.model.position.sub(centerInWorld);
+    //console.log(viewer.gridSystem.position);
+    //viewer.gridSystem.position.sub(center);
+    //console.log(viewer.gridSystem.position);
+
+
+
+    viewer.model.position.sub(center);
+
+
+        console.log("pos AFTER");
+        console.log(viewer.model.position);
+
+
+    viewer.updated = true;
+
+
+
+
+
+
+
+
+
+
+
+    viewer.model_data.forEach(function(model_data, model_name){
+      model_data.shapes.forEach(function(logicShape){
+
+        logicShape.bounding_box.min_x -= center.x;
+        logicShape.bounding_box.min_y -= center.y;
+        logicShape.bounding_box.min_z -= center.z;
+
+        logicShape.bounding_box.max_x -= center.x;
+        logicShape.bounding_box.max_y -= center.y;
+        logicShape.bounding_box.max_z -= center.z;
+
+      });
+
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    console.log("----------------------------");
+  }
+
+
   /**
   * @doc function
   * @name viewer.rendering:modelCentric
@@ -957,7 +1143,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
 
   // added by JO
-  // TODO: sometimes, a shape has no name, so it can not search for it to rename it
+  // TODO: sometimes, a shape has no name, so it can not search for it to rename it.
+  // We should be doing this step in loading.
   /*
     Rename a shape (children of model) after having checked
     the name is not already taken.
@@ -1044,7 +1231,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
   (function() {
     var model = viewer.model;
-    var scene = model.parent;
+    var graphicObjects = viewer.graphicObjects
+    var scene = model.parent.parent;
 
     var movement = "rotate";
     var last_x = null;
@@ -1052,7 +1240,6 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var last_touch_distance = null;
 
     function drag(pointer, multiplier) {
-
       var inverse = new THREE.Matrix4();
       var x       = pointer.x;
       var y       = pointer.y;
@@ -1064,12 +1251,30 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
         if (movement === "rotate") {
 
+          /*
           // Want to always be rotating around world axes.
+          inverse.getInverse(graphicObjects.matrix);
+          var axis = new THREE.Vector3(1, 0, 0).applyMatrix4(inverse).normalize();
+          graphicObjects.rotateOnAxis(axis, dy / 150);
+
+          inverse.getInverse(graphicObjects.matrix);
+          axis = new THREE.Vector3(0, 1, 0).applyMatrix4(inverse).normalize();
+          graphicObjects.rotateOnAxis(axis, dx / 150);
+
+
+          if (viewer.model_data.related_models !== undefined ) {
+            viewer.model_data.related_models.forEach(function(child){
+              child.rotation.x = graphicObjects.rotation.x;
+              child.rotation.y = graphicObjects.rotation.y;
+              child.rotation.z = graphicObjects.rotation.z;
+            });
+          }
+          */
+
+          /*
           inverse.getInverse(scene.matrix);
           var axis = new THREE.Vector3(1, 0, 0).applyMatrix4(inverse).normalize();
           scene.rotateOnAxis(axis, dy / 150);
-
-
 
           inverse.getInverse(scene.matrix);
           axis = new THREE.Vector3(0, 1, 0).applyMatrix4(inverse).normalize();
@@ -1083,6 +1288,10 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
               child.rotation.z = scene.rotation.z;
             });
           }
+          */
+
+          graphicObjects.rotation.x += dy/200;
+          graphicObjects.rotation.y += dx/200;
 
         } else {
 

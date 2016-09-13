@@ -17,7 +17,8 @@ var GridBuilder = function(BrainBrowserViewer){
   // will contain the grid but also the mockup (rectangles)
   this.gridSystem = new THREE.Object3D();
   this.gridSystem.name = "grid";
-  this.viewer.model.parent.add(this.gridSystem);
+  this.viewer.graphicObjects.add(this.gridSystem); // adding to parent = adding to the scene
+  this.viewer.gridSystem = this.gridSystem;
 }
 
 
@@ -38,10 +39,10 @@ GridBuilder.prototype.updateBoundingBoxVisible = function(){
   var that = this;
   var shapeCounter = 0; // the first is the grid
 
+  this.gridSystem.visible = true;
+
   // reinit the boundingBox
   this.boundingBox = null;
-
-      console.log(that.viewer.model);
 
   this.viewer.model_data.forEach(function(model_data, model_name){
 
@@ -153,6 +154,7 @@ GridBuilder.prototype.setGridCenter = function(center){
 */
 GridBuilder.prototype.setGridCenterThreeObj = function(center){
   this.gridCenter.copy(center);
+  this.viewer.changeCenterRotation2(center);
 }
 
 /*
@@ -162,8 +164,6 @@ GridBuilder.prototype.setGridCenterThreeObj = function(center){
 GridBuilder.prototype.setGridCenterAuto = function(){
   if(this.boundingBox){
     this.gridCenter = this.boundingBox.center();
-    console.log("auto center is ");
-    console.log(this.gridCenter);
   }else{
     this.gridCenter.set(0, 0, 0);
   }

@@ -143,8 +143,6 @@ ShapeController.prototype.loadFile = function(loadEvent, filename){
 ShapeController.prototype.appendFileShapesToTab = function(loadEvent){
   var that = this;
 
-console.log(that.viewer.model.children);
-
   // for each shape of this model
   loadEvent.model_data.shapes.forEach(function(shape, index){
 
@@ -367,7 +365,6 @@ ShapeController.prototype.appendFileShapesToTab2 = function(loadEvent){
   Update the
 */
 ShapeController.prototype.updateSearchFieldIndex = function(){
-  console.log(this.shapeIndexer.getKeys());
   $('#shapeSearchField').autocomplete("option", { source: this.shapeIndexer.getKeys() });
 }
 

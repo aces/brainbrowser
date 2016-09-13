@@ -51,9 +51,12 @@ $(function() {
       // (possible a large number of shapes)
       shapeController.loadFile(event, filename);
 
+      // TODO: put that in core
+      viewer.centerBox();
+
       gridBuilder.updateBoundingBoxVisible();
-      gridBuilder.setGridCenterAuto();
       gridBuilder.defineGridSizeAuto();
+
     });
 
   });
@@ -98,10 +101,8 @@ function defineUiCallbacks(){
   */
   shapeController.setOpacityCallback(function(shapeNameOverall){
       console.log("The shape " + shapeNameOverall + " just changed its visibility status");
-      //gridBuilder.updateBoundingBoxVisible();
 
       gridBuilder.updateBoundingBoxVisible();
-      gridBuilder.setGridCenterAuto();
       gridBuilder.defineGridSizeAuto();
   });
 
@@ -109,6 +110,26 @@ function defineUiCallbacks(){
 
   // to slide the left pannel
   $("#resetview").click(function(){
+
+    shapeController.allSlidersToMax();
+
+    //var center = gridBuilder.getBoundingBoxCenter();
+    //bbViewer.changeCenterRotation2(center);
+    bbViewer.centerBox();
+    gridBuilder.updateBoundingBoxVisible();
+
+    //gridBuilder.setGridCenterAuto();
+    gridBuilder.defineGridSizeAuto();
+
+
+
+
+
+
+
+    gridBuilder.updateBoundingBoxVisible();
+    gridBuilder.defineGridSizeAuto();
+
     bbViewer.resetView2();
   });
 
@@ -116,7 +137,8 @@ function defineUiCallbacks(){
 
   // to slide the left pannel
   $("#testButton1").click(function(){
-
+    console.log("THIS IS THE TEST BUTTON");
+    shapeController.allSlidersToMax();
   });
 
 }

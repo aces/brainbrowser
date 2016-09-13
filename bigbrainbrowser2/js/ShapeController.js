@@ -498,3 +498,22 @@ ShapeController.prototype.unloadAllShapes = function(){
   this.viewer.clearScreen();
 
 }
+
+
+/*
+  make all the shapes visible
+*/
+ShapeController.prototype.allSlidersToMax = function(){
+  for(shapeIndex = 0; shapeIndex < this.shapeCounter; shapeIndex++){
+    //$("#shape_" + shapeIndex).find(".slider").val(0.5);
+    var slider = $("#shape_" + shapeIndex).find(".slider");
+    $(slider).val(1);
+    $(slider).trigger("change");
+
+    var toggleShapeBt = $("#shape_" + shapeIndex).find(".toggleShape");
+    if( $(toggleShapeBt).attr("visible") == "0" ){
+      $(toggleShapeBt).trigger("click");
+    }
+
+  }
+}

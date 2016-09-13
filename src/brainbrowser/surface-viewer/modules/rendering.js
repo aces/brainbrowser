@@ -933,31 +933,12 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   */
   viewer.changeCenterRotation2 = function(center) {
     var scene = viewer.graphicObjects.parent;
-
-
-    console.log('viewer.gridSystem.position');
-    console.log(viewer.gridSystem.position);
-
-    console.log('viewer.model.position BEFORE');
-    console.log(viewer.model.position);
-
     viewer.model.position.sub(center);
-    //viewer.gridSystem.position.set(0, 0, 0);
-
-
-
     viewer.updated = true;
-
-
-    console.log('viewer.model.position AFTER');
-    console.log(viewer.model.position);
-
 
     // updating the logic shapes with their new coodinates / box
     viewer.model_data.forEach(function(model_data, model_name){
       model_data.shapes.forEach(function(logicShape){
-
-        console.log(logicShape);
 
         logicShape.bounding_box.min_x -= center.x;
         logicShape.bounding_box.min_y -= center.y;
@@ -972,13 +953,45 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
         logicShape.centroid.z -= center.z;
 
       });
-
     });
 
+  }
 
 
 
-    console.log("----------------------------");
+  /*
+    Added by Jo.
+
+    Centers the global shapes based on their boxes
+  */
+  viewer.centerBox = function(){
+    var globalBox = new THREE.Box3();
+
+    // finding the global box
+    viewer.model_data.forEach(function(model_data, model_name){
+      model_data.shapes.forEach(function(logicShape){
+
+        var min = new THREE.Vector3(
+            logicShape.bounding_box.min_x,
+            logicShape.bounding_box.min_y,
+            logicShape.bounding_box.min_z
+          );
+
+        var max = new THREE.Vector3(
+            logicShape.bounding_box.max_x,
+            logicShape.bounding_box.max_y,
+            logicShape.bounding_box.max_z
+          );
+
+        globalBox.expandByPoint(min);
+        globalBox.expandByPoint(max);
+
+      });
+    });
+
+    // Shift the center
+    viewer.changeCenterRotation2( globalBox.center() );
+
   }
 
 

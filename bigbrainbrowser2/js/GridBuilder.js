@@ -157,7 +157,7 @@ GridBuilder.prototype.setGridCenterThreeObj = function(center){
   //this.gridCenter.copy(center);
   // when a shape is picked, it's moved to (0, 0, 0), we move the grid accordingly
   this.gridCenter.set(0, 0, 0);
-  
+
   this.viewer.changeCenterRotation2(center);
 }
 
@@ -274,4 +274,9 @@ GridBuilder.prototype.defineGridSizeAuto = function(){
   // refresh
   this.viewer.updated = true;
 
+}
+
+
+GridBuilder.prototype.getBoundingBoxCenter = function(){
+  return this.boundingBox.center();
 }

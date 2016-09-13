@@ -122,6 +122,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   viewer.gridSystem = null;
 
 
+  var axisHelper = new THREE.AxisHelper( 20 );
+  scene.add( axisHelper );
+
   /**
   * @doc function
   * @name viewer.rendering:render
@@ -932,85 +935,29 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var scene = viewer.graphicObjects.parent;
 
 
-    var centerInWorld = new THREE.Vector3().copy(center);
-    viewer.model.localToWorld(centerInWorld);
+    console.log('viewer.gridSystem.position');
+    console.log(viewer.gridSystem.position);
 
-
-
-
-
-    var offset = new THREE.Vector3()
-      .copy(viewer.model.position)
-      .sub(center);
-
-
-
-
-
-
-      /*
-    console.log("center (relative):");
-    console.log(center);
-    console.log('centerInWorld (new):');
-    console.log(centerInWorld);
-    console.log("model pos (old):");
+    console.log('viewer.model.position BEFORE');
     console.log(viewer.model.position);
-    console.log("offset old-->new:");
-    console.log(offset);
-*/
-    //viewer.graphicObjects.position.sub(offset);
-    //viewer.graphicObjects.children.forEach(function(elem){
-    //  elem.position.sub(centerInWorld);
-    //});
-
-    console.log("REQUIRED (this position should switch to (0, 0, 0) )");
-    console.log(center);
-
-
-    console.log("OFFSET");
-    console.log(offset);
-
-    console.log("pos BEFORE");
-    console.log(viewer.model.position);
-
-    //scene.position.sub(centerInWorld);
-
-    //viewer.graphicObjects.children.forEach(function(elem){
-    //  elem.position.sub(center);
-    //});
-
-    //viewer.graphicObjects.position.set(-1.69, -74, -8);
-  //  viewer.graphicObjects.position.set(29.229369521141052, -74.21904736757278, -9.435798645019531);
-    //viewer.model.position.set(29.229369521141052, -74.21904736757278, -9.435798645019531);
-
-    //viewer.model.position.sub(centerInWorld);
-    //console.log(viewer.gridSystem.position);
-    //viewer.gridSystem.position.sub(center);
-    //console.log(viewer.gridSystem.position);
-
-
 
     viewer.model.position.sub(center);
+    //viewer.gridSystem.position.set(0, 0, 0);
 
-
-        console.log("pos AFTER");
-        console.log(viewer.model.position);
 
 
     viewer.updated = true;
 
 
+    console.log('viewer.model.position AFTER');
+    console.log(viewer.model.position);
 
 
-
-
-
-
-
-
-
+    // updating the logic shapes with their new coodinates / box
     viewer.model_data.forEach(function(model_data, model_name){
       model_data.shapes.forEach(function(logicShape){
+
+        console.log(logicShape);
 
         logicShape.bounding_box.min_x -= center.x;
         logicShape.bounding_box.min_y -= center.y;
@@ -1020,25 +967,13 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
         logicShape.bounding_box.max_y -= center.y;
         logicShape.bounding_box.max_z -= center.z;
 
+        logicShape.centroid.x -= center.x;
+        logicShape.centroid.y -= center.y;
+        logicShape.centroid.z -= center.z;
+
       });
 
     });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

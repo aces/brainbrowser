@@ -82,11 +82,13 @@ function defineUiCallbacks(){
   shapePicker.ctrlPick(function(shapeInfo){
 
     if(gridBuilder){
-
-      //gridBuilder.updateBoundingBoxVisible();
       gridBuilder.setGridCenterShapeCenter(shapeInfo.object.name);
-      //gridBuilder.setGridCenterThreeObj( shapeInfo.point );
+      gridBuilder.updateBoundingBoxVisible();
       gridBuilder.defineGridSizeAuto();
+
+
+      //gridBuilder.setGridCenterThreeObj( shapeInfo.point );
+
     }
   });
 

@@ -104,13 +104,14 @@ GridBuilder.prototype.setGridCenterShapeCenter = function(shapeNameOverall){
 
       if(logicShape.name == shapeNameOverall){
         var shapeCenter = new THREE.Vector3(
-          (logicShape.bounding_box.min_x + logicShape.bounding_box.max_x) / 2,
-          (logicShape.bounding_box.min_y + logicShape.bounding_box.max_y) / 2,
-          (logicShape.bounding_box.min_z + logicShape.bounding_box.max_z) / 2
+          logicShape.centroid.x,
+          logicShape.centroid.y,
+          logicShape.centroid.z
         );
 
         that.setGridCenterThreeObj(shapeCenter);
         shapeNotFound = false;
+        //that.updateBoundingBoxVisible();
         return;
       }
     });
@@ -153,7 +154,10 @@ GridBuilder.prototype.setGridCenter = function(center){
     center: THREE.Vector3 -- will be deep copied
 */
 GridBuilder.prototype.setGridCenterThreeObj = function(center){
-  this.gridCenter.copy(center);
+  //this.gridCenter.copy(center);
+  // when a shape is picked, it's moved to (0, 0, 0), we move the grid accordingly
+  this.gridCenter.set(0, 0, 0);
+  
   this.viewer.changeCenterRotation2(center);
 }
 

@@ -1147,15 +1147,6 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   };
 
 
-  // TODO: check if used, then remove
-  // added by JO
-  viewer.updateBoundingBoxes = function(){
-    viewer.model.children.forEach(function(shape){
-      shape.geometry.computeBoundingBox();
-    });
-  }
-
-
   // added by JO
   // TODO: sometimes, a shape has no name, so it can not search for it to rename it.
   // We should be doing this step in loading.

@@ -1,7 +1,7 @@
 /*
-  GridBuilder builds grids that fits the size of the displayed shapes.
+  GridManager builds grids that fits the size of the displayed shapes.
 */
-var GridBuilder = function(BrainBrowserViewer){
+var GridManager = function(BrainBrowserViewer){
   // to access shapes and all
   this.viewer = BrainBrowserViewer;
 
@@ -27,7 +27,7 @@ var GridBuilder = function(BrainBrowserViewer){
   below this threshold, a shape is too transparent to be considered
   when adjusting the bounding box.
 */
-GridBuilder.prototype.setOpacityThreshold = function(t){
+GridManager.prototype.setOpacityThreshold = function(t){
   this.opacityThreshold = t;
 }
 
@@ -35,7 +35,7 @@ GridBuilder.prototype.setOpacityThreshold = function(t){
 /*
   The bounding box takes under consideration the opacity of the shapes.
 */
-GridBuilder.prototype.updateBoundingBoxVisible = function(){
+GridManager.prototype.updateBoundingBoxVisible = function(){
 
   var that = this;
   var shapeCounter = 0; // the first is the grid
@@ -95,7 +95,7 @@ GridBuilder.prototype.updateBoundingBoxVisible = function(){
   Args:
     shapeNameOverall: String - unique name identifier for a shape
 */
-GridBuilder.prototype.centerShape = function(shapeNameOverall){
+GridManager.prototype.centerShape = function(shapeNameOverall){
   var that = this;
   var shapeNotFound = true;
 
@@ -127,7 +127,7 @@ GridBuilder.prototype.centerShape = function(shapeNameOverall){
 /*
   Return the bounding box. Possibly null.
 */
-GridBuilder.prototype.getBoundingBox = function(){
+GridManager.prototype.getBoundingBox = function(){
   return this.boundingBox;
 }
 
@@ -137,7 +137,7 @@ GridBuilder.prototype.getBoundingBox = function(){
   Args:
     center: THREE.Vector3 -- will be deep copied
 */
-GridBuilder.prototype.centerOnPoint = function(newCenter){
+GridManager.prototype.centerOnPoint = function(newCenter){
   this.viewer.changeCenterRotation2(newCenter);
 }
 
@@ -150,16 +150,16 @@ GridBuilder.prototype.centerOnPoint = function(newCenter){
   In addition, the center has to be within the bounding box, which is not
   supposed to be an issue since it's most likely a hit point.
 */
-GridBuilder.prototype.defineGridSizeAuto = function(){
+GridManager.prototype.defineGridSizeAuto = function(){
   // we need a boundingbox for auto define
   if(!this.boundingBox){
-    console.warn("GridBuilder.defineGridSizeAuto, the bounding box is undefined.");
+    console.warn("GridManager.defineGridSizeAuto, the bounding box is undefined.");
     return;
   }
 
   // center must be inside the bbox
   if(!this.boundingBox.containsPoint(this.gridCenter)){
-    console.warn("GridBuilder.defineGridSizeAuto, the predefined center is out of the bounding box.");
+    console.warn("GridManager.defineGridSizeAuto, the predefined center is out of the bounding box.");
     return;
   }
 
@@ -251,13 +251,24 @@ GridBuilder.prototype.defineGridSizeAuto = function(){
   by defineGridSizeAuto)
 
 */
-GridBuilder.prototype.updateGrid = function(){
+GridManager.prototype.updateGrid = function(){
   this.updateBoundingBoxVisible();
   this.defineGridSizeAuto();
 }
 
 
-GridBuilder.prototype.toggleGrid = function(){
+/*
+  Display or hide the grid
+*/
+GridManager.prototype.toggleGrid = function(){
   this.gridSystem.visible = !this.gridSystem.visible;
   this.viewer.updated = true;
+}
+
+
+/*
+  hide the grid system
+*/
+GridManager.prototype.hideGrid = function(){
+  this.gridSystem.visible = false;
 }

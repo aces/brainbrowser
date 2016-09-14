@@ -8,8 +8,10 @@ var shapePicker = null;
 // keep a track of what shape is named how and from what file it comes.
 var shapeIndexer = new ShapeIndexer();
 
-var gridBuilder = null;
+//
+var gridManager = null;
 
+// pointer on viewer for when it gets loaded
 var bbViewer = null;
 
 
@@ -34,7 +36,7 @@ $(function() {
     shapePicker = new ShapePicker(viewer);
 
     // tool to build the grids
-    gridBuilder = new GridBuilder(viewer);
+    gridManager = new GridManager(viewer);
 
     // init all the callbacks related to ui
     defineUiCallbacks();
@@ -51,76 +53,10 @@ $(function() {
       shapeController.loadFile(event, filename);
 
       // adapt the grid to all the shapes (old and this newly loaded)
-      gridBuilder.updateGrid();
+      gridManager.updateGrid();
     });
+
 
   });
 
 });
-
-
-
-
-function defineUiCallbacks(){
-
-  /*
-    Callback: when shift+click is performed on a shape
-  */
-  shapePicker.shiftPick(function(shapeInfo){
-    var shapeNameOverall = shapeInfo.object.name;
-    shapeController.focusOnSlider(shapeInfo.object.name);
-  });
-
-
-  /*
-    Callback: when ctrl+click is performed on a shape
-  */
-  shapePicker.ctrlPick(function(shapeInfo){
-
-    if(gridBuilder){
-      gridBuilder.centerShape(shapeInfo.object.name);
-      gridBuilder.updateGrid();
-    }
-  });
-
-
-  /*
-    Callback: when a opacity slider crosses the opacity threshold
-  */
-  shapeController.setOpacityCallback(function(shapeNameOverall){
-      console.log("The shape " + shapeNameOverall + " just changed its visibility status");
-      gridBuilder.updateGrid();
-  });
-
-
-
-  // to slide the left pannel
-  $("#resetview").click(function(){
-    // make all the shapes visible with max opacity
-    shapeController.allSlidersToMax();
-    // put all the shapes back to their original position
-    bbViewer.resetCenterRotation();
-    // fit the grid to the original view
-    gridBuilder.updateGrid();
-    // reset stuff fromthe core, like rotation and lights
-    bbViewer.resetView2();
-  });
-
-
-
-
-  // to slide the left pannel
-  $("#gridToggleBt").click(function(){
-    gridBuilder.toggleGrid();
-  });
-
-
-
-
-  // to slide the left pannel
-  $("#testButton1").click(function(){
-    console.log("THIS IS THE TEST BUTTON");
-    shapeController.allSlidersToMax();
-  });
-
-}

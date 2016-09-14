@@ -19,8 +19,6 @@ var ShapeController = function(BrainBrowserViewer){
 
   this.viewer = BrainBrowserViewer;
 
-  this.initUnloadAllButton();
-
   this.opacityThreshold = 0.15;
   this.opacityCallback = null; // happens when a cursor crosses the opacity threshold
   this.blockOpacityCallback = false; // when toggling all, we dont want to lanch the callbac n times!
@@ -47,18 +45,6 @@ ShapeController.prototype.initShapeSearchField = function(){
       }
 
     }
-  });
-}
-
-
-/*
-
-*/
-ShapeController.prototype.initUnloadAllButton = function(){
-  var that = this;
-
-  $("#unloadAllBt").click(function(){
-    that.unloadAllShapes();
   });
 }
 
@@ -487,15 +473,9 @@ ShapeController.prototype.unloadAllShapes = function(){
   // remove the tab panels
   $("#loadedFilesTabs").children().not("#tabNames").remove();
 
-  // clearing the shape indexer
-  this.shapeIndexer.clearIndex();
-
   // reseting the counters
   this.fileCounter = 0;
   this.shapeCounter = 0;
-
-  // removing the shapes
-  this.viewer.clearScreen();
 
 }
 

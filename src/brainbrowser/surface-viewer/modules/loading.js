@@ -355,10 +355,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       viewer.model.remove(children[0]);
     }
 
-    if(viewer.gridSystem){
-
-      viewer.gridSystem.visible = false;
-    }
+    viewer.resetCenterRotation();
 
     viewer.model_data.clear();
 
@@ -366,8 +363,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
     viewer.triggerEvent("clearscreen");
 
-    // added by JO
-    viewer.updateBoundingBoxes();
   };
 
 

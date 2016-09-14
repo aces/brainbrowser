@@ -930,38 +930,22 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     applied to all the children of graphicObjects.
 
     Args:
-      center: THREE.Vector3 - center relative to inside graphicObject
+      newCenter: THREE.Vector3 - center relative to inside graphicObject
   */
-  viewer.changeCenterRotation2 = function(center) {
+  viewer.changeCenterRotation2 = function(newCenter) {
     var scene = viewer.graphicObjects.parent;
-    viewer.model.position.sub(center);
+    viewer.model.position.sub(newCenter);
     viewer.updated = true;
-
-    // to be able to reset to the original position
-
 
     // updating the logic shapes with their new coodinates / box
     viewer.model_data.forEach(function(model_data, model_name){
-      model_data.shapes.forEach(function(logicShape){
-
-        logicShape.bounding_box.min_x -= center.x;
-        logicShape.bounding_box.min_y -= center.y;
-        logicShape.bounding_box.min_z -= center.z;
-
-        logicShape.bounding_box.max_x -= center.x;
-        logicShape.bounding_box.max_y -= center.y;
-        logicShape.bounding_box.max_z -= center.z;
-
-        logicShape.centroid.x -= center.x;
-        logicShape.centroid.y -= center.y;
-        logicShape.centroid.z -= center.z;
-
-      });
+      viewer.changeCenterRotationModelDataShapes(model_data, newCenter);
     });
 
+    // to be able to reset to the original position
     // we place it in the end so it does not affect when
     // calling resetCenterRotation()
-    totalOffset.add(center);
+    totalOffset.add(newCenter);
   }
 
 
@@ -977,6 +961,60 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   }
 
 
+  /*
+    Change the center of rotation of every logic shapes that are into modelData.
+
+    Args:
+      modelData: model_data instance
+      newCenter: THREE.Vector3 - coordinates to be placed to (0, 0, 0)
+  */
+  viewer.changeCenterRotationModelDataShapes = function(modelData, newCenter){
+
+    // shifting the local overall bounding box
+    modelData.bounding_box.min_x -= newCenter.x;
+    modelData.bounding_box.min_y -= newCenter.y;
+    modelData.bounding_box.min_z -= newCenter.z;
+    modelData.bounding_box.max_x -= newCenter.x;
+    modelData.bounding_box.max_y -= newCenter.y;
+    modelData.bounding_box.max_z -= newCenter.z;
+
+    // shifiting the bounding boxes and centroids of every inner shapes
+    modelData.shapes.forEach(function(logicShape){
+
+      logicShape.bounding_box.min_x -= newCenter.x;
+      logicShape.bounding_box.min_y -= newCenter.y;
+      logicShape.bounding_box.min_z -= newCenter.z;
+      logicShape.bounding_box.max_x -= newCenter.x;
+      logicShape.bounding_box.max_y -= newCenter.y;
+      logicShape.bounding_box.max_z -= newCenter.z;
+
+      logicShape.centroid.x -= newCenter.x;
+      logicShape.centroid.y -= newCenter.y;
+      logicShape.centroid.z -= newCenter.z;
+    });
+
+  }
+
+
+  /*
+    This will most likely occur at the loading or a new file, while some other files
+    may have already been loaded and experienced a shift (to recenter).
+
+  */
+  viewer.shiftModelDataAccordingly = function(modelData){
+    viewer.changeCenterRotationModelDataShapes(modelData, totalOffset);
+  }
+
+
+
+  /*
+    Added by Jo.
+
+    return totalOffset as an array [x, y, z] rather than a THREE.Vector3
+  */
+  viewer.getTotalOffset = function(){
+    return [totalOffset.x, totalOffset.y, totalOffset.z];
+  }
 
   /*
     TODO: delete that - when loading multiple shapes, the first gets moved
@@ -1109,11 +1147,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   };
 
 
+  // TODO: check if used, then remove
   // added by JO
   viewer.updateBoundingBoxes = function(){
-
-
-
     viewer.model.children.forEach(function(shape){
       shape.geometry.computeBoundingBox();
     });
@@ -1268,6 +1304,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
           }
           */
 
+
+          /*
           // so that if the model is upside down,
           // we can continue to grab it the right way
           var up = new THREE.Vector3(0, 1, 0);
@@ -1278,6 +1316,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
           }else{
             graphicObjects.rotation.y -= dx/200;
           }
+          */
+
+          graphicObjects.rotation.y += dx/200;
           graphicObjects.rotation.x += dy/200;
 
 

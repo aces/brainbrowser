@@ -44,12 +44,16 @@ $(function() {
     // when a model is loaded...
     viewer.addEventListener("displaymodel", function(event) {
 
+      //viewer.resetCenterRotation();
+      viewer.shiftModelDataAccordingly(event.model_data);
+
       var filename = document.getElementById("modelOpener").value;
       filename = filename.replace(/^.*\\/, ""); // replace everything before the last \ to prevent fakepath
 
       // add all the opacity sliders for this fils/model
       // (possible a large number of shapes)
       shapeController.loadFile(event, filename);
+
       // adapt the grid to all the shapes (old and this newly loaded)
       gridBuilder.updateGrid();
 
@@ -81,7 +85,7 @@ function defineUiCallbacks(){
   shapePicker.ctrlPick(function(shapeInfo){
 
     if(gridBuilder){
-      gridBuilder.setGridCenterShapeCenter(shapeInfo.object.name);
+      gridBuilder.centerShape(shapeInfo.object.name);
       gridBuilder.updateGrid();
     }
   });

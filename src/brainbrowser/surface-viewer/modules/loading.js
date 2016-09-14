@@ -579,6 +579,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     options      = options || {};
     var complete = options.complete;
 
+    //viewer.resetCenterRotation();
+
     var new_shapes = createModel(model_data, filename, options);
 
     viewer.triggerEvent("displaymodel", {

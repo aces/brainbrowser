@@ -7,8 +7,8 @@ var GridBuilder = function(BrainBrowserViewer){
 
   this.boundingBox = null
 
-  this.gridCenter = new THREE.Vector3();
-  this.setGridCenterAuto();
+  // the grid center is always at the origin
+  this.gridCenter = new THREE.Vector3(0, 0, 0);
 
   // below this threshold, a shape is too transparent to be considered
   // when adjusting the bounding box.
@@ -36,6 +36,10 @@ GridBuilder.prototype.setOpacityThreshold = function(t){
   The bounding box takes under consideration the opacity of the shapes.
 */
 GridBuilder.prototype.updateBoundingBoxVisible = function(){
+  console.log("BOUNDING BOX BEFORE");
+  console.log(this.boundingBox);
+
+
   var that = this;
   var shapeCounter = 0; // the first is the grid
 
@@ -45,10 +49,7 @@ GridBuilder.prototype.updateBoundingBoxVisible = function(){
   this.boundingBox = null;
 
   this.viewer.model_data.forEach(function(model_data, model_name){
-
     model_data.shapes.forEach(function(logicShape){
-
-
 
       // finding the equivalent graphic shape (THREE object)
       var graphicShape = that.viewer.model.children[shapeCounter];
@@ -81,6 +82,9 @@ GridBuilder.prototype.updateBoundingBoxVisible = function(){
     });
   });
 
+  console.log("BOUNDING BOX AFTER");
+  console.log(this.boundingBox);
+
   // add 10% to the box, so that shapes are not just at the border or it.
   // (average over the 3 dim)
   var size = new THREE.Vector3();
@@ -95,7 +99,7 @@ GridBuilder.prototype.updateBoundingBoxVisible = function(){
   Args:
     shapeNameOverall: String - unique name identifier for a shape
 */
-GridBuilder.prototype.setGridCenterShapeCenter = function(shapeNameOverall){
+GridBuilder.prototype.centerShape = function(shapeNameOverall){
   var that = this;
   var shapeNotFound = true;
 
@@ -109,9 +113,8 @@ GridBuilder.prototype.setGridCenterShapeCenter = function(shapeNameOverall){
           logicShape.centroid.z
         );
 
-        that.setGridCenterThreeObj(shapeCenter);
+        that.centerOnPoint(shapeCenter);
         shapeNotFound = false;
-        //that.updateBoundingBoxVisible();
         return;
       }
     });
@@ -122,11 +125,6 @@ GridBuilder.prototype.setGridCenterShapeCenter = function(shapeNameOverall){
 
   });
 
-  // this should NOT happen, but just in case the naming is really messed up
-  // we use the auto center
-  if(shapeNotFound){
-    this.setGridCenterAuto();
-  }
 }
 
 
@@ -139,38 +137,12 @@ GridBuilder.prototype.getBoundingBox = function(){
 
 
 /*
-  defines the center of the grid.
-  Args:
-    center: array [x, y, z] -- will be deep copied
-*/
-GridBuilder.prototype.setGridCenter = function(center){
-  this.gridCenter.set(center[0], center[1], center[2]);
-}
-
-
-/*
-  defines the center of the grid.
+  Moves all the shapes so that newCenter is shifted to the origin (0, 0, 0)
   Args:
     center: THREE.Vector3 -- will be deep copied
 */
-GridBuilder.prototype.setGridCenterThreeObj = function(center){
-  //this.gridCenter.copy(center);
-  // when a shape is picked, it's moved to (0, 0, 0), we move the grid accordingly
-  this.gridCenter.set(0, 0, 0);
-
-  this.viewer.changeCenterRotation2(center);
-}
-
-/*
-  If the _this.boundingBox_ exists, takes the center of it,
-  if it doesn't, just take (0, 0, 0).
-*/
-GridBuilder.prototype.setGridCenterAuto = function(){
-  if(this.boundingBox){
-    this.gridCenter = this.boundingBox.center();
-  }else{
-    this.gridCenter.set(0, 0, 0);
-  }
+GridBuilder.prototype.centerOnPoint = function(newCenter){
+  this.viewer.changeCenterRotation2(newCenter);
 }
 
 
@@ -274,15 +246,6 @@ GridBuilder.prototype.defineGridSizeAuto = function(){
   // refresh
   this.viewer.updated = true;
 
-}
-
-
-/*
-  return the center of the bounding box.
-  (no longer need it, but may be useful in the future)
-*/
-GridBuilder.prototype.getBoundingBoxCenter = function(){
-  return this.boundingBox.center();
 }
 
 

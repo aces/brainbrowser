@@ -35,7 +35,7 @@ ModelCollection.prototype.newModelToLoad = function(evt){
   var file = evt.target.files[0];
   console.log(file.name);
   var type = this.getFileType(file.name);
-  console.log(type);
+  console.log(type + " file loading...");
 
   // The type is known
   if(type){

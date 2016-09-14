@@ -73,12 +73,13 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     preserveDrawingBuffer: true,
     alpha: true,
     autoClear: false,
+    antialias: true
   });
   var scene = new THREE.Scene();
   var camera = new THREE.PerspectiveCamera(30, viewer.dom_element.offsetWidth / viewer.dom_element.offsetHeight, 1, 3000);
   var default_camera_distance = 500;
 
-  viewer.camera = camera;
+  var totalOffset = new THREE.Vector3();
 
 
   viewer.lightSystem = new THREE.Object3D();
@@ -936,6 +937,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     viewer.model.position.sub(center);
     viewer.updated = true;
 
+    // to be able to reset to the original position
+
+
     // updating the logic shapes with their new coodinates / box
     viewer.model_data.forEach(function(model_data, model_name){
       model_data.shapes.forEach(function(logicShape){
@@ -955,16 +959,38 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       });
     });
 
+    // we place it in the end so it does not affect when
+    // calling resetCenterRotation()
+    totalOffset.add(center);
+  }
+
+
+  /*
+    Added by jo.
+
+    place the content to the original position (as encoded in the file)
+  */
+  viewer.resetCenterRotation = function(){
+    totalOffset.negate();
+    viewer.changeCenterRotation2(totalOffset);
+    totalOffset.set(0, 0, 0);
   }
 
 
 
   /*
+    TODO: delete that - when loading multiple shapes, the first gets moved
+    then, the second gets moved as well, but since the first was already moved,
+    the relative distance from each other is no longer native...
+
     Added by Jo.
 
     Centers the global shapes based on their boxes
   */
   viewer.centerBox = function(){
+
+    var totalNumOfShapes = 0;
+
     var globalBox = new THREE.Box3();
 
     // finding the global box
@@ -986,8 +1012,12 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
         globalBox.expandByPoint(min);
         globalBox.expandByPoint(max);
 
+        totalNumOfShapes ++;
+
       });
     });
+
+    console.log("TOTAL: " + totalNumOfShapes + " shapes (in the box)");
 
     // Shift the center
     viewer.changeCenterRotation2( globalBox.center() );

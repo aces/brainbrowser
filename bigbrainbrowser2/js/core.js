@@ -50,12 +50,8 @@ $(function() {
       // add all the opacity sliders for this fils/model
       // (possible a large number of shapes)
       shapeController.loadFile(event, filename);
-
-      // TODO: put that in core
-      viewer.centerBox();
-
-      gridBuilder.updateBoundingBoxVisible();
-      gridBuilder.defineGridSizeAuto();
+      // adapt the grid to all the shapes (old and this newly loaded)
+      gridBuilder.updateGrid();
 
     });
 
@@ -86,12 +82,7 @@ function defineUiCallbacks(){
 
     if(gridBuilder){
       gridBuilder.setGridCenterShapeCenter(shapeInfo.object.name);
-      gridBuilder.updateBoundingBoxVisible();
-      gridBuilder.defineGridSizeAuto();
-
-
-      //gridBuilder.setGridCenterThreeObj( shapeInfo.point );
-
+      gridBuilder.updateGrid();
     }
   });
 
@@ -101,35 +92,20 @@ function defineUiCallbacks(){
   */
   shapeController.setOpacityCallback(function(shapeNameOverall){
       console.log("The shape " + shapeNameOverall + " just changed its visibility status");
-
-      gridBuilder.updateBoundingBoxVisible();
-      gridBuilder.defineGridSizeAuto();
+      gridBuilder.updateGrid();
   });
 
 
 
   // to slide the left pannel
   $("#resetview").click(function(){
-
+    // make all the shapes visible with max opacity
     shapeController.allSlidersToMax();
-
-    //var center = gridBuilder.getBoundingBoxCenter();
-    //bbViewer.changeCenterRotation2(center);
-    bbViewer.centerBox();
-    gridBuilder.updateBoundingBoxVisible();
-
-    //gridBuilder.setGridCenterAuto();
-    gridBuilder.defineGridSizeAuto();
-
-
-
-
-
-
-
-    gridBuilder.updateBoundingBoxVisible();
-    gridBuilder.defineGridSizeAuto();
-
+    // put all the shapes back to their original position
+    bbViewer.resetCenterRotation();
+    // fit the grid to the original view
+    gridBuilder.updateGrid();
+    // reset stuff fromthe core, like rotation and lights
     bbViewer.resetView2();
   });
 

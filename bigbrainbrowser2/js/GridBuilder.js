@@ -277,6 +277,22 @@ GridBuilder.prototype.defineGridSizeAuto = function(){
 }
 
 
+/*
+  return the center of the bounding box.
+  (no longer need it, but may be useful in the future)
+*/
 GridBuilder.prototype.getBoundingBoxCenter = function(){
   return this.boundingBox.center();
+}
+
+
+/*
+  Updated the grid in one single function.
+  (I was tired of always calling updateBoundingBoxVisible followed
+  by defineGridSizeAuto)
+
+*/
+GridBuilder.prototype.updateGrid = function(){
+  this.updateBoundingBoxVisible();
+  this.defineGridSizeAuto();
 }

@@ -40,7 +40,10 @@ function initTemplates(){
 
 
 
-
+/*
+  Defines all the callbacks of the UI, needs viewer to be ready
+  (this is why it's not part of initCallbacks() )
+*/
 function defineUiCallbacks(){
 
   /*
@@ -112,9 +115,18 @@ function defineUiCallbacks(){
 
 
   // to slide the left pannel
+  $("#toggleWireFrameBt").click(function(){
+    var isActive = parseInt( $(this).attr("active") );
+    bbViewer.setWireframe( !isActive );
+    $(this).attr("active", +!isActive );
+  });
+
+
+
+  // to slide the left pannel
   $("#testButton1").click(function(){
     console.log("THIS IS THE TEST BUTTON");
-    shapeController.allSlidersToMax();
+
   });
 
 }

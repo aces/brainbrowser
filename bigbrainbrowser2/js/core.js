@@ -108,6 +108,15 @@ function defineUiCallbacks(){
 
 
 
+
+  // to slide the left pannel
+  $("#gridToggleBt").click(function(){
+    gridBuilder.toggleGrid();
+  });
+
+
+
+
   // to slide the left pannel
   $("#testButton1").click(function(){
     console.log("THIS IS THE TEST BUTTON");

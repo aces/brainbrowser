@@ -40,8 +40,6 @@ GridBuilder.prototype.updateBoundingBoxVisible = function(){
   var that = this;
   var shapeCounter = 0; // the first is the grid
 
-  this.gridSystem.visible = true;
-
   // reinit the boundingBox
   this.boundingBox = null;
 
@@ -80,12 +78,15 @@ GridBuilder.prototype.updateBoundingBoxVisible = function(){
     });
   });
 
-  // add 10% to the box, so that shapes are not just at the border or it.
-  // (average over the 3 dim)
-  var size = new THREE.Vector3();
-  this.boundingBox.size( size );
-  this.boundingBox.expandByScalar( 0.1 * (size.x + size.y + size.z)/3 );
 
+  // we may have no bounding box at all (when shapes are all invisible)
+  if(this.boundingBox){
+    // add 10% to the box, so that shapes are not just at the border or it.
+    // (average over the 3 dim)
+    var size = new THREE.Vector3();
+    this.boundingBox.size( size );
+    this.boundingBox.expandByScalar( 0.1 * (size.x + size.y + size.z)/3 );
+  }
 }
 
 
@@ -253,4 +254,10 @@ GridBuilder.prototype.defineGridSizeAuto = function(){
 GridBuilder.prototype.updateGrid = function(){
   this.updateBoundingBoxVisible();
   this.defineGridSizeAuto();
+}
+
+
+GridBuilder.prototype.toggleGrid = function(){
+  this.gridSystem.visible = !this.gridSystem.visible;
+  this.viewer.updated = true;
 }

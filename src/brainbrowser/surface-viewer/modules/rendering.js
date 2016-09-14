@@ -1268,8 +1268,23 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
           }
           */
 
+          // so that if the model is upside down,
+          // we can continue to grab it the right way
+          var up = new THREE.Vector3(0, 1, 0);
+          model.localToWorld(up);
+
+          if(up.y > 0){
+            graphicObjects.rotation.y += dx/200;
+          }else{
+            graphicObjects.rotation.y -= dx/200;
+          }
           graphicObjects.rotation.x += dy/200;
-          graphicObjects.rotation.y += dx/200;
+
+
+
+
+
+
 
         } else {
 

@@ -32,6 +32,10 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   var THREE = SurfaceViewer.THREE;
   var loader = BrainBrowser.loader;
 
+  // model_data.name uniqueness, so we can load 2 files with the same name and
+  // it does not mess with shifting of anything that requires some model_data fetching
+  var model_data_counter = 0;
+
   var model_data_store = {};
 
   ////////////////////////////////////
@@ -367,6 +371,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   };
 
 
+
   ////////////////////////////////////
   // PRIVATE FUNCTIONS
   ////////////////////////////////////
@@ -379,6 +384,11 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     // Parse model info based on the given file type.
     parseModel(data, type, parse_options, function(model_data) {
       if (!BrainBrowser.loader.checkCancel(options.cancel)) {
+
+        // ensure uniqueness of model_data.name
+        model_data.name += " [" + model_data_counter + "]";
+        model_data_counter++;
+
         displayModel(model_data, filename, options);
       }
     });

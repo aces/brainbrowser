@@ -44,8 +44,12 @@ $(function() {
     // when a model is loaded...
     viewer.addEventListener("displaymodel", function(event) {
 
+
+
       //viewer.resetCenterRotation();
       viewer.shiftModelDataAccordingly(event.model_data);
+
+      console.log(event.model_data);
 
       var filename = document.getElementById("modelOpener").value;
       filename = filename.replace(/^.*\\/, ""); // replace everything before the last \ to prevent fakepath
@@ -85,6 +89,10 @@ function defineUiCallbacks(){
   shapePicker.ctrlPick(function(shapeInfo){
 
     if(gridBuilder){
+
+      console.log("SHAPE NAME:");
+      console.log(shapeInfo.object.name);
+
       gridBuilder.centerShape(shapeInfo.object.name);
       gridBuilder.updateGrid();
     }

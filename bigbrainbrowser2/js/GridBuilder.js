@@ -36,9 +36,6 @@ GridBuilder.prototype.setOpacityThreshold = function(t){
   The bounding box takes under consideration the opacity of the shapes.
 */
 GridBuilder.prototype.updateBoundingBoxVisible = function(){
-  console.log("BOUNDING BOX BEFORE");
-  console.log(this.boundingBox);
-
 
   var that = this;
   var shapeCounter = 0; // the first is the grid
@@ -49,6 +46,10 @@ GridBuilder.prototype.updateBoundingBoxVisible = function(){
   this.boundingBox = null;
 
   this.viewer.model_data.forEach(function(model_data, model_name){
+
+    console.log("model_name");
+    console.log(model_name);
+
     model_data.shapes.forEach(function(logicShape){
 
       // finding the equivalent graphic shape (THREE object)
@@ -81,9 +82,6 @@ GridBuilder.prototype.updateBoundingBoxVisible = function(){
       shapeCounter ++;
     });
   });
-
-  console.log("BOUNDING BOX AFTER");
-  console.log(this.boundingBox);
 
   // add 10% to the box, so that shapes are not just at the border or it.
   // (average over the 3 dim)

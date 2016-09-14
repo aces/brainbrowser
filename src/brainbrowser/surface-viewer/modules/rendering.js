@@ -946,6 +946,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     // we place it in the end so it does not affect when
     // calling resetCenterRotation()
     totalOffset.add(newCenter);
+
+    console.log("totalOffset");
+    console.log(totalOffset);
   }
 
 

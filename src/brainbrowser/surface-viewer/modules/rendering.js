@@ -946,9 +946,6 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     // we place it in the end so it does not affect when
     // calling resetCenterRotation()
     totalOffset.add(newCenter);
-
-    console.log("totalOffset");
-    console.log(totalOffset);
   }
 
 
@@ -1268,83 +1265,15 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
         if (movement === "rotate") {
 
-          /*
-          // Want to always be rotating around world axes.
-          inverse.getInverse(graphicObjects.matrix);
-          var axis = new THREE.Vector3(1, 0, 0).applyMatrix4(inverse).normalize();
-          graphicObjects.rotateOnAxis(axis, dy / 150);
-
-          inverse.getInverse(graphicObjects.matrix);
-          axis = new THREE.Vector3(0, 1, 0).applyMatrix4(inverse).normalize();
-          graphicObjects.rotateOnAxis(axis, dx / 150);
-
-
-          if (viewer.model_data.related_models !== undefined ) {
-            viewer.model_data.related_models.forEach(function(child){
-              child.rotation.x = graphicObjects.rotation.x;
-              child.rotation.y = graphicObjects.rotation.y;
-              child.rotation.z = graphicObjects.rotation.z;
-            });
-          }
-          */
-
-          /*
-          inverse.getInverse(scene.matrix);
-          var axis = new THREE.Vector3(1, 0, 0).applyMatrix4(inverse).normalize();
-          scene.rotateOnAxis(axis, dy / 150);
-
-          inverse.getInverse(scene.matrix);
-          axis = new THREE.Vector3(0, 1, 0).applyMatrix4(inverse).normalize();
-          scene.rotateOnAxis(axis, dx / 150);
-
-
-          if (viewer.model_data.related_models !== undefined ) {
-            viewer.model_data.related_models.forEach(function(child){
-              child.rotation.x = scene.rotation.x;
-              child.rotation.y = scene.rotation.y;
-              child.rotation.z = scene.rotation.z;
-            });
-          }
-          */
-
-
-          /*
-          // so that if the model is upside down,
-          // we can continue to grab it the right way
-          var up = new THREE.Vector3(0, 1, 0);
-          model.localToWorld(up);
-
-          if(up.y > 0){
-            graphicObjects.rotation.y += dx/200;
-          }else{
-            graphicObjects.rotation.y -= dx/200;
-          }
-          */
-
           graphicObjects.rotation.y += dx/200;
           graphicObjects.rotation.x += dy/200;
 
-
-
-
-
-
-
         } else {
-
           multiplier  = multiplier || 1.0;
           multiplier *= camera.position.z / default_camera_distance;
 
           camera.position.x -= dx * multiplier * 0.25;
           camera.position.y += dy * multiplier * 0.25;
-
-          //light.position.x  -= dx * multiplier * 0.25;
-          //light.position.y  += dy * multiplier * 0.25;
-
-          //lightSystem.position.x  -= dx * multiplier * 0.25;
-          //lightSystem.position.y  += dy * multiplier * 0.25;
-
-
         }
       }
 

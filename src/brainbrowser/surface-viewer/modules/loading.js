@@ -589,9 +589,11 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     options      = options || {};
     var complete = options.complete;
 
-    //viewer.resetCenterRotation();
-
     var new_shapes = createModel(model_data, filename, options);
+
+    // shift the newly loaded shapes, in case some shapes were loaded
+    // before and the whole was recentered
+    viewer.shiftModelDataAccordingly(model_data);
 
     viewer.triggerEvent("displaymodel", {
       model:      viewer.model,

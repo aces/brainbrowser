@@ -91,6 +91,10 @@ function defineUiCallbacks(){
     // fit the axis to the original position
     // (show if if it was show, keep it hidden if it ws hidden)
     bbViewer.updateAxes();
+
+    // remove wireframe if it was enabled
+    bbViewer.setWireframe( false );
+
     // reset stuff fromthe core, like rotation and lights
     bbViewer.resetView2();
   });
@@ -138,4 +142,10 @@ function defineUiCallbacks(){
     bbViewer.toggleAxes();
   });
 
+
+
+  $("#brainbrowser").mousemove(function(){
+    console.log(bbViewer.graphicObjects.quaternion);
+    axisBox.applyQuaternion( bbViewer.graphicObjects.quaternion );
+  });
 }

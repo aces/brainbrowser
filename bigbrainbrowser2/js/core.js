@@ -8,8 +8,10 @@ var shapePicker = null;
 // keep a track of what shape is named how and from what file it comes.
 var shapeIndexer = new ShapeIndexer();
 
-//
+// Deals with grid display and size
 var gridManager = null;
+
+var axisBox = null;//AxisBox();
 
 // pointer on viewer for when it gets loaded
 var bbViewer = null;
@@ -37,6 +39,8 @@ $(function() {
 
     // tool to build the grids
     gridManager = new GridManager(viewer);
+
+    axisBox = new AxisBox(viewer, "axisBox");
 
     // init all the callbacks related to ui
     defineUiCallbacks();

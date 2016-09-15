@@ -152,3 +152,11 @@ body{
 #shapeSearchBt{
   margin-top: 0;
 }
+
+
+#axisBox{
+  background-color: rgba(255, 255, 255, 0.5);;
+  width: calc(100% - 30px);
+  margin: 15px;
+  height: 250px;
+}

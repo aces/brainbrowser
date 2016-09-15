@@ -47,7 +47,7 @@ $(function() {
   function showLoading() { loading_div.show(); }
   function hideLoading() { loading_div.hide(); }
 
-  // Make sure WebGL is available.
+  // Make sure WebGL is avaiaxes_classlable.
   if (!BrainBrowser.WEBGL_ENABLED) {
     $("#brainbrowser").html(BrainBrowser.utils.webGLErrorMessage());
     return;

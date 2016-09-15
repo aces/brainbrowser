@@ -354,16 +354,16 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   /**
   * @doc function
   * @name viewer.rendering:gridHelper
-  * @param {number} where start the grid horizontally
-  * @param {number} where end the grid horizontally
-  * @param {number} ???
-  * @param {number} ???
-  * @param {object} a THREE color
+  * @param {number} horizontal_from where start the grid horizontally
+  * @param {number} horizontal_to where end the grid horizontally
+  * @param {number} x1 where horizontal vertices start
+  * @param {number} x2 where horizontal vertices end
+  * @param {object} horizontal_color a THREE color
   * @param {number} where start the grid vertically
   * @param {number} where end the grid vertically
-  * @param {number} ???
-  * @param {number} ???
-  * @param {object} a THREE color
+  * @param {number} z1 where vertical vertices start
+  * @param {number} z2 where horizontal vertices end
+  * @param {object} vertical_color a THREE color
   * @param {number} step of the grid
   *
   * @returns {object} The grid itself.
@@ -372,7 +372,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * ```js
   * var horizontal_color = new THREE.Color(0x000000);
   * var vertical_color   = new THREE.Color(0xFF0000);
-  * var gridXY = viewer.gridHelper( -100, 100, -100, 100, horizontal_color, -100, 100, 100, -100, vertical_color, 10)
+  * var gridXY           = viewer.gridHelper( -100, 100, -100, 100, horizontal_color, -100, 100, 100, -100, vertical_color, 10)
   * ```
   *
   */

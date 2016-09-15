@@ -51,13 +51,13 @@
                            +----+-+      +---+---+        +---+---+
                            | axis |      |  grid |        | model |
                            +------+      +-------+        +-+-----+
-                                                            |
-                                                        +---+----+
-                                                        | mesh01 |
-                                                        | mesh02 |
-                                                        | mesh03 |
-                                                        | ...    |
-                                                        +--------+
+                                                              |
+                                                          +---+----+
+                                                          | mesh01 |
+                                                          | mesh02 |
+                                                          | mesh03 |
+                                                          | ...    |
+                                                          +--------+
 
   When dragging, graphicObjects is spinning around its center so that the shapes
   (aka. model), the grid and the axis are turning all together.
@@ -119,8 +119,11 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   scene.add(viewer.graphicObjects);
   viewer.graphicObjects.add(viewer.model);
 
-  // TODO: to set later
+  // to set later
   viewer.gridSystem = null;
+
+  // to set later
+  viewer.axis = null;
 
 
   var axisHelper = new THREE.AxisHelper( 20 );
@@ -559,7 +562,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
   /**
   * @doc function
-  * @name viewer.rendering:drawAxes
+  * @name viewer.rendering:updateAxes
   * @param {number} size Define the size of the line representing the axes.
   * @param {object} options Options, which include the following:
   *
@@ -576,10 +579,10 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * @description
   * Draw Axes in the current scene
   * ```js
-  *   viewer.drawAxes(300)
+  *   viewer.updateAxes(300)
   * ```
   */
-  viewer.drawAxes = function(size, options) {
+  viewer.updateAxes = function(size, options) {
     options      = options || {};
     var name     = options.name   || "axes";
     var center   = options.center || new THREE.Vector3(0,0,0);
@@ -587,39 +590,64 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var y_color  = options.y_color >= 0 ? options.y_color : 0x00ff00 ;
     var z_color  = options.z_color >= 0 ? options.z_color : 0x0000ff ;
     var complete = options.complete === true;
+    var visible = options.visible === undefined ? false : options.visible;
 
-    // If size is not defined set a reasonable default value
-    if (size === undefined) {
-      var sizes = viewer.model_data.get().size;
-      var max_size = Math.max(sizes.x, sizes.y, sizes.z);
-      size = (max_size / 2) *  1.2;
+    // if already existing, we just remove them and build new ones
+    if(viewer.axes){
+      // keep this state for later
+      visible = viewer.axes.visible;
+      viewer.graphicObjects.remove(viewer.axes);
     }
 
-    var axes  = new THREE.Object3D();
-    axes.name = name;
+    viewer.axes  = new THREE.Object3D();
+    viewer.axes.name = name;
+
+    // the size is based on the size of the grid (largest bounding sphere)
+    if (size === undefined || size == null) {
+      var largestSize = 0;
+
+      viewer.gridSystem.children.forEach( function(gridElem){
+        var radius = gridElem.geometry.boundingSphere.radius;
+        largestSize = Math.max(largestSize, radius);
+      });
+
+      size = largestSize;
+    }
 
     // X axes
-    axes.add(viewer.drawLine(center, new THREE.Vector3( center.x + size, center.y, center.z), {color: x_color, dashed: false, draw: false}));
-    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(-size + center.x, center.y, center.z), {color: x_color, dashed: true , draw: false})); }
+    viewer.axes.add(viewer.drawLine(center, new THREE.Vector3( center.x + size, center.y, center.z), {color: x_color, dashed: false, draw: false}));
+    if (complete) { viewer.axes.add(viewer.drawLine(center, new THREE.Vector3(-size + center.x, center.y, center.z), {color: x_color, dashed: true , draw: false})); }
 
     // Y axes
-    axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, center.y + size, center.z), {color: y_color, dashed: false, draw: false}));
-    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, -size + center.y, center.z), {color: y_color, dashed: true, draw: false})); }
+    viewer.axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, center.y + size, center.z), {color: y_color, dashed: false, draw: false}));
+    if (complete) { viewer.axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, -size + center.y, center.z), {color: y_color, dashed: true, draw: false})); }
 
     // Z axes
-    axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, center.y, center.z + size), {color: z_color, dashed: false, draw: false}));
-    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, center.y, -size + center.z), {color: z_color, dashed: true,  draw: false})); }
+    viewer.axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, center.y, center.z + size), {color: z_color, dashed: false, draw: false}));
+    if (complete) { viewer.axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, center.y, -size + center.z), {color: z_color, dashed: true,  draw: false})); }
 
-    if (viewer.model) {
-      viewer.model.add(axes);
-    } else {
-      scene.add(axes);
-    }
+    viewer.axes.visible = visible;
+    viewer.graphicObjects.add(viewer.axes);
 
     viewer.updated = true;
 
-    return axes;
+    // TODO: WHY???
+    return viewer.axes;
   };
+
+
+  /*
+    show the axes if not visible, hide if visible, create them if not existing
+  */
+  viewer.toggleAxes = function(){
+    if(!viewer.axes){
+      viewer.updateAxes(null, {visible: true});
+    }else{
+      viewer.axes.visible = ! viewer.axes.visible;
+      viewer.updated = true;
+    }
+  }
+
 
   /**
   * @doc function

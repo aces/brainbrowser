@@ -63,6 +63,7 @@ function defineUiCallbacks(){
     if(gridManager){
       gridManager.centerShape(shapeInfo.object.name);
       gridManager.updateGrid();
+      bbViewer.updateAxes();
     }
   });
 
@@ -73,6 +74,9 @@ function defineUiCallbacks(){
   shapeController.setOpacityCallback(function(shapeNameOverall){
       console.log("The shape " + shapeNameOverall + " just changed its visibility status");
       gridManager.updateGrid();
+
+      // doesnt necessary draw (in case of hidden) but addapt the size anyway
+      bbViewer.updateAxes();
   });
 
 
@@ -85,6 +89,9 @@ function defineUiCallbacks(){
     bbViewer.resetCenterRotation();
     // fit the grid to the original view
     gridManager.updateGrid();
+    // fit the axis to the original position
+    // (show if if it was show, keep it hidden if it ws hidden)
+    bbViewer.updateAxes();
     // reset stuff fromthe core, like rotation and lights
     bbViewer.resetView2();
   });
@@ -126,7 +133,7 @@ function defineUiCallbacks(){
   // to slide the left pannel
   $("#testButton1").click(function(){
     console.log("THIS IS THE TEST BUTTON");
-
+    bbViewer.toggleAxes();
   });
 
 }

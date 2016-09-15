@@ -37,6 +37,8 @@ GridManager.prototype.setOpacityThreshold = function(t){
 */
 GridManager.prototype.updateBoundingBoxVisible = function(){
 
+  console.log("updateBoundingBoxVisible()");
+
   var that = this;
   var shapeCounter = 0; // the first is the grid
 
@@ -157,12 +159,6 @@ GridManager.prototype.defineGridSizeAuto = function(){
     return;
   }
 
-  // center must be inside the bbox
-  if(!this.boundingBox.containsPoint(this.gridCenter)){
-    console.warn("GridManager.defineGridSizeAuto, the predefined center is out of the bounding box.");
-    return;
-  }
-
   // removing (potentially) existing grid components
   var xyPlaneToRemove = this.gridSystem.getObjectByName("xyPlane");
   var xzPlaneToRemove = this.gridSystem.getObjectByName("xzPlane");
@@ -185,7 +181,7 @@ GridManager.prototype.defineGridSizeAuto = function(){
   var xyBoxMaterial = new THREE.MeshLambertMaterial( {
     transparent: true,
     opacity: 0.5,
-    color: 0xff3333,
+    color: 0x0088ff,
     emissive: 0x000000,
     depthWrite: true,
     depthTest: true,
@@ -205,7 +201,7 @@ GridManager.prototype.defineGridSizeAuto = function(){
   var yzBoxMaterial = new THREE.MeshLambertMaterial( {
     transparent: true,
     opacity: 0.5,
-    color: 0x0088ff,
+    color: 0xff3333,
     emissive: 0x000000,
     depthWrite: true,
     depthTest: true,
@@ -235,6 +231,11 @@ GridManager.prototype.defineGridSizeAuto = function(){
   this.gridSystem.add( xyPlaneMesh );
   this.gridSystem.add( xzPlaneMesh );
   this.gridSystem.add( yzPlaneMesh );
+
+  // compute the bounding sphere (needed for resizing the axes)
+  xyPlaneGeometry.computeBoundingSphere();
+  xzPlaneGeometry.computeBoundingSphere();
+  yzPlaneGeometry.computeBoundingSphere();
 
   // translate the grid system so that it centers on the _this.gridCenter_
   this.gridSystem.position.copy(this.gridCenter);

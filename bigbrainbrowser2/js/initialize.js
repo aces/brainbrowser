@@ -80,7 +80,6 @@ function defineUiCallbacks(){
   });
 
 
-
   // to slide the left pannel
   $("#resetview").click(function(){
     // make all the shapes visible with max opacity
@@ -97,14 +96,13 @@ function defineUiCallbacks(){
   });
 
 
-
-
   // to slide the left pannel
   $("#gridToggleBt").click(function(){
     gridManager.toggleGrid();
   });
 
 
+  // the button to unload and reset everything
   $("#unloadAllBt").click(function(){
     // clearing panels
     shapeController.unloadAllShapes();
@@ -120,7 +118,6 @@ function defineUiCallbacks(){
   });
 
 
-
   // to slide the left pannel
   $("#toggleWireFrameBt").click(function(){
     var isActive = parseInt( $(this).attr("active") );
@@ -128,6 +125,11 @@ function defineUiCallbacks(){
     $(this).attr("active", +!isActive );
   });
 
+
+  // toggle axes
+  $("#axesToggleBt").click(function(){
+    bbViewer.toggleAxes();
+  });
 
 
   // to slide the left pannel

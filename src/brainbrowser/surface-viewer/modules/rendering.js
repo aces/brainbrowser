@@ -1235,9 +1235,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   ////////////////////////////////
 
   (function() {
-    var model = viewer.model;
     var graphicObjects = viewer.graphicObjects
-    var scene = model.parent.parent;
 
     var movement = "rotate";
     var last_x = null;
@@ -1256,8 +1254,14 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
         if (movement === "rotate") {
 
-          graphicObjects.rotation.y += dx/200;
-          graphicObjects.rotation.x += dy/200;
+          // Want to always be rotating around world axes.
+          inverse.getInverse(graphicObjects.matrix);
+          var axis = new THREE.Vector3(1, 0, 0).applyMatrix4(inverse).normalize();
+          graphicObjects.rotateOnAxis(axis, dy / 150);
+
+          inverse.getInverse(graphicObjects.matrix);
+          axis = new THREE.Vector3(0, 1, 0).applyMatrix4(inverse).normalize();
+          graphicObjects.rotateOnAxis(axis, dx / 150);
 
         } else {
           multiplier  = multiplier || 1.0;

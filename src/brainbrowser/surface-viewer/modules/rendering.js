@@ -1219,7 +1219,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
   // Render a single frame on the viewer.
   function renderFrame(timestamp) {
-    var model = viewer.model;
+    var graphicObjects = viewer.graphicObjects;
     var delta;
     var rotation;
     var position = camera.position;
@@ -1234,21 +1234,28 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     rotation = delta * 0.00015;
 
     if (viewer.autorotate.x) {
-      model.rotation.x += rotation;
+      graphicObjects.rotation.x += rotation;
       viewer.updated = true;
     }
     if (viewer.autorotate.y) {
-      model.rotation.y += rotation;
+      graphicObjects.rotation.y += rotation;
       viewer.updated = true;
     }
     if (viewer.autorotate.z) {
-      model.rotation.z += rotation;
+      graphicObjects.rotation.z += rotation;
       viewer.updated = true;
     }
     if (old_zoom_level !== viewer.zoom) {
       old_zoom_level = viewer.zoom;
       viewer.updated = true;
       viewer.triggerEvent("zoom", { zoom: viewer.zoom });
+    }
+
+    if( (viewer.autorotate.x || viewer.autorotate.y || viewer.autorotate.z) && viewer.onDraggedCallback){
+      viewer.onDraggedCallback({
+        goQuaternion: graphicObjects.quaternion.clone(),
+        camPosition: camera.position.clone()
+      })
     }
 
     if (viewer.updated) {

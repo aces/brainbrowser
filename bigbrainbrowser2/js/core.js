@@ -24,6 +24,7 @@ $(function() {
 
   window.viewer = BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
     bbViewer = viewer;
+    
 
     // render, no matter we load files or not
     viewer.render();

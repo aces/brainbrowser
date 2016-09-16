@@ -147,10 +147,25 @@ function defineUiCallbacks(){
   });
 
 
+  $(".autorotate").click(function(){
+    var axis = $(this).attr("axis");
+
+    // this axis is currently on auto rotation mode
+    if(bbViewer.autorotate[axis]){
+      bbViewer.autorotate[axis] = false;
+      $(this).removeClass("activated")
+    }else{
+      bbViewer.autorotate[axis] = true;
+      $(this).addClass("activated")
+    }
+
+  });
+
+
 
   // * * * TEST BUTTON * * *
   $("#testButton1").click(function(){
-    console.log("THIS IS THE TEST BUTTON");
+  //  bbViewer.autorotate.x = !bbViewer.autorotate.x;
 
   });
 }

@@ -4,14 +4,11 @@
   a BrainBrowser instance.
 
   Constructor args:
-    - BrainBrowserViewer: viewer object of the brainBrowser instance
     - domElement: String - ID of the div to put the AxisBox and make it work
 */
-var AxisBox = function(BrainBrowserViewer, domElement){
+var AxisBox = function(domElement){
   this.lineLength = 180;
   this.axisSystem = new THREE.Object3D();
-
-  this.viewer = BrainBrowserViewer;
 
   this.camera = null;
   this.scene = null;
@@ -171,9 +168,9 @@ AxisBox.prototype.drawLineGeneric = function(from, to, options){
   // Set the material according with the dashed option
   var material = null;
   if(options.dashed){
-    material = new THREE.LineDashedMaterial({ linewidth: 3, color: color, gapSize: 3 });
+    material = new THREE.LineDashedMaterial({ linewidth: 2, color: color, gapSize: 5 });
   }else{
-    material = new THREE.LineBasicMaterial( { linewidth: 3, color: color });
+    material = new THREE.LineBasicMaterial( { linewidth: 2, color: color });
   }
 
   var line = new THREE.Line( geometry, material, THREE.LinePieces );

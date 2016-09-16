@@ -17,7 +17,14 @@ var GridManager = function(BrainBrowserViewer){
   // will contain the grid but also the mockup (rectangles)
   this.gridSystem = new THREE.Object3D();
   this.gridSystem.name = "grid";
-  this.viewer.graphicObjects.add(this.gridSystem); // adding to parent = adding to the scene
+
+  // the grid is not visible by default, a button has to be clicked to show them
+  this.gridSystem.visible = false;
+
+   // adding to parent = adding to the scene
+  this.viewer.graphicObjects.add(this.gridSystem);
+
+  
   this.viewer.gridSystem = this.gridSystem;
 }
 

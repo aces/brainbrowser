@@ -11,14 +11,15 @@ var shapeIndexer = new ShapeIndexer();
 // Deals with grid display and size
 var gridManager = null;
 
-var axisBox = null;//AxisBox();
+// Box that shows the axes orientation on the left column
+var axisBox = null;
 
 // pointer on viewer for when it gets loaded
 var bbViewer = null;
 
 
 $(function() {
-  // init hbs and preload templates
+  // init hbs, preload templates, build some objects that dont need viewer
   init();
 
   window.viewer = BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
@@ -39,8 +40,6 @@ $(function() {
 
     // tool to build the grids
     gridManager = new GridManager(viewer);
-
-    axisBox = new AxisBox(viewer, "axisBox");
 
     // init all the callbacks related to ui
     defineUiCallbacks();

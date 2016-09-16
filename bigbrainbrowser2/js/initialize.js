@@ -1,10 +1,10 @@
 function init(){
   THREE = BrainBrowser.SurfaceViewer.THREE;
-
   initTemplates();
-
   initCallbacks();
 
+  // Box that shows the axes orientation on the left column
+  axisBox = new AxisBox("axisBox");
 }
 
 /*
@@ -59,7 +59,6 @@ function defineUiCallbacks(){
     Callback: when ctrl+click is performed on a shape
   */
   shapePicker.ctrlPick(function(shapeInfo){
-
     if(gridManager){
       gridManager.centerShape(shapeInfo.object.name);
       gridManager.updateGrid();

@@ -236,7 +236,6 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     effect.setSize(viewer.dom_element.offsetWidth, viewer.dom_element.offsetHeight);
     effect.render(scene, camera);  // Not sure why: effects seem to need to render twice before they work properly.
 
-    console.log("debug01");
     viewer.updated = true;
   };
 

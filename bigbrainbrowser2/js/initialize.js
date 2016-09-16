@@ -203,7 +203,10 @@ function defineUiCallbacks(){
   //  bbViewer.autorotate.x = !bbViewer.autorotate.x;
 
   });
-}
+
+
+
+} /* END OF defineUiCallbacks() */
 
 
 // just add some arker blue background to a button when clicked,

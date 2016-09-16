@@ -156,8 +156,9 @@ module.exports = function(grunt) {
         src: [
           "examples/surface-viewer-demo.js",
           "examples/volume-viewer-demo.js",
+          "examples/bigbrain-viewer-demo.js",
           "examples/surface-viewer-demo.config.js",
-          "examples/volume-viewer-demo.config.js"
+          "examples/volume-viewer-demo.config.js",
         ]
       },
       scripts: {

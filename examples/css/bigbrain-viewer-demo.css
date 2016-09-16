@@ -1,0 +1,576 @@
+ /* CSS reset */
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+
+body{
+  line-height: 1
+}
+
+ul.tabs{
+  margin: 0px;
+  padding: 0px;
+  list-style: none;
+}
+
+ul.tabs li{
+  background: none;
+  display: inline-block;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+ul.tabs li.current{
+  background: #333333;
+}
+
+.tab-content{
+  background: #333333;
+  display: none;
+  padding: 15px;
+}
+
+.tab-content.current{
+  display: inherit;
+}
+
+ol, ul {
+  list-style: none;
+  margin: 1em 0;
+}
+
+blockquote, q {
+  quotes: none;
+}
+
+blockquote:before, blockquote:after,
+q:before, q:after {
+  content: '';
+  content: none;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* End CSS reset */
+
+html {
+  height: 100%;
+  overflow: hidden;
+}
+
+#title-box {
+  background-color: #1E8FFF;
+}
+
+#title {
+  text-align: center;
+  margin: 0;
+}
+
+h1, h2, h3, h4 {
+  font-weight: bold;
+}
+
+h1 {
+  font-weight: bold;
+}
+
+h3 {
+  margin: 0.1em 0 1em 0;
+}
+
+h4 {
+  margin-top: 0;
+  margin-bottom: 0.5em;
+  font-size: 1.2em;
+}
+
+ul {
+  list-style-type: disc;
+  margin-left: 1em;
+}
+
+strong  {
+  font-weight: bold;
+}
+
+#display {
+  position: relative;
+  height: 100%;
+}
+
+#controls {
+  display: none;
+  position: absolute;
+  top: 44px;
+  bottom: 51px;
+  right: 20px;
+  height: 30px;
+  width: 410px !important;
+}
+
+#controls-content {
+  position: absolute;
+  top: 0px;
+  bottom: 5px;
+  right: 0px;
+  overflow: auto;
+}
+
+#control-button {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  z-index: 9;
+}
+
+#brainbrowser {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+#grid {
+  position: relative;
+  top: 450px;
+  left: 0px;
+}
+
+#axes {
+  position: absolute;
+  left: 25px;
+  right: 0px;
+  top: 0px;
+  height: 300px;
+  width: 300px;
+}
+
+#axes_legend {
+  position: absolute;
+  width: 200px;
+  top: 300px;
+  height: 100px;
+}
+
+#dorsal {
+  height: 14px;
+  width: 90px;
+}
+
+#ventral {
+  height: 14px;
+  width: 90px;
+}
+
+#anterior {
+  height: 14px;
+  width: 90px;
+}
+
+#posterior {
+  height: 14px;
+  width: 90px;
+}
+
+#left {
+  height: 14px;
+  width: 90px;
+}
+
+#right {
+  height: 14px;
+  width: 90px;
+}
+
+.box-top {
+  background: #000000;
+  padding: 10px;
+  margin: 0px;
+  border: 2px solid #FFFFFF;
+  border-bottom-width: 0px;
+}
+
+.box {
+  background: #000000;
+  padding: 10px;
+  margin: 0px;
+  border: 2px solid #FFFFFF;
+}
+
+.box-bottom {
+  background: #000000;
+  padding: 0px;
+  margin: 0px;
+  border: 0px solid #FFFFFF;
+}
+
+.half-box {
+  display: table-cell;
+  width: 50%;
+  height: 100%;
+  white-space: nowrap;
+}
+
+.bordered-box {
+  border: 2px solid white;
+}
+
+.combo-box {
+  display: table;
+  width: 100%;
+  margin-left: 0px;
+}
+
+.full-box {
+  width: 100%;
+}
+.quarter-box {
+  display: table-cell;
+  width: 20%;
+  vertical-align: top;
+}
+
+.three-quarter-box {
+  display: table-cell;
+  width:70%;
+}
+
+#shape-wrap {
+  max-height: 800px;
+  overflow: auto;
+}
+
+.shape {
+  margin-bottom: 15px;
+  margin-right: 10px;
+}
+
+.ui-button-text {
+  font-size: 11px !important
+}
+
+a:link {
+  color: orange;
+}
+
+a:visited {
+  color: orange;
+}
+
+.slider {
+  width: 40%;
+  margin: 5px auto;
+}
+
+.half-box .slider {
+  display: inline-block;
+  width: 100px;
+  margin: 0;
+}
+
+
+select#clear-color {
+  width: 75%;
+}
+
+#age-series {
+  font-size: 30px;
+}
+
+.logos {
+  display: block;
+  width: 100%;
+  margin: 0 auto;
+  max-width: 408px;
+}
+
+#webgl-error {
+  color: #000000;
+  border: 4px solid red;
+  font-size: 1.5em;
+  text-align: center;
+  font-weight: bold;
+  width: 20em;
+  padding: 1.5em;
+  margin: 5em auto;
+}
+
+#webgl-error a {
+  color: #FA5705;
+}
+
+div.file-select {
+  margin-bottom: 0em;
+  background-color: #000000;
+  color: #FFFFFF;
+  font-weight: bold;
+  padding: 0.5em;
+}
+
+div.file-submit-div {
+  text-align: center;
+}
+
+.file-submit {
+  margin-top: 0.5em;
+}
+
+input[type=file] {
+  margin-bottom: 0.4em;
+}
+
+select#obj-file-format {
+  width: 85%;
+}
+
+#spectrum {
+  margin-bottom: 5px;
+}
+
+canvas#spectrum-canvas {
+  display: block;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+div#usage-notes {
+  line-height: 1.1em;
+  padding: 0.3em;
+}
+
+div#format-hints {
+  padding-left: 4em;
+  padding-right: 2em;
+}
+
+.maintenance {
+  background-color: red;
+  color: white;
+  padding: 0.4em 1em;
+  line-height: 1.4;
+  font-weight: bold;
+}
+
+#blend-box {
+  padding: 0.6em;
+}
+
+#vertex-data-wrapper {
+  position: absolute;
+  left: 15px;
+  top: 145px;
+  padding: 5px;
+  background-color: transparent;
+  z-index: 9;
+}
+
+#vertex-data {
+  background-color: transparent;
+  color: white;
+  font-weight: bold;
+  padding: 1em;
+}
+
+#vertex-data h3 {
+  font-size: 1.2em;
+  margin-top: 0;
+}
+
+.pick-data {
+  font-weight: normal;
+}
+
+#pick-color, #paint-color {
+  padding: 0.1em;
+  text-align: center;
+  display: inline-block;
+  min-width: 1em;
+  min-height: 1em;
+}
+
+.alignleft {
+  float: left;
+}
+
+.alignright {
+  float: right;
+}
+
+.aligncenter {
+  display: block; 
+  margin-left: auto; 
+  margin-right: auto;
+}
+
+#atlas-label {
+  position: absolute;
+  left: 15px;
+  top: 145px;
+  display: none;
+}
+
+#annotation-wrapper {
+  margin-top: 12px;
+}
+
+#annotation-wrapper h4 {
+  margin-bottom: 2px;
+}
+
+#annotation-header {
+  margin-bottom: 10px;
+}
+
+#annotation-display {
+  border: 2px solid white;
+  background-color: #000000;
+  margin-top: 1em;
+  padding: 0.5em;
+}
+
+#data-range-box {
+  font-size: 14px;
+}
+
+#data-range-box label{
+  margin-top: 4px;
+}
+
+#clearshapes {
+  margin-top: 8px;
+}
+
+.instructions {
+  margin: 10px 0 15px 0;
+  font-size: 0.8em;
+}
+
+small {
+  font-size: 0.6em;
+}
+
+#app-name a {
+  color: #FFFFFF;
+}
+
+
+@media screen and (max-width: 1080px) {
+  html {
+    overflow-y: auto;
+  }
+
+  body {
+    font-size: 24px;
+  }
+
+  #loading {
+    z-index: 999;
+    position: absolute;
+    top: 25px;
+    left: auto;
+    right: 12px;
+    font-size: 3em;
+  }
+
+  #loading img {
+    width: 66px;
+  }
+
+  #app-name {
+    display: block!important;
+    width: 100%!important;
+    position: static;
+    text-align: center;
+    border-bottom: none;
+  }
+
+  .app-label {
+    position: static;
+  }
+
+  #forkongithub {
+    position: static;
+    width: 100%;
+    height: auto;
+    border: 3px solid orange;
+    border-top: none;
+    margin-top: -2px;
+  }
+
+  #forkongithub a {
+    position: static;
+    display: block;
+    width: 100%;
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+    box-shadow: none;
+  }
+
+  #forkongithub a::before, #forkongithub a::after {
+    display: none;
+  }
+
+  #vertex-data-wrapper {
+    font-size: 14px;
+  }
+
+  #brainbrowser {
+    height: 70%;
+  }
+
+  #controls {
+    display: block!important;
+    position: relative;
+    width: 100%!important;
+    height: 2200px!important;
+    bottom: 0;
+    right: 0;
+  }
+
+  #controls-content {
+    overflow: hidden;
+  }
+
+  #control-button {
+    display: none;
+  }
+
+}
+
+@media screen and (max-width: 800px) {
+
+  body {
+    font-size: 18px;
+  }
+  
+  #vertex-data-wrapper {
+    display: none!important;
+  }
+
+}

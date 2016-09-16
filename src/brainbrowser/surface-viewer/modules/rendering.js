@@ -353,6 +353,59 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
   /**
   * @doc function
+  * @name viewer.rendering:gridHelper
+  * @param {number} horizontal_from where start the grid horizontally
+  * @param {number} horizontal_to where end the grid horizontally
+  * @param {number} x1 where horizontal vertices start
+  * @param {number} x2 where horizontal vertices end
+  * @param {object} horizontal_color a THREE color
+  * @param {number} where start the grid vertically
+  * @param {number} where end the grid vertically
+  * @param {number} z1 where vertical vertices start
+  * @param {number} z2 where horizontal vertices end
+  * @param {object} vertical_color a THREE color
+  * @param {number} step of the grid
+  *
+  * @returns {object} The grid itself.
+  *
+  * @description return an object that represent the grid.
+  * ```js
+  * var horizontal_color = new THREE.Color(0x000000);
+  * var vertical_color   = new THREE.Color(0xFF0000);
+  * var gridXY           = viewer.gridHelper( -100, 100, -100, 100, horizontal_color, -100, 100, 100, -100, vertical_color, 10)
+  * ```
+  *
+  */
+  viewer.gridHelper = function ( horizontal_from, horizontal_to, x1, x2, horizontal_color, vertical_from, vertical_to, z1, z2, vertical_color, step) {
+    var geometry = new THREE.Geometry();
+    var material = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors } );
+
+    var grid     = Object.create( THREE.GridHelper.prototype );
+
+    // Horizontal axes
+    for ( var z = horizontal_from; z <= horizontal_to; z += step ) {
+      geometry.vertices.push(
+        new THREE.Vector3( x1, 0, z ),
+        new THREE.Vector3( x2, 0, z )
+      );
+      geometry.colors.push( horizontal_color, horizontal_color );
+    }
+
+    // Vertical axes
+    for ( var x = vertical_from; x <= vertical_to; x += step ) {
+      geometry.vertices.push(
+        new THREE.Vector3( x, 0, z1),
+        new THREE.Vector3( x, 0, z2)
+      );
+      geometry.colors.push( vertical_color, vertical_color );
+    }
+
+    THREE.Line.call( grid, geometry, material, THREE.LinePieces );
+    return grid;
+  };
+
+  /**
+  * @doc function
   * @name viewer.rendering:drawLine
   * @param {object} start A Vector3, start of the line segment
   * @param {object} end A Vector3, end of the line segment
@@ -470,6 +523,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * @name viewer.rendering:pick
   * @param {number} x The x coordinate on the canvas (defaults to current mouse position).
   * @param {number} y The y coordinate on the canvas (defaults to current mouse position).
+  * @param {number} opacity_threshold ignore shape that have opacity lower than the opacity_threshold integer between 0 and 100,
   * @returns {object} If an intersection is detected, returns an object with the following information:
   *
   * * **object** The THREE.Object3D object with which the the click intersected.
@@ -483,13 +537,15 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * and a certain x and y on the canvas. Defaults to
   * the current mouse position.
   * ```js
-  * viewer.pick();          // Pick at current mouse position.
-  * viewer.pick(125, 250);  // Pick at given position.
+  * viewer.pick();              // Pick at current mouse position.
+  * viewer.pick(125, 250);      // Pick at given position.
+  * viewer.pick(125, 250, 25);  // Pick at given position only if opacity of shape is >= to 25%.
   * ```
   */
-  viewer.pick = function(x, y) {
+  viewer.pick = function(x, y, opacity_threshold) {
     x = x === undefined ? viewer.mouse.x : x;
     y = y === undefined ? viewer.mouse.y : y;
+    opacity_threshold = opacity_threshold === undefined ? 0.25 : (opacity_threshold / 100.0);
 
     // Convert to normalized device coordinates.
     x = (x / viewer.dom_element.offsetWidth) * 2 - 1;
@@ -519,6 +575,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     intersects = raycaster.intersectObject(model, true);
 
     for (i = 0; i < intersects.length; i++) {
+      intersects[i].object.userData.pick_ignore = (intersects[i].object.material.opacity < opacity_threshold);
       if (!intersects[i].object.userData.pick_ignore) {
         intersection = intersects[i];
         break;
@@ -631,6 +688,62 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     return vertex_data;
   };
 
+  /**
+  * @doc function
+  * @name viewer.rendering:pickByVertex
+  * @param {number} index Index of the vertex.
+  * @param {object} options Options, which include the following:
+  *
+  * * **model_name**: if more than one model file has been loaded, refer to the appropriate
+  * model using the **model_name** option.
+  *
+  * @returns {object} If an intersection is detected, returns an object with the following information:
+  *
+  * * **object** The THREE.Object3D object with which the the click intersected.
+  * * **point** A THREE.Vector3 object representing the point in 3D space at which the intersection occured.
+  * * **index** The index of the intersection point in the list of vertices.
+  *
+  * Otherwise returns **null**.
+  *
+  * @description
+  *
+  * ```js
+  * viewer.pickByVertex(2356);
+  * viewer.pickByVertex(2356, { model_name: "brain.obj" });
+  * ```
+  */
+  viewer.pickByVertex = function(index, options) {
+    var model = viewer.model;
+    options   = options || {};
+
+    if (index === undefined) {return null;}
+
+    var vector = viewer.getVertex(index, {model_name: options.model_name});
+
+    var intersect_object;
+    var vertex_data;
+    model.children.forEach(function(child) {
+      if (Object.keys(child.userData).length === 0 && child.userData.constructor === Object) { return ; }
+      if (Object.keys(child.userData).length !== 0 && child.userData.model_name !== options.model_name) { return ; }
+
+      var vertices = child.geometry.attributes.index.array;
+      var j;
+
+      index = parseInt(index,0);
+      for (j = 0; j < vertices.length; j++) {
+        if (vertices[j] === index){
+          intersect_object = child;
+          vertex_data = {
+            index: index,
+            point: vector,
+            object: intersect_object,
+          };
+          break;
+        }
+      }
+    });
+    return vertex_data;
+  };
 
   /**
   * @doc function
@@ -869,6 +982,14 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
           inverse.getInverse(model.matrix);
           axis = new THREE.Vector3(0, 1, 0).applyMatrix4(inverse).normalize();
           model.rotateOnAxis(axis, dx / 150);
+
+          if (viewer.model_data.related_models !== undefined ) {
+            viewer.model_data.related_models.forEach(function(child){
+              child.rotation.x = model.rotation.x;
+              child.rotation.y = model.rotation.y;
+              child.rotation.z = model.rotation.z;
+            });
+          }
         } else {
           multiplier  = multiplier || 1.0;
           multiplier *= camera.position.z / default_camera_distance;

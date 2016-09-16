@@ -141,11 +141,11 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   * @doc function
   * @name viewer.views:setWireframe
   * @param {boolean} is_wireframe Is the viewer in wireframe mode?
-  * @param {objects} options currently the only supported option is **shape_name**
-  *   which causes only the wireframe shape with the given name to be toggled.
-  *
+  * @param {objects} options Options, which include the following:
+  * * **shape_name**: which causes only the wireframe shape with the given name to be toggled.
+  * * **keep_surface**: if true keep the surface when wireframe is toogled.
   * @description
-  * Change the opacity of an object in the scene.
+  * Toggle/Untoggle the wireframe.
   * ```js
   * viewer.setWireframe(true, {
   *   shape_name: "shape1"
@@ -153,7 +153,8 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   * ```
   */
   viewer.setWireframe = function(is_wireframe, options) {
-    options = options || {};
+    options      = options || {};
+    var keep_surface = options.keep_surface !== true ? false : true;
 
     var shape_name = options.shape_name;
     var shape = viewer.model.getObjectByName(shape_name);
@@ -168,10 +169,10 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
     shapes.forEach(function(shape) {
       wireframe = shape.getObjectByName("__WIREFRAME__");
       if (wireframe) {
-        toggleWireframe(shape, wireframe, is_wireframe);
+        toggleWireframe(shape, wireframe, is_wireframe, keep_surface);
       } else if (shape.userData.has_wireframe && !shape.userData.creating_wireframe) {
         createWireframe(shape, function(wireframe) {
-          toggleWireframe(shape, wireframe, is_wireframe);
+          toggleWireframe(shape, wireframe, is_wireframe, keep_surface);
         });
       }
     });
@@ -306,8 +307,8 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
     active_wireframe_jobs++;
   }
 
-  function toggleWireframe(shape, wireframe, is_wireframe) {
-    shape.material.visible = !is_wireframe;
+  function toggleWireframe(shape, wireframe, is_wireframe, keep_surface) {
+    shape.material.visible = keep_surface || !is_wireframe;
     wireframe.material.visible = is_wireframe;
     viewer.updated = true;
   }

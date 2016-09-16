@@ -31,12 +31,12 @@
 *
 * @description
 * The BrainBrowser Surface Viewer is a tool for displaying and manipulating 3D datasets in real
-* time. Basic usage consists of calling the **start()** method of the **SurfaceViewer** module, 
+* time. Basic usage consists of calling the **start()** method of the **SurfaceViewer** module,
 * which takes a callback function as its second argument, and then using the **viewer** object passed
 * to that callback function to control how models are displayed:
 *  ```js
 *    BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
-*      
+*
 *      //Add an event listener.
 *      viewer.addEventListener("displaymodel", function() {
 *        console.log("We have a model!");
@@ -47,7 +47,7 @@
 *
 *      // Load a model into the scene.
 *      viewer.loadModelFromURL("/models/brain_surface.obj");
-*       
+*
 *      // Hook viewer behaviour into UI.
 *      $("#wireframe").change(function(e) {
 *        viewer.setWireframe($(this).is(":checked"));
@@ -65,16 +65,16 @@
 * The Surface Viewer can be configured using the **set** and **get**
 * methods of the **BrainBrowser.config** object. The only configuration
 * parameter that must be manually set is **worker\_dir** which indicates
-* the path to the directory where the Web Worker scripts are stored: 
+* the path to the directory where the Web Worker scripts are stored:
 *
 * ```js
 * BrainBrowser.config.set("worker_dir", "js/brainbrowser/workers");
 * ```
 * Configuration parameters used internally by the Surface Viewer also
-* include **model\_types** and **intensity\_data\_types** which are used to 
+* include **model\_types** and **intensity\_data\_types** which are used to
 * associate a Web Worker with each supported file type. Any other parameters
 * can be used without issue to create custom configuration for a given
-* app. 
+* app.
 *
 * Configuration parameters can be retrieved using the **get** method:
 *
@@ -91,8 +91,8 @@
 * BrainBrowser.set("color_maps.spectral.name", "Spectral");
 * ```
 *
-* will set the **name** property in the **spectral** namespace of the 
-* **color_maps** namespace. Namespaces are implemented as objects, so 
+* will set the **name** property in the **spectral** namespace of the
+* **color_maps** namespace. Namespaces are implemented as objects, so
 * if a namespace is requested with **get**, the namespace object will be
 * returned. Using the previous **set**, the following **get**:
 *
@@ -105,7 +105,7 @@
 * ```js
 *  { name: "Spectral" }
 * ```
-* 
+*
 */
 
 /**
@@ -126,68 +126,68 @@
 *     {
 *       name: "...",
 *       color: [...],
-*       indices: [...]  
+*       indices: [...]
 *     },
 *     {
 *       name: "...",
 *       color: [...],
-*       indices: [...]  
+*       indices: [...]
 *     }
 *   ]
 * }
 * ```
-* 
+*
 * Assuming a model with **n** vertices:
 *
-* * **type** (optional) is a string indicating whether the model consists 
-*   of line or triangle data. Default: "polygon".  
-* * **name** (optional) is a string identifier for the model. Default: 
-*   the name of the file that the data was parsed from.  
-* * **vertices** is a flat array of vertex **x**, **y**, **z** coordinates. 
+* * **type** (optional) is a string indicating whether the model consists
+*   of line or triangle data. Default: "polygon".
+* * **name** (optional) is a string identifier for the model. Default:
+*   the name of the file that the data was parsed from.
+* * **vertices** is a flat array of vertex **x**, **y**, **z** coordinates.
 *   Size: **n** X 3.
-* * **normals** (optional) is a flat array of vertex normal vector **x**, 
-*   **y**, **z** components. Size: **n** X 3. If a **normals** array is not 
-*   provided, the Surface Viewer will attempt to appoximate the normals based 
+* * **normals** (optional) is a flat array of vertex normal vector **x**,
+*   **y**, **z** components. Size: **n** X 3. If a **normals** array is not
+*   provided, the Surface Viewer will attempt to appoximate the normals based
 *   on the vertex data.
-* * **colors** (optional) is a flat array of **r**, **g**, **b**, **a** color 
+* * **colors** (optional) is a flat array of **r**, **g**, **b**, **a** color
 *   values. Size: **n** X 4 or 4. If a 4-element array is given, that color
-*   will be used for the entire model. If no color data is provided vertex 
+*   will be used for the entire model. If no color data is provided vertex
 *   colors will all be set to gray.
-* * **shapes** is an array containing objects describing the different 
+* * **shapes** is an array containing objects describing the different
 *   shapes the model represents. Each object will contain an **indices**
-*   property which contains an array of indices pointing into the 
-*   **vertices**, **colors** and **normals** arrays, indicating how to 
+*   property which contains an array of indices pointing into the
+*   **vertices**, **colors** and **normals** arrays, indicating how to
 *   assemble them into triangles or line pieces. For **polygon** models,
 *   each triplet of indices should describe a triangle. For **line** models,
 *   each pair of indices should describe a line segment. Optionally, each
 *   shape can also be given a **color** property, which indicates the color
 *   of the shape (overriding model and vertex colors at the top level). The
-*   color should be given as a 4-element array indicating **r**, **g**, **b**, 
-*   **a** color values. An optional **name** property can also be given to 
-*   identify the shape. If no **name** is provided, the **name** property 
-*   defaults to a value based on the name of the file that contained the model 
-*   and the shape's index number.   
+*   color should be given as a 4-element array indicating **r**, **g**, **b**,
+*   **a** color values. An optional **name** property can also be given to
+*   identify the shape. If no **name** is provided, the **name** property
+*   defaults to a value based on the name of the file that contained the model
+*   and the shape's index number.
 */
 (function() {
   "use strict";
-  
+
   var SurfaceViewer = BrainBrowser.SurfaceViewer = {
 
     /**
     * @doc function
     * @name SurfaceViewer.static methods:start
-    * @param {string} element ID of a DOM element, or the DOM element itself, 
+    * @param {string} element ID of a DOM element, or the DOM element itself,
     * into which the viewer will be inserted.
     * @param {function} callback Callback function to which the viewer object
     * will be passed after creation.
     * @description
     * The start() function is the main point of entry to the Surface Viewer.
-    * It creates a viewer object that is then passed to the callback function 
+    * It creates a viewer object that is then passed to the callback function
     * supplied by the user.
     *
     * ```js
     *   BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
-    *     
+    *
     *     //Add an event listener.
     *     viewer.addEventListener("displaymodel", function() {
     *       console.log("We have a model!");
@@ -198,7 +198,7 @@
     *
     *     // Load a model into the scene.
     *     viewer.loadModelFromURL("/models/brain_surface.obj");
-    *      
+    *
     *     // Hook viewer behaviour into UI.
     *     $("#wireframe").change(function(e) {
     *       viewer.setWireframe($(this).is(":checked"));
@@ -229,13 +229,13 @@
       * @property {object} autorotate Automatic rotations around the **x**, **y**
       * and **z** axes can be set.
       * @property {object} annotations Current annotations.
-      * 
+      *
       * @description
       * The viewer object encapsulates all functionality of the Surface Viewer.
-      * Handlers can be attached to the **viewer** object to listen 
-      * for certain events occuring over the viewer's lifetime. Currently, the 
+      * Handlers can be attached to the **viewer** object to listen
+      * for certain events occuring over the viewer's lifetime. Currently, the
       * following viewer events can be listened for:
-      * 
+      *
       * * **displaymodel** A new model has been displayed on the viewer.
       * * **loadintensitydata** New intensity data has been loaded.
       * * **updateintensitydata** The intensity data has been updated.
@@ -246,7 +246,7 @@
       * * **clearscreen** The viewer has been cleared of objects.
       * * **draw** The scene has been redrawn.
       *
-      * To listen for an event, simply use the **viewer.addEventListener()** method with 
+      * To listen for an event, simply use the **viewer.addEventListener()** method with
       * with the event name and a callback funtion:
       *
       * ```js
@@ -284,7 +284,7 @@
         * @doc function
         * @name viewer.attributes:getAttribute
         * @param {string} name Name of the attribute to retrieve.
-        * 
+        *
         * @description
         * Retrieve the value of an attribute.
         *
@@ -296,7 +296,7 @@
         *
         * Currently, the following attributes are used by the Surface Viewer:
         *
-        * * **fix\_color\_range** Maintain the current intensity range, even if new data is 
+        * * **fix\_color\_range** Maintain the current intensity range, even if new data is
         *   loaded.
         */
         getAttribute: function(name) {
@@ -307,9 +307,9 @@
         * @name viewer.attributes:setAttribute
         * @param {string} name Name of the attribute to retrieve.
         * @param {any} value Value to set the attribute to.
-        * 
+        *
         * @description
-        * Set the value of an attribute. 
+        * Set the value of an attribute.
         *
         * The viewer object can maintain an arbitrary set of key-value
         * pairs to aid in the functioning of various parts of the system.
@@ -319,7 +319,7 @@
         *
         * Currently, the following attributes are used by the Surface Viewer:
         *
-        * * **fix\_color\_range** Maintain the current intensity range, even if new data is 
+        * * **fix\_color\_range** Maintain the current intensity range, even if new data is
         *   loaded.
         */
         setAttribute: function(name, value) {
@@ -348,11 +348,12 @@
           options = options || {};
           var vertices = viewer.model_data.get(options.model_name).vertices;
           var i = index * 3;
-          
+
           return new SurfaceViewer.THREE.Vector3(vertices[i], vertices[i+1], vertices[i+2]);
-        }
+        },
+
       };
-      
+
       //////////////////////////////
       // Load modules.
       //////////////////////////////
@@ -362,7 +363,7 @@
       * @name viewer.events:displaymodel
       *
       * @description
-      * Triggered when a new model is displayed on the viewer. The following information 
+      * Triggered when a new model is displayed on the viewer. The following information
       * will be passed in the event object:
       *
       * * **event.model**: the visualized model as a THREE.Object3D object.
@@ -380,7 +381,7 @@
       * @name viewer.events:loadintensitydata
       *
       * @description
-      * Triggered when a new intensity is loaded. The following information 
+      * Triggered when a new intensity is loaded. The following information
       * will be passed in the event object:
       *
       * * **event.model\_data**: the model data with which the intensity data is associated.
@@ -397,7 +398,7 @@
       * @name viewer.events:loadcolormap
       *
       * @description
-      * Triggered when a new color map has finished loading. The following information 
+      * Triggered when a new color map has finished loading. The following information
       * will be passed in the event object:
       *
       * * **event.color\_map**: the loaded color map.
@@ -427,7 +428,7 @@
       * @name viewer.events:updateintensitydata
       *
       * @description
-      * Triggered when the intensity is updated. The following information 
+      * Triggered when the intensity is updated. The following information
       * will be passed in the event object:
       *
       * * **event.model\_data**: the model data on which the intensity data was updated.
@@ -446,7 +447,7 @@
       * @name viewer.events:changeintensityrange
       *
       * @description
-      * Triggered when the intensity range changes. The following information 
+      * Triggered when the intensity range changes. The following information
       * will be passed in the event object:
       *
       * * **event.model\_data**: the model data on which the intensity data was updated.
@@ -465,7 +466,7 @@
       * @name viewer.events:updatecolors
       *
       * @description
-      * Triggered when model's colors are udpated. The following information 
+      * Triggered when model's colors are udpated. The following information
       * will be passed in the event object:
       *
       * * **event.model\_data**: the model data on representing the model that was updated.
@@ -484,7 +485,7 @@
       * @name viewer.events:blendcolors
       *
       * @description
-      * Triggered when multiple sets of intensity data have been loaded and blended. 
+      * Triggered when multiple sets of intensity data have been loaded and blended.
       * The following information will be passed in the event object:
       *
       * * **event.model\_data**: the model data on representing the model that was updated.
@@ -503,7 +504,7 @@
       * @name viewer.events:draw
       *
       * @description
-      * Triggered when the scene is redrawn. The following information 
+      * Triggered when the scene is redrawn. The following information
       * will be passed in the event object:
       *
       * * **event.renderer**: the three.js renderer being used to draw the scene.
@@ -545,11 +546,11 @@
         }
       });
 
-      //////////////////////////////////////////////////////  
-      // Prepare workers and pass SurfaceViewer instance 
-      // to calling application. 
-      ////////////////////////////////////////////////////// 
-      
+      //////////////////////////////////////////////////////
+      // Prepare workers and pass SurfaceViewer instance
+      // to calling application.
+      //////////////////////////////////////////////////////
+
       setupWorkers(function() {
         callback(viewer);
       });
@@ -577,10 +578,10 @@
   BrainBrowser.config.set("intensity_data_types.freesurferbin.binary", true);
   BrainBrowser.config.set("intensity_data_types.freesurferasc.worker", "freesurferasc.intensity.worker.js");
 
-  // Build worker URLs and attempt to inline 
+  // Build worker URLs and attempt to inline
   // them using Blob URLs if possible.
   function setupWorkers(callback) {
-    
+
     var worker_dir = BrainBrowser.config.get("worker_dir");
     var error_message;
 
@@ -588,7 +589,7 @@
       error_message = "error in SurfaceViewer configuration.\n" +
         "BrainBrowser configuration parameter 'worker_dir' not defined.\n" +
         "Use 'BrainBrowser.config.set(\"worker_dir\", ...)' to set it.";
-      
+
       BrainBrowser.events.triggerEvent("error", { message: error_message });
       throw new Error(error_message);
     }
@@ -663,7 +664,7 @@
     }
 
   }
-  
+
 })();
 
 

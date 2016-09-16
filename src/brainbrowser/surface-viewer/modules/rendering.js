@@ -575,7 +575,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     intersects = raycaster.intersectObject(model, true);
 
     for (i = 0; i < intersects.length; i++) {
-      intersects[i].object.userData.pick_ignore = (intersects[i].object.material.opacity < opacity_threshold) ? true : false;
+      intersects[i].object.userData.pick_ignore = (intersects[i].object.material.opacity < opacity_threshold);
       if (!intersects[i].object.userData.pick_ignore) {
         intersection = intersects[i];
         break;

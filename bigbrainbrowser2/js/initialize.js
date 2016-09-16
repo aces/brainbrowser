@@ -189,6 +189,13 @@ function defineUiCallbacks(){
   });
 
 
+  // save the content of the canvas.
+  // We are using  github.com/eligrey/FileSaver.js for that
+  $("#saveCaptureBt").click(function(){
+    $("#brainbrowser canvas")[0].toBlob(function(blob) {
+      saveAs(blob, "brainbrowser_capture.png");
+    });
+  });
 
 
   // * * * TEST BUTTON * * *

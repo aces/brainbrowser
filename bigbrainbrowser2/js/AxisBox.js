@@ -21,6 +21,8 @@ var AxisBox = function(BrainBrowserViewer, domElement){
   this.init();
   this.animate();
   this.buildAxes();
+
+  this.originalQuaternion = this.axisSystem.quaternion.clone();
 }
 
 
@@ -86,7 +88,7 @@ AxisBox.prototype.buildAxes = function(){
     new THREE.Vector3(0, 0, 0),
     new THREE.Vector3(this.lineLength, 0, 0),
     {
-      color: 0xbb0000,
+      color: 0xff0000,
       dashed: false
     }
   );
@@ -96,8 +98,8 @@ AxisBox.prototype.buildAxes = function(){
     new THREE.Vector3(0, 0, 0),
     new THREE.Vector3(-this.lineLength, 0, 0),
     {
-      color: 0xFF8888,
-      dashed: false
+      color: 0xFF0000,
+      dashed: true
     }
   );
 
@@ -106,7 +108,7 @@ AxisBox.prototype.buildAxes = function(){
     new THREE.Vector3(0, 0, 0),
     new THREE.Vector3(0, this.lineLength, 0),
     {
-      color: 0x006600,
+      color: 0x00ff00,
       dashed: false
     }
   );
@@ -116,8 +118,8 @@ AxisBox.prototype.buildAxes = function(){
     new THREE.Vector3(0, 0, 0),
     new THREE.Vector3(0, -this.lineLength, 0),
     {
-      color: 0x66ff77,
-      dashed: false
+      color: 0x00ff00,
+      dashed: true
     }
   );
 
@@ -126,7 +128,7 @@ AxisBox.prototype.buildAxes = function(){
     new THREE.Vector3(0, 0, 0),
     new THREE.Vector3(0, 0, this.lineLength),
     {
-      color: 0x0000bb,
+      color: 0x0000ff,
       dashed: false
     }
   );
@@ -136,8 +138,8 @@ AxisBox.prototype.buildAxes = function(){
     new THREE.Vector3(0, 0, 0),
     new THREE.Vector3(0, 0, -this.lineLength),
     {
-      color: 0x5588ff,
-      dashed: false
+      color: 0x0000ff,
+      dashed: true
     }
   );
 
@@ -181,6 +183,21 @@ AxisBox.prototype.drawLineGeneric = function(from, to, options){
 }
 
 
+/*
+  Apply a rotation using a quaternion.
+  Most likely a quaternion from another Object3D.
+
+  Args:
+    q: THREE.Quaternion - the descriptor of local rotation
+*/
 AxisBox.prototype.applyQuaternion = function(q){
   this.axisSystem.quaternion.copy( q );
+}
+
+
+/*
+  Restore the original quaternion, before any additional rotation was performed
+*/
+AxisBox.prototype.reset = function(){
+  this.applyQuaternion( this.originalQuaternion );
 }

@@ -97,6 +97,9 @@ function defineUiCallbacks(){
 
     // reset stuff fromthe core, like rotation and lights
     bbViewer.resetView2();
+
+    // restore original rotation for the axisBox
+    axisBox.reset();
   });
 
 
@@ -119,6 +122,9 @@ function defineUiCallbacks(){
 
     // make grid invisible
     gridManager.hideGrid();
+
+    // restore original rotation for the axisBox
+    axisBox.reset();
   });
 
 
@@ -130,22 +136,22 @@ function defineUiCallbacks(){
   });
 
 
-  // toggle axes
+  // toggle axes on the graphicObjects
   $("#axesToggleBt").click(function(){
     bbViewer.toggleAxes();
   });
 
 
-  // to slide the left pannel
-  $("#testButton1").click(function(){
-    console.log("THIS IS THE TEST BUTTON");
-    bbViewer.toggleAxes();
+  // updated the quaternion of the axis box, using the quaternion of the graphicObjects
+  bbViewer.onDragged( function(evt){
+    axisBox.applyQuaternion( evt.goQuaternion );
   });
 
 
 
-  $("#brainbrowser").mousemove(function(){
-    console.log(bbViewer.graphicObjects.quaternion);
-    axisBox.applyQuaternion( bbViewer.graphicObjects.quaternion );
+  // * * * TEST BUTTON * * *
+  $("#testButton1").click(function(){
+    console.log("THIS IS THE TEST BUTTON");
+
   });
 }

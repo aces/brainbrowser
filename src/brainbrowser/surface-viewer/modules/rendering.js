@@ -126,6 +126,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   viewer.axis = null;
 
 
+  // callback for when the graphic objects are dragged
+  viewer.onDraggedCallback = null;
+
   var axisHelper = new THREE.AxisHelper( 20 );
   scene.add( axisHelper );
 
@@ -1204,6 +1207,12 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     return true;
   }
 
+
+
+  viewer.onDragged = function(cb){
+    viewer.onDraggedCallback = cb;
+  }
+
   ////////////////////////////////////
   // PRIVATE FUNCTIONS
   ////////////////////////////////////
@@ -1303,7 +1312,20 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       last_x = x;
       last_y = y;
 
+      // calling a callback (if defined). the event of this callback has 2 objects:
+      //    goQuaternion: THREE.Quaternion - describe the rotation of the graphicObjects
+      //    camPosition: THREE.Vector3 - describe the camera position
+      // both are deep copies, but usually only one of them gets changed (per single call)
+      if(viewer.onDraggedCallback){
+        viewer.onDraggedCallback({
+          goQuaternion: graphicObjects.quaternion.clone(),
+          camPosition: camera.position.clone()
+        })
+      }
+
       viewer.updated = true;
+
+
     }
 
     function touchZoom() {

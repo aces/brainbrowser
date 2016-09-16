@@ -92,6 +92,7 @@
           </select>
         </div>
 
+        <div id="axisBox"></div>
 
         <!-- Load & unload -->
         <div class="twoButtons">
@@ -108,29 +109,11 @@
         </div>
 
 
-        <!-- just a dashed line -->
-        <div class="separator"></div>
 
-        <div id="axisBox"></div>
+
 
         <!-- just a dashed line -->
         <div class="separator"></div>
-
-
-        <!-- Select filetype -->
-        <div class="labelAndDropdown">
-          <div class="label">Background color</div>
-          <select class="dropdownMenu" onchange="" autocomplete="off">
-            <option value="black">Black</option>
-            <option value="grey">Grey</option>
-            <option value="white">White</option>
-            <option value="green">Green</option>
-            <option value="blue">Blue</option>
-            <option value="cyan">Cyan</option>
-            <option value="magenta">Magenta</option>
-            <option value="yellow">Yellow</option>
-          </select>
-        </div>
 
 
         <!-- Auto rotation -->
@@ -143,6 +126,7 @@
           </div>
         </div>
 
+
         <!-- list of 6 buttons -->
         <div class="sixButtons">
           <div id="resetview" class="buttonBB miniButton noselect"><i class="fa fa-home" aria-hidden="true"></i>
@@ -152,7 +136,7 @@
           <div id="axesToggleBt" class="buttonBB miniButton noselect"><i class="fa fa-compass" aria-hidden="true"></i>
           </div> <!--  toggle axes -->
           <div id="toggleWireFrameBt" class="buttonBB miniButton noselect" active="0">&#9676;</div>  <!-- wireframe -->
-          <div class="buttonBB miniButton noselect">&#128526;</div> <!--  3D glasses -->
+          <div id="threedeeBt" class="buttonBB miniButton noselect" active="0">&#128526;</div> <!--  3D glasses -->
           <div class="buttonBB miniButton noselect"><i class="fa fa-camera" aria-hidden="true"></i>
 </div> <!-- snapshot -->
         </div>
@@ -160,6 +144,23 @@
 
         <!-- just a dashed line -->
         <div class="separator"></div>
+
+        <!-- Select background color -->
+        <div class="labelAndDropdown">
+          <div class="label">Background color</div>
+          <select id="bgColorMenu" class="dropdownMenu" autocomplete="off">
+            <option value="0x000000">Black</option>
+            <option value="0x444444">Dark grey</option>
+            <option value="0x777777">Mid grey</option>
+            <option value="0xbbbbbb">Light grey</option>
+            <option value="0xffffff">White</option>
+          </select>
+        </div>
+
+
+        <!-- just a dashed line -->
+        <div class="separator"></div>
+
 
         <!-- Two buttons -->
         <div class="twoButtons">

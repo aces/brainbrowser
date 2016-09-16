@@ -24,7 +24,9 @@ $(function() {
 
   window.viewer = BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
     bbViewer = viewer;
-    
+
+    // add (the possibility to use) the 3D glass effect
+    viewer.addEffect("AnaglyphEffect");
 
     // render, no matter we load files or not
     viewer.render();

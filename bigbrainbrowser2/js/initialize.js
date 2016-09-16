@@ -105,6 +105,7 @@ function defineUiCallbacks(){
   // to slide the left pannel
   $("#gridToggleBt").click(function(){
     gridManager.toggleGrid();
+    showActivation( this );
   });
 
 
@@ -132,12 +133,14 @@ function defineUiCallbacks(){
     var isActive = parseInt( $(this).attr("active") );
     bbViewer.setWireframe( !isActive );
     $(this).attr("active", +!isActive );
+    showActivation( this );
   });
 
 
   // toggle axes on the graphicObjects
   $("#axesToggleBt").click(function(){
     bbViewer.toggleAxes();
+    showActivation( this );
   });
 
 
@@ -147,19 +150,44 @@ function defineUiCallbacks(){
   });
 
 
+  // autorotate control, works for the 3 of them
   $(".autorotate").click(function(){
     var axis = $(this).attr("axis");
-
     // this axis is currently on auto rotation mode
     if(bbViewer.autorotate[axis]){
       bbViewer.autorotate[axis] = false;
-      $(this).removeClass("activated")
     }else{
       bbViewer.autorotate[axis] = true;
-      $(this).addClass("activated")
     }
 
+    showActivation( this );
   });
+
+
+  // select the background color
+  $("#bgColorMenu").change(function(e){
+    var bgcolor = parseInt($(e.target).val(), 16);
+    bbViewer.setClearColor(bgcolor);
+  });
+
+
+
+  $("#threedeeBt").click(function(){
+
+    var isActive = parseInt( $(this).attr("active") );
+
+    if(isActive){
+      bbViewer.setEffect("None");
+      console.log("AnaglyphEffect: OFF");
+    }else{
+      bbViewer.setEffect("AnaglyphEffect");
+      console.log("AnaglyphEffect: ON");
+    }
+
+    $(this).attr("active", +!isActive );
+    showActivation( this );
+  });
+
 
 
 
@@ -168,4 +196,15 @@ function defineUiCallbacks(){
   //  bbViewer.autorotate.x = !bbViewer.autorotate.x;
 
   });
+}
+
+
+// just add some arker blue background to a button when clicked,
+// and removes it when clicked again
+function showActivation(jqElem){
+  if( $(jqElem).hasClass("activated") ){
+    $(jqElem).removeClass("activated");
+  }else {
+    $(jqElem).addClass("activated");
+  }
 }

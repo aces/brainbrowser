@@ -4,6 +4,7 @@ var THREE = null;
 var shapeController = null;
 var modelCollection = null;
 var shapePicker = null;
+var annotationController = null;
 
 // keep a track of what shape is named how and from what file it comes.
 var shapeIndexer = new ShapeIndexer();
@@ -19,6 +20,7 @@ var bbViewer = null;
 
 
 $(function() {
+
   // init hbs, preload templates, build some objects that dont need viewer
   init();
 
@@ -44,6 +46,10 @@ $(function() {
     // tool to build the grids
     gridManager = new GridManager(viewer);
 
+    // manage all the annotation system
+    annotationController = new AnnotationController(viewer);
+
+
     // init all the callbacks related to ui
     defineUiCallbacks();
 
@@ -60,6 +66,8 @@ $(function() {
 
       // adapt the grid to all the shapes (old and this newly loaded)
       gridManager.updateGrid();
+
+
     });
 
 

@@ -67,6 +67,23 @@ function defineUiCallbacks(){
   });
 
 
+  shapePicker.ctrlAndShiftPick(function(shapeInfo){
+
+
+    var id = annotationController.pickAnnotation();
+
+    console.log("ID: ");
+    console.log(id);
+
+    // if no shape was picked, we add an annotation
+    if(!id){
+      annotationController.addAnnotation([shapeInfo.point.x, shapeInfo.point.y, shapeInfo.point.z], null, null)
+    }
+
+  });
+
+
+
   /*
     Callback: when a opacity slider crosses the opacity threshold
   */
@@ -200,7 +217,14 @@ function defineUiCallbacks(){
 
   // * * * TEST BUTTON * * *
   $("#testButton1").click(function(){
-  //  bbViewer.autorotate.x = !bbViewer.autorotate.x;
+    annotationController.addAnnotation([0, 0, 0], "the name", "the desc")
+    //annotationController.initCallbacks();
+  });
+
+  $("#testButton2").click(function(){
+    //console.log(annotationController.annotations);
+    //console.log(jscolor);
+
 
   });
 

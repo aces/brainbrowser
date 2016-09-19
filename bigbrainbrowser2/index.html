@@ -24,6 +24,7 @@
   <script src="js/ShapePicker.js"></script>
   <script src="js/AxisBox.js"></script>
   <script src="js/initialize.js"></script>
+  <script src="js/AnnotationController.js"></script>
 
   <!-- <script src="js/ui.js"></script> -->
 
@@ -222,26 +223,11 @@
 
 
         <div class="label">Annotations</div>
-        <div id="annotations">
-
-            <div class="twoButtons">
-              <div class="buttonBB noselect"><i class="fa fa-folder-open" aria-hidden="true"></i>Load</div>
-              <div class="buttonBB noselect"><i class="fa fa-floppy-o" aria-hidden="true"></i>Save</div>
-            </div>
-
-            <div class="annotation" index="0">
-                <div style="display: flex;">
-                    <div class="annotName">The name</div>
-                    <div class="annotButtons">
-                      <div class="annotToggle"><i class="fa fa-eye" aria-hidden="true"></i></div>
-                      <div class="annotDelete"><i class="fa fa-trash" aria-hidden="true"></i></div>
-                    </div>
-                </div>
-
-                <textarea class="annotDescription"></textarea>
-            </div>
-
+        <div class="twoButtons">
+          <div class="buttonBB noselect"><i class="fa fa-folder-open" aria-hidden="true"></i>Load</div>
+          <div class="buttonBB noselect"><i class="fa fa-floppy-o" aria-hidden="true"></i>Save</div>
         </div>
+        <div id="annotations"></div>
 
 
       </div> <!-- END controls -->
@@ -297,6 +283,7 @@
   <!-- BrainBrowser -->
   <script src="js/vendors/FileSaver.min.js"></script>
   <script src="js/vendors/pako.js"></script>
+  <script src="js/vendors/jscolor.min.js"></script>
   <script src="js/brainbrowser/brainbrowser.js"></script>
   <script src="js/brainbrowser/core/tree-store.js"></script>
   <script src="js/brainbrowser/lib/config.js"></script>

@@ -32,7 +32,8 @@ ShapePicker.prototype.genericPick = function(callback){
 */
 ShapePicker.prototype.shiftPick = function(callback){
   this.genericPick(function(event, shapeInfo){
-    if(event.shiftKey){
+    if(event.shiftKey && !(event.ctrlKey || event.metaKey)){
+      console.log("only shift");
       callback(shapeInfo);
     }
   });
@@ -45,7 +46,22 @@ ShapePicker.prototype.shiftPick = function(callback){
 */
 ShapePicker.prototype.ctrlPick = function(callback){
   this.genericPick(function(event, shapeInfo){
-    if(event.ctrlKey || event.metaKey){
+    if((event.ctrlKey || event.metaKey) && !event.shiftKey){
+      console.log("only ctrl/cmd");
+      callback(shapeInfo);
+    }
+  });
+}
+
+
+/*
+  Perform a pick and call the callback only it the CTRL key was pressed.
+  Works with CMD on mac.
+*/
+ShapePicker.prototype.ctrlAndShiftPick = function(callback){
+  this.genericPick(function(event, shapeInfo){
+    if((event.ctrlKey || event.metaKey) &&  event.shiftKey){
+      console.log("both shift AND ctrl/cmd");
       callback(shapeInfo);
     }
   });

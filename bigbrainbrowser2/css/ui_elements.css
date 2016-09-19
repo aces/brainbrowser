@@ -1,5 +1,7 @@
 textarea, input { outline: none; }
 
+textarea { resize:vertical ; }
+
 /* Regular buttons */
 .buttonBB{
   border: 1px solid hsl(196, 100%, 70%);

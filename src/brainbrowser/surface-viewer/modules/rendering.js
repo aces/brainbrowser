@@ -77,9 +77,10 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   });
   var scene = new THREE.Scene();
   var camera = new THREE.PerspectiveCamera(30, viewer.dom_element.offsetWidth / viewer.dom_element.offsetHeight, 1, 3000);
+  viewer.camera = camera;
   var default_camera_distance = 500;
 
-  var totalOffset = new THREE.Vector3();
+  viewer.totalOffset = new THREE.Vector3();
 
 
   viewer.lightSystem = new THREE.Object3D();
@@ -118,6 +119,10 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
   scene.add(viewer.graphicObjects);
   viewer.graphicObjects.add(viewer.model);
+
+  viewer.annotationSystem = new THREE.Object3D();
+  viewer.annotationSystem.name = "annotaionSystem";
+  viewer.graphicObjects.add(viewer.annotationSystem);
 
   // to set later
   viewer.gridSystem = null;
@@ -965,7 +970,12 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   */
   viewer.changeCenterRotation2 = function(newCenter) {
     var scene = viewer.graphicObjects.parent;
+    // moving the model
     viewer.model.position.sub(newCenter);
+
+    // moving the annotation system
+    viewer.annotationSystem.position.sub(newCenter);
+
     viewer.updated = true;
 
     // updating the logic shapes with their new coodinates / box
@@ -976,7 +986,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     // to be able to reset to the original position
     // we place it in the end so it does not affect when
     // calling resetCenterRotation()
-    totalOffset.add(newCenter);
+    viewer.totalOffset.add(newCenter);
   }
 
 
@@ -986,9 +996,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     place the content to the original position (as encoded in the file)
   */
   viewer.resetCenterRotation = function(){
-    totalOffset.negate();
-    viewer.changeCenterRotation2(totalOffset);
-    totalOffset.set(0, 0, 0);
+    viewer.totalOffset.negate();
+    viewer.changeCenterRotation2(viewer.totalOffset);
+    viewer.totalOffset.set(0, 0, 0);
   }
 
 
@@ -1033,7 +1043,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
   */
   viewer.shiftModelDataAccordingly = function(modelData){
-    viewer.changeCenterRotationModelDataShapes(modelData, totalOffset);
+    viewer.changeCenterRotationModelDataShapes(modelData, viewer.totalOffset);
   }
 
 
@@ -1041,10 +1051,10 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   /*
     Added by Jo.
 
-    return totalOffset as an array [x, y, z] rather than a THREE.Vector3
+    return viewer.totalOffset as an array [x, y, z] rather than a THREE.Vector3
   */
   viewer.getTotalOffset = function(){
-    return [totalOffset.x, totalOffset.y, totalOffset.z];
+    return [viewer.totalOffset.x, viewer.totalOffset.y, viewer.totalOffset.z];
   }
 
   /*

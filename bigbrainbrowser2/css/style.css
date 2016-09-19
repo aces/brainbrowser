@@ -160,3 +160,43 @@ body{
   margin: 15px;
   height: 250px;
 }
+
+
+#annotations{
+
+}
+
+
+.annotation{
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-top: 10px;
+  border-top-color: hsl(196, 100%, 85%);
+  border-top-width: 1px;
+  border-top-style: solid;
+  padding-top: 10px;
+}
+
+.annotButtons{
+  display: flex;
+  width: 30px;
+}
+
+.annotButtons *{
+  padding-left: 10px;
+}
+
+
+.annotName{
+  width: 75%;
+}
+
+
+.annotDescription{
+  width: 100%;
+  height: 45px;
+  margin: 10px 0px 0px;
+  background-color: rgba(255, 255, 255, 0.8);
+  overflow:hidden;
+  border: none;
+}

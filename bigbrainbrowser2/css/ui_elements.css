@@ -1,4 +1,4 @@
-
+textarea, input { outline: none; }
 
 /* Regular buttons */
 .buttonBB{
@@ -127,6 +127,7 @@
   margin-top: 10px;
   margin-bottom: 10px;
   height: 25px;
+  /*left: -15px;*/
 }
 
 .labelAndDropdown *{
@@ -212,6 +213,7 @@ width: 50%;
   margin-top: 20px;
   margin-bottom: 10px;
   height: 30px;
+  /*left: -15px;*/
 }
 
 .LabelAndThreeButtons .threeButtons{

@@ -41,7 +41,8 @@ ModelCollection.prototype.newModelToLoad = function(evt){
   if(type){
     document.getElementById("modelFormatSelector").value = type;
 
-    if(type !== "mniobj"){
+    //if(type !== "mniobj"){
+    if(type){
       this.viewer.loadModelFromFile(evt.target, {
         format: type,
         complete: function(){console.log("loading done");}

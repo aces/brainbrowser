@@ -3,6 +3,7 @@ var AnnotationController = function(BrainBrowserViewer){
   $.hbsPreload("annotation");
 
   this.defaultColor = 0xEEEE00;
+  this.radius = 0.75;
 
   this.annotations = {};
   this.counter = 0;
@@ -18,7 +19,9 @@ var AnnotationController = function(BrainBrowserViewer){
 
 
 /*
-  add an annotation to the list, and create the equivalent sphere
+  add an annotation to the list, and create the equivalent sphere.
+  Args:
+    coord
 */
 AnnotationController.prototype.addAnnotation = function(coord, name, description){
   var that = this;
@@ -43,9 +46,9 @@ AnnotationController.prototype.addAnnotation = function(coord, name, description
   this.annotations[id] = annotation;
 
   // add 3D sphere
-  var geometry = new THREE.SphereGeometry( 5, 32, 32 );
-  //var geometry = new THREE.BoxGeometry( 10, 10, 10 );
+  var geometry = new THREE.SphereGeometry( this.radius, 32, 32 );
   var material = new THREE.MeshBasicMaterial( {color: this.defaultColor} );
+  material.transparent = true;
   var mesh = new THREE.Mesh( geometry, material );
   mesh.name = id;
 
@@ -153,32 +156,88 @@ AnnotationController.prototype.changeColorAnnotation = function(id, color){
 }
 
 
-
+/*
+  Throw a raycaster that looks for some annotationSystem children.
+  If found, return its id, if not found, return null.
+  The typical use case is to display annotation info if found, or to create a
+  new annotation if not was found at this location.
+*/
 AnnotationController.prototype.pickAnnotation = function(){
   var mouse = new THREE.Vector2();
   mouse.x = (this.viewer.mouse.x / this.viewer.dom_element.offsetWidth) * 2 - 1;
   mouse.y = (- this.viewer.mouse.y / this.viewer.dom_element.offsetHeight) * 2 + 1;
 
+  // raycaster, the old fashioned way (I don't think it's like like in recent release)
   var raycaster = new THREE.Raycaster();
-  //raycaster.setFromCamera( mouse, this.viewer.camera );
-  //var intersects = raycaster.intersectObjects( this.annotationSystem );
-
   var vector       = new THREE.Vector3(mouse.x, mouse.y, this.viewer.camera.near);
   vector.unproject(this.viewer.camera);
-  raycaster.set(this.viewer.camera.position, vector.sub(this.viewer.camera.position).normalize());
-  intersects = raycaster.intersectObject(this.annotationSystem, true);
 
-  console.log("intersect with " + intersects.length);
+  raycaster.set(
+    this.viewer.camera.position,
+    vector.sub(this.viewer.camera.position).normalize()
+  );
+
+  intersects = raycaster.intersectObject(this.annotationSystem, true);
 
   if(intersects.length > 0){
     var id = intersects[0].object.name;
-    $("#" + id).scrollintoview();
+    this.focusOnAnnotationWidget(id);
     return id;
   }else{
     return null;
   }
 
 }
+
+
+/*
+  Scroll the left sidebar to make the related widget visible and blink it for 2s.
+*/
+AnnotationController.prototype.focusOnAnnotationWidget = function(id){
+  // make it blink for 2sec
+  $("#" + id).addClass("blink_me");
+  $("#" + id).scrollintoview({
+    complete: function() {
+      setTimeout(function(){
+        $("#" + id).removeClass("blink_me");
+      }, 2000);
+    }
+  });
+}
+
+
+/*
+  Make the model invisible and all the other annotations partly transparent
+*/
+AnnotationController.prototype.enableTarget = function(id){
+  this.viewer.model.visible = false;
+
+  this.annotationSystem.children.forEach(function(annotSphere){
+    annotSphere.material.opacity = 0.15;
+  });
+
+  var targetedSphere = this.annotationSystem.getObjectByName(id);
+  targetedSphere.material.opacity = 1;
+
+  this.viewer.updated = true;
+}
+
+
+
+/*
+  Cancel the work done by enableTarget() -> show the model + normal
+  annotation sphere opacity
+*/
+AnnotationController.prototype.disableTarget = function(id){
+  this.viewer.model.visible = true;
+
+  this.annotationSystem.children.forEach(function(annotSphere){
+    annotSphere.material.opacity = 1;
+  });
+
+  this.viewer.updated = true;
+}
+
 
 
 /*
@@ -226,6 +285,28 @@ AnnotationController.prototype.initCallbacks = function(){
     var id = annotBlock.attr("id");
 
     that.toggleAnnotation(id);
+  });
+
+
+  // Make all the rest partly transparent, except this annotation
+  // Note: not using the regular click cb because the elements are not created yet
+  $('body').on("mouseenter", ".annotTarget", function(){
+    var annotBlock = $(this).closest(".annotation");
+    var id = annotBlock.attr("id");
+
+    console.log("entering " + id);
+    that.enableTarget(id);
+  });
+
+
+  // Make all the rest partly transparent, except this annotation
+  // Note: not using the regular click cb because the elements are not created yet
+  $('body').on("mouseleave", ".annotTarget", function(){
+    var annotBlock = $(this).closest(".annotation");
+    var id = annotBlock.attr("id");
+
+    console.log("leaving " + id);
+    that.disableTarget(id);
   });
 
 

@@ -183,14 +183,14 @@ body{
 }
 
 .annotButtons *{
-  margin-left: 3px;
+  margin-left: 1px;
   padding: 2px;
   font-size: 17px
 }
 
 .annotName{
   font-size: inherit;
-  width: 80%;
+  width: 73%;
   border: none;
   background-color: transparent;
   color: hsl(196, 100%, 40%);
@@ -238,6 +238,11 @@ body{
 
 .annotValidate:hover{
   color: #00FF00;
+}
+
+
+.annotTarget:hover{
+  color: #B42DEE;
 }
 
 

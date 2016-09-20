@@ -11,14 +11,9 @@ var ShapeController = function(BrainBrowserViewer){
 
   this.fileCounter = 0;
   this.shapeCounter = 0;
-
   this.shapeIndexer = null;  // aggregated later
-
-
   this.initShapeSearchField();
-
   this.viewer = BrainBrowserViewer;
-
   this.opacityThreshold = 0.15;
   this.opacityCallback = null; // happens when a cursor crosses the opacity threshold
   this.blockOpacityCallback = false; // when toggling all, we dont want to lanch the callbac n times!
@@ -95,7 +90,6 @@ ShapeController.prototype.loadFile = function(loadEvent, filename){
     fileID: this.fileCounter
   });
 
-
   // append all the opacity widgets
   this.appendFileShapesToTab(loadEvent);
 
@@ -110,14 +104,9 @@ ShapeController.prototype.loadFile = function(loadEvent, filename){
   // create callbacks for the newly loaded opacity buttons
   this.initToggleCallbacks();
 
-  // show the tab pannel
-  //if(! $("#loadedFilesTabs").is(":visible") )
-  //  $("#loadedFilesTabs").show();
-
   if(! $("#rightSidebar").is(":visible") ){
     $("#rightSidebar").fadeIn();
   }
-
 
   this.fileCounter ++;
 }
@@ -190,161 +179,23 @@ ShapeController.prototype.appendFileShapesToTab = function(loadEvent){
       $(this).find(".slider").attr("previousValue", value);
     });
 
+    // sometimes it keeps blinking (I guess it's a bug), we just need to
+    // mouse over the element to make it.
+    $("#shape_" + that.shapeCounter).on("mouseover", function(event) {
+      $(this).removeClass("blink_me");
+    });
+
     // add the shape to the indexer
     that.shapeIndexer.addShape(that.fileCounter, shapeName, shapeNameOverall);
 
-    // update the model shape name to be unique
-    // we are using +1 because the very first is the grid
-
-    //that.viewer.model.children[that.shapeCounter+1].name = shapeNameOverall;
     that.viewer.model.children[that.shapeCounter].name = shapeNameOverall;
     shape.name = shapeNameOverall;
-    //that.viewer.updateShapeName(shapeName, shapeNameOverall);
-    //that.viewer.model.children[that.shapeCounter].overallIndex = that.shapeCounter;
-    //that.viewer.model.children[that.shapeCounter].fileIndex = that.fileCounter;
 
     that.shapeCounter ++;
   });
 
   this.updateSearchFieldIndex();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-ShapeController.prototype.appendFileShapesToTab2 = function(loadEvent){
-
-  // localShapeCounter is just for the last file loaded,
-  // while this.shapeCounter is a global counter for all
-  // the shapes, among all the files loaded since the begining.
-  var localShapeCounter = 0;
-
-  var that = this;
-
-
-
-
-  return;
-
-  // here, we will call logicShape a shape as described in BrainBrowser in model_data
-  // and we will call graphicShape the THREEjs Object3D corresponding to the logicShape
-
-  that.viewer.model.children.forEach(function(graphicShape){
-
-    console.log(loadEvent.model_data);
-
-    return;
-
-
-    // grid is not part of the game
-    if(graphicShape.name == "grid")
-      return
-
-    var logicShape = loadEvent.model_data.shapes[localShapeCounter];
-
-    console.log(loadEvent.model_data);
-
-    // Retrive the shape name, or use a default one
-    var shapeName = logicShape.name;
-    if(typeof shapeName == 'undefined')
-      shapeName = "shape " + localShapeCounter;
-
-    // use the color of the shape as the slider background (when color is defined)
-    var color = {};
-    if(typeof logicShape.color == 'undefined'){
-      color.r = 1;
-      color.g = 1;
-      color.b = 1;
-      color.a = 0;
-    }else{
-      color.r = logicShape.color[0];
-      color.g = logicShape.color[1];
-      color.b = logicShape.color[2];
-      color.a = 1;
-    }
-
-    // the shapeNameOverall is unique, even if we load multiple times the same file
-    var shapeNameOverall = shapeName + " (id " + that.shapeCounter + ")";
-
-    // append the opacity widget for this shape
-    $('#model_' + that.fileCounter).hbsAppend('opacityWidget', {
-      fileID: that.fileCounter,
-      shapeIndex: that.shapeCounter, // not used except for callback attribution
-      shapeName: shapeName,
-      shapeNameOverall: shapeNameOverall,
-      red: Math.round(color.r * 255),
-      green: Math.round(color.g * 255),
-      blue: Math.round(color.b * 255),
-      alpha: color.a
-    });
-
-    // calling the callback with necessary arguments
-    $("#shape_" + that.shapeCounter).on("input change", function(event) {
-      var value = $(this).find(".slider").val();
-      var previousValue = $(this).find(".slider").attr("previousValue");
-      var fileID = $(this).attr("fileID");
-      var shapeNameOverall = $(this).attr("shapeNameOverall");
-
-      // asking the viewer to actually change the opacity for this shape
-      that.viewer.setTransparency(value, {
-        shape_name: shapeNameOverall
-      });
-
-      var crossedThreshold = ((previousValue - that.opacityThreshold) * (value - that.opacityThreshold)) < 0;
-
-      // the slider just crossed the threshold
-      if((crossedThreshold || value == that.opacityThreshold ) && !that.blockOpacityCallback ){
-        that.opacityCallback(shapeNameOverall);
-      }
-
-      // storing the previous value to
-      $(this).find(".slider").attr("previousValue", value);
-    });
-
-    // add the shape to the indexer
-    that.shapeIndexer.addShape(that.fileCounter, shapeName, shapeNameOverall);
-
-    // update the model shape name to be unique
-    that.viewer.model.children[that.shapeCounter].name = shapeNameOverall;
-    logicShape.name = shapeNameOverall;
-
-    localShapeCounter++;
-    that.shapeCounter ++;
-
-  });
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 /*

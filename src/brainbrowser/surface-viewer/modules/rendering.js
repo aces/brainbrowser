@@ -72,8 +72,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   var renderer = new THREE.WebGLRenderer({
     preserveDrawingBuffer: true,
     alpha: true,
-    autoClear: false,
-    antialias: true
+    autoClear: false//,
+    /*antialias: true*/
   });
   var scene = new THREE.Scene();
   var camera = new THREE.PerspectiveCamera(30, viewer.dom_element.offsetWidth / viewer.dom_element.offsetHeight, 1, 3000);

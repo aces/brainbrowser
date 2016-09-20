@@ -69,14 +69,12 @@ function defineUiCallbacks(){
 
   shapePicker.ctrlAndShiftPick(function(shapeInfo){
 
-
+    // try to pick an existing annotation
     var id = annotationController.pickAnnotation();
 
-    console.log("ID: ");
-    console.log(id);
-
-    // if no shape was picked, we add an annotation
+    // if no annotation was picked, we add a new one
     if(!id){
+      console.log("add annotation at: " + shapeInfo.point.x + " " + shapeInfo.point.y + " " + shapeInfo.point.z);
       annotationController.addAnnotation([shapeInfo.point.x, shapeInfo.point.y, shapeInfo.point.z], null, null)
     }
 

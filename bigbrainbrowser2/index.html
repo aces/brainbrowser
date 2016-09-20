@@ -163,70 +163,12 @@
         <div class="separator"></div>
 
 
-        <!-- Two buttons -->
-        <div class="twoButtons">
-          <div class="buttonBB noselect"><i class="fa fa-undo" aria-hidden="true"></i>Undo</div>
-          <div class="buttonBB noselect"><i class="fa fa-repeat" aria-hidden="true"></i>Redo</div>
-        </div>
-
-        <!-- just a dashed line -->
-        <div class="separator"></div>
-
-
-        <!-- a label -->
-        <div class="label">A label</div>
-
-
-        <!-- a single button -->
-        <div id="testButton1" class="buttonBB noselect">Test button 1</div>
-        <div id="testButton2" class="buttonBB noselect">Test button 2</div>
-
-        <!-- a single textfield -->
-        <input id="tags" class="commonTextField" value="" placeholder="name" autocomplete="off" type="text">
-
-
-        <!-- a dropdown menu -->
-        <select class="dropdownMenu" onchange="" autocomplete="off">
-          <option value="none">none</option>
-          <option value="test01">test01</option>
-        </select>
-
-
-        <!-- just a dashed line -->
-        <div class="separator"></div>
-
-
-        <!-- list of 6 buttons -->
-        <div class="sixButtons">
-          <div class="buttonBB miniButton noselect">A</div>
-          <div class="buttonBB miniButton noselect">B</div>
-          <div class="buttonBB miniButton noselect">B</div>
-          <div class="buttonBB miniButton noselect">B</div>
-          <div class="buttonBB miniButton noselect">B</div>
-          <div class="buttonBB miniButton noselect">B</div>
-        </div>
-
-
-        <!-- A label and a dropdown menu -->
-        <div class="labelAndDropdown">
-          <div class="label">Background color</div>
-          <select class="dropdownMenu" onchange="" autocomplete="off">
-            <option value="black">black</option>
-            <option value="yellow">yellow</option>
-            <option value="orange">orange</option>
-            <option value="white">white</option>
-          </select>
-        </div>
-
-
-        <div class="separator"></div>
-
-
         <div class="label">Annotations</div>
         <div class="twoButtons">
-          <div class="buttonBB noselect"><i class="fa fa-folder-open" aria-hidden="true"></i>Load</div>
-          <div class="buttonBB noselect"><i class="fa fa-floppy-o" aria-hidden="true"></i>Save</div>
+          <div class="buttonBB noselect" onclick="document.getElementById('annotationOpener').click()" ><i class="fa fa-folder-open" aria-hidden="true"></i>Load</div>
+          <div id="annotSaveBt" class="buttonBB noselect"><i class="fa fa-floppy-o" aria-hidden="true"></i>Save</div>
         </div>
+        <input type="file" id="annotationOpener" class="hidden">
         <div id="annotations"></div>
 
 

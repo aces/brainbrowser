@@ -43,7 +43,7 @@ AnnotationController.prototype.addAnnotation = function(points, isClosed, name, 
     name = "Annotation #" + this.counter;
   }
 
-  if(description){
+  if(!description){
     description = "";
   }
 
@@ -67,33 +67,48 @@ AnnotationController.prototype.addAnnotation = function(points, isClosed, name, 
   // - multiple point + !isClosed: a polyline
   // - multiple point + isClosed: a polygon
   var mesh = null;
+  var material = null;
+  var geometry = null;
 
   // case 1: add 3D sphere
   if(points.length == 1){
-    var geometry = new THREE.SphereGeometry( this.radius, 32, 32 );
-    var material = new THREE.MeshBasicMaterial();
-    material.color.set("#" + color);
-    material.transparent = true;
+    geometry = new THREE.SphereGeometry( this.radius, 32, 32 );
+    material = new THREE.MeshBasicMaterial();
+
     mesh = new THREE.Mesh( geometry, material );
-    mesh.name = id;
     mesh.position.set(points[0][0], points[0][1], points[0][2]);
+
   }else{
 
+    geometry = new THREE.Geometry();
+    material = new THREE.LineBasicMaterial( {linewidth: 3 } );
 
 
-    // add a last segment if the shape is closed
+    // adding every point
+    points.forEach(function(point){
+      geometry.vertices.push( new THREE.Vector3(point[0], point[1], point[2]));
+    })
+
+    // add a the first point again, in the end, to close the loop
     if(isClosed){
-
+      geometry.vertices.push( new THREE.Vector3(
+          points[0][0],
+          points[0][1],
+          points[0][2]
+        )
+      );
     }
 
+    geometry.computeLineDistances();
+    mesh = new THREE.Line( geometry, material );
   }
 
-
   // common part, no matter the kind of geometry
+  material.color.set("#" + color);
+  material.transparent = true;
+  mesh.name = id;
   this.annotationSystem.add( mesh );
   this.viewer.updated = true;
-
-
 
   // add UI widget
   $('#annotations').hbsAppend('annotation', {
@@ -189,9 +204,12 @@ AnnotationController.prototype.toggleAnnotation = function(id){
     color: String - color in hexa with NO prefix (ie. "FF0000")
 */
 AnnotationController.prototype.changeColorAnnotation = function(id, color){
+  // update logic object
+  this.annotations[id].color = color;
+
+  // update 3D object
   var material = this.annotationSystem.getObjectByName(id).material;
   material.color.set("#" + color);
-  console.log(material);
   this.viewer.updated = true;
 }
 
@@ -203,6 +221,7 @@ AnnotationController.prototype.changeColorAnnotation = function(id, color){
   new annotation if not was found at this location.
 */
 AnnotationController.prototype.pickAnnotation = function(){
+
   var mouse = new THREE.Vector2();
   mouse.x = (this.viewer.mouse.x / this.viewer.dom_element.offsetWidth) * 2 - 1;
   mouse.y = (- this.viewer.mouse.y / this.viewer.dom_element.offsetHeight) * 2 + 1;
@@ -252,8 +271,8 @@ AnnotationController.prototype.focusOnAnnotationWidget = function(id){
 AnnotationController.prototype.enableTarget = function(id){
   this.viewer.model.visible = false;
 
-  this.annotationSystem.children.forEach(function(annotSphere){
-    annotSphere.material.opacity = 0.15;
+  this.annotationSystem.children.forEach(function(annotMesh){
+    annotMesh.material.opacity = 0.15;
   });
 
   var targetedSphere = this.annotationSystem.getObjectByName(id);
@@ -271,11 +290,62 @@ AnnotationController.prototype.enableTarget = function(id){
 AnnotationController.prototype.disableTarget = function(id){
   this.viewer.model.visible = true;
 
-  this.annotationSystem.children.forEach(function(annotSphere){
-    annotSphere.material.opacity = 1;
+  this.annotationSystem.children.forEach(function(annotMesh){
+    annotMesh.material.opacity = 1;
   });
 
   this.viewer.updated = true;
+}
+
+
+/*
+  Returns a JSON string containing all the annotations + the date
+*/
+AnnotationController.prototype.annotationsToJson = function(){
+  var toExport = {
+    date: new Date(),
+    annotations: this.annotations
+  }
+
+  return JSON.stringify(toExport);
+}
+
+
+/*
+  adds the annotations from a JSON string, that potentially comes form a file.
+  Args:
+    json: JSON compliant String
+
+  Once converted into a JS object, json contains first a date, and then a list of objects
+*/
+AnnotationController.prototype.addAnnotationFromJSON = function(json){
+
+  var jsonContent = JSON.parse(json);
+
+  if(jsonContent){
+    // test the existence of the 'annotations' key
+    if("annotations" in jsonContent){
+
+      for (var annotName in jsonContent.annotations) {
+        if (jsonContent.annotations.hasOwnProperty(annotName)) {
+          var currentAnnot = jsonContent.annotations[annotName];
+          console.log(currentAnnot);
+
+          this.addAnnotation(
+            currentAnnot.points, // array of points (only one here)
+            currentAnnot.isClosed, // isClosed
+            currentAnnot.name, // name
+            currentAnnot.description, // description
+            currentAnnot.color  // color
+          );
+
+        }
+      }
+
+    }
+
+  }
+
 }
 
 
@@ -285,6 +355,30 @@ AnnotationController.prototype.disableTarget = function(id){
 */
 AnnotationController.prototype.initCallbacks = function(){
   var that = this;
+
+
+  // Save the annotations
+  $("#annotSaveBt").click(function(){
+    var jsonAnnotations = that.annotationsToJson();
+    console.log(jsonAnnotations);
+    var blob = new Blob([jsonAnnotations], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, "annotations.json");
+  });
+
+
+  // When a json file is opened, we then load its data
+  $("#annotationOpener").change(function(evt){
+        if(evt.originalEvent.target.files.length > 0){
+          var file = evt.originalEvent.target.files[0];
+          var reader = new FileReader();
+
+          reader.onload = function(e) {
+    	      var contents = e.target.result;
+            that.addAnnotationFromJSON(contents);
+          }
+          reader.readAsText(file);
+        }
+  });
 
   // when typing in the name text field
   // Note: not using the regular click cb because the elements are not created yet

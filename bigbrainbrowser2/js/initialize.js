@@ -45,6 +45,7 @@ function initTemplates(){
   (this is why it's not part of initCallbacks() )
 */
 function defineUiCallbacks(){
+  console.log("defining callbacks...");
 
   /*
     Callback: when shift+click is performed on a shape
@@ -67,24 +68,41 @@ function defineUiCallbacks(){
   });
 
 
-  shapePicker.ctrlAndShiftPick(function(shapeInfo){
 
-    // try to pick an existing annotation
-    var id = annotationController.pickAnnotation();
+  // ADD or SHOW an annotation - TODO: put that in annotationController
+  shapePicker.ctrlAndShiftPickModelAndAnnot(function(intersectModel, intersectAnnot){
+    console.log(intersectModel);
+    console.log(intersectAnnot);
 
-    // if no annotation was picked, we add a new one
-    if(!id){
+    // SHOW an annoation
+    if( (intersectAnnot && !intersectModel) ||
+        (intersectAnnot  && intersectModel && intersectAnnot.distance < intersectModel.distance)
+      ){
+
+      var id = intersectAnnot.object.name;
+      annotationController.focusOnAnnotationWidget(id);
+
+    } else
+
+    // ADD an annotation
+    if((!intersectAnnot && intersectModel) ||
+        (intersectAnnot  && intersectModel && intersectAnnot.distance > intersectModel.distance)){
+
+      // when picked this way, the coords are world referenced
+      var localCoord = new THREE.Vector3().copy(intersectModel.point);
+      intersectModel.object.parent.worldToLocal(localCoord);
 
       annotationController.addAnnotation(
-        [[shapeInfo.point.x, shapeInfo.point.y, shapeInfo.point.z]], // array of points (only one here)
+        [[localCoord.x, localCoord.y, localCoord.z]], // array of points (only one here)
         false, // isClosed
         null, // name
         null, // description
         null  // color
       );
     }
-
   });
+
+
 
 
   /*
@@ -218,14 +236,35 @@ function defineUiCallbacks(){
   });
 
 
+
+
+
+
+
   // * * * TEST BUTTON * * *
   $("#testButton1").click(function(){
-    annotationController.addAnnotation([0, 0, 0], "the name", "the desc")
-    //annotationController.initCallbacks();
+    annotationController.addAnnotation(
+      [
+        [0, 0, 0],
+        [0, 10, 0],
+        [10, 10, 0],
+        [10, -10, 0],
+        [-10, -10, 0],
+        [-10, 20, 0],
+        [20, 20, 0],
+        [20, -10, 0],
+
+      ], // array of points (only one here)
+      true, // isClosed
+      "the spirale", // name
+      "this spiral is just a test", // description
+      "55FF66"  // color
+    );
+
   });
 
   $("#testButton2").click(function(){
-    //console.log(annotationController.annotations);
+    console.log(annotationController.annotations);
     //console.log(jscolor);
 
 

@@ -76,6 +76,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     /*antialias: true*/
   });
   var scene = new THREE.Scene();
+  viewer.scene = scene;
   var camera = new THREE.PerspectiveCamera(30, viewer.dom_element.offsetWidth / viewer.dom_element.offsetHeight, 1, 3000);
   viewer.camera = camera;
   var default_camera_distance = 500;
@@ -115,13 +116,15 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   var old_zoom_level;
 
   viewer.model = new THREE.Object3D();
+  viewer.model.name = "model";
   viewer.graphicObjects = new THREE.Object3D();
+  viewer.graphicObjects.name = "viewer.graphicObjects";
 
   scene.add(viewer.graphicObjects);
   viewer.graphicObjects.add(viewer.model);
 
   viewer.annotationSystem = new THREE.Object3D();
-  viewer.annotationSystem.name = "annotaionSystem";
+  viewer.annotationSystem.name = "annotationSystem";
   viewer.graphicObjects.add(viewer.annotationSystem);
 
   // to set later

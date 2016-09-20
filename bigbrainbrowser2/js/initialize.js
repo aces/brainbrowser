@@ -74,12 +74,17 @@ function defineUiCallbacks(){
 
     // if no annotation was picked, we add a new one
     if(!id){
-      console.log("add annotation at: " + shapeInfo.point.x + " " + shapeInfo.point.y + " " + shapeInfo.point.z);
-      annotationController.addAnnotation([shapeInfo.point.x, shapeInfo.point.y, shapeInfo.point.z], null, null)
+
+      annotationController.addAnnotation(
+        [[shapeInfo.point.x, shapeInfo.point.y, shapeInfo.point.z]], // array of points (only one here)
+        false, // isClosed
+        null, // name
+        null, // description
+        null  // color
+      );
     }
 
   });
-
 
 
   /*

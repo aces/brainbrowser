@@ -2,7 +2,7 @@ var AnnotationController = function(BrainBrowserViewer){
   // Loading Handlebars template
   $.hbsPreload("annotation");
 
-  this.defaultColor = 0xEEEE00;
+  this.defaultColor = "EEEE00";
   this.radius = 0.75;
 
   this.annotations = {};
@@ -21,9 +21,21 @@ var AnnotationController = function(BrainBrowserViewer){
 /*
   add an annotation to the list, and create the equivalent sphere.
   Args:
-    coord
+    points: Array of Array [x, y, z] - list of [x, y, z] coordinantes
+      that represent the point/polyline/polygon
+    isClosed: Boolean - used only when points has multiple points.
+      If false: a polyline, if true: a polygon
+    name: String - the name of the annotation, if null a temporary name is Given
+    description: String - the description, can be null
+    color: String - hexadecimal without prefix (ie. "FF0000")
+
 */
-AnnotationController.prototype.addAnnotation = function(coord, name, description){
+AnnotationController.prototype.addAnnotation = function(points, isClosed, name, description, color){
+
+  // no empty shapes here!
+  if(points.length <= 0)
+    return;
+
   var that = this;
   var id = "annot_" + this.counter;
 
@@ -35,32 +47,60 @@ AnnotationController.prototype.addAnnotation = function(coord, name, description
     description = "";
   }
 
+  if(!color){
+    color = this.defaultColor;
+  }
+
 
   // add logic annotation
   var annotation = {
     name: name,
-    coord: coord.slice(),
+    points: points,
+    isClosed: isClosed,
     description: description,
-    color: that.defaultColor
+    color: color
   }
   this.annotations[id] = annotation;
 
-  // add 3D sphere
-  var geometry = new THREE.SphereGeometry( this.radius, 32, 32 );
-  var material = new THREE.MeshBasicMaterial( {color: this.defaultColor} );
-  material.transparent = true;
-  var mesh = new THREE.Mesh( geometry, material );
-  mesh.name = id;
+  // add some mesh, 3 cases are possible:
+  // - a single point: a sphere
+  // - multiple point + !isClosed: a polyline
+  // - multiple point + isClosed: a polygon
+  var mesh = null;
 
-  mesh.position.set(coord[0], coord[1], coord[2]);
+  // case 1: add 3D sphere
+  if(points.length == 1){
+    var geometry = new THREE.SphereGeometry( this.radius, 32, 32 );
+    var material = new THREE.MeshBasicMaterial();
+    material.color.set("#" + color);
+    material.transparent = true;
+    mesh = new THREE.Mesh( geometry, material );
+    mesh.name = id;
+    mesh.position.set(points[0][0], points[0][1], points[0][2]);
+  }else{
+
+
+
+    // add a last segment if the shape is closed
+    if(isClosed){
+
+    }
+
+  }
+
+
+  // common part, no matter the kind of geometry
   this.annotationSystem.add( mesh );
   this.viewer.updated = true;
+
+
 
   // add UI widget
   $('#annotations').hbsAppend('annotation', {
     id: id,
     name: name,
-    description: description
+    description: description,
+    color: color
   });
 
   // scroll to make it visible
@@ -294,7 +334,6 @@ AnnotationController.prototype.initCallbacks = function(){
     var annotBlock = $(this).closest(".annotation");
     var id = annotBlock.attr("id");
 
-    console.log("entering " + id);
     that.enableTarget(id);
   });
 
@@ -305,7 +344,6 @@ AnnotationController.prototype.initCallbacks = function(){
     var annotBlock = $(this).closest(".annotation");
     var id = annotBlock.attr("id");
 
-    console.log("leaving " + id);
     that.disableTarget(id);
   });
 

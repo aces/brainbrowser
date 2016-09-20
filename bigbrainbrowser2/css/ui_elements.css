@@ -260,7 +260,10 @@ width: 50%;
 }
 
 @keyframes blinker {
-  50% { opacity: 0.2; }
+  50% {
+    opacity: 0.2;
+    background-color: hsl(196, 100%, 50%)
+  }
 }
 
 

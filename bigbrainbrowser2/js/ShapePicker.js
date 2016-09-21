@@ -1,4 +1,11 @@
 /*
+  Author: Jonathan Lurie (https://github.com/jonathanlurie)
+  Project: BrainBrowser https://github.com/aces/brainbrowser
+  Date: September 2016
+  Institution: MCIN - Neuro - McGill University
+  Licence: MIT
+
+
   ShapePicker deals with all about raycasting.
 */
 var ShapePicker = function(BrainBrowserViewer){

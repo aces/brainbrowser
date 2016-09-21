@@ -1,5 +1,10 @@
-
-
+/*
+  Author: Jonathan Lurie (https://github.com/jonathanlurie)
+  Project: BrainBrowser https://github.com/aces/brainbrowser
+  Date: September 2016
+  Institution: MCIN - Neuro - McGill University
+  Licence: MIT
+*/
 
 var ShapeController = function(BrainBrowserViewer){
 
@@ -17,6 +22,8 @@ var ShapeController = function(BrainBrowserViewer){
   this.opacityThreshold = 0.15;
   this.opacityCallback = null; // happens when a cursor crosses the opacity threshold
   this.blockOpacityCallback = false; // when toggling all, we dont want to lanch the callbac n times!
+
+  this.hiddenUI = false;
 
   $( "#loadedFilesTabs" ).tabs();
 }
@@ -104,7 +111,9 @@ ShapeController.prototype.loadFile = function(loadEvent, filename){
   // create callbacks for the newly loaded opacity buttons
   this.initToggleCallbacks();
 
-  if(! $("#rightSidebar").is(":visible") ){
+  console.log(uriParamController.hasHiddenUI());
+
+  if(! $("#rightSidebar").is(":visible") && !this.hiddenUI){
     $("#rightSidebar").fadeIn();
   }
 
@@ -347,4 +356,13 @@ ShapeController.prototype.allSlidersToMax = function(){
     }
 
   }
+}
+
+
+/*
+  If the URL contains a "hideUI" argument, this should be dispatched here.
+  if true, prevent the right panel to show when the shapes are loaded (async context)
+*/
+ShapeController.prototype.shouldHideUI = function(hide){
+  this.hiddenUI = hide;
 }

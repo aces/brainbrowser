@@ -1,3 +1,10 @@
+/*
+  Author: Jonathan Lurie (https://github.com/jonathanlurie)
+  Project: BrainBrowser https://github.com/aces/brainbrowser
+  Date: September 2016
+  Institution: MCIN - Neuro - McGill University
+  Licence: MIT
+*/
 var AnnotationController = function(BrainBrowserViewer){
   // Loading Handlebars template
   $.hbsPreload("annotation");

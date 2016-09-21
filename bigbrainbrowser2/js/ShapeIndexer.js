@@ -1,4 +1,10 @@
 /*
+  Author: Jonathan Lurie (https://github.com/jonathanlurie)
+  Project: BrainBrowser https://github.com/aces/brainbrowser
+  Date: September 2016
+  Institution: MCIN - Neuro - McGill University
+  Licence: MIT
+
   ShapeIndexer keeps a track of what shape has
   - what original name, as given in the file
   - what unique name, as used in its THREE.geometry.name

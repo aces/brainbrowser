@@ -594,6 +594,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       model:      viewer.model,
       model_data: model_data,
       new_shapes: new_shapes,
+      filename: filename,
     });
 
     if (complete) complete();

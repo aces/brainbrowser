@@ -1,3 +1,11 @@
+/*
+  Author: Jonathan Lurie (https://github.com/jonathanlurie)
+  Project: BrainBrowser https://github.com/aces/brainbrowser
+  Date: September 2016
+  Institution: MCIN - Neuro - McGill University
+  Licence: MIT
+*/
+
 function init(){
   THREE = BrainBrowser.SurfaceViewer.THREE;
   initTemplates();
@@ -265,10 +273,7 @@ function defineUiCallbacks(){
 
   $("#testButton2").click(function(){
     console.log("TEST BUTTON 2");
-    //var openAnnotButton = document.getElementById("annotationOpener");
-    //openAnnotButton.val = "testData/annotations.json";
-
-    annotationController.loadLocalFile('testData/annotations.json');
+    console.log(bbViewer.graphicObjects);
 
   });
 

@@ -1,4 +1,10 @@
 /*
+  Author: Jonathan Lurie (https://github.com/jonathanlurie)
+  Project: BrainBrowser https://github.com/aces/brainbrowser
+  Date: September 2016
+  Institution: MCIN - Neuro - McGill University
+  Licence: MIT
+
   GridManager builds grids that fits the size of the displayed shapes.
 */
 var GridManager = function(BrainBrowserViewer){
@@ -24,7 +30,7 @@ var GridManager = function(BrainBrowserViewer){
    // adding to parent = adding to the scene
   this.viewer.graphicObjects.add(this.gridSystem);
 
-  
+
   this.viewer.gridSystem = this.gridSystem;
 }
 
@@ -43,9 +49,6 @@ GridManager.prototype.setOpacityThreshold = function(t){
   The bounding box takes under consideration the opacity of the shapes.
 */
 GridManager.prototype.updateBoundingBoxVisible = function(){
-
-  console.log("updateBoundingBoxVisible()");
-
   var that = this;
   var shapeCounter = 0; // the first is the grid
 

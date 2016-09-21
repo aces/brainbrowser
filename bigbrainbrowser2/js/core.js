@@ -1,3 +1,11 @@
+/*
+  Author: Jonathan Lurie (https://github.com/jonathanlurie)
+  Project: BrainBrowser https://github.com/aces/brainbrowser
+  Date: September 2016
+  Institution: MCIN - Neuro - McGill University
+  Licence: MIT
+*/
+
 // the shapeController is the tabbed panel that shows
 // all the shapes with opacity slider.
 var THREE = null;
@@ -52,26 +60,24 @@ $(function() {
     // manage all the annotation system
     annotationController = new AnnotationController(viewer);
 
-    uriParamController = new UriParamController();
-    uriParamController.hideUi();
-
     // init all the callbacks related to ui
     defineUiCallbacks();
 
+    // read parameters from the URL and apply them
+    uriParamController = new UriParamController();
+    shapeController.shouldHideUI( uriParamController.hasHiddenUI() );
 
+    console.log(shapeController.hiddenUI);
 
     // when a model is loaded...
     viewer.addEventListener("displaymodel", function(event) {
-      var filename = document.getElementById("modelOpener").value;
-      filename = filename.replace(/^.*\\/, ""); // replace everything before the last \ to prevent fakepath
-
       // add all the opacity sliders for this fils/model
       // (possible a large number of shapes)
-      shapeController.loadFile(event, filename);
+      shapeController.loadFile(event, event.filename);
 
       // adapt the grid to all the shapes (old and this newly loaded)
       gridManager.updateGrid();
-
+      viewer.updateAxes();
 
     });
 

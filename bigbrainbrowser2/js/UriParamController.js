@@ -1,4 +1,51 @@
+/*
+  Author: Jonathan Lurie (https://github.com/jonathanlurie)
+  Project: BrainBrowser https://github.com/aces/brainbrowser
+  Date: September 2016
+  Institution: MCIN - Neuro - McGill University
+  Licence: MIT
+
+  This provides the ability to load data and interact with them with only
+  using parameters from the URL. Here is the list of argument and their
+  compatible values:
+
+  hideUI=1    Will hide all the UI components except the main view.
+              Activated only if 1
+
+  annotations=/local/folder/annot.json
+              Loads one or multiple annotations files that have to be local to
+              the web project (accessible on server). Use a coma (,) to separate
+              multiples filepath.
+
+  models=/local/models/mod1.obj
+              Loads one or multiple local 3D model files. Use a coma (,) to separate
+              multiples filepath.
+
+  autorotate=x,y,z
+              Can be only one or up to 3 axis to autorotate around.
+
+  grid=1      Display the grid
+
+  axis=1      Display the axis
+
+  All these arguments must appear after a hash character (#). If multiple
+  arguments are used, they must be separated by a ampersand cheracter (&).
+
+  Examples:
+  http://localhost:5000/#models=testData/dbs.json
+  http://localhost:5000/#models=testData/dbs.json,testData/surfaces.json&grid=0&axis=0&hideUI=1&autorotate=y,z&annotations=testData/annotations2.json
+
+*/
 var UriParamController = function(){
+  this.hiddenUI = false;
+
+  this.hideUI();
+  this.models();
+  this.grid();
+  this.axis();
+  this.annotations();
+  this.autorotate();
+
 
 }
 
@@ -41,20 +88,96 @@ UriParamController.prototype.getHashValue = function(key){
 /*
   Hide the UI elements to leave only the main window with 3D shapes and all.
 */
-UriParamController.prototype.hideUi = function(){
-
-  var hide = this.getHashValue("hideUi");
+UriParamController.prototype.hideUI = function(){
+  var hide = this.getHashValue("hideUI");
 
   if(hide){
 
     if(hide[0]){
+      this.hiddenUI = true;
       $("#rightSidebar").hide();
       $("#leftSidebar").hide();
       $("#hideRight").hide();
       $("#hideLeft").hide();
       $(".logo").hide();
-
-
     }
   }
+}
+
+
+/*
+  Check the URL to load annotations files
+*/
+UriParamController.prototype.annotations = function(){
+  var annotations = this.getHashValue("annotations");
+
+  if(annotations){
+    annotations.forEach(function(annot){
+      annotationController.loadLocalFile(annot);
+    });
+  }
+}
+
+
+/*
+  Loads some model files from the URL
+*/
+UriParamController.prototype.models = function(){
+  var models = this.getHashValue("models");
+
+  if(models){
+    models.forEach(function(model){
+      //document.getElementById("modelOpener").value = model;
+      $( "#modelOpener" ).attr("alternativeValue", model);
+      modelCollection.newModelToLoadURL(model)
+    });
+  }
+
+}
+
+
+/*
+  Activate auto rotation
+*/
+UriParamController.prototype.autorotate = function(){
+  var autorotate = this.getHashValue("autorotate");
+
+  if(autorotate){
+    autorotate.forEach(function(axis){
+      $( ".autorotate[axis=\"" + axis + "\"]" ).trigger("click");
+    });
+  }
+}
+
+
+/*
+  Activate auto rotation
+*/
+UriParamController.prototype.grid = function(){
+  var grid = this.getHashValue("grid");
+
+  if(grid){
+    if(grid[0]){
+      $( "#gridToggleBt" ).trigger("click");
+    }
+  }
+}
+
+
+/*
+  Show the axis depending
+*/
+UriParamController.prototype.axis = function(){
+  var axis = this.getHashValue("axis");
+
+  if(axis){
+    if(axis[0]){
+      $( "#axesToggleBt" ).trigger("click");
+    }
+  }
+}
+
+
+UriParamController.prototype.hasHiddenUI = function(){
+  return this.hiddenUI;
 }

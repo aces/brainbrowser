@@ -1,4 +1,11 @@
 /*
+  Author: Jonathan Lurie (https://github.com/jonathanlurie)
+  Project: BrainBrowser https://github.com/aces/brainbrowser
+  Date: September 2016
+  Institution: MCIN - Neuro - McGill University
+  Licence: MIT
+
+
   AxisBox manages the axis visualization that is independant from the regular
   instance of BrainBrowser. An axisBox is a THREEjs context on its own but not
   a BrainBrowser instance.

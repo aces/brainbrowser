@@ -159,13 +159,11 @@ AnnotationController.prototype.updateDescription = function(id, newDesc){
 AnnotationController.prototype.deleteAnnotation = function(id){
   // delete the 3D graphic element
   var mesh = this.annotationSystem.getObjectByName(id);
-  console.log(mesh);
   this.annotationSystem.remove(mesh);
   this.viewer.updated = true;
 
   // delete the UI element (with hide annimation)
   $("#" + id).hide('fast', function(){ $("#" + id).remove(); });
-
 
   // delete the logic element
   delete this.annotations[id];
@@ -319,17 +317,23 @@ AnnotationController.prototype.annotationsToJson = function(){
   Once converted into a JS object, json contains first a date, and then a list of objects
 */
 AnnotationController.prototype.addAnnotationFromJSON = function(json){
+  var jsonContent = JSON.parse(json.trim());
+  this.addAnnotationFromObject(jsonContent);
+}
 
-  var jsonContent = JSON.parse(json);
 
-  if(jsonContent){
+/*
+  This object is supposed to be the same as when the json file is loaded:
+  a date + a bunch of annotations.
+*/
+AnnotationController.prototype.addAnnotationFromObject = function(ob){
+  if(ob){
     // test the existence of the 'annotations' key
-    if("annotations" in jsonContent){
+    if("annotations" in ob){
 
-      for (var annotName in jsonContent.annotations) {
-        if (jsonContent.annotations.hasOwnProperty(annotName)) {
-          var currentAnnot = jsonContent.annotations[annotName];
-          console.log(currentAnnot);
+      for (var annotName in ob.annotations) {
+        if (ob.annotations.hasOwnProperty(annotName)) {
+          var currentAnnot = ob.annotations[annotName];
 
           this.addAnnotation(
             currentAnnot.points, // array of points (only one here)
@@ -338,16 +342,27 @@ AnnotationController.prototype.addAnnotationFromJSON = function(json){
             currentAnnot.description, // description
             currentAnnot.color  // color
           );
-
         }
       }
-
     }
-
   }
-
 }
 
+
+/*
+  Load local file with http GET request using jquery.
+
+  Args:
+    filepath: String - a local json file that contains annotations data
+*/
+AnnotationController.prototype.loadLocalFile = function(filepath){
+  var that = this;
+
+  $.get(filepath, function(data) {
+    that.addAnnotationFromObject(data);
+  });
+
+}
 
 
 /*

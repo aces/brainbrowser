@@ -264,9 +264,11 @@ function defineUiCallbacks(){
   });
 
   $("#testButton2").click(function(){
-    console.log(annotationController.annotations);
-    //console.log(jscolor);
+    console.log("TEST BUTTON 2");
+    //var openAnnotButton = document.getElementById("annotationOpener");
+    //openAnnotButton.val = "testData/annotations.json";
 
+    annotationController.loadLocalFile('testData/annotations.json');
 
   });
 

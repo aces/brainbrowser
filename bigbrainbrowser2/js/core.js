@@ -15,6 +15,9 @@ var gridManager = null;
 // Box that shows the axes orientation on the left column
 var axisBox = null;
 
+// reads the URI to
+var uriParamController = null;
+
 // pointer on viewer for when it gets loaded
 var bbViewer = null;
 
@@ -49,6 +52,8 @@ $(function() {
     // manage all the annotation system
     annotationController = new AnnotationController(viewer);
 
+    uriParamController = new UriParamController();
+    uriParamController.hideUi();
 
     // init all the callbacks related to ui
     defineUiCallbacks();

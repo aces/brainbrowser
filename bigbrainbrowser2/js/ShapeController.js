@@ -73,7 +73,7 @@ ShapeController.prototype.setOpacityThreshold = function(t){
 }
 
 /*
-  Loads the IU related to a new file
+  Loads the IU components related to a new file
 */
 ShapeController.prototype.loadFile = function(loadEvent, filename){
 

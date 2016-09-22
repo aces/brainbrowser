@@ -26,6 +26,9 @@ var axisBox = null;
 // reads the URI to
 var uriParamController = null;
 
+// color maps and intensity data
+var colorMapController = null;
+
 // pointer on viewer for when it gets loaded
 var bbViewer = null;
 
@@ -59,6 +62,8 @@ $(function() {
 
     // manage all the annotation system
     annotationController = new AnnotationController(viewer);
+
+    colorMapController = new ColorMapController(viewer);
 
     // init all the callbacks related to ui
     defineUiCallbacks();

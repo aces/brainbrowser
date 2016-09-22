@@ -251,3 +251,32 @@ body{
   font-size: inherit;
   width: 100%;
 }
+
+
+#colorRangeSlider{
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-top: 20px;
+  margin-bottom: 5px;
+  border: none;
+  background-color: #FFF;
+}
+
+#colorRangeSlider .ui-slider-range{
+  background-color: hsl(196, 75%, 60%);
+}
+
+
+#colorSpectrum{
+  height: 45px;
+  margin-left: 15px;
+  margin-right: 15px;
+  /*background-color: hsla(196, 75%, 50%, 0.3);*/
+  margin-top: 5px;
+  margin-bottom: 2px;
+}
+
+
+#colorSpectrum canvas{
+  width: 100%;
+}

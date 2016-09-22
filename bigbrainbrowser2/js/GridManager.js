@@ -112,6 +112,7 @@ GridManager.prototype.centerShape = function(shapeNameOverall){
   var shapeNotFound = true;
 
   this.viewer.model_data.forEach(function(model_data, model_name){
+
     model_data.shapes.forEach(function(logicShape){
 
       if(logicShape.name == shapeNameOverall){

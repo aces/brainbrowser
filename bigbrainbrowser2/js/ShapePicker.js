@@ -70,13 +70,6 @@ ShapePicker.prototype.genericPickModelAndAnnot = function(callback){
 }
 
 
-
-
-
-
-
-
-
 /*
   Perform a pick and call the callback only it the SHIFT key was pressed.
 */
@@ -118,8 +111,6 @@ ShapePicker.prototype.ctrlAndShiftPick = function(callback){
     }
   });
 }
-
-
 
 
 /*

@@ -17,15 +17,6 @@
   <script src="js/vendors/handlequery/js/handlebars-1.0.0.js"></script>
   <script src="js/vendors/handlequery/js/handlejquery.js"></script>
 
-  <!-- mainly about callbacks -->
-  <script src="js/ShapeIndexer.js"></script>
-  <script src="js/ShapeController.js"></script>
-  <script src="js/ModelCollection.js"></script>
-  <script src="js/ShapePicker.js"></script>
-  <script src="js/AxisBox.js"></script>
-  <script src="js/initialize.js"></script>
-  <script src="js/AnnotationController.js"></script>
-  <script src="js/UriParamController.js"></script>
 
   <!-- Style -->
   <link href="https://fonts.googleapis.com/css?family=Lato:300,400,900" rel="stylesheet">
@@ -114,6 +105,19 @@
         <!-- just a dashed line -->
         <div class="separator"></div>
 
+        <div class="label">Toolbox</div>
+
+        <!-- Select background color -->
+        <div class="labelAndDropdown">
+          <div class="label">Background color</div>
+          <select id="bgColorMenu" class="dropdownMenu" autocomplete="off">
+            <option value="0x000000">Black</option>
+            <option value="0x444444">Dark grey</option>
+            <option value="0x777777">Mid grey</option>
+            <option value="0xbbbbbb">Light grey</option>
+            <option value="0xffffff">White</option>
+          </select>
+        </div>
 
         <!-- Auto rotation -->
         <div class="LabelAndThreeButtons">
@@ -144,16 +148,40 @@
         <!-- just a dashed line -->
         <div class="separator"></div>
 
-        <!-- Select background color -->
+        <div class="label">Color maps</div>
+        <div id="openIntensityDataBt" class="buttonBB noselect" onclick="document.getElementById('intensityDataOpener').click()" >
+          <i class="fa fa-list-ol" aria-hidden="true"></i> Open intensity data
+        </div>
+        <input type="file" id="intensityDataOpener" class="hidden">
+        <div id="openColorMapBt" class="buttonBB noselect" onclick="document.getElementById('colorMapOpener').click()" >
+          <i class="fa fa-paint-brush" aria-hidden="true"></i> Open color map
+        </div>
+        <input type="file" id="colorMapOpener" class="hidden">
+
         <div class="labelAndDropdown">
-          <div class="label">Background color</div>
-          <select id="bgColorMenu" class="dropdownMenu" autocomplete="off">
-            <option value="0x000000">Black</option>
-            <option value="0x444444">Dark grey</option>
-            <option value="0x777777">Mid grey</option>
-            <option value="0xbbbbbb">Light grey</option>
-            <option value="0xffffff">White</option>
+          <div class="label">Available maps</div>
+          <select id="colorMapMenu" class="dropdownMenu" autocomplete="off">
+            <!-- To be filled dynamically -->
           </select>
+        </div>
+
+        <div id="colorRangeSlider"></div>
+        <div id="minMaxSliderLbl" class="label">[ --- , --- ]</div>
+
+        <div id="colorSpectrum"></div>
+
+        <!-- clamp & flip -->
+        <div class="twoButtons">
+          <div id="clampColorBt" class="buttonBB noselect" active="0">
+            <i class="fa fa-square" aria-hidden="true"></i>
+            Clamp
+          </div>
+
+          <div id="flipColorBt" class="buttonBB noselect">
+            <i class="fa fa-exchange" aria-hidden="true"></i>
+            Flip colors
+          </div>
+
         </div>
 
 
@@ -168,6 +196,7 @@
         <div id="testButton2" class="buttonBB noselect">
           <i class="fa fa-bug" aria-hidden="true"></i> test button 2
         </div>
+
 
         <!-- just a dashed line -->
         <div class="separator"></div>
@@ -231,7 +260,7 @@
 
 
 
-  <!-- BrainBrowser -->
+  <!-- BrainBrowser core -->
   <script src="js/vendors/FileSaver.min.js"></script>
   <script src="js/vendors/pako.js"></script>
   <script src="js/vendors/jscolor.min.js"></script>
@@ -251,12 +280,22 @@
   <script src="js/brainbrowser/surface-viewer/modules/rendering.js"></script>
   <script src="js/brainbrowser/surface-viewer/modules/views.js"></script>
   <script src="js/vendors/AnaglyphEffect.js"></script>
-  <script src="js/bigbrain-viewer-demo.config.js"></script>
+  <script src="js/config.js"></script>
 
+
+  <!-- UI and controllers -->
+  <script src="js/GridManager.js"></script>
+  <script src="js/ShapeIndexer.js"></script>
+  <script src="js/ShapeController.js"></script>
+  <script src="js/ModelCollection.js"></script>
+  <script src="js/ShapePicker.js"></script>
+  <script src="js/AxisBox.js"></script>
+  <script src="js/initialize.js"></script>
+  <script src="js/AnnotationController.js"></script>
+  <script src="js/UriParamController.js"></script>
+  <script src="js/ColorMapController.js"></script>
 
   <script src="js/core.js"></script>
-  <script src="js/GridManager.js"></script>
-
 
 </body>
 </html>

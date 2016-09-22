@@ -273,8 +273,12 @@ function defineUiCallbacks(){
 
   $("#testButton2").click(function(){
     console.log("TEST BUTTON 2");
-    console.log(bbViewer.graphicObjects);
 
+    bbViewer.loadIntensityDataFromURL("models/atlas-values.txt", {
+      complete: function(){
+        console.log("DONE loadIntensityDataFromURL()");
+      }
+    });
   });
 
 

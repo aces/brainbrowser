@@ -91,6 +91,9 @@ ColorMapController.prototype.registerViewerEvents = function(){
     that.intensityData = event.intensity_data;
     that.updateSpectrumCanvas();
     that.updateSlider();
+
+    // make the interaction with the color map UI possible
+    that.enableColorMapUI();
   });
 
   this.viewer.addEventListener("updatecolors", function(event) {
@@ -150,41 +153,74 @@ ColorMapController.prototype.registerUIEvents = function(){
 
   // clamp interval
   $("#clampColorBt").click(function(){
-    var isActive = parseInt( $(this).attr("active") );
-    var checkbox = $(this).find(".fa");
-
-    if(isActive){
-      $(checkbox).addClass("fa-square");
-      $(checkbox).removeClass("fa-check-square");
-    }else{
-      $(checkbox).removeClass("fa-square");
-      $(checkbox).addClass("fa-check-square");
-    }
-
-    that.viewer.setAttribute("fix_color_range", !isActive);
-
-    $(this).attr("active", +!isActive );
-    showActivation( this );
-
-  });
-
-
-  // clamp interval
-  $("#flipColorBt").click(function(){
-    var isActive = parseInt( $(this).attr("active") );
-    var checkbox = $(this).find(".fa");
-
+    // additionnal control
     if (that.viewer.color_map) {
-      that.viewer.color_map.flip = !isActive;
+      var isActive = parseInt( $(this).attr("active") );
+      var checkbox = $(this).find(".fa");
+
+      if(isActive){
+        $(checkbox).addClass("fa-square");
+        $(checkbox).removeClass("fa-check-square");
+      }else{
+        $(checkbox).removeClass("fa-square");
+        $(checkbox).addClass("fa-check-square");
+      }
+
+      //that.viewer.setAttribute("fix_color_range", !isActive);
+      that.viewer.color_map.clamp = !isActive;
+
+      $(this).attr("active", +!isActive );
+      showActivation( this );
+      that.viewer.updateColors();
     }
+  });
 
-    $(this).attr("active", +!isActive );
-    showActivation( this );
 
+  // flip the colors
+  $("#flipColorBt").click(function(){
+
+    // additionnal control
+    if (that.viewer.color_map) {
+      var isActive = parseInt( $(this).attr("active") );
+      var checkbox = $(this).find(".fa");
+
+      that.viewer.color_map.flip = !isActive;
+      that.viewer.updateColors();
+
+      $(this).attr("active", +!isActive );
+      showActivation( this );
+    }
   });
 
 
 
+  $("#minSliderLbl").on("keyup", function(e){
+    if(e.which === 13){
+      var min = $("#minSliderLbl").val();
+      var max = $("#maxSliderLbl").val();
+
+      $(that.colorRangeSlider).slider({
+        values: [min , max ]
+      });
+
+      that.minMaxSliderUpdated( parseFloat(min) , parseFloat(max) );
+    }
+  });
+
+
+  $("#maxSliderLbl").on("keyup", function(e){
+    if(e.which === 13){
+      var min = $("#minSliderLbl").val();
+      var max = $("#maxSliderLbl").val();
+
+      $(that.colorRangeSlider).slider({
+        values: [min , max ]
+      });
+
+      that.minMaxSliderUpdated( parseFloat(min) , parseFloat(max) );
+
+    }
+  });
 
 
 
@@ -199,7 +235,7 @@ ColorMapController.prototype.minMaxSliderUpdated = function(min, max){
   this.updateMinMaxLabel(min, max);
   this.intensityData.range_min = min;
   this.intensityData.range_max = max;
-  this.viewer.setIntensityRange(this.intensityData, min, max);
+  this.viewer.updateColors();
 }
 
 
@@ -208,7 +244,14 @@ ColorMapController.prototype.minMaxSliderUpdated = function(min, max){
   the min and max values.
 */
 ColorMapController.prototype.updateMinMaxLabel = function(min, max){
-  $("#minMaxSliderLbl").html("[ " + min + " , " + max + " ]");
+  var roundingFactor = 10000;
+  var roundedMin = Math.round(min * roundingFactor) / roundingFactor;
+  var roundedMax = Math.round(max * roundingFactor) / roundingFactor;
+
+  //$("#minMaxSliderLbl").html("[ " + roundedMin + " , " + roundedMax + " ]");
+  $("#minSliderLbl").val(roundedMin);
+  $("#maxSliderLbl").val(roundedMax);
+
 }
 
 
@@ -233,11 +276,48 @@ ColorMapController.prototype.updateSpectrumCanvas = function(){
 ColorMapController.prototype.updateSlider = function(){
   var that = this;
 
+  // the slider always has at leat 256 steps
+  var stepSize = Math.min(
+    (that.intensityData.max - that.intensityData.min ) / 256,
+    0.01
+  );
+
   $(this.colorRangeSlider).slider({
     min: that.intensityData.min,
     max: that.intensityData.max,
-    values: [ that.intensityData.min, that.intensityData.max ]
+    values: [ that.intensityData.min, that.intensityData.max ],
+    step: stepSize
   });
 
   $(this.colorRangeSlider).slider("enable");
+
+  this.updateMinMaxLabel(that.intensityData.min, that.intensityData.max);
+}
+
+
+/*
+
+*/
+ColorMapController.prototype.enableUiElement = function(domId){
+  $("#" + domId).removeClass("disabled");
+}
+
+
+/*
+
+*/
+ColorMapController.prototype.enableIntensityDataLoading = function(){
+  this.enableUiElement("openIntensityDataBt");
+}
+
+
+/*
+
+*/
+ColorMapController.prototype.enableColorMapUI = function(){
+  this.enableUiElement("openColorMapBt");
+  this.enableUiElement("colorMapDropDown");
+  this.enableUiElement("minMaxSliderLbl");
+  this.enableUiElement("clampColorBt");
+  this.enableUiElement("flipColorBt");
 }

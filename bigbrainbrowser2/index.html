@@ -149,16 +149,16 @@
         <div class="separator"></div>
 
         <div class="label">Color maps</div>
-        <div id="openIntensityDataBt" class="buttonBB noselect" onclick="document.getElementById('intensityDataOpener').click()" >
+        <div id="openIntensityDataBt" class="buttonBB noselect disabled" onclick="document.getElementById('intensityDataOpener').click()" >
           <i class="fa fa-list-ol" aria-hidden="true"></i> Open intensity data
         </div>
         <input type="file" id="intensityDataOpener" class="hidden">
-        <div id="openColorMapBt" class="buttonBB noselect" onclick="document.getElementById('colorMapOpener').click()" >
+        <div id="openColorMapBt" class="buttonBB noselect disabled" onclick="document.getElementById('colorMapOpener').click()" >
           <i class="fa fa-paint-brush" aria-hidden="true"></i> Open color map
         </div>
         <input type="file" id="colorMapOpener" class="hidden">
 
-        <div class="labelAndDropdown">
+        <div id="colorMapDropDown" class="labelAndDropdown disabled">
           <div class="label">Available maps</div>
           <select id="colorMapMenu" class="dropdownMenu" autocomplete="off">
             <!-- To be filled dynamically -->
@@ -166,18 +166,24 @@
         </div>
 
         <div id="colorRangeSlider"></div>
-        <div id="minMaxSliderLbl" class="label">[ --- , --- ]</div>
+        <div id="minMaxSliderLbl" class="label disabled">
+          [
+          <input id="minSliderLbl" class="min backgroundHover" type="text" value="---">
+           ,
+          <input id="maxSliderLbl" class="max backgroundHover" type="text" value="---">
+          ]
+        </div>
 
         <div id="colorSpectrum"></div>
 
         <!-- clamp & flip -->
         <div class="twoButtons">
-          <div id="clampColorBt" class="buttonBB noselect" active="0">
+          <div id="clampColorBt" class="buttonBB noselect disabled" active="0">
             <i class="fa fa-square" aria-hidden="true"></i>
             Clamp
           </div>
 
-          <div id="flipColorBt" class="buttonBB noselect">
+          <div id="flipColorBt" class="buttonBB noselect disabled">
             <i class="fa fa-exchange" aria-hidden="true"></i>
             Flip colors
           </div>

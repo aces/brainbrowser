@@ -270,3 +270,20 @@ width: 50%;
 .activated{
   background-color: hsl(196, 100%, 80%);
 }
+
+
+/* to disable a div that acts like a button / checkbox */
+.disabled{
+  pointer-events:none;
+  opacity: 0.33;
+}
+
+
+.backgroundHover{
+  background-color: transparent;
+  transition: all 0.3s;
+}
+
+.backgroundHover:hover{
+  background-color: rgba(255, 255, 255, 0.8);
+}

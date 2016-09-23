@@ -74,8 +74,14 @@ $(function() {
 
     console.log(shapeController.hiddenUI);
 
+
+
+
     // when a model is loaded...
     viewer.addEventListener("displaymodel", function(event) {
+      // make the intensity data loading available
+      colorMapController.enableIntensityDataLoading();
+
       // add all the opacity sliders for this fils/model
       // (possible a large number of shapes)
       shapeController.loadFile(event, event.filename);

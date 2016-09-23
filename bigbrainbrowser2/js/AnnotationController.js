@@ -58,7 +58,6 @@ AnnotationController.prototype.addAnnotation = function(points, isClosed, name, 
     color = this.defaultColor;
   }
 
-
   // add logic annotation
   var annotation = {
     name: name,
@@ -89,7 +88,6 @@ AnnotationController.prototype.addAnnotation = function(points, isClosed, name, 
 
     geometry = new THREE.Geometry();
     material = new THREE.LineBasicMaterial( {linewidth: 3 } );
-
 
     // adding every point
     points.forEach(function(point){
@@ -260,13 +258,13 @@ AnnotationController.prototype.pickAnnotation = function(){
 AnnotationController.prototype.focusOnAnnotationWidget = function(id){
   // make it blink for 2sec
   $("#" + id).addClass("blink_me");
-  $("#" + id).scrollintoview({
-    complete: function() {
-      setTimeout(function(){
-        $("#" + id).removeClass("blink_me");
-      }, 2000);
-    }
-  });
+
+  $("#" + id).scrollintoview();
+
+  setTimeout(function(){
+    $("#" + id).removeClass("blink_me");
+  }, 2500);
+
 }
 
 
@@ -285,7 +283,6 @@ AnnotationController.prototype.enableTarget = function(id){
 
   this.viewer.updated = true;
 }
-
 
 
 /*
@@ -390,16 +387,16 @@ AnnotationController.prototype.initCallbacks = function(){
 
   // When a json file is opened, we then load its data
   $("#annotationOpener").change(function(evt){
-        if(evt.originalEvent.target.files.length > 0){
-          var file = evt.originalEvent.target.files[0];
-          var reader = new FileReader();
+    if(evt.originalEvent.target.files.length > 0){
+      var file = evt.originalEvent.target.files[0];
+      var reader = new FileReader();
 
-          reader.onload = function(e) {
-    	      var contents = e.target.result;
-            that.addAnnotationFromJSON(contents);
-          }
-          reader.readAsText(file);
-        }
+      reader.onload = function(e) {
+	      var contents = e.target.result;
+        that.addAnnotationFromJSON(contents);
+      }
+      reader.readAsText(file);
+    }
   });
 
   // when typing in the name text field

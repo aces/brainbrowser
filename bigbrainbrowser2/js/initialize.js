@@ -61,6 +61,12 @@ function defineUiCallbacks(){
   shapePicker.shiftPick(function(shapeInfo){
     var shapeNameOverall = shapeInfo.object.name;
     shapeController.focusOnSlider(shapeInfo.object.name);
+
+    // display the label of the shape if:
+    // - vertex indexing data were loaded
+    // - vertex labeling data were loaded
+    // - there is a match between each other
+    colorMapController.showVertexLabel(shapeInfo.index);
   });
 
 

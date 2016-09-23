@@ -114,7 +114,7 @@
             <option value="0x000000">Black</option>
             <option value="0x444444">Dark grey</option>
             <option value="0x777777">Mid grey</option>
-            <option value="0xbbbbbb">Light grey</option>
+            <option value="0xdddddd">Light grey</option>
             <option value="0xffffff">White</option>
           </select>
         </div>
@@ -148,16 +148,28 @@
         <!-- just a dashed line -->
         <div class="separator"></div>
 
-        <div class="label">Color maps</div>
+        <div class="label">Color maps and labeling</div>
+
+        <!-- Open button for vertex indexing data -->
         <div id="openIntensityDataBt" class="buttonBB noselect disabled" onclick="document.getElementById('intensityDataOpener').click()" >
-          <i class="fa fa-list-ol" aria-hidden="true"></i> Open intensity data
+          <i class="fa fa-list-ol" aria-hidden="true"></i> Open vertex indexing data
         </div>
         <input type="file" id="intensityDataOpener" class="hidden">
+
+
+        <!-- Open button for labeling data -->
+        <div id="openLabelingDataBt" class="buttonBB noselect disabled" onclick="document.getElementById('labelingDataOpener').click()" >
+          <i class="fa fa-tag" aria-hidden="true"></i> Open vertex labeling data
+        </div>
+        <input type="file" id="labelingDataOpener" class="hidden">
+
+        <!-- Open button for color maps -->
         <div id="openColorMapBt" class="buttonBB noselect disabled" onclick="document.getElementById('colorMapOpener').click()" >
           <i class="fa fa-paint-brush" aria-hidden="true"></i> Open color map
         </div>
         <input type="file" id="colorMapOpener" class="hidden">
 
+        <!-- change color map drop down -->
         <div id="colorMapDropDown" class="labelAndDropdown disabled">
           <div class="label">Available maps</div>
           <select id="colorMapMenu" class="dropdownMenu" autocomplete="off">
@@ -241,6 +253,9 @@
 
       <!-- Search a shape -->
       <input id="shapeSearchField" class="commonTextField" value="" placeholder="Find a shape" autocomplete="off" type="text" >
+      <div id="shapeLabel" class="label"></div>
+
+
       <div class="separator"></div>
 
 

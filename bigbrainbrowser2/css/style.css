@@ -144,7 +144,7 @@ body{
 #loadedFilesTabs{
   border:none;
   background-color: transparent;
-  height: calc(100% - 80px);
+  height: calc(100% - 95px);
   overflow-y: auto;
 }
 
@@ -296,4 +296,9 @@ body{
   font-size: inherit;
   margin-left: 5px;
   margin-right: 5px;
+}
+
+
+#shapeLabel{
+  padding: 0;
 }

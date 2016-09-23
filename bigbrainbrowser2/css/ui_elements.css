@@ -256,7 +256,9 @@ width: 50%;
 
 
 .blink_me {
+  /*animation: blinker 0.5s linear infinite;*/
   animation: blinker 0.5s linear infinite;
+  /*animation-iteration-count: 2;*/
 }
 
 @keyframes blinker {

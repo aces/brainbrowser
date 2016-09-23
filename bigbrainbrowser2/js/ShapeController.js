@@ -308,15 +308,13 @@ ShapeController.prototype.focusOnSlider = function(shapeNameOverall){
 
     // make it blink for 2sec
     $("#" + opacityWidgetID).addClass("blink_me");
-    $("#" + opacityWidgetID).scrollintoview({
-      complete: function() {
-        setTimeout(function(){
-          $("#" + opacityWidgetID).removeClass("blink_me");
-        }, 2000);
-      }
-    });
-  }
+    $("#" + opacityWidgetID).scrollintoview();
 
+    setTimeout(function(){
+      $("#" + opacityWidgetID).removeClass("blink_me");
+    }, 2500);
+
+  }
 }
 
 

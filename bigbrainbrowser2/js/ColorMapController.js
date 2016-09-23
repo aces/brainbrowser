@@ -14,6 +14,8 @@ var ColorMapController = function(BrainBrowserViewer){
 
   this.intensityData = null;
 
+  this.labelData = {};
+
   // to access shapes and all
   this.viewer = BrainBrowserViewer;
 
@@ -80,14 +82,14 @@ ColorMapController.prototype.registerViewerEvents = function(){
 
 
   this.viewer.addEventListener("changeintensityrange", function(event) {
-    console.log("event: changeintensityrange");
+    //console.log("event: changeintensityrange");
     that.intensityData = event.intensity_data;
     that.updateSpectrumCanvas();
   });
 
 
   this.viewer.addEventListener("loadintensitydata", function(event) {
-    console.log("event: loadintensitydata");
+    //console.log("event: loadintensitydata");
     that.intensityData = event.intensity_data;
     that.updateSpectrumCanvas();
     that.updateSlider();
@@ -97,16 +99,33 @@ ColorMapController.prototype.registerViewerEvents = function(){
   });
 
   this.viewer.addEventListener("updatecolors", function(event) {
-    console.log("event: updatecolors");
+    //console.log("event: updatecolors");
     that.updateSpectrumCanvas();
   });
 
   this.viewer.addEventListener("updateintensitydata", function(event) {
-    console.log("event: updateintensitydata");
+    //console.log("event: updateintensitydata");
   });
 
 }
 
+
+/*
+  So that it's accessible from the outside,
+  for exemple by the UriParamController.
+*/
+ColorMapController.prototype.loadIntensityDataFromURL = function(url){
+  this.viewer.loadIntensityDataFromURL(url);
+}
+
+
+/*
+  So that it's accessible from the outside,
+  for exemple by the UriParamController.
+*/
+ColorMapController.prototype.loadColorMapFromURL = function(url){
+  this.viewer.loadColorMapFromURL(url);
+}
 
 /*
 
@@ -120,7 +139,7 @@ ColorMapController.prototype.registerUIEvents = function(){
       this,
       {
         complete: function(){
-          console.log("intensity file loaded");
+          //console.log("intensity file loaded");
         }
       });
   });
@@ -134,7 +153,7 @@ ColorMapController.prototype.registerUIEvents = function(){
       this,
       {
         complete: function(){
-          console.log("color map file loaded");
+          //console.log("color map file loaded");
         }
       });
   });
@@ -223,7 +242,40 @@ ColorMapController.prototype.registerUIEvents = function(){
   });
 
 
+  // When a json file is opened, we then load its data
+  $("#labelingDataOpener").change(function(evt){
+    if(evt.originalEvent.target.files.length > 0){
+      var file = evt.originalEvent.target.files[0];
+      var reader = new FileReader();
 
+      reader.onload = function(e) {
+	      var contents = e.target.result;
+        that.parseLabelData(contents);
+      }
+      reader.readAsText(file);
+    }
+  });
+
+
+
+}
+
+
+/*
+  Fiils this.labelData with
+*/
+ColorMapController.prototype.parseLabelData = function(strData){
+  var that = this;
+
+  var lines = strData.split("\n");
+  var regex = /'(.+)'\s+(\d+)/;
+
+  lines.forEach(function(line) {
+    var match = line.match(regex);
+    if (match) {
+      that.labelData[match[2]] = match[1];
+    }
+  });
 
 }
 
@@ -312,7 +364,7 @@ ColorMapController.prototype.enableIntensityDataLoading = function(){
 
 
 /*
-
+  Enable the UI related to
 */
 ColorMapController.prototype.enableColorMapUI = function(){
   this.enableUiElement("openColorMapBt");
@@ -320,4 +372,28 @@ ColorMapController.prototype.enableColorMapUI = function(){
   this.enableUiElement("minMaxSliderLbl");
   this.enableUiElement("clampColorBt");
   this.enableUiElement("flipColorBt");
+  this.enableUiElement("openLabelingDataBt");
+
+}
+
+
+/*
+
+*/
+ColorMapController.prototype.showVertexLabel = function(vertexIndex){
+
+  if(! this.intensityData)
+    return;
+
+  if(vertexIndex >= 0 && vertexIndex < this.intensityData.values.length){
+    // vertexIndex is not the index of the vertex within THREEjs system
+    // but the index from the intensity file
+    var vertexIndex = this.intensityData.values[vertexIndex];
+
+    if(vertexIndex in this.labelData){
+      var label = this.labelData[vertexIndex];
+      $("#shapeLabel").html('<i class="fa fa-tag" aria-hidden="true"></i> ' + label);
+    }
+  }
+
 }

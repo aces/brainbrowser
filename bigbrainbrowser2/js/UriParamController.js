@@ -28,8 +28,24 @@
 
   axis=1      Display the axis
 
-  All these arguments must appear after a hash character (#). If multiple
+  intensity=/local/folder/intensityData.txt
+              Intensity data are usually simple text file with one number per
+              line, over may lines (one line per vertex of the corresponding shape).
+              Note: loaded only when a model is loaded.
+
+  colorMap=/local/folder/colormap.txt
+              Color maps are text file with 4 numbers per lines (r g b a) with
+              space in between. There are as many line as necessary to reach The
+              required level of precision. First line being the color for the
+              lowest intensity and last line being the color for the highest
+              level of intensity.
+              Note: an Intensity file is mandatory to show colors.
+
+  IMPORTANT NOTES:
+  1)  All these arguments must appear after a hash character (#). If multiple
   arguments are used, they must be separated by a ampersand cheracter (&).
+
+  2)  When the argument is a file URL, this file should not be compressed (gz)
 
   Examples:
   http://localhost:5000/#models=testData/dbs.json
@@ -180,4 +196,26 @@ UriParamController.prototype.axis = function(){
 
 UriParamController.prototype.hasHiddenUI = function(){
   return this.hiddenUI;
+}
+
+
+
+/*
+  Loads intensity data file and a color map file.
+  We dont necessary need to specify both in argument.
+*/
+UriParamController.prototype.intensityAndColormap = function(){
+  var intensity = this.getHashValue("intensity");
+
+  if(intensity){
+    colorMapController.loadIntensityDataFromURL(intensity[0]);
+  }
+
+
+  var colorMap = this.getHashValue("colorMap");
+
+  if(colorMap){
+    colorMapController.loadColorMapFromURL(colorMap[0]);
+  }
+
 }

@@ -28,6 +28,10 @@ var ColorMapController = function(BrainBrowserViewer){
 }
 
 
+/*
+  Initialize the slider with default/fake values just to show it. It will be
+  reinit later using this.updateSlider() 
+*/
 ColorMapController.prototype.initSlider = function(){
   var that = this;
 
@@ -44,7 +48,6 @@ ColorMapController.prototype.initSlider = function(){
   $(this.colorRangeSlider).slider("disable");
 
 }
-
 
 
 /*
@@ -65,13 +68,10 @@ ColorMapController.prototype.updateSelectorFromConfig = function(){
   // Load a color map (required for displaying intensity data).
   this.viewer.loadColorMapFromURL(configColorMaps[0].url);
 
-
   $('#colorMapMenu').hbsAppend('colorMapSelector', {
     url: "0",
     name: "- custom -"
   });
-
-
 }
 
 
@@ -129,8 +129,9 @@ ColorMapController.prototype.loadColorMapFromURL = function(url){
   this.viewer.loadColorMapFromURL(url);
 }
 
-/*
 
+/*
+  Register all the UI event necessary for the color maps.
 */
 ColorMapController.prototype.registerUIEvents = function(){
   var that = this;
@@ -161,18 +162,20 @@ ColorMapController.prototype.registerUIEvents = function(){
   });
 
 
-  // Chnage the color map from the selector
+  // Change the color map from the drop down menu
   $("#colorMapMenu").change(function(e){
     var url = $(e.target).val();
 
     if(url != "0"){
       that.viewer.loadColorMapFromURL(url);
     }
-
   });
 
 
-  // clamp interval
+  // clamp interval. When clamped, values over the max are taking the color of
+  // the max and values under the min are taking the color of the min. When not
+  // clamped, values that are out of bound are not colorized (the native model
+  // color is used instead, most likely white).
   $("#clampColorBt").click(function(){
     // additionnal control
     if (that.viewer.color_map) {
@@ -197,9 +200,8 @@ ColorMapController.prototype.registerUIEvents = function(){
   });
 
 
-  // flip the colors
+  // flip the colors of the color map
   $("#flipColorBt").click(function(){
-
     // additionnal control
     if (that.viewer.color_map) {
       var isActive = parseInt( $(this).attr("active") );
@@ -214,7 +216,7 @@ ColorMapController.prototype.registerUIEvents = function(){
   });
 
 
-
+  // to manually edit the min of the colormap using the text field
   $("#minSliderLbl").on("keyup", function(e){
     if(e.which === 13){
       var min = $("#minSliderLbl").val();
@@ -229,6 +231,7 @@ ColorMapController.prototype.registerUIEvents = function(){
   });
 
 
+  // to manually edit the max of the colormap using the text field
   $("#maxSliderLbl").on("keyup", function(e){
     if(e.which === 13){
       var min = $("#minSliderLbl").val();
@@ -239,7 +242,6 @@ ColorMapController.prototype.registerUIEvents = function(){
       });
 
       that.minMaxSliderUpdated( parseFloat(min) , parseFloat(max) );
-
     }
   });
 
@@ -259,12 +261,11 @@ ColorMapController.prototype.registerUIEvents = function(){
   });
 
 
-
-}
+} /* END OF registerUIEvents() */
 
 
 /*
-  Fiils this.labelData with
+  Fills this.labelData with
 */
 ColorMapController.prototype.parseLabelData = function(strData){
   var that = this;
@@ -278,7 +279,6 @@ ColorMapController.prototype.parseLabelData = function(strData){
       that.labelData[match[2]] = match[1];
     }
   });
-
 }
 
 
@@ -311,7 +311,7 @@ ColorMapController.prototype.updateMinMaxLabel = function(min, max){
 
 
 /*
-
+  Update the canva that shows the color map spectrum.
 */
 ColorMapController.prototype.updateSpectrumCanvas = function(){
   var canvas = this.viewer.color_map.createElement(
@@ -325,7 +325,9 @@ ColorMapController.prototype.updateSpectrumCanvas = function(){
 
 
 /*
-
+  Updates the slider with new min/max boundaries and compute
+  a decently small step.
+  NOT TO BE CONFUSED with the callback when the slider is moving!
 */
 ColorMapController.prototype.updateSlider = function(){
   var that = this;
@@ -344,13 +346,15 @@ ColorMapController.prototype.updateSlider = function(){
   });
 
   $(this.colorRangeSlider).slider("enable");
-
   this.updateMinMaxLabel(that.intensityData.min, that.intensityData.max);
 }
 
 
 /*
+  Generic method to make an element accessible (enabled).
 
+  Args:
+    domId: id of the dom element
 */
 ColorMapController.prototype.enableUiElement = function(domId){
   $("#" + domId).removeClass("disabled");
@@ -358,7 +362,7 @@ ColorMapController.prototype.enableUiElement = function(domId){
 
 
 /*
-
+  Make the button to load intensity data (aka. vertex indexing) accessible
 */
 ColorMapController.prototype.enableIntensityDataLoading = function(){
   this.enableUiElement("openIntensityDataBt");
@@ -366,7 +370,7 @@ ColorMapController.prototype.enableIntensityDataLoading = function(){
 
 
 /*
-  Enable the UI related to
+  Enable the UI related to color maps and vertex labelling
 */
 ColorMapController.prototype.enableColorMapUI = function(){
   this.enableUiElement("openColorMapBt");
@@ -382,7 +386,8 @@ ColorMapController.prototype.enableColorMapUI = function(){
 
 
 /*
-
+  If the label is available (was loaded by the user) display it when
+  shift+click on a shape.
 */
 ColorMapController.prototype.showVertexLabel = function(vertexIndex){
 

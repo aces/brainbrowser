@@ -5,10 +5,10 @@
   Institution: MCIN - Neuro - McGill University
   Licence: MIT
 
-  ModelCollection handles the loading of model files.
+  ModelLoader handles the loading of model files.
   It's a collection because we can load multiple models.
 */
-var ModelCollection = function(BrainBrowserViewer){
+var ModelLoader = function(BrainBrowserViewer){
 
   this.extensions = [
     {
@@ -37,7 +37,7 @@ var ModelCollection = function(BrainBrowserViewer){
 /*
   Load a new model file and display it in the viewer (if compatible)
 */
-ModelCollection.prototype.newModelToLoad = function(evt){
+ModelLoader.prototype.newModelToLoad = function(evt){
   var that = this;
 
   var file = evt.target.files[0];
@@ -63,13 +63,11 @@ ModelCollection.prototype.newModelToLoad = function(evt){
 }
 
 
-
-
 /*
   Load a new model file and display it in the viewer (if compatible)
   from a URL
 */
-ModelCollection.prototype.newModelToLoadURL = function(url){
+ModelLoader.prototype.newModelToLoadURL = function(url){
   var that = this;
   var type = this.getFileType(url);
   console.log(type + " file loading...");
@@ -91,11 +89,10 @@ ModelCollection.prototype.newModelToLoadURL = function(url){
 }
 
 
-
 /*
   given the file basename, returns the type
 */
-ModelCollection.prototype.getFileType = function(basename){
+ModelLoader.prototype.getFileType = function(basename){
   var type = null;
 
   this.extensions.forEach(function(elem){

@@ -36,13 +36,13 @@
 
 
     <!-- Button to collapse the left side menu -->
-    <div id="hideLeft" class="hideButton">
+    <div id="hideLeft" class="hideButton" title="Hide/show the left side pannel">
       <i class="fa fa-chevron-left" aria-hidden="true"></i>
     </div>
 
 
     <!-- Button to collapse the right side menu -->
-    <div id="hideRight" class="hideButton">
+    <div id="hideRight" class="hideButton" title="Hide/show the right side pannel">
       <i class="fa fa-chevron-right" aria-hidden="true"></i>
     </div>
 
@@ -64,7 +64,7 @@
         <!-- Everything that is supposed to go to the side bar goes here -->
 
         <!-- open -->
-       <div id="openBt" class="buttonBB noselect" onclick="document.getElementById('modelOpener').click()">
+       <div id="openBt" class="buttonBB noselect" onclick="document.getElementById('modelOpener').click()" title="Open a 3D model file">
          <i class="fa fa-cube" aria-hidden="true"></i> Open model
        </div>
         <input type="file" id="modelOpener" class="hidden">
@@ -86,7 +86,7 @@
 
         <!-- Load & unload -->
         <div class="twoButtons">
-          <div id="unloadAllBt" class="buttonBB noselect">
+          <div id="unloadAllBt" class="buttonBB noselect" title="Remove all models from the view">
             <i class="fa fa-eraser" aria-hidden="true"></i>
             Unload all
           </div>
@@ -132,15 +132,15 @@
 
         <!-- list of 6 buttons -->
         <div class="sixButtons">
-          <div id="resetview" class="buttonBB miniButton noselect"><i class="fa fa-home" aria-hidden="true"></i>
+          <div id="resetview" class="buttonBB miniButton noselect" title="Reset orientation"><i class="fa fa-home" aria-hidden="true"></i>
 </div> <!-- reset view -->
-          <div id="gridToggleBt" class="buttonBB miniButton noselect"><i class="fa fa-th" aria-hidden="true"></i>
+          <div id="gridToggleBt" class="buttonBB miniButton noselect" title="Show/hide the grid"><i class="fa fa-th" aria-hidden="true"></i>
           </div> <!-- display grid -->
-          <div id="axesToggleBt" class="buttonBB miniButton noselect"><i class="fa fa-compass" aria-hidden="true"></i>
+          <div id="axesToggleBt" class="buttonBB miniButton noselect" title="Show/hide the axes"><i class="fa fa-compass" aria-hidden="true"></i>
           </div> <!--  toggle axes -->
-          <div id="toggleWireFrameBt" class="buttonBB miniButton noselect" active="0">&#9676;</div>  <!-- wireframe -->
-          <div id="threedeeBt" class="buttonBB miniButton noselect" active="0">&#128526;</div> <!--  3D glasses -->
-          <div id="saveCaptureBt" class="buttonBB miniButton noselect"><i class="fa fa-camera" aria-hidden="true"></i>
+          <div id="toggleWireFrameBt" class="buttonBB miniButton noselect" active="0" title="Toggle the model to wireframe">&#9676;</div>  <!-- wireframe -->
+          <div id="threedeeBt" class="buttonBB miniButton noselect" active="0" title="Enable 3D stereoscopic effect">&#128526;</div> <!--  3D glasses -->
+          <div id="saveCaptureBt" class="buttonBB miniButton noselect" title="Take a screenshot"><i class="fa fa-camera" aria-hidden="true"></i>
 </div> <!-- snapshot -->
         </div>
 
@@ -151,20 +151,20 @@
         <div class="label">Color maps and labeling</div>
 
         <!-- Open button for vertex indexing data -->
-        <div id="openIntensityDataBt" class="buttonBB noselect disabled" onclick="document.getElementById('intensityDataOpener').click()" >
+        <div id="openIntensityDataBt" class="buttonBB noselect disabled" onclick="document.getElementById('intensityDataOpener').click()" title="Vertex indexing data are text files that assign a value to each vertex of a model. As a mean to clusterize of classify each vertex, some vertice may be assigned the same value, in other words, the same category." >
           <i class="fa fa-list-ol" aria-hidden="true"></i> Open vertex indexing data
         </div>
         <input type="file" id="intensityDataOpener" class="hidden">
 
 
         <!-- Open button for labeling data -->
-        <div id="openLabelingDataBt" class="buttonBB noselect disabled" onclick="document.getElementById('labelingDataOpener').click()" >
+        <div id="openLabelingDataBt" class="buttonBB noselect disabled" onclick="document.getElementById('labelingDataOpener').click()" title="Vertex labeling data are text file that associate a name each category from the indexing data.">
           <i class="fa fa-tag" aria-hidden="true"></i> Open vertex labeling data
         </div>
         <input type="file" id="labelingDataOpener" class="hidden">
 
         <!-- Open button for color maps -->
-        <div id="openColorMapBt" class="buttonBB noselect disabled" onclick="document.getElementById('colorMapOpener').click()" >
+        <div id="openColorMapBt" class="buttonBB noselect disabled" onclick="document.getElementById('colorMapOpener').click()" title="A color map is a text file that associate a a specific color to each category from the indexing data.">
           <i class="fa fa-paint-brush" aria-hidden="true"></i> Open color map
         </div>
         <input type="file" id="colorMapOpener" class="hidden">
@@ -190,12 +190,12 @@
 
         <!-- clamp & flip -->
         <div class="twoButtons">
-          <div id="clampColorBt" class="buttonBB noselect disabled" active="0">
+          <div id="clampColorBt" class="buttonBB noselect disabled" active="0" title="Clamping enabled: the values that are out of bound are associated with the color of the related extrema.Clamping disabled: the values that are out of bound are not associated with any color and the native volume color will be used (most likely white).">
             <i class="fa fa-square" aria-hidden="true"></i>
             Clamp
           </div>
 
-          <div id="flipColorBt" class="buttonBB noselect disabled">
+          <div id="flipColorBt" class="buttonBB noselect disabled" title="Reverse the color map.">
             <i class="fa fa-exchange" aria-hidden="true"></i>
             Flip colors
           </div>
@@ -221,8 +221,8 @@
 
         <div class="label">Annotations</div>
         <div class="twoButtons">
-          <div class="buttonBB noselect" onclick="document.getElementById('annotationOpener').click()" ><i class="fa fa-folder-open" aria-hidden="true"></i>Load</div>
-          <div id="annotSaveBt" class="buttonBB noselect"><i class="fa fa-floppy-o" aria-hidden="true"></i>Save</div>
+          <div class="buttonBB noselect" onclick="document.getElementById('annotationOpener').click()" title="Load a annotation file (JSON)"><i class="fa fa-folder-open" aria-hidden="true"></i>Load</div>
+          <div id="annotSaveBt" class="buttonBB noselect" title="Save annotation file (JSON)"><i class="fa fa-floppy-o" aria-hidden="true"></i>Save</div>
         </div>
         <input type="file" id="annotationOpener" class="hidden">
         <div id="annotations"></div>
@@ -271,14 +271,11 @@
     </div> <!-- END rightSidebar -->
 
 
-
-
     <!--MAIN -->
     <div id="brainbrowser">
     </div> <!-- END brainbrowser -->
 
   </div>
-
 
 
   <!-- BrainBrowser core -->
@@ -315,7 +312,6 @@
   <script src="js/AnnotationController.js"></script>
   <script src="js/UriParamController.js"></script>
   <script src="js/ColorMapController.js"></script>
-
   <script src="js/core.js"></script>
 
 </body>

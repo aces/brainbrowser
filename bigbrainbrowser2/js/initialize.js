@@ -12,6 +12,13 @@ function init(){
 
   // Box that shows the axes orientation on the left column
   axisBox = new AxisBox("axisBox");
+
+  // enable the tooltips
+  $( document ).tooltip({
+    show: { effect: "fade", duration: 200 },
+    tooltipClass: "jqueryTooltip",
+    //position: { my: "right bottom+55", at: "right center" }
+  });
 }
 
 

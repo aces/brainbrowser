@@ -23,6 +23,8 @@ var ColorMapController = function(BrainBrowserViewer){
   this.initSlider();
   this.registerViewerEvents();
   this.registerUIEvents();
+
+
 }
 
 
@@ -374,6 +376,8 @@ ColorMapController.prototype.enableColorMapUI = function(){
   this.enableUiElement("flipColorBt");
   this.enableUiElement("openLabelingDataBt");
 
+  // the default behavior is to not clamp it
+  this.viewer.color_map.clamp = false;
 }
 
 

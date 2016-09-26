@@ -231,19 +231,54 @@ ShapeController.prototype.initToggleCallbacks = function(){
 
   // toggle allshapes callback
   $("#model_" + this.fileCounter + " .toggleAllShapes").click(function(){
-
     // prevent the opacity callback to be called for all shapes!
     that.blockOpacityCallback = true;
 
-    $(this).siblings().each(function(){
+    $(this).closest(".modelPanel").children().each(function(){
       $(this).find(".toggleShape").trigger("click");
     });
 
     that.blockOpacityCallback = false;
-
     // call the opacity callback once for all
     that.opacityCallback("ALL");
   });
+
+
+  // show all shapes callback
+  $("#model_" + this.fileCounter + " .showAllShapes").click(function(){
+    // prevent the opacity callback to be called for all shapes!
+    that.blockOpacityCallback = true;
+
+    $(this).closest(".modelPanel").children().each(function(){
+      var visibilityButton = $(this).find(".toggleShape");
+      if( parseInt($(visibilityButton).attr("visible")) == 0 ){
+        $(this).find(".toggleShape").trigger("click");
+      }
+    });
+
+    that.blockOpacityCallback = false;
+    // call the opacity callback once for all
+    that.opacityCallback("ALL");
+  });
+
+
+  // hide all shapes callback
+  $("#model_" + this.fileCounter + " .hideAllShapes").click(function(){
+    // prevent the opacity callback to be called for all shapes!
+    that.blockOpacityCallback = true;
+
+    $(this).closest(".modelPanel").children().each(function(){
+      var visibilityButton = $(this).find(".toggleShape");
+      if( parseInt($(visibilityButton).attr("visible")) == 1 ){
+        $(this).find(".toggleShape").trigger("click");
+      }
+    });
+
+    that.blockOpacityCallback = false;
+    // call the opacity callback once for all
+    that.opacityCallback("ALL");
+  });
+
 
   // eye icon button callback
   $("#model_" + this.fileCounter + " .toggleShape").click(function(){

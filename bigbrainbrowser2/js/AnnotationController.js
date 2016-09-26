@@ -26,6 +26,109 @@ var AnnotationController = function(BrainBrowserViewer){
 
 
 /*
+  Init all the buttons
+*/
+AnnotationController.prototype.initCallbacks = function(){
+  var that = this;
+
+
+  // Save the annotations
+  $("#annotSaveBt").click(function(){
+    var jsonAnnotations = that.annotationsToJson();
+    console.log(jsonAnnotations);
+    var blob = new Blob([jsonAnnotations], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, "annotations.json");
+  });
+
+
+  // When a json file is opened, we then load its data
+  $("#annotationOpener").change(function(evt){
+    if(evt.originalEvent.target.files.length > 0){
+      var file = evt.originalEvent.target.files[0];
+      var reader = new FileReader();
+
+      reader.onload = function(e) {
+	      var contents = e.target.result;
+        that.addAnnotationFromJSON(contents);
+      }
+      reader.readAsText(file);
+    }
+  });
+
+  // when typing in the name text field
+  // Note: not using the regular click cb because the elements are not created yet
+  $('body').on("keyup", ".annotName", function(){
+    var annotBlock = $(this).closest(".annotation");
+    var id = annotBlock.attr("id");
+
+    var newName = $(this).val();
+    that.updateName(id, newName);
+  });
+
+
+  // when typing in the description text field
+  // Note: not using the regular click cb because the elements are not created yet
+  $('body').on("keyup", ".annotDescription", function(){
+    var annotBlock = $(this).closest(".annotation");
+    var id = annotBlock.attr("id");
+
+    var newDesc = $(this).val();
+    that.updateDescription(id, newDesc);
+  });
+
+
+  // the trashbin icon, to delete an annotation
+  // Note: not using the regular click cb because the elements are not created yet
+  $('body').on("click", ".annotDelete", function(){
+    var annotBlock = $(this).closest(".annotation");
+    var id = annotBlock.attr("id");
+
+    that.deleteAnnotation(id);
+  });
+
+
+  // Make the annotation visible/invisible depending on its currnet state
+  // Note: not using the regular click cb because the elements are not created yet
+  $('body').on("click", ".annotToggle", function(){
+    var annotBlock = $(this).closest(".annotation");
+    var id = annotBlock.attr("id");
+
+    that.toggleAnnotation(id);
+  });
+
+
+  // Make all the rest partly transparent, except this annotation
+  // Note: not using the regular click cb because the elements are not created yet
+  $('body').on("mouseenter", ".annotTarget", function(){
+    var annotBlock = $(this).closest(".annotation");
+    var id = annotBlock.attr("id");
+
+    that.enableTarget(id);
+  });
+
+
+  // Make all the rest partly transparent, except this annotation
+  // Note: not using the regular click cb because the elements are not created yet
+  $('body').on("mouseleave", ".annotTarget", function(){
+    var annotBlock = $(this).closest(".annotation");
+    var id = annotBlock.attr("id");
+
+    that.disableTarget(id);
+  });
+
+
+  $('body').on("change", ".colorPicker", function(){
+    var annotBlock = $(this).closest(".annotation");
+    var id = annotBlock.attr("id");
+
+    that.changeColorAnnotation(id, $(this).val());
+  });
+
+
+} /* END OF initCallbacks() */
+
+
+/*
   add an annotation to the list, and create the equivalent sphere.
   Args:
     points: Array of Array [x, y, z] - list of [x, y, z] coordinantes
@@ -359,113 +462,11 @@ AnnotationController.prototype.addAnnotationFromObject = function(ob){
   Args:
     filepath: String - a local json file that contains annotations data
 */
-AnnotationController.prototype.loadLocalFile = function(filepath){
+AnnotationController.prototype.loadAnnotationFromURL = function(filepath){
   var that = this;
 
   $.get(filepath, function(data) {
     that.addAnnotationFromObject(data);
-  });
-
-}
-
-
-/*
-  Init all the buttons
-*/
-AnnotationController.prototype.initCallbacks = function(){
-  var that = this;
-
-
-  // Save the annotations
-  $("#annotSaveBt").click(function(){
-    var jsonAnnotations = that.annotationsToJson();
-    console.log(jsonAnnotations);
-    var blob = new Blob([jsonAnnotations], {type: "text/plain;charset=utf-8"});
-    saveAs(blob, "annotations.json");
-  });
-
-
-  // When a json file is opened, we then load its data
-  $("#annotationOpener").change(function(evt){
-    if(evt.originalEvent.target.files.length > 0){
-      var file = evt.originalEvent.target.files[0];
-      var reader = new FileReader();
-
-      reader.onload = function(e) {
-	      var contents = e.target.result;
-        that.addAnnotationFromJSON(contents);
-      }
-      reader.readAsText(file);
-    }
-  });
-
-  // when typing in the name text field
-  // Note: not using the regular click cb because the elements are not created yet
-  $('body').on("keyup", ".annotName", function(){
-    var annotBlock = $(this).closest(".annotation");
-    var id = annotBlock.attr("id");
-
-    var newName = $(this).val();
-    that.updateName(id, newName);
-  });
-
-
-  // when typing in the description text field
-  // Note: not using the regular click cb because the elements are not created yet
-  $('body').on("keyup", ".annotDescription", function(){
-    var annotBlock = $(this).closest(".annotation");
-    var id = annotBlock.attr("id");
-
-    var newDesc = $(this).val();
-    that.updateDescription(id, newDesc);
-  });
-
-
-  // the trashbin icon, to delete an annotation
-  // Note: not using the regular click cb because the elements are not created yet
-  $('body').on("click", ".annotDelete", function(){
-    var annotBlock = $(this).closest(".annotation");
-    var id = annotBlock.attr("id");
-
-    that.deleteAnnotation(id);
-  });
-
-
-  // Make the annotation visible/invisible depending on its currnet state
-  // Note: not using the regular click cb because the elements are not created yet
-  $('body').on("click", ".annotToggle", function(){
-    var annotBlock = $(this).closest(".annotation");
-    var id = annotBlock.attr("id");
-
-    that.toggleAnnotation(id);
-  });
-
-
-  // Make all the rest partly transparent, except this annotation
-  // Note: not using the regular click cb because the elements are not created yet
-  $('body').on("mouseenter", ".annotTarget", function(){
-    var annotBlock = $(this).closest(".annotation");
-    var id = annotBlock.attr("id");
-
-    that.enableTarget(id);
-  });
-
-
-  // Make all the rest partly transparent, except this annotation
-  // Note: not using the regular click cb because the elements are not created yet
-  $('body').on("mouseleave", ".annotTarget", function(){
-    var annotBlock = $(this).closest(".annotation");
-    var id = annotBlock.attr("id");
-
-    that.disableTarget(id);
-  });
-
-
-  $('body').on("change", ".colorPicker", function(){
-    var annotBlock = $(this).closest(".annotation");
-    var id = annotBlock.attr("id");
-
-    that.changeColorAnnotation(id, $(this).val());
   });
 
 }

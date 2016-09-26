@@ -129,7 +129,7 @@ UriParamController.prototype.annotations = function(){
 
   if(annotations){
     annotations.forEach(function(annot){
-      annotationController.loadLocalFile(annot);
+      annotationController.loadAnnotationFromURL(annot);
     });
   }
 }
@@ -145,7 +145,7 @@ UriParamController.prototype.models = function(){
     models.forEach(function(model){
       //document.getElementById("modelOpener").value = model;
       $( "#modelOpener" ).attr("alternativeValue", model);
-      modelCollection.newModelToLoadURL(model)
+      modelLoader.newModelToLoadURL(model)
     });
   }
 

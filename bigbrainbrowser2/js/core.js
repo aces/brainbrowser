@@ -10,7 +10,7 @@
 // all the shapes with opacity slider.
 var THREE = null;
 var shapeController = null;
-var modelCollection = null;
+var modelLoader = null;
 var shapePicker = null;
 var annotationController = null;
 
@@ -48,7 +48,7 @@ $(function() {
     viewer.render();
 
     // deals with file loading
-    modelCollection = new ModelCollection(viewer);
+    modelLoader = new ModelLoader(viewer);
 
     // Deals with opacity sliders
     shapeController = new ShapeController(viewer);
@@ -66,15 +66,14 @@ $(function() {
     colorMapController = new ColorMapController(viewer);
 
     // init all the callbacks related to ui
+    definesEventCallbacks();
+
+    // init all the callbacks related to events
     defineUiCallbacks();
 
     // read parameters from the URL and apply them
     uriParamController = new UriParamController();
     shapeController.shouldHideUI( uriParamController.hasHiddenUI() );
-
-    console.log(shapeController.hiddenUI);
-
-
 
 
     // when a model is loaded...
@@ -92,7 +91,6 @@ $(function() {
 
       // load color maps and intensity data files that are possibly in the URL
       uriParamController.intensityAndColormap();
-
     });
 
 

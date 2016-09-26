@@ -9,30 +9,11 @@
 function init(){
   THREE = BrainBrowser.SurfaceViewer.THREE;
   initTemplates();
-  initCallbacks();
 
   // Box that shows the axes orientation on the left column
   axisBox = new AxisBox("axisBox");
 }
 
-/*
-  Initialize some callbacks
-*/
-function initCallbacks(){
-
-  // to slide the right pannel
-  $("#hideRight").click(function(){
-    $("#rightSidebar").animate({width:'toggle'},250);
-  });
-
-
-  // to slide the left pannel
-  $("#hideLeft").click(function(){
-    $("#leftSidebar").animate({width:'toggle'},250);
-  });
-
-
-}
 
 /*
   Defines Handlebars variables
@@ -47,17 +28,13 @@ function initTemplates(){
 }
 
 
-
 /*
-  Defines all the callbacks of the UI, needs viewer to be ready
-  (this is why it's not part of initCallbacks() )
+  Defines the callbacks related to some events.
+  Needs viewer to be ready.
 */
-function defineUiCallbacks(){
-  console.log("defining callbacks...");
+function definesEventCallbacks(){
 
-  /*
-    Callback: when shift+click is performed on a shape
-  */
+  // Callback: when shift+click is performed on a shape
   shapePicker.shiftPick(function(shapeInfo){
     var shapeNameOverall = shapeInfo.object.name;
     shapeController.focusOnSlider(shapeInfo.object.name);
@@ -70,9 +47,7 @@ function defineUiCallbacks(){
   });
 
 
-  /*
-    Callback: when ctrl+click is performed on a shape
-  */
+  //  Callback: when ctrl+click is performed on a shape
   shapePicker.ctrlPick(function(shapeInfo){
     if(gridManager){
       gridManager.centerShape(shapeInfo.object.name);
@@ -82,11 +57,10 @@ function defineUiCallbacks(){
   });
 
 
-
-  // ADD or SHOW an annotation - TODO: put that in annotationController
+  // ADD or SHOW an annotation when the model or an annotation is clicked.
+  // This does not use the raycaster/picker from the core viewer but rather
+  // a custom raycaster that allow picking the model + the annotation system.
   shapePicker.ctrlAndShiftPickModelAndAnnot(function(intersectModel, intersectAnnot){
-    console.log(intersectModel);
-    console.log(intersectAnnot);
 
     // SHOW an annoation
     if( (intersectAnnot && !intersectModel) ||
@@ -117,11 +91,7 @@ function defineUiCallbacks(){
   });
 
 
-
-
-  /*
-    Callback: when a opacity slider crosses the opacity threshold
-  */
+  // Callback: when a opacity slider crosses the opacity threshold
   shapeController.setOpacityCallback(function(shapeNameOverall){
       console.log("The shape " + shapeNameOverall + " just changed its visibility status");
       gridManager.updateGrid();
@@ -129,6 +99,35 @@ function defineUiCallbacks(){
       // doesnt necessary draw (in case of hidden) but addapt the size anyway
       bbViewer.updateAxes();
   });
+
+
+  // updated the quaternion of the axis box,
+  // using the quaternion of the graphicObjects
+  bbViewer.onDragged( function(evt){
+    axisBox.applyQuaternion( evt.goQuaternion );
+  });
+
+
+} /* END OF definesEventCallbacks() */
+
+
+/*
+  Defines all the callbacks of the UI, needs viewer to be ready
+  (this is why it's not part of initCallbacks() )
+*/
+function defineUiCallbacks(){
+
+  // to slide the right pannel
+  $("#hideRight").click(function(){
+    $("#rightSidebar").animate({width:'toggle'},250);
+  });
+
+
+  // to slide the left pannel
+  $("#hideLeft").click(function(){
+    $("#leftSidebar").animate({width:'toggle'},250);
+  });
+
 
 
   // to slide the left pannel
@@ -196,12 +195,6 @@ function defineUiCallbacks(){
   });
 
 
-  // updated the quaternion of the axis box, using the quaternion of the graphicObjects
-  bbViewer.onDragged( function(evt){
-    axisBox.applyQuaternion( evt.goQuaternion );
-  });
-
-
   // autorotate control, works for the 3 of them
   $(".autorotate").click(function(){
     var axis = $(this).attr("axis");
@@ -216,16 +209,15 @@ function defineUiCallbacks(){
   });
 
 
-  // select the background color
+  // select and change the background color
   $("#bgColorMenu").change(function(e){
     var bgcolor = parseInt($(e.target).val(), 16);
     bbViewer.setClearColor(bgcolor);
   });
 
 
-
+  // Enable the 3D stereoscopic thing
   $("#threedeeBt").click(function(){
-
     var isActive = parseInt( $(this).attr("active") );
 
     if(isActive){
@@ -250,12 +242,7 @@ function defineUiCallbacks(){
   });
 
 
-
-
-
-
-
-  // * * * TEST BUTTON * * *
+  // * * * TEST BUTTON 1 * * *
   $("#testButton1").click(function(){
     annotationController.addAnnotation(
       [
@@ -277,6 +264,8 @@ function defineUiCallbacks(){
 
   });
 
+
+  // * * * TEST BUTTON 2 * * *
   $("#testButton2").click(function(){
     console.log("TEST BUTTON 2");
 
@@ -286,7 +275,6 @@ function defineUiCallbacks(){
       }
     });
   });
-
 
 
 } /* END OF defineUiCallbacks() */

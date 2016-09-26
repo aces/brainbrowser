@@ -34,11 +34,9 @@ ShapePicker.prototype.genericPick = function(callback){
 }
 
 
-
-
-
-
-
+/*
+  TODO: doc
+*/
 ShapePicker.prototype.genericPickModelAndAnnot = function(callback){
   var that = this;
 

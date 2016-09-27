@@ -304,6 +304,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     loader.loadFromFile(file_input, loadIntensityData, options);
   };
 
+
+
   /**
   * @doc function
   * @name viewer.loading:loadColorMapFromURL

@@ -118,6 +118,7 @@ textarea { resize:vertical ; }
   padding: 5px;
   text-align: center;
   color: hsl(196, 100%, 40%);
+  white-space: nowrap;
 }
 
 
@@ -288,4 +289,36 @@ width: 50%;
 
 .backgroundHover:hover{
   background-color: rgba(255, 255, 255, 0.8);
+}
+
+
+
+.fieldAndSlider{
+  width: 100%;
+  display: flex;
+}
+
+
+.fieldAndSlider .label{
+  width: 80px;
+  margin-left: 15px;
+  text-align: left;
+  padding-left: 0;
+  padding-bottom: 7px;
+}
+
+
+.fieldAndSlider input[type="text"]{
+  width: 40px;
+  margin-right: 5px;
+  border: none;
+  margin-left: 15px;
+  text-align: center;
+  font-size: inherit;
+  color: inherit;
+  margin-left: 0;
+}
+
+.fieldAndSlider input[type="range"]{
+  width: 135px;
 }

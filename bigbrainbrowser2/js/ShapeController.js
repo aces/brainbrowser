@@ -111,8 +111,6 @@ ShapeController.prototype.loadFile = function(loadEvent, filename){
   // create callbacks for the newly loaded opacity buttons
   this.initToggleCallbacks();
 
-  console.log(uriParamController.hasHiddenUI());
-
   if(! $("#rightSidebar").is(":visible") && !this.hiddenUI){
     $("#rightSidebar").fadeIn();
   }

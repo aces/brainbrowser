@@ -52,6 +52,8 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
     },
 
     lateralView: function(model_data) {
+
+      /*
       var model = viewer.model;
       var left_child, right_child;
 
@@ -71,21 +73,32 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
         model.rotation.y += Math.PI;
         model.rotation.z -= Math.PI / 2;
       }
+      */
+      console.warn("lateralView is about to be reimplemented");
     },
 
     inferiorView: function() {
+      /*
       viewer.model.rotation.y += Math.PI;
+      */
+      console.warn("inferiorView is about to be reimplemented");
     },
 
     anteriorView: function() {
+      /*
       viewer.resetView();
       viewer.model.rotation.x -= Math.PI / 2;
       viewer.model.rotation.z += Math.PI;
+      */
+      console.warn("anteriorView is about to be reimplemented");
     },
 
     posteriorView : function() {
+      /*
       viewer.resetView();
       viewer.model.rotation.x -= Math.PI / 2;
+      */
+      console.warn("posteriorView is about to be reimplemented");
     }
   };
 

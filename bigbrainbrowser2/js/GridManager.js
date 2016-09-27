@@ -48,13 +48,9 @@ GridManager.prototype.initCallbacks = function(t){
   // SLIDER: grid step factor is changing with the slider
   $("#gridStepFactorSlider").on("input change", function(e){
     var sliderValue = parseFloat($(e.target).val());
-    console.log(sliderValue);
     that.defineGridStepFactor(sliderValue);
-
     $("#gridStepFactorField").val(sliderValue);
-
   });
-
 
   // TEXT FIELD: to manually tune the factor by writing a number
   $("#gridStepFactorField").on("keyup", function(e){

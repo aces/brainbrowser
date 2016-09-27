@@ -307,3 +307,14 @@ body{
 .toggleAllShapes{
   margin-top: 0;
 }
+
+
+.contrastLogo{
+  margin-top: 4px;
+  margin-right: 5px;
+}
+
+
+.slider{
+  width: 180px;
+}

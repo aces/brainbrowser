@@ -82,8 +82,6 @@
           </select>
         </div>
 
-        <div id="axisBox"></div>
-
         <!-- Load & unload -->
         <div class="twoButtons">
           <div id="unloadAllBt" class="buttonBB noselect" title="Remove all models from the view">
@@ -91,15 +89,14 @@
             Unload all
           </div>
 
-          <div class="buttonBB noselect">
+          <div id="reloadBt" class="buttonBB noselect">
             <i class="fa fa-refresh" aria-hidden="true"></i>
             Load
           </div>
-
         </div>
 
-
-
+        <!-- The axis box which will contain a ~200x200 canvas -->
+        <div id="axisBox"></div>
 
 
         <!-- just a dashed line -->
@@ -280,6 +277,10 @@
     <!--MAIN -->
     <div id="brainbrowser">
     </div> <!-- END brainbrowser -->
+
+    <div id="spinner" class="hidden">
+      <img src="img/pacman.gif">
+    </div>
 
   </div>
 

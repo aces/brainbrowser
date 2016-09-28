@@ -318,3 +318,24 @@ body{
 .slider{
   width: 180px;
 }
+
+
+#spinner{
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  padding-bottom: 30px;
+  z-index: 100;
+  text-align: center;
+  -webkit-filter: invert(); /* Chrome, Safari, Opera */
+  filter: invert();
+}
+
+
+#spinner img{
+  background-color: white;
+  padding: 2px;
+  border-radius: 50%;
+}

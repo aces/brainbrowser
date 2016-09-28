@@ -35,7 +35,19 @@ ShapePicker.prototype.genericPick = function(callback){
 
 
 /*
-  TODO: doc
+  Implement a raycaster that is supposed to intersect with the model AND the
+  annotations shapes (spheres and potentially polylines/polygons), while the
+  picker from the core only intersect with the model (making it impossbile to
+  pick the annotations).
+
+  The intersection with the model and the annotationSystem are done ni two steps
+  so that the results are not mixed up.
+
+  Args:
+    callback: function - must take in argument:
+        1- the event (click)
+        2- the first intersected object from the model (can be null in case of none)
+        3- the first intersected object from the annotationSystem (can be null)
 */
 ShapePicker.prototype.genericPickModelAndAnnot = function(callback){
   var that = this;

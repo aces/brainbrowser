@@ -31,6 +31,17 @@ var ModelLoader = function(BrainBrowserViewer){
   // callback on the open button
   this.openButton = document.getElementById("modelOpener");
   this.openButton.addEventListener('change', this.newModelToLoad.bind(this), false);
+
+
+  var that = this;
+
+  // to slide the right pannel
+  $("#reloadBt").click(function(){
+    var type = document.getElementById("modelFormatSelector").value;
+    that.loadModelFile(document.getElementById("modelOpener"), type);
+  });
+
+
 }
 
 
@@ -39,27 +50,39 @@ var ModelLoader = function(BrainBrowserViewer){
 */
 ModelLoader.prototype.newModelToLoad = function(evt){
   var that = this;
-
   var file = evt.target.files[0];
-  console.log(file.name);
   var type = this.getFileType(file.name);
-  console.log(type + " file loading...");
 
   // The type is known
   if(type){
     document.getElementById("modelFormatSelector").value = type;
-
-    this.viewer.loadModelFromFile(evt.target, {
-      format: type,
-      complete: function(){
-
-        console.log("loading done");
-      }
-    });
+    this.loadModelFile(evt.target, type);
   }else{
     document.getElementById("modelFormatSelector").value = "unknown";
   }
+}
 
+
+/*
+  Convenient wraping of the file-loading core function for when the file type
+  is unknown.
+
+  Args:
+    fileOpenerElem: DOM element of type input  file
+    type: String - the type of data we want to load
+*/
+ModelLoader.prototype.loadModelFile = function(fileOpenerElem, type){
+  var that = this;
+
+  var filename = $(fileOpenerElem)[0].files[0].name;
+  this.startOpeningFile(filename);
+
+  this.viewer.loadModelFromFile(fileOpenerElem, {
+    format: type,
+    complete: function(){
+      that.doneOpeningFile();
+    }
+  });
 }
 
 
@@ -70,7 +93,8 @@ ModelLoader.prototype.newModelToLoad = function(evt){
 ModelLoader.prototype.newModelToLoadURL = function(url){
   var that = this;
   var type = this.getFileType(url);
-  console.log(type + " file loading...");
+
+  this.startOpeningFile(url);
 
   // The type is known
   if(type){
@@ -79,7 +103,7 @@ ModelLoader.prototype.newModelToLoadURL = function(url){
       this.viewer.loadModelFromURL(url, {
         format: type,
         complete: function(){
-          console.log("loading done");
+          that.doneOpeningFile();
         }
       });
   }else{
@@ -102,4 +126,22 @@ ModelLoader.prototype.getFileType = function(basename){
   });
 
   return type;
+}
+
+
+/*
+  Start the spinner
+*/
+ModelLoader.prototype.startOpeningFile = function(filename){
+  console.log("startOpeningFile " + filename + " ...");
+  $("#spinner").show();
+}
+
+
+/*
+  Stop the spinner
+*/
+ModelLoader.prototype.doneOpeningFile = function(){
+  console.log("doneOpeningFile");
+  $("#spinner").hide();
 }

@@ -83,7 +83,9 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
         shapes = [shape];
       } else {
         // 'original_data' indicates that it's a loaded model
-        shapes = viewer.model.children.filter(function(child) { return !!child.userData.original_data; });
+        shapes = viewer.model.children.filter(function(child) {
+          return !!child.userData.original_data;
+        });
       }
 
       colorModel(color_array, shapes);
@@ -428,4 +430,3 @@ BrainBrowser.SurfaceViewer.modules.color = function(viewer) {
   }
 
 };
-

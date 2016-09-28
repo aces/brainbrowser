@@ -35,6 +35,7 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   // View change functions
   var views = {
     medialView: function(model_data) {
+      /*
       var model = viewer.model;
 
       if(model_data.split) {
@@ -49,6 +50,8 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
         model.rotation.y += Math.PI;
         model.rotation.z += Math.PI / 2;
       }
+      */
+      console.warn("medialView is about to be reimplemented");
     },
 
     lateralView: function(model_data) {
@@ -213,6 +216,7 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   * ```
   */
   viewer.setView = function(view_name, model_name) {
+    /*
     var method_name = view_name + "View";
     var model_data = viewer.model_data.get(model_name);
 
@@ -223,6 +227,8 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
     }
 
     viewer.updated = true;
+    */
+    console.warn("The entire setView thing is being reimplemented.");
   };
 
   /**
@@ -243,6 +249,7 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   * ```
   */
   viewer.separateHalves = function(increment, options) {
+    /*
     increment = increment || 1;
     options = options || {};
 
@@ -252,6 +259,8 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
     }
 
     viewer.updated = true;
+    */
+    console.warn("The separateHalves function is being reimplemented");
   };
 
   ////////////////////////////////////

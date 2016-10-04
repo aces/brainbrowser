@@ -291,6 +291,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
     });
 
     viewer.volumes = [];
+    viewer.containers = [];
     viewer.active_panel = null;
     viewer.dom_element.innerHTML = "";
   };
@@ -719,7 +720,19 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       });
     })();
 
-    dom_element.appendChild(container);
+    viewer.containers[vol_id] = container;
+
+    /* See if a subsequent volume has already been loaded. If so we want
+     * to be sure that this container is inserted before the subsequent
+     * container. This guarantees the ordering of elements.
+     */
+    var next_id = vol_id + 1;
+    if (next_id in viewer.containers) {
+      dom_element.insertBefore(container, viewer.containers[next_id]);
+    }
+    else {
+      dom_element.appendChild(container);
+    }
     viewer.triggerEvent("volumeuiloaded", {
       container: container,
       volume: volume,

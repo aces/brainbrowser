@@ -726,11 +726,15 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
      * to be sure that this container is inserted before the subsequent
      * container. This guarantees the ordering of elements.
      */
-    var next_id = vol_id + 1;
-    if (next_id in viewer.containers) {
-      dom_element.insertBefore(container, viewer.containers[next_id]);
+    var containers = viewer.containers;
+    var next_id;
+    for (next_id = vol_id + 1; next_id < containers.length; next_id++) {
+      if (next_id in containers) {
+        dom_element.insertBefore(container, containers[next_id]);
+        break;
+      }
     }
-    else {
+    if (next_id === containers.length) {
       dom_element.appendChild(container);
     }
     viewer.triggerEvent("volumeuiloaded", {

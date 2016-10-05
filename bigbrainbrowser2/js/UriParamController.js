@@ -208,14 +208,14 @@ UriParamController.prototype.intensityAndColormap = function(){
   var intensity = this.getHashValue("intensity");
 
   if(intensity){
-    colorMapController.loadIntensityDataFromURL(intensity[0]);
+    vertexIndexingController.loadIntensityDataFromURL(intensity[0]);
   }
 
 
   var colorMap = this.getHashValue("colorMap");
 
   if(colorMap){
-    colorMapController.loadColorMapFromURL(colorMap[0]);
+    vertexIndexingController.loadColorMapFromURL(colorMap[0]);
   }
 
 }

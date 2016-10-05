@@ -24,7 +24,7 @@ var axisBox = null;
 var uriParamController = null;
 
 // color maps and intensity data
-var colorMapController = null;
+var vertexIndexingController = null;
 
 // pointer on viewer for when it gets loaded
 var bbViewer = null;
@@ -59,7 +59,7 @@ $(function() {
     // manage all the annotation system
     annotationController = new AnnotationController(viewer);
 
-    colorMapController = new ColorMapController(viewer);
+    vertexIndexingController = new VertexIndexingController(viewer);
 
     // init all the callbacks related to ui
     definesEventCallbacks();
@@ -75,7 +75,7 @@ $(function() {
     // when a model is loaded...
     viewer.addEventListener("displaymodel", function(event) {
       // make the intensity data loading available
-      colorMapController.enableIntensityDataLoading();
+      vertexIndexingController.enableIntensityDataLoading();
 
       // add all the opacity sliders for this fils/model
       // (possible a large number of shapes)

@@ -50,7 +50,7 @@ function definesEventCallbacks(){
     // - vertex indexing data were loaded
     // - vertex labeling data were loaded
     // - there is a match between each other
-    colorMapController.showVertexLabel(shapeInfo.index);
+    vertexIndexingController.showVertexLabel(shapeInfo.index);
   });
 
 

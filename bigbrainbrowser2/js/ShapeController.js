@@ -193,7 +193,7 @@ ShapeController.prototype.appendFileShapesToTab = function(loadEvent){
     });
 
     // add the shape to the indexer
-    that.shapeIndexer.addShape(that.fileCounter, shapeName, shapeNameOverall);
+    that.shapeIndexer.addShape(that.fileCounter, that.shapeCounter, shapeName, shapeNameOverall);
 
     that.viewer.model.children[that.shapeCounter].name = shapeNameOverall;
     shape.name = shapeNameOverall;

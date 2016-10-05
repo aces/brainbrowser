@@ -16,24 +16,22 @@
 
 var ShapeIndexer = function(){
   this.shapeIndex = {};
-  this.counter = 0;
 }
 
 
 /*
   Add a shape in the indexer
 */
-ShapeIndexer.prototype.addShape = function(fileIndex, shapeName, shapeNameOverall){
+ShapeIndexer.prototype.addShape = function(fileIndex, overAllIndex, shapeName, shapeNameOverall){
 
   var shapeInfo = {
     fileIndex: fileIndex,
     shapeName: shapeName,
     shapeNameOverall: shapeNameOverall,
-    overallIndex: this.counter
+    overallIndex: overAllIndex
   };
 
   this.shapeIndex[shapeNameOverall] = shapeInfo;
-  this.counter ++;
 }
 
 

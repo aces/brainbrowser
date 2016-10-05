@@ -27,4 +27,25 @@ Here is a an attempt of simplified class diagram to show the different classes a
 
 Keep in mind that JS that do properly allow to develop with *classes*, here we actually use objects and *prototypes*.
 
-HERE you will find a documentation of each class. (TODO)
+### The objects
+The following is the list of the objects that compose **BrainBrowser Surface UI** and their basic functionnalities.
+
+#### Jargon
+**model**: a bunch of 3D shapes stored in the same file.  
+**shape**: a closed 3D volume with a surface made out of a large amount of triangles. A model can contain one or more shapes. A shape can also be of a specific color.  
+
+
+#### ShapeIndexer
+When loading a model, all the shapes from this model have to:
+- be kept in memory
+- be listed in a easy-to-access structure
+- get a unique ID
+- know its position within the list (for UI)
+
+The fileIndexer stores these pieces of information using two structures:
+- an array: `shapeIndex`, storing all the data
+- a dictionnary (map): `reverseDictionnary`, where the key is the unique identifier *shapeNameOverall* and the value is the position of the shape info within `shapeIndex`.
+
+Using `reverseDictionnary` guaranties a constant access time to a shape info for when we know only its unique identifier (ie. shape picking). Otherwhise, we would have to check the entire `shapeIndex` looking for the right identifier. On the other
+
+Both structure are kept up to date when adding a shape

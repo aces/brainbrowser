@@ -278,6 +278,7 @@
     * @name viewer
     * @property {array} volumes Volumes to be displayed.
     * @property {boolean} synced Are the cursors being synced across volumes?
+    * @property {array} containers The div containers for each volume.
     * @property {DOMElement} dom_element The DOM element where the viewer
     * will be inserted.
     * @property {active_panel} active_panel The slice panel that's currently
@@ -316,6 +317,7 @@
     var viewer = {
       dom_element: dom_element,
       volumes: [],
+      containers: [],
       synced: false
     };
 

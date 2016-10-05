@@ -85,28 +85,11 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
 
   viewer.lightSystem = new THREE.Object3D();
-
   var intensity = 1;
   var light1 = new THREE.PointLight(0xFFFFFF, intensity);
-  var light2 = new THREE.PointLight(0x0000FF, intensity);
-  var light3 = new THREE.PointLight(0xFFFFFF, intensity);
-  var light4 = new THREE.PointLight(0xFF00FF, intensity);
-  var light5 = new THREE.PointLight(0xFFFFFF, intensity/8);
-  var light6 = new THREE.PointLight(0xFFFFFF, intensity/8);
-
-
-  //var ambientLight = new THREE.AmbientLight( 0x222222 ); // soft white light
   viewer.lightSystem.add(light1);
-  //viewer.lightSystem.add(light2);
-  //viewer.lightSystem.add(light3);
-  //viewer.lightSystem.add(light4);
-  /*viewer.lightSystem.add(light5);
-  viewer.lightSystem.add(light6);*/
-
-
   viewer.lightSystem.position.set(0, 0, 0);
   viewer.lightSystem.name = "lightSystem";
-
 
   var current_frame;
   var last_frame;
@@ -159,9 +142,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     // light positioning
     light1.position.set(default_camera_distance/8, default_camera_distance/4, default_camera_distance);
-    light2.position.set(-default_camera_distance, 0, default_camera_distance);
-    light3.position.set(default_camera_distance, default_camera_distance, default_camera_distance);
-    light4.position.set(default_camera_distance, -default_camera_distance, default_camera_distance);
+    //light2.position.set(-default_camera_distance, 0, default_camera_distance);
+    //light3.position.set(default_camera_distance, default_camera_distance, default_camera_distance);
+    //light4.position.set(default_camera_distance, -default_camera_distance, default_camera_distance);
     //light5.position.set(0, default_camera_distance, 0);
     //light6.position.set(0, -default_camera_distance, 0);
 

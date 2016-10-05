@@ -16,7 +16,9 @@ var ShapeController = function(BrainBrowserViewer){
 
   this.fileCounter = 0;
   this.shapeCounter = 0;
-  this.shapeIndexer = null;  // aggregated later
+
+  // keep a track of what shape is named how and from what file it comes.
+  this.shapeIndexer = new ShapeIndexer();
   this.initShapeSearchField();
   this.viewer = BrainBrowserViewer;
   this.opacityThreshold = 0.15;
@@ -48,14 +50,6 @@ ShapeController.prototype.initShapeSearchField = function(){
 
     }
   });
-}
-
-
-/*
-  So that we can use and complete the indexer
-*/
-ShapeController.prototype.setShapeIndexer = function(si){
-  this.shapeIndexer = si;
 }
 
 

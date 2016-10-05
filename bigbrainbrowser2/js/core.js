@@ -14,9 +14,6 @@ var modelLoader = null;
 var shapePicker = null;
 var annotationController = null;
 
-// keep a track of what shape is named how and from what file it comes.
-var shapeIndexer = new ShapeIndexer();
-
 // Deals with grid display and size
 var gridManager = null;
 
@@ -52,7 +49,6 @@ $(function() {
 
     // Deals with opacity sliders
     shapeController = new ShapeController(viewer);
-    shapeController.setShapeIndexer( shapeIndexer );
 
     // deals with picking shapes
     shapePicker = new ShapePicker(viewer);

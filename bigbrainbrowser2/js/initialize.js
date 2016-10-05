@@ -19,6 +19,10 @@ function init(){
     tooltipClass: "jqueryTooltip",
     //position: { my: "right bottom+55", at: "right center" }
   });
+
+
+  $.hbsPreload("about");
+  $('#about').hbsAppend('about', {});
 }
 
 
@@ -246,6 +250,16 @@ function defineUiCallbacks(){
     $("#brainbrowser canvas")[0].toBlob(function(blob) {
       saveAs(blob, "brainbrowser_capture.png");
     });
+  });
+
+
+  // the help / about button
+  $("#aboutBt").click(function(){
+    $("#about").fadeIn();
+  });
+
+  $("#closeAboutBt").click(function(){
+    $("#about").fadeOut();
   });
 
 

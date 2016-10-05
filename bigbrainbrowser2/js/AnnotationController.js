@@ -35,7 +35,6 @@ AnnotationController.prototype.initCallbacks = function(){
   // Save the annotations
   $("#annotSaveBt").click(function(){
     var jsonAnnotations = that.annotationsToJson();
-    console.log(jsonAnnotations);
     var blob = new Blob([jsonAnnotations], {type: "text/plain;charset=utf-8"});
     saveAs(blob, "annotations.json");
   });
@@ -404,12 +403,22 @@ AnnotationController.prototype.disableTarget = function(id){
 
 
 /*
-  Returns a JSON string containing all the annotations + the date
+  Returns a JSON string containing all the annotations + the date.
+  In the process, the annotations are converted into a proper array
+  (instead of keeping a map). This is to guarranty higher compatibility by not
+  messing with ID we dont care about externaly.
 */
 AnnotationController.prototype.annotationsToJson = function(){
+
+  var arrayOfAnnot = [];
+
+  for (var annotName in this.annotations) {
+    arrayOfAnnot.push(this.annotations[annotName]);
+  }
+
   var toExport = {
     date: new Date(),
-    annotations: this.annotations
+    annotations: arrayOfAnnot
   }
 
   return JSON.stringify(toExport);
@@ -425,32 +434,29 @@ AnnotationController.prototype.annotationsToJson = function(){
 */
 AnnotationController.prototype.addAnnotationFromJSON = function(json){
   var jsonContent = JSON.parse(json.trim());
-  this.addAnnotationFromObject(jsonContent);
+  this.addAnnotationFromList(jsonContent);
 }
 
 
 /*
-  This object is supposed to be the same as when the json file is loaded:
+  This object is supposed to be the same as when the json file is loaded, except annotation are stored in a an array rather than a map.
   a date + a bunch of annotations.
 */
-AnnotationController.prototype.addAnnotationFromObject = function(ob){
+AnnotationController.prototype.addAnnotationFromList = function(ob){
+  var that = this;
+
   if(ob){
     // test the existence of the 'annotations' key
     if("annotations" in ob){
-
-      for (var annotName in ob.annotations) {
-        if (ob.annotations.hasOwnProperty(annotName)) {
-          var currentAnnot = ob.annotations[annotName];
-
-          this.addAnnotation(
-            currentAnnot.points, // array of points (only one here)
-            currentAnnot.isClosed, // isClosed
-            currentAnnot.name, // name
-            currentAnnot.description, // description
-            currentAnnot.color  // color
+      ob.annotations.forEach(function(annot){
+          that.addAnnotation(
+            annot.points, // array of points (only one here)
+            annot.isClosed, // isClosed
+            annot.name, // name
+            annot.description, // description
+            annot.color  // color
           );
-        }
-      }
+      });
     }
   }
 }
@@ -466,7 +472,7 @@ AnnotationController.prototype.loadAnnotationFromURL = function(filepath){
   var that = this;
 
   $.get(filepath, function(data) {
-    that.addAnnotationFromObject(data);
+    that.addAnnotationFromList(data);
   });
 
 }

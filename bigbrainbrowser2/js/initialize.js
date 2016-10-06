@@ -176,9 +176,6 @@ function defineUiCallbacks(){
     // clearing panels
     shapeController.unloadAllShapes();
 
-    // clearing the shape indexer
-    shapeIndexer.clearIndex();
-
     // removing the shapes
     bbViewer.clearScreen();
 

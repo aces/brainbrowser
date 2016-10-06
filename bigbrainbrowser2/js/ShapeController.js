@@ -362,6 +362,9 @@ ShapeController.prototype.unloadAllShapes = function(){
   this.fileCounter = 0;
   this.shapeCounter = 0;
 
+  // clearing the shape indexer
+  this.shapeIndexer.clearIndex();
+
 }
 
 

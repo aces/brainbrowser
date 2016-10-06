@@ -36,6 +36,8 @@ $(function() {
   init();
 
   window.viewer = BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
+    $( "#tabsAbout" ).tabs();
+
     bbViewer = viewer;
 
     // add (the possibility to use) the 3D glass effect
@@ -91,5 +93,7 @@ $(function() {
 
 
   });
+
+
 
 });

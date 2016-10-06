@@ -348,10 +348,10 @@ body{
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: #005500;
+  background-color: hsl(196, 100%, 85%);
   z-index: 100;
   padding: 50px 25% 20px 25%;
-  overflow-y: scroll;
+  /*overflow-y: scroll;*/
 
   background: url(../img/background.jpg) no-repeat center center fixed;
   background-size: cover;
@@ -365,6 +365,7 @@ body{
   padding: 5px;
   transition: all 0.2s;
   cursor: pointer;
+  height: 90%;
 }
 
 #closeAboutBt img{
@@ -373,4 +374,32 @@ body{
 
 #closeAboutBt:hover{
   opacity: 0.3;
+}
+
+
+.scrollable{
+  overflow-y: scroll;
+  height: 100%;
+}
+
+
+.scrollable a{
+  color: hsl(16, 100%, 50%);
+  text-decoration: none;
+  animation: all 0.2s;
+}
+
+.scrollable a:hover{
+  text-decoration: underline;
+}
+
+
+#about ul
+{
+list-style-type: none;
+}
+
+#about h2{
+  margin-top: 45px;
+  margin-bottom: 0px;
 }

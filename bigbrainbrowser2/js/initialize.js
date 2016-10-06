@@ -23,6 +23,10 @@ function init(){
 
   $.hbsPreload("about");
   $('#about').hbsAppend('about', {});
+
+
+   
+
 }
 
 

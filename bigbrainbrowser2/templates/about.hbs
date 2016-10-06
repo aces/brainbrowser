@@ -2,15 +2,198 @@
   <img src="img/closeCross.png"/>
 </div>
 
-<div>
-  <h1>Help</h1>
-  <p>
-    This is some helpful things.
-  </p>
+<div style="text-align:center">
+  <img src="img/logo.png" style="width: 60%;"/>
+</div>
 
-  <h1>About</h1>
-  <p>
-    This is some about things.
-  </p>
+
+
+<div id="tabsAbout" style="border:none; background-color:transparent; height: calc(100% - 140px);">
+  <ul>
+    <li><a href="#tabs-1">Help</a></li>
+    <li><a href="#tabs-2">About</a></li>
+  </ul>
+  <div id="tabs-1" class="scrollable" style="padding:10px">
+    <p>
+      <b>BrainBrowser Surface UI</b> provides the necessary to visualize 3D volume surfaces, alongside annotations.
+    </p>
+
+    <h2>Compatible volume files</h2>
+    <p>
+      BrainBrowser is compatible with the following files:
+      <ul>
+        <li>
+          MNI OBJ
+        </li>
+        <li>
+          Wavefront OBJ
+        </li>
+        <li>
+          Freesurfer ASC
+        </li>
+        <li>
+          JSON - following the specific vertex/triangle description pattern
+        </li>
+      </ul>
+
+      If a file extension does not match one of the previous file format but still contains compatible data, you will have to manually select the format from the dropdown menu.
+    </p>
+
+    <h2>Compatible annotation files</h2>
+    <p>
+      Annotations are encoded in JSON. They have to follow a strict format in order to be compatible. As an example, <a href="annotation/annotationExample.json" target="_blank">this file</a> contains an example of each possible kind of annotation: single point, a polygon and a polyline.
+    </p>
+
+    <p>
+      Note that the <i>points</i> attribute of each annotation from the JSON file is an array of array, or in other words, a list of 3D coordinates, making the difference between a single point and a polyline/polygon.
+    </p>
+
+    <h2>Basic controls</h2>
+    <p>
+      Once some shapes are loaded from a file, you can hold the left click and drag to rotate the whole. To translate the camera, hold the right click and drag.
+    </p>
+
+    <h2>Keyboard shortcuts</h2>
+    <p>
+      Picking a shape to show its position from within the list. Target a shape and <span class="key">shift</span> + left click.
+    </p>
+    <p>
+      Change the center of rotation to the center of a shape. Target a shape and <span class="key">crtl</span> + left click on Windows/Linux or <span class="key">cmd</span> + left click on a mac.
+    </p>
+
+    <p>
+      Add an annotation or show an existing one from within the list. Target a shape or an existing annotation and <span class="key">shift</span> + <span class="key">crtl</span> + left click on Windows/Linux or <span class="key">shift</span> + <span class="key">cmd</span> + left click on a mac.
+    </p>
+
+    <h2>Search a shape</h2>
+    <p>
+      Some models (files) contain such a large number of independant shapes that it can get hard to find what we are looking for in the righ side panel (shape index). To prevent any scrolling hassle, you can use the seach box named "Find a shape", at the top of the right side panel. You don't need to know the entire name, just a part of it will be already display some choice among the available shapes.
+    </p>
+
+    <h2>Vertex indexing and color maps</h2>
+    <p>
+      TODO
+    </p>
+
+    <h2>Embed BrainBrowser Surface UI</h2>
+    <p>
+      In HTML, we can embed a webpage using <a href="http://www.w3schools.com/tags/tag_iframe.asp" target="_blank">iframes</a>, but since embedding the Surface Viewer "as is" would'nt be very interesting, we decided to add some arguments to the URL.
+    </p>
+    <p>
+      The list of arguments must be split from the regular URL by a sharp character (#). If you are not sure, just follow the example links and have a look at the URL.
+
+      Here is the exhaustive list of available arguments:
+
+      <ul>
+
+      <li>
+        <b>hideUI=1</b>
+        <br />
+        Will hide all the UI components except the main view. Activated only if 1.
+        <br /><br />
+      </li>
+
+      <li>
+        <b>annotations=/local/folder/annot.json</b>
+        <br />
+        Loads one or multiple annotations files that have to be local to the web project (accessible on server). Use a coma (,) to separate multiples filepath.
+        <br /><br />
+      </li>
+
+      <li>
+        <b>models=/local/models/mod1.obj</b>
+        <br />
+        Loads one or multiple local 3D model files. Use a coma (,) to separate multiples filepath.<br /><br />
+      </li>
+
+      <li>
+        <b>autorotate=x,y,z</b>
+        <br />
+        Can be only one or up to 3 axis to autorotate around.<br /><br />
+      </li>
+
+      <li>
+        <b>grid=1</b>
+        <br />
+        Display the grid<br /><br />
+      </li>
+
+      <li>
+        <b>axis=1</b>
+        <br />
+        Display the axis<br /><br />
+      </li>
+
+      <li>
+        <b>intensity=/local/folder/intensityData.txt</b>
+        <br />
+        Intensity data are usually simple text file with one number per line, over may lines (one line per vertex of the corresponding shape). Note: loaded only when a model is loaded.<br /><br />
+      </li>
+
+      <li>
+        <b>colorMap=/local/folder/colormap.txt</b>
+        <br />
+        Color maps are text file with 4 numbers per lines (r g b a) with space in between. There are as many line as necessary to reach The required level of precision. First line being the color for the lowest intensity and last line being the color for the highest level of intensity. Note: an Intensity file is mandatory to show colors.<br /><br />
+      </li>
+
+      </ul>
+
+      IMPORTANT NOTES:<br />
+      <b>1)</b> All these arguments must appear after a hash character (#). If multiple arguments are used, they must be separated by a ampersand cheracter (&).<br /><br />
+
+      <b>2)</b> When the argument is a file URL, this file should not be compressed (gz)
+      <br /><br />
+      Examples:<br />
+      <a href="#models=testData/dbs.json" target="_blank">Loading a model</a>
+      <br />
+      <a href="#models=testData/dbs.json&annotations=testData/annotations.json" target="_blank">Loading a model with annotations</a>
+      <br />
+      <a href="#models=models/brain-surface.obj&intensity=models/atlas-values.txt&colorMap=color_maps/spectral.txt&hideUI=1&autorotate=y" target="_blank">Loading a model with intensity data and a color map (in demo mode)</a>
+      <br />
+      <a href="#models=testData/dbs.json,testData/surfaces.json&grid=1&axis=1&hideUI=1&autorotate=y,z" target="_blank">Loading a model with some extra options (in demo mode)</a>
+
+
+
+
+    </p>
+
+  </div>
+  <div id="tabs-2" class="scrollable" style="padding:10px">
+    <p>
+      <b>BrainBrowser Surface UI</b> is part of the <a href="http://mcin-cnim.ca/neuroimagingtechnologies/brainbrowser/" target="_blank">BrainBrowser Project</a>, developed by the McGill Center for Integrative Neuroscience (<a href="http://mcin-cnim.ca/" target="_blank">MCIN</a>) under the <a href="https://www.gnu.org/licenses/agpl-3.0.en.html" target="_blank">AGPL Version 3</a> License.
+
+    </p>
+
+    <p>
+      Development team:
+      <ul>
+        <li>
+          <a href="https://github.com/natacha-beck" target="_blank"><i class="fa fa-github"></i></a> Natacha Beck
+        </li>
+        <li>
+          <a href="https://github.com/jonathanlurie" target="_blank"><i class="fa fa-github"></i></a> Jonathan Lurie
+        </li>
+        <li>
+          <a href="https://github.com/rdvincent" target="_blank"><i class="fa fa-github"></i></a> Robert D. Vincent
+        </li>
+        <li>
+          <a href="https://github.com/lblewis" target="_blank"><i class="fa fa-github"></i></a> Lindsay Lewis
+        </li>
+        <li>
+          <a href="https://github.com/tsherif" target="_blank"><i class="fa fa-github"></i></a> Tarek Sherif (former developper)
+        </li>
+
+
+
+
+      </ul>
+    </p>
+
+    <p>
+
+      <a href="https://github.com/aces/brainbrowser" target="_blank"><i class="fa fa-github" aria-hidden="true" style="font-size: xx-large;"></i> Fork BrainBrowser it on Github.</a>
+
+    </p>
+  </div>
 
 </div>

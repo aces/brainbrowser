@@ -33,7 +33,7 @@ body{
 
 
 #brainbrowser{
-  background-color: #991166;
+  background-color: #000;
   position: relative;
   width: 100%;
   height: 100%;
@@ -362,7 +362,15 @@ body{
   position: absolute;
   top: 0;
   right: 0;
-
-  width: 50px;
   padding: 5px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+#closeAboutBt img{
+  width: 50px;
+}
+
+#closeAboutBt:hover{
+  opacity: 0.3;
 }

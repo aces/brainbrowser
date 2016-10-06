@@ -70,9 +70,23 @@
       Some models (files) contain such a large number of independant shapes that it can get hard to find what we are looking for in the righ side panel (shape index). To prevent any scrolling hassle, you can use the seach box named "Find a shape", at the top of the right side panel. You don't need to know the entire name, just a part of it will be already display some choice among the available shapes.
     </p>
 
-    <h2>Vertex indexing and color maps</h2>
+    <h2>Vertex indexing, color maps and labels</h2>
     <p>
-      TODO
+      First let's decribe what we display in simple words: a 3D model is composed of 3D shapes, a shape is comnposed of triangles and finally, a triangle is made of 3 points, that we usually call <i>vertex</i> (plur. <i>vertices</i>). In order to be represented in a 3D space coordinate sytem, a vertex must have 3 values, each of them being its position along one of the 3 orthogonal axis: X, Y and Z.<br />
+      In a shape as complex as a brain, it is handy to label a specific area in order to give it a name or a color and differenciate it from the rest of the brain. This is what we call <b>vertex indexing</b>. This indexing consists in associating a number to each vertex of the model and potentially, to associate multiple vertex to the same number.
+      <br />
+      <br />
+      For example, we can associate all the vertices involved in the representation of the <i>left middle temporal gyrus</i> to the number 85. This is the kind of thing the <b>vertex indexing data</b> file is about.
+      <br />
+      <br />
+      Pushing the process a bit further, we could associate a range of color to all the numbers from <b>vertex indexing data</b>. Of what color would be the vertex marked with the number 85? Or Should we ask, of what color would be <i>left middle temporal gyrus</i>? This is what the <b>color map</b> file is about.
+      <br />
+      <br />
+      But so far, we still don't know what is the name of this area where all the vertices carry the number 85. This is what the <b>vertex labeling data</b> file is about.
+      <br />
+      <br />
+      The color map will be displayed automatically on the model as it is loaded
+
     </p>
 
     <h2>Embed BrainBrowser Surface UI</h2>

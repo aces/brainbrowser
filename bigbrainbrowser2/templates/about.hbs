@@ -72,20 +72,28 @@
 
     <h2>Vertex indexing, color maps and labels</h2>
     <p>
-      First let's decribe what we display in simple words: a 3D model is composed of 3D shapes, a shape is comnposed of triangles and finally, a triangle is made of 3 points, that we usually call <i>vertex</i> (plur. <i>vertices</i>). In order to be represented in a 3D space coordinate sytem, a vertex must have 3 values, each of them being its position along one of the 3 orthogonal axis: X, Y and Z.<br />
-      In a shape as complex as a brain, it is handy to label a specific area in order to give it a name or a color and differenciate it from the rest of the brain. This is what we call <b>vertex indexing</b>. This indexing consists in associating a number to each vertex of the model and potentially, to associate multiple vertex to the same number.
+      First let's decribe what we display in simple words: a 3D model is composed of 3D shapes, a shape is composed of triangles and finally, a triangle is made of 3 points, that we usually call <i>vertex</i> (plur. <i>vertices</i>). In order to be represented in a 3D space coordinate sytem, a vertex must have 3 values, each of them being its position along one of the 3 orthogonal axis: X, Y and Z.<br />
+      In a shape such complex as a human brain, it is handy to label a specific areas in order to give them names, colors, and to differenciate them from each other. This is what BrainBrowser calls <b>vertex indexing</b>. This indexing consists in associating a number to each vertex of the model. Most of the time, we will associate multiple vertex to the same number.
       <br />
       <br />
-      For example, we can associate all the vertices involved in the representation of the <i>left middle temporal gyrus</i> to the number 85. This is the kind of thing the <b>vertex indexing data</b> file is about.
+      For example, we can associate all the vertices involved in the representation of the <i>left middle temporal gyrus</i> to the number 85. This is what the <b>vertex indexing data</b> file is all about.
+      <br />
+      See an example of <a href="models/atlas-values.txt" target="_blank">vertex indexing file</a>.
       <br />
       <br />
-      Pushing the process a bit further, we could associate a range of color to all the numbers from <b>vertex indexing data</b>. Of what color would be the vertex marked with the number 85? Or Should we ask, of what color would be <i>left middle temporal gyrus</i>? This is what the <b>color map</b> file is about.
+      Pushing the process a bit further, we could associate a range of color to all the numbers from <b>vertex indexing data</b>. Of what color would be the vertices marked with the number 85? Or Should we ask, of what color would be <i>left middle temporal gyrus</i>? This is what the <b>color map</b> file is about.
+      <br />
+      The color map will be displayed automatically on the model as it is loaded.
+      <br />
+      See an example of <a href="color_maps/spectral.txt" target="_blank">a high spectral resolution color map file</a> or an example of <a href="color_maps/blue.txt" target="_blank">a low spectral resolution color map file</a>.
       <br />
       <br />
-      But so far, we still don't know what is the name of this area where all the vertices carry the number 85. This is what the <b>vertex labeling data</b> file is about.
+      So far, we still don't know what is the name of this area, where all the vertices carry the number 85. This is what the <b>vertex labeling data</b> file is about.
+      <br />
+      See an example of <a href="models/atlas-labels.txt" target="_blank">labeling file</a>.
       <br />
       <br />
-      The color map will be displayed automatically on the model as it is loaded
+      Note that those three examples are compatible with <a href="#models=models/brain-surface.obj&intensity=models/atlas-values.txt&colorMap=color_maps/spectral.txt" target="_blank">this model</a> (or open the <a href="models/brain-surface.obj" target="_blank">raw model file</a>).
 
     </p>
 
@@ -110,14 +118,14 @@
       <li>
         <b>annotations=/local/folder/annot.json</b>
         <br />
-        Loads one or multiple annotations files that have to be local to the web project (accessible on server). Use a coma (,) to separate multiples filepath.
+        Loads one or multiple annotations files that have to be local to the web project (accessible on server). Use a coma (,) to separate multiples filepath. The file must be local to the server.
         <br /><br />
       </li>
 
       <li>
         <b>models=/local/models/mod1.obj</b>
         <br />
-        Loads one or multiple local 3D model files. Use a coma (,) to separate multiples filepath.<br /><br />
+        Loads one or multiple local 3D model files. Use a coma (,) to separate multiples filepath. The file must be local to the server.<br /><br />
       </li>
 
       <li>
@@ -141,19 +149,19 @@
       <li>
         <b>intensity=/local/folder/intensityData.txt</b>
         <br />
-        Intensity data are usually simple text file with one number per line, over may lines (one line per vertex of the corresponding shape). Note: loaded only when a model is loaded.<br /><br />
+        Intensity data are usually simple text file with one number per line, over may lines (one line per vertex of the corresponding shape). Note: loaded only when a model is loaded. The file must be local to the server.<br /><br />
       </li>
 
       <li>
         <b>colorMap=/local/folder/colormap.txt</b>
         <br />
-        Color maps are text file with 4 numbers per lines (r g b a) with space in between. There are as many line as necessary to reach The required level of precision. First line being the color for the lowest intensity and last line being the color for the highest level of intensity. Note: an Intensity file is mandatory to show colors.<br /><br />
+        Color maps are text file with 4 numbers per lines (r g b a) with space in between. There are as many line as necessary to reach The required level of precision. First line being the color for the lowest intensity and last line being the color for the highest level of intensity. Note: an Intensity file is mandatory to show colors. The file must be local to the server.<br /><br />
       </li>
 
       </ul>
 
       IMPORTANT NOTES:<br />
-      <b>1)</b> All these arguments must appear after a hash character (#). If multiple arguments are used, they must be separated by a ampersand cheracter (&).<br /><br />
+      <b>1)</b> All these arguments must appear after a hash character (#). If multiple arguments are used, they must be separated by a ampersand character (&).<br /><br />
 
       <b>2)</b> When the argument is a file URL, this file should not be compressed (gz)
       <br /><br />

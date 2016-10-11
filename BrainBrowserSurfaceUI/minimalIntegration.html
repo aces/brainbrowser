@@ -5,9 +5,6 @@
   <meta charset="UTF-8">
   <title> BigBrainBrowser minimal integration </title>
 
-  <!-- jquery -->
-  <script src="js/vendors/jquery-3.1.0.js"></script>
-
   <!-- Style -->
   <style>
     #brainbrowser{
@@ -28,7 +25,8 @@
   <!--How the magic happens -->
   <script>
 
-    $(function() {
+  // wait to the DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
 
       window.viewer = BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
         // activate the view

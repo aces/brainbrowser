@@ -8,9 +8,13 @@ Having several independant projects that all use the Suface module of BrainBrows
 
 ## Impact
 This project is the result of an important refactoring, thus, the users have to keep in mind a few things:
-- It was a necessity to modify the core code and this is not backward compatible.
+- It was a necessity to modify the core code and this is not entirely backward compatible.
 - For external projects that are using the API, this should still be working fine (to be tested more...)
 - The core code is still independant from any kind of UI. We still stick to the philosophy of strictly splitting UI and core.
+
+## Retro compatibility
+For an easier evolution to this refactoring, we kept the basic integration of BrainBrowser Surface pretty similar to what it used to be.  
+[Here](./minimalIntegration.html) is a minimalistic integration example that may be a good starting point.
 
 ## Possible evolution
 **BrainBrowser Surface UI** implements the UI but not only. Few parts of it could actually be tranfered to the core since they are not UI opiniated. This is mainly the case for features like annotation management, grid and axes creation or even tuning some settings using URL arguments. This transfer work will be done progressively. Putting it in a MVC architecture, the already-existing core would be the *Model*, while **BrainBrowser Surface UI** would be the *View* and few *Controllers*.

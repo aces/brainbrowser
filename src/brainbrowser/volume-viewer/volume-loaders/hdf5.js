@@ -151,7 +151,8 @@
       r.data_offset = 0;        // offset to actual data.
       r.data_length = 0;        // length of data.
       r.n_filled = 0;           // counts elements written to array
-      r.chunk_size = 0;         // size of chunks
+      r.chunk_size = 0;         // number of bytes per chunk.
+      r.chunk_dims = [];        // dimensions of chunks.
       r.sym_btree = 0;          // offset of symbol table btree
       r.sym_lheap = 0;          // offset of symbol table local heap
       // permanent/global
@@ -643,8 +644,10 @@
              * corresponding to the offset here.
              */
             var location = hdf5FractalHeapOffset(fh, offset);
-            seek(location);
-            hdf5MsgAttribute(length, link);
+            if (location >= 0) {
+              seek(location);
+              hdf5MsgAttribute(length, link);
+            }
           }
           seek(spp);
         }
@@ -721,6 +724,28 @@
         return msg_names[n];
       }
       throw new Error('Unknown message type ' + n + " " + tell());
+    }
+
+
+    // Compute the expected uncompressed size of a chunk.  We have to
+    // do some additional calculation because it is possible to have a
+    // "padded" chunk when the chunk dimension is not an even multiple
+    // of the total dataset dimension.
+    //
+    function calcChunkSize(dims, chunk_dims, chunk_offsets) {
+      var j;
+      var result = 1;
+      for (j = 0; j < dims.length; j++) {
+        // compute the number of remaining points in this chunk.
+        var diff = dims[j] - chunk_offsets[j];
+        if ( chunk_dims[j] > diff ) {
+          result *= diff;
+        }
+        else {
+          result *= chunk_dims[j];
+        }
+      }
+      return result;
     }
 
     function hdf5V1BtreeNode(link) {
@@ -810,6 +835,8 @@
             length = chunks[i].chunk_size;
             offset = bt.keys[i].child_address;
 
+            var dst_length = calcChunkSize(link.dims, link.chunk_dims,
+                                           chunks[i].chunk_offsets);
             if (link.inflate) {
               sp = new Uint8Array(abuf, offset, length);
               dp = pako.inflate(sp);
@@ -841,8 +868,12 @@
               default:
                 throw new Error('Unknown type code ' + link.type);
               }
+              if (dst_length < dp.length) {
+                dp = dp.subarray(0, dst_length);
+              }
               if (link.array.length - link.n_filled < dp.length) {
                 dp = dp.subarray(0, link.array.length - link.n_filled);
+                console.log("WARNING: Discarding excess data.");
               }
               link.array.set(dp, link.n_filled);
               link.n_filled += dp.length;
@@ -1230,6 +1261,7 @@
 
         if (cls === 2) {        // chunked
           elsz = getU32();
+          link.chunk_dims = dim; // save chunk dimensions.
           link.chunk_size = n_items * elsz;
           if (debug) {
             msg += " E" + elsz;
@@ -1277,6 +1309,7 @@
             msg += "(N" + n_dim + ", A" + dtadr + " [" + dim.join(',') + "]";
           }
           elsz = getU32();
+          link.chunk_dims = dim; // save chunk dimensions.
           link.chunk_size = n_items * elsz;
           if (debug) {
             msg += " E" + elsz;
@@ -1578,7 +1611,7 @@
         seek(db_addrs[i]);
         /* TODO: check row calculation!
          */
-        if (!hdf5FractalHeapDirectBlock(fh, i / fh.table_width, db_addrs[i], callback)) {
+        if (!hdf5FractalHeapDirectBlock(fh, Math.floor(i / fh.table_width), db_addrs[i], callback)) {
           return false;
         }
       }
@@ -1604,7 +1637,7 @@
     }
 
     function hdf5FractalHeapOffset(fh, offset) {
-      var location;
+      var location = -1;
       hdf5FractalHeapEnumerate(fh, function(row, address, block_offset, block_length) {
         if (offset >= block_offset && offset < block_offset + block_length) {
           location = address + (offset - block_offset);
@@ -2169,10 +2202,10 @@
     if (debug) {
       console.log(n_slice_elements + " voxels in slice.");
     }
-    var s = 0;
-    var c = 0;
-    var x = -Number.MAX_VALUE;
-    var n = Number.MAX_VALUE;
+    var real_sum = 0;
+    var n_voxels = 0;
+    var real_max = -Number.MAX_VALUE;
+    var real_min = Number.MAX_VALUE;
     var im = image.array;
     var im_max = image_max.array;
     var im_min = image_min.array;
@@ -2197,21 +2230,21 @@
          * range, and collect our statistics.
          */
         for (j = 0; j < n_slice_elements; j += 1) {
-          v = im[c];
+          v = im[n_voxels];
           if (v < valid_range[0] || v > valid_range[1]) {
-            new_data[c] = 0.0;
+            new_data[n_voxels] = 0.0;
           }
           else {
-            new_data[c] = v;
-            s += v;
-            if (v > x) {
-              x = v;
+            new_data[n_voxels] = v;
+            real_sum += v;
+            if (v > real_max) {
+              real_max = v;
             }
-            if (v < n) {
-              n = v;
+            if (v < real_min) {
+              real_min = v;
             }
           }
-          c += 1;
+          n_voxels += 1;
         }
       }
       else {
@@ -2222,25 +2255,26 @@
         rrange = (im_max[i] - im_min[i]);
         rmin = im_min[i];
         for (j = 0; j < n_slice_elements; j += 1) {
-          v = (im[c] - vmin) / vrange * rrange + rmin;
-          new_data[c] = v;
-          s += v;
-          c += 1;
-          if (v > x) {
-            x = v;
+          v = (im[n_voxels] - vmin) / vrange * rrange + rmin;
+          new_data[n_voxels] = v;
+          real_sum += v;
+          n_voxels += 1;
+          if (v > real_max) {
+            real_max = v;
           }
-          if (v < n) {
-            n = v;
+          if (v < real_min) {
+            real_min = v;
           }
         }
       }
     }
 
     if (debug) {
-      console.log("Min: " + n);
-      console.log("Max: " + x);
-      console.log("Sum: " + s);
-      console.log("Mean: " + s / c);
+      console.log("Min: " + real_min);
+      console.log("Max: " + real_max);
+      console.log("Sum: " + real_sum);
+      console.log("Mean: " + real_sum / n_voxels);
+      console.log("Count: " + n_voxels);
     }
 
     return new_abuf;
@@ -2373,14 +2407,14 @@
       valid_range = Float32Array.of(min_val, max_val);
     }
     var image_min = findDataset(root, "image-min");
-    if (!defined(image_min)) {
+    if (!defined(image_min) || !defined(image_min.array)) {
       image_min = {
         array: Float32Array.of(0),
         dims: []
       };
     }
     var image_max = findDataset(root, "image-max");
-    if (!defined(image_max)) {
+    if (!defined(image_max) || !defined(image_max.array)) {
       image_max = {
         array: Float32Array.of(1),
         dims: []

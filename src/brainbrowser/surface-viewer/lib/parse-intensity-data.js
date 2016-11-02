@@ -64,5 +64,6 @@ BrainBrowser.SurfaceViewer.parseIntensityData = function(data, type, callback) {
     worker.terminate();
   });
 
-  worker.postMessage({ cmd: "parse", data: data });
+  var url = document.location.protocol + '//' + document.location.host;
+  worker.postMessage({ cmd: "parse", data: data, url: url });
 };

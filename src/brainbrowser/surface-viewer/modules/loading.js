@@ -520,7 +520,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
     parse_worker.postMessage({
       data: data,
-      options: options
+      options: options,
+      url: document.location.protocol + '//' + document.location.host
     });
 
   }

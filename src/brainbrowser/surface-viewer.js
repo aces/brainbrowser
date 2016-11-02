@@ -573,10 +573,13 @@
   BrainBrowser.config.set("model_types.freesurferbin.worker", "freesurferbin.worker.js");
   BrainBrowser.config.set("model_types.freesurferbin.binary", true);
   BrainBrowser.config.set("model_types.freesurferasc.worker", "freesurferasc.worker.js");
+  BrainBrowser.config.set("model_types.gifti.worker", "gifti.worker.js");
+
   BrainBrowser.config.set("intensity_data_types.text.worker", "text.intensity.worker.js");
   BrainBrowser.config.set("intensity_data_types.freesurferbin.worker", "freesurferbin.intensity.worker.js");
   BrainBrowser.config.set("intensity_data_types.freesurferbin.binary", true);
   BrainBrowser.config.set("intensity_data_types.freesurferasc.worker", "freesurferasc.intensity.worker.js");
+  BrainBrowser.config.set("intensity_data_types.gifti.worker", "gifti.worker.js");
 
   // Build worker URLs and attempt to inline
   // them using Blob URLs if possible.

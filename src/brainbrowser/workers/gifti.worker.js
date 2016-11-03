@@ -76,12 +76,28 @@
       min = values[0];
       max = values[0];
       for (i = 1; i < n; i++) {
-        max = Math.max(values[i], max);
-        min = Math.min(values[i], min);
+        min = Math.min(min, values[i]);
+        max = Math.max(max, values[i]);
       }
       result.values = values;
       result.min = min;
       result.max = max;
+      /* Build a 5-item color table (index R G B A). We use this
+       * method because I can't find any other efficient way to
+       * return a sparse color table from the worker.
+       */
+      var text = '';
+      Object.keys(gii.labelTable).forEach( function(name) {
+        var lb = gii.labelTable[name];
+        text += lb.key + ' ';
+        text += lb.r + ' ';
+        text += lb.g + ' ';
+        text += lb.b + ' ';
+        text += lb.a + '\n';
+      });
+      if (text.length > 0) {
+        result.colors = text;
+      }
     }
     return result;
   }

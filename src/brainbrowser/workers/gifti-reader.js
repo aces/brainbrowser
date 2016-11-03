@@ -13446,6 +13446,7 @@ var gifti = gifti || {};
 /*** Static Pseudo-constants ***/
 
 gifti.ATT_KEY = "Key";
+gifti.ATT_INDEX = "Index";
 gifti.ATT_RED = "Red";
 gifti.ATT_GREEN = "Green";
 gifti.ATT_BLUE = "Blue";
@@ -13468,7 +13469,7 @@ gifti.ATT_ALPHA = "Alpha";
  * @type {Function|*}
  */
 gifti.Label = gifti.Label || function (attributes) {
-    this.key = attributes[gifti.ATT_KEY];
+    this.key = attributes[gifti.ATT_KEY] || attributes[gifti.ATT_INDEX];
     this.r = parseFloat(attributes[gifti.ATT_RED]);
     this.g = parseFloat(attributes[gifti.ATT_GREEN]);
     this.b = parseFloat(attributes[gifti.ATT_BLUE]);

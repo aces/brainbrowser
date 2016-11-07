@@ -13446,12 +13446,11 @@ var gifti = gifti || {};
 /*** Static Pseudo-constants ***/
 
 gifti.ATT_KEY = "Key";
-gifti.ATT_INDEX = "Index";
 gifti.ATT_RED = "Red";
 gifti.ATT_GREEN = "Green";
 gifti.ATT_BLUE = "Blue";
 gifti.ATT_ALPHA = "Alpha";
-
+gifti.ATT_INDEX = "Index";
 
 
 /*** Constructor ***/

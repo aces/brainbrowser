@@ -20,9 +20,28 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*
-* @author: Robert D Vincent
-*/
+/**
+  * @author: Robert D Vincent
+  * 
+  * This module is a small wrapper to permit the loading of GIFTI
+  * files in a BrainBrowser web worker. GIFTI is an XML-based format
+  * for surfaces and surface statistics, most of the supporting
+  * documentation is available at the NITRC web site here:
+  *
+  * https://www.nitrc.org/projects/gifti/ 
+  *
+  * Almost all of the actual parsing is handled by this library:
+  *
+  * https://github.com/rii-mango/GIFTI-Reader-JS
+  * 
+  * To operate inside a web worker, the library has to be loaded within
+  * the worker itself. To the best of my knowledge this must be done with
+  * the "importScripts()" call. To complicate matters, the environment in
+  * which workers operate is isolated in a peculiar way, such that we can't
+  * load the script without knowing the base URL of the _original_ BB, so
+  * that has to be passed into the worker as the "url" property of the 
+  * message data.
+  */
 
 (function() {
   "use strict";
@@ -73,18 +92,18 @@
       var min, max;
       var i;
       var n = values.length;
-      min = values[0];
-      max = values[0];
-      for (i = 1; i < n; i++) {
+      min = +Number.MAX_VALUE;
+      max = -Number.MAX_VALUE;
+      for (i = 0; i < n; i++) {
         min = Math.min(min, values[i]);
         max = Math.max(max, values[i]);
       }
       result.values = values;
       result.min = min;
       result.max = max;
-      /* Build a 5-item color table (index R G B A). We use this
-       * method because I can't find any other efficient way to
-       * return a sparse color table from the worker.
+      /* Build a 5-item color table (index R G B A) as a string.  We
+       * use this method because I can't find any other reasonable way
+       * to return a sparse color table from the worker.
        */
       var text = '';
       Object.keys(gii.labelTable).forEach( function(name) {

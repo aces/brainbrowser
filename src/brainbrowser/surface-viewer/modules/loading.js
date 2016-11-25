@@ -399,6 +399,10 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       var min;
       var max;
 
+      if (intensity_data.colors) {
+        loadColorMap(BrainBrowser.createColorMap(intensity_data.colors));
+      }
+
       if (viewer.getAttribute("fix_color_range") &&
           old_range.min !== undefined && old_range.max !== undefined) {
         min = old_range.min;
@@ -518,9 +522,11 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       parse_worker.terminate();
     });
 
+    var import_url = BrainBrowser.utils.getWorkerImportURL();
     parse_worker.postMessage({
       data: data,
-      options: options
+      options: options,
+      url: import_url
     });
 
   }

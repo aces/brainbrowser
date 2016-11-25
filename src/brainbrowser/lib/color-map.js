@@ -66,14 +66,26 @@
 
     if (data) {
       lines = data.trim().split(/\n/);
-      color_map_colors = new Float32Array(lines.length * 4);
+      color_map_colors = [];
       ic = 0;
 
       for (i = 0, line_count = lines.length; i < line_count; i++) {
-        color = lines[i].trim().split(/\s+/).slice(0, 4);
+        color = lines[i].trim().split(/\s+/).slice(0, 5);
         line_length = color.length;
 
         if (line_length < 3) continue;
+
+        if (line_length > 4) {
+          /* Sparse colour map. The first column gives the
+           * label to associate with the colour, the remaining
+           * 4 columns give the RGBA values to associate with
+           * the label.
+           */
+          ic = parseInt(color[0], 10);
+          ic *= 4;
+          line_length = 4;
+          color = color.slice(1, 5);
+        }
 
         for (j = 0; j < line_length; j++) {
           color_map_colors[ic + j] = parseFloat(color[j]);

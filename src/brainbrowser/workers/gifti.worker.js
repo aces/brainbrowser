@@ -53,7 +53,7 @@
      * message. This gets around issues with loading a script from
      * within a worker blob.
      */
-    importScripts(input.url + '/js/brainbrowser/workers/gifti-reader.js');
+    importScripts(input.url + 'gifti-reader.js');
 
     var result = parse(input.data) || {
       error: true,

@@ -522,10 +522,11 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       parse_worker.terminate();
     });
 
+    var import_url = BrainBrowser.utils.getWorkerImportURL();
     parse_worker.postMessage({
       data: data,
       options: options,
-      url: document.location.protocol + '//' + document.location.host
+      url: import_url
     });
 
   }

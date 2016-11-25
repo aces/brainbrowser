@@ -128,6 +128,25 @@
 
     /**
     * @doc function
+    * @name BrainBrowser.utils:getWorkerImportURL
+    *
+    * @description
+    * Assemble an absolute path for possible script imports within
+    * a worker.
+    */
+    getWorkerImportURL: function() {
+      var worker_dir = BrainBrowser.config.get("worker_dir");
+      var import_url = document.location.origin + '/' + worker_dir;
+      var doc_href = document.location.href;
+      var slash_index = doc_href.lastIndexOf('/');
+      if (slash_index >= 0) {
+        import_url = doc_href.substring(0, slash_index + 1) + worker_dir;
+      }
+      return import_url;
+    },
+
+    /**
+    * @doc function
     * @name BrainBrowser.utils:min
     * @param {array|multiple} arguments List of items to processed. Can be given 
     * as an array or directly as arguments.

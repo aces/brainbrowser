@@ -120,8 +120,9 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   // callback for when the graphic objects are dragged
   viewer.onDraggedCallback = null;
 
-  var axisHelper = new THREE.AxisHelper( 20 );
-  scene.add( axisHelper );
+// For debugging purpose only
+// var axisHelper = new THREE.AxisHelper( 20 );
+// scene.add( axisHelper );
 
   /**
   * @doc function

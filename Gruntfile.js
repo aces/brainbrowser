@@ -92,7 +92,10 @@ module.exports = function(grunt) {
           "<%= build_dir %>/workers/freesurferbin.intensity.worker.js": "src/brainbrowser/workers/freesurferbin.intensity.worker.js",
           "<%= build_dir %>/workers/freesurferasc.intensity.worker.js": "src/brainbrowser/workers/freesurferasc.intensity.worker.js",
           "<%= build_dir %>/workers/deindex.worker.js": "src/brainbrowser/workers/deindex.worker.js",
-          "<%= build_dir %>/workers/wireframe.worker.js": "src/brainbrowser/workers/wireframe.worker.js"
+          "<%= build_dir %>/workers/wireframe.worker.js": "src/brainbrowser/workers/wireframe.worker.js",
+          "<%= build_dir %>/workers/gifti.worker.js": "src/brainbrowser/workers/gifti.worker.js",
+          "<%= build_dir %>/workers/gifti-reader.js": "src/brainbrowser/workers/gifti-reader.js"
+
         }
       }
     },
@@ -139,10 +142,14 @@ module.exports = function(grunt) {
           globals: {
             Float32Array: true,
             Uint32Array: true,
+            gifti: true,
             DataView: true
           }
         },
-        src: ["src/brainbrowser/workers/*.js"]
+        src: [
+          "src/brainbrowser/workers/*.js",
+          "!src/brainbrowser/workers/gifti-reader.js"
+        ]
       },
       examples: {
         options: {

@@ -339,7 +339,7 @@ BrainBrowser.SurfaceViewer.modules.views = function(viewer) {
   }
 
   function toggleWireframe(shape, wireframe, is_wireframe, keep_surface) {
-    shape.material.visible = keep_surface === true ? true : !is_wireframe;
+    shape.material.visible = keep_surface || !is_wireframe;
     wireframe.material.visible = is_wireframe;
     viewer.updated = true;
   }

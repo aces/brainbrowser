@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<!--
+  BrainBrowser: Web-based Neurological Visualization Tools
+  (https://brainbrowser.cbrain.mcgill.ca)
+
+  Copyright (C) 2011
+  The Royal Institution for the Advancement of Learning
+  McGill University
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU Affero General Public License as
+  published by the Free Software Foundation, either version 3 of the
+  License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Affero General Public License for more details.
+
+  You should have received a copy of the GNU Affero General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+  Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
+  Author: Nicolas Kassis
+-->
+<head>
+  <title>
+    BrainBrowser Volume Viewer
+  </title>
+
+  <link type="text/css" href="css/common.css" rel="Stylesheet" />
+  <link type="text/css" href="css/volume-viewer-demo.css" rel="Stylesheet" />
+
+  <!-- jquery -->
+  <script src="js_common/vendors/jquery-3.1.0.js"></script>
+  <script src="js_common/vendors/jquery-ui.js"></script>
+  <script src="js_common/vendors/jquery-ui.min.js"></script>
+
+  <script src="js_common/vendors/jquery-scrollintoview/jquery.scrollintoview.min.js"></script>
+
+
+  <!-- Handlebars -->
+  <script src="js_common/vendors/handlequery/js/handlebars-1.0.0.js"></script>
+  <script src="js_common/vendors/handlequery/js/handlejquery.js"></script>
+
+
+  <!-- Style -->
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,900" rel="stylesheet">
+  <link rel="stylesheet" href="css/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/jquery-ui/jquery-ui.css">
+  <link rel="stylesheet" type="text/css" href="css/jqueryui-overload.css" />
+  <link rel="stylesheet" type="text/css" href="css/ui_elements.css" />
+  <link rel="stylesheet" type="text/css" href="css/style.css" />
+
+</head>
+
+<body >
+
+  <div id="content" style="overflow: scroll">
+    <!-- The top left logo, remains when menus are collapsed -->
+    <img class="logo" src="img/logo.png" />
+
+    <!-- Button to collapse the left side menu -->
+    <div id="hideLeft" class="hideButton" title="Hide/show the left side pannel">
+      <i class="fa fa-chevron-left" aria-hidden="true"></i>
+    </div>
+
+<!--
+ _     ___________ _____   _____ _____ _     _   ____  ____   _
+| |   |  ___|  ___|_   _| /  __ |  _  | |   | | | |  \/  | \ | |
+| |   | |__ | |_    | |   | /  \| | | | |   | | | | .  . |  \| |
+| |   |  __||  _|   | |   | |   | | | | |   | | | | |\/| | . ` |
+| |___| |___| |     | |   | \__/\ \_/ | |___| |_| | |  | | |\  |
+\_____\____/\_|     \_/    \____/\___/\_____/\___/\_|  |_\_| \_/
+
+-->
+
+    <!-- LEFT SIDE COLUMN-->
+    <div id="leftSidebar" class="sidebar">
+
+      <div class="controls">
+        <!-- Everything that is supposed to go to the side bar goes here -->
+
+        <!-- open -->
+       <div id="openBt" class="buttonBB noselect" onclick="document.getElementById('modelOpener').click()" title="Open a volume file">
+         <i class="fa fa-cube" aria-hidden="true"></i> Open model
+       </div>
+        <input type="file" id="modelOpener" class="hidden">
+
+
+        <!-- Select filetype -->
+        <div class="labelAndDropdown">
+          <div class="label">Data format</div>
+          <select id="modelFormatSelector" class="dropdownMenu" onchange="" autocomplete="off">
+            <option value="unknown">Unknown</option>
+            <option value="minc">MINC</option>
+            <option value="nifti1">NIfTI-1</option>
+            <option value="mgh">FreeSurfer/MGH</option>
+          </select>
+        </div>
+
+        <!-- Load & unload -->
+        <div class="twoButtons">
+          <div id="unloadAllBt" class="buttonBB noselect" title="Remove all models from the view">
+            <i class="fa fa-eraser" aria-hidden="true"></i>
+            Unload all
+          </div>
+
+          <div id="reloadBt" class="buttonBB noselect">
+            <i class="fa fa-refresh" aria-hidden="true"></i>
+            Load
+          </div>
+        </div>
+
+        <div class="label">or</div>
+
+        <div class="labelAndDropdown">
+          <div class="label">Load Example</div>
+          <select id="modelFormatSelectorExample" class="dropdownMenu" onchange="" autocomplete="off">
+            <option value="unknown">Unknown</option>
+            <option value="structural_minc" SELECTED>MINC Structural</option>
+            <option value="functional_minc">MINC Functional</option>
+            <option value="NIfTI-1">NIfTI-1</option>
+            <option value="MGH">FreeSurfer/MGH</option>
+          </select>
+        </div>
+
+        <!-- just a dashed line -->
+        <div class="separator"></div>
+
+        <!-- Panel size -->
+        <div class="labelAndDropdown">
+          <div class="label">Panel size</div>
+          <select id="panelSize" class="dropdownMenu" autocomplete="off">
+            <option value="-1">Auto</option>
+            <option value="128">128</option>
+            <option value="256" SELECTED>256</option>
+            <option value="512">512</option>
+          </select>
+        </div>
+
+        <!-- Synchronize and Screenshot -->
+        <div class="twoButtons">
+          <div id="syncVolumes" class="buttonBB miniButton noselect" title="Synchronize models">
+            Synchronize
+          </div>
+
+          <div id="saveCaptureBt" class="buttonBB miniButton noselect" title="Take a screenshot"><i class="fa fa-camera" aria-hidden="true"></i>
+          </div>
+        </div>
+
+        <div class="separator"></div>
+        <div class="label">Shift-click to drag</div>
+        <div class="label">Hold ctrl to measure distance</div>
+
+      </div> <!-- END controls -->
+    </div> <!-- END leftSidebar -->
+
+    <script id="volume-ui-template" type="x-volume-ui-template">
+      <div class="volume-viewer-display"></div>
+      <div class="volume-viewer-controls volume-controls">
+
+        <div class="coords">
+          <div class="control-heading" id="voxel-coordinates-heading-{{VOLID}}">
+            Voxel Coordinates:
+          </div>
+          <div class="voxel-coords" data-volume-id="{{VOLID}}">
+            I:<input id="voxel-i-{{VOLID}}" class="control-inputs">
+            J:<input id="voxel-j-{{VOLID}}" class="control-inputs">
+            K:<input id="voxel-k-{{VOLID}}" class="control-inputs">
+          </div>
+          <div class="control-heading" id="world-coordinates-heading-{{VOLID}}">
+            World Coordinates:
+          </div>
+          <div class="world-coords" data-volume-id="{{VOLID}}">
+            X:<input id="world-x-{{VOLID}}" class="control-inputs">
+            Y:<input id="world-y-{{VOLID}}" class="control-inputs">
+            Z:<input id="world-z-{{VOLID}}" class="control-inputs">
+          </div>
+        </div>
+
+        <div id="intensity-value-div-{{VOLID}}">
+          <span class="control-heading" data-volume-id="{{VOLID}}">
+            Value:
+          </span>
+          <span id="intensity-value-{{VOLID}}" class="intensity-value"></span>
+        </div>
+
+        <div id="color-map-{{VOLID}}">
+          <span class="control-heading" id="color-map-heading-{{VOLID}}">
+            Color Map:
+          </span>
+        </div>
+
+        <div id="color-map-file-{{VOLID}}" class="color-map-file-div" data-volume-id="{{VOLID}}" >
+          <span class="control-heading">Color map file: </span><input type="file" name="color-map-file-{{VOLID}}" class="color-map-file">
+        </div>
+
+        <div class="threshold-div" data-volume-id="{{VOLID}}">
+          <div class="control-heading">
+            Threshold:
+          </div>
+          <div class="thresh-inputs">
+            <input id="min-threshold-{{VOLID}}" class="control-inputs thresh-input-left" value="0"/>
+            <input id="max-threshold-{{VOLID}}" class="control-inputs thresh-input-right" value="255"/>
+          </div>
+          <div class="slider volume-viewer-threshold" id="threshold-slider-{{VOLID}}"></div>
+        </div>
+
+        <div id="time-{{VOLID}}" class="time-div" data-volume-id="{{VOLID}}" style="display:none">
+          <span class="control-heading">Time:</span>
+          <div>
+          <input type="checkbox" class="button" id="play-{{VOLID}}"><label for="play-{{VOLID}}">Play</label>
+          <input class="control-inputs" value="0" id="time-val-{{VOLID}}"/>
+          </div>
+          <div   class="slider volume-viewer-threshold" id="time-slider-{{VOLID}}"></div>
+        </div>
+
+        <div class="contrast-div" data-volume-id="{{VOLID}}">
+          <span class="control-heading" id="contrast-heading{{VOLID}}">Contrast (0.0 to 2.0):</span>
+          <input class="control-inputs" value="1.0" id="contrast-val"/>
+          <div id="contrast-slider" class="slider volume-viewer-contrast"></div>
+        </div>
+
+        <div class="brightness-div" data-volume-id="{{VOLID}}">
+          <span class="control-heading" id="brightness-heading{{VOLID}}">Brightness (-1 to 1):</span>
+          <input class="control-inputs" value="0" id="brightness-val"/>
+          <div id="brightness-slider" class="slider volume-viewer-brightness"></div>
+        </div>
+
+        <div id="slice-series-{{VOLID}}" class="slice-series-div" data-volume-id="{{VOLID}}">
+          <div  class="control-heading" id="slice-series-heading-{{VOLID}}">All slices: </div>
+          <span class="noselect slice-series-button" data-axis="xspace">Sagittal</span>
+          <span class="noselect slice-series-button" data-axis="yspace">Coronal</span>
+          <span class="noselect slice-series-button" data-axis="zspace">Transverse</span>
+        </div>
+
+      </div>
+    </script>
+    <script id="overlay-ui-template" type="x-volume-ui-template">
+      <div class="overlay-viewer-display">
+      </div>
+      <div class="volume-viewer-controls volume-controls">
+
+        <div class="coords">
+          <div class="control-heading" id="voxel-coordinates-heading-{{VOLID}}">
+            Voxel Coordinates:
+          </div>
+          <div class="voxel-coords" data-volume-id="{{VOLID}}">
+            I:<input id="voxel-i-{{VOLID}}" class="control-inputs">
+            J:<input id="voxel-j-{{VOLID}}" class="control-inputs">
+            K:<input id="voxel-k-{{VOLID}}" class="control-inputs">
+          </div>
+          <div class="control-heading" id="world-coordinates-heading-{{VOLID}}">
+            World Coordinates:
+          </div>
+          <div class="world-coords" data-volume-id="{{VOLID}}">
+            X:<input id="world-x-{{VOLID}}" class="control-inputs">
+            Y:<input id="world-y-{{VOLID}}" class="control-inputs">
+            Z:<input id="world-z-{{VOLID}}" class="control-inputs">
+          </div>
+        </div>
+
+        <div id="intensity-value-div-{{VOLID}}">
+          <span class="control-heading" data-volume-id="{{VOLID}}">
+            Value:
+          </span>
+          <span id="intensity-value-{{VOLID}}" class="intensity-value"></span>
+        </div>
+
+        <div class="blend-div" data-volume-id="{{VOLID}}">
+          <span class="control-heading" id="blend-heading{{VOLID}}">Blend (0.0 to 1.0):</span>
+          <input class="control-inputs" value="0.5" id="blend-val"/>
+          <div id="blend-slider" class="slider volume-viewer-blend"></div>
+        </div>
+
+        <div class="contrast-div" data-volume-id="{{VOLID}}">
+          <span class="control-heading" id="contrast-heading{{VOLID}}">Contrast (0.0 to 2.0):</span>
+          <input class="control-inputs" value="1.0" id="contrast-val"/>
+          <div id="contrast-slider" class="slider volume-viewer-contrast"></div>
+        </div>
+
+        <div class="brightness-div" data-volume-id="{{VOLID}}">
+          <span class="control-heading" id="brightness-heading{{VOLID}}">Brightness (-1 to 1):</span>
+          <input class="control-inputs" value="0" id="brightness-val"/>
+          <div id="brightness-slider" class="slider volume-viewer-brightness"></div>
+        </div>
+      </div>
+    </script>
+
+    <div id="brainbrowser-wrapper" style="display:none">
+      <div id="volume-viewer">
+        <div id="brainbrowser"></div>
+      </div>
+    </div>
+
+  </div>
+  <script src="js/ui.js"></script>
+  <script src="js_common/vendors/pako.js"></script>
+  <script src="js/brainbrowser/brainbrowser.js"></script>
+  <script src="js/brainbrowser/core/tree-store.js"></script>
+  <script src="js/brainbrowser/lib/config.js"></script>
+  <script src="js/brainbrowser/lib/utils.js"></script>
+  <script src="js/brainbrowser/lib/events.js"></script>
+  <script src="js/brainbrowser/lib/loader.js"></script>
+  <script src="js/brainbrowser/lib/color-map.js"></script>
+  <script src="js/brainbrowser/volume-viewer.js"></script>
+  <script src="js/brainbrowser/volume-viewer/lib/display.js"></script>
+  <script src="js/brainbrowser/volume-viewer/lib/panel.js"></script>
+  <script src="js/brainbrowser/volume-viewer/lib/utils.js"></script>
+  <script src="js/brainbrowser/volume-viewer/modules/loading.js"></script>
+  <script src="js/brainbrowser/volume-viewer/modules/rendering.js"></script>
+  <script src="js/brainbrowser/volume-viewer/volume-loaders/overlay.js"></script>
+  <script src="js/brainbrowser/volume-viewer/volume-loaders/minc.js"></script>
+  <script src="js/brainbrowser/volume-viewer/volume-loaders/nifti1.js"></script>
+  <script src="js/brainbrowser/volume-viewer/volume-loaders/mgh.js"></script>
+  <script src="js/brainbrowser/volume-viewer/volume-loaders/hdf5.js"></script>
+  <script src="js/brainbrowser/volume-viewer/volume-loaders/netcdf.js"></script>
+  <script src="volume-viewer-demo.config.js"></script>
+  <script src="volume-viewer-demo.js"></script>
+
+</body>

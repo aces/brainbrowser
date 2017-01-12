@@ -1,0 +1,72 @@
+
+.ui-widget-content{
+  color: hsl(196, 100%, 40%);
+}
+
+
+.ui-widget.ui-widget-content{
+  border: 1px solid hsl(196, 100%, 85%);;
+}
+
+
+
+
+
+.ui-corner-all, .ui-corner-top, .ui-corner-right, .ui-corner-tr{
+  border-radius: 0;
+}
+
+
+.ui-widget-header{
+  border: none;
+}
+
+
+.ui-tabs-nav{
+  background-color: transparent;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: hsl(196, 100%, 70%);
+}
+
+
+.ui-tabs .ui-tabs-nav .ui-tabs-anchor{
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.ui-state-default a, .ui-state-default a:link, .ui-state-default a:visited, a.ui-button, a.ui-button:link, a.ui-button:visited, .ui-button{
+  color: hsl(196, 100%, 40%);
+}
+
+
+.ui-state-active a, .ui-state-active a:link, .ui-state-active a:visited{
+  color: #FFF;
+}
+
+
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default, .ui-button, html .ui-button.ui-state-disabled:hover, html .ui-button.ui-state-disabled:active{
+
+  border-color: hsl(196, 100%, 70%);
+}
+
+.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active, a.ui-button:active, .ui-button:active, .ui-button.ui-state-active:hover{
+  background: hsl(196, 100%, 40%);
+  border-color: hsl(196, 100%, 40%);
+}
+
+
+.ui-tabs .ui-tabs-panel{
+  padding: 0px;
+}
+
+
+.ui-tabs .ui-tabs-nav{
+  padding-left: 5px;
+}
+
+
+.jqueryTooltip,
+.jqueryTooltip *{
+  box-shadow: none;
+}

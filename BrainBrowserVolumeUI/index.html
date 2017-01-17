@@ -29,8 +29,8 @@
     BrainBrowser Volume Viewer
   </title>
 
-  <link type="text/css" href="css/common.css" rel="Stylesheet" />
-  <link type="text/css" href="css/volume-viewer-demo.css" rel="Stylesheet" />
+
+
 
   <!-- jquery -->
   <script src="js_common/vendors/jquery-3.1.0.js"></script>
@@ -53,11 +53,13 @@
   <link rel="stylesheet" type="text/css" href="css/ui_elements.css" />
   <link rel="stylesheet" type="text/css" href="css/style.css" />
 
+  <!-- specific to the volume viewer (some are overloading the common) -->
+  <link type="text/css" href="css/volume-viewer-demo.css" rel="Stylesheet" />
 </head>
 
 <body >
 
-  <div id="content" style="overflow: scroll">
+
     <!-- The top left logo, remains when menus are collapsed -->
     <img class="logo" src="img/logo.png" />
 
@@ -289,6 +291,11 @@
       </div>
     </script>
 
+
+
+  <div id="content">
+
+
     <div id="brainbrowser-wrapper" style="display:none">
       <div id="volume-viewer">
         <div id="brainbrowser"></div>
@@ -296,6 +303,7 @@
     </div>
 
   </div>
+
   <script src="js/ui.js"></script>
   <script src="js_common/vendors/pako.js"></script>
   <script src="js/brainbrowser/brainbrowser.js"></script>

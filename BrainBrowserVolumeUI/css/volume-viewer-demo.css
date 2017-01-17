@@ -25,7 +25,7 @@
 */
 
 body {
-  background-color: #000000;
+  background-color: hsl(196, 100%, 40%);
 }
 
 #brainbrowser-wrapper {
@@ -35,9 +35,7 @@ body {
 
 #volume-viewer {
   display: inline-block;
-  background-color: #FFFFFF;
-  padding: 0.5em;
-  border-radius: 10px;
+  margin-right: 20px;
 }
 
 
@@ -47,7 +45,7 @@ body {
 
 canvas.slice-display {
   display: block;
-  margin: 3px 5px;
+  margin: 9px 5px;
 }
 
 .volume-viewer-controls {
@@ -64,7 +62,7 @@ canvas.slice-display {
 }
 
 .volume-controls {
-  width: 235px;
+  width: 236px;
   height: 560px;
 }
 
@@ -185,4 +183,22 @@ canvas.slice-display {
   -moz-border-radius: 3px;
   -webkit-border-radius: 3px;
   border-radius: 3px;
+}
+
+
+/* overloading some of the common styles */
+
+#content {
+  overflow-x: scroll;
+  overflow-y: scroll;
+}
+
+
+#leftSidebar .controls {
+    padding-left: 15px;
+    width: inherit;
+}
+
+#brainbrowser {
+  background-color: hsl(196, 100%, 92%);
 }

@@ -274,7 +274,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     viewer.lightSystem.position.set(0, 0, 0);
     viewer.zoom = 1;
     viewer.updated = true;
-  }
+  };
 
   /**
   * @doc function
@@ -387,7 +387,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     viewer.axes.name = name;
 
     // the size is based on the size of the grid (largest bounding sphere)
-    if (size === undefined || size == null) {
+    if (size === undefined || size === null) {
       var largestSize = 0;
 
       viewer.gridSystem.children.forEach( function(gridElem){
@@ -427,7 +427,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       viewer.axes.visible = ! viewer.axes.visible;
       viewer.updated = true;
     }
-  }
+  };
 
 
   /**
@@ -489,7 +489,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     for (i = 0; i < intersects.length; i++) {
 
       // avoid the grid
-      if(intersects[i].object.parent.name == "grid"){
+      if(intersects[i].object.parent.name === "grid"){
         continue;
       }
 
@@ -674,7 +674,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       newCenter: THREE.Vector3 - center relative to inside graphicObject
   */
   viewer.changeCenterRotation2 = function(newCenter) {
-    var scene = viewer.graphicObjects.parent;
+    // var scene = viewer.graphicObjects.parent;
     // moving the model
     viewer.model.position.sub(newCenter);
 
@@ -684,7 +684,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     viewer.updated = true;
 
     // updating the logic shapes with their new coodinates / box
-    viewer.model_data.forEach(function(model_data, model_name){
+    viewer.model_data.forEach(function(model_data){
       viewer.changeCenterRotationModelDataShapes(model_data, newCenter);
     });
 
@@ -692,7 +692,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     // we place it in the end so it does not affect when
     // calling resetCenterRotation()
     viewer.totalOffset.add(newCenter);
-  }
+  };
 
 
   /*
@@ -704,7 +704,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     viewer.totalOffset.negate();
     viewer.changeCenterRotation2(viewer.totalOffset);
     viewer.totalOffset.set(0, 0, 0);
-  }
+  };
 
 
   /*
@@ -739,7 +739,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       logicShape.centroid.z -= newCenter.z;
     });
 
-  }
+  };
 
 
   /*
@@ -749,7 +749,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   */
   viewer.shiftModelDataAccordingly = function(modelData){
     viewer.changeCenterRotationModelDataShapes(modelData, viewer.totalOffset);
-  }
+  };
 
 
 
@@ -760,7 +760,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   */
   viewer.getTotalOffset = function(){
     return [viewer.totalOffset.x, viewer.totalOffset.y, viewer.totalOffset.z];
-  }
+  };
 
 
 
@@ -791,7 +791,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     console.log("----------------------");
     return true;
-  }
+  };
 
 
   /*
@@ -799,7 +799,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   */
   viewer.onDragged = function(cb){
     viewer.onDraggedCallback = cb;
-  }
+  };
 
   ////////////////////////////////////
   // PRIVATE FUNCTIONS
@@ -843,7 +843,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       viewer.onDraggedCallback({
         goQuaternion: graphicObjects.quaternion.clone(),
         camPosition: camera.position.clone()
-      })
+      });
     }
 
     if (viewer.updated) {
@@ -867,7 +867,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   ////////////////////////////////
 
   (function() {
-    var graphicObjects = viewer.graphicObjects
+    var graphicObjects = viewer.graphicObjects;
 
     var movement = "rotate";
     var last_x = null;
@@ -915,7 +915,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
         viewer.onDraggedCallback({
           goQuaternion: graphicObjects.quaternion.clone(),
           camPosition: camera.position.clone()
-        })
+        });
       }
 
       viewer.updated = true;

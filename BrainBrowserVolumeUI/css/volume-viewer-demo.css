@@ -29,13 +29,12 @@ body {
 }
 
 #brainbrowser-wrapper {
-  width: 60em;
-  margin: 50px auto;
+  padding: 50px 20px 50px 320px;
+
 }
 
 #volume-viewer {
   display: inline-block;
-  margin-right: 20px;
 }
 
 

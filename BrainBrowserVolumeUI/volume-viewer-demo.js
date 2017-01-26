@@ -54,83 +54,86 @@ $(function() {
       $("#volumeFile").hide();
 
       var type    = $(this).val();
-      var volumes = undefined;
+      var volumes;
 
       if (type === "functional_minc") {
-        volumes = [{
-          type: "minc",
-          header_url: "models/functional.mnc.header",
-          raw_data_url: "models/functional.mnc.raw",
-          template: {
-            element_id: "volume-ui-template",
-            viewer_insert_class: "volume-viewer-display"
-          }}]
-        } else if (type === "structural_minc") {
-          volumes = [
-            {
-              type: "minc",
-              header_url: "models/structural1.mnc.header",
-              raw_data_url: "models/structural1.mnc.raw",
-              template: {
-                element_id: "volume-ui-template",
-                viewer_insert_class: "volume-viewer-display"
-              }
-            },
-            {
-              type: 'minc',
-              header_url: "models/structural2.mnc.header",
-              raw_data_url: "models/structural2.mnc.raw",
-              template: {
-                element_id: "volume-ui-template",
-                viewer_insert_class: "volume-viewer-display"
-              }
+        volumes = [
+          {
+            type: "minc",
+            header_url: "models/functional.mnc.header",
+            raw_data_url: "models/functional.mnc.raw",
+            template: {
+              element_id: "volume-ui-template",
+              viewer_insert_class: "volume-viewer-display"
             }
-          ]
-        } else if (type === "NIfTI-1"){
-            volumes = [
-            {
-              type: "nifti1",
-              nii_url: "models/functional.nii",
-              template: {
-                element_id: "volume-ui-template",
-                viewer_insert_class: "volume-viewer-display"
-              }
-            },
-            {
-              type: 'nifti1',
-              nii_url: "models/structural.nii",
-              template: {
-                element_id: "volume-ui-template",
-                viewer_insert_class: "volume-viewer-display"
-              }
+          }
+        ];
+      } else if (type === "structural_minc") {
+        volumes = [
+          {
+            type: "minc",
+            header_url: "models/structural1.mnc.header",
+            raw_data_url: "models/structural1.mnc.raw",
+            template: {
+              element_id: "volume-ui-template",
+              viewer_insert_class: "volume-viewer-display"
             }
-          ]
+          },
+          {
+            type: 'minc',
+            header_url: "models/structural2.mnc.header",
+            raw_data_url: "models/structural2.mnc.raw",
+            template: {
+              element_id: "volume-ui-template",
+              viewer_insert_class: "volume-viewer-display"
+            }
+          }
+        ];
+      } else if (type === "NIfTI-1"){
+        volumes = [
+          {
+            type: "nifti1",
+            nii_url: "models/functional.nii",
+            template: {
+              element_id: "volume-ui-template",
+              viewer_insert_class: "volume-viewer-display"
+            }
+          },
+          {
+            type: 'nifti1',
+            nii_url: "models/structural.nii",
+            template: {
+              element_id: "volume-ui-template",
+              viewer_insert_class: "volume-viewer-display"
+            }
+          }
+        ];
       } else if (type === "MGH"){
         volumes = [
-            {
-              type: "mgh",
-              url: "models/t1.mgh",
-              template: {
-                element_id: "volume-ui-template",
-                viewer_insert_class: "volume-viewer-display"
-              }
-            },
-            {
-              type: 'mgh',
-              url: "models/dti.mgh",
-              template: {
-                element_id: "volume-ui-template",
-                viewer_insert_class: "volume-viewer-display"
-              }
+          {
+            type: "mgh",
+            url: "models/t1.mgh",
+            template: {
+              element_id: "volume-ui-template",
+              viewer_insert_class: "volume-viewer-display"
             }
-          ]
+          },
+          {
+            type: 'mgh',
+            url: "models/dti.mgh",
+            template: {
+              element_id: "volume-ui-template",
+              viewer_insert_class: "volume-viewer-display"
+            }
+          }
+        ];
       } else {
         $("#volume-file").show();
         viewer.clearVolumes();
       }
       $('#volume-viewer').show();
       if (volumes !== undefined) {
-        wrapLoadModels(volumes)
+        wrapLoadModels(volumes);
       }
     });
 
@@ -140,7 +143,7 @@ $(function() {
       document.getElementById("modelFormatSelector").value = type;
     });
 
-    $("#reloadBt").click(function(evt){
+    $("#reloadBt").click(function(){
       var volumes = [];
       var volume  = {};
       var type    = document.getElementById("modelFormatSelector").value;
@@ -150,7 +153,7 @@ $(function() {
       volume.template = {
           element_id: "volume-ui-template",
           viewer_insert_class: "volume-viewer-display"
-      }
+        };
 
       if (type === "nifti1") {
         volume.nii_file      = file;
@@ -168,9 +171,9 @@ $(function() {
 
       $('#volume-viewer').show();
       if (volumes !== undefined) {
-        wrapLoadModels(volumes)
+        wrapLoadModels(volumes);
       }
-    })
+    });
 
     $("#unloadAllBt").click(function(){
       $('#volume-viewer').hide();
@@ -200,9 +203,8 @@ $(function() {
     });
 
     // Should cursors in all panels be synchronized?
-    // XXX todo
     $("#syncVolumes").click(function() {
-      viewer.synced = viewer.synced ? false : true
+      viewer.synced = viewer.synced ? false : true;
       if (viewer.synced) {
         viewer.resetDisplays();
         viewer.redrawVolumes();
@@ -361,7 +363,7 @@ $(function() {
         }
         if (!BrainBrowser.utils.isNumeric(z)) {
           z = 0;
-         }
+        }
 
         // Set coordinates and redraw.
         if (viewer.synced) {
@@ -567,7 +569,7 @@ $(function() {
           if(play_button.is(":checked")){
             clearInterval(play_interval);
             play_interval = setInterval(function() {
-               var value = volume.current_time + 1;
+              var value = volume.current_time + 1;
               value = value > max ? 0 : value;
               volume.current_time = value;
               time_input.val(value);
@@ -640,7 +642,7 @@ $(function() {
       container.find(".blend-div").each(function() {
         var div = $(this);
         var slider = div.find(".slider");
-         var blend_input = div.find("#blend-val");
+        var blend_input = div.find("#blend-val");
 
         // Slider to select blend value.
         slider.slider({
@@ -667,7 +669,7 @@ $(function() {
 
           // Check that input is numeric and in range.
           if (!BrainBrowser.utils.isNumeric(value)) {
-             value = 0;
+            value = 0;
           }
           value = Math.max(0, Math.min(value, 1));
           this.value = value;
@@ -716,7 +718,7 @@ $(function() {
           this.value = value;
 
           // Update slider and redraw volumes.
-           slider.slider("value", value);
+          slider.slider("value", value);
           volume.display.setContrast(value);
           volume.display.refreshPanels();
           viewer.redrawVolumes();
@@ -821,7 +823,7 @@ $(function() {
       var type = "unknown";
 
       extensions.forEach(function(elem){
-        if(basename.indexOf(elem.ext) != -1 ){
+        if(basename.indexOf(elem.ext) !== -1 ){
           type = elem.type;
         }
       });

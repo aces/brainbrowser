@@ -2,7 +2,7 @@
 * BrainBrowser: Web-based Neurological Visualization Tools
 * (https://brainbrowser.cbrain.mcgill.ca)
 *
-* Copyright (C) 2011 
+* Copyright (C) 2011
 * The Royal Institution for the Advancement of Learning
 * McGill University
 *
@@ -24,9 +24,14 @@
 
 (function() {
   "use strict";
-  
+
   // Custom configuration for the Volume Viewer demo app.
   BrainBrowser.config.set("color_maps", [
+    {
+      name: "Gray",
+      url: "color-maps/gray-scale.txt",
+      cursor_color: "#FF0000"
+    },
     {
       name: "Spectral",
       url: "color-maps/spectral-brainview.txt",
@@ -36,11 +41,6 @@
       name: "Thermal",
       url: "color-maps/thermal.txt",
       cursor_color: "#FFFFFF"
-    },
-    {
-      name: "Gray",
-      url: "color-maps/gray-scale.txt",
-      cursor_color: "#FF0000"
     },
     {
       name: "Blue",
@@ -53,7 +53,7 @@
       cursor_color: "#FF0000"
     }
   ]);
-    
+
 })();
 
 

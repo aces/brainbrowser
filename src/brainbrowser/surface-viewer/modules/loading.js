@@ -32,6 +32,10 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   var THREE = SurfaceViewer.THREE;
   var loader = BrainBrowser.loader;
 
+  // model_data.name uniqueness, so we can load 2 files with the same name and
+  // it does not mess with shifting of anything that requires some model_data fetching
+  var model_data_counter = 0;
+
   var model_data_store = {};
 
   ////////////////////////////////////
@@ -261,6 +265,7 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   * ```
   */
   viewer.loadIntensityDataFromURL = function(url, options) {
+
     options = checkBinary("intensity_data_types", options);
 
     loader.loadFromURL(url, loadIntensityData, options);
@@ -298,6 +303,8 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
     loader.loadFromFile(file_input, loadIntensityData, options);
   };
+
+
 
   /**
   * @doc function
@@ -351,11 +358,16 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       viewer.model.remove(children[0]);
     }
 
+    viewer.resetCenterRotation();
+
     viewer.model_data.clear();
 
-    viewer.resetView();
+    viewer.resetView2();
+
     viewer.triggerEvent("clearscreen");
+
   };
+
 
 
   ////////////////////////////////////
@@ -370,6 +382,11 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     // Parse model info based on the given file type.
     parseModel(data, type, parse_options, function(model_data) {
       if (!BrainBrowser.loader.checkCancel(options.cancel)) {
+
+        // ensure uniqueness of model_data.name
+        model_data.name += " [" + model_data_counter + "]";
+        model_data_counter++;
+
         displayModel(model_data, filename, options);
       }
     });
@@ -578,10 +595,15 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
     var new_shapes = createModel(model_data, filename, options);
 
+    // shift the newly loaded shapes, in case some shapes were loaded
+    // before and the whole was recentered
+    viewer.shiftModelDataAccordingly(model_data);
+
     viewer.triggerEvent("displaymodel", {
       model:      viewer.model,
       model_data: model_data,
       new_shapes: new_shapes,
+      filename: filename,
     });
 
     if (complete) complete();
@@ -897,4 +919,3 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   }
 
 };
-

@@ -1,0 +1,405 @@
+body{
+  margin:0;
+  font-family: 'Lato', sans-serif;
+  font-size: 15px;
+  color: hsl(196, 100%, 40%);
+  overflow: hidden;
+}
+
+
+#content{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+
+
+  overflow: hidden;
+}
+
+
+
+#leftSidebar{
+  background-color: hsl(196, 100%, 92%);
+  position: absolute;
+  left: 0;
+}
+
+
+#rightSidebar{
+  background-color: hsl(196, 100%, 92%);
+  position: absolute;
+  right: 0;
+}
+
+
+#brainbrowser{
+  background-color: #000;
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  z-index: 0;
+}
+
+
+
+
+
+/*
+  This style is adapted to fit a logo at top left, the scrollbar is hidden
+  out of the window and the height is adapted to not overlat with the hide button
+*/
+#leftSidebar .controls{
+  margin-top: 70px;
+  direction:rtl;
+  left: -15px;
+  /*padding-right: 15px;*/
+  /*padding-left: 15px;*/
+  position: absolute;
+  /*width: auto;*/
+  width: calc(100% + 15px);
+  text-align: left;
+  height: calc(100% - 85px);
+}
+
+
+#leftSidebar .controls *{
+  direction:ltr;
+}
+
+#rightSidebar .controls{
+  /*right: -15px;*/
+  /*padding-right: 15px;*/
+  /*padding-left: 15px;*/
+  position: absolute;
+  /*width: calc(100% + 15px);*/
+  text-align: left;
+  height: calc(100% - 15px);
+}
+
+
+
+.sidebar{
+  width: 300px;
+  height: 100%;
+  z-index: 2;
+}
+
+
+.hideButton{
+  background-color: #fff;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  z-index: 3;
+}
+
+#hideLeft{
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  transform: rotate(45deg);
+}
+
+#hideLeft .fa{
+  position: absolute;
+  bottom: 11px;
+  right: 5px;
+
+}
+
+#hideRight{
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  transform: rotate(-45deg);
+}
+
+
+#hideRight .fa{
+  position: absolute;
+  bottom: 11px;
+  left: 5px;
+}
+
+.sidebar .controls{
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
+    height: 100%;
+}
+
+
+.logo{
+  width: 270px;
+  position: absolute;
+  left:0;
+  top: 0;
+  margin: 15px;
+  z-index: 3;
+
+}
+
+
+#loadedFilesTabs{
+  border:none;
+  background-color: transparent;
+  height: calc(100% - 95px);
+  overflow-y: auto;
+}
+
+
+#shapeSearchBt{
+  margin-top: 0;
+}
+
+
+#axisBox{
+  background-color: rgba(255, 255, 255, 0.5);
+  width: calc(100% - 30px);
+  margin: 15px;
+  height: 250px;
+}
+
+
+#annotations{
+
+}
+
+
+.annotation{
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-top: 10px;
+  border-top-color: hsl(196, 100%, 85%);
+  border-top-width: 1px;
+  border-top-style: solid;
+  padding-top: 10px;
+}
+
+.annotButtons{
+  display: flex;
+  width: 30px;
+}
+
+.annotButtons *{
+  margin-left: 1px;
+  padding: 2px;
+  font-size: 17px
+}
+
+.annotName{
+  font-size: inherit;
+  width: 73%;
+  border: none;
+  /*background-color: transparent;*/
+  color: hsl(196, 100%, 40%);
+}
+
+/*
+.annotName:hover{
+  background-color: rgba(255, 255, 255, 0.8);
+}
+*/
+
+
+.annotDescription:hover{
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+
+
+.annotDescription{
+  color: hsl(196, 100%, 40%);
+  width: 100%;
+  height: 45px;
+  margin: 10px 0px 0px;
+  background-color: rgba(255, 255, 255, 0.5);;
+  overflow:hidden;
+  border: none;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.annotButtons *{
+  transition: all 0.1s;
+  cursor: pointer;
+
+}
+
+.annotDelete:hover{
+  color: #CC0000;
+}
+
+
+.annotToggle:hover{
+  color: orange;
+}
+
+
+.annotValidate:hover{
+  color: #00FF00;
+}
+
+
+.annotTarget:hover{
+  color: #B42DEE;
+}
+
+
+.jscolor{
+  border: none;
+  font-size: inherit;
+  width: 100%;
+}
+
+
+#colorRangeSlider{
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-top: 20px;
+  margin-bottom: 5px;
+  border: none;
+  background-color: #FFF;
+}
+
+#colorRangeSlider .ui-slider-range{
+  background-color: hsl(196, 75%, 60%);
+}
+
+
+#colorSpectrum{
+  height: 45px;
+  margin-left: 15px;
+  margin-right: 15px;
+  /*background-color: hsla(196, 75%, 50%, 0.3);*/
+  margin-top: 5px;
+  margin-bottom: 2px;
+}
+
+
+#colorSpectrum canvas{
+  width: 100%;
+}
+
+
+#minMaxSliderLbl{
+  display: flex;
+  padding-left: 80px;
+}
+
+#minMaxSliderLbl input{
+  width: 50px;
+  text-align: center;
+  border: none;
+  color: hsl(196, 100%, 40%);
+  font-size: inherit;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+
+#shapeLabel{
+  padding: 0;
+}
+
+
+.toggleAllShapes{
+  margin-top: 0;
+}
+
+
+.contrastLogo{
+  margin-top: 4px;
+  margin-right: 5px;
+}
+
+
+.slider{
+  width: 180px;
+}
+
+
+#spinner{
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  padding-bottom: 30px;
+  z-index: 4;
+  text-align: center;
+  -webkit-filter: invert(); /* Chrome, Safari, Opera */
+  filter: invert();
+  pointer-events: none;
+}
+
+
+#spinner img{
+  background-color: white;
+  padding: 2px;
+  border-radius: 50%;
+}
+
+
+#about{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: hsl(196, 100%, 85%);
+  z-index: 100;
+  padding: 50px 25% 20px 25%;
+  /*overflow-y: scroll;*/
+
+  background: url(../img/background.jpg) no-repeat center center fixed;
+  background-size: cover;
+}
+
+
+#closeAboutBt{
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 5px;
+  transition: all 0.2s;
+  cursor: pointer;
+  height: 90%;
+}
+
+#closeAboutBt img{
+  width: 50px;
+}
+
+#closeAboutBt:hover{
+  opacity: 0.3;
+}
+
+
+.scrollable{
+  overflow-y: scroll;
+  height: 100%;
+}
+
+
+.scrollable a{
+  color: hsl(16, 100%, 50%);
+  text-decoration: none;
+  animation: all 0.2s;
+}
+
+.scrollable a:hover{
+  text-decoration: underline;
+}
+
+
+#about ul
+{
+list-style-type: none;
+}
+
+#about h2{
+  margin-top: 45px;
+  margin-bottom: 0px;
+}

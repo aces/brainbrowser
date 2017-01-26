@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title> BigBrainBrowser minimal integration </title>
+
+  <!-- Style -->
+  <style>
+    #brainbrowser{
+      width: 500px;
+      height: 500px;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  This is a mininalistic integration of BrainBrowser Surface Viewer.
+
+  <!--Where the magic happens -->
+  <div id="brainbrowser"></div>
+
+  <!--How the magic happens -->
+  <script type="text/javascript">
+
+  // wait until the DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+
+      window.viewer = BrainBrowser.SurfaceViewer.start("brainbrowser", function(viewer) {
+        // activate the view
+        viewer.render();
+
+        // loads the color map
+        // (the model does not need to be loaded first)
+        viewer.loadColorMapFromURL("./color_maps/spectral.txt");
+
+        // loading intensity data from a callback
+        // (because model has to be loaded first)
+        var complete_callback = function() {
+          viewer.loadIntensityDataFromURL("./models/atlas-values.txt");
+        };
+
+        // loading the model
+        viewer.loadModelFromURL("./models/brain-surface.obj", {
+
+          // once the model is loaded, we load the intensity data
+          complete: complete_callback
+        });
+
+      });
+    });
+
+
+  </script>
+
+  <!-- BrainBrowser core -->
+  <script type="text/javascript" src="js/vendors/FileSaver.min.js"></script>
+  <script type="text/javascript" src="js/vendors/pako.js"></script>
+  <script type="text/javascript" src="js/vendors/jscolor.min.js"></script>
+  <script type="text/javascript" src="js/brainbrowser/brainbrowser.js"></script>
+  <script type="text/javascript" src="js/brainbrowser/core/tree-store.js"></script>
+  <script type="text/javascript" src="js/brainbrowser/lib/config.js"></script>
+  <script type="text/javascript" src="js/brainbrowser/lib/utils.js"></script>
+  <script type="text/javascript" src="js/brainbrowser/lib/events.js"></script>
+  <script type="text/javascript" src="js/brainbrowser/lib/loader.js"></script>
+  <script type="text/javascript" src="js/brainbrowser/lib/color-map.js"></script>
+  <script type="text/javascript" src="js/brainbrowser/surface-viewer.js"></script>
+  <script type="text/javascript" src="js/brainbrowser/surface-viewer/lib/three.js"></script>
+  <script type="text/javascript" src="js/brainbrowser/surface-viewer/lib/parse-intensity-data.js"></script>
+  <script type="text/javascript" src="js/brainbrowser/surface-viewer/modules/annotations.js"></script>
+  <script type="text/javascript" src="js/brainbrowser/surface-viewer/modules/color.js"></script>
+  <script type="text/javascript" src="js/brainbrowser/surface-viewer/modules/loading.js"></script>
+  <script type="text/javascript" src="js/brainbrowser/surface-viewer/modules/rendering.js"></script>
+  <script type="text/javascript" src="js/brainbrowser/surface-viewer/modules/views.js"></script>
+  <script type="text/javascript" src="js/vendors/AnaglyphEffect.js"></script>
+  <script type="text/javascript" src="js/config.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,15 @@
+<div id="{{ id }}" class="annotation">
+    <div style="display: flex;">
+        <!--<div class="annotName">{{ name }}</div>-->
+        <input class="annotName backgroundHover" type="text" value="{{ name }}">
+        <div class="annotButtons">
+          <div class="annotTarget"><i class="fa fa-crosshairs" aria-hidden="true"></i></div>
+          <div class="annotToggle"><i class="fa fa-eye" aria-hidden="true"></i></div>
+          <div class="annotDelete"><i class="fa fa-trash" aria-hidden="true"></i></div>
+        </div>
+
+    </div>
+
+    <textarea class="annotDescription" placeholder="Add a description here">{{description}}</textarea>
+    <input class="colorPicker jscolor" value="{{ color }}">
+</div>

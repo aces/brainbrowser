@@ -27,6 +27,43 @@
 * Author: Natacha Beck <natabeck@gmail.com>
 */
 
+
+/*
+
+  A quick overview of how the elements are arranged within the scene:
+
+                   +-------+
+        +----------+ scene +-----------+
+        |          +-------+           |
+        |                              |
+        |                              |
+        |                              |
+        |                              |
+        |                              |
++-------+-------+             +--------+---------+
+|  lightSystem  |             |  graphicObjects  +------------+
++---------------+             +-+-----------+----+            |
+                                |            |                |
+                                |            |                |
+                                |            |                |
+                                |            |                |
+                                |            |                |
+                           +----+-+      +---+---+        +---+---+
+                           | axis |      |  grid |        | model |
+                           +------+      +-------+        +-+-----+
+                                                              |
+                                                          +---+----+
+                                                          | mesh01 |
+                                                          | mesh02 |
+                                                          | mesh03 |
+                                                          | ...    |
+                                                          +--------+
+
+  When dragging, graphicObjects is spinning around its center so that the shapes
+  (aka. model), the grid and the axis are turning all together.
+
+*/
+
 BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   "use strict";
 
@@ -35,12 +72,25 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   var renderer = new THREE.WebGLRenderer({
     preserveDrawingBuffer: true,
     alpha: true,
-    autoClear: false,
+    autoClear: false//,
+    /*antialias: true*/
   });
   var scene = new THREE.Scene();
+  viewer.scene = scene;
   var camera = new THREE.PerspectiveCamera(30, viewer.dom_element.offsetWidth / viewer.dom_element.offsetHeight, 1, 3000);
+  viewer.camera = camera;
   var default_camera_distance = 500;
-  var light = new THREE.PointLight(0xFFFFFF);
+
+  viewer.totalOffset = new THREE.Vector3();
+
+
+  viewer.lightSystem = new THREE.Object3D();
+  var intensity = 1;
+  var light1 = new THREE.PointLight(0xFFFFFF, intensity);
+  viewer.lightSystem.add(light1);
+  viewer.lightSystem.position.set(0, 0, 0);
+  viewer.lightSystem.name = "lightSystem";
+
   var current_frame;
   var last_frame;
   var effect = renderer;
@@ -49,8 +99,30 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   var old_zoom_level;
 
   viewer.model = new THREE.Object3D();
+  viewer.model.name = "model";
+  viewer.graphicObjects = new THREE.Object3D();
+  viewer.graphicObjects.name = "viewer.graphicObjects";
 
-  scene.add(viewer.model);
+  scene.add(viewer.graphicObjects);
+  viewer.graphicObjects.add(viewer.model);
+
+  viewer.annotationSystem = new THREE.Object3D();
+  viewer.annotationSystem.name = "annotationSystem";
+  viewer.graphicObjects.add(viewer.annotationSystem);
+
+  // to set later
+  viewer.gridSystem = null;
+
+  // to set later
+  viewer.axis = null;
+
+
+  // callback for when the graphic objects are dragged
+  viewer.onDraggedCallback = null;
+
+// For debugging purpose only
+// var axisHelper = new THREE.AxisHelper( 20 );
+// scene.add( axisHelper );
 
   /**
   * @doc function
@@ -68,8 +140,18 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     camera.position.z = default_camera_distance;
 
-    light.position.set(0, 0, default_camera_distance);
-    scene.add(light);
+
+    // light positioning
+    light1.position.set(default_camera_distance/8, default_camera_distance/4, default_camera_distance);
+    //light2.position.set(-default_camera_distance, 0, default_camera_distance);
+    //light3.position.set(default_camera_distance, default_camera_distance, default_camera_distance);
+    //light4.position.set(default_camera_distance, -default_camera_distance, default_camera_distance);
+    //light5.position.set(0, default_camera_distance, 0);
+    //light6.position.set(0, -default_camera_distance, 0);
+
+    scene.add(viewer.lightSystem);
+
+    //scene.add( ambientLight );
 
     viewer.updateViewport();
 
@@ -163,7 +245,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   */
   viewer.setCameraPosition = function(x, y, z) {
     camera.position.set(x, y, z);
-    light.position.set(x, y, z);
+    //light.position.set(x, y, z);
+
 
     viewer.updated = true;
   };
@@ -181,50 +264,15 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     return camera.position;
   };
 
-  /**
-  * @doc function
-  * @name viewer.rendering:resetView
-  * @description
-  * Resets the view of the scene.
-  * ```js
-  * viewer.resetView();
-  * ```
+
+  /*
+    Added by jo
   */
-  viewer.resetView = function() {
-    var model = viewer.model;
-    var inv   = new THREE.Matrix4();
-    inv.getInverse(model.matrix);
-
-    model.applyMatrix(inv);
+  viewer.resetView2 = function() {
+    viewer.graphicObjects.rotation.set(0, 0, 0);
     camera.position.set(0, 0, default_camera_distance);
-    light.position.set(0, 0, default_camera_distance);
-
-    var offset = model.userData.model_center_offset || new THREE.Vector3(0,0,0);
-    model.children.forEach(function(shape) {
-      var centroid   = shape.userData.centroid;
-      var recentered = shape.userData.recentered;
-
-      // The check for original_data tells us
-      // this is a loaded model, rather than
-      // an annotation, etc.
-      if (shape.userData.original_data) {
-        if (centroid && recentered) {
-          shape.position.set(
-            centroid.x + offset.x,
-            centroid.y + offset.y,
-            centroid.z + offset.z
-          );
-        } else {
-          shape.position.set(offset.x, offset.y, offset.z);
-        }
-        shape.rotation.set(0, 0, 0);
-        shape.material.opacity = 1;
-      }
-    });
-
-    model.rotation.set(0, 0, 0);
+    viewer.lightSystem.position.set(0, 0, 0);
     viewer.zoom = 1;
-
     viewer.updated = true;
   };
 
@@ -244,164 +292,6 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     renderer.setClearColor(color, alpha);
 
     viewer.updated = true;
-  };
-
-  /**
-  * @doc function
-  * @name viewer.rendering:drawDot
-  * @param {number} x The x coordinate.
-  * @param {number} y The y coordinate.
-  * @param {number} z The z coordinate.
-  * @param {number} radius Radius of the sphere (default: 2).
-  * @param {number} color Color of the sphere as a hexadecimal integer (default: 0xFF0000).
-  *
-  * @returns {object} The sphere itself.
-  *
-  * @description Draw a sphere in the current scene. Handy for debugging.
-  * ```js
-  * viewer.drawDot(10, 5, 15, 3, 0x00FF00);
-  * ```
-  */
-  viewer.drawDot = function(x, y, z, radius, color) {
-    radius = radius || 2;
-    radius = radius >= 0 ? radius : 0;
-    color  = color  >= 0 ? color  : 0xFF0000;
-
-    var geometry = new THREE.SphereGeometry(radius);
-    var material = new THREE.MeshBasicMaterial({color: color});
-
-    var sphere   = new THREE.Mesh(geometry, material);
-    sphere.position.set(x, y, z);
-
-    if (viewer.model) {
-      var offset     = viewer.model.userData.model_center_offset;
-      if (offset !== undefined) {
-        sphere.translateX(-offset.x);
-        sphere.translateY(-offset.y);
-        sphere.translateZ(-offset.z);
-      }
-      viewer.model.add(sphere);
-    } else {
-      scene.add(sphere);
-    }
-
-    viewer.updated = true;
-
-    return sphere;
-
-  };
-
-  /**
-  * @doc function
-  * @name viewer.rendering:drawGrid
-  * @param {number} size The size of the grid.
-  * @param {number} step The size of the step between 2 lines.
-  * @param {object} options Options, which include the following:
-  *
-  * * **name** The name of the object.
-  * * **color_center_line** The color of the centerline as a hexadecimal integer (default 0x444444).
-  * * **color_grid** The color of the lines of the grid as a hexadecimal integer (default 0x888888).
-  * * **x** The x coordinate (default: 0).
-  * * **y** The y coordinate (default: 0).
-  * * **z** The z coordinate (default: 0).
-  * * **euler_rotation** The Euler angles to apply.
-  *
-  * @returns {object} The grid itself.
-  *
-  * @description Draw a Grid in the current scene.
-  * ```js
-  * var euler_rotation = new THREE.Euler( 0, 0, Math.PI/2, 'XYZ' );
-  * viewer.drawGrid(100, 10, {euler_rotation: euler_rotation});
-  * ```
-  */
-  viewer.drawGrid = function(size, step, options) {
-    options               = options || {};
-    var name              = options.name;
-    var color_center_line = options.color_center_line;
-    var color_grid        = options.color_grid;
-    var x                 = options.x || 0;
-    var y                 = options.y || 0;
-    var z                 = options.z || 0;
-    var euler_rotation    = options.euler_rotation;
-
-    // Define default size and step
-    if (size === undefined || size <= 0) { size = 100; }
-    if (step === undefined || step <= 0) { step = 10; }
-
-    // Define default colors
-    color_center_line = color_center_line >= 0 ? color_center_line : 0x444444;
-    color_grid        = color_grid        >= 0 ? color_grid        : 0x888888;
-
-    // Create the grid
-    var grid  = new THREE.GridHelper(size, step);
-    grid.name = name;
-    grid.setColors(color_center_line, color_grid);
-    grid.position.set(x,y,z);
-    // Used euler_rotation only if present
-    if ( euler_rotation !== undefined ) { grid.setRotationFromEuler(euler_rotation); }
-
-    if (viewer.model) {
-      viewer.model.add(grid);
-    } else {
-      scene.add(grid);
-    }
-
-    viewer.updated = true;
-
-    return grid;
-  };
-
-  /**
-  * @doc function
-  * @name viewer.rendering:gridHelper
-  * @param {number} horizontal_from where start the grid horizontally
-  * @param {number} horizontal_to where end the grid horizontally
-  * @param {number} x1 where horizontal vertices start
-  * @param {number} x2 where horizontal vertices end
-  * @param {object} horizontal_color a THREE color
-  * @param {number} where start the grid vertically
-  * @param {number} where end the grid vertically
-  * @param {number} z1 where vertical vertices start
-  * @param {number} z2 where horizontal vertices end
-  * @param {object} vertical_color a THREE color
-  * @param {number} step of the grid
-  *
-  * @returns {object} The grid itself.
-  *
-  * @description return an object that represent the grid.
-  * ```js
-  * var horizontal_color = new THREE.Color(0x000000);
-  * var vertical_color   = new THREE.Color(0xFF0000);
-  * var gridXY           = viewer.gridHelper( -100, 100, -100, 100, horizontal_color, -100, 100, 100, -100, vertical_color, 10)
-  * ```
-  *
-  */
-  viewer.gridHelper = function ( horizontal_from, horizontal_to, x1, x2, horizontal_color, vertical_from, vertical_to, z1, z2, vertical_color, step) {
-    var geometry = new THREE.Geometry();
-    var material = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors } );
-
-    var grid     = Object.create( THREE.GridHelper.prototype );
-
-    // Horizontal axes
-    for ( var z = horizontal_from; z <= horizontal_to; z += step ) {
-      geometry.vertices.push(
-        new THREE.Vector3( x1, 0, z ),
-        new THREE.Vector3( x2, 0, z )
-      );
-      geometry.colors.push( horizontal_color, horizontal_color );
-    }
-
-    // Vertical axes
-    for ( var x = vertical_from; x <= vertical_to; x += step ) {
-      geometry.vertices.push(
-        new THREE.Vector3( x, 0, z1),
-        new THREE.Vector3( x, 0, z2)
-      );
-      geometry.colors.push( vertical_color, vertical_color );
-    }
-
-    THREE.Line.call( grid, geometry, material, THREE.LinePieces );
-    return grid;
   };
 
   /**
@@ -456,7 +346,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
   /**
   * @doc function
-  * @name viewer.rendering:drawAxes
+  * @name viewer.rendering:updateAxes
   * @param {number} size Define the size of the line representing the axes.
   * @param {object} options Options, which include the following:
   *
@@ -473,10 +363,10 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   * @description
   * Draw Axes in the current scene
   * ```js
-  *   viewer.drawAxes(300)
+  *   viewer.updateAxes(300)
   * ```
   */
-  viewer.drawAxes = function(size, options) {
+  viewer.updateAxes = function(size, options) {
     options      = options || {};
     var name     = options.name   || "axes";
     var center   = options.center || new THREE.Vector3(0,0,0);
@@ -484,39 +374,61 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     var y_color  = options.y_color >= 0 ? options.y_color : 0x00ff00 ;
     var z_color  = options.z_color >= 0 ? options.z_color : 0x0000ff ;
     var complete = options.complete === true;
+    var visible = options.visible === undefined ? false : options.visible;
 
-    // If size is not defined set a reasonable default value
-    if (size === undefined) {
-      var sizes = viewer.model_data.get().size;
-      var max_size = Math.max(sizes.x, sizes.y, sizes.z);
-      size = (max_size / 2) *  1.2;
+    // if already existing, we just remove them and build new ones
+    if(viewer.axes){
+      // keep this state for later
+      visible = viewer.axes.visible;
+      viewer.graphicObjects.remove(viewer.axes);
     }
 
-    var axes  = new THREE.Object3D();
-    axes.name = name;
+    viewer.axes  = new THREE.Object3D();
+    viewer.axes.name = name;
+
+    // the size is based on the size of the grid (largest bounding sphere)
+    if (size === undefined || size === null) {
+      var largestSize = 0;
+
+      viewer.gridSystem.children.forEach( function(gridElem){
+        var radius = gridElem.geometry.boundingSphere.radius;
+        largestSize = Math.max(largestSize, radius);
+      });
+
+      size = largestSize;
+    }
 
     // X axes
-    axes.add(viewer.drawLine(center, new THREE.Vector3( center.x + size, center.y, center.z), {color: x_color, dashed: false, draw: false}));
-    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(-size + center.x, center.y, center.z), {color: x_color, dashed: true , draw: false})); }
+    viewer.axes.add(viewer.drawLine(center, new THREE.Vector3( center.x + size, center.y, center.z), {color: x_color, dashed: false, draw: false}));
+    if (complete) { viewer.axes.add(viewer.drawLine(center, new THREE.Vector3(-size + center.x, center.y, center.z), {color: x_color, dashed: true , draw: false})); }
 
     // Y axes
-    axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, center.y + size, center.z), {color: y_color, dashed: false, draw: false}));
-    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, -size + center.y, center.z), {color: y_color, dashed: true, draw: false})); }
+    viewer.axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, center.y + size, center.z), {color: y_color, dashed: false, draw: false}));
+    if (complete) { viewer.axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, -size + center.y, center.z), {color: y_color, dashed: true, draw: false})); }
 
     // Z axes
-    axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, center.y, center.z + size), {color: z_color, dashed: false, draw: false}));
-    if (complete) { axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, center.y, -size + center.z), {color: z_color, dashed: true,  draw: false})); }
+    viewer.axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, center.y, center.z + size), {color: z_color, dashed: false, draw: false}));
+    if (complete) { viewer.axes.add(viewer.drawLine(center, new THREE.Vector3(center.x, center.y, -size + center.z), {color: z_color, dashed: true,  draw: false})); }
 
-    if (viewer.model) {
-      viewer.model.add(axes);
-    } else {
-      scene.add(axes);
-    }
+    viewer.axes.visible = visible;
+    viewer.graphicObjects.add(viewer.axes);
 
     viewer.updated = true;
-
-    return axes;
   };
+
+
+  /*
+    show the axes if not visible, hide if visible, create them if not existing
+  */
+  viewer.toggleAxes = function(){
+    if(!viewer.axes){
+      viewer.updateAxes(null, {visible: true});
+    }else{
+      viewer.axes.visible = ! viewer.axes.visible;
+      viewer.updated = true;
+    }
+  };
+
 
   /**
   * @doc function
@@ -575,7 +487,13 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     intersects = raycaster.intersectObject(model, true);
 
     for (i = 0; i < intersects.length; i++) {
-      intersects[i].object.userData.pick_ignore = (intersects[i].object.material.opacity < opacity_threshold);
+
+      // avoid the grid
+      if(intersects[i].object.parent.name === "grid"){
+        continue;
+      }
+
+      intersects[i].object.userData.pick_ignore = (intersects[i].object.material.opacity < opacity_threshold) ? true : false;
       if (!intersects[i].object.userData.pick_ignore) {
         intersection = intersects[i];
         break;
@@ -745,156 +663,142 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     return vertex_data;
   };
 
-  /**
-  * @doc function
-  * @name viewer.rendering:changeCenterRotation
-  * @param {center} a Vector3 that indigate the new center
-  *
-  * @description
-  * Use to change center of rotation.
-  *
-  *
-  * ```js
-  * viewer.changeCenterRotation(center);
-  * ```
+
+  /*
+    Added by jo.
+
+    The offset is computed based on the model, and then the same offset is
+    applied to all the children of graphicObjects.
+
+    Args:
+      newCenter: THREE.Vector3 - center relative to inside graphicObject
   */
-  viewer.changeCenterRotation = function(center) {
-    var offset     = new THREE.Vector3(0 , 0, 0);
-    // Copy the center into offset, in order to keep center intact
-    // we do not want to manipulate center
-    offset.copy(center);
-    var model      = viewer.model;
+  viewer.changeCenterRotation2 = function(newCenter) {
+    // var scene = viewer.graphicObjects.parent;
+    // moving the model
+    viewer.model.position.sub(newCenter);
 
-    // Adjust the offset value if needed (e.g: if the model was already moved)
-    var offset_old = model.userData.model_center_offset || new THREE.Vector3(0,0,0);
-    offset.x       = -offset_old.x - offset.x;
-    offset.y       = -offset_old.y - offset.y;
-    offset.z       = -offset_old.z - offset.z;
-    offset.negate();
+    // moving the annotation system
+    viewer.annotationSystem.position.sub(newCenter);
 
-    /*
-      Adjsut all the children.
-    */
+    viewer.updated = true;
 
-    // Translate to original place first then translate to new place
-    model.children.forEach(function(children) {
-      // Return if children was not part of the original model (e.g: axes and grid)
-      if (Object.keys(children.userData).length === 0 && children.userData.constructor === Object) { return ; }
-      children.translateX(offset_old.x - offset.x);
-      children.translateY(offset_old.y - offset.y);
-      children.translateZ(offset_old.z - offset.z);
+    // updating the logic shapes with their new coodinates / box
+    viewer.model_data.forEach(function(model_data){
+      viewer.changeCenterRotationModelDataShapes(model_data, newCenter);
     });
 
-    /*
-      Adjsut the parent (a.k.a: the scene)
-    */
-
-    // Unapply previous adjustment to scene position due to user manual rotation (this does nothing / has no effect before 1st rotation)
-    var inverse_matrix = new THREE.Matrix4().getInverse(model.matrix);
-    model.parent.position.applyMatrix4(inverse_matrix);
-
-    // Translate the scene to original position
-    model.parent.translateX(-offset_old.x);
-    model.parent.translateY(-offset_old.y);
-    model.parent.translateZ(-offset_old.z);
-
-    // Compensate scene position for all offsets done to model above
-    model.parent.translateX(offset.x);
-    model.parent.translateY(offset.y);
-    model.parent.translateZ(offset.z);
-
-    // Reapply previous adjustment to scene position due to user manual rotation (this does nothing / has no effect before 1st rotation)
-    inverse_matrix = new THREE.Matrix4().getInverse(model.matrix);
-    model.parent.position.applyMatrix4(model.matrix);
-
-    // Save offset information in userData
-    viewer.model.userData.model_center_offset = offset;
-
-    viewer.updated = true;
+    // to be able to reset to the original position
+    // we place it in the end so it does not affect when
+    // calling resetCenterRotation()
+    viewer.totalOffset.add(newCenter);
   };
 
 
-  /**
-  * @doc function
-  * @name viewer.rendering:modelCentric
-  *
-  * @description
-  * Use to recenter data when userData input is shifted in space.
-  *
-  *
-  * ```js
-  * viewer.modelCentric(true);
-  * ```
+  /*
+    Added by jo.
+
+    place the content to the original position (as encoded in the file)
   */
-  viewer.modelCentric = function() {
-    var model = viewer.model;
-    viewer.findUserDataCentroid(model);
-    var center = model.userData.model_center || new THREE.Vector3(0,0,0);
-
-    // Set Camera position
-    viewer.setCameraPosition(center.x,center.y,center.z);
-
-    // Set center position
-    viewer.changeCenterRotation(center);
-
-    viewer.updated = true;
+  viewer.resetCenterRotation = function(){
+    viewer.totalOffset.negate();
+    viewer.changeCenterRotation2(viewer.totalOffset);
+    viewer.totalOffset.set(0, 0, 0);
   };
 
-  /**
-  * @doc function
-  * @name viewer.rendering:findUserDataCentroid
-  * @param {object} a model.
-  *
-  * @description
-  * Find centroid of the model (only take in account userData).
-  *
-  * @returns {object} The initial information with additionnal model_center argument.
-  *
-  * ```js
-  * viewer.findUserDataCentroid(model);
-  * ```
+
+  /*
+    Change the center of rotation of every logic shapes that are into modelData.
+
+    Args:
+      modelData: model_data instance
+      newCenter: THREE.Vector3 - coordinates to be placed to (0, 0, 0)
   */
-  viewer.findUserDataCentroid = function(model) {
-    // Calculate only if needed
-    if (model.userData.model_center_offset !== undefined) {
-      return;
+  viewer.changeCenterRotationModelDataShapes = function(modelData, newCenter){
+
+    // shifting the local overall bounding box
+    modelData.bounding_box.min_x -= newCenter.x;
+    modelData.bounding_box.min_y -= newCenter.y;
+    modelData.bounding_box.min_z -= newCenter.z;
+    modelData.bounding_box.max_x -= newCenter.x;
+    modelData.bounding_box.max_y -= newCenter.y;
+    modelData.bounding_box.max_z -= newCenter.z;
+
+    // shifiting the bounding boxes and centroids of every inner shapes
+    modelData.shapes.forEach(function(logicShape){
+
+      logicShape.bounding_box.min_x -= newCenter.x;
+      logicShape.bounding_box.min_y -= newCenter.y;
+      logicShape.bounding_box.min_z -= newCenter.z;
+      logicShape.bounding_box.max_x -= newCenter.x;
+      logicShape.bounding_box.max_y -= newCenter.y;
+      logicShape.bounding_box.max_z -= newCenter.z;
+
+      logicShape.centroid.x -= newCenter.x;
+      logicShape.centroid.y -= newCenter.y;
+      logicShape.centroid.z -= newCenter.z;
+    });
+
+  };
+
+
+  /*
+    This will most likely occur at the loading or a new file, while some other files
+    may have already been loaded and experienced a shift (to recenter).
+
+  */
+  viewer.shiftModelDataAccordingly = function(modelData){
+    viewer.changeCenterRotationModelDataShapes(modelData, viewer.totalOffset);
+  };
+
+
+
+  /*
+    Added by Jo.
+
+    return viewer.totalOffset as an array [x, y, z] rather than a THREE.Vector3
+  */
+  viewer.getTotalOffset = function(){
+    return [viewer.totalOffset.x, viewer.totalOffset.y, viewer.totalOffset.z];
+  };
+
+
+
+  // added by JO
+  // TODO: sometimes, a shape has no name, so it can not search for it to rename it.
+  // We should be doing this step in loading.
+  /*
+    Rename a shape (children of model) after having checked
+    the name is not already taken.
+  */
+  viewer.updateShapeName = function(currentName, newName){
+    var renamed = false;
+
+    var shapeToRename = viewer.model.getObjectByName(currentName);
+
+    // checking if the new name is already taken
+    var doesNotExist = !viewer.model.getObjectByName(newName);
+
+    if(doesNotExist && shapeToRename){
+      console.log("renaming " + currentName + " __to__ " + newName);
+      shapeToRename.name = newName;
+      renamed = true;
+    }else {
+      console.log("ERROR renaming " + currentName + " __to__ " + newName);
+      console.log(doesNotExist);
+      console.log(shapeToRename);
     }
 
-    // Calculate bounding box for all children given by the user
-    // ignore other children
-    var min_x, max_x, min_y, max_y, min_z, max_z;
-    min_x = min_y = min_z = Number.POSITIVE_INFINITY;
-    max_x = max_y = max_z = Number.NEGATIVE_INFINITY;
+    console.log("----------------------");
+    return true;
+  };
 
-    model.children.forEach(function(children){
-      var model_name    = children.userData.model_name;
-      var model_data    = viewer.model_data.get(model_name);
 
-      var children_name = children.name;
-      model_data.shapes.forEach(function(shape){
-        if (shape.name !== children_name) {
-          return;
-        }
-        var bounding_box  = shape.bounding_box;
-
-        // min
-        min_x = Math.min(min_x, bounding_box.min_x);
-        min_y = Math.min(min_y, bounding_box.min_y);
-        min_z = Math.min(min_z, bounding_box.min_z);
-        // max
-        max_x = Math.max(max_x, bounding_box.max_x);
-        max_y = Math.max(max_y, bounding_box.max_y);
-        max_z = Math.max(max_z, bounding_box.max_z);
-      });
-
-      // centroid of all the model
-      var centroid = new THREE.Vector3();
-      centroid.x   =  min_x + (max_x - min_x) / 2;
-      centroid.y   =  min_y + (max_y - min_y) / 2;
-      centroid.z   =  min_z + (max_z - min_z) / 2;
-
-      model.userData.model_center  = new THREE.Vector3(centroid.x, centroid.y, centroid.z);
-    });
+  /*
+    Define the callback to use when the model is dragged
+  */
+  viewer.onDragged = function(cb){
+    viewer.onDraggedCallback = cb;
   };
 
   ////////////////////////////////////
@@ -903,7 +807,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
   // Render a single frame on the viewer.
   function renderFrame(timestamp) {
-    var model = viewer.model;
+    var graphicObjects = viewer.graphicObjects;
     var delta;
     var rotation;
     var position = camera.position;
@@ -918,15 +822,15 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     rotation = delta * 0.00015;
 
     if (viewer.autorotate.x) {
-      model.rotation.x += rotation;
+      graphicObjects.rotation.x += rotation;
       viewer.updated = true;
     }
     if (viewer.autorotate.y) {
-      model.rotation.y += rotation;
+      graphicObjects.rotation.y += rotation;
       viewer.updated = true;
     }
     if (viewer.autorotate.z) {
-      model.rotation.z += rotation;
+      graphicObjects.rotation.z += rotation;
       viewer.updated = true;
     }
     if (old_zoom_level !== viewer.zoom) {
@@ -935,10 +839,18 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       viewer.triggerEvent("zoom", { zoom: viewer.zoom });
     }
 
+    if( (viewer.autorotate.x || viewer.autorotate.y || viewer.autorotate.z) && viewer.onDraggedCallback){
+      viewer.onDraggedCallback({
+        goQuaternion: graphicObjects.quaternion.clone(),
+        camPosition: camera.position.clone()
+      });
+    }
+
     if (viewer.updated) {
       if (new_z > camera.near && new_z < 0.9 * camera.far) {
         position.z = new_z;
-        light.position.z = new_z;
+        //light.position.z = new_z;
+        //lightSystem.position.z = new_z + default_camera_distance;
       }
       effect.render(scene, camera);
       viewer.triggerEvent("draw", {
@@ -955,7 +867,8 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   ////////////////////////////////
 
   (function() {
-    var model = viewer.model;
+    var graphicObjects = viewer.graphicObjects;
+
     var movement = "rotate";
     var last_x = null;
     var last_y = null;
@@ -967,7 +880,6 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       var y       = pointer.y;
       var dx, dy;
 
-
       if (last_x !== null) {
         dx = x - last_x;
         dy = y - last_y;
@@ -975,36 +887,40 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
         if (movement === "rotate") {
 
           // Want to always be rotating around world axes.
-          inverse.getInverse(model.matrix);
+          inverse.getInverse(graphicObjects.matrix);
           var axis = new THREE.Vector3(1, 0, 0).applyMatrix4(inverse).normalize();
-          model.rotateOnAxis(axis, dy / 150);
+          graphicObjects.rotateOnAxis(axis, dy / 150);
 
-          inverse.getInverse(model.matrix);
+          inverse.getInverse(graphicObjects.matrix);
           axis = new THREE.Vector3(0, 1, 0).applyMatrix4(inverse).normalize();
-          model.rotateOnAxis(axis, dx / 150);
+          graphicObjects.rotateOnAxis(axis, dx / 150);
 
-          if (viewer.model_data.related_models !== undefined ) {
-            viewer.model_data.related_models.forEach(function(child){
-              child.rotation.x = model.rotation.x;
-              child.rotation.y = model.rotation.y;
-              child.rotation.z = model.rotation.z;
-            });
-          }
         } else {
           multiplier  = multiplier || 1.0;
           multiplier *= camera.position.z / default_camera_distance;
 
           camera.position.x -= dx * multiplier * 0.25;
-          light.position.x  -= dx * multiplier * 0.25;
           camera.position.y += dy * multiplier * 0.25;
-          light.position.y  += dy * multiplier * 0.25;
         }
       }
 
       last_x = x;
       last_y = y;
 
+      // calling a callback (if defined). the event of this callback has 2 objects:
+      //    goQuaternion: THREE.Quaternion - describe the rotation of the graphicObjects
+      //    camPosition: THREE.Vector3 - describe the camera position
+      // both are deep copies, but usually only one of them gets changed (per single call)
+      if(viewer.onDraggedCallback){
+        viewer.onDraggedCallback({
+          goQuaternion: graphicObjects.quaternion.clone(),
+          camPosition: camera.position.clone()
+        });
+      }
+
       viewer.updated = true;
+
+
     }
 
     function touchZoom() {
@@ -1086,6 +1002,3 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   })();
 
 };
-
-
-

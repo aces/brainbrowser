@@ -151,21 +151,54 @@ module.exports = function(grunt) {
           "!src/brainbrowser/workers/gifti-reader.js"
         ]
       },
-      examples: {
+      BrainBrowserSurfaceUI: {
         options: {
           browser: true,
           jquery: true,
           globals: {
             BrainBrowser: true,
-            THREE: true
+            THREE: true,
+            console: true,
+            jscolor: true,
+            saveAs: true,
+            ShapeIndexer: true,
+            AnnotationController: true,
+            ModelLoader: true,
+            VertexIndexingController: true,
+            UriParamController: true,
+            ShowActivation: true,
+            AxisBox: true,
+            ShapeController: true,
+            ShapePicker: true,
+            GridManager: true
           }
         },
         src: [
-          "examples/surface-viewer-demo.js",
-          "examples/volume-viewer-demo.js",
-          "examples/bigbrain-viewer-demo.js",
-          "examples/surface-viewer-demo.config.js",
-          "examples/volume-viewer-demo.config.js",
+          // "BrainBrowserSurfaceUI/js/ModelLoader.js",
+          // "BrainBrowserSurfaceUI/js/ShapeIndexer.js",
+          // "BrainBrowserSurfaceUI/js/ShapePicker.js",
+          // "BrainBrowserSurfaceUI/js/config.js",
+          // "BrainBrowserSurfaceUI/js/AnnotationController.js",
+          // "BrainBrowserSurfaceUI/js/AxisBox.js",
+          // "BrainBrowserSurfaceUI/js/GridManager.js",
+          // "BrainBrowserSurfaceUI/js/ShapeController.js",
+          // "BrainBrowserSurfaceUI/js/UriParamController.js",
+          // "BrainBrowserSurfaceUI/js/VertexIndexingController.js",
+          // "BrainBrowserSurfaceUI/js/core.js",
+          // "BrainBrowserSurfaceUI/js/initialize.js"
+        ]
+      },
+      BrainBrowserVolumeUI: {
+        options: {
+          browser: true,
+          jquery: true,
+          globals: {
+            BrainBrowser: true,
+          }
+        },
+        src: [
+          "BrainBrowserVolumeUI/volume-viewer-demo.js",
+          "BrainBrowserVolumeUI/volume-viewer-demo.config.js",
         ]
       },
       scripts: {

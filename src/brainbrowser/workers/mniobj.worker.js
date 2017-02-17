@@ -30,7 +30,7 @@
 
   var stack;
   var stack_index;
-  
+
   self.addEventListener("message", function(e) {
     var input = e.data;
 
@@ -44,6 +44,7 @@
       vertices: result.vertices,
       normals: result.normals,
       colors: result.colors,
+      color_flag: result.color_flag,
       surface_properties: result.surface_properties,
       split: result.split,
       error: result.error,
@@ -71,7 +72,9 @@
       );
     } else {
       data.shapes = [
-        { indices: result.indices }
+        { indices: result.indices,
+          end_indices: result.end_indices
+         }
       ];
       transfer.push(
         result.indices.buffer
@@ -80,11 +83,11 @@
 
     self.postMessage(data, transfer);
   });
-  
+
   function parse(data, options) {
     stack = data.trim().split(/\s+/).reverse();
     stack_index = stack.length - 1;
-    
+
     var split_hemispheres = options.split;
     var result = {};
     var object_class = popStack();
@@ -92,12 +95,13 @@
     var indices, end_indices;
     var line_indices;
     var line_index_size, line_index_counter;
+    var new_end_indices;
 
     // By default models are not split
     // (this option allows us to split hemispheres
     // into two separate models.)
     result.split = false;
-  
+
     result.type = object_class === "P" ? "polygon" :
                   object_class === "L" ? "line" :
                   object_class;
@@ -122,7 +126,7 @@
     parseColors(result);
     parseEndIndices(result);
     parseIndices(result);
-  
+
     if (result.type === "polygon" ) {
       if (split_hemispheres){
         result.split = true;
@@ -136,45 +140,50 @@
       line_index_size = line_index_counter = 0;
 
       for (i = 0; i < nitems; i++){
-        
+
         if (i === 0){
           start = 0;
         } else {
           start = end_indices[i - 1];
         }
-        
+
         end = end_indices[i];
 
         line_index_size += (end - start - 1) * 2;
       }
-
       line_indices = new Uint32Array(line_index_size);
 
       for (i = 0; i < nitems; i++){
-        
+
         if (i === 0){
           start = 0;
         } else {
           start = end_indices[i - 1];
         }
-        
+
         line_indices[line_index_counter++] = indices[start];
         end = end_indices[i];
-        
+
         for (j = start + 1; j < end - 1; j++) {
           line_indices[line_index_counter++] = indices[j];
           line_indices[line_index_counter++] = indices[j];
         }
-        
+
         line_indices[line_index_counter++] = indices[end - 1];
       }
-      
+
       result.indices = line_indices;
+      // determining line endings in the new result.indices
+      new_end_indices = [];
+      for (i = 0; i < end_indices.length; i++) {
+        new_end_indices[i] = (end_indices[i] - i - 1) * 2;
+      }
+      result.end_indices = new_end_indices;
     }
-  
+
     return result;
   }
-  
+
   function parseSurfProp(result) {
     if (result.type === "polygon") {
       result.surface_properties = {
@@ -190,45 +199,45 @@
       };
     }
   }
-  
+
   function parseVertices(result) {
     var count = result.num_vertices * 3;
     var vertices = new Float32Array(count);
     var i;
-    
+
     for (i = 0; i < count; i++) {
       vertices[i] = parseFloat(popStack());
     }
-    
+
     result.vertices = vertices;
   }
-  
-  
+
+
   function parseNormals(result) {
     var count = result.num_vertices * 3;
     var normals = new Float32Array(count);
     var i;
-    
+
     for (i = 0; i < count; i++) {
       normals[i] = parseFloat(popStack());
     }
-    
+
     result.normals = normals;
   }
-  
+
   function parseColors(result) {
     var color_flag = parseInt(popStack(), 10);
     var colors;
 
     var i, count;
-    
+
     if (color_flag === 0) {
       colors = new Float32Array(4);
       for (i = 0; i < 4; i++){
         colors[i] = parseFloat(popStack());
       }
     } else if (color_flag === 1) {
-      count = result.num_polygons * 4;
+      count = result.num_polygons?result.num_polygons * 4:result.nitems * 4;
       colors = new Float32Array(count);
       for (i = 0; i < count; i++){
         colors[i] = parseFloat(popStack());
@@ -243,35 +252,35 @@
       result.error = true;
       result.error_message = "Invalid color flag: " + color_flag;
     }
-    
+
     result.color_flag = color_flag;
     result.colors = colors;
   }
-  
+
   function parseEndIndices(result) {
     var count = result.nitems;
     var end_indices = new Uint32Array(count);
     var i;
-    
+
     for(i = 0; i < count; i++){
       end_indices[i] = parseInt(popStack(), 10);
     }
-    
+
     result.end_indices = end_indices;
   }
-  
+
   function parseIndices(result) {
     var count = stack_index + 1;
     var indices = new Uint32Array(count);
     var i;
-    
+
     for (i = 0; i < count; i++) {
       indices[i] = parseInt(popStack(), 10);
     }
 
     result.indices = indices;
   }
-  
+
   function splitHemispheres(result) {
     var num_indices = result.indices.length;
 

@@ -536,11 +536,40 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
     if(model_data.colors.length === 4) {
       model_data.colors = unrollColors(model_data.colors, verts.length / 3);
+    } else if (model_data.color_flag === 1) {
+      model_data.vertices = unrollVertices(verts, model_data.shapes[0].indices);
+      model_data.colors   = unrollColorsByLine(model_data.colors, model_data.shapes[0].end_indices);
     }
 
     findCentroid(model_data);
 
     callback(model_data);
+  }
+
+  function unrollColorsByLine(colors, end_indices) {
+    var end = end_indices[end_indices.length - 1];
+    var unrolled_colors = new Float32Array(end * 4);
+    var j = 0, i;
+    for (i = 0; i < end_indices.length; i++){
+      for (; j < end_indices[i]; j++) {
+        unrolled_colors[j*4] = colors[i*4];
+        unrolled_colors[j*4 + 1] = colors[i*4 + 1];
+        unrolled_colors[j*4 + 2] = colors[i*4 + 2];
+        unrolled_colors[j*4 + 3] = colors[i*4 + 3];
+      }
+    }
+    return unrolled_colors;
+  }
+
+  function unrollVertices(vertices, indices) {
+    var unrolled_vertices = new Float32Array(indices.length * 3);
+    for (var i = 0; i < indices.length; i++ ) {
+      unrolled_vertices[i * 3] = vertices[indices[i] * 3];
+      unrolled_vertices[i * 3 + 1] = vertices[indices[i] * 3 + 1];
+      unrolled_vertices[i * 3 + 2] = vertices[indices[i] * 3 + 2];
+      indices[i] = i;
+    }
+    return unrolled_vertices;
   }
 
   function unrollColors(color, num_verts) {
@@ -628,7 +657,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         if (shape_data.indices.length === 0) {
           continue;
         }
-
         if (BrainBrowser.WEBGL_UINT_INDEX_ENABLED) {
           setShapeColors(color_buffer.array, shape_data.color, shape_data.indices);
 
@@ -735,7 +763,6 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         }
       }
     }
-
     geometry.addAttribute("position", position);
 
     if (index) {

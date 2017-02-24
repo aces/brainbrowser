@@ -20,6 +20,7 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *
 * Author: Tarek Sherif  <tsherif@gmail.com> (http://tareksherif.ca/)
+* Author: Natacha Beck <natabeck@gmail.com>
 */
 
 module.exports = function(grunt) {
@@ -189,9 +190,9 @@ module.exports = function(grunt) {
           "BrainBrowserSurfaceUI/js/UriParamController.js",
           "BrainBrowserSurfaceUI/js/VertexIndexingController.js",
           "BrainBrowserSurfaceUI/js/core.js",
-          // "BrainBrowserSurfaceUI/js/ShapeController.js",
-          // "BrainBrowserSurfaceUI/js/GridManager.js",
-          // "BrainBrowserSurfaceUI/js/AnnotationController.js",
+          "BrainBrowserSurfaceUI/js/ShapeController.js",
+          "BrainBrowserSurfaceUI/js/GridManager.js",
+          "BrainBrowserSurfaceUI/js/AnnotationController.js",
           // "BrainBrowserSurfaceUI/js/initialize.js"
         ]
       },

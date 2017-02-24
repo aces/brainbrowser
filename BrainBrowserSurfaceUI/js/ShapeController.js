@@ -125,12 +125,12 @@ var ShapeController = function(BrainBrowserViewer){
 
       // Retrive the shape name, or use a default one
       var shapeName = shape.name;
-      if(typeof shapeName == 'undefined')
+      if(typeof shapeName === 'undefined')
         shapeName = "shape " + index;
 
       // use the color of the shape as the slider background (when color is defined)
       var color = {};
-      if(typeof shape.color == 'undefined'){
+      if(typeof shape.color === 'undefined'){
         color.r = 1;
         color.g = 1;
         color.b = 1;
@@ -158,11 +158,10 @@ var ShapeController = function(BrainBrowserViewer){
       });
 
       // calling the callback with necessary arguments
-      $("#shape_" + that.shapeCounter).on("input change", function(event) {
+      $("#shape_" + that.shapeCounter).on("input change", function() {
 
         var value = $(this).find(".slider").val();
         var previousValue = $(this).find(".slider").attr("previousValue");
-        var fileID = $(this).attr("fileID");
         var shapeNameOverall = $(this).attr("shapeNameOverall");
 
         // asking the viewer to actually change the opacity for this shape
@@ -173,7 +172,7 @@ var ShapeController = function(BrainBrowserViewer){
         var crossedThreshold = ((previousValue - that.opacityThreshold) * (value - that.opacityThreshold)) < 0;
 
         // the slider just crossed the threshold
-        if((crossedThreshold || value == that.opacityThreshold ) && !that.blockOpacityCallback ){
+        if((crossedThreshold || value === that.opacityThreshold ) && !that.blockOpacityCallback ){
           that.opacityCallback(shapeNameOverall);
         }
 
@@ -183,7 +182,7 @@ var ShapeController = function(BrainBrowserViewer){
 
       // sometimes it keeps blinking (I guess it's a bug), we just need to
       // mouse over the element to make it.
-      $("#shape_" + that.shapeCounter).on("mouseover", function(event) {
+      $("#shape_" + that.shapeCounter).on("mouseover", function() {
         $(this).removeClass("blink_me");
       });
 
@@ -244,7 +243,7 @@ var ShapeController = function(BrainBrowserViewer){
 
       $(this).closest(".modelPanel").children().each(function(){
         var visibilityButton = $(this).find(".toggleShape");
-        if( parseInt($(visibilityButton).attr("visible")) == 0 ){
+        if( parseInt($(visibilityButton).attr("visible"),10) === 0 ){
           $(this).find(".toggleShape").trigger("click");
         }
       });
@@ -262,7 +261,7 @@ var ShapeController = function(BrainBrowserViewer){
 
       $(this).closest(".modelPanel").children().each(function(){
         var visibilityButton = $(this).find(".toggleShape");
-        if( parseInt($(visibilityButton).attr("visible")) == 1 ){
+        if( parseInt($(visibilityButton).attr("visible"),10) === 1 ){
           $(this).find(".toggleShape").trigger("click");
         }
       });
@@ -290,7 +289,7 @@ var ShapeController = function(BrainBrowserViewer){
     var sliderCurrentValue = $(slider).val();
 
     // we want to switch off
-    if($(toggleShapeButton).attr("visible") == 1){
+    if($(toggleShapeButton).attr("visible") === 1){
       // saving the value
       $(slider).attr("backupValue", sliderCurrentValue);
       $(slider).val(0);
@@ -380,7 +379,7 @@ var ShapeController = function(BrainBrowserViewer){
       $(slider).trigger("change");
 
       var toggleShapeBt = $("#shape_" + shapeIndex).find(".toggleShape");
-      if( $(toggleShapeBt).attr("visible") == "0" ){
+      if( $(toggleShapeBt).attr("visible") === "0" ){
         $(toggleShapeBt).trigger("click");
       }
 

@@ -8,7 +8,7 @@
   GridManager builds grids that fits the size of the displayed shapes.
 */
 var GridManager = function(BrainBrowserViewer){
-  // "use strict";
+  "use strict";
   // to access shapes and all
   this.viewer = BrainBrowserViewer;
 
@@ -26,7 +26,7 @@ var GridManager = function(BrainBrowserViewer){
   this.gridSystem.name = "grid";
 
   // default value, will be updated by this.defineGridStep()
-  this.gridStepFactor = 1.;
+  this.gridStepFactor = 1.0;
 
   // the grid is not visible by default, a button has to be clicked to show them
   this.gridSystem.visible = false;
@@ -41,11 +41,11 @@ var GridManager = function(BrainBrowserViewer){
 
 
 (function() {
-  //"use strict";
+  "use strict";
   /*
     Define some callback related to the grid
   */
-  GridManager.prototype.initCallbacks = function(t){
+  GridManager.prototype.initCallbacks = function(){
     var that = this;
 
     // SLIDER: grid step factor is changing with the slider
@@ -87,7 +87,7 @@ var GridManager = function(BrainBrowserViewer){
     // reinit the boundingBox
     this.boundingBox = null;
 
-    this.viewer.model_data.forEach(function(model_data, model_name){
+    this.viewer.model_data.forEach(function(model_data){
 
       model_data.shapes.forEach(function(logicShape){
 
@@ -144,7 +144,7 @@ var GridManager = function(BrainBrowserViewer){
     var that = this;
     var shapeNotFound = true;
 
-    this.viewer.model_data.forEach(function(model_data, model_name){
+    this.viewer.model_data.forEach(function(model_data){
 
       model_data.shapes.forEach(function(logicShape){
 
@@ -384,7 +384,7 @@ var GridManager = function(BrainBrowserViewer){
     var yMax = quarterNbStepY * stepSize;
 
     // lines parallel to x axis
-    for(j=yMin; j<yMax; j+=stepSize){
+    for(var j=yMin; j<yMax; j+=stepSize){
       geometry.vertices.push( new THREE.Vector3(xMin, j, 0) );
       geometry.vertices.push( new THREE.Vector3(xMax, j, 0) );
     }
@@ -393,7 +393,7 @@ var GridManager = function(BrainBrowserViewer){
 
 
     // lines parallel to y axis
-    for(i=xMin; i<xMax; i+=stepSize){
+    for(var i=xMin; i<xMax; i+=stepSize){
       geometry.vertices.push( new THREE.Vector3(i, yMin, 0) );
       geometry.vertices.push( new THREE.Vector3(i, yMax, 0) );
     }

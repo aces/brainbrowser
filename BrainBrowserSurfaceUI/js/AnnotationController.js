@@ -342,7 +342,7 @@ var AnnotationController = function(BrainBrowserViewer){
       vector.sub(this.viewer.camera.position).normalize()
     );
 
-    intersects = raycaster.intersectObject(this.annotationSystem, true);
+    var intersects = raycaster.intersectObject(this.annotationSystem, true);
 
     if(intersects.length > 0){
       var id = intersects[0].object.name;
@@ -392,7 +392,7 @@ var AnnotationController = function(BrainBrowserViewer){
     Cancel the work done by enableTarget() -> show the model + normal
     annotation sphere opacity
   */
-  AnnotationController.prototype.disableTarget = function(id){
+  AnnotationController.prototype.disableTarget = function(){
     this.viewer.model.visible = true;
 
     this.annotationSystem.children.forEach(function(annotMesh){

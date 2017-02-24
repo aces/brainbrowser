@@ -53,6 +53,7 @@
 
 */
 var UriParamController = function(){
+  "use strict";
   this.hiddenUI = false;
 
   this.hideUI();
@@ -63,159 +64,160 @@ var UriParamController = function(){
   this.autorotate();
 
 
-}
+};
 
+(function() {
+  "use strict";
+  /*
+    Get the param for the url.
+    Args:
+      key: String - the argument key
 
-/*
-  Get the param for the url.
-  Args:
-    key: String - the argument key
+    return the value as an array of argument. If not found, returns null.
+    Note: number-string are converted to actual numbers and strings are trimed.
+    Note2: args are split by a coma (,), this is why we return an array
+  */
+  UriParamController.prototype.getHashValue = function(key){
+    var matches = location.hash.match(new RegExp(key+'=([^&]*)'));
+    var result = null;
 
-  return the value as an array of argument. If not found, returns null.
-  Note: number-string are converted to actual numbers and strings are trimed.
-  Note2: args are split by a coma (,), this is why we return an array
-*/
-UriParamController.prototype.getHashValue = function(key){
-  var matches = location.hash.match(new RegExp(key+'=([^&]*)'));
-  var result = null;
+    if(matches){
+      result = [];
 
-  if(matches){
-    result = [];
+      matches[1].split(",").forEach(function(elem){
+        // we might get an emptu string but we dont want it
+        if(elem.length > 0){
 
-    matches[1].split(",").forEach(function(elem){
-      // we might get an emptu string but we dont want it
-      if(elem.length > 0){
-
-        // trying to cast it into float
-        if(!Number.isNaN( parseFloat(elem) )){
-          result.push(parseFloat(elem));
-        }else{
-          result.push(elem.trim());
+          // trying to cast it into float
+          if(!Number.isNaN( parseFloat(elem) )){
+            result.push(parseFloat(elem));
+          }else{
+            result.push(elem.trim());
+          }
         }
+      });
+    }
+
+    return result;
+  };
+
+
+
+  /*
+    Hide the UI elements to leave only the main window with 3D shapes and all.
+  */
+  UriParamController.prototype.hideUI = function(){
+    var hide = this.getHashValue("hideUI");
+
+    if(hide){
+
+      if(hide[0]){
+        this.hiddenUI = true;
+        $("#rightSidebar").hide();
+        $("#leftSidebar").hide();
+        $("#hideRight").hide();
+        $("#hideLeft").hide();
+        $(".logo").hide();
       }
-    })
-  }
-
-  return result;
-}
-
-
-
-/*
-  Hide the UI elements to leave only the main window with 3D shapes and all.
-*/
-UriParamController.prototype.hideUI = function(){
-  var hide = this.getHashValue("hideUI");
-
-  if(hide){
-
-    if(hide[0]){
-      this.hiddenUI = true;
-      $("#rightSidebar").hide();
-      $("#leftSidebar").hide();
-      $("#hideRight").hide();
-      $("#hideLeft").hide();
-      $(".logo").hide();
     }
-  }
-}
+  };
 
 
-/*
-  Check the URL to load annotations files
-*/
-UriParamController.prototype.annotations = function(){
-  var annotations = this.getHashValue("annotations");
+  /*
+    Check the URL to load annotations files
+  */
+  UriParamController.prototype.annotations = function(){
+    var annotations = this.getHashValue("annotations");
 
-  if(annotations){
-    annotations.forEach(function(annot){
-      annotationController.loadAnnotationFromURL(annot);
-    });
-  }
-}
-
-
-/*
-  Loads some model files from the URL
-*/
-UriParamController.prototype.models = function(){
-  var models = this.getHashValue("models");
-
-  if(models){
-    models.forEach(function(model){
-      //document.getElementById("modelOpener").value = model;
-      $( "#modelOpener" ).attr("alternativeValue", model);
-      modelLoader.newModelToLoadURL(model)
-    });
-  }
-
-}
-
-
-/*
-  Activate auto rotation
-*/
-UriParamController.prototype.autorotate = function(){
-  var autorotate = this.getHashValue("autorotate");
-
-  if(autorotate){
-    autorotate.forEach(function(axis){
-      $( ".autorotate[axis=\"" + axis + "\"]" ).trigger("click");
-    });
-  }
-}
-
-
-/*
-  Activate auto rotation
-*/
-UriParamController.prototype.grid = function(){
-  var grid = this.getHashValue("grid");
-
-  if(grid){
-    if(grid[0]){
-      $( "#gridToggleBt" ).trigger("click");
+    if(annotations){
+      annotations.forEach(function(annot){
+        annotationController.loadAnnotationFromURL(annot);
+      });
     }
-  }
-}
+  };
 
 
-/*
-  Show the axis depending
-*/
-UriParamController.prototype.axis = function(){
-  var axis = this.getHashValue("axis");
+  /*
+    Loads some model files from the URL
+  */
+  UriParamController.prototype.models = function(){
+    var models = this.getHashValue("models");
 
-  if(axis){
-    if(axis[0]){
-      $( "#axesToggleBt" ).trigger("click");
+    if(models){
+      models.forEach(function(model){
+        //document.getElementById("modelOpener").value = model;
+        $( "#modelOpener" ).attr("alternativeValue", model);
+        modelLoader.newModelToLoadURL(model);
+      });
     }
-  }
-}
+  };
 
 
-UriParamController.prototype.hasHiddenUI = function(){
-  return this.hiddenUI;
-}
+  /*
+    Activate auto rotation
+  */
+  UriParamController.prototype.autorotate = function(){
+    var autorotate = this.getHashValue("autorotate");
+
+    if(autorotate){
+      autorotate.forEach(function(axis){
+        $( ".autorotate[axis=\"" + axis + "\"]" ).trigger("click");
+      });
+    }
+  };
+
+
+  /*
+    Activate auto rotation
+  */
+  UriParamController.prototype.grid = function(){
+    var grid = this.getHashValue("grid");
+
+    if(grid){
+      if(grid[0]){
+        $( "#gridToggleBt" ).trigger("click");
+      }
+    }
+  };
+
+
+  /*
+    Show the axis depending
+  */
+  UriParamController.prototype.axis = function(){
+    var axis = this.getHashValue("axis");
+
+    if(axis){
+      if(axis[0]){
+        $( "#axesToggleBt" ).trigger("click");
+      }
+    }
+  };
+
+
+  UriParamController.prototype.hasHiddenUI = function(){
+    return this.hiddenUI;
+  };
 
 
 
-/*
-  Loads intensity data file and a color map file.
-  We dont necessary need to specify both in argument.
-*/
-UriParamController.prototype.intensityAndColormap = function(){
-  var intensity = this.getHashValue("intensity");
+  /*
+    Loads intensity data file and a color map file.
+    We dont necessary need to specify both in argument.
+  */
+  UriParamController.prototype.intensityAndColormap = function(){
+    var intensity = this.getHashValue("intensity");
 
-  if(intensity){
-    vertexIndexingController.loadIntensityDataFromURL(intensity[0]);
-  }
+    if(intensity){
+      vertexIndexingController.loadIntensityDataFromURL(intensity[0]);
+    }
 
 
-  var colorMap = this.getHashValue("colorMap");
+    var colorMap = this.getHashValue("colorMap");
 
-  if(colorMap){
-    vertexIndexingController.loadColorMapFromURL(colorMap[0]);
-  }
+    if(colorMap){
+      vertexIndexingController.loadColorMapFromURL(colorMap[0]);
+    }
 
-}
+  };
+})();

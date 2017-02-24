@@ -8,7 +8,6 @@
 
 // the shapeController is the tabbed panel that shows
 // all the shapes with opacity slider.
-var THREE = null;
 var shapeController = null;
 var modelLoader = null;
 var shapePicker = null;
@@ -16,9 +15,6 @@ var annotationController = null;
 
 // Deals with grid display and size
 var gridManager = null;
-
-// Box that shows the axes orientation on the left column
-var axisBox = null;
 
 // reads the URI to
 var uriParamController = null;
@@ -31,6 +27,7 @@ var bbViewer = null;
 
 
 $(function() {
+  "use strict";
 
   // init hbs, preload templates, build some objects that dont need viewer
   init();
@@ -47,19 +44,19 @@ $(function() {
     viewer.render();
 
     // deals with file loading
-    modelLoader = new ModelLoader(viewer);
+    modelLoader              = new ModelLoader(viewer);
 
     // Deals with opacity sliders
-    shapeController = new ShapeController(viewer);
+    shapeController          = new ShapeController(viewer);
 
     // deals with picking shapes
-    shapePicker = new ShapePicker(viewer);
+    shapePicker              = new ShapePicker(viewer);
 
     // tool to build the grids
-    gridManager = new GridManager(viewer);
+    gridManager              = new GridManager(viewer);
 
     // manage all the annotation system
-    annotationController = new AnnotationController(viewer);
+    annotationController     = new AnnotationController(viewer);
 
     vertexIndexingController = new VertexIndexingController(viewer);
 

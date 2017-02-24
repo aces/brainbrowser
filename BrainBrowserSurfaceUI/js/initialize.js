@@ -25,7 +25,7 @@ function init(){
   $('#about').hbsAppend('about', {});
 
 
-   
+
 
 }
 
@@ -113,7 +113,7 @@ function definesEventCallbacks(){
 
       // doesnt necessary draw (in case of hidden) but addapt the size anyway
       bbViewer.updateAxes();
-  });
+    });
 
 
   // updated the quaternion of the axis box,

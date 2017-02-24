@@ -62,7 +62,7 @@
 *
 * var name = BrainBrowser.get("color_maps.spectral.name");
 * ```
-* Namespaces are implemented as objects, so if a namespace is 
+* Namespaces are implemented as objects, so if a namespace is
 * requested with **get**, the namespace object will be
 * returned. Using the previous **set**, the following **get**:
 *
@@ -87,7 +87,7 @@
 * available in the current browser.
 * @property {boolean} WEBGL_ENABLED Indicates whether WebGL is available
 * in the current browser.
-* @property {boolean} WEBGL_UINT_INDEX_ENABLED Indicates whether the WebGL 
+* @property {boolean} WEBGL_UINT_INDEX_ENABLED Indicates whether the WebGL
 * OES\_element\_index\_uint extension is available in the current browser.
 * @property {object} utils General utilities for all applications.
 * @property {object} events Event handler functions.
@@ -101,8 +101,8 @@
 */
 (function() {
   "use strict";
- 
-  
+
+
   var version = "<%= BRAINBROWSER_VERSION %>";
   version = version.indexOf("BRAINBROWSER_VERSION") > 0 ? "D.E.V" : version;
 
@@ -159,5 +159,3 @@
   }
 
 })();
-
-

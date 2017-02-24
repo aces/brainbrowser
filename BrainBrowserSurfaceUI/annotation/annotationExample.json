@@ -1,0 +1,114 @@
+{
+	"date": "2016-10-05T15:15:35.689Z",
+	"annotations": [
+		{
+			"name": "A Point",
+			"points": [
+				[
+					25.956370255536697,
+					-3.6340089457610976,
+					5.397848551139876
+				]
+			],
+			"isClosed": false,
+			"description": "This is a single point because it contains only one coordinate.",
+			"color": "EE0000"
+		},
+		{
+			"name": "A closed polygon",
+			"points": [
+				[
+					0,
+					0,
+					0
+				],
+				[
+					0,
+					10,
+					0
+				],
+				[
+					10,
+					10,
+					0
+				],
+				[
+					10,
+					-10,
+					0
+				],
+				[
+					-10,
+					-10,
+					0
+				],
+				[
+					-10,
+					20,
+					0
+				],
+				[
+					20,
+					20,
+					0
+				],
+				[
+					20,
+					-10,
+					0
+				]
+			],
+			"isClosed": true,
+			"description": "A closed polygon contains more than one coordinates and has its attribute isClosed set to true",
+			"color": "B74AFF"
+		},
+		{
+			"name": "An polyline",
+			"points": [
+				[
+					0,
+					0,
+					50
+				],
+				[
+					0,
+					10,
+					50
+				],
+				[
+					10,
+					10,
+					50
+				],
+				[
+					10,
+					-10,
+					50
+				],
+				[
+					-10,
+					-10,
+					50
+				],
+				[
+					-10,
+					20,
+					50
+				],
+				[
+					20,
+					20,
+					50
+				],
+				[
+					20,
+					-10,
+					50
+				]
+			],
+			"isClosed": false,
+			"description": "A polyline contains more than one coordinates and has its attribute isClosed set to false",
+			"color": "B7FF4A"
+		}
+	]
+}

@@ -1,0 +1,352 @@
+textarea, input { outline: none; }
+
+textarea { resize:vertical ; }
+
+p{
+  color: hsl(196, 100%, 35%);
+}
+
+a{
+  color: hsl(16, 100%, 50%);
+  text-decoration: none;
+  animation: all 0.2s;
+}
+
+a:hover{
+  text-decoration: underline;
+}
+
+/* Regular buttons */
+.buttonBB{
+  border: 1px solid hsl(196, 100%, 70%);
+  padding: 5px;
+  text-align: center;
+  color: hsl(196, 100%, 40%);
+  margin-top: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+
+.buttonBB:hover{
+  background-color: hsla(196, 100%, 100%, 0.8);
+}
+
+.buttonBB:active{
+  background-color: hsla(196, 100%, 40%, 0.8);
+  color: #FFF;
+  border-color: #FFF;
+}
+
+
+/* div containing 2 buttons */
+.twoButtons{
+  display: flex;
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+.twoButtons .buttonBB{
+  margin-left:0;
+  margin-right: 0;
+  width: 45%;
+}
+
+.twoButtons :nth-child(1){
+  margin-right: 5px;
+}
+
+.twoButtons :nth-child(2){
+  margin-left: 5px;
+}
+
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;           /* Non-prefixed version, currently
+                                  not supported by any browser */
+}
+
+
+
+.commonTextField{
+  color: hsl(196, 100%, 45%);
+  width: calc(100% - 30px);
+  padding: 5px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 15px;
+  box-sizing:border-box;
+  border: 1px solid hsla(196, 100%, 70%, 0.0);
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.75);
+}
+
+
+.dropdownMenu{
+  margin-left: 13px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 2px;
+  filter: sepia(100) hue-rotate(166deg);
+  width: calc(100% - 2*13px);
+  box-sizing:border-box;
+}
+
+
+
+.sixButtons{
+  display: flex;
+  margin-left: 15px;
+  margin-right: 15px;
+
+}
+
+.sixButtons .buttonBB{
+  width: calc(16.6% - 5px);
+  margin-left: 0px;
+  margin-right: 10px;
+}
+
+.sixButtons :nth-last-child(1){
+  margin-right: 0px;
+}
+
+
+
+.separator{
+  border: none;
+  border-top: 1px dashed hsla(196, 100%, 70%, 1);
+  margin: 10px 0 10px 0;
+}
+
+
+.label{
+  padding: 5px;
+  text-align: center;
+  color: hsl(196, 100%, 40%);
+  white-space: nowrap;
+}
+
+
+.labelAndDropdown{
+  display: flex;
+  margin-left: 15px;
+  margin-right: 15px;
+  position: relative;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  height: 25px;
+  /*left: -15px;*/
+}
+
+.labelAndDropdown *{
+  text-align: left;
+  position: absolute;
+  top: 0;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+
+
+
+.labelAndDropdown .label{
+left:0;
+width: 50%;
+padding-left: 0;
+}
+
+.labelAndDropdown .dropdownMenu{
+right:0;
+width: 50%;
+}
+
+
+
+.opacityWidget{
+  width: calc(100% - 30px);
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.opacityWidget .aligned{
+  display: flex;
+}
+
+
+.opacityWidget .name{
+  margin-bottom: 10px;
+}
+
+.opacityWidget .opacityLogo{
+  color: #000;
+}
+
+.opacityWidget input[type="range"]{
+  /*background-color: rgb(128, 255, 158);*/
+}
+
+.opacityWidget .separator{
+  width: calc(100% - 15px);
+}
+
+.opacityWidget .aligned .buttonBB{
+  margin: 0;
+  margin-top: -5px;
+  width: 100%;
+  margin-left: 10px;
+}
+
+
+.disabled{
+  opacity: 0.2;
+}
+
+
+.red{
+  color: #B00;
+}
+
+
+
+
+
+.LabelAndThreeButtons{
+  position: relative;
+  margin-left: 15px;
+  margin-right: 15px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  height: 30px;
+  /*left: -15px;*/
+}
+
+.LabelAndThreeButtons .threeButtons{
+  width: 50%;
+  display: flex;
+  justify-content: flex-end;
+  position: absolute;
+  right: 0;
+}
+
+.LabelAndThreeButtons .threeButtons .buttonBB{
+  margin: 0;
+  width: 33%;
+}
+
+.LabelAndThreeButtons .threeButtons :nth-child(2){
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.LabelAndThreeButtons .label{
+  padding-left: 0;
+  text-align: left;
+  width: 50%;
+  position: absolute;
+  left: 0;
+}
+
+
+.hidden{
+  display: none;
+}
+
+
+.colorFocused{
+
+}
+
+
+.blink_me {
+  /*animation: blinker 0.5s linear infinite;*/
+  animation: blinker 0.5s linear infinite;
+  /*animation-iteration-count: 2;*/
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0.2;
+    background-color: hsl(196, 100%, 50%)
+  }
+}
+
+
+.activated{
+  background-color: hsl(196, 100%, 80%);
+}
+
+
+/* to disable a div that acts like a button / checkbox */
+.disabled{
+  pointer-events:none;
+  opacity: 0.33;
+}
+
+
+.backgroundHover{
+  background-color: transparent;
+  transition: all 0.3s;
+}
+
+.backgroundHover:hover{
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+
+
+.fieldAndSlider{
+  width: 100%;
+  display: flex;
+}
+
+
+.fieldAndSlider .label{
+  width: 80px;
+  margin-left: 15px;
+  text-align: left;
+  padding-left: 0;
+  padding-bottom: 7px;
+}
+
+
+.fieldAndSlider input[type="text"]{
+  width: 40px;
+  margin-right: 5px;
+  border: none;
+  margin-left: 15px;
+  text-align: center;
+  font-size: inherit;
+  color: inherit;
+  margin-left: 0;
+}
+
+.fieldAndSlider input[type="range"]{
+  width: 135px;
+}
+
+
+.key{
+  background-color: hsl(245, 100%, 91%);
+  padding: 1px 8px 2px 8px;
+  border-radius: 4px;
+  border-bottom-style: solid;
+  border-bottom-color: hsl(245, 100%, 83%);
+  border-bottom-width: 3px;
+  border-right-style: solid;
+  border-right-color: hsl(245, 100%, 83%);
+  border-right-width: 1px;
+  color: hsl(245, 100%, 76%);
+}

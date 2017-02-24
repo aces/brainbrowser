@@ -51,7 +51,7 @@
 
       return !!gl.getExtension(name);
     },
-    
+
     /**
     * @doc function
     * @name BrainBrowser.utils:webGLErrorMessage
@@ -69,14 +69,14 @@
       text += window.WebGLRenderingContext ? 'Your browser seems to support it, but it is <br/> disabled or unavailable.<br/>' :
               "Your browser does not seem to support it.<br/>";
       text += 'Test your browser\'s WebGL support <a href="http://get.webgl.org/">here</a>.';
-      
+
       elem = document.createElement("div");
       elem.id = "webgl-error";
       elem.innerHTML = text;
-          
+
       return elem;
     },
-    
+
     /**
     * @doc function
     * @name BrainBrowser.utils:isFunction
@@ -109,7 +109,7 @@
       return !isNaN(parseFloat(n));
     },
 
-    /** 
+    /**
     * @doc function
     * @name viewer.color:createDataURL
     * @param {any} data The data to create a URL for.
@@ -148,12 +148,12 @@
     /**
     * @doc function
     * @name BrainBrowser.utils:min
-    * @param {array|multiple} arguments List of items to processed. Can be given 
+    * @param {array|multiple} arguments List of items to processed. Can be given
     * as an array or directly as arguments.
     * @returns {any} The smallest element of the given list.
     *
     * @description
-    * Find the smallest item in a list. List can be passed as an array or 
+    * Find the smallest item in a list. List can be passed as an array or
     * directly as arguments.
     * ```js
     * BrainBrowser.utils.min(1, 2, 17 143 12 42);
@@ -174,12 +174,12 @@
     /**
     * @doc function
     * @name BrainBrowser.utils:max
-    * @param {array|multiple} arguments List of items to processed. Can be given 
+    * @param {array|multiple} arguments List of items to processed. Can be given
     * as an array or directly as arguments.
     * @returns {any} The largenst element of the given list.
     *
     * @description
-    * Find the largest item in a list. List can be passed as an array or 
+    * Find the largest item in a list. List can be passed as an array or
     * directly as arguments.
     * ```js
     * BrainBrowser.utils.max(1, 2, 17 143 12 42);
@@ -188,7 +188,7 @@
     max: function() {
       var array = Array.prototype.slice.call(arguments);
       array = array.length === 1 && BrainBrowser.utils.isNumeric(array[0].length) ? array[0] : array;
-      
+
       var max = array[0];
       var i, count;
       for (i = 1, count = array.length; i < count; i++) {
@@ -204,7 +204,7 @@
     * @returns {object} An object containing the given element's offet info:
     *
     * * **top**: offset from the top of the window.
-    * * **left**: offset from the left side of the window. 
+    * * **left**: offset from the left side of the window.
     *
     * @description
     * Return offset information about the given element.
@@ -215,14 +215,14 @@
     getOffset: function(element) {
       var top = 0;
       var left = 0;
-      
+
       while (element.offsetParent) {
         top += element.offsetTop;
         left += element.offsetLeft;
-        
+
         element = element.offsetParent;
       }
-      
+
       return {top: top, left: left};
     },
 
@@ -243,19 +243,8 @@
       var mouse = { x: 0, y: 0, left: false, middle: false, right: false};
 
       document.addEventListener("mousemove", function(event) {
-        var offset = BrainBrowser.utils.getOffset(element);
-        var x, y;
-
-        if (event.pageX !== undefined) {
-          x = event.pageX;
-          y = event.pageY;
-        } else {
-          x = event.clientX + window.pageXOffset;
-          y = event.clientY + window.pageYOffset;
-        }
-
-        mouse.x = x - offset.left;
-        mouse.y = y - offset.top;
+        mouse.x = event.layerX;
+        mouse.y = event.layerY;
       }, false);
 
       element.addEventListener("mousedown", function(event) {
@@ -336,19 +325,19 @@
           }
 
           touches[i] = touches[i] || {};
-          
+
           touches[i].x = x - offset.left;
           touches[i].y = y - offset.top;
         }
       }
-      
+
       element.addEventListener("touchstart", updateTouches, false);
       element.addEventListener("touchmove", updateTouches, false);
       element.addEventListener("touchend", updateTouches, false);
-      
+
       return touches;
     }
-  
+
   };
 
 })();

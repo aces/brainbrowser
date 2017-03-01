@@ -54,6 +54,18 @@ function definesEventCallbacks(){
     var shapeNameOverall = shapeInfo.object.name;
     shapeController.focusOnSlider(shapeInfo.object.name);
 
+    // Display vertex information
+    var vertexInfo = viewer.pick();
+    $("#vertexInfo").html('<div class="label">Selected point information</div>'                             +
+                          '<br>'                                                                            +
+                          '<div class="vertex">Shape name: ' + vertexInfo.object.name            + '</div>' +
+                          '<div class="vertex">X: '          + vertexInfo.point.x.toPrecision(4) + '</div>' +
+                          '<div class="vertex">Y: '          + vertexInfo.point.y.toPrecision(4) + '</div>' +
+                          '<div class="vertex">Z: '          + vertexInfo.point.z.toPrecision(4) + '</div>' +
+                          '<div class="vertex">Index: '      + vertexInfo.index                  + '</div>' +
+                          '<div class="separator"></div>'
+                         );
+
     // display the label of the shape if:
     // - vertex indexing data were loaded
     // - vertex labeling data were loaded
@@ -77,7 +89,7 @@ function definesEventCallbacks(){
   // a custom raycaster that allow picking the model + the annotation system.
   shapePicker.ctrlAndShiftPickModelAndAnnot(function(intersectModel, intersectAnnot){
 
-    // SHOW an annoation
+    // SHOW an annotation
     if( (intersectAnnot && !intersectModel) ||
         (intersectAnnot  && intersectModel && intersectAnnot.distance < intersectModel.distance)
       ){
@@ -302,7 +314,7 @@ function defineUiCallbacks(){
 } /* END OF defineUiCallbacks() */
 
 
-// just add some arker blue background to a button when clicked,
+// just add some darker blue background to a button when clicked,
 // and removes it when clicked again
 function showActivation(jqElem){
   if( $(jqElem).hasClass("activated") ){

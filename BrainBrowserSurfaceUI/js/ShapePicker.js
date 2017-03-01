@@ -41,10 +41,10 @@ var ShapePicker = function(BrainBrowserViewer){
   /*
     Implement a raycaster that is supposed to intersect with the model AND the
     annotations shapes (spheres and potentially polylines/polygons), while the
-    picker from the core only intersect with the model (making it impossbile to
+    picker from the core only intersect with the model (making it impossible to
     pick the annotations).
 
-    The intersection with the model and the annotationSystem are done ni two steps
+    The intersection with the model and the annotationSystem are done in two steps
     so that the results are not mixed up.
 
     Args:
@@ -85,7 +85,7 @@ var ShapePicker = function(BrainBrowserViewer){
 
 
   /*
-    Perform a pick and call the callback only it the SHIFT key was pressed.
+    Perform a pick and call the callback only if the SHIFT key was pressed.
   */
   ShapePicker.prototype.shiftPick = function(callback){
     this.genericPick(function(event, shapeInfo){
@@ -98,7 +98,7 @@ var ShapePicker = function(BrainBrowserViewer){
 
 
   /*
-    Perform a pick and call the callback only it the CTRL key was pressed.
+    Perform a pick and call the callback only if the CTRL key was pressed.
     Works with CMD on mac.
   */
   ShapePicker.prototype.ctrlPick = function(callback){
@@ -112,15 +112,15 @@ var ShapePicker = function(BrainBrowserViewer){
 
 
   /*
-    Perform a pick and call the callback only it the CTRL key was pressed.
+    Perform a pick and call the callback only if the CTRL+Shift key was pressed.
     Works with CMD on mac.
 
-    Contrary to ctrlAndShiftPickScene, takes only ontersection to model!
+    Contrary to ctrlAndShiftPickModelAndAnnot, takes only intersection to model!
   */
   ShapePicker.prototype.ctrlAndShiftPick = function(callback){
     this.genericPick(function(event, shapeInfo){
       if((event.ctrlKey || event.metaKey) &&  event.shiftKey){
-        console.log("both shift AND ctrl/cmd");
+        console.log("both shift AND ctrl/cmd in ctrlAndShiftPick");
         callback(shapeInfo);
       }
     });
@@ -128,7 +128,7 @@ var ShapePicker = function(BrainBrowserViewer){
 
 
   /*
-    Perform a pick and call the callback only it the CTRL key was pressed.
+    Perform a pick and call the callback only if the CTRL+Shift key was pressed.
     Works with CMD on mac.
 
     Contrary to ctrlAndShiftPick, this one takes all the children of the scene.
@@ -136,7 +136,7 @@ var ShapePicker = function(BrainBrowserViewer){
   ShapePicker.prototype.ctrlAndShiftPickModelAndAnnot = function(callback){
     this.genericPickModelAndAnnot(function(event, intersectModel, intersectAnnot){
       if((event.ctrlKey || event.metaKey) &&  event.shiftKey){
-        console.log("both shift AND ctrl/cmd");
+        console.log("both shift AND ctrl/cmd in ctrlAndShiftPickModelAndAnnot");
         callback(intersectModel, intersectAnnot);
       }
     });

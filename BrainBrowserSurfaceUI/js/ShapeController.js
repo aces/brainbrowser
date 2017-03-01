@@ -284,12 +284,12 @@ var ShapeController = function(BrainBrowserViewer){
   */
   ShapeController.prototype.toggleShape = function(toggleShapeButton){
     //$("#leftSidebar").slideToggle("fast");
-    var slider = $(toggleShapeButton).siblings().find(".slider");
+    var slider  = $(toggleShapeButton).siblings().find(".slider");
     var eyeicon = $(toggleShapeButton).find(".eyeicon");
     var sliderCurrentValue = $(slider).val();
 
     // we want to switch off
-    if($(toggleShapeButton).attr("visible") === 1){
+    if(parseInt($(toggleShapeButton).attr("visible"),10) === 1){
       // saving the value
       $(slider).attr("backupValue", sliderCurrentValue);
       $(slider).val(0);

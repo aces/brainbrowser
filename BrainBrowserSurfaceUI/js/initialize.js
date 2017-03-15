@@ -54,17 +54,15 @@ function definesEventCallbacks(){
     var shapeNameOverall = shapeInfo.object.name;
     shapeController.focusOnSlider(shapeInfo.object.name);
 
-    // Display vertex information
-    var vertexInfo = viewer.pick();
-    $("#vertexInfo").html('<div class="label">Selected point information</div>'                             +
-                          '<br>'                                                                            +
-                          '<div class="vertex">Shape name: ' + vertexInfo.object.name            + '</div>' +
-                          '<div class="vertex">X: '          + vertexInfo.point.x.toPrecision(4) + '</div>' +
-                          '<div class="vertex">Y: '          + vertexInfo.point.y.toPrecision(4) + '</div>' +
-                          '<div class="vertex">Z: '          + vertexInfo.point.z.toPrecision(4) + '</div>' +
-                          '<div class="vertex">Index: '      + vertexInfo.index                  + '</div>' +
-                          '<div class="separator"></div>'
-                         );
+    // Vertex information
+    pick_info = viewer.pick();
+    $("#pick-name").html(pick_info.object.name);
+    $("#pick-x").html(pick_info.point.x.toPrecision(4));
+    $("#pick-y").html(pick_info.point.y.toPrecision(4));
+    $("#pick-z").html(pick_info.point.z.toPrecision(4));
+    $("#pick-index").html(pick_info.index);
+
+    viewer.setPickMarker(pick_info.point, 0.3);
 
     // display the label of the shape if:
     // - vertex indexing data were loaded
@@ -89,7 +87,7 @@ function definesEventCallbacks(){
   // a custom raycaster that allow picking the model + the annotation system.
   shapePicker.ctrlAndShiftPickModelAndAnnot(function(intersectModel, intersectAnnot){
 
-    // SHOW an annotation
+    // SHOW an annoation
     if( (intersectAnnot && !intersectModel) ||
         (intersectAnnot  && intersectModel && intersectAnnot.distance < intersectModel.distance)
       ){
@@ -125,7 +123,7 @@ function definesEventCallbacks(){
 
       // doesnt necessary draw (in case of hidden) but addapt the size anyway
       bbViewer.updateAxes();
-    });
+  });
 
 
   // updated the quaternion of the axis box,
@@ -314,7 +312,7 @@ function defineUiCallbacks(){
 } /* END OF defineUiCallbacks() */
 
 
-// just add some darker blue background to a button when clicked,
+// just add some arker blue background to a button when clicked,
 // and removes it when clicked again
 function showActivation(jqElem){
   if( $(jqElem).hasClass("activated") ){

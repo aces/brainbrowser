@@ -263,11 +263,19 @@
       <input id="shapeSearchField" class="commonTextField" value="" placeholder="Find a shape" autocomplete="off" type="text" >
       <div id="shapeLabel" class="label"></div>
 
-
+      <!-- Index information -->
+      <div class="separator"></div>
+      <small>
+        <div class="label">Select a point on the surface(shift-click or touch)</div>
+        <div class="vertex">Shape name: <span id="pick-name"></span></div>
+        <div class="vertex">X: <span id="pick-x"></span></div>
+        <div class="vertex">Y: <span id="pick-y"></span></div>
+        <div class="vertex">Z: <span id="pick-z"></span></div>
+        <div class="vertex">Vertex number: <span id="pick-index"></span></div>
+      </small>
       <div class="separator"></div>
 
-      <!-- Vertex information -->
-      <div id="vertexInfo"></div>
+
 
       <!-- The tab pannel with all the opacity widgets -->
       <div id="loadedFilesTabs" >

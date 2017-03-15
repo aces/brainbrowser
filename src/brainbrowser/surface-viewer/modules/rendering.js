@@ -42,15 +42,15 @@
         |                              |
 +-------+-------+             +--------+---------+
 |  lightSystem  |             |  graphicObjects  +------------+
-+---------------+             +-+-----------+----+            |
-                                |            |                |
-                                |            |                |
-                                |            |                |
-                                |            |                |
-                                |            |                |
-                           +----+-+      +---+---+        +---+---+
-                           | axis |      |  grid |        | model |
-                           +------+      +-------+        +-+-----+
++---------------+     +-------+-+-----------+----+            |
+                      |         |            |                |
+                      |         |            |                |
+                      |         |            |                |
+                      |         |            |                |
+                      |         |            |                |
+           +----------+-+  +----+-+      +---+---+        +---+---+
+           | pickMarker |  | axis |      |  grid |        | model |
+           +------------+  +------+      +-------+        +-+-----+
                                                               |
                                                           +---+----+
                                                           | mesh01 |
@@ -109,6 +109,10 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
   viewer.annotationSystem = new THREE.Object3D();
   viewer.annotationSystem.name = "annotationSystem";
   viewer.graphicObjects.add(viewer.annotationSystem);
+
+  viewer.pickMarker = new THREE.Object3D();
+  viewer.pickMarker.name = "pickMarker";
+  viewer.graphicObjects.add(viewer.pickMarker);
 
   // to set later
   viewer.gridSystem = null;
@@ -343,6 +347,40 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
 
     return line;
   };
+
+  /**
+  * @doc function
+  * @name viewer.rendering:setPickMarker
+  * @param {object} vector3 A Vector3, position of the point
+  * @param {number} radius Radius of the sphere (default: 2).
+  * @param {number} color Color of the sphere as a hexadecimal integer (default: 0xFF0000).
+  *
+  * @description Draw a sphere.
+  * ```js
+  * var vector3 = new THREE.Vector3(1,0,1);
+  * viewer.drawDot(vector3, 0.3, 0x00FF00);
+  * ```
+  */
+  viewer.setPickMarker = function (vector3, radius, color) {
+    radius = radius || 2;
+    radius = radius >= 0 ? radius : 0;
+    color  = color  >= 0 ? color  : 0xFF0000;
+
+    if (viewer.pickMarker.children.length === 0) {
+      var geometry = new THREE.SphereGeometry(radius);
+      var material = new THREE.MeshBasicMaterial({color: color});
+
+      var sphere   = new THREE.Mesh(geometry, material);
+      sphere.position.set(vector3.x, vector3.y, vector3.z);
+
+      viewer.pickMarker.add(sphere);
+      viewer.graphicObjects.add(viewer.pickMarker)
+    } else {
+      viewer.pickMarker.children[0].position.set(vector3.x, vector3.y, vector3.z);
+    }
+
+    viewer.updated = true;
+  }
 
   /**
   * @doc function
@@ -677,6 +715,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     // var scene = viewer.graphicObjects.parent;
     // moving the model
     viewer.model.position.sub(newCenter);
+    viewer.pickMarker.position.sub(newCenter);
 
     // moving the annotation system
     viewer.annotationSystem.position.sub(newCenter);

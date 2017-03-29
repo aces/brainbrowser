@@ -55,14 +55,14 @@ function definesEventCallbacks(){
     shapeController.focusOnSlider(shapeInfo.object.name);
 
     // Vertex information
-    pick_info = viewer.pick();
-    $("#pick-name").html(pick_info.object.name);
-    $("#pick-x").html(pick_info.point.x.toPrecision(4));
-    $("#pick-y").html(pick_info.point.y.toPrecision(4));
-    $("#pick-z").html(pick_info.point.z.toPrecision(4));
-    $("#pick-index").html(pick_info.index);
+    pickInfo = viewer.pick();
+    $("#pick-name").html(pickInfo.object.name);
+    $("#pick-x").html(pickInfo.point.x.toPrecision(4));
+    $("#pick-y").html(pickInfo.point.y.toPrecision(4));
+    $("#pick-z").html(pickInfo.point.z.toPrecision(4));
+    $("#pick-index").html(pickInfo.index);
 
-    viewer.setPickMarker(pick_info.point, 0.3);
+    viewer.setPickMarker(pickInfo.point, 0.3);
 
     // display the label of the shape if:
     // - vertex indexing data were loaded

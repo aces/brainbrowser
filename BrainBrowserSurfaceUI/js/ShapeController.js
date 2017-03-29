@@ -40,6 +40,28 @@ var ShapeController = function(BrainBrowserViewer){
 
     $('#shapeSearchField').autocomplete();
 
+    $("#shapeSearchField").on("keyup", function(e){
+      if(e.which === 13){
+        var vertexValue = $(this).val();
+        if (/^\d+$/.test(vertexValue) === false) { return };
+        var modelName  = $('#tabNames li.ui-state-active')[0].getAttribute('name');
+        var pickInfo   = viewer.pickByVertex(vertexValue, {model_name: modelName});
+
+        // Focus on shape
+        var shapeNameOverall = pickInfo.object.name;
+        if (that.shapeIndexer.hasShape(shapeNameOverall) === false){ return };
+        that.focusOnSlider(shapeNameOverall);
+        // Vertex information
+        $("#pick-name").html(shapeNameOverall);
+        $("#pick-x").html(pickInfo.point.x.toPrecision(4));
+        $("#pick-y").html(pickInfo.point.y.toPrecision(4));
+        $("#pick-z").html(pickInfo.point.z.toPrecision(4));
+        $("#pick-index").html(pickInfo.index);
+
+        viewer.setPickMarker(pickInfo.point, 0.3);
+      }
+    });
+
     // Set focus on the opacity widget related to the field just clicked
     $('#shapeSearchField').autocomplete({
       select: function( event, ui ) {
@@ -75,7 +97,7 @@ var ShapeController = function(BrainBrowserViewer){
   };
 
   /*
-    Loads the IU components related to a new file
+    Loads the UI components related to a new file
   */
   ShapeController.prototype.loadFile = function(loadEvent, filename){
 
@@ -84,7 +106,8 @@ var ShapeController = function(BrainBrowserViewer){
     // adding the tab button
     $('#tabNames').hbsAppend('tabName', {
       fileID: this.fileCounter,
-      fileName: filename
+      fileName: filename,
+      modelName: loadEvent.model_data.name || "",
     });
 
     // adding the tab basic content
@@ -326,10 +349,10 @@ var ShapeController = function(BrainBrowserViewer){
     if(this.shapeIndexer.hasShape(shapeNameOverall)){
 
       var shapeOverallIndex = this.shapeIndexer.getShapeOverallIndex(shapeNameOverall);
-      var shapeFileIndex = this.shapeIndexer.getShapeFileIndex(shapeNameOverall);
+      var shapeFileIndex    = this.shapeIndexer.getShapeFileIndex(shapeNameOverall);
 
-      var opacityWidgetID = "shape_" + shapeOverallIndex;
-      var panelID = "linkModel_" + shapeFileIndex;
+      var opacityWidgetID   = "shape_"     + shapeOverallIndex;
+      var panelID           = "linkModel_" + shapeFileIndex;
 
       $("#" + panelID).trigger("click");
 

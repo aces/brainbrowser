@@ -178,11 +178,41 @@ function defineUiCallbacks(){
   });
 
 
-  // to slide the left pannel
+  // handle the grid UI
   $("#gridToggleBt").click(function(){
+    if (!$("#gridToggleBt").hasClass( "activated")) {
+      $("#gridPlane").css("display","flex");
+      $("#gridStep").css("display","flex");
+      var grids = $(".grid");
+      grids.each(function(id){
+        grids[id].classList.add("activated");
+      });
+    } else {
+      $("#gridPlane").css("display","none")
+      $("#gridStep").css("display","none")
+    }
+
     gridManager.toggleGrid();
     showActivation( this );
   });
+
+  // grid control, works for the 3 of them
+  $(".grid").click(function(){
+    var plane = $(this).attr("plane");
+    showActivation( this );
+
+    if (plane === undefined) {return};
+
+    var grid = undefined;
+    grid     = gridManager.gridSystem.getObjectByName(plane);
+
+    if (grid === undefined) {return};
+
+
+    grid.visible  = this.classList.contains("activated");
+    viewer.updated = true;
+  });
+
 
 
   // the button to unload and reset everything
@@ -229,7 +259,6 @@ function defineUiCallbacks(){
 
     showActivation( this );
   });
-
 
   // select and change the background color
   $("#bgColorMenu").change(function(e){

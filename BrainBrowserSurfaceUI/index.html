@@ -3,7 +3,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title> BigBrainBrowser 2 </title>
+  <title> BrainBrowser Surface Viewer</title>
 
   <!-- jquery -->
   <script src="js_common/vendors/jquery-3.1.0.js"></script>
@@ -134,20 +134,26 @@
 
         <!-- list of 6 buttons -->
         <div class="sixButtons">
-          <div id="resetview" class="buttonBB miniButton noselect" title="Reset orientation"><i class="fa fa-home" aria-hidden="true"></i>
-</div> <!-- reset view -->
-          <div id="gridToggleBt" class="buttonBB miniButton noselect" title="Show/hide the grid"><i class="fa fa-th" aria-hidden="true"></i>
-          </div> <!-- display grid -->
-          <div id="axesToggleBt" class="buttonBB miniButton noselect" title="Show/hide the axes"><i class="fa fa-compass" aria-hidden="true"></i>
-          </div> <!--  toggle axes -->
-          <div id="toggleWireFrameBt" class="buttonBB miniButton noselect" active="0" title="Toggle the model to wireframe">&#9676;</div>  <!-- wireframe -->
-          <div id="threedeeBt" class="buttonBB miniButton noselect" active="0" title="Enable 3D stereoscopic effect">&#128526;</div> <!--  3D glasses -->
-          <div id="saveCaptureBt" class="buttonBB miniButton noselect" title="Take a screenshot"><i class="fa fa-camera" aria-hidden="true"></i>
-</div> <!-- snapshot -->
+          <div id="resetview" class="buttonBB miniButton noselect" title="Reset orientation"><i class="fa fa-home" aria-hidden="true"></i></div>        <!-- reset view -->
+          <div id="gridToggleBt" class="buttonBB miniButton noselect" title="Show/hide the grid"><i class="fa fa-th" aria-hidden="true"></i></div>      <!-- display grid -->
+          <div id="axesToggleBt" class="buttonBB miniButton noselect" title="Show/hide the axes"><i class="fa fa-compass" aria-hidden="true"></i></div> <!--  toggle axes -->
+          <div id="toggleWireFrameBt" class="buttonBB miniButton noselect" active="0" title="Toggle the model to wireframe">&#9676;</div>               <!-- wireframe -->
+          <div id="threedeeBt" class="buttonBB miniButton noselect" active="0" title="Enable 3D stereoscopic effect">&#128526;</div>                    <!--  3D glasses -->
+          <div id="saveCaptureBt" class="buttonBB miniButton noselect" title="Take a screenshot"><i class="fa fa-camera" aria-hidden="true"></i></div>  <!-- snapshot -->
         </div>
 
+        <!-- Individual grid plane toogle -->
+        <div id="gridPlane" class="LabelAndThreeButtons" style="display: none;">
+          <div class="label">Grid</div>
+          <div class="threeButtons">
+            <div class="grid buttonBB noselect" plane="xzPlane">X</div>
+            <div class="grid buttonBB noselect" plane="xyPlane">Y</div>
+            <div class="grid buttonBB noselect" plane="yzPlane">Z</div>
+          </div>
+        </div>
 
-        <div class="fieldAndSlider">
+        <!-- Grid factor -->
+        <div id="gridStep" class="fieldAndSlider" style="display: none;">
           <div class="label">Grid factor:</div>
           <input id="gridStepFactorField" class="backgroundHover" type="text" value="1">
           <input id="gridStepFactorSlider" type="range" min="1" max="5" step="0.01" autocomplete="off" value="1">

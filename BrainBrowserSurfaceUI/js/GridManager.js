@@ -339,13 +339,15 @@ var GridManager = function(BrainBrowserViewer){
     var xNbStep = Math.ceil( (xSize/2) / step );
     var yNbStep = Math.ceil( (ySize/2) / step );
     var zNbStep = Math.ceil( (zSize/2) / step );
-
-    var xyPlaneMesh = this.buildFlatGrid(xNbStep, yNbStep, step, 0x0088ff);
-    xyPlaneMesh.name = "xyPlane";
-    var xzPlaneMesh = this.buildFlatGrid(xNbStep, zNbStep, step, 0x00ff55);
+    // x = red   = 0Xffff33
+    var xzPlaneMesh = this.buildFlatGrid(xNbStep, zNbStep, step, 0xff3333);
     xzPlaneMesh.rotateX(Math.PI / 2);
     xzPlaneMesh.name = "xzPlane";
-    var yzPlaneMesh = this.buildFlatGrid(zNbStep, yNbStep, step, 0xff3333);
+    // y = green = 0x00ff55
+    var xyPlaneMesh = this.buildFlatGrid(xNbStep, yNbStep, step, 0x00ff55);
+    xyPlaneMesh.name = "xyPlane";
+    // z = blue  = 0x0088ff
+    var yzPlaneMesh = this.buildFlatGrid(zNbStep, yNbStep, step, 0x0088ff);
     yzPlaneMesh.rotateY(Math.PI / 2);
     yzPlaneMesh.name = "yzPlane";
 

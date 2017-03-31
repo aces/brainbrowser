@@ -308,8 +308,14 @@ var GridManager = function(BrainBrowserViewer){
 
     // removing (potentially) existing grid components
     var xyPlaneToRemove = this.gridSystem.getObjectByName("xyPlane");
+    var xyVisible       = true;
+    if (xyPlaneToRemove !== undefined) { xyVisible = xyPlaneToRemove.visible }
     var xzPlaneToRemove = this.gridSystem.getObjectByName("xzPlane");
+    var xzVisible       = true;
+    if (xzPlaneToRemove !== undefined) { xzVisible = xzPlaneToRemove.visible }
     var yzPlaneToRemove = this.gridSystem.getObjectByName("yzPlane");
+    var yzVisible       = true;
+    if (yzPlaneToRemove !== undefined) { yzVisible = yzPlaneToRemove.visible }
     this.gridSystem.remove(xyPlaneToRemove);
     this.gridSystem.remove(xzPlaneToRemove);
     this.gridSystem.remove(yzPlaneToRemove);
@@ -339,22 +345,25 @@ var GridManager = function(BrainBrowserViewer){
     var xNbStep = Math.ceil( (xSize/2) / step );
     var yNbStep = Math.ceil( (ySize/2) / step );
     var zNbStep = Math.ceil( (zSize/2) / step );
-    // x = red   = 0Xffff33
-    var xzPlaneMesh = this.buildFlatGrid(xNbStep, zNbStep, step, 0xff3333);
+    // x = green = 0x00ff55
+    var xzPlaneMesh = this.buildFlatGrid(xNbStep, zNbStep, step, 0x00ff55);
     xzPlaneMesh.rotateX(Math.PI / 2);
     xzPlaneMesh.name = "xzPlane";
-    // y = green = 0x00ff55
-    var xyPlaneMesh = this.buildFlatGrid(xNbStep, yNbStep, step, 0x00ff55);
+    // y = blue  = 0x0088ff
+    var xyPlaneMesh = this.buildFlatGrid(xNbStep, yNbStep, step, 0x0088ff);
     xyPlaneMesh.name = "xyPlane";
-    // z = blue  = 0x0088ff
-    var yzPlaneMesh = this.buildFlatGrid(zNbStep, yNbStep, step, 0x0088ff);
+    // z = red   = 0xff3333
+    var yzPlaneMesh = this.buildFlatGrid(zNbStep, yNbStep, step, 0xff3333);
     yzPlaneMesh.rotateY(Math.PI / 2);
     yzPlaneMesh.name = "yzPlane";
 
     // adding the mesh to the grid system object
     this.gridSystem.add( xyPlaneMesh );
+    this.gridSystem.getObjectByName("xyPlane").visible = xyVisible;
     this.gridSystem.add( xzPlaneMesh );
+    this.gridSystem.getObjectByName("xzPlane").visible = xzVisible;
     this.gridSystem.add( yzPlaneMesh );
+    this.gridSystem.getObjectByName("yzPlane").visible = yzVisible;
 
     // compute the bounding sphere (needed for resizing the axes)
     xyPlaneMesh.geometry.computeBoundingSphere();

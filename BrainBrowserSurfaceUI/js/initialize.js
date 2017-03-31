@@ -183,10 +183,6 @@ function defineUiCallbacks(){
     if (!$("#gridToggleBt").hasClass( "activated")) {
       $("#gridPlane").css("display","flex");
       $("#gridStep").css("display","flex");
-      var grids = $(".grid");
-      grids.each(function(id){
-        grids[id].classList.add("activated");
-      });
     } else {
       $("#gridPlane").css("display","none")
       $("#gridStep").css("display","none")
@@ -194,6 +190,20 @@ function defineUiCallbacks(){
 
     gridManager.toggleGrid();
     showActivation( this );
+    // Update the x,y,z button
+    var grids_div = $(".grid");
+    grids_div.each(function(id){
+      var grid_div = grids_div[id];
+      var plane    = grid_div.attributes["plane"].value;
+      var grid     = gridManager.gridSystem.getObjectByName(plane);
+      var isActive = grid_div.classList.contains("activated");
+
+      if (grid.visible === true && isActive === false) {
+        grid_div.classList.add("activated");
+      } else if (grid.visible === false && isActive === true){
+        grid_div.classList.remove("activated");
+      }
+    });
   });
 
   // grid control, works for the 3 of them

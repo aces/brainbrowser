@@ -165,13 +165,13 @@
         <div class="label">Color maps and labeling</div>
 
         <!-- Open button for vertex indexing data -->
-        <div id="openIntensityDataBt" class="buttonBB noselect disabled" onclick="document.getElementById('intensityDataOpener').click()" title="Vertex indexing data are text files that assign a value to each vertex of a model. As a mean to clusterize of classify each vertex, some vertice may be assigned the same value, in other words, the same category." >
+        <div id="openIntensityDataBt" class="buttonBB noselect disabled" onclick="document.getElementById('intensityDataOpener').click()" title="Vertex indexing data are files that assign a value to each vertex of a model. As a mean to clusterize of classify each vertex, some vertice may be assigned the same value, in other words, the same category." >
           <i class="fa fa-list-ol" aria-hidden="true"></i> Open vertex indexing data
         </div>
         <input type="file" id="intensityDataOpener" class="hidden">
 
         <!-- Select filetype -->
-        <div class="labelAndDropdown">
+        <div id="intensityDataFormat" class="labelAndDropdown disabled">
           <div class="label">Data format</div>
           <select id="intensityFormatSelector" class="dropdownMenu" onchange="" autocomplete="off">
             <option value="unknown">unknown</option>
@@ -180,6 +180,12 @@
             <option value="freesurferasc">Freesurfer ASC</option>
             <option value="gifti">GIFTI</option>
           </select>
+        </div>
+
+        <!-- Load -->
+        <div id="reloadIntensity" class="buttonBB noselect disabled">
+          <i class="fa fa-refresh" aria-hidden="true"></i>
+          Load vertex indexing data
         </div>
 
         <!-- Open button for labeling data -->

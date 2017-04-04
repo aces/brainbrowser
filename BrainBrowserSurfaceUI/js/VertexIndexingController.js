@@ -35,6 +35,13 @@ var VertexIndexingController = function(BrainBrowserViewer){
   this.openButton = document.getElementById("intensityDataOpener");
   this.openButton.addEventListener('change', this.newIntensityToLoad.bind(this), false);
 
+  var that = this;
+
+  $("#reloadIntensity").click(function(){
+    var type = document.getElementById("intensityFormatSelector").value;
+    that.loadIntensityFile(document.getElementById("intensityDataOpener"), type);
+  });
+
   $.hbsPreload("colorMapSelector");
 
   this.intensityData = null;
@@ -165,6 +172,7 @@ var VertexIndexingController = function(BrainBrowserViewer){
       this.loadIntensityFile(evt.target, type);
     }else{
       document.getElementById("intensityFormatSelector").value = "unknown";
+      this.enableUiElement("intensityDataFormat");
     }
   };
 

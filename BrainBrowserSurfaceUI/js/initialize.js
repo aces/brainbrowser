@@ -302,6 +302,14 @@ function defineUiCallbacks(){
     });
   });
 
+  $("#intensityFormatSelector").change(function(e){
+    if ($(e.target).val() === "unknown") {
+      $("#reloadIntensity").addClass("disabled");
+    } else {
+      $("#reloadIntensity").removeClass("disabled");
+    }
+  });
+
 
   // the help / about button
   $("#aboutBt").click(function(){

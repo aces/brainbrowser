@@ -59,6 +59,7 @@ var ModelLoader = function(BrainBrowserViewer){
       document.getElementById("modelFormatSelector").value = type;
       this.loadModelFile(evt.target, type);
     }else{
+      document.getElementById('modelFilename').innerHTML   = "Filename: " + file.name;
       document.getElementById("modelFormatSelector").value = "unknown";
     }
   };
@@ -82,6 +83,7 @@ var ModelLoader = function(BrainBrowserViewer){
       format: type,
       complete: function(){
         that.doneOpeningFile();
+        document.getElementById('modelFilename').innerHTML = "";
       }
     });
   };

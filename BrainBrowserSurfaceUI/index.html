@@ -64,14 +64,14 @@
         <!-- Everything that is supposed to go to the side bar goes here -->
 
         <!-- open -->
-       <div id="aboutBt" class="buttonBB noselect" title="Display some helpful tips and info.">
-         <i class="fa fa-question-circle" aria-hidden="true"></i> Help
-       </div>
+        <div id="aboutBt" class="buttonBB noselect" title="Display some helpful tips and info.">
+          <i class="fa fa-question-circle" aria-hidden="true"></i> Help
+        </div>
 
         <!-- open -->
-       <div id="openBt" class="buttonBB noselect" onclick="document.getElementById('modelOpener').click()" title="Open a 3D model file">
-         <i class="fa fa-cube" aria-hidden="true"></i> Open model
-       </div>
+        <div id="openBt" class="buttonBB noselect" onclick="document.getElementById('modelOpener').click()" title="Open a 3D model file">
+          <i class="fa fa-cube" aria-hidden="true"></i> Open model
+        </div>
         <input type="file" id="modelOpener" class="hidden">
 
 
@@ -170,6 +170,17 @@
         </div>
         <input type="file" id="intensityDataOpener" class="hidden">
 
+        <!-- Select filetype -->
+        <div class="labelAndDropdown">
+          <div class="label">Data format</div>
+          <select id="intensityFormatSelector" class="dropdownMenu" onchange="" autocomplete="off">
+            <option value="unknown">unknown</option>
+            <option value="text">Text</option>
+            <option value="freesurferbin">Freesurfer Binary</option>
+            <option value="freesurferasc">Freesurfer ASC</option>
+            <option value="gifti">GIFTI</option>
+          </select>
+        </div>
 
         <!-- Open button for labeling data -->
         <div id="openLabelingDataBt" class="buttonBB noselect disabled" onclick="document.getElementById('labelingDataOpener').click()" title="Vertex labeling data are text file that associate a name each category from the indexing data.">

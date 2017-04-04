@@ -11,6 +11,30 @@
 
 var VertexIndexingController = function(BrainBrowserViewer){
   "use strict";
+
+  this.extensions = [
+    {
+      ext: [/\.txt$/],
+      type: "text"
+    },
+    {
+      ext: [/\.white(\.gz)$/,/\.pial(\.gz)$/,/\.mid(\.gz)$/ ],
+      type: "freesurferbin"
+    },
+    {
+      ext: [/\.asc(\.gz)?$/],
+      type: "freesurferasc"
+    },
+    {
+      ext: [/\.gii(\.gz)$/],
+      type: "gifti"
+    }
+  ];
+
+  // callback on the open button
+  this.openButton = document.getElementById("intensityDataOpener");
+  this.openButton.addEventListener('change', this.newIntensityToLoad.bind(this), false);
+
   $.hbsPreload("colorMapSelector");
 
   this.intensityData = null;
@@ -127,24 +151,53 @@ var VertexIndexingController = function(BrainBrowserViewer){
     this.viewer.loadColorMapFromURL(url);
   };
 
+  /*
+    Load a new intensity file and display it in the viewer (if compatible)
+  */
+  VertexIndexingController.prototype.newIntensityToLoad = function(evt){
+    var that = this;
+    var file = evt.target.files[0];
+    var type = that.getFileType(file.name);
+
+    // The type is known
+    if(type){
+      document.getElementById("intensityFormatSelector").value = type;
+      this.loadIntensityFile(evt.target, type);
+    }else{
+      document.getElementById("intensityFormatSelector").value = "unknown";
+    }
+  };
+
+
+  /*
+    Convenient wraping of the intensity-loading core function for when the file type
+    is unknown.
+
+    Args:
+      fileOpenerElem: DOM element of type input  file
+      type: String - the type of data we want to load
+  */
+  VertexIndexingController.prototype.loadIntensityFile = function(fileOpenerElem, type){
+    var that = this;
+
+    var filename = $(fileOpenerElem)[0].files[0].name;
+
+    that.viewer.loadIntensityDataFromFile(
+        that.openButton,
+        {
+          format: type,
+          complete: function(){
+            //console.log("intensity file loaded");
+          }
+        });
+  };
+
 
   /*
     Register all the UI event necessary for the color maps.
   */
   VertexIndexingController.prototype.registerUIEvents = function(){
     var that = this;
-
-    // loading a intensity value map file
-    $("#intensityDataOpener").change(function(){
-      that.viewer.loadIntensityDataFromFile(
-        this,
-        {
-          complete: function(){
-            //console.log("intensity file loaded");
-          }
-        });
-    });
-
 
     // loading a color map file
     $("#colorMapOpener").change(function(){
@@ -356,10 +409,27 @@ var VertexIndexingController = function(BrainBrowserViewer){
 
 
   /*
-    Make the button to load intensity data (aka. vertex indexing) accessible
+     Make the button to load intensity data (aka. vertex indexing) accessible
   */
   VertexIndexingController.prototype.enableIntensityDataLoading = function(){
-    this.enableUiElement("openIntensityDataBt");
+     this.enableUiElement("openIntensityDataBt");
+  };
+
+
+  /*
+    Given the file basename, returns the type
+  */
+  VertexIndexingController.prototype.getFileType = function(basename){
+    var type = null;
+    this.extensions.forEach(function(elems){
+      elems.ext.forEach(function(elem){
+        if(elem.test(basename)){
+          type = elems.type;
+        }
+      });
+    });
+
+    return type;
   };
 
 

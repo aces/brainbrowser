@@ -374,13 +374,13 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       sphere.position.set(vector3.x, vector3.y, vector3.z);
 
       viewer.pickMarker.add(sphere);
-      viewer.graphicObjects.add(viewer.pickMarker)
+      viewer.graphicObjects.add(viewer.pickMarker);
     } else {
       viewer.pickMarker.children[0].position.set(vector3.x, vector3.y, vector3.z);
     }
 
     viewer.updated = true;
-  }
+  };
 
   /**
   * @doc function

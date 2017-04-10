@@ -320,6 +320,13 @@ function defineUiCallbacks(){
     $("#about").fadeOut();
   });
 
+  // Back to top button
+  $("#backToTop").click(function(){
+    $("#shape_0").scrollintoview();
+    $("#backToTop").fadeIn();
+  });
+
+
 
   // * * * TEST BUTTON 1 * * *
   $("#testButton1").click(function(){

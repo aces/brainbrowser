@@ -179,6 +179,7 @@ module.exports = function(grunt) {
             showActivation: true,
             definesEventCallbacks: true,
             defineUiCallbacks: true,
+            viewer: true,
           }
         },
         src: [

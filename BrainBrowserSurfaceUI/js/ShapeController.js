@@ -43,13 +43,13 @@ var ShapeController = function(BrainBrowserViewer){
     $("#shapeSearchField").on("keyup", function(e){
       if(e.which === 13){
         var vertexValue = $(this).val();
-        if (/^\d+$/.test(vertexValue) === false) { return };
+        if (/^\d+$/.test(vertexValue) === false) { return; }
         var modelName  = $('#tabNames li.ui-state-active')[0].getAttribute('name');
         var pickInfo   = viewer.pickByVertex(vertexValue, {model_name: modelName});
 
         // Focus on shape
         var shapeNameOverall = pickInfo.object.name;
-        if (that.shapeIndexer.hasShape(shapeNameOverall) === false){ return };
+        if (that.shapeIndexer.hasShape(shapeNameOverall) === false){ return; }
         that.focusOnSlider(shapeNameOverall);
         // Vertex information
         $("#pick-name").html(shapeNameOverall);

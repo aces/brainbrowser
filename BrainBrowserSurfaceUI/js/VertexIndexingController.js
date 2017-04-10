@@ -188,16 +188,14 @@ var VertexIndexingController = function(BrainBrowserViewer){
   VertexIndexingController.prototype.loadIntensityFile = function(fileOpenerElem, type){
     var that = this;
 
-    var filename = $(fileOpenerElem)[0].files[0].name;
-
     that.viewer.loadIntensityDataFromFile(
-        that.openButton,
-        {
-          format: type,
-          complete: function(){
-            //console.log("intensity file loaded");
-          }
-        });
+      that.openButton,
+      {
+      format: type,
+      complete: function(){
+        //console.log("intensity file loaded");
+      }
+    });
   };
 
 
@@ -307,7 +305,7 @@ var VertexIndexingController = function(BrainBrowserViewer){
     // When a json file is opened, we then load its data
     $("#labelingDataOpener").change(function(evt){
       if(evt.originalEvent.target.files.length > 0){
-        var file = evt.originalEvent.target.files[0];
+        var file   = evt.originalEvent.target.files[0];
         var reader = new FileReader();
 
         reader.onload = function(e) {
@@ -420,7 +418,7 @@ var VertexIndexingController = function(BrainBrowserViewer){
      Make the button to load intensity data (aka. vertex indexing) accessible
   */
   VertexIndexingController.prototype.enableIntensityDataLoading = function(){
-     this.enableUiElement("openIntensityDataBt");
+    this.enableUiElement("openIntensityDataBt");
   };
 
 

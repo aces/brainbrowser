@@ -309,13 +309,13 @@ var GridManager = function(BrainBrowserViewer){
     // removing (potentially) existing grid components
     var xyPlaneToRemove = this.gridSystem.getObjectByName("xyPlane");
     var xyVisible       = true;
-    if (xyPlaneToRemove !== undefined) { xyVisible = xyPlaneToRemove.visible }
+    if (xyPlaneToRemove !== undefined) { xyVisible = xyPlaneToRemove.visible; }
     var xzPlaneToRemove = this.gridSystem.getObjectByName("xzPlane");
     var xzVisible       = true;
-    if (xzPlaneToRemove !== undefined) { xzVisible = xzPlaneToRemove.visible }
+    if (xzPlaneToRemove !== undefined) { xzVisible = xzPlaneToRemove.visible; }
     var yzPlaneToRemove = this.gridSystem.getObjectByName("yzPlane");
     var yzVisible       = true;
-    if (yzPlaneToRemove !== undefined) { yzVisible = yzPlaneToRemove.visible }
+    if (yzPlaneToRemove !== undefined) { yzVisible = yzPlaneToRemove.visible; }
     this.gridSystem.remove(xyPlaneToRemove);
     this.gridSystem.remove(xzPlaneToRemove);
     this.gridSystem.remove(yzPlaneToRemove);

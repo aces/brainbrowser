@@ -94,7 +94,7 @@
       See an example of <a href="models/atlas-labels.txt" target="_blank">labeling file</a>.
       <br />
       <br />
-      Note that those three examples are compatible with <a href="#models=models/brain-surface.obj&intensity=models/atlas-values.txt&colorMap=color_maps/spectral.txt" target="_blank">this model</a> (or open the <a href="models/brain-surface.obj" target="_blank">raw model file</a>).
+      Note that those three examples are compatible with <a href="#models=models/brain-surface.obj&intensity=models/atlas-values.txt&colorMap=color_maps/spectral.txt&label=models/atlas-labels.txt" target="_blank">this model</a> (or open the <a href="models/brain-surface.obj" target="_blank">raw model file</a>).
 
     </p>
 
@@ -159,6 +159,13 @@
         Color maps are text file with 4 numbers per lines (r g b a) with space in between. There are as many line as necessary to reach The required level of precision. First line being the color for the lowest intensity and last line being the color for the highest level of intensity. Note: an Intensity file is mandatory to show colors. The file must be local to the server.<br /><br />
       </li>
 
+      <li>
+        <b>label=/local/folder/label.txt</b>
+        <br />
+        Label data are text file, each region mapped a number to a name area.
+        <br /><br />
+      </li>
+
       </ul>
 
       IMPORTANT NOTES:<br />
@@ -167,13 +174,15 @@
       <b>2)</b> When the argument is a file URL, this file should not be compressed (gz)
       <br /><br />
       Examples:<br />
-      <a href="#models=testData/dbs.json" target="_blank">Loading a model</a>
+      <a href="#models=models/dbs.json" target="_blank">Loading a model</a>
       <br />
-      <a href="#models=testData/dbs.json&annotations=testData/annotations.json" target="_blank">Loading a model with annotations</a>
+      <a href="#models=models/dbs.json&annotations=annotation/annotationExample.json" target="_blank">Loading a model with annotations</a>
       <br />
       <a href="#models=models/brain-surface.obj&intensity=models/atlas-values.txt&colorMap=color_maps/spectral.txt&hideUI=1&autorotate=y" target="_blank">Loading a model with intensity data and a color map (in demo mode)</a>
       <br />
-      <a href="#models=testData/dbs.json,testData/surfaces.json&grid=1&axis=1&hideUI=1&autorotate=y,z" target="_blank">Loading a model with some extra options (in demo mode)</a>
+      <a href="#models=models/brain-surface.obj&intensity=models/atlas-values.txt&colorMap=color_maps/spectral.txt&label=models/atlas-labels.txt" target="_blank">Loading a model with intensity data, a color map and a label file (in demo mode)</a>
+      <br />
+      <a href="#models=models/dbs.json,testData/surfaces.json&grid=1&axis=1&hideUI=1&autorotate=y,z" target="_blank">Loading a model with some extra options (in demo mode)</a>
 
 
 

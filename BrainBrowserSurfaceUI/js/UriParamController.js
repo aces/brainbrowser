@@ -41,6 +41,10 @@
               level of intensity.
               Note: an Intensity file is mandatory to show colors.
 
+  label=/local/folder/label.txt
+              Label data are text file, each region mapped a number to a name area.
+
+
   IMPORTANT NOTES:
   1)  All these arguments must appear after a hash character (#). If multiple
   arguments are used, they must be separated by a ampersand cheracter (&).
@@ -205,7 +209,7 @@ var UriParamController = function(){
     Loads intensity data file and a color map file.
     We dont necessary need to specify both in argument.
   */
-  UriParamController.prototype.intensityAndColormap = function(){
+  UriParamController.prototype.intensityAndColormapAndLabel = function(){
     var intensity = this.getHashValue("intensity");
 
     if(intensity){
@@ -219,5 +223,12 @@ var UriParamController = function(){
       vertexIndexingController.loadColorMapFromURL(colorMap[0]);
     }
 
+    var label = this.getHashValue("label");
+
+    if (label){
+      vertexIndexingController.loadLabelDataFromURL(label[0]);
+    }
+
   };
+
 })();

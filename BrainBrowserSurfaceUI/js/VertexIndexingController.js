@@ -159,6 +159,16 @@ var VertexIndexingController = function(BrainBrowserViewer){
   };
 
   /*
+    So that it's accessible from the outside,
+    for exemple by the UriParamController.
+  */
+  VertexIndexingController.prototype.loadLabelDataFromURL = function(url){
+    BrainBrowser.loader.loadFromURL(url, function(data) {
+      vertexIndexingController.parseLabelData(data);
+    });
+  };
+
+  /*
     Load a new intensity file and display it in the viewer (if compatible)
   */
   VertexIndexingController.prototype.newIntensityToLoad = function(evt){

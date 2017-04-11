@@ -84,8 +84,8 @@ $(function() {
       gridManager.updateGrid();
       viewer.updateAxes();
 
-      // load color maps and intensity data files that are possibly in the URL
-      uriParamController.intensityAndColormap();
+      // load color maps and intensity data and label files that are possibly in the URL
+      uriParamController.intensityAndColormapAndLabel();
     });
 
 

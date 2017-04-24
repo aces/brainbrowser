@@ -172,7 +172,7 @@ var UriParamController = function(){
 
 
   /*
-    Activate auto rotation
+    Activate grid
   */
   UriParamController.prototype.grid = function(){
     var grid = this.getHashValue("grid");

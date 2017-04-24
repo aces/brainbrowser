@@ -1,0 +1,147 @@
+<!--
+Using the project jquery-handlebars:
+https://github.com/71104/jquery-handlebars
+
+Some documentation about Partials:
+http://handlebarsjs.com/partials.html
+-->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>Handlebars Jquery</title>
+
+  <script src="js/jquery-3.1.0.min.js"></script>
+  <script src="js/handlebars-1.0.0.js"></script>
+  <script src="js/handlejquery.js"></script>
+
+  <style>
+
+
+  </style>
+
+</head>
+
+<body>
+   <button onclick="addAgain()">Click me</button>
+  <div id="content"></div>
+
+  <script>
+
+
+  // ready
+  $(function() {
+
+    // Handlebars settings
+    $.hbs({
+      templatePath: 'templates', // folder where to find the templates
+      templateExtension: 'hbs', // file extension for templates
+      partialPath: 'templates', // folder where to find the partials
+      partialExtension: 'partial' // file extension of the partials
+    });
+
+    // partial helps creates repeated sub elements
+    $.hbs('partial', 'element');
+
+    $.hbsPreload("twoFields");
+
+    /*
+    // instanciate twoFields.hbs template
+    $('#content').hbsRender('twoFields', {
+      field1: 'bonjour',
+      field2: 'monde',
+      // twoFields.hbs uses element.partial for its repetitive part
+      theList: [
+        {
+          part1: "this is the part 1",
+          part2: "this is the part 2"
+        },
+        {
+          part1: "c'est la partie 1",
+          part2: "c'est la partie 2"
+        },
+        {
+          part1: "es la parte 1",
+          part2: "es la parte 2"
+        }
+      ]
+    });
+    */
+
+
+    $('#content').hbsRender('noData', {});
+
+    /*
+    $('#content').hbsAppend('twoFields', {
+      field1: 'Hello',
+      field2: 'world',
+      // twoFields.hbs uses element.partial for its repetitive part
+      theList: [
+        {
+          part1: "this is the part ONE",
+          part2: "this is the part TWO"
+        },
+        {
+          part1: "c'est la partie UNE",
+          part2: "c'est la partie DEUX"
+        }
+      ]
+    });
+    */
+
+    /*
+    $.hbsGenerate('twoFields', {
+      field1: 'Hello',
+      field2: 'world',
+      // twoFields.hbs uses element.partial for its repetitive part
+      theList: [
+        {
+          part1: "this is the part ---ONE---",
+          part2: "this is the part ---TWO---"
+        },
+        {
+          part1: "c'est la partie ---UNE---",
+          part2: "c'est la partie ---DEUX---"
+        }
+      ]
+    },
+    function(data){
+      $('#content').append(data);
+    });
+    */
+
+  });
+
+
+// add another round of data.
+// using a button to do that allow to wait so that the next use will take
+// advantage of the caching capabilities of handlejquery.
+function addAgain(){
+
+
+  $.hbsGenerate('twoFields', {
+    field1: 'Hello',
+    field2: 'world',
+    // twoFields.hbs uses element.partial for its repetitive part
+    theList: [
+      {
+        part1: "this is the part ONE",
+        part2: "this is the part TWO"
+      },
+      {
+        part1: "c'est la partie UNE",
+        part2: "c'est la partie DEUX"
+      }
+    ]
+  },
+  function(data){
+    $('#content').prepend(data);
+  });
+
+}
+
+  </script>
+
+</body>
+</html>

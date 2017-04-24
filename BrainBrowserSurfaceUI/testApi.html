@@ -1,0 +1,43 @@
+<html>
+<head>
+  <script src="js/vendors/jquery-3.1.0.js"></script>
+
+  <style>
+
+    #api{
+      background-color: #F99;
+      width: 500px;
+      height: 500px;
+    }
+
+  </style>
+
+</head>
+<body>
+  <div id="api">BrainBrowser Surface not loaded (yet)</div>
+
+
+  <script>
+
+    $(function() {
+
+
+      $("#api").load(
+
+        "https://brainbrowser.cbrain.mcgill.ca/surface-viewer-widget?" +
+        "version=2.5.1&" +
+        "model=./models/brain-surface.obj&" +
+        "color_map=./color_maps/spectral.txt&" +
+        "intensity_data=./models/atlas-values.txt&" +
+        "width=500&" +
+        "height=500"
+
+      );
+
+
+    });
+
+  </script>
+
+</body>
+</html>

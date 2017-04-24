@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title> BrainBrowser Surface Viewer</title>
+
+  <!-- jquery -->
+  <script src="js_common/vendors/jquery-3.1.0.js"></script>
+  <script src="js_common/vendors/jquery-ui.js"></script>
+
+
+  <script src="js_common/vendors/jquery-scrollintoview/jquery.scrollintoview.min.js"></script>
+
+
+  <!-- Handlebars -->
+  <script src="js_common/vendors/handlequery/js/handlebars-1.0.0.js"></script>
+  <script src="js_common/vendors/handlequery/js/handlejquery.js"></script>
+
+
+  <!-- Style -->
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,900" rel="stylesheet">
+  <link rel="stylesheet" href="css/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/jquery-ui/jquery-ui.css">
+  <link rel="stylesheet" type="text/css" href="css/jqueryui-overload.css" />
+  <link rel="stylesheet" type="text/css" href="css/ui_elements.css" />
+  <link rel="stylesheet" type="text/css" href="css/style.css" />
+
+</head>
+
+<body>
+
+  <div id="content">
+    <!-- The top left logo, remains when menus are collapsed -->
+    <img class="logo" src="img/logo.png" />
+
+
+    <!-- Button to collapse the left side menu -->
+    <div id="hideLeft" class="hideButton" title="Hide/show the left side pannel">
+      <i class="fa fa-chevron-left" aria-hidden="true"></i>
+    </div>
+
+
+    <!-- Button to collapse the right side menu -->
+    <div id="hideRight" class="hideButton" title="Hide/show the right side pannel">
+      <i class="fa fa-chevron-right" aria-hidden="true"></i>
+    </div>
+
+<!--
+ _     ___________ _____   _____ _____ _     _   ____  ____   _
+| |   |  ___|  ___|_   _| /  __ |  _  | |   | | | |  \/  | \ | |
+| |   | |__ | |_    | |   | /  \| | | | |   | | | | .  . |  \| |
+| |   |  __||  _|   | |   | |   | | | | |   | | | | |\/| | . ` |
+| |___| |___| |     | |   | \__/\ \_/ | |___| |_| | |  | | |\  |
+\_____\____/\_|     \_/    \____/\___/\_____/\___/\_|  |_\_| \_/
+
+-->
+
+    <!-- LEFT SIDE COLUMN-->
+    <div id="leftSidebar" class="sidebar">
+
+
+      <div class="controls">
+        <!-- Everything that is supposed to go to the side bar goes here -->
+
+        <!-- open -->
+        <div id="aboutBt" class="buttonBB noselect" title="Display some helpful tips and info.">
+          <i class="fa fa-question-circle" aria-hidden="true"></i> Help
+        </div>
+
+        <!-- open -->
+        <div id="openBt" class="buttonBB noselect" onclick="document.getElementById('modelOpener').click()" title="Open a 3D model file">
+          <i class="fa fa-cube" aria-hidden="true"></i> Open model
+        </div>
+        <input type="file" id="modelOpener" class="hidden">
+
+        <!-- Select filetype -->
+        <div class="labelAndDropdown">
+          <div class="label">Data format</div>
+          <select id="modelFormatSelector" class="dropdownMenu" onchange="" autocomplete="off">
+            <option value="unknown">unknown</option>
+            <option value="json">JSON</option>
+            <option value="mniobj">MNI OBJ</option>
+            <option value="wavefrontobj">Wavefront OBJ</option>
+            <option value="freesurferasc">Freesurfer ASC</option>
+          </select>
+        </div>
+
+        <!-- Load & unload -->
+        <div class="twoButtons">
+          <div id="unloadAllBt" class="buttonBB noselect" title="Remove all models from the view">
+            <i class="fa fa-eraser" aria-hidden="true"></i>
+            Unload all
+          </div>
+
+          <div id="reloadBt" class="buttonBB noselect">
+            <i class="fa fa-refresh" aria-hidden="true"></i>
+            Load
+          </div>
+        </div>
+
+        <div class="label" id="modelFilename"></div>
+
+        <!-- The axis box which will contain a ~200x200 canvas -->
+        <div id="axisBox"></div>
+
+
+        <!-- just a dashed line -->
+        <div class="separator"></div>
+
+        <div class="label">Toolbox</div>
+
+        <!-- Select background color -->
+        <div class="labelAndDropdown">
+          <div class="label">Background color</div>
+          <select id="bgColorMenu" class="dropdownMenu" autocomplete="off">
+            <option value="0x000000">Black</option>
+            <option value="0x444444">Dark grey</option>
+            <option value="0x777777">Mid grey</option>
+            <option value="0xdddddd">Light grey</option>
+            <option value="0xffffff">White</option>
+          </select>
+        </div>
+
+        <!-- Auto rotation -->
+        <div class="LabelAndThreeButtons">
+          <div class="label">Autorotate</div>
+          <div class="threeButtons">
+            <div class="autorotate buttonBB noselect" axis="x">X</div>
+            <div class="autorotate buttonBB noselect" axis="y">Y</div>
+            <div class="autorotate buttonBB noselect" axis="z">Z</div>
+          </div>
+        </div>
+
+
+        <!-- list of 6 buttons -->
+        <div class="sixButtons">
+          <div id="resetview" class="buttonBB miniButton noselect" title="Reset orientation"><i class="fa fa-home" aria-hidden="true"></i></div>        <!-- reset view -->
+          <div id="gridToggleBt" class="buttonBB miniButton noselect" title="Show/hide the grid"><i class="fa fa-th" aria-hidden="true"></i></div>      <!-- display grid -->
+          <div id="axesToggleBt" class="buttonBB miniButton noselect" title="Show/hide the axes"><i class="fa fa-compass" aria-hidden="true"></i></div> <!--  toggle axes -->
+          <div id="toggleWireFrameBt" class="buttonBB miniButton noselect" active="0" title="Toggle the model to wireframe">&#9676;</div>               <!-- wireframe -->
+          <div id="threedeeBt" class="buttonBB miniButton noselect" active="0" title="Enable 3D stereoscopic effect">&#128526;</div>                    <!--  3D glasses -->
+          <div id="saveCaptureBt" class="buttonBB miniButton noselect" title="Take a screenshot"><i class="fa fa-camera" aria-hidden="true"></i></div>  <!-- snapshot -->
+        </div>
+
+        <!-- Individual grid plane toogle -->
+        <div id="gridPlane" class="LabelAndThreeButtons" style="display: none;">
+          <div class="label">Grid</div>
+          <div class="threeButtons">
+            <div class="grid buttonBB noselect" plane="xzPlane">X</div>
+            <div class="grid buttonBB noselect" plane="xyPlane">Y</div>
+            <div class="grid buttonBB noselect" plane="yzPlane">Z</div>
+          </div>
+        </div>
+
+        <!-- Grid factor -->
+        <div id="gridStep" class="fieldAndSlider" style="display: none;">
+          <div class="label">Grid factor:</div>
+          <input id="gridStepFactorField" class="backgroundHover" type="text" value="1">
+          <input id="gridStepFactorSlider" type="range" min="1" max="5" step="0.01" autocomplete="off" value="1">
+        </div>
+
+        <!-- just a dashed line -->
+        <div class="separator"></div>
+
+        <div class="label">Color maps and labeling</div>
+
+        <!-- Open button for vertex indexing data -->
+        <div id="openIntensityDataBt" class="buttonBB noselect disabled" onclick="document.getElementById('intensityDataOpener').click()" title="Vertex indexing data are files that assign a value to each vertex of a model. As a mean to clusterize of classify each vertex, some vertice may be assigned the same value, in other words, the same category." >
+          <i class="fa fa-list-ol" aria-hidden="true"></i> Open vertex indexing data
+        </div>
+        <input type="file" id="intensityDataOpener" class="hidden">
+
+        <!-- Select filetype -->
+        <div id="intensityDataFormat" class="labelAndDropdown disabled">
+          <div class="label">Data format</div>
+          <select id="intensityFormatSelector" class="dropdownMenu" onchange="" autocomplete="off">
+            <option value="unknown">unknown</option>
+            <option value="text">Text</option>
+            <option value="freesurferbin">Freesurfer Binary</option>
+            <option value="freesurferasc">Freesurfer ASC</option>
+            <option value="gifti">GIFTI</option>
+          </select>
+        </div>
+
+        <!-- Load -->
+        <div id="reloadIntensity" class="buttonBB noselect disabled">
+          <i class="fa fa-refresh" aria-hidden="true"></i>
+          Load vertex indexing data
+        </div>
+
+        <!-- Open button for labeling data -->
+        <div id="openLabelingDataBt" class="buttonBB noselect disabled" onclick="document.getElementById('labelingDataOpener').click()" title="Vertex labeling data are text file that associate a name each category from the indexing data.">
+          <i class="fa fa-tag" aria-hidden="true"></i> Open vertex labeling data
+        </div>
+        <input type="file" id="labelingDataOpener" class="hidden">
+
+        <!-- Open button for color maps -->
+        <div id="openColorMapBt" class="buttonBB noselect disabled" onclick="document.getElementById('colorMapOpener').click()" title="A color map is a text file that associate a a specific color to each category from the indexing data.">
+          <i class="fa fa-paint-brush" aria-hidden="true"></i> Open color map
+        </div>
+        <input type="file" id="colorMapOpener" class="hidden">
+
+        <!-- change color map drop down -->
+        <div id="colorMapDropDown" class="labelAndDropdown disabled">
+          <div class="label">Available maps</div>
+          <select id="colorMapMenu" class="dropdownMenu" autocomplete="off">
+            <!-- To be filled dynamically -->
+          </select>
+        </div>
+
+        <div id="colorRangeSlider"></div>
+        <div id="minMaxSliderLbl" class="label disabled">
+          [
+          <input id="minSliderLbl" class="min backgroundHover" type="text" value="---">
+           ,
+          <input id="maxSliderLbl" class="max backgroundHover" type="text" value="---">
+          ]
+        </div>
+
+        <div id="colorSpectrum"></div>
+
+        <!-- clamp & flip -->
+        <div class="twoButtons">
+          <div id="clampColorBt" class="buttonBB noselect disabled" active="0" title="Clamping enabled: the values that are out of bound are associated with the color of the related extrema.Clamping disabled: the values that are out of bound are not associated with any color and the native volume color will be used (most likely white).">
+            <i class="fa fa-square" aria-hidden="true"></i>
+            Clamp
+          </div>
+
+          <div id="flipColorBt" class="buttonBB noselect disabled" title="Reverse the color map.">
+            <i class="fa fa-exchange" aria-hidden="true"></i>
+            Flip colors
+          </div>
+
+        </div>
+
+
+        <!--
+        <div class="separator"></div>
+
+
+        <div id="testButton" class="buttonBB noselect">
+          <i class="fa fa-bug" aria-hidden="true"></i> test button 1
+        </div>
+
+        <div id="testButton2" class="buttonBB noselect">
+          <i class="fa fa-bug" aria-hidden="true"></i> test button 2
+        </div>
+         -->
+
+        <!-- just a dashed line -->
+        <div class="separator"></div>
+
+        <div class="label">Annotations</div>
+        <div class="twoButtons">
+          <div class="buttonBB noselect" onclick="document.getElementById('annotationOpener').click()" title="Load a annotation file (JSON)"><i class="fa fa-folder-open" aria-hidden="true"></i>Load</div>
+          <div id="annotSaveBt" class="buttonBB noselect" title="Save annotation file (JSON)"><i class="fa fa-floppy-o" aria-hidden="true"></i>Save</div>
+        </div>
+        <input type="file" id="annotationOpener" class="hidden">
+        <div id="annotations"></div>
+
+
+      </div> <!-- END controls -->
+    </div> <!-- END leftSidebar -->
+
+
+
+
+
+<!--
+    ______ _____ _____ _   _ _____   _____ _____ _     _   ____  ____   _
+    | ___ |_   _|  __ | | | |_   _| /  __ |  _  | |   | | | |  \/  | \ | |
+    | |_/ / | | | |  \| |_| | | |   | /  \| | | | |   | | | | .  . |  \| |
+    |    /  | | | | __|  _  | | |   | |   | | | | |   | | | | |\/| | . ` |
+    | |\ \ _| |_| |_\ | | | | | |   | \__/\ \_/ | |___| |_| | |  | | |\  |
+    \_| \_|\___/ \____\_| |_/ \_/    \____/\___/\_____/\___/\_|  |_\_| \_/
+-->
+
+    <!-- RIGHT SIDE COLUMN -->
+    <div id="rightSidebar" class="sidebar" style="display: none;">
+
+
+      <!-- Everything that is supposed to go to the side bar goes here -->
+      <div class="controls">
+
+      <!-- Search a shape -->
+      <input id="shapeSearchField" class="commonTextField" value="" placeholder="Find a shape or a vertex" autocomplete="off" type="text" >
+      <div id="shapeLabel" class="label"></div>
+
+      <!-- Index information -->
+      <div class="separator"></div>
+      <small>
+        <div class="label">Select a point on the surface(shift-click or touch)</div>
+        <div class="vertex">Shape name: <span id="pick-name"></span></div>
+        <div class="vertex">X: <span id="pick-x"></span></div>
+        <div class="vertex">Y: <span id="pick-y"></span></div>
+        <div class="vertex">Z: <span id="pick-z"></span></div>
+        <div class="vertex">Vertex number: <span id="pick-index"></span></div>
+      </small>
+      <div class="separator"></div>
+
+
+
+      <!-- The tab pannel with all the opacity widgets -->
+      <div id="loadedFilesTabs" >
+        <ul id="tabNames">
+        </ul>
+      </div>
+
+      <!-- open -->
+      <div id="backToTop" class="buttonBB noselect" title="Go at the top of the shape tab.">
+          <i class="fa fa-question-circle" aria-hidden="true"></i> Back to top
+      </div>
+
+
+      </div> <!-- END controls -->
+    </div> <!-- END rightSidebar -->
+
+
+    <!--MAIN -->
+    <div id="brainbrowser">
+    </div> <!-- END brainbrowser -->
+
+    <div id="spinner" class="hidden">
+      <img src="img/pacman.gif">
+    </div>
+
+    <!-- Halfway between a Credit, a About and a Help panel -->
+    <div id="about" class="hidden">
+    </div>
+
+  </div>
+
+
+  <!-- BrainBrowser core -->
+  <script src="js_common/vendors/FileSaver.min.js"></script>
+  <script src="js_common/vendors/pako.js"></script>
+  <script src="js_common/vendors/jscolor.min.js"></script>
+  <script src="js/brainbrowser/brainbrowser.js"></script>
+  <script src="js/brainbrowser/core/tree-store.js"></script>
+  <script src="js/brainbrowser/lib/config.js"></script>
+  <script src="js/brainbrowser/lib/utils.js"></script>
+  <script src="js/brainbrowser/lib/events.js"></script>
+  <script src="js/brainbrowser/lib/loader.js"></script>
+  <script src="js/brainbrowser/lib/color-map.js"></script>
+  <script src="js/brainbrowser/surface-viewer.js"></script>
+  <script src="js/brainbrowser/surface-viewer/lib/three.js"></script>
+  <script src="js/vendors/AnaglyphEffect.js"></script>  <!-- Must be under THREE due to dependencies -->
+  <script src="js/brainbrowser/surface-viewer/lib/parse-intensity-data.js"></script>
+  <script src="js/brainbrowser/surface-viewer/modules/annotations.js"></script>
+  <script src="js/brainbrowser/surface-viewer/modules/color.js"></script>
+  <script src="js/brainbrowser/surface-viewer/modules/loading.js"></script>
+  <script src="js/brainbrowser/surface-viewer/modules/rendering.js"></script>
+  <script src="js/brainbrowser/surface-viewer/modules/views.js"></script>
+  <script src="js/config.js"></script>
+
+
+  <!-- UI and controllers -->
+  <script src="js/GridManager.js"></script>
+  <script src="js/ShapeIndexer.js"></script>
+  <script src="js/ShapeController.js"></script>
+  <script src="js/ModelLoader.js"></script>
+  <script src="js/ShapePicker.js"></script>
+  <script src="js/AxisBox.js"></script>
+  <script src="js/initialize.js"></script>
+  <script src="js/AnnotationController.js"></script>
+  <script src="js/UriParamController.js"></script>
+  <script src="js/VertexIndexingController.js"></script>
+  <script src="js/core.js"></script>
+
+</body>
+</html>

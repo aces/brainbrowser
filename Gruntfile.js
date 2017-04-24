@@ -20,6 +20,7 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *
 * Author: Tarek Sherif  <tsherif@gmail.com> (http://tareksherif.ca/)
+* Author: Natacha Beck <natabeck@gmail.com>
 */
 
 module.exports = function(grunt) {
@@ -151,21 +152,62 @@ module.exports = function(grunt) {
           "!src/brainbrowser/workers/gifti-reader.js"
         ]
       },
-      examples: {
+      BrainBrowserSurfaceUI: {
         options: {
           browser: true,
           jquery: true,
           globals: {
             BrainBrowser: true,
-            THREE: true
+            THREE: true,
+            console: true,
+            jscolor: true,
+            saveAs: true,
+            init: true,
+            ShapeIndexer: true,
+            modelLoader: true,
+            ModelLoader: true,
+            vertexIndexingController: true,
+            VertexIndexingController: true,
+            UriParamController: true,
+            AxisBox: true,
+            ShapeController: true,
+            ShapePicker: true,
+            GridManager: true,
+            requestAnimationFrame: true,
+            annotationController: true,
+            AnnotationController: true,
+            showActivation: true,
+            definesEventCallbacks: true,
+            defineUiCallbacks: true,
+            viewer: true,
           }
         },
         src: [
-          "examples/surface-viewer-demo.js",
-          "examples/volume-viewer-demo.js",
-          "examples/bigbrain-viewer-demo.js",
-          "examples/surface-viewer-demo.config.js",
-          "examples/volume-viewer-demo.config.js",
+          "BrainBrowserSurfaceUI/js/ModelLoader.js",
+          "BrainBrowserSurfaceUI/js/ShapeIndexer.js",
+          "BrainBrowserSurfaceUI/js/ShapePicker.js",
+          "BrainBrowserSurfaceUI/js/config.js",
+          "BrainBrowserSurfaceUI/js/AxisBox.js",
+          "BrainBrowserSurfaceUI/js/UriParamController.js",
+          "BrainBrowserSurfaceUI/js/VertexIndexingController.js",
+          "BrainBrowserSurfaceUI/js/core.js",
+          "BrainBrowserSurfaceUI/js/ShapeController.js",
+          "BrainBrowserSurfaceUI/js/GridManager.js",
+          "BrainBrowserSurfaceUI/js/AnnotationController.js",
+          // "BrainBrowserSurfaceUI/js/initialize.js"
+        ]
+      },
+      BrainBrowserVolumeUI: {
+        options: {
+          browser: true,
+          jquery: true,
+          globals: {
+            BrainBrowser: true,
+          }
+        },
+        src: [
+          "BrainBrowserVolumeUI/volume-viewer-demo.js",
+          "BrainBrowserVolumeUI/volume-viewer-demo.config.js",
         ]
       },
       scripts: {

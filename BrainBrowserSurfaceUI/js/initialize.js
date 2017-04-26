@@ -87,7 +87,7 @@ function definesEventCallbacks(){
   // a custom raycaster that allow picking the model + the annotation system.
   shapePicker.ctrlAndShiftPickModelAndAnnot(function(intersectModel, intersectAnnot){
 
-    // SHOW an annoation
+    // SHOW an annotation
     if( (intersectAnnot && !intersectModel) ||
         (intersectAnnot  && intersectModel && intersectAnnot.distance < intersectModel.distance)
       ){
@@ -154,7 +154,6 @@ function defineUiCallbacks(){
   });
 
 
-
   // to slide the left pannel
   $("#resetview").click(function(){
     // make all the shapes visible with max opacity
@@ -177,6 +176,10 @@ function defineUiCallbacks(){
     axisBox.reset();
   });
 
+  // to show legend table
+  $("#showLegendBox").click(function(){
+    $("#legendBox").toggle(!$("#legendBox").is(":visible"))
+  });
 
   // handle the grid UI
   $("#gridToggleBt").click(function(){
@@ -325,8 +328,6 @@ function defineUiCallbacks(){
     $("#shape_0").scrollintoview();
     $("#backToTop").fadeIn();
   });
-
-
 
   // * * * TEST BUTTON 1 * * *
   $("#testButton1").click(function(){

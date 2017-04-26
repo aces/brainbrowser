@@ -18,7 +18,7 @@ var VertexIndexingController = function(BrainBrowserViewer){
       type: "text"
     },
     {
-      ext: [/\.white(\.gz)$/,/\.pial(\.gz)$/,/\.mid(\.gz)$/ ],
+      ext: [/\.white(\.gz)$/,/\.pial(\.gz)$/,/\.mid(\.gz)$/,/binary/ ],
       type: "freesurferbin"
     },
     {
@@ -184,6 +184,8 @@ var VertexIndexingController = function(BrainBrowserViewer){
       document.getElementById("intensityFormatSelector").value = "unknown";
       this.enableUiElement("intensityDataFormat");
     }
+    document.getElementById('vertexFilename').innerHTML   = "Filename: " + file.name;
+
   };
 
 

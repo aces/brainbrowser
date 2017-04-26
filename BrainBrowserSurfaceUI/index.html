@@ -83,6 +83,7 @@
             <option value="mniobj">MNI OBJ</option>
             <option value="wavefrontobj">Wavefront OBJ</option>
             <option value="freesurferasc">Freesurfer ASC</option>
+            <option value="freesurferbin">Freesurfer Binary</option>
           </select>
         </div>
 
@@ -104,6 +105,33 @@
         <!-- The axis box which will contain a ~200x200 canvas -->
         <div id="axisBox"></div>
 
+        <!-- Help for orientation -->
+        <div id="showLegendBox" class="buttonBB noselect" title="Display orientation helper. This legend is only valid for medical image if model is correctly oriented.">
+          <i class="fa fa-map-signs" aria-hidden="true"></i> Orientation legend
+        </div>
+        <div id="legendBox" style="display: none">
+        <table style="width:80%" align="left">
+          <tr>
+            <td width="30%">Left:</td>
+            <td width="20%"><hr width style="border: 2px dashed red;" /></td>
+            <td width="30%">Right:</td>
+            <td width="20%"><hr width style="border: 2px solid red;" /></td>
+          </tr>
+          <tr>
+            <td width="30%">Posterior:</td>
+            <td width="20%"><hr width style="border: 2px dashed green;" /></td>
+            <td width="30%">Anterior:</td>
+            <td width="20%"><hr width style="border: 2px solid green;" /></td>
+          </tr>
+          <tr>
+            <td width="30%">Ventral:</td>
+            <td width="20%"><hr width style="border: 2px dashed blue;" /></td>
+            <td width="30%">Dorsal:</td>
+            <td width="20%"><hr width style="border: 2px solid blue;" /></td>
+          </tr>
+
+        </table>
+        </div>
 
         <!-- just a dashed line -->
         <div class="separator"></div>
@@ -170,6 +198,8 @@
           <i class="fa fa-list-ol" aria-hidden="true"></i> Open vertex indexing data
         </div>
         <input type="file" id="intensityDataOpener" class="hidden">
+
+        <div class="label" id="vertexFilename"></div>
 
         <!-- Select filetype -->
         <div id="intensityDataFormat" class="labelAndDropdown disabled">
@@ -290,16 +320,15 @@
       <!-- Index information -->
       <div class="separator"></div>
       <small>
-        <div class="label">Select a point on the surface(shift-click or touch)</div>
+        <div class="label">Select a point on the surface (shift-click or touch)</div>
         <div class="vertex">Shape name: <span id="pick-name"></span></div>
         <div class="vertex">X: <span id="pick-x"></span></div>
         <div class="vertex">Y: <span id="pick-y"></span></div>
         <div class="vertex">Z: <span id="pick-z"></span></div>
         <div class="vertex">Vertex number: <span id="pick-index"></span></div>
       </small>
+
       <div class="separator"></div>
-
-
 
       <!-- The tab pannel with all the opacity widgets -->
       <div id="loadedFilesTabs" >

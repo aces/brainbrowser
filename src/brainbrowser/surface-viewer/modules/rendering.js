@@ -41,23 +41,23 @@
         |                              |
         |                              |
 +-------+-------+             +--------+---------+
-|  lightSystem  |             |  graphicObjects  +------------+
-+---------------+     +-------+-+-----------+----+            |
-                      |         |            |                |
-                      |         |            |                |
-                      |         |            |                |
-                      |         |            |                |
-                      |         |            |                |
-           +----------+-+  +----+-+      +---+---+        +---+---+
-           | pickMarker |  | axis |      |  grid |        | model |
-           +------------+  +------+      +-------+        +-+-----+
-                                                              |
-                                                          +---+----+
-                                                          | mesh01 |
-                                                          | mesh02 |
-                                                          | mesh03 |
-                                                          | ...    |
-                                                          +--------+
+|  lightSystem  |             |  graphicObjects  +------------------+
++---------------+     +-------+-+-----------+----+                  |
+                      |         |            |                      |
+                      |         |            |                      |
+                      |         |            |                      |
+                      |         |            |                      |
+                      |         |            |                      |
+           +----------+-+  +----+-+      +---+---------+        +---+---+
+           | pickMarker |  | axis |      |  gridSystem |        | model |
+           +------------+  +------+      +-------------+        +---+---+
+                                                                    |
+                                                                +---+----+
+                                                                | mesh01 |
+                                                                | mesh02 |
+                                                                | mesh03 |
+                                                                | ...    |
+                                                                +--------+
 
   When dragging, graphicObjects is spinning around its center so that the shapes
   (aka. model), the grid and the axis are turning all together.

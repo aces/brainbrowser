@@ -13,16 +13,20 @@ var ModelLoader = function(BrainBrowserViewer){
 
   this.extensions = [
     {
-      ext: ".json",
+      ext: [/\.json$/],
       type: "json"
     },
     {
-      ext: ".obj",
+      ext: [/\.obj$/],
       type: "mniobj"
     },
     {
-      ext: ".asc",
+      ext: [/\.asc(\.gz)?$/],
       type: "freesurferasc"
+    },
+    {
+      ext: [/\.white(\.gz)$/,/\.pial(\.gz)$/,/\.mid(\.gz)$/,/binary/ ],
+      type: "freesurferbin"
     }
   ];
   // we also have wavefrontobj and unknown
@@ -121,11 +125,12 @@ var ModelLoader = function(BrainBrowserViewer){
   */
   ModelLoader.prototype.getFileType = function(basename){
     var type = null;
-
-    this.extensions.forEach(function(elem){
-      if(basename.indexOf(elem.ext) !== -1 ){
-        type = elem.type;
-      }
+    this.extensions.forEach(function(elems){
+      elems.ext.forEach(function(elem){
+        if(elem.test(basename)){
+          type = elems.type;
+        }
+      });
     });
 
     return type;

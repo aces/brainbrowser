@@ -41,25 +41,25 @@ var ShapeController = function(BrainBrowserViewer){
     $('#shapeSearchField').autocomplete();
 
     $("#shapeSearchField").on("keyup", function(e){
-      if(e.which === 13){
-        var vertexValue = $(this).val();
-        if (/^\d+$/.test(vertexValue) === false) { return; }
-        var modelName  = $('#tabNames li.ui-state-active')[0].getAttribute('name');
-        var pickInfo   = viewer.pickByVertex(vertexValue, {model_name: modelName});
+      if(e.which !== 13) { return; }
 
-        // Focus on shape
-        var shapeNameOverall = pickInfo.object.name;
-        if (that.shapeIndexer.hasShape(shapeNameOverall) === false){ return; }
-        that.focusOnSlider(shapeNameOverall);
-        // Vertex information
-        $("#pick-name").html(shapeNameOverall);
-        $("#pick-x").html(pickInfo.point.x.toPrecision(4));
-        $("#pick-y").html(pickInfo.point.y.toPrecision(4));
-        $("#pick-z").html(pickInfo.point.z.toPrecision(4));
-        $("#pick-index").html(pickInfo.index);
+      var vertexValue = $(this).val();
+      if (/^\d+$/.test(vertexValue) === false) { return; }
+      var modelName  = $('#tabNames li.ui-state-active')[0].getAttribute('name');
+      var pickInfo   = viewer.pickByVertex(vertexValue, {model_name: modelName});
 
-        viewer.setPickMarker(pickInfo.point, 0.3);
-      }
+      // Focus on shape
+      var shapeNameOverall = pickInfo.object.name;
+      if (that.shapeIndexer.hasShape(shapeNameOverall) === false){ return; }
+      that.focusOnSlider(shapeNameOverall);
+      // Vertex information
+      $("#pick-name").html(shapeNameOverall);
+      $("#pick-x").html(pickInfo.point.x.toPrecision(4));
+      $("#pick-y").html(pickInfo.point.y.toPrecision(4));
+      $("#pick-z").html(pickInfo.point.z.toPrecision(4));
+      $("#pick-index").html(pickInfo.index);
+
+      viewer.setPickMarker(pickInfo.point, 0.3);
     });
 
     // Set focus on the opacity widget related to the field just clicked
@@ -68,11 +68,17 @@ var ShapeController = function(BrainBrowserViewer){
         var shapeNameOverall = ui.item.value;
 
         if(that.shapeIndexer.hasShape(shapeNameOverall)){
+          $("#pick-name").html(shapeNameOverall);
+          $("#pick-x").html("");
+          $("#pick-y").html("");
+          $("#pick-z").html("");
+          $("#pick-index").html("");
           that.focusOnSlider(shapeNameOverall);
         }
 
       }
     });
+
   };
 
 
@@ -174,9 +180,9 @@ var ShapeController = function(BrainBrowserViewer){
         shapeIndex: that.shapeCounter, // not used except for callback attribution
         shapeName: shapeName,
         shapeNameOverall: shapeNameOverall,
-        red: Math.round(color.r * 255),
+        red:   Math.round(color.r * 255),
         green: Math.round(color.g * 255),
-        blue: Math.round(color.b * 255),
+        blue:  Math.round(color.b * 255),
         alpha: color.a
       });
 
@@ -261,6 +267,7 @@ var ShapeController = function(BrainBrowserViewer){
 
     // show all shapes callback
     $("#model_" + this.fileCounter + " .showAllShapes").click(function(){
+
       // prevent the opacity callback to be called for all shapes!
       that.blockOpacityCallback = true;
 
@@ -298,6 +305,11 @@ var ShapeController = function(BrainBrowserViewer){
     // eye icon button callback
     $("#model_" + this.fileCounter + " .toggleShape").click(function(){
       that.toggleShape(this);
+    });
+
+    // focus icon button callback
+    $("#model_" + this.fileCounter + " .focusShape").click(function(){
+      that.focusShape(this);
     });
   };
 
@@ -338,6 +350,30 @@ var ShapeController = function(BrainBrowserViewer){
     // trigger the callback, like if the user moved the slider
     $(slider).trigger("change");
   };
+
+  /*
+    The calback of the focus icon
+  */
+  ShapeController.prototype.focusShape = function(focusShapeButton){
+    var focusicon = $(focusShapeButton).find(".focusicon");
+    var eyeicon   = $(focusShapeButton).siblings().find(".eyeicon");
+
+    // we want to switch
+    if(parseInt($(focusShapeButton).attr("focus"),10) === 1){
+      $(focusShapeButton).attr("focus", 0);
+      $(focusicon).removeClass("fa-dot-circle-o");
+      $(focusicon).addClass("fa-circle-o");
+      $(".hideAllShapes").trigger("click");
+      eyeicon.trigger("click");
+    }
+    // we want to switch on
+    else {
+      $(focusShapeButton).attr("focus", 1);
+      $(focusicon).removeClass("fa-circle-o");
+      $(focusicon).addClass("fa-dot-circle-o");
+      $(".showAllShapes").trigger("click");
+    }
+  }
 
 
   /*

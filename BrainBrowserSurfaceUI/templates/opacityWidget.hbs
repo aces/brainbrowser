@@ -17,11 +17,14 @@ is just a bit higher (just a trick)
     <div class="opacityLogo">
       <i class="fa fa-adjust contrastLogo" aria-hidden="true"></i>
     </div>
-    <div style="background-color: rgba({{ red }}, {{ green }}, {{ blue }}, {{ alpha }});">
-      <input class="slider" type="range" name="points" min="0" max="1" step="0.0101"  autocomplete="off" value="1" previousValue="1">
+    <div style="background-color: rgba({{ red }}, {{ green }}, {{ blue }}, {{ alpha }}); width: 70%">
+      <input class="slider" type="range" name="points" min="0" max="1" step="0.0101"  autocomplete="off" value="1" previousValue="1" style="width: 150px">
     </div>
     <div class="buttonBB noselect toggleShape" visible="1" title="Hide the shape {{ shapeName }}">
       <i class="fa fa-eye eyeicon" aria-hidden="true"></i>
+    </div>
+    <div class="buttonBB noselect focusShape" focus="1" title="Show only the shape {{ shapeName }}">
+      <i class="fa fa-dot-circle-o focusicon" aria-hidden="true"></i>
     </div>
   </div>
 </div>

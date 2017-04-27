@@ -56,11 +56,14 @@ function definesEventCallbacks(){
 
     // Vertex information
     pickInfo = viewer.pick();
-    $("#pick-name").html(pickInfo.object.name);
-    $("#pick-x").html(pickInfo.point.x.toPrecision(4));
-    $("#pick-y").html(pickInfo.point.y.toPrecision(4));
-    $("#pick-z").html(pickInfo.point.z.toPrecision(4));
+    var x = pickInfo.point.x.toPrecision(4);
+    var y = pickInfo.point.y.toPrecision(4);
+    var z = pickInfo.point.z.toPrecision(4);
     $("#pick-index").html(pickInfo.index);
+
+    var center = new THREE.Vector3(parseFloat(x),parseFloat(y),parseFloat(z));
+    gridManager.centerShape(pickInfo.object.name,center);
+
 
     viewer.setPickMarker(pickInfo.point, 0.3);
 
@@ -72,7 +75,7 @@ function definesEventCallbacks(){
   });
 
 
-  //  Callback: when ctrl+click is performed on a shape
+  // Callback: when ctrl+click is performed on a shape
   shapePicker.ctrlPick(function(shapeInfo){
     if(gridManager){
       gridManager.centerShape(shapeInfo.object.name);
@@ -169,7 +172,7 @@ function defineUiCallbacks(){
     // remove wireframe if it was enabled
     bbViewer.setWireframe( false );
 
-    // reset stuff fromthe core, like rotation and lights
+    // reset stuff from the core, like rotation and lights
     bbViewer.resetView2();
 
     // restore original rotation for the axisBox

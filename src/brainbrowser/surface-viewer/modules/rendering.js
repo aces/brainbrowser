@@ -701,6 +701,75 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     return vertex_data;
   };
 
+  /**
+  * @doc function
+  * @name viewer.rendering:changeCenterRotation
+  * @param {center} a Vector3 that indigate the new center
+  *
+  * @description
+  * Use to change center of rotation.
+  *
+  *
+  * ```js
+  * viewer.changeCenterRotation(center);
+  * ```
+  */
+  viewer.changeCenterRotation = function(center) {
+    var offset     = new THREE.Vector3(0 , 0, 0);
+    // Copy the center into offset, in order to keep center intact
+    // we do not want to manipulate center
+    offset.copy(center);
+    var model      = viewer.model;
+
+    // Adjust the offset value if needed (e.g: if the model was already moved)
+    var offset_old = model.userData.model_center_offset || new THREE.Vector3(0,0,0);
+    offset.x       = -offset_old.x - offset.x;
+    offset.y       = -offset_old.y - offset.y;
+    offset.z       = -offset_old.z - offset.z;
+    offset.negate();
+
+    /*
+      Adjsut all the children.
+    */
+
+    // Translate to original place first then translate to new place
+    model.children.forEach(function(children) {
+      // Return if children was not part of the original model (e.g: axes and grid)
+      if (Object.keys(children.userData).length === 0 && children.userData.constructor === Object) { return ; }
+      children.translateX(offset_old.x - offset.x);
+      children.translateY(offset_old.y - offset.y);
+      children.translateZ(offset_old.z - offset.z);
+    });
+
+    /*
+      Adjsut the parent (a.k.a: the scene)
+    */
+
+    // Unapply previous adjustment to scene position due to user manual rotation (this does nothing / has no effect before 1st rotation)
+    var inverse_matrix = new THREE.Matrix4().getInverse(model.matrix);
+    model.parent.position.applyMatrix4(inverse_matrix);
+
+    // Translate the scene to original position
+    model.parent.translateX(-offset_old.x);
+    model.parent.translateY(-offset_old.y);
+    model.parent.translateZ(-offset_old.z);
+
+    // Compensate scene position for all offsets done to model above
+    model.parent.translateX(offset.x);
+    model.parent.translateY(offset.y);
+    model.parent.translateZ(offset.z);
+
+    // Reapply previous adjustment to scene position due to user manual rotation (this does nothing / has no effect before 1st rotation)
+    inverse_matrix = new THREE.Matrix4().getInverse(model.matrix);
+    model.parent.position.applyMatrix4(model.matrix);
+
+    // Save offset information in userData
+    viewer.model.userData.model_center_offset = offset;
+
+    viewer.updated = true;
+  };
+
+
 
   /*
     Added by jo.
@@ -712,7 +781,6 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
       newCenter: THREE.Vector3 - center relative to inside graphicObject
   */
   viewer.changeCenterRotation2 = function(newCenter) {
-    // var scene = viewer.graphicObjects.parent;
     // moving the model
     viewer.model.position.sub(newCenter);
     viewer.pickMarker.position.sub(newCenter);

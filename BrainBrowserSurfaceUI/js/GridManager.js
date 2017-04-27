@@ -136,29 +136,38 @@ var GridManager = function(BrainBrowserViewer){
 
 
   /*
-    Uses the center of a given shape as center of the grid.
+    Uses the center or a point of a given shape as center of the grid.
     Args:
       shapeNameOverall: String - unique name identifier for a shape
   */
-  GridManager.prototype.centerShape = function(shapeNameOverall){
+  GridManager.prototype.centerShape = function(shapeNameOverall, center){
     var that = this;
     var shapeNotFound = true;
 
     this.viewer.model_data.forEach(function(model_data){
 
       model_data.shapes.forEach(function(logicShape){
+        if(logicShape.name !== shapeNameOverall){ return; }
 
-        if(logicShape.name === shapeNameOverall){
-          var shapeCenter = new THREE.Vector3(
+        viewer.resetCenterRotation();
+
+        if (center === undefined) {
+          $("#pick-index").html("");
+          center = new THREE.Vector3(
             logicShape.centroid.x,
             logicShape.centroid.y,
             logicShape.centroid.z
           );
-
-          that.centerOnPoint(shapeCenter);
-          shapeNotFound = false;
-          return;
         }
+
+        $("#pick-name").html(shapeNameOverall);
+        $("#pick-x").html(center.x.toPrecision(4));
+        $("#pick-y").html(center.y.toPrecision(4));
+        $("#pick-z").html(center.z.toPrecision(4));
+
+        that.centerOnPoint(center);
+        shapeNotFound = false;
+        return;
       });
 
       if(!shapeNotFound){
@@ -168,7 +177,6 @@ var GridManager = function(BrainBrowserViewer){
     });
 
   };
-
 
   /*
     Return the bounding box. Possibly null.

@@ -142,17 +142,18 @@ $(function() {
       var type = getFileType(file.name);
       document.getElementById("modelFormatSelector").value = type;
       if (type !== "unknown") {
-        $("#reloadBt").trigger("click")
+        $("#reloadBt").trigger("click", [file.name])
       }
     });
 
-    $("#reloadBt").click(function(){
+    $("#reloadBt").click(function(evt,filename){
       var volumes = [];
       var volume  = {};
       var type    = document.getElementById("modelFormatSelector").value;
       var file    = $("#modelOpener")[0];
 
       volume.type = type;
+      volume.name = filename;
       volume.template = {
           element_id: "volume-ui-template",
           viewer_insert_class: "volume-viewer-display"
@@ -344,6 +345,9 @@ $(function() {
       var vol_id    = event.volume_id;
 
       container = $(container);
+
+      // The file name
+      $("#filename-" + vol_id).html("<div class='control-heading'>Filename: </div>" + volume.name + "<p>")
 
       // The world coordinate input fields.
       container.find(".world-coords").change(function() {
@@ -775,9 +779,10 @@ $(function() {
         viewer.loadVolume(
           volumes[0],
           function() {
-          $(".slice-display").css("display", "inline");
-          $(".volume-controls").css("width", "auto");
-        });
+            $(".slice-display").css("display", "inline");
+            $(".volume-controls").css("width", "auto");
+          }
+        );
       else if (volumes.length === 2) {
         viewer.loadVolumes({
           volumes: [

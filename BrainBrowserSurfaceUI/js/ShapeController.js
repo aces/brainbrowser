@@ -73,6 +73,10 @@ var ShapeController = function(BrainBrowserViewer){
           $("#pick-y").html("");
           $("#pick-z").html("");
           $("#pick-index").html("");
+          if (viewer.pickMarker !== undefined) {
+            viewer.graphicObjects.remove(viewer.pickMarker);
+            viewer.updated    = true;
+          }
           that.focusOnSlider(shapeNameOverall);
         }
 

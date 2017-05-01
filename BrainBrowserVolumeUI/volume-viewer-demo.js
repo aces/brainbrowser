@@ -141,6 +141,9 @@ $(function() {
       var file = evt.target.files[0];
       var type = getFileType(file.name);
       document.getElementById("modelFormatSelector").value = type;
+      if (type !== "unknown") {
+        $("#reloadBt").trigger("click")
+      }
     });
 
     $("#reloadBt").click(function(){
@@ -335,16 +338,12 @@ $(function() {
     //////////////////////////////////
     // Per volume UI hooks go in here.
     //////////////////////////////////
-    // XXXXX todo
     viewer.addEventListener("volumeuiloaded", function(event) {
       var container = event.container;
       var volume    = event.volume;
       var vol_id    = event.volume_id;
 
       container = $(container);
-
-      // XXXX Should be fix
-      // container.find(".button").button();
 
       // The world coordinate input fields.
       container.find(".world-coords").change(function() {

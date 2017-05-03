@@ -142,7 +142,7 @@ $(function() {
       var type = getFileType(file.name);
       document.getElementById("modelFormatSelector").value = type;
       if (type !== "unknown") {
-        $("#reloadBt").trigger("click", [file.name])
+        $("#reloadBt").trigger("click", [file.name]);
       }
     });
 
@@ -348,9 +348,9 @@ $(function() {
 
       // The file name
       if (volume.name !== undefined) {
-        $("#filename-" + vol_id).html("<div class='control-heading'>Filename: </div>" + volume.name + "<p>")
+        $("#filename-" + vol_id).html("<div class='control-heading'>Filename: </div>" + volume.name + "<p>");
       } else {
-        $("#filename-" + vol_id).html("")
+        $("#filename-" + vol_id).html("");
       }
 
       // The world coordinate input fields.

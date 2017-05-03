@@ -274,7 +274,7 @@
       }, false);
 
       element.addEventListener("mouseup", function(event) {
-      event.preventDefault();
+        event.preventDefault();
 
         if (event.button === 0) {
           mouse.left = false;

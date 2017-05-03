@@ -188,7 +188,9 @@ canvas.slice-display {
 
 /* overloading some of the common styles */
 
-
+#content {
+  overflow: unset;
+}
 
 #leftSidebar .controls {
     padding-left: 15px;

@@ -377,7 +377,7 @@ var ShapeController = function(BrainBrowserViewer){
       $(focusicon).addClass("fa-dot-circle-o");
       $(".showAllShapes").trigger("click");
     }
-  }
+  };
 
 
   /*

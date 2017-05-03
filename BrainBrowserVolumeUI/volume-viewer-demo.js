@@ -347,7 +347,11 @@ $(function() {
       container = $(container);
 
       // The file name
-      $("#filename-" + vol_id).html("<div class='control-heading'>Filename: </div>" + volume.name + "<p>")
+      if (volume.name !== undefined) {
+        $("#filename-" + vol_id).html("<div class='control-heading'>Filename: </div>" + volume.name + "<p>")
+      } else {
+        $("#filename-" + vol_id).html("")
+      }
 
       // The world coordinate input fields.
       container.find(".world-coords").change(function() {

@@ -188,10 +188,6 @@ canvas.slice-display {
 
 /* overloading some of the common styles */
 
-#content {
-  overflow-x: scroll;
-  overflow-y: scroll;
-}
 
 
 #leftSidebar .controls {

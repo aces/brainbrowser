@@ -217,8 +217,8 @@
       var left = 0;
 
       while (element.offsetParent) {
-        top += element.offsetTop;
-        left += element.offsetLeft;
+        top    += element.offsetTop;
+        left   += element.offsetLeft;
 
         element = element.offsetParent;
       }
@@ -240,11 +240,23 @@
     * ```
     */
     captureMouse: function(element) {
+
       var mouse = { x: 0, y: 0, left: false, middle: false, right: false};
 
       document.addEventListener("mousemove", function(event) {
-        mouse.x = event.layerX;
-        mouse.y = event.layerY;
+        var offset = BrainBrowser.utils.getOffset(element);
+        var x, y;
+
+        if (event.pageX !== undefined) {
+          x = event.pageX;
+          y = event.pageY;
+        } else {
+          x = event.clientX + window.pageXOffset;
+          y = event.clientY + window.pageYOffset;
+        }
+
+        mouse.x = x - offset.left;
+        mouse.y = y - offset.top;
       }, false);
 
       element.addEventListener("mousedown", function(event) {
@@ -262,7 +274,7 @@
       }, false);
 
       element.addEventListener("mouseup", function(event) {
-        event.preventDefault();
+      event.preventDefault();
 
         if (event.button === 0) {
           mouse.left = false;

@@ -3,7 +3,6 @@ body{
   font-family: 'Lato', sans-serif;
   font-size: 15px;
   color: hsl(196, 100%, 40%);
-  overflow: hidden;
 }
 
 
@@ -11,9 +10,6 @@ body{
   position: absolute;
   width: 100%;
   height: 100%;
-
-
-  overflow: hidden;
 }
 
 

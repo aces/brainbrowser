@@ -59,6 +59,7 @@ $(function() {
       if (type === "functional_minc") {
         volumes = [
           {
+            views: ["zspace", "xspace", "yspace"],
             type: "minc",
             header_url: "models/functional.mnc.header",
             raw_data_url: "models/functional.mnc.raw",
@@ -71,6 +72,7 @@ $(function() {
       } else if (type === "structural_minc") {
         volumes = [
           {
+            views: ["zspace", "xspace", "yspace"],
             type: "minc",
             header_url: "models/structural1.mnc.header",
             raw_data_url: "models/structural1.mnc.raw",
@@ -92,6 +94,7 @@ $(function() {
       } else if (type === "NIfTI-1"){
         volumes = [
           {
+            views: ["zspace", "xspace", "yspace"],
             type: "nifti1",
             nii_url: "models/functional.nii",
             template: {
@@ -111,6 +114,7 @@ $(function() {
       } else if (type === "MGH"){
         volumes = [
           {
+            views: ["zspace", "xspace", "yspace"],
             type: "mgh",
             url: "models/t1.mgh",
             template: {
@@ -601,12 +605,12 @@ $(function() {
         };
 
         div.find(".slice-series-button").click(function() {
-          var axis_name = $(this).data("axis");
-          var axis = volume.header[axis_name];
+          var axis_name    = $(this).data("axis");
+          var axis         = volume.header[axis_name];
           var space_length = axis.space_length;
-          var time = volume.current_time;
-          var per_column = 10;
-          var zoom = 0.5;
+          var time         = volume.current_time;
+          var per_column   = 10;
+          var zoom         = 0.5;
           var i, x, y;
 
           // Canvas on which to draw the images.
@@ -789,6 +793,7 @@ $(function() {
         );
       else if (volumes.length === 2) {
         viewer.loadVolumes({
+          views: ["zspace", "xspace", "yspace"],
           volumes: [
             volumes[0],
             volumes[1],
@@ -797,7 +802,8 @@ $(function() {
             template: {
               element_id: "overlay-ui-template",
               viewer_insert_class: "overlay-viewer-display"
-            }
+            },
+          views: ["zspace", "xspace", "yspace"],
           }
         });
       }
@@ -931,6 +937,7 @@ $(function() {
     // Load the volumes.
     /////////////////////
     viewer.loadVolumes({
+      views: ["zspace", "xspace", "yspace"],
       volumes: [
         {
           type: "minc",
@@ -955,7 +962,7 @@ $(function() {
         template: {
           element_id: "overlay-ui-template",
           viewer_insert_class: "overlay-viewer-display"
-        }
+        },
       },
       complete: function() {
         loading_div.hide();

@@ -179,9 +179,11 @@ var VertexIndexingController = function(BrainBrowserViewer){
     // The type is known
     if(type){
       document.getElementById("intensityFormatSelector").value = type;
+      document.getElementById("noteVertexFilename").innerHTML  = "";
       this.loadIntensityFile(evt.target, type);
     }else{
       document.getElementById("intensityFormatSelector").value = "unknown";
+      document.getElementById("noteVertexFilename").innerHTML  = "<b>Note:</b> Select a format and load";
       this.enableUiElement("intensityDataFormat");
     }
     document.getElementById('vertexFilename').innerHTML   = "Filename: " + file.name;

@@ -25,7 +25,7 @@ var ModelLoader = function(BrainBrowserViewer){
       type: "freesurferasc"
     },
     {
-      ext: [/\.white(\.gz)$/,/\.pial(\.gz)$/,/\.mid(\.gz)$/,/binary/ ],
+      ext: [/h\.inflated(\.gz)?$/,/h\.white(\.gz)?$/,/h\.pial(\.gz)?$/,/h\.mid(\.gz)?$/,/binary/ ],
       type: "freesurferbin"
     }
   ];
@@ -60,11 +60,14 @@ var ModelLoader = function(BrainBrowserViewer){
 
     // The type is known
     if(type){
-      document.getElementById("modelFormatSelector").value = type;
+      document.getElementById("modelFormatSelector").value   = type;
+      document.getElementById('modelFilename').innerHTML     = "";
+      document.getElementById('noteModelFilename').innerHTML = "";
       this.loadModelFile(evt.target, type);
     }else{
-      document.getElementById('modelFilename').innerHTML   = "Filename: " + file.name;
-      document.getElementById("modelFormatSelector").value = "unknown";
+      document.getElementById('modelFilename').innerHTML     = "Filename: " + file.name;
+      document.getElementById('noteModelFilename').innerHTML = "<b>Note:</b> Select a file format and load"
+      document.getElementById("modelFormatSelector").value   = "unknown";
     }
   };
 
@@ -88,6 +91,7 @@ var ModelLoader = function(BrainBrowserViewer){
       complete: function(){
         that.doneOpeningFile();
         document.getElementById('modelFilename').innerHTML = "";
+        document.getElementById('noteModelFilename').innerHTML = "";
       }
     });
   };

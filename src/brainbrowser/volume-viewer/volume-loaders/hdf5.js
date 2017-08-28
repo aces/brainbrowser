@@ -1884,7 +1884,8 @@
     }
 
     function loadData(link) {
-      if (link.chunk_size !== 0) {
+      if (link.chunk_size !== 0 &&
+          link.data_offset > 0 && link.data_offset < superblk.eof_addr) {
         seek(link.data_offset);
 
         var n_bytes = 1;

@@ -1060,7 +1060,11 @@
         var fh = hdf5FractalHeapHeader();
         var n_msg = 0;
         hdf5FractalHeapEnumerate( fh, function(row, address, block_offset, block_length) {
-          var end_address = address + block_length;
+          /* Avoid errors caused by extra alignment bytes by
+           * ignoring the last few bytes in the block, if
+           * present.
+           */
+          var end_address = address + block_length - 4;
           while (n_msg < fh.heap_nobj && tell() < end_address) {
             hdf5MsgLink(link);
             n_msg += 1;

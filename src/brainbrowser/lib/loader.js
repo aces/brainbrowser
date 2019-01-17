@@ -27,6 +27,8 @@
 (function() {
   "use strict";
 
+  var pako = require('pako');
+
   var loader = BrainBrowser.loader = {
     
     /**
@@ -73,7 +75,17 @@
           // Based on jQuery's "success" codes.
           if(status >= 200 && status < 300 || status === 304) {
             if (!loader.checkCancel(options)) {
-              callback(request.response, filename, options);
+              var result = request.response;
+              try {
+                /* See if the data can be inflated.
+                 */
+                var unzipped = pako.inflate(result);
+                result = unzipped.buffer;
+              } catch (e) {
+                /* pako probably didn't recognize this as gzip.
+                 */
+              }
+              callback(result, filename, options);
             }
           } else {
             var error_message = "error loading URL: " + url + "\n" +

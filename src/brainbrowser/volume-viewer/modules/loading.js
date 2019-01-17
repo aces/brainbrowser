@@ -318,10 +318,11 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
   viewer.createOverlay = function(description, callback) {
 
     description = description || {};
+    var overlay_type = description.type || 'overlay';
 
     viewer.loadVolume({
         volumes: viewer.volumes,
-        type: "overlay",
+        type: overlay_type,
         template: description.template
       },
       callback

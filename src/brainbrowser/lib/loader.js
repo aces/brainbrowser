@@ -85,7 +85,6 @@
               } catch (e) {
                 /* pako probably didn't recognize this as gzip.
                  */
-                console.log('pako exception', e);
               }
               callback(result, filename, options);
             }
@@ -143,7 +142,6 @@
       var filename = parts[parts.length-1];
 
       reader.file = files[0];
-      console.log(window);
       reader.onloadend = function(event) {
         var result = event.target.result;
         try {

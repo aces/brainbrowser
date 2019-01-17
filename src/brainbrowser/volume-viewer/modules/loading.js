@@ -508,7 +508,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
       }
 
       Array.prototype.forEach.call(template, function(node) {
-        if (node.nodeType === 1) {
+        if (node.nodeType === 1 && volume_description.show_volume !== false) {
           container.appendChild(node);
         }
       });
@@ -730,12 +730,16 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
     var next_id;
     for (next_id = vol_id + 1; next_id < containers.length; next_id++) {
       if (next_id in containers) {
-        dom_element.insertBefore(container, containers[next_id]);
+        if (volume_description.show_volume !== false) {
+          dom_element.insertBefore(container, containers[next_id]);
+        }
         break;
       }
     }
     if (next_id === containers.length) {
-      dom_element.appendChild(container);
+      if (volume_description.show_volume !== false) {
+        dom_element.appendChild(container);
+      }
     }
     viewer.triggerEvent("volumeuiloaded", {
       container: container,

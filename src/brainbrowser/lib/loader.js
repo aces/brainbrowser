@@ -27,8 +27,9 @@
 (function() {
   "use strict";
 
-  var pako = require('pako');
-
+  if (typeof require == 'function') {
+    window.pako = require('pako');
+  }
   var loader = BrainBrowser.loader = {
     
     /**
@@ -79,11 +80,12 @@
               try {
                 /* See if the data can be inflated.
                  */
-                var unzipped = pako.inflate(result);
+                var unzipped = window.pako.inflate(result);
                 result = unzipped.buffer;
               } catch (e) {
                 /* pako probably didn't recognize this as gzip.
                  */
+                console.log('pako exception', e);
               }
               callback(result, filename, options);
             }
@@ -141,13 +143,13 @@
       var filename = parts[parts.length-1];
 
       reader.file = files[0];
-
+      console.log(window);
       reader.onloadend = function(event) {
         var result = event.target.result;
         try {
           /* See if the data can be inflated.
            */
-          var unzipped = pako.inflate(result);
+          var unzipped = window.pako.inflate(result);
           result = unzipped.buffer;
         } catch(e) {
           /* pako probably didn't recognize this as gzip.

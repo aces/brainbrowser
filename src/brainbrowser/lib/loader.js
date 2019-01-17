@@ -27,6 +27,9 @@
 (function() {
   "use strict";
 
+  if (typeof require == 'function') {
+    window.pako = require('pako');
+  }
   var loader = BrainBrowser.loader = {
     
     /**
@@ -73,7 +76,17 @@
           // Based on jQuery's "success" codes.
           if(status >= 200 && status < 300 || status === 304) {
             if (!loader.checkCancel(options)) {
-              callback(request.response, filename, options);
+              var result = request.response;
+              try {
+                /* See if the data can be inflated.
+                 */
+                var unzipped = window.pako.inflate(result);
+                result = unzipped.buffer;
+              } catch (e) {
+                /* pako probably didn't recognize this as gzip.
+                 */
+              }
+              callback(result, filename, options);
             }
           } else {
             var error_message = "error loading URL: " + url + "\n" +
@@ -129,13 +142,12 @@
       var filename = parts[parts.length-1];
 
       reader.file = files[0];
-
       reader.onloadend = function(event) {
         var result = event.target.result;
         try {
           /* See if the data can be inflated.
            */
-          var unzipped = pako.inflate(result);
+          var unzipped = window.pako.inflate(result);
           result = unzipped.buffer;
         } catch(e) {
           /* pako probably didn't recognize this as gzip.

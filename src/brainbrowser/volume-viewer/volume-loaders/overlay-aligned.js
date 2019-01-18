@@ -99,6 +99,7 @@
         var factor = volume.header[axis].step / volumes[0].header[axis].step;
         var corrected_slice_num = Math.round(slice_num / factor);
         var slice = volume.slice(axis, corrected_slice_num, time);
+        slice.display_zindex = volume.header.display_zindex;
         slices.push(slice);
       });
 
@@ -183,6 +184,8 @@
           )
         );
 
+        target_image.display_zindex = slice.display_zindex;
+
         images.push(target_image);
       });
 
@@ -229,11 +232,15 @@
   // if image 1 has value, use image 1, otherwise use image 0
   function blendImages(images, target) {
     var num_images = images.length;
-
     if (num_images === 1) {
       return images[0];
     }
+    images.sort(function (a, b) {
+      var a_zindex = a.display_zindex || 0;
+      var b_zindex = b.display_zindex || 0;
+      return a_zindex - b_zindex;
 
+    })
     var target_data = target.data;
     var width = target.width;
     var height = target.height;

@@ -36,20 +36,20 @@
     if (!description.header_file && description.raw_data_file) {
       BrainBrowser.loader.loadFromFile(description.raw_data_file, function(raw_data) {
         var tmp = VolumeViewer.utils.hdf5Loader(raw_data);
-        parseHeader(tmp.header_text, function(header) {
+        parseHeader(tmp.header_text, description.display_zindex, function(header) {
           createMincVolume(header, tmp.raw_data, callback);
         });
       }, { result_type: "arraybuffer" });
     } else if (!description.header_url && description.raw_data_url) {
       BrainBrowser.loader.loadFromURL(description.raw_data_url, function(raw_data) {
         var tmp = VolumeViewer.utils.hdf5Loader(raw_data);
-        parseHeader(tmp.header_text, function(header) {
+        parseHeader(tmp.header_text, description.display_zindex, function(header) {
           createMincVolume(header, tmp.raw_data, callback);
         });
       }, { result_type: "arraybuffer" });
     } else if (description.header_url && description.raw_data_url) {
       BrainBrowser.loader.loadFromURL(description.header_url, function(header_text) {
-        parseHeader(header_text, function(header) {
+        parseHeader(header_text, description.display_zindex, function(header) {
           BrainBrowser.loader.loadFromURL(description.raw_data_url, function(raw_data) {
             createMincVolume(header, raw_data, callback);
           }, { result_type: "arraybuffer" });
@@ -57,14 +57,14 @@
       });
     } else if (description.header_file && description.raw_data_file) {
       BrainBrowser.loader.loadFromFile(description.header_file, function(header_text) {
-        parseHeader(header_text, function(header) {
+        parseHeader(header_text, description.display_zindex, function(header) {
           BrainBrowser.loader.loadFromFile(description.raw_data_file, function(raw_data) {
             createMincVolume(header, raw_data, callback);
           }, { result_type: "arraybuffer" });
         });
       });
     } else if (description.header_source && description.raw_data_source) {
-      parseHeader(description.header_source, function(header) {
+      parseHeader(description.header_source, description.display_zindex, function(header) {
         createMincVolume(header, description.raw_data_source, callback);
       });
     } else {
@@ -508,7 +508,7 @@
       header.voxel_max = 255;
   }
 
-  function parseHeader(header_text, callback) {
+  function parseHeader(header_text, display_zindex, callback) {
     var header;
     var error_message;
 
@@ -562,7 +562,7 @@
       header.time.step = parseFloat(header.time.step);
       header.time.offset = header.xspace.space_length * header.yspace.space_length * header.zspace.space_length;
     }
-
+    header.display_zindex = display_zindex;
     if (BrainBrowser.utils.isFunction(callback)) {
       callback(header);
     }

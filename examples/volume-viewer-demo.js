@@ -67,6 +67,7 @@ $(function() {
         viewer.loadVolumes({
           volumes: [
             {
+              show_volume: false,
               type: "minc",
               header_url: "models/structural1.mnc.header",
               raw_data_url: "models/structural1.mnc.raw",
@@ -98,6 +99,7 @@ $(function() {
         viewer.loadVolumes({
           volumes: [
             {
+              show_volume: false,
               type: "nifti1",
               nii_url: "models/functional.nii",
               template: {
@@ -106,6 +108,7 @@ $(function() {
               }
             },
             {
+              show_volume: false,
               type: 'nifti1',
               nii_url: "models/structural.nii",
               template: {
@@ -127,6 +130,7 @@ $(function() {
         viewer.loadVolumes({
           volumes: [
             {
+              show_volume: false,
               type: "mgh",
               url: "models/t1.mgh",
               template: {
@@ -135,6 +139,7 @@ $(function() {
               }
             },
             {
+              show_volume: false,
               type: 'mgh',
               url: "models/dti.mgh",
               template: {
@@ -893,6 +898,7 @@ $(function() {
     viewer.loadVolumes({
       volumes: [
         {
+          show_volume: false,
           type: "minc",
           header_url: "models/structural1.mnc.header",
           raw_data_url: "models/structural1.mnc.raw",

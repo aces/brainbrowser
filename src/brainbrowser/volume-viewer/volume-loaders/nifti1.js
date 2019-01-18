@@ -38,19 +38,19 @@
     var error_message;
     if (description.nii_url) {
       BrainBrowser.loader.loadFromURL(description.nii_url, function(nii_data) {
-        parseNifti1Header(nii_data, function(header) {
+        parseNifti1Header(nii_data, description.display_zindex, function(header) {
           createNifti1Volume(header, nii_data, callback);
         });
       }, {result_type: "arraybuffer" });
 
     } else if (description.nii_file) {
       BrainBrowser.loader.loadFromFile(description.nii_file, function(nii_data) {
-        parseNifti1Header(nii_data, function(header) {
+        parseNifti1Header(nii_data, description.display_zindex, function(header) {
           createNifti1Volume(header, nii_data, callback);
         });
       }, {result_type: "arraybuffer" });
     } else if (description.nii_source) {
-      parseNifti1Header(description.nii_source, function(header) {
+      parseNifti1Header(description.nii_source, description.display_zindex, function(header) {
         createNifti1Volume(header, description.nii_source, callback);
       });
     } else {
@@ -140,7 +140,7 @@
     header.zspace.direction_cosines = z_dir_cosines;
   };
 
-  function parseNifti1Header(raw_data, callback) {
+  function parseNifti1Header(raw_data, display_zindex, callback) {
     var header = {
       order: [],
       xspace: {},
@@ -308,6 +308,7 @@
     header.vox_offset = vox_offset;
     header.scl_slope = scl_slope;
     header.scl_inter = scl_inter;
+    header.display_zindex = display_zindex;
 
     if (BrainBrowser.utils.isFunction(callback)) {
       callback(header);

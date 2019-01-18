@@ -49,19 +49,19 @@
     var error_message;
     if (description.url) {
       BrainBrowser.loader.loadFromURL(description.url, function(data) {
-        parseMGHHeader(data, function(header) {
+        parseMGHHeader(data, description.display_zindex, function(header) {
           createMGHVolume(header, data, callback);
         });
       }, {result_type: "arraybuffer" });
 
     } else if (description.file) {
       BrainBrowser.loader.loadFromFile(description.file, function(data) {
-        parseMGHHeader(data, function(header) {
+        parseMGHHeader(data, description.display_zindex, function(header) {
           createMGHVolume(header, data, callback);
         });
       }, {result_type: "arraybuffer" });
     } else if (description.source) {
-      parseMGHHeader(description.source, function(header) {
+      parseMGHHeader(description.source, description.display_zindex, function(header) {
         createMGHVolume(header, description.source, callback);
       });
     } else {
@@ -91,7 +91,7 @@
    * header.datatype - MGH data type of image.
    * header.little_endian - True if data is little endian (should be false!)
    */
-  function parseMGHHeader(raw_data, callback) {
+  function parseMGHHeader(raw_data, display_zindex, callback) {
     var header = {
       order: ["xspace", "yspace", "zspace"],
       xspace: {},
@@ -284,6 +284,8 @@
     for (i = 0; i < 3; i++) {
       header[header.order[i]].space_length = sizes[i];
     }
+
+    header.display_zindex = display_zindex;
 
     if (BrainBrowser.utils.isFunction(callback)) {
       callback(header);

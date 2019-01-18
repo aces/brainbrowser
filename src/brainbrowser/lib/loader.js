@@ -28,7 +28,7 @@
   "use strict";
 
   if (typeof require == 'function') {
-    window.pako = require('pako');
+    window.pako = require('./pako');
   }
   var loader = BrainBrowser.loader = {
     

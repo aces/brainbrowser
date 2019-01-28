@@ -65,7 +65,7 @@
 
       request.open("GET", url);
 
-      if (result_type === "arraybuffer") {
+      if (result_type === "arraybuffer" || url.endsWith(".gz")) {
         request.responseType = "arraybuffer";
       }
       
@@ -82,6 +82,14 @@
                  */
                 var unzipped = window.pako.inflate(result);
                 result = unzipped.buffer;
+                /* At this point, we have a binary hunk of data that may
+                 * have been inflated.
+                 */
+                if (result_type !== 'arraybuffer' && typeof TextDecoder === 'function') {
+                  var dv = new DataView(result);
+                  var decoder = new TextDecoder();
+                  result = decoder.decode(dv);
+                }
               } catch (e) {
                 /* pako probably didn't recognize this as gzip.
                  */

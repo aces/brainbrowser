@@ -76,25 +76,7 @@
           // Based on jQuery's "success" codes.
           if(status >= 200 && status < 300 || status === 304) {
             if (!loader.checkCancel(options)) {
-              var result = request.response;
-              try {
-                /* See if the data can be inflated.
-                 */
-                var unzipped = window.pako.inflate(result);
-                result = unzipped.buffer;
-                /* At this point, we have a binary hunk of data that may
-                 * have been inflated.
-                 */
-                if (result_type !== 'arraybuffer' && typeof TextDecoder === 'function') {
-                  var dv = new DataView(result);
-                  var decoder = new TextDecoder();
-                  result = decoder.decode(dv);
-                }
-              } catch (e) {
-                /* pako probably didn't recognize this as gzip.
-                 */
-              }
-              callback(result, filename, options);
+              callback(request.response, filename, options);
             }
           } else {
             var error_message = "error loading URL: " + url + "\n" +

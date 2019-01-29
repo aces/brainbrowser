@@ -59,13 +59,12 @@
       options = options || {};
       var request = new XMLHttpRequest();
       var result_type = options.result_type;
-      var result_gzipped = options.gzipped;
       var status;
       var parts = url.split("/");
       var filename = parts[parts.length-1];
 
       request.open("GET", url);
-      if (result_type === "arraybuffer" || result_gzipped) {
+      if (result_type === "arraybuffer") {
         request.responseType = "arraybuffer";
       }
       

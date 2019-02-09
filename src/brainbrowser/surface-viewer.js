@@ -275,6 +275,7 @@
         touches: BrainBrowser.utils.captureTouch(dom_element),
         updated: true,
         zoom: 1,
+        rotate_speed: 1,
         autorotate: {
           x: false,
           y: false,

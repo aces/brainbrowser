@@ -915,7 +915,7 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     current_frame = timestamp;
 
     delta = current_frame - last_frame;
-    rotation = delta * 0.00015;
+    rotation = delta * 0.00015 * viewer.rotate_speed;
 
     if (viewer.autorotate.x) {
       model.rotation.x += rotation;

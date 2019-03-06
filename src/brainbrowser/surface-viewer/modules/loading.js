@@ -330,9 +330,10 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
   /**
   * @doc function
   * @name viewer.loading:loadIntensityDataFromFileLocal
-  * @param {array} data An array containing the intensities, one per vertex in the
+  * @param {array} data An array containing the intensities, one per vertex in active 
+    model (or model specified in the **BrainBrowser.config** **name**)
   * @param {string} name A string specifying a name for the intensity data
-    active model (or model specified in the **BrainBrowser.config** **name**
+    active model (or model specified in the **BrainBrowser.config** **name**)
   * @param {object} options Options for the color update, which include the following:
   *
   * * **format** The format of input file. Should be configured using

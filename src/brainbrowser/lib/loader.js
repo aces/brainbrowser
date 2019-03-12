@@ -57,8 +57,10 @@
     */
     loadFromURL: function(url, callback, options) {
       options = options || {};
+      var result;
       var request = new XMLHttpRequest();
       var result_type = options.result_type;
+      var content_type = options.content_type;
       var status;
       var parts = url.split("/");
       var filename = parts[parts.length-1];
@@ -67,15 +69,32 @@
       if (result_type === "arraybuffer") {
         request.responseType = "arraybuffer";
       }
-      
+
       request.onreadystatechange = function() {
         if (request.readyState === 4){
           status = request.status;
 
           // Based on jQuery's "success" codes.
-          if(status >= 200 && status < 300 || status === 304) {
+          if (status >= 200 && status < 300 || status === 304) {
             if (!loader.checkCancel(options)) {
-              callback(request.response, filename, options);
+              result = request.response;
+              try {
+                /* See if the data can be inflated.
+                */
+                var unzipped = window.pako.inflate(result);
+                result = unzipped.buffer;
+                if (content_type === "text") {
+                  console.log('text decoding');
+                  var dv = new DataView(result);
+                  var decoder = new TextDecoder();
+                  result = decoder.decode(dv);
+                }
+              } catch (e) {
+                /* pako probably didn't recognize this as gzip.
+                */
+              } finally {
+                callback(result, filename, options);
+              }
             }
           } else {
             var error_message = "error loading URL: " + url + "\n" +

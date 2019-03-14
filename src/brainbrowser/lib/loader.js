@@ -84,7 +84,6 @@
                 var unzipped = window.pako.inflate(result);
                 result = unzipped.buffer;
                 if (content_type === "text") {
-                  console.log('text decoding');
                   var dv = new DataView(result);
                   var decoder = new TextDecoder();
                   result = decoder.decode(dv);

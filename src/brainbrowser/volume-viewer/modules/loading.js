@@ -694,9 +694,11 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
         }, false);
         
         function wheelHandler(event) {
-          event.preventDefault();
+          if (event.ctrlKey) {
+            event.preventDefault();
 
-          zoom(Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail))));
+            zoom(Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail))));
+          }
         }
 
         function zoom(delta) {
@@ -719,6 +721,7 @@ BrainBrowser.VolumeViewer.modules.loading = function(viewer) {
         }
 
         canvas.addEventListener("mousewheel", wheelHandler, false);
+        canvas.addEventListener("wheel", wheelHandler, false);
         canvas.addEventListener("DOMMouseScroll", wheelHandler, false); // Dammit Firefox
       });
     })();

@@ -1053,11 +1053,13 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     }
 
     function wheelHandler(event) {
-      var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
+      if (event.ctrlKey) {
+        var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
 
-      event.preventDefault();
+        event.preventDefault();
 
-      viewer.zoom *= 1.0 + 0.05 * delta;
+        viewer.zoom *= 1.0 + 0.02 * delta;
+      }
     }
 
     canvas.addEventListener("mousedown", function(event) {
@@ -1077,12 +1079,14 @@ BrainBrowser.SurfaceViewer.modules.rendering = function(viewer) {
     }, false);
 
     canvas.addEventListener("mousewheel", wheelHandler, false);
+    // https://medium.com/@auchenberg/detecting-multi-touch-trackpad-gestures-in-javascript-a2505babb10e
+    canvas.addEventListener("wheel", wheelHandler, false);
     canvas.addEventListener("DOMMouseScroll", wheelHandler, false); // Dammit Firefox
 
     canvas.addEventListener( 'contextmenu', function(event) {
       event.preventDefault();
-    }, false );
-
+    }, false);
+    
   })();
 
 };

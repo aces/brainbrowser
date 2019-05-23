@@ -54,11 +54,11 @@
 
     for (var i = 0; i < order.length; i++) {
       header[order[i]] = {};
-      header[order[i]].step = 1;
-      header[order[i]].start = -SIZE / 2;
-      header[order[i]].direction_cosines = [0, 0, 0];
-      header[order[i]].direction_cosines[i] = 1;
-      header[order[i]].space_length = SIZE;
+      header[order[i]].step = volumes[0].header[order[i]].step;
+      header[order[i]].start = volumes[0].header[order[i]].start;
+      header[order[i]].direction_cosines = volumes[0].header[order[i]].direction_cosines;
+      header[order[i]].space_length = volumes[0].header[order[i]].space_length;
+
     }
     /* Use this header to create the volume object for the
      * overlay. This will set the transform and populate
@@ -118,28 +118,11 @@
 
       var slices = slice.slices;
       var images = [];
-      var max_width = Math.round(this.size * zoom);
-      var max_height = max_width;
+      // var max_width = Math.round(this.size * zoom);
+      // var max_height = max_width;
 
-      // Stepping through the dimensions efficiently means we need
-      // to keep stepping our voxel coordinates by the appropriate
-      // amount relative to the world coordinate frame. We do this
-      // by grabbing the appropriate column from the world-to-voxel
-      // transform and scaling those values by the zoom factor.
-      //
-      function voxelStepForSpace(header, name, zoom) {
-        var index = name.charCodeAt(0) - "x".charCodeAt(0);
-        var temp = {
-          xspace: header.w2v[0][index],
-          yspace: header.w2v[1][index],
-          zspace: header.w2v[2][index]
-        };
-        return {
-          di: temp[header.order[0]] / zoom,
-          dj: temp[header.order[1]] / zoom,
-          dk: temp[header.order[2]] / zoom
-        };
-      }
+      var max_width = Math.round(slices[0].width * zoom);
+      var max_height = Math.round(slices[0].height * zoom);
 
       slices.forEach(function (slice, i) {
         var volume = overlay_volume.volumes[i];
@@ -152,8 +135,6 @@
           throw new Error(error_message);
         }
 
-        var xstep = slice.width_space.step;
-        var ystep = slice.height_space.step;
         var target_width = max_width;
         var target_height = max_height;
         var source_image = image_creation_context.createImageData(slice.width, slice.height);

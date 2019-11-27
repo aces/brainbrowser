@@ -136,11 +136,21 @@
     */
     getWorkerImportURL: function() {
       var worker_dir = BrainBrowser.config.get("worker_dir");
+      let protocal = document.location.protocol;
       let import_url = document.location.origin;
-      if (!import_url.endsWith('/') && worker_dir[0] !== '/') {
-        import_url = import_url + '/';
+      if (protocal === 'file:') {
+        let href = document.location.href;
+        if (href.endsWith('/')) {
+          href = href.substring(0, href.lastIndexOf('/'));
+        }
+        href = href.substring(0, href.lastIndexOf('/') + 1);
+        import_url = href + worker_dir;
+      } else {
+        if (!import_url.endsWith('/') && worker_dir[0] !== '/') {
+          import_url = import_url + '/';
+        }
+        import_url += worker_dir;
       }
-      import_url += worker_dir;
       if (!import_url.endsWith('/')) {
         import_url = import_url + '/';
       }

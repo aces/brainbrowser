@@ -292,13 +292,13 @@
       * color_map.createElement(0.0, 7.0);
       * ```
       */
-      createElement: function(min, max) {
+      createElement: function(min, max, width) {
         var canvas;
         var context;
         var colors = color_map.colors;
         var range = max - min;
 
-        canvas  = createCanvas(colors, 20, 40, flip);
+        canvas  = createCanvas(colors, 20, 40, width,flip);
         context = canvas.getContext("2d");
 
         context.fillStyle = "#FFA000";
@@ -351,14 +351,14 @@
     //   colors: array of colors
     //   color_height: height of the color bar
     //   full_height: height of the canvas
-    function createCanvas(colors, color_height, full_height) {
+    function createCanvas(colors, color_height, full_height,full_width) {
       var canvas = document.createElement("canvas");
       var value_array  = new Array(256);
       var i;
       var context;
       var old_scale;
 
-      canvas.width  = 256;
+      canvas.width  = full_width ? full_width : 256;
       canvas.height = full_height;
 
       for (i = 0; i < 256; i++) {

@@ -228,14 +228,31 @@
       var top = 0;
       var left = 0;
       
+      var scrollTop = 0;
+      var scrollParent = BrainBrowser.utils.getScrollParent(element);
+      while(scrollParent && !scrollParent.isSameNode($("html")[0])) {
+        scrollTop += scrollParent.scrollTop;        
+        scrollParent = BrainBrowser.utils.getScrollParent(scrollParent.parentNode);
+      }
+
       while (element.offsetParent) {
         top += element.offsetTop;
         left += element.offsetLeft;
-        
+
         element = element.offsetParent;
       }
-      
-      return {top: top, left: left};
+      return {top: top - scrollTop, left: left, element: element};
+    },
+
+    getScrollParent: function(node) {
+      if (node == null) {
+        return null;
+      }
+      if (node.scrollHeight > node.clientHeight) {
+        return node;
+      } else {
+        return BrainBrowser.utils.getScrollParent(node.parentNode);
+      }
     },
 
     /**
@@ -257,7 +274,6 @@
       document.addEventListener("mousemove", function(event) {
         var offset = BrainBrowser.utils.getOffset(element);
         var x, y;
-
         if (event.pageX !== undefined) {
           x = event.pageX;
           y = event.pageY;

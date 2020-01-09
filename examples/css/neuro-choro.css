@@ -1,0 +1,101 @@
+#colfilterTitle {
+  text-decoration:underline;
+}
+
+#minlabel {
+  padding-right:20px;
+}
+#applicationHolder, div {
+  max-width:none !important;
+}
+.infoholder{
+  display:flex;
+  flex-wrap:wrap;
+}
+
+div#btnholder {
+  width:50%;
+  text-align:center;
+  padding:10%;
+  margin:0 auto;
+}
+#introholder {
+    width:50%;
+    margin:0 auto;
+}
+#introholder{
+    text-align:center;
+}
+#btnholder button {
+  width:30%;
+  height:50px;
+}
+#backline {
+  height: 10px;
+  margin: 0px auto;
+  background: rgba(80,80,80);
+  width: 90%;
+  position: relative;
+  top: 65%;
+}
+#labelholder {
+
+    height: 30px;
+    margin: 0px 0px 10px 0px;
+    width: 25%;
+    display: flex;
+
+}
+#allpanes {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+
+div.fillFilterDiv {
+    width: 25%;
+    height:30px;
+    margin: 0px 0px 10px 0px;
+    
+}
+#sliderdiv::before {
+  content:"Slice Selector   ";
+  text-decoration:underline;
+}
+
+#radcontaineraxial::before {
+  content:"Brain views ";
+  display:block;
+  text-decoration:underline;
+}
+.altFilterRow img {
+  width:20px;
+  vertical-align:middle;
+}
+#fillcoldiv::before {
+  content:"Region Color Column ";
+  text-decoration:underline;
+}
+
+div.pane {
+    border: 1px 
+    black solid;
+    border-radius: 20px;
+    padding: 10px;
+    width:600px;
+    margin:0 0;
+}
+#regionname {
+    background:  #dbdbba;
+}
+.infoHolder {
+  display:flex;
+  flex-wrap:wrap;
+}
+.tooltipholder {
+    width:50%;
+    font-size: 12px;
+    border: 1px black solid;
+    border-radius: 20px;
+    text-align: center;
+}

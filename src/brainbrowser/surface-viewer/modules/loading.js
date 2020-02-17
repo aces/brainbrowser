@@ -234,6 +234,34 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     loader.loadFromFile(file_input, loadModel, options);
   };
 
+    /**
+  * @doc function
+  * @name viewer.loading:loadModelFromLocal
+  * @param {object} model_data An object containing model data
+  * @param {string} name A name to give to this model
+  * @param {object} options Options for the color update, which include the following:
+  *
+  * * **render_depth** Force rendering at the given depth (can help with transparency).
+  * * **pick_ignore** Ignore this object when picking.
+  * * **recenter** Shift object vertex positions to be relative to the centroid (can
+  *   help with transparency).
+  *
+  * @description
+  * Display a pre-loaded and parsed model from a local javascript object
+  * ```js
+  * viewer.loadModelFromLocal(model_data, "local_model");
+  * ```
+  */
+  viewer.loadModelFromLocal = function(model_data, name, options) {
+    options            = options || {};
+    if(! options.hasOwnProperty("dont_parse")){
+      options.dont_parse = true;
+    }
+    
+    loadModel(model_data, name, options);
+  };
+  
+
   /**
   * @doc function
   * @name viewer.loading:loadIntensityDataFromURL
@@ -301,6 +329,45 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
 
   /**
   * @doc function
+  * @name viewer.loading:loadIntensityDataFromFileLocal
+  * @param {array} data An array containing the intensities, one per vertex in active 
+    model (or model specified in the **BrainBrowser.config** **name**)
+  * @param {string} name A string specifying a name for the intensity data
+    active model (or model specified in the **BrainBrowser.config** **name**)
+  * @param {object} options Options for the color update, which include the following:
+  *
+  * * **format** The format of input file. Should be configured using
+  *   BrainBrowser.config.
+  * * **min** Minimum value of the intensity.
+  * * **max** Maximum value of the intensity.
+  * * **model\_name** The name of a specific model to which this map will be applied.
+  * * **shape\_name** The name of a specific shape to which this map will be applied.
+  * * **name* Name to give the intensity data.
+  * * **blend** Blend this data map with previously loaded data.
+  * * **complete** Callback function to call when the color update is done.
+  *
+  * @description
+  * Load a color map from a local file.
+  * ```js
+  * viewer.loadIntensityDataFromLocal(object, {
+  *   min: 1.0,
+  *   max: 7.0,
+  *   model_name: "brain.obj"
+  * });
+  * ```
+  */
+  viewer.loadIntensityDataFromLocal = function(data, name, options) {
+    options            = options || {};
+    if(! options.hasOwnProperty("dont_parse")){
+      options.dont_parse = true;
+    }
+
+    loadIntensityData(data, name, options);
+  };
+
+
+  /**
+  * @doc function
   * @name viewer.loading:loadColorMapFromURL
   * @param {string} url URL of the color map file to load.
   * @param {object} options Options are passed on to
@@ -335,6 +402,34 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     loader.loadColorMapFromFile(file_input, loadColorMap, options);
   };
 
+    /**
+  * @doc function
+  * @name viewer.loading:loadColorMapFromString
+  * @param {string} string A string containing the colour map to be used
+  * **BrainBrowser.loader.loadColorMapFromString()**
+  *
+  * @description
+  * Load and parse color map data from a local file.
+  * ```js
+  * viewer.loadColorMapFromString(
+  *   "0.0 0.0 0.0 1.0\n" +
+  *     "0.1 0.15 0.8 1.0\n" +
+  *     "0.2 0.35 0.8 1.0\n" +
+  *     "0.3 0.45 0.8 1.0\n" +
+  *     "0.4 0.5 0.9 1.0\n" +
+  *     " \n" +
+  *     "0.4 0.5 0.9 1.0\n" +
+  *     "0.3 0.45 0.8 1.0\n" +
+  *     "0.2 0.35 0.8 1.0\n" +
+  *     "0.1 0.15 0.8 1.0\n" +
+  *     "0.0 0.0 0.0 1.0\n");
+  * ```
+  */
+  viewer.loadColorMapFromString = function(string){
+    var colmap = BrainBrowser.createColorMap(string);
+    loadColorMap(colmap);
+  };
+
   /**
   * @doc function
   * @name viewer.loading:clearScreen
@@ -366,13 +461,20 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     options           = options        || {};
     var type          = options.format || "mniobj";
     var parse_options = options.parse  || {};
-
+    var dont_parse    = options.dont_parse;
+    
     // Parse model info based on the given file type.
-    parseModel(data, type, parse_options, function(model_data) {
+    if(dont_parse){
       if (!BrainBrowser.loader.checkCancel(options.cancel)) {
-        displayModel(model_data, filename, options);
+        displayModel(data, filename, options);
       }
-    });
+    } else {
+      parseModel(data, type, parse_options, function(model_data) {
+        if (!BrainBrowser.loader.checkCancel(options.cancel)) {
+          displayModel(model_data, filename, options);
+        }
+      });
+    }
   }
 
   function loadIntensityData(text, filename, options) {
@@ -383,19 +485,11 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
     var model_name     = options.model_name;
     var model_data     = viewer.model_data.get(model_name);
     var intensity_data = model_data.intensity_data[0];
+    var dont_parse     = options.dont_parse;
 
     var old_range = {};
 
-    model_name = model_name || model_data.name;
-
-    if (viewer.getAttribute("fix_color_range") && intensity_data) {
-      old_range = {
-        min: intensity_data.range_min,
-        max: intensity_data.range_max
-      };
-    }
-
-    SurfaceViewer.parseIntensityData(text, type, function(intensity_data) {
+    var updateIntensityData = function(intensity_data) {
       var min;
       var max;
 
@@ -437,8 +531,37 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
         model_data: model_data,
         intensity_data: intensity_data
       });
-    });
+    };
+
+    model_name = model_name || model_data.name;
+    
+    if (viewer.getAttribute("fix_color_range") && intensity_data) {
+      old_range = {
+        min: intensity_data.range_min,
+        max: intensity_data.range_max
+      };
+    }
+
+    if(dont_parse){
+      var intens_obj = {values : text};
+      var min = intens_obj.values[0];
+      var max = intens_obj.values[0];
+
+      for(var i = 1; i < intens_obj.values.length; i++){
+        min = Math.min(min, intens_obj.values[i]);
+        max = Math.max(max, intens_obj.values[i]);
+      }
+
+      intens_obj.min = min;
+      intens_obj.max = max;
+      
+      updateIntensityData(intens_obj); //not text in this case
+    } else {
+      SurfaceViewer.parseIntensityData(text, type, updateIntensityData);
+    }
   }
+
+  
 
   function loadColorMap(color_map) {
     viewer.color_map = color_map;

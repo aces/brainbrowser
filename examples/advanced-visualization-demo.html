@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BrainBrowser Advanced 3D Visualization Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #1a1a1a;
+      color: #ffffff;
+      overflow: hidden;
+    }
+
+    #container {
+      display: grid;
+      grid-template-columns: 300px 1fr 300px;
+      grid-template-rows: 60px 1fr 200px;
+      height: 100vh;
+      gap: 10px;
+      padding: 10px;
+    }
+
+    #header {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    #header h1 {
+      font-size: 24px;
+      font-weight: 300;
+      letter-spacing: 1px;
+    }
+
+    #controls {
+      background: #2d2d2d;
+      padding: 20px;
+      border-radius: 8px;
+      overflow-y: auto;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    #viewer-3d {
+      background: #000000;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    #slice-views {
+      background: #2d2d2d;
+      padding: 20px;
+      border-radius: 8px;
+      overflow-y: auto;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    #timeline {
+      grid-column: 1 / -1;
+      background: #2d2d2d;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    .panel-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: #667eea;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 10px;
+    }
+
+    .control-group {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #3a3a3a;
+      border-radius: 6px;
+    }
+
+    .control-group h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #a0a0a0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      width: 100%;
+      margin-bottom: 8px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button.danger {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    label.file-label {
+      display: block;
+      background: #4a4a4a;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.2s;
+      margin-bottom: 8px;
+    }
+
+    label.file-label:hover {
+      background: #5a5a5a;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      margin: 10px 0;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #a0a0a0;
+      margin-top: 5px;
+    }
+
+    .slice-canvas {
+      width: 100%;
+      border: 2px solid #667eea;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+
+    #playback-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    #playback-controls button {
+      flex: 1;
+    }
+
+    #time-display {
+      font-size: 14px;
+      text-align: center;
+      margin: 10px 0;
+      padding: 10px;
+      background: #3a3a3a;
+      border-radius: 5px;
+    }
+
+    #status-messages {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      max-width: 300px;
+      z-index: 1000;
+    }
+
+    .status-message {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 10px 15px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      border-left: 4px solid #667eea;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .error {
+      border-left-color: #f5576c !important;
+    }
+
+    .success {
+      border-left-color: #4caf50 !important;
+    }
+
+    #loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+
+    .spinner {
+      border: 4px solid #3a3a3a;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="header">
+      <h1>🧠 Advanced 3D Surface Visualization</h1>
+      <p style="font-size: 14px; margin-top: 5px; opacity: 0.9;">
+        GPU-Accelerated Clipping | Electrode Projection | Time Series Streaming
+      </p>
+    </div>
+
+    <div id="controls">
+      <div class="panel-title">Controls</div>
+
+      <div class="control-group">
+        <h3>🔼 Load Surfaces</h3>
+        <label for="surface-file" class="file-label">Choose Surface File (.asc)</label>
+        <input type="file" id="surface-file" accept=".asc,.obj" multiple>
+        <button id="load-sample">Load Sample Surfaces</button>
+      </div>
+
+      <div class="control-group">
+        <h3>✂️ Clipping Planes</h3>
+        <button id="add-clip-plane">Add Clip Plane</button>
+        <button id="toggle-clipping">Enable Clipping</button>
+        <button id="clear-clips" class="danger">Clear All Planes</button>
+        <div class="slider-label">
+          <span>Plane Position:</span>
+          <span id="clip-pos-value">0</span>
+        </div>
+        <input type="range" id="clip-position" min="-100" max="100" value="0">
+      </div>
+
+      <div class="control-group">
+        <h3>⚡ Electrodes</h3>
+        <button id="add-electrode">Add Electrode</button>
+        <button id="random-electrodes">Add 8 Random</button>
+        <button id="clear-electrodes" class="danger">Clear Electrodes</button>
+        <div class="slider-label">
+          <span>Projection Intensity:</span>
+          <span id="electrode-intensity-value">0.5</span>
+        </div>
+        <input type="range" id="electrode-intensity" min="0" max="1" step="0.01" value="0.5">
+      </div>
+
+      <div class="control-group">
+        <h3>🌳 Hierarchy</h3>
+        <button id="optimize-visibility">Optimize Visibility</button>
+        <div class="slider-label">
+          <span>Max Visible:</span>
+          <span id="max-visible-value">100</span>
+        </div>
+        <input type="range" id="max-visible" min="10" max="150" value="100">
+      </div>
+    </div>
+
+    <div id="viewer-3d">
+      <div id="status-messages"></div>
+      <div id="loading-overlay">
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+    <div id="slice-views">
+      <div class="panel-title">2D Slices</div>
+      <div class="control-group">
+        <h3>Slice Controls</h3>
+        <button id="create-sagittal">Sagittal Slice</button>
+        <button id="create-coronal">Coronal Slice</button>
+        <button id="create-axial">Axial Slice</button>
+        <button id="clear-slices" class="danger">Clear Slices</button>
+      </div>
+      <div id="slice-container"></div>
+    </div>
+
+    <div id="timeline">
+      <div class="panel-title">Time Series Playback</div>
+
+      <div class="control-group">
+        <h3>📁 Load Time Series</h3>
+        <label for="timeseries-file" class="file-label">Choose Time Series Data</label>
+        <input type="file" id="timeseries-file" accept=".dat,.bin,.txt">
+      </div>
+
+      <div id="playback-controls">
+        <button id="play-btn">▶ Play</button>
+        <button id="pause-btn">⏸ Pause</button>
+        <button id="stop-btn">⏹ Stop</button>
+      </div>
+
+      <div id="time-display">
+        <strong>Time:</strong> <span id="current-time">0.00</span>s / <span id="total-time">0.00</span>s
+      </div>
+
+      <input type="range" id="timeline-scrubber" min="0" max="100" value="0">
+    </div>
+  </div>
+
+  <!-- Include dependencies -->
+  <script src="../src/brainbrowser/surface-viewer/lib/three.js"></script>
+  <script src="../src/brainbrowser/lib/pako.js"></script>
+  <script src="../src/brainbrowser/brainbrowser.js"></script>
+  <script src="../src/brainbrowser/core/events.js"></script>
+  <script src="../src/brainbrowser/lib/config.js"></script>
+  <script src="../src/brainbrowser/lib/utils.js"></script>
+  <script src="../src/brainbrowser/lib/loader.js"></script>
+  <script src="../src/brainbrowser/lib/secure-loader.js"></script>
+  <script src="../src/brainbrowser/surface-viewer.js"></script>
+  <script src="../src/brainbrowser/surface-viewer/modules/loading.js"></script>
+  <script src="../src/brainbrowser/surface-viewer/modules/rendering.js"></script>
+  <script src="../src/brainbrowser/surface-viewer/modules/color.js"></script>
+  <script src="../src/brainbrowser/surface-viewer/modules/views.js"></script>
+  <script src="../src/brainbrowser/surface-viewer/modules/annotations.js"></script>
+  <script src="../src/brainbrowser/surface-viewer/modules/clipping.js"></script>
+  <script src="../src/brainbrowser/surface-viewer/modules/hierarchy.js"></script>
+  <script src="../src/brainbrowser/surface-viewer/modules/electrode-projection.js"></script>
+  <script src="../src/brainbrowser/surface-viewer/modules/timeseries.js"></script>
+  <script src="../src/brainbrowser/surface-viewer/modules/slice-projection.js"></script>
+
+  <script>
+    // Application state
+    let viewer;
+    let current_clip_plane = null;
+    let electrodes = [];
+    let slices = [];
+
+    // Initialize viewer
+    document.addEventListener('DOMContentLoaded', function() {
+      showStatus('Initializing BrainBrowser...', 'info');
+
+      // Configure workers
+      BrainBrowser.config.set('worker_dir', '../src/brainbrowser/workers');
+
+      // Start viewer
+      BrainBrowser.SurfaceViewer.start('viewer-3d', function(v) {
+        viewer = v;
+
+        // Set background
+        viewer.setClearColor(0x111111);
+
+        // Start rendering
+        viewer.render();
+
+        showStatus('BrainBrowser initialized successfully!', 'success');
+
+        // Setup event handlers
+        setupEventHandlers();
+      });
+    });
+
+    function setupEventHandlers() {
+      // Surface loading
+      document.getElementById('surface-file').addEventListener('change', function(e) {
+        loadSurfaces(e.target.files);
+      });
+
+      document.getElementById('load-sample').addEventListener('click', function() {
+        showStatus('Sample data loading not implemented. Please upload .asc files.', 'info');
+      });
+
+      // Clipping
+      document.getElementById('add-clip-plane').addEventListener('click', function() {
+        current_clip_plane = viewer.addClipPlane({
+          normal: [0, 1, 0],
+          distance: 0,
+          visible: true
+        });
+        viewer.enableClipping(true);
+        showStatus('Clipping plane added', 'success');
+      });
+
+      document.getElementById('toggle-clipping').addEventListener('click', function() {
+        let btn = this;
+        let enabled = btn.textContent.includes('Enable');
+        viewer.enableClipping(enabled);
+        btn.textContent = enabled ? 'Disable Clipping' : 'Enable Clipping';
+      });
+
+      document.getElementById('clear-clips').addEventListener('click', function() {
+        viewer.clearClipPlanes();
+        current_clip_plane = null;
+        showStatus('Clipping planes cleared', 'info');
+      });
+
+      document.getElementById('clip-position').addEventListener('input', function(e) {
+        let value = parseFloat(e.target.value);
+        document.getElementById('clip-pos-value').textContent = value.toFixed(1);
+
+        if (current_clip_plane) {
+          viewer.setClipPlane(current_clip_plane, {distance: value});
+        }
+      });
+
+      // Electrodes
+      document.getElementById('add-electrode').addEventListener('click', function() {
+        let x = Math.random() * 50 - 25;
+        let y = Math.random() * 50 - 25;
+        let z = Math.random() * 50 - 25;
+
+        let electrode_id = viewer.addElectrode({
+          position: [x, y, z],
+          radius: 3.0,
+          decay_function: 'exponential',
+          decay_rate: 0.1,
+          distance_mode: 'euclidean'
+        });
+
+        electrodes.push(electrode_id);
+        showStatus('Electrode added at (' + x.toFixed(1) + ', ' + y.toFixed(1) + ', ' + z.toFixed(1) + ')', 'success');
+      });
+
+      document.getElementById('random-electrodes').addEventListener('click', function() {
+        for (let i = 0; i < 8; i++) {
+          let x = Math.random() * 60 - 30;
+          let y = Math.random() * 60 - 30;
+          let z = Math.random() * 60 - 30;
+
+          let electrode_id = viewer.addElectrode({
+            position: [x, y, z],
+            radius: 2.5,
+            decay_function: 'gaussian',
+            sigma: 15,
+            distance_mode: 'euclidean'
+          });
+
+          electrodes.push(electrode_id);
+        }
+        showStatus('Added 8 random electrodes', 'success');
+      });
+
+      document.getElementById('clear-electrodes').addEventListener('click', function() {
+        electrodes.forEach(id => viewer.removeElectrode(id));
+        electrodes = [];
+        showStatus('Electrodes cleared', 'info');
+      });
+
+      document.getElementById('electrode-intensity').addEventListener('input', function(e) {
+        let value = parseFloat(e.target.value);
+        document.getElementById('electrode-intensity-value').textContent = value.toFixed(2);
+
+        if (electrodes.length > 0) {
+          electrodes.forEach(electrode_id => {
+            viewer.projectElectrodeData(electrode_id, value);
+          });
+        }
+      });
+
+      // Hierarchy
+      document.getElementById('optimize-visibility').addEventListener('click', function() {
+        viewer.optimizeVisibility();
+        showStatus('Visibility optimized', 'success');
+      });
+
+      document.getElementById('max-visible').addEventListener('input', function(e) {
+        let value = parseInt(e.target.value);
+        document.getElementById('max-visible-value').textContent = value;
+        viewer.setMaxVisibleSurfaces(value);
+      });
+
+      // Slices
+      document.getElementById('create-sagittal').addEventListener('click', function() {
+        createSlice('sagittal');
+      });
+
+      document.getElementById('create-coronal').addEventListener('click', function() {
+        createSlice('coronal');
+      });
+
+      document.getElementById('create-axial').addEventListener('click', function() {
+        createSlice('axial');
+      });
+
+      document.getElementById('clear-slices').addEventListener('click', function() {
+        slices.forEach(id => viewer.removeSliceView(id));
+        slices = [];
+        document.getElementById('slice-container').innerHTML = '';
+        showStatus('Slices cleared', 'info');
+      });
+
+      // Time series
+      document.getElementById('timeseries-file').addEventListener('change', function(e) {
+        if (e.target.files[0]) {
+          loadTimeSeries(e.target.files[0]);
+        }
+      });
+
+      document.getElementById('play-btn').addEventListener('click', function() {
+        viewer.playTimeSeries();
+      });
+
+      document.getElementById('pause-btn').addEventListener('click', function() {
+        viewer.pauseTimeSeries();
+      });
+
+      document.getElementById('stop-btn').addEventListener('click', function() {
+        viewer.stopTimeSeries();
+      });
+
+      // Time series events
+      viewer.addEventListener('timeseries:frame', function(data) {
+        document.getElementById('current-time').textContent = data.time.toFixed(2);
+        let progress = (data.time / viewer.getTimeSeriesDuration()) * 100;
+        document.getElementById('timeline-scrubber').value = progress;
+      });
+    }
+
+    function loadSurfaces(files) {
+      showLoading(true);
+
+      Array.from(files).forEach((file, index) => {
+        // Secure validation
+        let validation = BrainBrowser.secureLoader.validateFile(file);
+
+        if (!validation.valid) {
+          showStatus('File validation failed: ' + validation.errors.join(', '), 'error');
+          showLoading(false);
+          return;
+        }
+
+        // Load with secure loader
+        BrainBrowser.secureLoader.loadSecure(file, function(data, filename) {
+          viewer.loadModelFromFile(file, {
+            format: 'freesurferasc',
+            complete: function() {
+              // Add to hierarchy
+              viewer.addSurfaceToHierarchy(filename, {
+                level: index + 1,
+                visible: true
+              });
+
+              showStatus('Loaded: ' + filename, 'success');
+              showLoading(false);
+            }
+          });
+        }, {
+          error_callback: function(error) {
+            showStatus('Load error: ' + error.message, 'error');
+            showLoading(false);
+          }
+        });
+      });
+    }
+
+    function createSlice(orientation) {
+      let slice_id = viewer.createSliceView({
+        orientation: orientation,
+        position: 0,
+        width: 256,
+        height: 256,
+        linked: true,
+        show_in_3d: true
+      });
+
+      slices.push(slice_id);
+
+      let canvas = viewer.getSliceCanvas(slice_id);
+      canvas.className = 'slice-canvas';
+
+      let container = document.getElementById('slice-container');
+      let wrapper = document.createElement('div');
+      wrapper.innerHTML = '<h4>' + orientation + '</h4>';
+      wrapper.appendChild(canvas);
+      container.appendChild(wrapper);
+
+      showStatus('Created ' + orientation + ' slice', 'success');
+    }
+
+    function loadTimeSeries(file) {
+      showStatus('Loading time series data...', 'info');
+      showLoading(true);
+
+      viewer.loadTimeSeriesFromFile(file, {
+        channels: 256,
+        sample_rate: 2000,
+        use_cache: true
+      });
+
+      viewer.addEventListener('timeseries:loaded', function(data) {
+        document.getElementById('total-time').textContent = data.duration.toFixed(2);
+        showStatus('Time series loaded: ' + data.duration.toFixed(1) + 's', 'success');
+        showLoading(false);
+      });
+    }
+
+    function showStatus(message, type) {
+      let container = document.getElementById('status-messages');
+      let div = document.createElement('div');
+      div.className = 'status-message ' + type;
+      div.textContent = message;
+      container.appendChild(div);
+
+      setTimeout(() => div.remove(), 5000);
+    }
+
+    function showLoading(show) {
+      document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none';
+    }
+  </script>
+</body>
+</html>

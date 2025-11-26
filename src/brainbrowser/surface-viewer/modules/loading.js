@@ -756,7 +756,18 @@ BrainBrowser.SurfaceViewer.modules.loading = function(viewer) {
       material = new THREE.LineBasicMaterial({vertexColors: THREE.VertexColors});
       shape    = new THREE.Line(geometry, material, THREE.LinePieces);
     } else {
-      material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0xFFFFFF, specular: 0x101010, shininess: 150, vertexColors: THREE.VertexColors});
+      // Use clippable shader material if clipping module is available
+      if (viewer.createClippableMaterial) {
+        material = viewer.createClippableMaterial({
+          color: 0xFFFFFF,
+          ambient: 0xFFFFFF,
+          specular: 0x101010,
+          shininess: 150,
+          vertexColors: THREE.VertexColors
+        });
+      } else {
+        material = new THREE.MeshPhongMaterial({color: 0xFFFFFF, ambient: 0xFFFFFF, specular: 0x101010, shininess: 150, vertexColors: THREE.VertexColors});
+      }
       shape    = new THREE.Mesh(geometry, material);
       shape.userData.has_wireframe = true;
     }

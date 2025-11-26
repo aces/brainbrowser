@@ -232,8 +232,36 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-qunit");
   grunt.loadNpmTasks("grunt-docular");
 
+  // Load custom obfuscation task
+  grunt.loadTasks("tasks");
+
+  // Configure obfuscation task
+  grunt.config.set("obfuscate", {
+    options: {
+      compact: true,
+      controlFlowFlattening: true,
+      controlFlowFlatteningThreshold: 0.5,
+      deadCodeInjection: true,
+      deadCodeInjectionThreshold: 0.2,
+      stringArray: true,
+      stringArrayEncoding: ['base64'],
+      stringArrayThreshold: 0.75,
+      transformObjectKeys: true
+    },
+    surface: {
+      src: "<%= build_dir %>/brainbrowser.surface-viewer.min.js",
+      dest: "<%= build_dir %>/brainbrowser.surface-viewer.min.obfuscated.js"
+    },
+    volume: {
+      src: "<%= build_dir %>/brainbrowser.volume-viewer.min.js",
+      dest: "<%= build_dir %>/brainbrowser.volume-viewer.min.obfuscated.js"
+    }
+  });
+
   grunt.registerTask("compile", ["clean", "concat", "uglify"]);
+  grunt.registerTask("compile-protected", ["clean", "concat", "uglify", "obfuscate"]);
   grunt.registerTask("build", ["test", "compile", "compress"]);
+  grunt.registerTask("build-protected", ["test", "compile-protected", "compress"]);
   grunt.registerTask("test", ["jshint", "qunit"]);
   grunt.registerTask("docs", ["docular", "clean:docs"]);
   grunt.registerTask("default", "test");

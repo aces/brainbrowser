@@ -18,8 +18,7 @@ module.exports = function(grunt) {
       controlFlowFlatteningThreshold: 0.5,
       deadCodeInjection: true,
       deadCodeInjectionThreshold: 0.2,
-      debugProtection: false, // Set to true for production
-      debugProtectionInterval: false,
+      debugProtection: false,
       disableConsoleOutput: false,
       identifierNamesGenerator: 'hexadecimal',
       log: false,

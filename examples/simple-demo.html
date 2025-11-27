@@ -226,14 +226,33 @@
     </div>
   </div>
 
-  <!-- Use BUILT file instead of source files -->
-  <script src="../build/brainbrowser-2.5.5/brainbrowser.surface-viewer.min.js"></script>
+  <!-- Use source files for better debugging -->
+  <script src="../src/brainbrowser/surface-viewer/lib/three.js"></script>
+  <script src="../src/brainbrowser/lib/pako.js"></script>
+  <script src="../src/brainbrowser/brainbrowser.js"></script>
+  <script src="../src/brainbrowser/core/events.js"></script>
+  <script src="../src/brainbrowser/lib/config.js"></script>
+  <script src="../src/brainbrowser/lib/utils.js"></script>
+  <script src="../src/brainbrowser/lib/loader.js"></script>
+  <script src="../src/brainbrowser/lib/secure-loader.js"></script>
+  <script src="../src/brainbrowser/surface-viewer.js"></script>
+  <script src="../src/brainbrowser/surface-viewer/modules/loading.js"></script>
+  <script src="../src/brainbrowser/surface-viewer/modules/rendering.js"></script>
+  <script src="../src/brainbrowser/surface-viewer/modules/color.js"></script>
+  <script src="../src/brainbrowser/surface-viewer/modules/views.js"></script>
+  <script src="../src/brainbrowser/surface-viewer/modules/annotations.js"></script>
+  <script src="../src/brainbrowser/surface-viewer/modules/clipping.js"></script>
+  <script src="../src/brainbrowser/surface-viewer/modules/hierarchy.js"></script>
+  <script src="../src/brainbrowser/surface-viewer/modules/electrode-projection.js"></script>
+  <script src="../src/brainbrowser/surface-viewer/modules/timeseries.js"></script>
+  <script src="../src/brainbrowser/surface-viewer/modules/slice-projection.js"></script>
 
   <script>
     let viewer;
     let clipPlane = null;
     let electrodes = [];
     let clippingEnabled = false;
+    let modelLoaded = false;
 
     // Show status messages
     function showStatus(message, type = 'info') {
@@ -256,7 +275,7 @@
       showStatus('Initializing BrainBrowser...', 'info');
 
       // Configure worker directory
-      BrainBrowser.config.set('worker_dir', '../build/brainbrowser-2.5.5/workers');
+      BrainBrowser.config.set('worker_dir', '../src/brainbrowser/workers');
 
       // Start viewer
       BrainBrowser.SurfaceViewer.start('viewer', function(v) {
@@ -278,6 +297,7 @@
       viewer.loadModelFromFile(file, {
         format: 'freesurferasc',
         complete: function() {
+          modelLoaded = true;
           showStatus('✅ Loaded: ' + file.name, 'success');
         }
       });
@@ -286,6 +306,11 @@
     // Add clipping plane
     document.getElementById('add-clip').addEventListener('click', function() {
       if (!viewer) return;
+
+      if (!modelLoaded) {
+        showStatus('⚠️ Please load a surface first', 'error');
+        return;
+      }
 
       clipPlane = viewer.addClipPlane({
         normal: [0, 1, 0],
@@ -323,6 +348,11 @@
     document.getElementById('add-electrode').addEventListener('click', function() {
       if (!viewer) return;
 
+      if (!modelLoaded) {
+        showStatus('⚠️ Please load a surface first', 'error');
+        return;
+      }
+
       const x = Math.random() * 50 - 25;
       const y = Math.random() * 50 - 25;
       const z = Math.random() * 50 - 25;
@@ -344,6 +374,11 @@
     // Add multiple electrodes
     document.getElementById('add-multiple').addEventListener('click', function() {
       if (!viewer) return;
+
+      if (!modelLoaded) {
+        showStatus('⚠️ Please load a surface first', 'error');
+        return;
+      }
 
       for (let i = 0; i < 8; i++) {
         const x = Math.random() * 60 - 30;
@@ -377,7 +412,7 @@
 
     // Reset view
     document.getElementById('reset-view').addEventListener('click', function() {
-      if (!viewer) {
+      if (viewer) {
         viewer.resetView();
         showStatus('View reset', 'info');
       }

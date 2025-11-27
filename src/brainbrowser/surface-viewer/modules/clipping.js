@@ -72,7 +72,7 @@ BrainBrowser.SurfaceViewer.modules.clipping = function(viewer) {
       "  vWorldPosition = worldPosition.xyz;",
       "  vNormal = normalMatrix * normal;",
       "  vViewPosition = -mvPosition.xyz;",
-      "  vColor = color;",
+      "  vColor = vec4(color, 1.0);",
       "  ",
       "  gl_Position = projectionMatrix * mvPosition;",
       "}"

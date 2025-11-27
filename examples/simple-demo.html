@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BrainBrowser - Simple Demo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: #1a1a1a;
+      color: #ffffff;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 30px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    h1 { font-size: 32px; font-weight: 600; margin-bottom: 10px; }
+    .subtitle { font-size: 16px; opacity: 0.95; }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .panel {
+      background: #2d2d2d;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    #viewer {
+      width: 100%;
+      height: 600px;
+      background: #000;
+      border-radius: 8px;
+      position: relative;
+    }
+
+    .panel-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: #667eea;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 8px;
+    }
+
+    .control-section {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #3a3a3a;
+      border-radius: 6px;
+    }
+
+    .control-section h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #a0a0a0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      width: 100%;
+      margin-bottom: 8px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    button:active { transform: translateY(0); }
+
+    button.danger {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    input[type="file"] { display: none; }
+
+    label.file-label {
+      display: block;
+      background: #4a4a4a;
+      padding: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.2s;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    label.file-label:hover { background: #5a5a5a; }
+
+    .status {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 10px 15px;
+      border-radius: 5px;
+      border-left: 4px solid #667eea;
+      max-width: 300px;
+      font-size: 13px;
+      z-index: 1000;
+      display: none;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .status.show { display: block; }
+    .status.error { border-left-color: #f5576c; }
+    .status.success { border-left-color: #4caf50; }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .info-box {
+      background: #2d2d2d;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      border-left: 4px solid #667eea;
+    }
+
+    .info-box h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #667eea;
+    }
+
+    .info-box p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #b0b0b0;
+      margin-bottom: 8px;
+    }
+
+    .info-box code {
+      background: #1a1a1a;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: #4caf50;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🧠 BrainBrowser - Simple Demo</h1>
+      <p class="subtitle">Advanced 3D Surface Visualization with Clipping, Electrodes & Time Series</p>
+    </header>
+
+    <div class="info-box">
+      <h2>⚠️ Important: Must Run on HTTP Server</h2>
+      <p>This demo requires a local web server. To run:</p>
+      <p><code>cd brainbrowser</code> then <code>python3 -m http.server 8000</code></p>
+      <p>Then open: <code>http://localhost:8000/examples/simple-demo.html</code></p>
+    </div>
+
+    <div class="main-grid">
+      <div class="panel">
+        <div class="panel-title">Controls</div>
+
+        <div class="control-section">
+          <h3>📁 Load Surface</h3>
+          <label for="surface-file" class="file-label">Choose .asc File</label>
+          <input type="file" id="surface-file" accept=".asc,.obj">
+        </div>
+
+        <div class="control-section">
+          <h3>✂️ Clipping</h3>
+          <button id="add-clip">Add Clip Plane</button>
+          <button id="toggle-clip">Enable Clipping</button>
+          <button id="clear-clips" class="danger">Clear Planes</button>
+        </div>
+
+        <div class="control-section">
+          <h3>⚡ Electrodes</h3>
+          <button id="add-electrode">Add Electrode</button>
+          <button id="add-multiple">Add 8 Random</button>
+          <button id="clear-electrodes" class="danger">Clear All</button>
+        </div>
+
+        <div class="control-section">
+          <h3>🎬 View</h3>
+          <button id="reset-view">Reset View</button>
+          <button id="toggle-wireframe">Toggle Wireframe</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div id="viewer">
+          <div id="status" class="status"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Use BUILT file instead of source files -->
+  <script src="../build/brainbrowser-2.5.5/brainbrowser.surface-viewer.min.js"></script>
+
+  <script>
+    let viewer;
+    let clipPlane = null;
+    let electrodes = [];
+    let clippingEnabled = false;
+
+    // Show status messages
+    function showStatus(message, type = 'info') {
+      const statusEl = document.getElementById('status');
+      statusEl.textContent = message;
+      statusEl.className = 'status show ' + type;
+
+      setTimeout(() => {
+        statusEl.className = 'status';
+      }, 5000);
+    }
+
+    // Check if running on HTTP server
+    if (window.location.protocol === 'file:') {
+      showStatus('⚠️ Must run on HTTP server! See instructions above.', 'error');
+    }
+
+    // Initialize viewer
+    document.addEventListener('DOMContentLoaded', function() {
+      showStatus('Initializing BrainBrowser...', 'info');
+
+      // Configure worker directory
+      BrainBrowser.config.set('worker_dir', '../build/brainbrowser-2.5.5/workers');
+
+      // Start viewer
+      BrainBrowser.SurfaceViewer.start('viewer', function(v) {
+        viewer = v;
+        viewer.setClearColor(0x111111);
+        viewer.render();
+
+        showStatus('✅ BrainBrowser ready!', 'success');
+      });
+    });
+
+    // Load surface file
+    document.getElementById('surface-file').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      showStatus('Loading ' + file.name + '...', 'info');
+
+      viewer.loadModelFromFile(file, {
+        format: 'freesurferasc',
+        complete: function() {
+          showStatus('✅ Loaded: ' + file.name, 'success');
+        }
+      });
+    });
+
+    // Add clipping plane
+    document.getElementById('add-clip').addEventListener('click', function() {
+      if (!viewer) return;
+
+      clipPlane = viewer.addClipPlane({
+        normal: [0, 1, 0],
+        distance: 0,
+        visible: true
+      });
+
+      showStatus('✅ Clip plane added', 'success');
+    });
+
+    // Toggle clipping
+    document.getElementById('toggle-clip').addEventListener('click', function() {
+      if (!viewer) return;
+
+      clippingEnabled = !clippingEnabled;
+      viewer.enableClipping(clippingEnabled);
+      this.textContent = clippingEnabled ? 'Disable Clipping' : 'Enable Clipping';
+
+      showStatus(clippingEnabled ? '✅ Clipping enabled' : 'Clipping disabled', 'info');
+    });
+
+    // Clear clips
+    document.getElementById('clear-clips').addEventListener('click', function() {
+      if (!viewer) return;
+
+      viewer.clearClipPlanes();
+      clipPlane = null;
+      clippingEnabled = false;
+      document.getElementById('toggle-clip').textContent = 'Enable Clipping';
+
+      showStatus('Clip planes cleared', 'info');
+    });
+
+    // Add electrode
+    document.getElementById('add-electrode').addEventListener('click', function() {
+      if (!viewer) return;
+
+      const x = Math.random() * 50 - 25;
+      const y = Math.random() * 50 - 25;
+      const z = Math.random() * 50 - 25;
+
+      const id = viewer.addElectrode({
+        position: [x, y, z],
+        radius: 3.0,
+        decay_function: 'exponential',
+        decay_rate: 0.1,
+        distance_mode: 'euclidean'
+      });
+
+      electrodes.push(id);
+      viewer.projectElectrodeData(id, 0.75);
+
+      showStatus('✅ Electrode added', 'success');
+    });
+
+    // Add multiple electrodes
+    document.getElementById('add-multiple').addEventListener('click', function() {
+      if (!viewer) return;
+
+      for (let i = 0; i < 8; i++) {
+        const x = Math.random() * 60 - 30;
+        const y = Math.random() * 60 - 30;
+        const z = Math.random() * 60 - 30;
+
+        const id = viewer.addElectrode({
+          position: [x, y, z],
+          radius: 2.5,
+          decay_function: 'gaussian',
+          sigma: 15,
+          distance_mode: 'euclidean'
+        });
+
+        electrodes.push(id);
+        viewer.projectElectrodeData(id, 0.5 + Math.random() * 0.5);
+      }
+
+      showStatus('✅ Added 8 electrodes', 'success');
+    });
+
+    // Clear electrodes
+    document.getElementById('clear-electrodes').addEventListener('click', function() {
+      if (!viewer) return;
+
+      electrodes.forEach(id => viewer.removeElectrode(id));
+      electrodes = [];
+
+      showStatus('Electrodes cleared', 'info');
+    });
+
+    // Reset view
+    document.getElementById('reset-view').addEventListener('click', function() {
+      if (!viewer) {
+        viewer.resetView();
+        showStatus('View reset', 'info');
+      }
+    });
+  </script>
+</body>
+</html>

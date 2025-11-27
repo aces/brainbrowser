@@ -99,6 +99,12 @@ BrainBrowser.SurfaceViewer.modules.electrodeProjection = function(viewer) {
 
     var electrode_id = "electrode_" + electrodes.length + "_" + Date.now();
 
+    var default_model_name = 'default';
+    var model_data = viewer.model_data ? viewer.model_data.get() : null;
+    if (model_data && model_data.name) {
+      default_model_name = model_data.name;
+    }
+
     var electrode = {
       id: electrode_id,
       position: new THREE.Vector3(options.position[0], options.position[1], options.position[2]),
@@ -111,7 +117,7 @@ BrainBrowser.SurfaceViewer.modules.electrodeProjection = function(viewer) {
         epsilon: options.epsilon || 0.1
       },
       distance_mode: options.distance_mode || 'euclidean',
-      model_name: options.model_name || viewer.model_data.get().name,
+      model_name: options.model_name || default_model_name,
       color: options.color || 0xFF0000,
       visible: options.visible !== undefined ? options.visible : true,
       marker: null,

@@ -56,9 +56,17 @@ BrainBrowser.SurfaceViewer.modules.clipping = function(viewer) {
     options = options || {};
 
     var vertex_shader = [
+      "attribute vec3 position;",
+      "attribute vec3 normal;",
+      "attribute vec3 color;",
+      "",
       "uniform vec4 clipPlanes[" + max_clip_planes + "];",
       "uniform int numClipPlanes;",
       "uniform int clipEnabled;",
+      "uniform mat4 modelMatrix;",
+      "uniform mat4 modelViewMatrix;",
+      "uniform mat4 projectionMatrix;",
+      "uniform mat3 normalMatrix;",
       "",
       "varying vec3 vNormal;",
       "varying vec3 vViewPosition;",

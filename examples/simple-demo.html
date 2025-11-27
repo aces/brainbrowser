@@ -300,6 +300,9 @@
         complete: function() {
           modelLoaded = true;
           showStatus('✅ Loaded: ' + file.name, 'success');
+        },
+        error: function(error) {
+          showStatus('❌ Load error: ' + (error.message || error), 'error');
         }
       });
     });

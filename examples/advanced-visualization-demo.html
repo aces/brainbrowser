@@ -398,7 +398,7 @@
     function setupEventHandlers() {
       // Surface loading
       document.getElementById('surface-file').addEventListener('change', function(e) {
-        loadSurfaces(e.target.files);
+        loadSurfaces(e.target);
       });
 
       document.getElementById('load-sample').addEventListener('click', function() {
@@ -551,40 +551,26 @@
       });
     }
 
-    function loadSurfaces(files) {
+    function loadSurfaces(fileInput) {
+      if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+        showStatus('No file selected', 'error');
+        return;
+      }
+
+      let file = fileInput.files[0];
       showLoading(true);
+      showStatus('Loading ' + file.name + '...', 'info');
 
-      Array.from(files).forEach((file, index) => {
-        // Secure validation
-        let validation = BrainBrowser.secureLoader.validateFile(file);
-
-        if (!validation.valid) {
-          showStatus('File validation failed: ' + validation.errors.join(', '), 'error');
+      viewer.loadModelFromFile(fileInput, {
+        format: 'freesurferasc',
+        complete: function() {
+          showStatus('Loaded: ' + file.name, 'success');
           showLoading(false);
-          return;
+        },
+        error: function(error) {
+          showStatus('Load error: ' + (error.message || error), 'error');
+          showLoading(false);
         }
-
-        // Load with secure loader
-        BrainBrowser.secureLoader.loadSecure(file, function(data, filename) {
-          viewer.loadModelFromFile(file, {
-            format: 'freesurferasc',
-            complete: function() {
-              // Add to hierarchy
-              viewer.addSurfaceToHierarchy(filename, {
-                level: index + 1,
-                visible: true
-              });
-
-              showStatus('Loaded: ' + filename, 'success');
-              showLoading(false);
-            }
-          });
-        }, {
-          error_callback: function(error) {
-            showStatus('Load error: ' + error.message, 'error');
-            showLoading(false);
-          }
-        });
       });
     }
 

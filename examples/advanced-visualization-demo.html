@@ -244,6 +244,64 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+
+    .surface-item {
+      background: #4a4a4a;
+      padding: 10px;
+      margin-bottom: 8px;
+      border-radius: 5px;
+      border-left: 3px solid #667eea;
+    }
+
+    .surface-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .surface-item-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+      margin-top: 8px;
+    }
+
+    .surface-item-controls button {
+      padding: 5px 10px;
+      font-size: 11px;
+      margin: 0;
+    }
+
+    .surface-slider {
+      width: 100%;
+      margin: 5px 0;
+    }
+
+    .slider-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #a0a0a0;
+      margin-bottom: 3px;
+    }
+
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      margin: 5px 0;
+    }
   </style>
 </head>
 <body>
@@ -260,9 +318,14 @@
 
       <div class="control-group">
         <h3>🔼 Load Surfaces</h3>
-        <label for="surface-file" class="file-label">Choose Surface File (.asc)</label>
+        <label for="surface-file" class="file-label">Choose Surface Files (.asc, .obj) - Multiple OK</label>
         <input type="file" id="surface-file" accept=".asc,.obj" multiple>
         <button id="load-sample">Load Sample Surfaces</button>
+      </div>
+
+      <div class="control-group">
+        <h3>🎨 Loaded Surfaces</h3>
+        <div id="surface-list"></div>
       </div>
 
       <div class="control-group">
@@ -370,6 +433,7 @@
     let current_clip_plane = null;
     let electrodes = [];
     let slices = [];
+    let loaded_surfaces = {}; // Track all loaded surfaces with their properties
 
     // Initialize viewer
     document.addEventListener('DOMContentLoaded', function() {
@@ -440,6 +504,11 @@
 
       // Electrodes
       document.getElementById('add-electrode').addEventListener('click', function() {
+        if (Object.keys(loaded_surfaces).length === 0) {
+          showStatus('Please load a surface before adding electrodes', 'error');
+          return;
+        }
+
         let x = Math.random() * 50 - 25;
         let y = Math.random() * 50 - 25;
         let z = Math.random() * 50 - 25;
@@ -452,11 +521,22 @@
           distance_mode: 'euclidean'
         });
 
-        electrodes.push(electrode_id);
-        showStatus('Electrode added at (' + x.toFixed(1) + ', ' + y.toFixed(1) + ', ' + z.toFixed(1) + ')', 'success');
+        if (electrode_id) {
+          electrodes.push(electrode_id);
+          // Immediately project some intensity
+          viewer.projectElectrodeData(electrode_id, 0.5);
+          showStatus('Electrode added at (' + x.toFixed(1) + ', ' + y.toFixed(1) + ', ' + z.toFixed(1) + ')', 'success');
+        } else {
+          showStatus('Failed to add electrode', 'error');
+        }
       });
 
       document.getElementById('random-electrodes').addEventListener('click', function() {
+        if (Object.keys(loaded_surfaces).length === 0) {
+          showStatus('Please load a surface before adding electrodes', 'error');
+          return;
+        }
+
         for (let i = 0; i < 8; i++) {
           let x = Math.random() * 60 - 30;
           let y = Math.random() * 60 - 30;
@@ -470,7 +550,11 @@
             distance_mode: 'euclidean'
           });
 
-          electrodes.push(electrode_id);
+          if (electrode_id) {
+            electrodes.push(electrode_id);
+            // Project with varying intensity
+            viewer.projectElectrodeData(electrode_id, 0.3 + Math.random() * 0.7);
+          }
         }
         showStatus('Added 8 random electrodes', 'success');
       });
@@ -557,24 +641,219 @@
         return;
       }
 
-      let file = fileInput.files[0];
       showLoading(true);
-      showStatus('Loading ' + file.name + '...', 'info');
+      let files = Array.from(fileInput.files);
+      let loaded_count = 0;
 
-      viewer.loadModelFromFile(fileInput, {
-        format: 'freesurferasc',
-        complete: function() {
-          showStatus('Loaded: ' + file.name, 'success');
-          showLoading(false);
-        },
-        error: function(error) {
-          showStatus('Load error: ' + (error.message || error), 'error');
-          showLoading(false);
+      showStatus('Loading ' + files.length + ' surface(s)...', 'info');
+
+      files.forEach(function(file, index) {
+        // Determine format from file extension
+        let format = 'freesurferasc';
+        if (file.name.endsWith('.obj')) {
+          format = 'wavefrontobj';
         }
+
+        // Create a temporary file input for this specific file
+        let tempInput = document.createElement('input');
+        tempInput.type = 'file';
+        let dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        tempInput.files = dataTransfer.files;
+
+        viewer.loadModelFromFile(tempInput, {
+          format: format,
+          complete: function() {
+            loaded_count++;
+
+            // Add to surface tracking
+            let model_data = viewer.model_data.get();
+            if (model_data) {
+              let surface_id = model_data.name || file.name;
+              loaded_surfaces[surface_id] = {
+                name: file.name,
+                model_name: model_data.name,
+                visible: true,
+                opacity: 1.0,
+                wireframe: false
+              };
+              updateSurfaceList();
+            }
+
+            showStatus('Loaded ' + loaded_count + '/' + files.length + ': ' + file.name, 'success');
+
+            if (loaded_count === files.length) {
+              showLoading(false);
+              showStatus('All surfaces loaded successfully!', 'success');
+
+              // Refresh slices if any exist
+              if (viewer.refreshAllSlices) {
+                viewer.refreshAllSlices();
+              }
+            }
+          },
+          error: function(error) {
+            showStatus('Error loading ' + file.name + ': ' + (error.message || error), 'error');
+            loaded_count++;
+            if (loaded_count === files.length) {
+              showLoading(false);
+            }
+          }
+        });
+      });
+
+      // Clear the file input so the same files can be loaded again if needed
+      fileInput.value = '';
+    }
+
+    function updateSurfaceList() {
+      let container = document.getElementById('surface-list');
+      container.innerHTML = '';
+
+      Object.keys(loaded_surfaces).forEach(function(surface_id) {
+        let surface = loaded_surfaces[surface_id];
+        let surface_div = document.createElement('div');
+        surface_div.className = 'surface-item';
+        surface_div.innerHTML = `
+          <div class="surface-item-header">
+            <span>${surface.name}</span>
+            <label class="checkbox-label">
+              <input type="checkbox" class="surface-visible-checkbox" data-surface="${surface_id}" ${surface.visible ? 'checked' : ''}>
+              Visible
+            </label>
+          </div>
+          <div class="slider-row">
+            <span>Opacity:</span>
+            <span class="opacity-value">${(surface.opacity * 100).toFixed(0)}%</span>
+          </div>
+          <input type="range" class="surface-slider surface-opacity" data-surface="${surface_id}" min="0" max="1" step="0.01" value="${surface.opacity}">
+          <div class="surface-item-controls">
+            <button class="toggle-wireframe" data-surface="${surface_id}">${surface.wireframe ? '🔲 Solid' : '🔳 Wireframe'}</button>
+            <button class="remove-surface" data-surface="${surface_id}">🗑️ Remove</button>
+          </div>
+        `;
+
+        container.appendChild(surface_div);
+      });
+
+      // Attach event listeners
+      container.querySelectorAll('.surface-visible-checkbox').forEach(function(checkbox) {
+        checkbox.addEventListener('change', function(e) {
+          let surface_id = e.target.getAttribute('data-surface');
+          let visible = e.target.checked;
+          toggleSurfaceVisibility(surface_id, visible);
+        });
+      });
+
+      container.querySelectorAll('.surface-opacity').forEach(function(slider) {
+        slider.addEventListener('input', function(e) {
+          let surface_id = e.target.getAttribute('data-surface');
+          let opacity = parseFloat(e.target.value);
+          setSurfaceOpacity(surface_id, opacity);
+          e.target.parentElement.querySelector('.opacity-value').textContent = (opacity * 100).toFixed(0) + '%';
+        });
+      });
+
+      container.querySelectorAll('.toggle-wireframe').forEach(function(button) {
+        button.addEventListener('click', function(e) {
+          let surface_id = e.target.getAttribute('data-surface');
+          toggleSurfaceWireframe(surface_id);
+        });
+      });
+
+      container.querySelectorAll('.remove-surface').forEach(function(button) {
+        button.addEventListener('click', function(e) {
+          let surface_id = e.target.getAttribute('data-surface');
+          removeSurface(surface_id);
+        });
       });
     }
 
+    function toggleSurfaceVisibility(surface_id, visible) {
+      let surface = loaded_surfaces[surface_id];
+      if (!surface) return;
+
+      surface.visible = visible;
+
+      // Find the corresponding shape in the viewer
+      viewer.model.children.forEach(function(shape) {
+        if (shape.userData.model_name === surface.model_name || shape.name.includes(surface.name)) {
+          shape.visible = visible;
+        }
+      });
+
+      viewer.updated = true;
+    }
+
+    function setSurfaceOpacity(surface_id, opacity) {
+      let surface = loaded_surfaces[surface_id];
+      if (!surface) return;
+
+      surface.opacity = opacity;
+
+      // Update material opacity
+      viewer.model.children.forEach(function(shape) {
+        if (shape.userData.model_name === surface.model_name || shape.name.includes(surface.name)) {
+          if (shape.material) {
+            shape.material.opacity = opacity;
+            shape.material.transparent = opacity < 1.0;
+            shape.material.needsUpdate = true;
+          }
+        }
+      });
+
+      viewer.updated = true;
+    }
+
+    function toggleSurfaceWireframe(surface_id) {
+      let surface = loaded_surfaces[surface_id];
+      if (!surface) return;
+
+      surface.wireframe = !surface.wireframe;
+
+      // Update material wireframe
+      viewer.model.children.forEach(function(shape) {
+        if (shape.userData.model_name === surface.model_name || shape.name.includes(surface.name)) {
+          if (shape.material) {
+            shape.material.wireframe = surface.wireframe;
+            shape.material.needsUpdate = true;
+          }
+        }
+      });
+
+      updateSurfaceList();
+      viewer.updated = true;
+    }
+
+    function removeSurface(surface_id) {
+      let surface = loaded_surfaces[surface_id];
+      if (!surface) return;
+
+      // Remove from viewer
+      let shapes_to_remove = [];
+      viewer.model.children.forEach(function(shape) {
+        if (shape.userData.model_name === surface.model_name || shape.name.includes(surface.name)) {
+          shapes_to_remove.push(shape);
+        }
+      });
+
+      shapes_to_remove.forEach(function(shape) {
+        viewer.model.remove(shape);
+      });
+
+      delete loaded_surfaces[surface_id];
+      updateSurfaceList();
+      viewer.updated = true;
+      showStatus('Removed surface: ' + surface.name, 'info');
+    }
+
     function createSlice(orientation) {
+      // Check if any surface is loaded
+      if (Object.keys(loaded_surfaces).length === 0) {
+        showStatus('Please load a surface before creating slices', 'error');
+        return;
+      }
+
       let slice_id = viewer.createSliceView({
         orientation: orientation,
         position: 0,
@@ -584,6 +863,11 @@
         show_in_3d: true
       });
 
+      if (!slice_id) {
+        showStatus('Failed to create ' + orientation + ' slice', 'error');
+        return;
+      }
+
       slices.push(slice_id);
 
       let canvas = viewer.getSliceCanvas(slice_id);
@@ -591,7 +875,7 @@
 
       let container = document.getElementById('slice-container');
       let wrapper = document.createElement('div');
-      wrapper.innerHTML = '<h4>' + orientation + '</h4>';
+      wrapper.innerHTML = '<h4>' + orientation.toUpperCase() + '</h4>';
       wrapper.appendChild(canvas);
       container.appendChild(wrapper);
 

@@ -97,6 +97,13 @@ BrainBrowser.SurfaceViewer.modules.sliceProjection = function(viewer) {
         up_vector = new THREE.Vector3(0, 0, 1);
     }
 
+    // Get model data - check if any model is loaded
+    var model_data = viewer.model_data.get(options.model_name);
+    if (!model_data) {
+      console.error("No model data found for slice view. Load a surface first.");
+      return null;
+    }
+
     var slice_view = {
       id: slice_id,
       orientation: orientation,
@@ -105,7 +112,7 @@ BrainBrowser.SurfaceViewer.modules.sliceProjection = function(viewer) {
       up_vector: up_vector,
       width: options.width || 512,
       height: options.height || 512,
-      model_name: options.model_name || viewer.model_data.get().name,
+      model_name: options.model_name || model_data.name,
       linked: options.linked !== undefined ? options.linked : true,
       show_in_3d: options.show_in_3d !== undefined ? options.show_in_3d : true,
       canvas: null,
@@ -354,9 +361,19 @@ BrainBrowser.SurfaceViewer.modules.sliceProjection = function(viewer) {
   }
 
   function drawContours(slice_view, contours) {
-    if (contours.length === 0) return;
-
     var ctx = slice_view.context;
+
+    if (contours.length === 0) {
+      // Draw a message on the canvas
+      ctx.fillStyle = '#666666';
+      ctx.font = '14px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('No contours at this position', slice_view.width / 2, slice_view.height / 2);
+      console.log("No contours found for slice at position: " + slice_view.position);
+      return;
+    }
+
+    console.log("Drawing " + contours.length + " contours for slice");
 
     // Calculate bounding box to fit slice
     var bbox = calculateBoundingBox(contours);
@@ -366,16 +383,23 @@ BrainBrowser.SurfaceViewer.modules.sliceProjection = function(viewer) {
     right_vector.crossVectors(slice_view.up_vector, slice_view.normal);
     right_vector.normalize();
 
+    // Avoid division by zero
+    var width_range = bbox.max_x - bbox.min_x;
+    var height_range = bbox.max_y - bbox.min_y;
+
+    if (width_range === 0) width_range = 1;
+    if (height_range === 0) height_range = 1;
+
     var scale = Math.min(
-      slice_view.width / (bbox.max_x - bbox.min_x),
-      slice_view.height / (bbox.max_y - bbox.min_y)
-    ) * 0.9;
+      slice_view.width / width_range,
+      slice_view.height / height_range
+    ) * 0.8;
 
     var offset_x = slice_view.width / 2;
     var offset_y = slice_view.height / 2;
 
     ctx.strokeStyle = '#00FF00';
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 2;
 
     contours.forEach(function(contour) {
       var start_2d = project3DTo2D(contour.start, slice_view, right_vector, offset_x, offset_y, scale);

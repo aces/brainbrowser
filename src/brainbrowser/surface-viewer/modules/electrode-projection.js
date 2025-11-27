@@ -597,7 +597,20 @@ BrainBrowser.SurfaceViewer.modules.electrodeProjection = function(viewer) {
     model_data.intensity_data = [intensity_data];
     intensity_data.model_data = model_data;
 
+    // Ensure color map is loaded - use a default heat map if none exists
+    if (!viewer.color_map) {
+      // Create default heat color map (blue -> cyan -> green -> yellow -> red)
+      viewer.color_map = BrainBrowser.createColorMap([
+        {value: 0.0, color: {r: 0, g: 0, b: 255}},     // Blue
+        {value: 0.25, color: {r: 0, g: 255, b: 255}},  // Cyan
+        {value: 0.5, color: {r: 0, g: 255, b: 0}},     // Green
+        {value: 0.75, color: {r: 255, g: 255, b: 0}},  // Yellow
+        {value: 1.0, color: {r: 255, g: 0, b: 0}}      // Red
+      ]);
+    }
+
     viewer.updateColors({model_name: model_name});
+    viewer.updated = true;
   }
 
 };

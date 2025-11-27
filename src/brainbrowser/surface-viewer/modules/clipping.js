@@ -34,8 +34,9 @@ BrainBrowser.SurfaceViewer.modules.clipping = function(viewer) {
   var clip_planes = [];
   var max_clip_planes = 8;
   var clip_enabled = false;
+  var materials_with_clipping = []; // Track all materials using clipping
 
-  // Shader uniforms for all materials
+  // Shader uniforms for all materials - these must be SHARED across all materials
   var uniform_clip_planes = {
     clipPlanes: { type: "v4v", value: [] },
     numClipPlanes: { type: "i", value: 0 },
@@ -157,6 +158,9 @@ BrainBrowser.SurfaceViewer.modules.clipping = function(viewer) {
       transparent: options.transparent || false,
       side: options.side || THREE.FrontSide
     });
+
+    // Track this material so we can update uniforms
+    materials_with_clipping.push(material);
 
     return material;
   };
@@ -309,6 +313,15 @@ BrainBrowser.SurfaceViewer.modules.clipping = function(viewer) {
   viewer.enableClipping = function(enabled) {
     clip_enabled = enabled;
     uniform_clip_planes.clipEnabled.value = enabled ? 1 : 0;
+
+    // Update all materials
+    materials_with_clipping.forEach(function(material) {
+      if (material.uniforms && material.uniforms.clipEnabled) {
+        material.uniforms.clipEnabled.value = enabled ? 1 : 0;
+        material.uniformsNeedUpdate = true;
+      }
+    });
+
     viewer.updated = true;
   };
 
@@ -388,6 +401,16 @@ BrainBrowser.SurfaceViewer.modules.clipping = function(viewer) {
 
     uniform_clip_planes.clipPlanes.value = plane_data;
     uniform_clip_planes.numClipPlanes.value = clip_planes.length;
+
+    // Update all tracked materials to ensure they get the new uniform values
+    materials_with_clipping.forEach(function(material) {
+      if (material.uniforms) {
+        material.uniforms.clipPlanes.value = plane_data;
+        material.uniforms.numClipPlanes.value = clip_planes.length;
+        material.uniforms.clipEnabled.value = clip_enabled ? 1 : 0;
+        material.uniformsNeedUpdate = true;
+      }
+    });
   }
 
   function createPlaneHelper(plane) {

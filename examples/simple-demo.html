@@ -295,7 +295,7 @@
 
       showStatus('Loading ' + file.name + '...', 'info');
 
-      viewer.loadModelFromFile(file, {
+      viewer.loadModelFromFile(e.target, {
         format: 'freesurferasc',
         complete: function() {
           modelLoaded = true;

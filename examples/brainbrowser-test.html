@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BrainBrowser Loading Test</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background: #1a1a1a;
+      color: #00ff00;
+      padding: 20px;
+    }
+    .test {
+      margin: 10px 0;
+      padding: 10px;
+      background: #2a2a2a;
+      border-left: 4px solid #666;
+    }
+    .pass {
+      border-left-color: #00ff00;
+    }
+    .fail {
+      border-left-color: #ff0000;
+      color: #ff0000;
+    }
+    h1 {
+      color: #00aaff;
+    }
+    pre {
+      background: #000;
+      padding: 10px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>BrainBrowser Library Loading Test</h1>
+  <p>This page tests whether all BrainBrowser components are loading correctly.</p>
+  <p>If you see errors here, try <strong>Ctrl+Shift+R</strong> to force-refresh and clear cache.</p>
+  <hr>
+  <div id="results"></div>
+
+  <!-- Load BrainBrowser dependencies in correct order -->
+  <script src="../src/brainbrowser/lib/pako.js"></script>
+  <script src="../src/brainbrowser/brainbrowser.js"></script>
+  <script src="../src/brainbrowser/core/tree-store.js"></script>
+  <script src="../src/brainbrowser/lib/events.js"></script>
+  <script src="../src/brainbrowser/lib/config.js"></script>
+  <script src="../src/brainbrowser/lib/utils.js"></script>
+  <script src="../src/brainbrowser/lib/loader.js"></script>
+  <script src="../src/brainbrowser/lib/secure-loader.js"></script>
+  <script src="../src/brainbrowser/surface-viewer.js"></script>
+  <script src="../src/brainbrowser/surface-viewer/lib/three.js"></script>
+
+  <script>
+    const results = document.getElementById('results');
+    const tests = [];
+
+    function test(name, condition, details = '') {
+      const div = document.createElement('div');
+      div.className = 'test ' + (condition ? 'pass' : 'fail');
+      div.innerHTML = `
+        <strong>${condition ? '✓ PASS' : '✗ FAIL'}</strong>: ${name}
+        ${details ? `<pre>${details}</pre>` : ''}
+      `;
+      results.appendChild(div);
+      tests.push({name, pass: condition});
+    }
+
+    // Run tests
+    test('BrainBrowser is defined',
+      typeof BrainBrowser !== 'undefined',
+      typeof BrainBrowser !== 'undefined' ? `BrainBrowser version: ${BrainBrowser.version}` : 'BrainBrowser is undefined'
+    );
+
+    test('BrainBrowser.createTreeStore is a function',
+      typeof BrainBrowser !== 'undefined' && typeof BrainBrowser.createTreeStore === 'function',
+      typeof BrainBrowser !== 'undefined' ? `Type: ${typeof BrainBrowser.createTreeStore}` : 'BrainBrowser not defined'
+    );
+
+    test('BrainBrowser.events is defined',
+      typeof BrainBrowser !== 'undefined' && typeof BrainBrowser.events !== 'undefined',
+      typeof BrainBrowser !== 'undefined' && typeof BrainBrowser.events !== 'undefined'
+        ? `Has addEventListener: ${typeof BrainBrowser.events.addEventListener === 'function'}`
+        : 'BrainBrowser.events not defined'
+    );
+
+    test('BrainBrowser.config is defined',
+      typeof BrainBrowser !== 'undefined' && typeof BrainBrowser.config !== 'undefined',
+      typeof BrainBrowser !== 'undefined' && typeof BrainBrowser.config !== 'undefined'
+        ? `Has set: ${typeof BrainBrowser.config.set === 'function'}, Has get: ${typeof BrainBrowser.config.get === 'function'}`
+        : 'BrainBrowser.config not defined'
+    );
+
+    test('BrainBrowser.config.set() works',
+      (function() {
+        try {
+          BrainBrowser.config.set('test_key', 'test_value');
+          const value = BrainBrowser.config.get('test_key');
+          return value === 'test_value';
+        } catch(e) {
+          return false;
+        }
+      })(),
+      'Tested setting and getting a config value'
+    );
+
+    test('BrainBrowser.utils is defined',
+      typeof BrainBrowser !== 'undefined' && typeof BrainBrowser.utils !== 'undefined'
+    );
+
+    test('BrainBrowser.loader is defined',
+      typeof BrainBrowser !== 'undefined' && typeof BrainBrowser.loader !== 'undefined'
+    );
+
+    test('BrainBrowser.SurfaceViewer is defined',
+      typeof BrainBrowser !== 'undefined' && typeof BrainBrowser.SurfaceViewer !== 'undefined',
+      typeof BrainBrowser !== 'undefined' && typeof BrainBrowser.SurfaceViewer !== 'undefined'
+        ? `Has start: ${typeof BrainBrowser.SurfaceViewer.start === 'function'}`
+        : 'BrainBrowser.SurfaceViewer not defined'
+    );
+
+    test('BrainBrowser.SurfaceViewer.THREE is defined',
+      typeof BrainBrowser !== 'undefined' &&
+      typeof BrainBrowser.SurfaceViewer !== 'undefined' &&
+      typeof BrainBrowser.SurfaceViewer.THREE !== 'undefined',
+      typeof BrainBrowser !== 'undefined' &&
+      typeof BrainBrowser.SurfaceViewer !== 'undefined' &&
+      typeof BrainBrowser.SurfaceViewer.THREE !== 'undefined'
+        ? `THREE.js revision: ${BrainBrowser.SurfaceViewer.THREE.REVISION}`
+        : 'THREE not defined'
+    );
+
+    test('WebGL is enabled',
+      typeof BrainBrowser !== 'undefined' && BrainBrowser.WEBGL_ENABLED === true,
+      typeof BrainBrowser !== 'undefined'
+        ? `WEBGL_ENABLED: ${BrainBrowser.WEBGL_ENABLED}`
+        : 'BrainBrowser not defined'
+    );
+
+    // Summary
+    const passed = tests.filter(t => t.pass).length;
+    const total = tests.length;
+    const summaryDiv = document.createElement('div');
+    summaryDiv.className = 'test ' + (passed === total ? 'pass' : 'fail');
+    summaryDiv.innerHTML = `<h2>Summary: ${passed}/${total} tests passed</h2>`;
+    results.insertBefore(summaryDiv, results.firstChild);
+
+    if (passed === total) {
+      summaryDiv.innerHTML += '<p>All tests passed! BrainBrowser is loading correctly.</p>';
+    } else {
+      summaryDiv.innerHTML += `
+        <p>Some tests failed. This indicates a loading issue.</p>
+        <p><strong>Solution:</strong> Press <code>Ctrl+Shift+R</code> (Windows/Linux) or <code>Cmd+Shift+R</code> (Mac) to force-refresh and clear cache.</p>
+        <p>If the problem persists, check the browser console (F12) for specific error messages.</p>
+      `;
+    }
+  </script>
+</body>
+</html>

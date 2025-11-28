@@ -406,6 +406,19 @@
   </div>
 
   <!-- Include dependencies -->
+  <!-- NOTE: Script loading order is critical! Do not rearrange without understanding dependencies:
+       1. pako.js - compression library
+       2. brainbrowser.js - defines window.BrainBrowser object
+       3. tree-store.js - defines BrainBrowser.createTreeStore (used by config.js)
+       4. events.js - defines BrainBrowser.events
+       5. config.js - defines BrainBrowser.config (uses createTreeStore)
+       6. utils.js - defines BrainBrowser.utils
+       7. loader.js - defines BrainBrowser.loader
+       8. secure-loader.js - secure file loading
+       9. surface-viewer.js - defines BrainBrowser.SurfaceViewer (uses config)
+      10. three.js - THREE.js library (uses BrainBrowser.SurfaceViewer)
+      11. modules - various SurfaceViewer modules
+  -->
   <script src="../src/brainbrowser/lib/pako.js"></script>
   <script src="../src/brainbrowser/brainbrowser.js"></script>
   <script src="../src/brainbrowser/core/tree-store.js"></script>
@@ -428,6 +441,22 @@
   <script src="../src/brainbrowser/surface-viewer/modules/slice-projection.js"></script>
 
   <script>
+    // Verify BrainBrowser is loaded
+    if (typeof BrainBrowser === 'undefined') {
+      document.body.innerHTML = '<div style="color: red; padding: 20px; font-family: monospace;">ERROR: BrainBrowser library failed to load. Please refresh the page (Ctrl+Shift+R to clear cache).</div>';
+      throw new Error('BrainBrowser is not defined - library failed to load');
+    }
+
+    if (typeof BrainBrowser.config === 'undefined') {
+      document.body.innerHTML = '<div style="color: red; padding: 20px; font-family: monospace;">ERROR: BrainBrowser.config not loaded. Please refresh the page (Ctrl+Shift+R to clear cache).</div>';
+      throw new Error('BrainBrowser.config is not defined');
+    }
+
+    if (typeof BrainBrowser.SurfaceViewer === 'undefined') {
+      document.body.innerHTML = '<div style="color: red; padding: 20px; font-family: monospace;">ERROR: BrainBrowser.SurfaceViewer not loaded. Please refresh the page (Ctrl+Shift+R to clear cache).</div>';
+      throw new Error('BrainBrowser.SurfaceViewer is not defined');
+    }
+
     // Application state
     let viewer;
     let current_clip_plane = null;

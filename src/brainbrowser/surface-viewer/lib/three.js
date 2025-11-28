@@ -22748,6 +22748,11 @@
 
             // array of THREE.Vector2
 
+            if ( value.length === 0 ) {
+              // Skip setting uniform if array is empty to avoid WebGL INVALID_VALUE error
+              break;
+            }
+
             if ( uniform._array === undefined ) {
 
               uniform._array = new Float32Array( 2 * value.length );
@@ -22770,6 +22775,11 @@
           case 'v3v':
 
             // array of THREE.Vector3
+
+            if ( value.length === 0 ) {
+              // Skip setting uniform if array is empty to avoid WebGL INVALID_VALUE error
+              break;
+            }
 
             if ( uniform._array === undefined ) {
 
@@ -22794,6 +22804,11 @@
           case 'v4v':
 
             // array of THREE.Vector4
+
+            if ( value.length === 0 ) {
+              // Skip setting uniform if array is empty to avoid WebGL INVALID_VALUE error
+              break;
+            }
 
             if ( uniform._array === undefined ) {
 

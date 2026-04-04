@@ -14,3 +14,4 @@ examples/models/*.header
 examples/models/*.headers
 examples/models/*.raw
 examples/models/*.json
+package-lock.json

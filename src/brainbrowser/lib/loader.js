@@ -73,7 +73,15 @@
           // Based on jQuery's "success" codes.
           if(status >= 200 && status < 300 || status === 304) {
             if (!loader.checkCancel(options)) {
-              callback(request.response, filename, options);
+              try {
+                callback(request.response, filename, options);
+              } catch(e) {
+                // Report parsing errors to the page (e.g. CBRAIN's viewers).
+                var match = /file_name=([^&]*)/.exec(filename);
+                var name = match ? match[1] : "";
+                var message = "Unable to load " + name + ": " + e.message;
+                document.dispatchEvent(new CustomEvent("failedToLoad", { detail: { message: message } }));
+              }
             }
           } else {
             var error_message = "error loading URL: " + url + "\n" +

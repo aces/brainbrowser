@@ -28,7 +28,7 @@
   "use strict";
 
   var loader = BrainBrowser.loader = {
-    
+
     /**
     * @doc function
     * @name BrainBrowser.loader:loadFromURL
@@ -40,10 +40,10 @@
     * * The name of the file requested.
     * * Any options that were passed to loadFromURL
     *
-    * @param {object} options The only option used by this method is **result_type**, 
+    * @param {object} options The only option used by this method is **result_type**,
     *   which can be set to **text** or **arraybuffer** (default is **text**). Other
     *   options are passed on to the **callback** function.
-    * 
+    *
     * @description
     * Fetch data from a URL and pass the results to a callback.
     * ```js
@@ -65,7 +65,7 @@
       if (result_type === "arraybuffer") {
         request.responseType = "arraybuffer";
       }
-      
+
       request.onreadystatechange = function() {
         if (request.readyState === 4){
           status = request.status;
@@ -73,7 +73,17 @@
           // Based on jQuery's "success" codes.
           if(status >= 200 && status < 300 || status === 304) {
             if (!loader.checkCancel(options)) {
-              callback(request.response, filename, options);
+              try {
+                callback(request.response, filename, options);
+              } catch(e) {
+                // Report parsing errors to the page (e.g. CBRAIN's viewers).
+                var match = /file_name=([^&]*)/.exec(filename);
+                var name = match ? match[1] : filename;
+                var message = "Unable to load " + name + ": " + e.message;
+                BrainBrowser.events.triggerEvent("error", { message: message });
+                document.dispatchEvent(new CustomEvent("failedToLoad", { detail: { message: message } }));
+                throw e;
+              }
             }
           } else {
             var error_message = "error loading URL: " + url + "\n" +
@@ -86,11 +96,11 @@
           }
         }
       };
-      
+
       request.send();
 
     },
-    
+
     /**
     * @doc function
     * @name BrainBrowser.loader:loadFromFile
@@ -102,10 +112,10 @@
     * * The name of the file.
     * * Any options that were passed to loadFromFile
     *
-    * @param {object} options The only option used by this method is **result_type**, 
+    * @param {object} options The only option used by this method is **result_type**,
     *   which can be set to **text** or **arraybuffer** (default is **text**). Other
     *   options are passed on to the **callback** function.
-    * 
+    *
     * @description
     * Fetch data from a local file and pass the results to a callback.
     * ```js
@@ -116,7 +126,7 @@
     */
     loadFromFile: function(file_input, callback, options) {
       var files = file_input.files;
-      
+
       if (files.length === 0) {
         return;
       }
@@ -185,7 +195,7 @@
         BrainBrowser.events.triggerEvent("error", { message: error_message });
         throw new Error(error_message);
       };
-      
+
       reader.readAsArrayBuffer(files[0]);
     },
 
@@ -201,7 +211,7 @@
     * * Any options that were passed to loadColorMapFromURL
     *
     * @param {object} options Any options are passed on to the **callback** function.
-    * 
+    *
     * @description
     * Wrapper for loadFromURL that parses the received data into a color map object.
     * ```js
@@ -229,7 +239,7 @@
     * * Any options that were passed to loadColorMapFromFile
     *
     * @param {object} options Any options are passed on to the **callback** function.
-    * 
+    *
     * @description
     * Wrapper for loadFromFile that parses the data into a color map object.
     * ```js
@@ -243,7 +253,7 @@
         callback(BrainBrowser.createColorMap(data, options), filename, options);
       }, options);
     },
- 
+
 
     // Allows the loading of data to be cancelled after the request is sent
     // or processing has begun (it must happen before the model begins to be
@@ -256,7 +266,7 @@
     /**
     * @doc function
     * @name BrainBrowser.loader:checkCancel
-    * @param {function|object} options If a function is given, it will be called as the 
+    * @param {function|object} options If a function is given, it will be called as the
     * **test** function. If an object is passed, it can have the following
     * parameters:
     *
@@ -269,8 +279,8 @@
     * Convenience method that calls a test function, returns its result and optionally runs
     * cleanup code if it's provided.
     * ```js
-    * BrainBrowser.loader.checkCancel(function() { 
-    *   return request_number !== current_request; 
+    * BrainBrowser.loader.checkCancel(function() {
+    *   return request_number !== current_request;
     * });
     * ```
     */
@@ -279,16 +289,16 @@
       if (BrainBrowser.utils.isFunction(options)) {
         options = { test: options };
       }
-      
+
       var cancelTest = options.test;
       var cancelCleanup = options.cleanup;
       var cancelled = false;
-      
+
       if (cancelTest && cancelTest()) {
         cancelled = true;
         if (cancelCleanup) cancelCleanup();
       }
-      
+
       return cancelled;
     }
 

@@ -299,6 +299,29 @@ $(function() {
       });
     });
 
+    // Load a new model from a PNG file that the user has
+    // selected.
+    $("#volume-file-png-submit").click(function() {
+      viewer.clearVolumes();
+      viewer.loadVolume({
+        type: "png",
+        file: document.getElementById("png-file"),
+        template: {
+          element_id: "volume-ui-template",
+          viewer_insert_class: "volume-viewer-display"
+        }
+      }, function(volume) {
+        $(".slice-display").css("display", "inline");
+        $(".volume-controls").css("width", "auto");
+
+        // Show grayscale images in gray rather than with the default
+        // color map.
+        if (volume.header.datatype === "uint8") {
+          $("#color-map-select").val("color-maps/gray-scale.txt").change();
+        }
+      });
+    });
+
     $(document).keypress(function(e) {
       if (e.keyCode === 114) {
         // Reset displays if user presses 'r' key.
@@ -817,7 +840,7 @@ $(function() {
     /////////////////////////////////////////////////////
     // UI updates to be performed after each slice update.
     //////////////////////////////////////////////////////
-    viewer.addEventListener("sliceupdate", function(event) {
+    function updateVolumeInfo(event) {
       var panel = event.target;
       var volume = event.volume;
       var vol_id = panel.volume_id;
@@ -840,16 +863,29 @@ $(function() {
 
       value = volume.getIntensityValue();
 
-      /* Set background color of intensity value to match colormap
-       * entry for that value.
-       */
-      var bg_color = volume.color_map.colorFromValue(value, {
-        hex: true,
-        min: volume.intensity_min,
-        max: volume.intensity_max,
-        contrast: panel.contrast,
-        brightness: panel.brightness
-      });
+      var bg_color;
+
+      if (volume.header.datatype === "rgb8") {
+        // Color voxels are packed RGBA bytes: show the channels and use the
+        // voxel's own color as the background.
+        var rgb = new Uint8Array(new Uint32Array([value]).buffer);
+        value = rgb[0] + ", " + rgb[1] + ", " + rgb[2];
+        bg_color = [rgb[0], rgb[1], rgb[2]].map(function(c) {
+          return (c < 16 ? "0" : "") + c.toString(16);
+        }).join("");
+      } else {
+        /* Set background color of intensity value to match colormap
+         * entry for that value.
+         */
+        bg_color = volume.color_map.colorFromValue(value, {
+          hex: true,
+          min: volume.intensity_min,
+          max: volume.intensity_max,
+          contrast: panel.contrast,
+          brightness: panel.brightness
+        });
+        value = Math.floor(value);
+      }
 
       /* Given that the background color has a wide range, use a little
        * cleverness to pick either white or black as the foreground color
@@ -860,13 +896,17 @@ $(function() {
       $("#intensity-value-" + vol_id)
       .css("background-color", "#" + bg_color)
       .css("color", fg_color)
-      .html(Math.floor(value));
+      .html(value);
 
       if (volume.header && volume.header.time) {
         $("#time-slider-" + vol_id).slider("option", "value", volume.current_time);
         $("#time-val-" + vol_id).val(volume.current_time);
       }
-    });
+    }
+    viewer.addEventListener("sliceupdate", updateVolumeInfo);
+    // With a single view (e.g. one PNG), no other panel redraws when the
+    // cursor moves, so also refresh on cursor updates.
+    viewer.addEventListener("cursorupdate", updateVolumeInfo);
 
     var color_map_config = BrainBrowser.config.get("color_maps")[0];
 

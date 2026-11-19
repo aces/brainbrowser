@@ -22,7 +22,7 @@
 * Author: Tarek Sherif  <tsherif@gmail.com> (http://tareksherif.ca/)
 */
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   "use strict";
 
   grunt.initConfig({
@@ -61,15 +61,15 @@ module.exports = function(grunt) {
       options: {
         report: "min",
         banner: "<%= license %>\n" +
-                "/*\n" +
-                "* BrainBrowser v<%= pkg.version %>\n" +
-                "*\n" +
-                "* Author: Tarek Sherif  <tsherif@gmail.com> (http://tareksherif.ca/)\n" +
-                "* Author: Nicolas Kassis\n" +
-                "* Author: Paul Mougel\n" +
-                "*\n" +
-                "* three.js (c) 2010-2014 three.js authors, used under the MIT license\n" +
-                "*/\n"
+          "/*\n" +
+          "* BrainBrowser v<%= pkg.version %>\n" +
+          "*\n" +
+          "* Author: Tarek Sherif  <tsherif@gmail.com> (http://tareksherif.ca/)\n" +
+          "* Author: Nicolas Kassis\n" +
+          "* Author: Paul Mougel\n" +
+          "*\n" +
+          "* three.js (c) 2010-2014 three.js authors, used under the MIT license\n" +
+          "*/\n"
       },
       surface: {
         files: {
@@ -191,8 +191,24 @@ module.exports = function(grunt) {
         src: "brainbrowser-<%= BRAINBROWSER_VERSION %>/**"
       }
     },
+    connect: {
+      server: {
+        options: {
+          port: 8000,
+          base: "."
+        }
+      }
+    },
     qunit: {
-      all: ["test/*.html"]
+      all: {
+        options: {
+          puppeteer: {
+            args: ["--no-sandbox", "--disable-setuid-sandbox"]
+          },
+          httpBase: "http://localhost:8000"
+        },
+        src: ["test/*.html"]
+      }
     },
     docular: {
       docular_webapp_target: "docs/docular",
@@ -225,6 +241,7 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks("grunt-contrib-uglify");
+  grunt.loadNpmTasks("grunt-contrib-connect");
   grunt.loadNpmTasks("grunt-contrib-jshint");
   grunt.loadNpmTasks("grunt-contrib-concat");
   grunt.loadNpmTasks("grunt-contrib-clean");
@@ -234,7 +251,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask("compile", ["clean", "concat", "uglify"]);
   grunt.registerTask("build", ["test", "compile", "compress"]);
-  grunt.registerTask("test", ["jshint", "qunit"]);
+  grunt.registerTask("test", ["jshint", "connect", "qunit"]);
   grunt.registerTask("docs", ["docular", "clean:docs"]);
   grunt.registerTask("default", "test");
 };

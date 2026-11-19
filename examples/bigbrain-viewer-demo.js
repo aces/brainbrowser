@@ -2070,7 +2070,7 @@ $(function() {
         var j=0;
 
         if ((viewer.model.children.length !== 0) && (user_defined_grid_length === "no")){
-          for (i = 0; i < m1_model_data_get.shapes.length; i++) {
+          for (var i = 0; i < m1_model_data_get.shapes.length; i++) {
             if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid")){
               // Include this shape for computing bounding box of visible shapes if opacity >25% and if not turned off
               if ((viewer.model.children[i].material.opacity > 0.25) && (document.getElementById("opacity-slider-" + i).style.visibility !== "hidden")){
@@ -2092,7 +2092,7 @@ $(function() {
           }
 
           if ( m > 1 ) {
-            for (var i = m1_model_data_get.shapes.length; i < (m1_model_data_get.shapes.length + m2_model_data_get.shapes.length); i++) {
+            for (i = m1_model_data_get.shapes.length; i < (m1_model_data_get.shapes.length + m2_model_data_get.shapes.length); i++) {
               if ((viewer.model.children[i].name !== "axes") && (viewer.model.children[i].name !== "marker") && (viewer.model.children[i].name !== "grid")){
                 if ((viewer.model.children[i].material.opacity > 0.25) && (document.getElementById("opacity-slider-" + i).style.visibility !== "hidden")){ //Include this shape for computing bounding box of visible shapes if opacity >25% and if not turned off
                   bounding_box_min_x[i] = m2_model_data_get.shapes[j].bounding_box.min_x;

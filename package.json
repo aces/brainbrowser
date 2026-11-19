@@ -4,16 +4,18 @@
   "license": "GNU Affero GPL 3.0",
   "devDependencies": {
     "bower": "~1.8.8",
-    "grunt": "^1.3.0",
-    "grunt-contrib-jshint": "~0.6.4",
-    "grunt-contrib-uglify": "~0.2.4",
-    "grunt-contrib-concat": "~0.3.0",
-    "grunt-contrib-clean": "~0.5.0",
+    "grunt": "^1.6.1",
+    "grunt-contrib-connect": "^3.0.0",
+    "grunt-contrib-jshint": "^3.2.0",
+    "grunt-contrib-uglify": "^5.2.2",
+    "grunt-contrib-concat": "^2.1.0",
+    "grunt-contrib-clean": "^2.0.1",
     "grunt-docular": "~0.1.2",
-    "grunt-contrib-compress": "~0.5.3",
-    "grunt-contrib-qunit": "~0.5.1"
+    "grunt-contrib-compress": "^2.0.0",
+    "grunt-contrib-qunit": "^9.0.0",
+    "qunit": "^2.21.0"
   },
-  "scripts" : {
-      "test": "grunt"
+  "scripts": {
+    "test": "grunt"
   }
 }

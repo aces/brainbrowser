@@ -23,6 +23,10 @@
 /*
 * Author: Tarek Sherif <tsherif@gmail.com> (http://tareksherif.ca/)
 * Author: Nicolas Kassis
+*
+* Dicom support added by:
+*   Author: Natacha Beck
+* Dicom example files came from Papaya (https://github.com/rii-mango/Papaya/tree/master/tests/data/dicom)
 */
 
 // This script is meant to be a demonstration of how to
@@ -137,6 +141,34 @@ $(function() {
             {
               type: 'mgh',
               url: "models/dti.mgh",
+              template: {
+                element_id: "volume-ui-template",
+                viewer_insert_class: "volume-viewer-display"
+              }
+            }
+          ],
+          overlay: {
+            template: {
+              element_id: "overlay-ui-template",
+              viewer_insert_class: "overlay-viewer-display"
+            }
+          }
+        });
+      } else if ($(this).val() === "DICOM"){
+        viewer.clearVolumes();
+        viewer.loadVolumes({
+          volumes: [
+            {
+              type: "dicom",
+              dicom_url: "models/dicom1/",
+              template: {
+                element_id: "volume-ui-template",
+                viewer_insert_class: "volume-viewer-display"
+              }
+            },
+            {
+              type: 'dicom',
+              dicom_url: "models/dicom2/",
               template: {
                 element_id: "volume-ui-template",
                 viewer_insert_class: "volume-viewer-display"
@@ -320,6 +352,31 @@ $(function() {
           $("#color-map-select").val("color-maps/gray-scale.txt").change();
         }
       });
+    });
+
+    function loadDicomVolume(fileInput) {
+      viewer.clearVolumes();
+      viewer.loadVolume({
+        type: "dicom",
+        dicom_file: fileInput.files,
+        template: {
+          element_id: "volume-ui-template",
+          viewer_insert_class: "volume-viewer-display"
+        }
+      }, function() {
+        $(".slice-display").css("display", "inline");
+        $(".volume-controls").css("width", "auto");
+      });
+    };
+
+    $("#volume-folder-dicom-submit").click(function() {
+      var folderInput = document.getElementById("dicom-folder");
+      loadDicomVolume(folderInput);
+    });
+
+    $("#volume-file-dicom-submit").click(function() {
+      var fileInput = document.getElementById("dicom-file");
+      loadDicomVolume(fileInput);
     });
 
     $(document).keypress(function(e) {

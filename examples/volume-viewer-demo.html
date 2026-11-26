@@ -173,6 +173,7 @@
           <option value="functional_minc">MINC Functional</option>
           <option value="NIfTI-1">NIfTI-1</option>
           <option value="MGH">FreeSurfer/MGH</option>
+          <option value="DICOM">DICOM</option>
           <option value="file">Load your own volume!</option>
         </select>
         <span class="control-heading">Panel size:</span>
@@ -220,6 +221,23 @@
             <span class="button">Load</span>
           </div>
 
+          <h3><u>For DICOM folder:</u></h3>
+          <div>
+            <span class="control-heading">DICOM folder: </span>
+            <input type="file" webkitdirectory directory multiple name="dicom-folder" id="dicom-folder">
+          </div>
+          <div id="volume-folder-dicom-submit">
+            <span class="button">Load</span>
+          </div>
+
+          <h3><u>For DICOM file:</u></h3>
+          <div>
+            <span class="control-heading">DICOM file: </span>
+            <input type="file" name="dicom-file" id="dicom-file">
+          </div>
+          <div id="volume-file-dicom-submit">
+            <span class="button">Load</span>
+          </div>
         </div>
 
         <div class="instructions">Shift-click to drag. Hold ctrl to measure distance.</div>
@@ -237,6 +255,7 @@
   <script src="js/brainbrowser/lib/utils.js"></script>
   <script src="js/brainbrowser/lib/events.js"></script>
   <script src="js/brainbrowser/lib/loader.js"></script>
+  <script src="js/brainbrowser/lib/daikon.js"></script>
   <script src="js/brainbrowser/lib/color-map.js"></script>
   <script src="js/brainbrowser/volume-viewer.js"></script>
   <script src="js/brainbrowser/volume-viewer/lib/display.js"></script>
@@ -251,6 +270,7 @@
   <script src="js/brainbrowser/volume-viewer/volume-loaders/png.js"></script>
   <script src="js/brainbrowser/volume-viewer/volume-loaders/hdf5.js"></script>
   <script src="js/brainbrowser/volume-viewer/volume-loaders/netcdf.js"></script>
+  <script src="js/brainbrowser/volume-viewer/volume-loaders/dicom.js"></script>
   <script src="volume-viewer-demo.config.js"></script>
   <script src="volume-viewer-demo.js"></script>
 </body>

@@ -54,3 +54,10 @@ Contributing
 ------------
 
 Please see the [Contribution Guidelines](https://github.com/aces/brainbrowser/blob/master/CONTRIBUTING.md).
+
+
+Acknowledgments
+---------------
+  - [Daikon](https://github.com/rii-mango/Daikon) for DICOM support
+  - [Papaya](https://github.com/rii-mango/Papaya/tree/master/tests/data/dicom) for DICOM example
+
